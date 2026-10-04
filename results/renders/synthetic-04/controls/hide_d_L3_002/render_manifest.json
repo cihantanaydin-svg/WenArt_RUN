@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
+ "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -73,9 +73,8 @@
   "f_L3_024": 39,
   "f_L3_025": 40,
   "f_L3_026": 41,
-  "f_L3_027": 42,
-  "dec_L3_006": 43,
-  "dec_L3_009": 44
+  "dec_L3_006": 42,
+  "dec_L3_008": 43
  },
  "renders": [
   {
@@ -93,8 +92,8 @@
     "normal": "cam_r_L3_salon_mutfak_2_normal.png",
     "depth": "cam_r_L3_salon_mutfak_2_depth.png"
    },
-   "preview_bytes": 177471,
-   "seconds": 4.4,
+   "preview_bytes": 165005,
+   "seconds": 3.02,
    "samples": 128,
    "resolution": [
     1920,
@@ -103,7 +102,7 @@
    "depth": {
     "min": 2.0525362491607666,
     "max": 9.115280151367188,
-    "mean": 4.674471855163574,
+    "mean": 4.641905784606934,
     "coverage": 1.0
    },
    "index_values": [
@@ -151,12 +150,12 @@
      ]
     },
     "16": {
-     "pixels": 7939,
+     "pixels": 11341,
      "box": [
       1324,
       397,
       1461,
-      548
+      550
      ]
     },
     "17": {
@@ -169,7 +168,7 @@
      ]
     },
     "20": {
-     "pixels": 10449,
+     "pixels": 10784,
      "box": [
       1172,
       433,
@@ -178,48 +177,48 @@
      ]
     },
     "21": {
-     "pixels": 1896,
+     "pixels": 720,
      "box": [
-      1108,
-      438,
-      1167,
-      487
+      1124,
+      449,
+      1220,
+      527
      ]
     },
     "22": {
-     "pixels": 6226,
+     "pixels": 3008,
      "box": [
-      1211,
-      449,
-      1350,
-      625
+      1229,
+      461,
+      1339,
+      622
      ]
     },
     "23": {
-     "pixels": 6578,
+     "pixels": 2618,
      "box": [
-      1329,
-      426,
-      1442,
-      567
+      1338,
+      436,
+      1443,
+      571
      ]
     },
     "24": {
-     "pixels": 1022,
+     "pixels": 418,
      "box": [
-      1442,
-      489,
+      1452,
+      510,
       1461,
       584
      ]
     },
     "25": {
-     "pixels": 181097,
+     "pixels": 250398,
      "box": [
-      563,
-      480,
-      1313,
-      910
+      528,
+      459,
+      1335,
+      917
      ]
     },
     "26": {
@@ -232,45 +231,45 @@
      ]
     },
     "29": {
-     "pixels": 24353,
+     "pixels": 22610,
      "box": [
       772,
       308,
       967,
-      495
+      480
      ]
     },
     "37": {
-     "pixels": 42776,
+     "pixels": 41486,
      "box": [
       1690,
-      409,
+      448,
       1886,
-      676
+      674
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
-   "render_key": "1b9ae664858518b8",
+   "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
+   "render_key": "39691e6c5fc355b8",
    "exposure": {
     "mode": "from",
-    "ev": 4.0,
+    "ev": 3.666667,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.088898,
-     0.98135,
-     0.922973
+     1.103556,
+     0.979318,
+     0.899946
     ],
     "wb_mode": "from",
-    "wb_temperature": 5887.5,
-    "wb_tint": 2.88,
+    "wb_temperature": 5757.4,
+    "wb_tint": 2.63,
     "residual": null,
-    "window_clip_frac": 0.0145,
+    "window_clip_frac": 0.0008,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -283,34 +282,29 @@
    ],
    "plugged": [],
    "window_pull": {
-    "ev": -3.0,
-    "k": 3,
-    "pane_ev": 1.0,
-    "clip_before": 0.6144,
-    "clip_after": 0.0005,
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": 1.666667,
+    "clip_before": 0.0677,
+    "clip_after": 0.0006,
     "pane_px": 69399,
-    "pane_median": 0.9893,
-    "wall_median": 0.7481,
+    "pane_median": 0.9532,
+    "wall_median": 0.6705,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0602,
-      "median": 0.9518
+      "clip": 0.0131,
+      "median": 0.8999
      },
      {
       "k": 2,
-      "clip": 0.0116,
-      "median": 0.9011
-     },
-     {
-      "k": 3,
       "clip": 0.0,
-      "median": 0.8352
+      "median": 0.8311
      }
     ],
-    "pane_median_after": 0.8366,
-    "seconds": 1.111
+    "pane_median_after": 0.8321,
+    "seconds": 0.896
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -319,6 +313,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

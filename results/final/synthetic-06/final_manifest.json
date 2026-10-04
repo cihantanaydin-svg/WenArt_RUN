@@ -1,0 +1,5671 @@
+{
+ "schema_version": "0.1",
+ "kind": "final",
+ "project": "synthetic-06",
+ "status": "ok",
+ "status_note": null,
+ "private": false,
+ "inputs": {
+  "render_manifest": "../renders/render_manifest.json",
+  "scene_manifest": "../scene/scene_manifest.json",
+  "polish_manifest": "../polish/polish_manifest.json",
+  "check_manifest": "../check/check_manifest.json",
+  "check_calibration": "../check/check_calibration.json",
+  "expected_views": "../check/expected_views.json",
+  "gate_calibration": "../gate/gate_calibration.json",
+  "gate_validation": "../gate/gate_validation.json",
+  "building": "../building_final.json"
+ },
+ "stages": {
+  "render": "run",
+  "polish": "run",
+  "check": "run",
+  "check_calibration": "run",
+  "gate_calibration": "run",
+  "gate_validation": "ok",
+  "expected": "run"
+ },
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "run_stages": [
+  {
+   "stage": "intake",
+   "status": "skipped",
+   "seconds": 0.0,
+   "note": "private only",
+   "rc": null,
+   "started_utc": "2026-10-04T00:07:41Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "pipeline",
+   "status": "ok",
+   "seconds": 8.51,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:07:50Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "pipeline_final",
+   "status": "skipped",
+   "seconds": 0.0,
+   "note": "no questions",
+   "rc": null,
+   "started_utc": "2026-10-04T00:07:50Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "recognize",
+   "status": "skipped",
+   "seconds": 0.0,
+   "note": "no questions",
+   "rc": null,
+   "started_utc": "2026-10-04T00:07:50Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "fit",
+   "status": "ok",
+   "seconds": 1.29,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:07:51Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "photos",
+   "status": "skipped",
+   "seconds": 0.0,
+   "note": "no style photos",
+   "rc": null,
+   "started_utc": "2026-10-04T00:07:51Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "style",
+   "status": "ok",
+   "seconds": 0.24,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:07:51Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "layout",
+   "status": "ok",
+   "seconds": 17.12,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:14:06Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "assets",
+   "status": "ok",
+   "seconds": 0.53,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:14:38Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "decor",
+   "status": "ok",
+   "seconds": 1.58,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:14:39Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "refit",
+   "status": "ok",
+   "seconds": 1.18,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:14:41Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "build",
+   "status": "ok",
+   "seconds": 33.89,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:32:48Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "render",
+   "status": "ok",
+   "seconds": 95.44,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:34:23Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "controls",
+   "status": "ok",
+   "seconds": 49.01,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T00:35:12Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "gate",
+   "status": "ok",
+   "seconds": 46.95,
+   "note": "gate decision ok",
+   "rc": 0,
+   "started_utc": "2026-10-04T01:05:12Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "polish",
+   "status": "ok",
+   "seconds": 126.82,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T01:07:19Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "detect",
+   "status": "ok",
+   "seconds": 10.22,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T01:07:29Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "expected",
+   "status": "ok",
+   "seconds": 16.09,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T01:08:48Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "check",
+   "status": "ok",
+   "seconds": 113.99,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T01:14:03Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  },
+  {
+   "stage": "combine",
+   "status": "ok",
+   "seconds": 114.12,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-04T01:27:30Z",
+   "run_id": "20261004-000052-full-20261004T000516Z"
+  }
+ ],
+ "earlier_run_stages": [],
+ "stopped_stages": [],
+ "gate_validation": {
+  "decision": "ok",
+  "recorded_decision": "ok",
+  "benign_accept": 0.9583,
+  "negative_reject": 0.9722,
+  "n_benign": 48,
+  "n_negative": 72,
+  "limits": {
+   "benign_accept_min": 0.95,
+   "negative_reject_min": 0.9
+  },
+  "reasons": [],
+  "effect": "polish allowed",
+  "polish_allowed": true
+ },
+ "polish_allowed": true,
+ "brief_assumed": [
+  "empty_rooms",
+  "decor",
+  "polish",
+  "style_photos",
+  "ceiling_height",
+  "render.views_per_room",
+  "render.resolution",
+  "render.samples"
+ ],
+ "advisory": true,
+ "advisory_flags": [
+  "vision check advisory: removal_flagged 0.75 misses >= 0.8; removal_confirmed 0.5 misses >= 0.6; insertion 0.0 misses >= 0.6",
+  "check target missed: removal_flagged 0.750 (needs >= 0.8)",
+  "check target missed: removal_confirmed 0.500 (needs >= 0.6)",
+  "check target missed: insertion 0.000 (needs >= 0.6)",
+  "the polish added an object in cam_r_L0_master_bed_room_3: the Cycles render is final"
+ ],
+ "summary": {
+  "views": 17,
+  "polished": 16,
+  "cycles": 1,
+  "cycles_by_reason": {
+   "vision_check": 1
+  },
+  "final_mismatches": 0,
+  "views_with_final_mismatch": 0,
+  "crosscheck_findings": 0,
+  "needs_review": 0,
+  "unverified_in_view": 0,
+  "exposure": {
+   "min": -0.666667,
+   "max": 4.833333,
+   "views": 17,
+   "at_limit": 0,
+   "modes": [
+    "auto"
+   ],
+   "window_pull": {
+    "views": 11,
+    "min": -2.0,
+    "max": -1.0
+   }
+  },
+  "cameras": {
+   "policies": {
+    "search": 17
+   },
+   "scored": 17,
+   "score_min": 1.261,
+   "score_mean": 3.335,
+   "score_max": 5.217,
+   "warnings": []
+  },
+  "views_per_room": {
+   "2": 1,
+   "3": 5
+  },
+  "seconds": {
+   "build": 28.2,
+   "render": 46.3,
+   "meter": 5.2,
+   "polish": 71.8,
+   "gate": 6.5,
+   "check": 496.9
+  },
+  "rooms_mixed": 1
+ },
+ "views": [
+  {
+   "camera": "cam_r_L0_bath_1",
+   "room_id": "r_L0_bath",
+   "room_type": "bathroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_bath_1_a1.png",
+   "image_sha256": "0b816214d5f281d1d009d6b5b5f4a5874c16c68ea48892505e502b7e7bcc3c88",
+   "preview": "cam_r_L0_bath_1_final_preview.jpg",
+   "plan": "cam_r_L0_bath_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bathroom in modern style. Light ceramic tile walls, light ceramic tile floor, toilet. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.92,
+    "png": "cam_r_L0_bath_1_a1.png",
+    "sha256": "0b816214d5f281d1d009d6b5b5f4a5874c16c68ea48892505e502b7e7bcc3c88",
+    "attempt_key": "b769e069fb287753eb1f1d2540943d2b0484bcbb2d00579c12663eb7621f3e98",
+    "panes_restored": 1
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 1,
+    "global": {
+     "edges": 0.9997,
+     "added_lines": 0.0,
+     "colour": 1.7511,
+     "neutral": null,
+     "depth": 0.03128,
+     "masks": null,
+     "features": 0.8344
+    },
+    "gate_key": "21cb3b616bafc376"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7198,
+      "area_frac": 0.11956,
+      "centre_px": [
+       1368.4,
+       295.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 250940
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.6171,
+      "area_frac": 0.12696,
+      "centre_px": [
+       888.9,
+       851.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 156294
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.833333,
+    "ev_raw": 3.8224,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.063621,
+    "whitepoint": [
+     1.032988,
+     0.993536,
+     0.966894
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6247.0,
+    "wb_tint": 7.62,
+    "residual": 0.35,
+    "window_clip_frac": 0.0063,
+    "meter_seconds": 1.534,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 767,
+     "block_px": 6,
+     "interior_frac": 0.8792
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": 1.833333,
+    "clip_before": 0.3335,
+    "clip_after": 0.0023,
+    "pane_px": 192407,
+    "pane_median": 0.9761,
+    "wall_median": 0.6338,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.1823,
+      "median": 0.9316
+     },
+     {
+      "k": 2,
+      "clip": 0.0015,
+      "median": 0.8716
+     }
+    ],
+    "pane_median_after": 0.8725,
+    "seconds": 1.458
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 1.3969,
+     "furniture": 0.3771,
+     "openings": 1.0,
+     "floor": 0.0,
+     "depth": 0.5196,
+     "penalties": 0.4998,
+     "blocked": false,
+     "yaw_deg": 210.0,
+     "shares": {
+      "furn": 0.0943,
+      "open": 0.1215,
+      "window": 0.1215,
+      "floor": 0.0,
+      "ceiling": 0.0,
+      "wall": 0.7999,
+      "near": 0.0,
+      "max_single": 0.1215,
+      "d_wall": 1.5588
+     }
+    },
+    "score_total": 1.3969,
+    "warning": null,
+    "placement": "search: score 1.397 = furniture 0.377 + openings 1.000 + floor 0.000 + depth 0.520 - penalties 0.500; yaw 210 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "f_L0_004",
+     "win_L0_005"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_bath_2",
+   "room_id": "r_L0_bath",
+   "room_type": "bathroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_bath_2_a3.png",
+   "image_sha256": "1e5685d63e0ea3841ed2bac20cc1217f3f9a39bde494db8ccf4256cb140a65cc",
+   "preview": "cam_r_L0_bath_2_final_preview.jpg",
+   "plan": "cam_r_L0_bath_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 3,
+    "attempts": 3,
+    "prompt": "Photorealistic interior photograph of a bathroom in modern style. Light ceramic tile walls, light ceramic tile floor. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 3,
+    "role": "ladder",
+    "strength": 0.125,
+    "control": "depth",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 3,
+    "steps": 8,
+    "seconds": 1.84,
+    "png": "cam_r_L0_bath_2_a3.png",
+    "sha256": "1e5685d63e0ea3841ed2bac20cc1217f3f9a39bde494db8ccf4256cb140a65cc",
+    "attempt_key": "dbeaa80bf9c2cc58dcc11c98d26ef6da65119dd6ecc83d98ff13720668a11bdc",
+    "panes_restored": 0
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 1.0,
+     "added_lines": 0.0,
+     "colour": 1.507,
+     "neutral": null,
+     "depth": 0.01908,
+     "masks": null,
+     "features": 0.8436
+    },
+    "gate_key": "a8892196450e4867"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 1
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 1
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.5736,
+      "area_frac": 0.34478,
+      "centre_px": [
+       411.2,
+       539.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 743040
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 1,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "first",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.666667,
+    "ev_raw": 3.5869,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.074898,
+    "whitepoint": [
+     1.047618,
+     0.991737,
+     0.941634
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6096.7,
+    "wb_tint": 7.59,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.299,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 874,
+     "block_px": 6,
+     "interior_frac": 0.9963
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": null,
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 1.261,
+     "furniture": 0.0,
+     "openings": 1.0,
+     "floor": 0.0,
+     "depth": 0.4423,
+     "penalties": 0.1812,
+     "blocked": false,
+     "yaw_deg": 330.0,
+     "shares": {
+      "furn": 0.0,
+      "open": 0.3594,
+      "window": 0.0,
+      "floor": 0.0,
+      "ceiling": 0.0,
+      "wall": 0.6406,
+      "near": 0.0312,
+      "max_single": 0.3594,
+      "d_wall": 1.3268
+     }
+    },
+    "score_total": 1.261,
+    "warning": null,
+    "placement": "search: score 1.261 = furniture 0.000 + openings 1.000 + floor 0.000 + depth 0.442 - penalties 0.181; yaw 330 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "d_L0_002"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_bed_room_1_a1.png",
+   "image_sha256": "d739f0100da0c3178634cb7f01e33224278d18e675121745d673a774c50663c7",
+   "preview": "cam_r_L0_bed_room_1_final_preview.jpg",
+   "plan": "cam_r_L0_bed_room_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bedroom in modern style. White plaster walls, dark walnut wood floor, double bed, nightstand. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.79,
+    "png": "cam_r_L0_bed_room_1_a1.png",
+    "sha256": "d739f0100da0c3178634cb7f01e33224278d18e675121745d673a774c50663c7",
+    "attempt_key": "dca1b1b1c3f45e82af88c8668dd335d45f748847427421bd64790c5731151cc8",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9734,
+     "added_lines": 0.0,
+     "colour": 2.5037,
+     "neutral": null,
+     "depth": 0.01174,
+     "masks": null,
+     "features": 0.8487
+    },
+    "gate_key": "ab57c381ab2c8077"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 5
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 5
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [
+     "insertion:f_L0_014",
+     "removal:f_L0_014"
+    ],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1952,
+      "area_frac": 0.07311,
+      "centre_px": [
+       1766.1,
+       111.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 67537
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9646,
+      "area_frac": 0.09996,
+      "centre_px": [
+       823.0,
+       244.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 206211
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.3703,
+      "area_frac": 0.52355,
+      "centre_px": [
+       1350.7,
+       541.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 566573
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 1.0,
+      "area_frac": 0.04157,
+      "centre_px": [
+       640.8,
+       840.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 76178
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.0,
+    "ev_raw": 3.9916,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.056579,
+    "whitepoint": [
+     1.025311,
+     0.995801,
+     0.967062
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6274.6,
+    "wb_tint": 8.78,
+    "residual": 0.35,
+    "window_clip_frac": 0.0035,
+    "meter_seconds": 0.222,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 744,
+     "block_px": 6,
+     "interior_frac": 0.8676
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.0,
+    "clip_before": 0.1166,
+    "clip_after": 0.0033,
+    "pane_px": 230828,
+    "pane_median": 0.9513,
+    "wall_median": 0.6207,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0031,
+      "median": 0.8978
+     }
+    ],
+    "pane_median_after": 0.8981,
+    "seconds": 0.74
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 3.6547,
+     "furniture": 1.5664,
+     "openings": 1.0,
+     "floor": 0.1719,
+     "depth": 0.9164,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 150.0,
+     "shares": {
+      "furn": 0.3916,
+      "open": 0.1393,
+      "window": 0.1393,
+      "floor": 0.043,
+      "ceiling": 0.0,
+      "wall": 0.4818,
+      "near": 0.0,
+      "max_single": 0.2964,
+      "d_wall": 2.7493
+     }
+    },
+    "score_total": 3.6547,
+    "warning": null,
+    "placement": "search: score 3.655 = furniture 1.566 + openings 1.000 + floor 0.172 + depth 0.916 - penalties 0.000; yaw 150 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L0_006",
+     "f_L0_013",
+     "f_L0_014"
+    ],
+    "from_documents": [
+     "win_L0_003",
+     "win_L0_006"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_bed_room_2",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_bed_room_2_a1.png",
+   "image_sha256": "3f1c3482598a5b90e96c85ca23b3753f6e58f48a440eb6049aeac6172e5f3a3c",
+   "preview": "cam_r_L0_bed_room_2_final_preview.jpg",
+   "plan": "cam_r_L0_bed_room_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bedroom in modern style. White plaster walls, dark walnut wood floor, double bed. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.79,
+    "png": "cam_r_L0_bed_room_2_a1.png",
+    "sha256": "3f1c3482598a5b90e96c85ca23b3753f6e58f48a440eb6049aeac6172e5f3a3c",
+    "attempt_key": "a2749ec3779d5c8e90c9bebe3b5fbe87625c3099acc3669a42143f549d3eaeeb",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 1,
+    "global": {
+     "edges": 0.9774,
+     "added_lines": 0.0,
+     "colour": 2.2714,
+     "neutral": null,
+     "depth": 0.01078,
+     "masks": null,
+     "features": 0.8246
+    },
+    "gate_key": "b416584798819c8c"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4194,
+      "area_frac": 0.15832,
+      "centre_px": [
+       1218.9,
+       106.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 142385
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1623,
+      "area_frac": 0.04823,
+      "centre_px": [
+       76.6,
+       299.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 119029
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.2325,
+      "area_frac": 0.76522,
+      "centre_px": [
+       1191.5,
+       546.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 751299
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 1,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "first",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.666667,
+    "ev_raw": 3.6461,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.071889,
+    "whitepoint": [
+     1.046899,
+     0.991765,
+     0.943475
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6106.2,
+    "wb_tint": 7.54,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.254,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 754,
+     "block_px": 6,
+     "interior_frac": 0.8702
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.666667,
+    "clip_before": 0.0132,
+    "clip_after": 0.0,
+    "pane_px": 210893,
+    "pane_median": 0.9418,
+    "wall_median": 0.6182,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8858
+     }
+    ],
+    "pane_median_after": 0.8863,
+    "seconds": 0.693
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 3.4435,
+     "furniture": 1.44,
+     "openings": 1.0,
+     "floor": 0.0799,
+     "depth": 0.9502,
+     "penalties": 0.0266,
+     "blocked": false,
+     "yaw_deg": 90.0,
+     "shares": {
+      "furn": 0.36,
+      "open": 0.1415,
+      "window": 0.1415,
+      "floor": 0.02,
+      "ceiling": 0.0,
+      "wall": 0.4297,
+      "near": 0.0,
+      "max_single": 0.4089,
+      "d_wall": 2.8505
+     }
+    },
+    "score_total": 3.4435,
+    "warning": null,
+    "placement": "search: score 3.443 = furniture 1.440 + openings 1.000 + floor 0.080 + depth 0.950 - penalties 0.027; yaw 90 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "f_L0_013"
+    ],
+    "from_documents": [
+     "win_L0_003",
+     "win_L0_006"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_bed_room_3",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_bed_room_3_a1.png",
+   "image_sha256": "507ef0174f0dbbf833789756dffc4115335eb17ebdb9029b6a0d9f9ebaffb2a8",
+   "preview": "cam_r_L0_bed_room_3_final_preview.jpg",
+   "plan": "cam_r_L0_bed_room_3_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bedroom in modern style. White plaster walls, dark walnut wood floor, double bed, nightstand. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_bed_room_3_a1.png",
+    "sha256": "507ef0174f0dbbf833789756dffc4115335eb17ebdb9029b6a0d9f9ebaffb2a8",
+    "attempt_key": "b0a9e53eae58651187674c55d239cf0426808c62e7f6b5c0012f7b8e150d31ce",
+    "panes_restored": 1
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9911,
+     "added_lines": 0.0,
+     "colour": 2.7994,
+     "neutral": null,
+     "depth": 0.00754,
+     "masks": null,
+     "features": 0.8333
+    },
+    "gate_key": "56119f974743ecc7"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 6
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 6
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8275,
+      "area_frac": 0.1937,
+      "centre_px": [
+       269.6,
+       456.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 395694
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5213,
+      "area_frac": 0.07674,
+      "centre_px": [
+       1754.9,
+       254.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 164733
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.4051,
+      "area_frac": 0.68999,
+      "centre_px": [
+       1199.7,
+       534.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 227629
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.7436,
+      "area_frac": 0.03608,
+      "centre_px": [
+       1529.5,
+       749.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 40347
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.4269,
+      "area_frac": 0.02898,
+      "centre_px": [
+       154.3,
+       975.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59646
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.833333,
+    "ev_raw": 3.847,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.062544,
+    "whitepoint": [
+     1.015213,
+     0.996866,
+     0.986247
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6389.9,
+    "wb_tint": 8.65,
+    "residual": 0.35,
+    "window_clip_frac": 0.0006,
+    "meter_seconds": 0.249,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 802,
+     "block_px": 6,
+     "interior_frac": 0.9192
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": 1.833333,
+    "clip_before": 0.1839,
+    "clip_after": 0.0,
+    "pane_px": 141923,
+    "pane_median": 0.9737,
+    "wall_median": 0.626,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0181,
+      "median": 0.9271
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.8672
+     }
+    ],
+    "pane_median_after": 0.8674,
+    "seconds": 0.591
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 3.2361,
+     "furniture": 1.1111,
+     "openings": 1.0,
+     "floor": 0.125,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 240.0,
+     "shares": {
+      "furn": 0.2778,
+      "open": 0.2635,
+      "window": 0.0812,
+      "floor": 0.0312,
+      "ceiling": 0.0,
+      "wall": 0.4874,
+      "near": 0.0,
+      "max_single": 0.1823,
+      "d_wall": 3.3004
+     }
+    },
+    "score_total": 3.2361,
+    "warning": null,
+    "placement": "search: score 3.236 = furniture 1.111 + openings 1.000 + floor 0.125 + depth 1.000 - penalties 0.000; yaw 240 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L0_006",
+     "f_L0_013",
+     "f_L0_014",
+     "f_L0_015"
+    ],
+    "from_documents": [
+     "d_L0_003",
+     "win_L0_006"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_kitchen_1_a1.png",
+   "image_sha256": "a1c02baabc6e83809335d2dee2ca62a5f19dcc26c5ab313852ff3357707074d2",
+   "preview": "cam_r_L0_kitchen_1_final_preview.jpg",
+   "plan": "cam_r_L0_kitchen_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, dining table, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_kitchen_1_a1.png",
+    "sha256": "a1c02baabc6e83809335d2dee2ca62a5f19dcc26c5ab313852ff3357707074d2",
+    "attempt_key": "ce843608e70a08d447fea4d1f70ca339814102f669dc24121eef65f285b67139",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9908,
+     "added_lines": 0.0,
+     "colour": 2.6349,
+     "neutral": null,
+     "depth": 0.00903,
+     "masks": null,
+     "features": 0.8423
+    },
+    "gate_key": "11d96cbf26ef4900"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 7
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 7
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.09947,
+      "centre_px": [
+       1331.3,
+       246.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 208420
+     },
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6304,
+      "area_frac": 0.0434,
+      "centre_px": [
+       481.2,
+       281.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 64417
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.2938,
+      "area_frac": 0.0714,
+      "centre_px": [
+       488.9,
+       624.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 42225
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6146,
+      "area_frac": 0.26249,
+      "centre_px": [
+       723.2,
+       830.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 449799
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2984,
+      "area_frac": 0.0597,
+      "centre_px": [
+       1435.5,
+       965.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 271
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0233,
+      "area_frac": 0.00991,
+      "centre_px": [
+       131.0,
+       1033.2
+      ],
+      "in_view": false
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.5533,
+      "area_frac": 0.0516,
+      "centre_px": [
+       1223.4,
+       769.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6350
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7204,
+      "area_frac": 0.0781,
+      "centre_px": [
+       1558.7,
+       869.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 72727
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.335,
+      "area_frac": 0.09744,
+      "centre_px": [
+       282.5,
+       874.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12625
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.29,
+      "area_frac": 0.07007,
+      "centre_px": [
+       731.7,
+       635.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1497
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.666667,
+    "ev_raw": 4.681,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.035084,
+    "whitepoint": [
+     1.062711,
+     0.984802,
+     0.965887
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6139.3,
+    "wb_tint": 3.16,
+    "residual": 0.35,
+    "window_clip_frac": 0.0049,
+    "meter_seconds": 0.244,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 745,
+     "block_px": 6,
+     "interior_frac": 0.8558
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.666667,
+    "clip_before": 0.3548,
+    "clip_after": 0.0009,
+    "pane_px": 229582,
+    "pane_median": 0.9754,
+    "wall_median": 0.6333,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0002,
+      "median": 0.9283
+     }
+    ],
+    "pane_median_after": 0.9291,
+    "seconds": 0.367
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 2.63,
+     "furniture": 0.7868,
+     "openings": 0.8898,
+     "floor": 0.0347,
+     "depth": 0.9187,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 300.0,
+     "shares": {
+      "furn": 0.1967,
+      "open": 0.1068,
+      "window": 0.1068,
+      "floor": 0.0087,
+      "ceiling": 0.0,
+      "wall": 0.3971,
+      "near": 0.0074,
+      "max_single": 0.2474,
+      "d_wall": 2.7562
+     }
+    },
+    "score_total": 2.63,
+    "warning": null,
+    "placement": "search: score 2.630 = furniture 0.787 + openings 0.890 + floor 0.035 + depth 0.919 - penalties 0.000; yaw 300 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "f_L0_002",
+     "f_L0_003",
+     "f_L0_007",
+     "f_L0_008",
+     "f_L0_009",
+     "win_L0_001",
+     "win_L0_002"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_kitchen_2",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_kitchen_2_a1.png",
+   "image_sha256": "de0e3b6842ba55e1a4623003179623acb544c0532ccce07a0547655d2080a095",
+   "preview": "cam_r_L0_kitchen_2_final_preview.jpg",
+   "plan": "cam_r_L0_kitchen_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, dining table, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_kitchen_2_a1.png",
+    "sha256": "de0e3b6842ba55e1a4623003179623acb544c0532ccce07a0547655d2080a095",
+    "attempt_key": "299928b639a454e8dd2271625f6eaa1d23727a30a010e42b996e7d96716635e2",
+    "panes_restored": 1
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9766,
+     "added_lines": 0.0,
+     "colour": 2.6789,
+     "neutral": null,
+     "depth": 0.00815,
+     "masks": null,
+     "features": 0.8527
+    },
+    "gate_key": "a0dca9e2b1c87f7c"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 6
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "ok": 6
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.09936,
+      "centre_px": [
+       589.6,
+       246.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 208342
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6129,
+      "area_frac": 0.26261,
+      "centre_px": [
+       1198.2,
+       830.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 448944
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3367,
+      "area_frac": 0.09744,
+      "centre_px": [
+       1638.5,
+       874.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 14043
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0233,
+      "area_frac": 0.00997,
+      "centre_px": [
+       1790.8,
+       1032.3
+      ],
+      "in_view": false
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.5183,
+      "area_frac": 0.05156,
+      "centre_px": [
+       697.7,
+       769.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6114
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.29,
+      "area_frac": 0.07001,
+      "centre_px": [
+       1189.3,
+       635.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3480
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2984,
+      "area_frac": 0.05984,
+      "centre_px": [
+       488.0,
+       964.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 19132
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7097,
+      "area_frac": 0.07803,
+      "centre_px": [
+       363.4,
+       869.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 57097
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.5,
+    "ev_raw": 4.5213,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.039191,
+    "whitepoint": [
+     1.059651,
+     0.985684,
+     0.966168
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6151.1,
+    "wb_tint": 3.6,
+    "residual": 0.35,
+    "window_clip_frac": 0.0031,
+    "meter_seconds": 0.209,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 775,
+     "block_px": 6,
+     "interior_frac": 0.8875
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.1269,
+    "clip_after": 0.0002,
+    "pane_px": 171229,
+    "pane_median": 0.9602,
+    "wall_median": 0.6378,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9098
+     }
+    ],
+    "pane_median_after": 0.9098,
+    "seconds": 0.342
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 2.6003,
+     "furniture": 0.7607,
+     "openings": 0.8898,
+     "floor": 0.0469,
+     "depth": 0.9384,
+     "penalties": 0.0354,
+     "blocked": false,
+     "yaw_deg": 240.0,
+     "shares": {
+      "furn": 0.1902,
+      "open": 0.1068,
+      "window": 0.1068,
+      "floor": 0.0117,
+      "ceiling": 0.0,
+      "wall": 0.5677,
+      "near": 0.0074,
+      "max_single": 0.2331,
+      "d_wall": 2.8151
+     }
+    },
+    "score_total": 2.6003,
+    "warning": null,
+    "placement": "search: score 2.600 = furniture 0.761 + openings 0.890 + floor 0.047 + depth 0.938 - penalties 0.035; yaw 240 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "f_L0_003",
+     "f_L0_005",
+     "f_L0_007",
+     "f_L0_009",
+     "f_L0_010",
+     "win_L0_001"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_kitchen_3",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_kitchen_3_a1.png",
+   "image_sha256": "6a2fdd8f04bdc0daf058e2ac4579ace39493c395a9d70912527a7e6807df3343",
+   "preview": "cam_r_L0_kitchen_3_final_preview.jpg",
+   "plan": "cam_r_L0_kitchen_3_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, dining table, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.77,
+    "png": "cam_r_L0_kitchen_3_a1.png",
+    "sha256": "6a2fdd8f04bdc0daf058e2ac4579ace39493c395a9d70912527a7e6807df3343",
+    "attempt_key": "91c0af6e57c42d8a9ea1f94461d7041feffe445f8453ba9db5f7a14ec24b56cd",
+    "panes_restored": 0
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9795,
+     "added_lines": 0.0,
+     "colour": 2.6928,
+     "neutral": null,
+     "depth": 0.00593,
+     "masks": null,
+     "features": 0.8731
+    },
+    "gate_key": "cec51489784b0991"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "disputed": 1,
+      "ok": 6
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "disputed": 1,
+      "ok": 6
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7853,
+      "area_frac": 0.02357,
+      "centre_px": [
+       1680.8,
+       397.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 48692
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6053,
+      "area_frac": 0.26258,
+      "centre_px": [
+       1197.6,
+       828.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 445121
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6505,
+      "area_frac": 0.07811,
+      "centre_px": [
+       361.4,
+       870.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 56730
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.52,
+      "area_frac": 0.05164,
+      "centre_px": [
+       696.8,
+       769.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 7583
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0233,
+      "area_frac": 0.00974,
+      "centre_px": [
+       1790.8,
+       1033.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 4432
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2984,
+      "area_frac": 0.05957,
+      "centre_px": [
+       484.8,
+       966.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 29343
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.29,
+      "area_frac": 0.07013,
+      "centre_px": [
+       1188.7,
+       635.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1500
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.33,
+      "area_frac": 0.09746,
+      "centre_px": [
+       1638.3,
+       874.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 11541
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.666667,
+    "ev_raw": 4.6318,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.036302,
+    "whitepoint": [
+     1.047527,
+     0.987828,
+     0.980624
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6251.8,
+    "wb_tint": 4.2,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.202,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 872,
+     "block_px": 6,
+     "interior_frac": 0.9906
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": null,
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 1.8372,
+     "furniture": 0.8077,
+     "openings": 0.0,
+     "floor": 0.0295,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 60.0,
+     "shares": {
+      "furn": 0.2019,
+      "open": 0.0,
+      "window": 0.0,
+      "floor": 0.0074,
+      "ceiling": 0.0,
+      "wall": 0.5104,
+      "near": 0.0074,
+      "max_single": 0.2326,
+      "d_wall": 3.0625
+     }
+    },
+    "score_total": 1.8372,
+    "warning": null,
+    "placement": "search: score 1.837 = furniture 0.808 + openings 0.000 + floor 0.029 + depth 1.000 - penalties 0.000; yaw 60 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "d_L0_005",
+     "f_L0_003",
+     "f_L0_005",
+     "f_L0_006",
+     "f_L0_007",
+     "f_L0_008",
+     "f_L0_010"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [
+    {
+     "image": "cycles",
+     "what": "element",
+     "id": "f_L0_007",
+     "type": "chair",
+     "kind": "furniture",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "disputed",
+     "confirmed": false,
+     "notes": [],
+     "evidence": "synthetic-06.dwg INSERT:FF/6/0,INSERT:FF/6/1 DINING-6/CHAIR vector 0.90"
+    },
+    {
+     "image": "polished",
+     "what": "element",
+     "id": "f_L0_007",
+     "type": "chair",
+     "kind": "furniture",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "disputed",
+     "confirmed": false,
+     "notes": [],
+     "evidence": "synthetic-06.dwg INSERT:FF/6/0,INSERT:FF/6/1 DINING-6/CHAIR vector 0.90"
+    }
+   ],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_living_room_1",
+   "room_id": "r_L0_living_room",
+   "room_type": "living",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_living_room_1_a1.png",
+   "image_sha256": "234962273bf8509d487b2a0907cfa2760878bfcb7c683d93a7718c5e2d99b168",
+   "preview": "cam_r_L0_living_room_1_final_preview.jpg",
+   "plan": "cam_r_L0_living_room_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a living room in modern style. White plaster walls, dark walnut wood floor, sofa. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_living_room_1_a1.png",
+    "sha256": "234962273bf8509d487b2a0907cfa2760878bfcb7c683d93a7718c5e2d99b168",
+    "attempt_key": "10b7e3b8a615e1ae61f717f35b4cd6fda1bb5649908644a2a1e47ba8dcc749f6",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9771,
+     "added_lines": 0.0,
+     "colour": 2.9406,
+     "neutral": null,
+     "depth": 0.00417,
+     "masks": null,
+     "features": 0.8375
+    },
+    "gate_key": "e19577b638bc4ae9"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 1,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9769,
+      "area_frac": 0.113,
+      "centre_px": [
+       1051.1,
+       251.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234379
+     },
+     "win_L0_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.2581,
+      "area_frac": 0.02653,
+      "centre_px": [
+       66.7,
+       255.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 58839
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 1.0,
+      "area_frac": 0.17536,
+      "centre_px": [
+       934.4,
+       775.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 294144
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.5,
+    "ev_raw": 4.4873,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.040127,
+    "whitepoint": [
+     1.065474,
+     0.98514,
+     0.954404
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6084.8,
+    "wb_tint": 3.73,
+    "residual": 0.35,
+    "window_clip_frac": 0.0013,
+    "meter_seconds": 0.227,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 740,
+     "block_px": 6,
+     "interior_frac": 0.8549
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.2364,
+    "clip_after": 0.0,
+    "pane_px": 243390,
+    "pane_median": 0.9714,
+    "wall_median": 0.6347,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9238
+     }
+    ],
+    "pane_median_after": 0.9247,
+    "seconds": 0.351
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 5.217,
+     "furniture": 2.5,
+     "openings": 1.0,
+     "floor": 0.717,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 300.0,
+     "shares": {
+      "furn": 0.625,
+      "open": 0.1489,
+      "window": 0.1489,
+      "floor": 0.1793,
+      "ceiling": 0.0,
+      "wall": 0.5156,
+      "near": 0.0,
+      "max_single": 0.1562,
+      "d_wall": 3.2695
+     }
+    },
+    "score_total": 5.217,
+    "warning": null,
+    "placement": "search: score 5.217 = furniture 2.500 + openings 1.000 + floor 0.717 + depth 1.000 - penalties 0.000; yaw 300 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "f_L0_002",
+     "win_L0_002",
+     "win_L0_007"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_living_room_2",
+   "room_id": "r_L0_living_room",
+   "room_type": "living",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_living_room_2_a1.png",
+   "image_sha256": "ebc7eb37048e3cba46158bb6acf0e8210394fdbf8ef1a8e7c4f835ba99ced094",
+   "preview": "cam_r_L0_living_room_2_final_preview.jpg",
+   "plan": "cam_r_L0_living_room_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a living room in modern style. White plaster walls, dark walnut wood floor, sofa. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_living_room_2_a1.png",
+    "sha256": "ebc7eb37048e3cba46158bb6acf0e8210394fdbf8ef1a8e7c4f835ba99ced094",
+    "attempt_key": "076d2deae39382758f769f7b75811d76022cd25a2121c6d47d279e8973f5feca",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9704,
+     "added_lines": 0.0,
+     "colour": 3.1126,
+     "neutral": null,
+     "depth": 0.00774,
+     "masks": null,
+     "features": 0.8564
+    },
+    "gate_key": "dbdcc396d5a7cb3c"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 7
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 7
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [
+     "insertion:f_L0_002",
+     "insertion:win_L0_002",
+     "removal:f_L0_002",
+     "removal:win_L0_002",
+     "swap:f_L0_002"
+    ],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8148,
+      "area_frac": 0.02332,
+      "centre_px": [
+       1628.1,
+       287.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 43679
+     },
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9769,
+      "area_frac": 0.11305,
+      "centre_px": [
+       868.5,
+       251.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234848
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 1.0,
+      "area_frac": 0.17543,
+      "centre_px": [
+       985.2,
+       775.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 296463
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.0684,
+      "area_frac": 0.01094,
+      "centre_px": [
+       1874.2,
+       605.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6670
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7083,
+      "area_frac": 0.01962,
+      "centre_px": [
+       1810.2,
+       582.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6545
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.315,
+      "area_frac": 0.01297,
+      "centre_px": [
+       1870.9,
+       638.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 5951
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.5,
+    "ev_raw": 4.4737,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.040507,
+    "whitepoint": [
+     1.045963,
+     0.987219,
+     0.991263
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6301.3,
+    "wb_tint": 3.52,
+    "residual": 0.35,
+    "window_clip_frac": 0.005,
+    "meter_seconds": 0.229,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 736,
+     "block_px": 6,
+     "interior_frac": 0.8582
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.2507,
+    "clip_after": 0.0017,
+    "pane_px": 235848,
+    "pane_median": 0.9689,
+    "wall_median": 0.6302,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0007,
+      "median": 0.921
+     }
+    ],
+    "pane_median_after": 0.921,
+    "seconds": 0.363
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 5.1906,
+     "furniture": 2.5,
+     "openings": 0.9729,
+     "floor": 0.7222,
+     "depth": 0.9955,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 240.0,
+     "shares": {
+      "furn": 0.625,
+      "open": 0.1168,
+      "window": 0.1168,
+      "floor": 0.1806,
+      "ceiling": 0.0,
+      "wall": 0.3724,
+      "near": 0.0,
+      "max_single": 0.1562,
+      "d_wall": 2.9864
+     }
+    },
+    "score_total": 5.1906,
+    "warning": null,
+    "placement": "search: score 5.191 = furniture 2.500 + openings 0.973 + floor 0.722 + depth 0.996 - penalties 0.000; yaw 240 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L0_003"
+    ],
+    "from_documents": [
+     "f_L0_002",
+     "f_L0_003",
+     "f_L0_007",
+     "f_L0_010",
+     "win_L0_001",
+     "win_L0_002"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_living_room_3",
+   "room_id": "r_L0_living_room",
+   "room_type": "living",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_living_room_3_a1.png",
+   "image_sha256": "d980ee9dd68bd5325fb867375b65cf3b42f5c12317aec9a24f8c8b8bc32aea79",
+   "preview": "cam_r_L0_living_room_3_final_preview.jpg",
+   "plan": "cam_r_L0_living_room_3_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a living room in modern style. White plaster walls, dark walnut wood floor, sofa. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_living_room_3_a1.png",
+    "sha256": "d980ee9dd68bd5325fb867375b65cf3b42f5c12317aec9a24f8c8b8bc32aea79",
+    "attempt_key": "b05cad5e99860b10fca61dbd8472543debf47a8064c2226ca97075fbff1abe90",
+    "panes_restored": 1
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9772,
+     "added_lines": 0.0,
+     "colour": 2.4215,
+     "neutral": null,
+     "depth": 0.0079,
+     "masks": null,
+     "features": 0.8328
+    },
+    "gate_key": "27df25877636a07d"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.17824,
+      "centre_px": [
+       874.1,
+       245.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 376428
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9512,
+      "area_frac": 0.31122,
+      "centre_px": [
+       828.6,
+       828.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 546580
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 1,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "first",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.5,
+    "ev_raw": 4.4842,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.040214,
+    "whitepoint": [
+     1.053173,
+     0.986312,
+     0.979017
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6225.3,
+    "wb_tint": 3.48,
+    "residual": 0.35,
+    "window_clip_frac": 0.0012,
+    "meter_seconds": 0.233,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 704,
+     "block_px": 6,
+     "interior_frac": 0.8179
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.1232,
+    "clip_after": 0.0003,
+    "pane_px": 320210,
+    "pane_median": 0.9642,
+    "wall_median": 0.633,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0003,
+      "median": 0.9149
+     }
+    ],
+    "pane_median_after": 0.915,
+    "seconds": 0.43
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 4.6222,
+     "furniture": 2.4,
+     "openings": 1.0,
+     "floor": 0.2222,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 270.0,
+     "shares": {
+      "furn": 0.6,
+      "open": 0.1918,
+      "window": 0.1918,
+      "floor": 0.0556,
+      "ceiling": 0.0,
+      "wall": 0.421,
+      "near": 0.0,
+      "max_single": 0.2791,
+      "d_wall": 3.0
+     }
+    },
+    "score_total": 4.6222,
+    "warning": null,
+    "placement": "search: score 4.622 = furniture 2.400 + openings 1.000 + floor 0.222 + depth 1.000 - penalties 0.000; yaw 270 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L0_003"
+    ],
+    "from_documents": [
+     "f_L0_002",
+     "win_L0_002"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_lobby_1",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_lobby_1_a1.png",
+   "image_sha256": "0b559b22802accdb7a5eeaf82be72824f2e2387f43ced1c73958592d5f572920",
+   "preview": "cam_r_L0_lobby_1_final_preview.jpg",
+   "plan": "cam_r_L0_lobby_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a hallway in modern style. White plaster walls, dark walnut wood floor, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_lobby_1_a1.png",
+    "sha256": "0b559b22802accdb7a5eeaf82be72824f2e2387f43ced1c73958592d5f572920",
+    "attempt_key": "2b59729096ad2a9a68637172c8c5fe6b5463423e9f4d8591340b3a6f528a3e8c",
+    "panes_restored": 0
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9957,
+     "added_lines": 0.0,
+     "colour": 3.2798,
+     "neutral": null,
+     "depth": 0.01097,
+     "masks": null,
+     "features": 0.8285
+    },
+    "gate_key": "4f4a89684c3a4bae"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "missing": 1,
+      "ok": 4
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "missing": 1,
+      "ok": 4
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [
+     "insertion:d_L0_001",
+     "removal:d_L0_001"
+    ],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8934,
+      "area_frac": 0.10372,
+      "centre_px": [
+       1541.6,
+       421.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 221993
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01618,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 82080
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6164,
+      "area_frac": 0.23573,
+      "centre_px": [
+       620.2,
+       539.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 480600
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01508,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 37607
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.8867,
+      "area_frac": 0.09346,
+      "centre_px": [
+       1112.3,
+       827.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 58172
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.5,
+    "ev_raw": -0.4936,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 1.267195,
+    "whitepoint": [
+     1.171297,
+     0.968417,
+     0.808454
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5251.6,
+    "wb_tint": 1.63,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.224,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 878,
+     "block_px": 6,
+     "interior_frac": 0.9989
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": null,
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 2.8622,
+     "furniture": 0.725,
+     "openings": 1.0,
+     "floor": 0.349,
+     "depth": 0.7882,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 30.0,
+     "shares": {
+      "furn": 0.1812,
+      "open": 0.4054,
+      "window": 0.0,
+      "floor": 0.0872,
+      "ceiling": 0.0,
+      "wall": 0.4319,
+      "near": 0.0,
+      "max_single": 0.2344,
+      "d_wall": 2.3646
+     }
+    },
+    "score_total": 2.8622,
+    "warning": null,
+    "placement": "search: score 2.862 = furniture 0.725 + openings 1.000 + floor 0.349 + depth 0.788 - penalties 0.000; yaw 30 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "f_L0_012"
+    ],
+    "from_documents": [
+     "d_L0_001",
+     "d_L0_003",
+     "d_L0_004",
+     "d_L0_005"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [
+    {
+     "image": "cycles",
+     "what": "element",
+     "id": "d_L0_003",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:CF,LINE:D0 vector 0.95"
+    },
+    {
+     "image": "polished",
+     "what": "element",
+     "id": "d_L0_003",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:CF,LINE:D0 vector 0.95"
+    }
+   ],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_lobby_2",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_lobby_2_a1.png",
+   "image_sha256": "813c7251acb3ed39b4aa9498a3fd13c4db5a0ca086cb10e07ded99e91feb5ede",
+   "preview": "cam_r_L0_lobby_2_final_preview.jpg",
+   "plan": "cam_r_L0_lobby_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a hallway in modern style. White plaster walls, dark walnut wood floor, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_lobby_2_a1.png",
+    "sha256": "813c7251acb3ed39b4aa9498a3fd13c4db5a0ca086cb10e07ded99e91feb5ede",
+    "attempt_key": "c60d5ba0ebe3dad26948c6c8f675430c349442e8b46c8aeb9347d5c2b20f5e37",
+    "panes_restored": 0
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 1,
+    "global": {
+     "edges": 0.9879,
+     "added_lines": 0.0,
+     "colour": 3.0599,
+     "neutral": null,
+     "depth": 0.01172,
+     "masks": null,
+     "features": 0.8097
+    },
+    "gate_key": "d189a2610fafb6f4"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "missing": 3,
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "missing": 2,
+      "ok": 3
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8792,
+      "area_frac": 0.08782,
+      "centre_px": [
+       1538.9,
+       421.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 185322
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01862,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 25552
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32128
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.2444,
+      "area_frac": 0.20109,
+      "centre_px": [
+       192.4,
+       541.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 464400
+     },
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.0,
+      "area_frac": 0.01797,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 264
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6968,
+      "area_frac": 0.1019,
+      "centre_px": [
+       1672.7,
+       850.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 77172
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.5,
+    "ev_raw": -0.4527,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 1.231734,
+    "whitepoint": [
+     1.173939,
+     0.967781,
+     0.806977
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5239.3,
+    "wb_tint": 1.39,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.192,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 880,
+     "block_px": 6,
+     "interior_frac": 0.9998
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": null,
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 2.6413,
+     "furniture": 0.525,
+     "openings": 1.0,
+     "floor": 0.3281,
+     "depth": 0.7882,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 210.0,
+     "shares": {
+      "furn": 0.1313,
+      "open": 0.329,
+      "window": 0.0,
+      "floor": 0.082,
+      "ceiling": 0.0,
+      "wall": 0.5343,
+      "near": 0.0,
+      "max_single": 0.2188,
+      "d_wall": 2.3646
+     }
+    },
+    "score_total": 2.6413,
+    "warning": null,
+    "placement": "search: score 2.641 = furniture 0.525 + openings 1.000 + floor 0.328 + depth 0.788 - penalties 0.000; yaw 210 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "f_L0_012"
+    ],
+    "from_documents": [
+     "d_L0_002",
+     "d_L0_003",
+     "d_L0_004",
+     "d_L0_005"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [
+    {
+     "image": "cycles",
+     "what": "element",
+     "id": "d_L0_005",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:D3,LINE:D4 vector 0.95"
+    },
+    {
+     "image": "cycles",
+     "what": "element",
+     "id": "d_L0_004",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:D1,LINE:D2 vector 0.95"
+    },
+    {
+     "image": "cycles",
+     "what": "element",
+     "id": "d_L0_003",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:CF,LINE:D0 vector 0.95"
+    },
+    {
+     "image": "polished",
+     "what": "element",
+     "id": "d_L0_004",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:D1,LINE:D2 vector 0.95"
+    },
+    {
+     "image": "polished",
+     "what": "element",
+     "id": "d_L0_003",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:CF,LINE:D0 vector 0.95"
+    }
+   ],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_lobby_3",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_lobby_3_a1.png",
+   "image_sha256": "422946ce16380d2719e64ca71d8afe2be67c5d26e7d922de2d507c51150488b6",
+   "preview": "cam_r_L0_lobby_3_final_preview.jpg",
+   "plan": "cam_r_L0_lobby_3_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a hallway in modern style. White plaster walls, dark walnut wood floor, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_lobby_3_a1.png",
+    "sha256": "422946ce16380d2719e64ca71d8afe2be67c5d26e7d922de2d507c51150488b6",
+    "attempt_key": "c5d557036577f420dcd4874a372e069498c95840761f9b1773af5387e0b15b13",
+    "panes_restored": 0
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9965,
+     "added_lines": 0.0,
+     "colour": 3.0181,
+     "neutral": null,
+     "depth": 0.00644,
+     "masks": null,
+     "features": 0.8058
+    },
+    "gate_key": "27fb6a5e7862c3ea"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 4
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "ok": 4
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8802,
+      "area_frac": 0.13513,
+      "centre_px": [
+       334.5,
+       439.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 285757
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.04761,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 91806
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6334,
+      "area_frac": 0.12458,
+      "centre_px": [
+       951.3,
+       507.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 221843
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.0486,
+      "area_frac": 0.02218,
+      "centre_px": [
+       190.5,
+       596.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 259
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4699,
+      "area_frac": 0.11265,
+      "centre_px": [
+       954.4,
+       880.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 55269
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.666667,
+    "ev_raw": -0.6545,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 1.416695,
+    "whitepoint": [
+     1.169368,
+     0.968688,
+     0.811453
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5266.1,
+    "wb_tint": 1.61,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.244,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 880,
+     "block_px": 6,
+     "interior_frac": 0.9995
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": null,
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 2.3551,
+     "furniture": 0.6125,
+     "openings": 1.0,
+     "floor": 0.3194,
+     "depth": 0.4299,
+     "penalties": 0.0068,
+     "blocked": false,
+     "yaw_deg": 150.0,
+     "shares": {
+      "furn": 0.1531,
+      "open": 0.303,
+      "window": 0.0,
+      "floor": 0.0799,
+      "ceiling": 0.0,
+      "wall": 0.5534,
+      "near": 0.0156,
+      "max_single": 0.1476,
+      "d_wall": 1.2898
+     }
+    },
+    "score_total": 2.3551,
+    "warning": null,
+    "placement": "search: score 2.355 = furniture 0.613 + openings 1.000 + floor 0.319 + depth 0.430 - penalties 0.007; yaw 150 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "f_L0_012"
+    ],
+    "from_documents": [
+     "d_L0_002",
+     "d_L0_003",
+     "d_L0_004"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_master_bed_room_1",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_master_bed_room_1_a1.png",
+   "image_sha256": "9b4ca8c776b4b5675d4fd95251f88b5eed5f9bdcfd43636fe4a4e2c4d618d6a1",
+   "preview": "cam_r_L0_master_bed_room_1_final_preview.jpg",
+   "plan": "cam_r_L0_master_bed_room_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bedroom in modern style. White plaster walls, dark walnut wood floor, double bed. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_master_bed_room_1_a1.png",
+    "sha256": "9b4ca8c776b4b5675d4fd95251f88b5eed5f9bdcfd43636fe4a4e2c4d618d6a1",
+    "attempt_key": "79c359a66ea6a902ce00ba52da8c6fa2c3a4821bb2c29b4b95664c3fc19d8850",
+    "panes_restored": 0
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.997,
+     "added_lines": 0.0,
+     "colour": 2.3547,
+     "neutral": null,
+     "depth": 0.00884,
+     "masks": null,
+     "features": 0.7943
+    },
+    "gate_key": "9b7ee8c0a97d734a"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7439,
+      "area_frac": 0.12474,
+      "centre_px": [
+       154.7,
+       526.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 260110
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.3548,
+      "area_frac": 0.37795,
+      "centre_px": [
+       1161.3,
+       783.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 646795
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 1,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "first",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.166667,
+    "ev_raw": 4.1112,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.052078,
+    "whitepoint": [
+     0.89312,
+     1.016322,
+     1.153038
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7703.3,
+    "wb_tint": 14.72,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.238,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 880,
+     "block_px": 6,
+     "interior_frac": 0.9998
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": null,
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 4.6187,
+     "furniture": 2.4,
+     "openings": 1.0,
+     "floor": 0.2188,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 180.0,
+     "shares": {
+      "furn": 0.6,
+      "open": 0.1311,
+      "window": 0.0,
+      "floor": 0.0547,
+      "ceiling": 0.0,
+      "wall": 0.5026,
+      "near": 0.0,
+      "max_single": 0.3116,
+      "d_wall": 3.0
+     }
+    },
+    "score_total": 4.6187,
+    "warning": null,
+    "placement": "search: score 4.619 = furniture 2.400 + openings 1.000 + floor 0.219 + depth 1.000 - penalties 0.000; yaw 180 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "d_L0_004",
+     "f_L0_001"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_master_bed_room_2",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "level_id": "L0",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L0_master_bed_room_2_a1.png",
+   "image_sha256": "eb5e3653122694018711591175e071979408b5882799d872a5509318b9dd8c26",
+   "preview": "cam_r_L0_master_bed_room_2_final_preview.jpg",
+   "plan": "cam_r_L0_master_bed_room_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bedroom in modern style. White plaster walls, dark walnut wood floor, double bed. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_master_bed_room_2_a1.png",
+    "sha256": "eb5e3653122694018711591175e071979408b5882799d872a5509318b9dd8c26",
+    "attempt_key": "532f5b64f415fb1865e9351b344c23b462c3eaa01a7b0d3173d55b2565e34aac",
+    "panes_restored": 1
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9989,
+     "added_lines": 0.0,
+     "colour": 2.3108,
+     "neutral": null,
+     "depth": 0.01047,
+     "masks": null,
+     "features": 0.8323
+    },
+    "gate_key": "c84cbfafdf32a3df"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "missing": 1,
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "missing": 1,
+      "ok": 2
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32128
+     },
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5509,
+      "area_frac": 0.08467,
+      "centre_px": [
+       1740.0,
+       251.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 181082
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.6136,
+      "area_frac": 0.33034,
+      "centre_px": [
+       1367.8,
+       761.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 622128
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.166667,
+    "ev_raw": 4.2389,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.047667,
+    "whitepoint": [
+     0.892719,
+     1.015906,
+     1.158336
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7736.8,
+    "wb_tint": 14.38,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.205,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 795,
+     "block_px": 6,
+     "interior_frac": 0.9131
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.166667,
+    "clip_before": 0.1162,
+    "clip_after": 0.0,
+    "pane_px": 157229,
+    "pane_median": 0.9604,
+    "wall_median": 0.6129,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9092
+     }
+    ],
+    "pane_median_after": 0.9098,
+    "seconds": 0.368
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 4.5905,
+     "furniture": 2.4,
+     "openings": 0.9006,
+     "floor": 0.2899,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 150.0,
+     "shares": {
+      "furn": 0.6,
+      "open": 0.1081,
+      "window": 0.0929,
+      "floor": 0.0725,
+      "ceiling": 0.0,
+      "wall": 0.5256,
+      "near": 0.0,
+      "max_single": 0.2938,
+      "d_wall": 3.1459
+     }
+    },
+    "score_total": 4.5905,
+    "warning": null,
+    "placement": "search: score 4.590 = furniture 2.400 + openings 0.901 + floor 0.290 + depth 1.000 - penalties 0.000; yaw 150 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "from_documents": [
+     "d_L0_004",
+     "f_L0_001",
+     "win_L0_004"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [
+    {
+     "image": "cycles",
+     "what": "element",
+     "id": "d_L0_004",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:D1,LINE:D2 vector 0.95"
+    },
+    {
+     "image": "polished",
+     "what": "element",
+     "id": "d_L0_004",
+     "type": "door",
+     "kind": "door",
+     "role": "optional",
+     "source": "from_documents",
+     "result": "missing",
+     "confirmed": true,
+     "notes": [],
+     "evidence": "synthetic-06.dwg ARC:D1,LINE:D2 vector 0.95"
+    }
+   ],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L0_master_bed_room_3",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "level_id": "L0",
+   "final": "cycles",
+   "reason": "vision_check",
+   "detail": "added_by_polish furniture at [23.8, 845.0, 562.0, 1014.9]",
+   "image": "../renders/cam_r_L0_master_bed_room_3.png",
+   "image_sha256": "a4c2efcf65bce3377f1692ff367d92381f5b0c422b34d58e1714e03e8849a21a",
+   "preview": "cam_r_L0_master_bed_room_3_final_preview.jpg",
+   "plan": "cam_r_L0_master_bed_room_3_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a bedroom in modern style. White plaster walls, dark walnut wood floor, double bed. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.78,
+    "png": "cam_r_L0_master_bed_room_3_a1.png",
+    "sha256": "20cf4fc24181b2bf8f9ce1813237a050ca4ef579e50991beb1182dbddd311042",
+    "attempt_key": "f1653f715d1fc9c1feffdea03bbddc5d4d152afb3fc63bd237b29afb7ddece3e",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 0,
+    "global": {
+     "edges": 0.9809,
+     "added_lines": 0.0,
+     "colour": 2.6312,
+     "neutral": null,
+     "depth": 0.01375,
+     "masks": null,
+     "features": 0.8479
+    },
+    "gate_key": "e2846dc2a12433f5"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "ok": 4
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "ok": 4
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": true,
+    "polished_reason": "vision_check",
+    "polished_reasons": [
+     {
+      "reason": "vision_check",
+      "what": "added_by_polish",
+      "source": "detector",
+      "class": "furniture",
+      "categories": {
+       "detector": "bathtub"
+      },
+      "box_px": [
+       23.8,
+       845.0,
+       562.0,
+       1014.9
+      ],
+      "score": 0.1018,
+      "confirmed_by": [
+       "vlm:qwen"
+      ]
+     }
+    ],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9669,
+      "area_frac": 0.11418,
+      "centre_px": [
+       817.2,
+       242.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234273
+     },
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4454,
+      "area_frac": 0.05745,
+      "centre_px": [
+       1795.1,
+       247.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 124008
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.8632,
+      "area_frac": 0.39624,
+      "centre_px": [
+       1233.4,
+       757.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 596490
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.833333,
+    "ev_raw": 4.7885,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.032566,
+    "whitepoint": [
+     0.923716,
+     1.012417,
+     1.101628
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7286.0,
+    "wb_tint": 13.79,
+    "residual": 0.35,
+    "window_clip_frac": 0.0052,
+    "meter_seconds": 0.227,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 702,
+     "block_px": 6,
+     "interior_frac": 0.825
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.833333,
+    "clip_before": 0.4495,
+    "clip_after": 0.006,
+    "pane_px": 302128,
+    "pane_median": 0.9765,
+    "wall_median": 0.6737,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0057,
+      "median": 0.93
+     }
+    ],
+    "pane_median_after": 0.93,
+    "seconds": 0.363
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 4.5389,
+     "furniture": 2.4,
+     "openings": 1.0,
+     "floor": 0.1632,
+     "depth": 0.9757,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 60.0,
+     "shares": {
+      "furn": 0.6,
+      "open": 0.1771,
+      "window": 0.1771,
+      "floor": 0.0408,
+      "ceiling": 0.0,
+      "wall": 0.497,
+      "near": 0.0,
+      "max_single": 0.2852,
+      "d_wall": 2.9271
+     }
+    },
+    "score_total": 4.5389,
+    "warning": null,
+    "placement": "search: score 4.539 = furniture 2.400 + openings 1.000 + floor 0.163 + depth 0.976 - penalties 0.000; yaw 60 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L0_009"
+    ],
+    "from_documents": [
+     "f_L0_001",
+     "win_L0_004",
+     "win_L0_008"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": true,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 1,
+    "unmatched": 0,
+    "boxes": [
+     {
+      "class": "furniture",
+      "group": "bathtub",
+      "box_px": [
+       23.8,
+       845.0,
+       562.0,
+       1014.9
+      ],
+      "score": 0.1018,
+      "confirmed_by": [
+       "vlm:qwen"
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "rooms": {
+  "r_L0_bath": {
+   "views": [
+    "cam_r_L0_bath_1",
+    "cam_r_L0_bath_2"
+   ],
+   "polished": [
+    "cam_r_L0_bath_1",
+    "cam_r_L0_bath_2"
+   ],
+   "cycles": [],
+   "mixed": false,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "bathroom",
+   "level_id": "L0"
+  },
+  "r_L0_bed_room": {
+   "views": [
+    "cam_r_L0_bed_room_1",
+    "cam_r_L0_bed_room_2",
+    "cam_r_L0_bed_room_3"
+   ],
+   "polished": [
+    "cam_r_L0_bed_room_1",
+    "cam_r_L0_bed_room_2",
+    "cam_r_L0_bed_room_3"
+   ],
+   "cycles": [],
+   "mixed": false,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "bedroom",
+   "level_id": "L0"
+  },
+  "r_L0_kitchen": {
+   "views": [
+    "cam_r_L0_kitchen_1",
+    "cam_r_L0_kitchen_2",
+    "cam_r_L0_kitchen_3"
+   ],
+   "polished": [
+    "cam_r_L0_kitchen_1",
+    "cam_r_L0_kitchen_2",
+    "cam_r_L0_kitchen_3"
+   ],
+   "cycles": [],
+   "mixed": false,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "kitchen",
+   "level_id": "L0"
+  },
+  "r_L0_living_room": {
+   "views": [
+    "cam_r_L0_living_room_1",
+    "cam_r_L0_living_room_2",
+    "cam_r_L0_living_room_3"
+   ],
+   "polished": [
+    "cam_r_L0_living_room_1",
+    "cam_r_L0_living_room_2",
+    "cam_r_L0_living_room_3"
+   ],
+   "cycles": [],
+   "mixed": false,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "living",
+   "level_id": "L0"
+  },
+  "r_L0_lobby": {
+   "views": [
+    "cam_r_L0_lobby_1",
+    "cam_r_L0_lobby_2",
+    "cam_r_L0_lobby_3"
+   ],
+   "polished": [
+    "cam_r_L0_lobby_1",
+    "cam_r_L0_lobby_2",
+    "cam_r_L0_lobby_3"
+   ],
+   "cycles": [],
+   "mixed": false,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "hall",
+   "level_id": "L0"
+  },
+  "r_L0_master_bed_room": {
+   "views": [
+    "cam_r_L0_master_bed_room_1",
+    "cam_r_L0_master_bed_room_2",
+    "cam_r_L0_master_bed_room_3"
+   ],
+   "polished": [
+    "cam_r_L0_master_bed_room_1",
+    "cam_r_L0_master_bed_room_2"
+   ],
+   "cycles": [
+    "cam_r_L0_master_bed_room_3"
+   ],
+   "mixed": true,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "bedroom",
+   "level_id": "L0"
+  }
+ },
+ "rooms_mixed": [
+  "r_L0_master_bed_room"
+ ],
+ "models": [
+  {
+   "role": "polish base",
+   "repo": "Tongyi-MAI/Z-Image-Turbo",
+   "revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "polish controlnet",
+   "repo": "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1",
+   "revision": "5155fc56d17821007d6f62ac192c09e0f0e72016",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "gate depth",
+   "repo": "depth-anything/Depth-Anything-V2-Small-hf",
+   "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "gate sam",
+   "repo": "facebook/sam2.1-hiera-large",
+   "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "gate dino",
+   "repo": "facebook/dinov2-base",
+   "revision": "f9e44c814b77203eaa57a6bdbbd535f21ede1415",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "check qwen",
+   "repo": "Qwen/Qwen3-VL-8B-Instruct",
+   "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+   "licence": "Apache-2.0",
+   "source": "check_manifest.json"
+  },
+  {
+   "role": "check glm",
+   "repo": "zai-org/GLM-4.6V-Flash",
+   "revision": "411bb4d77144a3f03accbf4b780f5acb8b7cde4e",
+   "licence": "MIT",
+   "source": "check_manifest.json"
+  },
+  {
+   "role": "detector",
+   "repo": "google/owlv2-base-patch16-ensemble",
+   "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+   "licence": "Apache-2.0",
+   "source": "check_manifest.json"
+  }
+ ],
+ "assets": {
+  "textures": {
+   "CC0": 6
+  },
+  "models": {
+   "CC-BY-4.0": 10,
+   "CC0": 5
+  }
+ },
+ "contact_sheets": {
+  "L0": "contact_L0.jpg"
+ },
+ "building": {
+  "status": "ok",
+  "unverified": [],
+  "conflicts": []
+ },
+ "intake": null,
+ "kept_on_volume": [],
+ "units": {
+  "system": "imperial",
+  "recorded": true,
+  "documents": [
+   {
+    "file": "synthetic-06.dwg",
+    "unit_system": "imperial",
+    "source_kind": "dxf"
+   }
+  ]
+ },
+ "side_by_side": {
+  "sheets": {
+   "r_L0_bath": "contact_sbs_r_L0_bath.jpg",
+   "r_L0_bed_room": "contact_sbs_r_L0_bed_room.jpg",
+   "r_L0_kitchen": "contact_sbs_r_L0_kitchen.jpg",
+   "r_L0_living_room": "contact_sbs_r_L0_living_room.jpg",
+   "r_L0_lobby": "contact_sbs_r_L0_lobby.jpg",
+   "r_L0_master_bed_room": "contact_sbs_r_L0_master_bed_room.jpg"
+  },
+  "note": null
+ },
+ "recognition": {
+  "type_methods": {
+   "block_name": 11
+  },
+  "ai_typed": [],
+  "composites": [],
+  "no_answer": [],
+  "raster_pages": [],
+  "raster_rooms": [],
+  "questions": null,
+  "answer_files": []
+ },
+ "site": null,
+ "separators": [
+  {
+   "id": "o_L0_001",
+   "level_id": "L0",
+   "status": "verified",
+   "length_m": 1.829,
+   "note": "virtual separator (end-to-wall, 1.83 m): two room names shared one face"
+  }
+ ],
+ "assumed": {
+  "brief": [
+   {
+    "key": "empty_rooms",
+    "value": "ai"
+   },
+   {
+    "key": "decor",
+    "value": true
+   },
+   {
+    "key": "polish",
+    "value": true
+   },
+   {
+    "key": "style_photos",
+    "value": []
+   },
+   {
+    "key": "ceiling_height",
+    "value": 2.7
+   },
+   {
+    "key": "render.views_per_room",
+    "value": 3
+   },
+   {
+    "key": "render.resolution",
+    "value": [
+     1920,
+     1080
+    ]
+   },
+   {
+    "key": "render.samples",
+    "value": 256
+   }
+  ],
+  "style": [],
+  "building": [
+   "L0: level 'Ground floor' assumed (no level title on the page)",
+   "L0: ceiling height 8' 10\" (2.70 m) (assumed_default)",
+   "door height 6' 11\" (2.10 m): 5 opening(s) (d_L0_001, d_L0_002, d_L0_003, d_L0_004, d_L0_005)",
+   "window height 3' 11\" (1.20 m): 8 opening(s) (win_L0_001, win_L0_002, win_L0_003, win_L0_004, win_L0_005, win_L0_006 ...)",
+   "window sill height 2' 11\" (0.90 m): 8 opening(s) (win_L0_001, win_L0_002, win_L0_003, win_L0_004, win_L0_005, win_L0_006 ...)"
+  ],
+  "scene": [
+   {
+    "field": "area_light",
+    "reason": "r_L0_lobby: room has no window; soft ceiling light added (lighting mood, invisible to the camera)",
+    "count": 1,
+    "examples": [
+     "light_r_L0_lobby"
+    ]
+   },
+   {
+    "field": "bedding",
+    "reason": "design detail of the bed (soft bedding inside the bed's own box); the documents show only the footprint",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_001"
+    ]
+   },
+   {
+    "field": "ceiling_height",
+    "reason": "building JSON: assumed_default",
+    "count": 1,
+    "examples": [
+     "level_L0"
+    ]
+   },
+   {
+    "field": "door_handles",
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+    "count": 5,
+    "examples": [
+     "d_L0_001_handle",
+     "d_L0_002_handle",
+     "d_L0_003_handle"
+    ]
+   },
+   {
+    "field": "fabric",
+    "reason": "style profile has no textiles slot; default fabric for sofas and chairs",
+    "count": 1,
+    "examples": [
+     "furniture"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "door height listed as assumed in the building JSON",
+    "count": 5,
+    "examples": [
+     "d_L0_001",
+     "d_L0_002",
+     "d_L0_003"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for bed_double",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_001"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for chair",
+    "count": 6,
+    "examples": [
+     "furn_f_L0_005",
+     "furn_f_L0_006",
+     "furn_f_L0_007"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for sofa",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_002"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for table_dining",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_003"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for toilet",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_004"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for washbasin",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_011"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "window height listed as assumed in the building JSON",
+    "count": 8,
+    "examples": [
+     "win_L0_001",
+     "win_L0_002",
+     "win_L0_003"
+    ]
+   },
+   {
+    "field": "sill_height",
+    "reason": "window sill_height listed as assumed in the building JSON",
+    "count": 8,
+    "examples": [
+     "win_L0_001",
+     "win_L0_002",
+     "win_L0_003"
+    ]
+   },
+   {
+    "field": "skirting",
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+    "count": 4,
+    "examples": [
+     "skirting_r_L0_living_room",
+     "skirting_r_L0_lobby",
+     "skirting_r_L0_bed_room"
+    ]
+   }
+  ]
+ },
+ "attribution": {
+  "credits": [
+   {
+    "asset_id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Bed For Vr\" by olamii (https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L0_013"
+    ]
+   },
+   {
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L0_002"
+    ]
+   },
+   {
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L0_011"
+    ]
+   },
+   {
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L0_005",
+     "f_L0_006",
+     "f_L0_007",
+     "f_L0_008",
+     "f_L0_009",
+     "f_L0_010",
+     "f_L0_012"
+    ]
+   }
+  ],
+  "notice": "Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence (here CC0 1.0 or CC BY 4.0), as declared by its uploader and not verified by WenArt_RUN: check it before commercial use. This file is licensed ODC-By 1.0, not MIT.",
+  "missing": []
+ },
+ "detector": {
+  "status": "calibrated",
+  "advisory": false,
+  "reason": null,
+  "thresholds": {
+   "t_det": 0.08,
+   "t_strong": 0.11,
+   "match_iou": 0.3,
+   "cover_frac": 0.5,
+   "confirm_iou": 0.3
+  },
+  "model": {
+   "repo": "google/owlv2-base-patch16-ensemble",
+   "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+   "licence": "Apache-2.0"
+  },
+  "not_computed": [],
+  "views_added": [
+   "cam_r_L0_master_bed_room_3"
+  ]
+ },
+ "warnings": []
+}

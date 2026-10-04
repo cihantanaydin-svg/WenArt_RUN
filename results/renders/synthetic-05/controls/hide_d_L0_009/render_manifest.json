@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+ "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -81,92 +81,111 @@
   "f_L0_028": 47,
   "f_L0_029": 48,
   "f_L0_030": 49,
-  "f_L0_031": 50,
-  "dec_L0_003": 51,
-  "dec_L0_010": 52
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
  },
  "renders": [
   {
-   "camera": "cam_r_L0_hol_2",
+   "camera": "cam_r_L0_hol_1",
    "room_id": "r_L0_hol",
    "level_id": "L0",
-   "png": "cam_r_L0_hol_2.png",
-   "exr": "cam_r_L0_hol_2_passes.exr",
-   "preview": "cam_r_L0_hol_2_preview.jpg",
-   "depth_png": "cam_r_L0_hol_2_depth.png",
-   "index_png": "cam_r_L0_hol_2_index.png",
+   "png": "cam_r_L0_hol_1.png",
+   "exr": "cam_r_L0_hol_1_passes.exr",
+   "preview": "cam_r_L0_hol_1_preview.jpg",
+   "depth_png": "cam_r_L0_hol_1_depth.png",
+   "index_png": "cam_r_L0_hol_1_index.png",
    "files": {
-    "index": "cam_r_L0_hol_2_index.png",
-    "depth_mm": "cam_r_L0_hol_2_depth_mm.png",
-    "normal": "cam_r_L0_hol_2_normal.png",
-    "depth": "cam_r_L0_hol_2_depth.png"
+    "index": "cam_r_L0_hol_1_index.png",
+    "depth_mm": "cam_r_L0_hol_1_depth_mm.png",
+    "normal": "cam_r_L0_hol_1_normal.png",
+    "depth": "cam_r_L0_hol_1_depth.png"
    },
-   "preview_bytes": 94152,
-   "seconds": 5.49,
+   "preview_bytes": 94409,
+   "seconds": 3.23,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.6670141220092773,
-    "max": 8.19999885559082,
-    "mean": 2.2802441120147705,
+    "min": 0.7934362888336182,
+    "max": 8.563809394836426,
+    "mean": 2.4197959899902344,
     "coverage": 1.0
    },
    "index_values": [
+    3,
     5,
     7,
-    8
+    8,
+    47
    ],
    "index_stats": {
-    "5": {
-     "pixels": 555120,
+    "3": {
+     "pixels": 813240,
      "box": [
-      1360,
+      1167,
       0,
-      1874,
+      1920,
+      1080
+     ]
+    },
+    "5": {
+     "pixels": 170506,
+     "box": [
+      678,
+      0,
+      850,
       1080
      ]
     },
     "7": {
-     "pixels": 392040,
+     "pixels": 4433,
      "box": [
       0,
       0,
-      363,
+      12,
       1080
      ]
     },
     "8": {
-     "pixels": 73465,
+     "pixels": 21443,
      "box": [
-      609,
+      68,
       0,
-      693,
-      936
+      103,
+      835
+     ]
+    },
+    "47": {
+     "pixels": 19466,
+     "box": [
+      322,
+      308,
+      393,
+      589
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
-   "render_key": "d2aae3ad3e829754",
+   "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+   "render_key": "ad7e6af7becb7fac",
    "exposure": {
     "mode": "from",
-    "ev": -1.333333,
+    "ev": -0.333333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.126834,
-     0.979854,
-     0.826091
+     1.128212,
+     0.980094,
+     0.819651
     ],
     "wb_mode": "from",
-    "wb_temperature": 5440.1,
-    "wb_tint": 6.39,
+    "wb_temperature": 5416.1,
+    "wb_tint": 6.83,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
@@ -185,9 +204,25 @@
    "alt_preview_bytes": null
   }
  ],
- "dropped_stale": [],
+ "dropped_stale": [
+  {
+   "camera": "cam_r_L0_hol_2",
+   "reason": "no such camera in the scene (a camera of an earlier build or camera policy)",
+   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+   "render_key": "d2aae3ad3e829754",
+   "files": [
+    "cam_r_L0_hol_2.png",
+    "cam_r_L0_hol_2_depth.png",
+    "cam_r_L0_hol_2_depth_mm.png",
+    "cam_r_L0_hol_2_index.png",
+    "cam_r_L0_hol_2_normal.png",
+    "cam_r_L0_hol_2_passes.exr",
+    "cam_r_L0_hol_2_preview.jpg"
+   ]
+  }
+ ],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

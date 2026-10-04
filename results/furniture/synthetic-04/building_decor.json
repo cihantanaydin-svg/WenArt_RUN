@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-04",
   "source_folder": "projects/synthetic-04",
-  "created_utc": "2026-10-03T03:14:44Z",
-  "pipeline_commit": "95a675fe",
+  "created_utc": "2026-10-04T00:06:34Z",
+  "pipeline_commit": "2be169d6",
   "brief": {
    "style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"
   }
@@ -24,6 +24,7 @@
      "kind": "vector",
      "level_id": "L3",
      "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -55,7 +56,9 @@
      ],
      "debug_image": "debug/3_kat_plani_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   },
   {
    "id": "doc_3_kat_plani_pdf_pdf",
@@ -70,6 +73,7 @@
      "kind": "vector",
      "level_id": "L3",
      "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -104,7 +108,9 @@
      ],
      "debug_image": "debug/3_kat_plani_pdf_pdf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
   }
  ],
  "levels": [
@@ -131,7 +137,8 @@
      "entity": "char:25",
      "text": "3. KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   }
  ],
  "walls": [
@@ -1273,7 +1280,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type kitchen_counter is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -1340,7 +1349,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type sink_kitchen is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -1407,6 +1418,18 @@
     ],
     "candidates": [
      {
+      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+      "aspect_error": 0.1821,
+      "scale": [
+       1.014,
+       0.8452,
+       0.9296
+      ],
+      "non_uniform": 1.1998,
+      "mean_scale": 0.9296,
+      "accepted": false
+     },
+     {
       "id": "electric_stove",
       "aspect_error": 0.2535,
       "scale": [
@@ -1419,8 +1442,10 @@
       "accepted": false
      }
     ],
-    "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: electric_stove at 28.8 % non-uniform, mean scale 1.0601)",
-    "cap": 1.15
+    "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_7c5c9dec5c2e4ff998c386410b0e3686 at 20.0 % non-uniform, mean scale 0.9296)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -1462,32 +1487,67 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:fridge",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9651,
+     1.0029,
+     0.984
     ],
     "bbox_m": [
      0.7,
      0.7,
-     1.8
+     1.0707
     ],
-    "aspect_error": null,
-    "front_axis": "-Y",
+    "aspect_error": 0.0384,
+    "front_axis": "+X",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.0509,
+     -0.0204,
+     -0.5142
     ],
-    "candidates": [],
-    "fallback_reason": "type fridge is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+      "aspect_error": 0.0384,
+      "scale": [
+       0.9651,
+       1.0029,
+       0.984
+      ],
+      "non_uniform": 1.0391,
+      "mean_scale": 0.984,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
+    "sha256_glb": "8f80c749cbd00ea7007e102cda52309771a4f7bb567ba8cb110354caa2e9b7d9",
+    "uid": "68d69bbf7a454a09a2536ac0762532f3",
+    "title": "Old Fridge",
+    "author": "golddog",
+    "source_url": "https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.4196741214858973
    },
    "status": "verified",
    "evidence": [
@@ -1529,29 +1589,31 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:table_dining",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9432,
+     0.8376,
+     0.8904
     ],
     "bbox_m": [
      1.6,
      0.9,
-     0.75
+     0.5788
     ],
-    "aspect_error": null,
+    "aspect_error": 0.1188,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.0066,
+     0.005,
+     -0.0161
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
     "candidates": [
      {
       "id": "dining_table",
@@ -1578,20 +1640,39 @@
       "accepted": false
      },
      {
-      "id": "painted_wooden_table",
-      "aspect_error": 0.174,
+      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+      "aspect_error": 0.1188,
       "scale": [
-       0.6651,
-       0.7916,
-       0.7283
+       0.9432,
+       0.8376,
+       0.8904
       ],
-      "non_uniform": 1.1901,
-      "mean_scale": 0.7283,
-      "accepted": false
+      "non_uniform": 1.1261,
+      "mean_scale": 0.8904,
+      "accepted": true
      }
     ],
-    "fallback_reason": "no table_dining candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: dining_table at 9.6 % non-uniform, mean scale 0.6783)",
-    "cap": 1.15
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/5f235f066a9a416fb7177496a9117ec7.glb",
+    "sha256_glb": "24ecc9ca3ddef33b7899920c493eb837fce57f45917dbbcc3b2c925335eef96a",
+    "uid": "5f235f066a9a416fb7177496a9117ec7",
+    "title": "Low Poly - Chair and Table",
+    "author": "tadeus",
+    "source_url": "https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Low Poly - Chair and Table\" by tadeus (https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.003482351830475967
    },
    "status": "verified",
    "evidence": [
@@ -1633,55 +1714,42 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -1689,7 +1757,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -1731,55 +1818,42 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -1787,7 +1861,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -1829,55 +1922,42 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -1885,7 +1965,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -1927,55 +2026,42 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -1983,7 +2069,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -2025,55 +2130,42 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "sofa_02",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.2174,
-     1.1005,
-     1.1589
+     1.019,
+     1.0008,
+     1.0099
     ],
     "bbox_m": [
      2.2,
      0.9,
-     0.8222
+     0.7143
     ],
-    "aspect_error": 0.1009,
-    "gltf": "models/sofa_02/sofa_02_1k.gltf",
+    "aspect_error": 0.0181,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0003,
-     0.0688,
-     0.0002
+     0.0037,
+     0.0481,
+     0.0077
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "Sofa_01",
-      "aspect_error": 0.0232,
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "aspect_error": 0.0181,
       "scale": [
-       1.3999,
-       1.3678,
-       1.3839
+       1.019,
+       1.0008,
+       1.0099
       ],
-      "non_uniform": 1.0235,
-      "mean_scale": 1.3839,
-      "accepted": false
-     },
-     {
-      "id": "sofa_02",
-      "aspect_error": 0.1009,
-      "scale": [
-       1.2174,
-       1.1005,
-       1.1589
-      ],
-      "non_uniform": 1.1062,
-      "mean_scale": 1.1589,
+      "non_uniform": 1.0182,
+      "mean_scale": 1.0099,
       "accepted": true
      }
     ],
@@ -2081,7 +2173,23 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+    "uid": "42da0122f2134a189767d0911b401c1c",
+    "title": "Couch Gameready",
+    "author": "elijahorama",
+    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2123,29 +2231,31 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:table_coffee",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8358,
+     0.8974,
+     0.8666
     ],
     "bbox_m": [
      1.0,
      0.6,
-     0.45
+     0.3122
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0711,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -0.2132
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
     "candidates": [
      {
       "id": "CoffeeTable_01",
@@ -2160,32 +2270,39 @@
       "accepted": false
      },
      {
-      "id": "modern_coffee_table_01",
-      "aspect_error": 0.1838,
+      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+      "aspect_error": 0.0711,
       "scale": [
-       0.8321,
-       1.0,
-       0.916
+       0.8358,
+       0.8974,
+       0.8666
       ],
-      "non_uniform": 1.2018,
-      "mean_scale": 0.916,
-      "accepted": false
-     },
-     {
-      "id": "modern_coffee_table_02",
-      "aspect_error": 0.5113,
-      "scale": [
-       0.834,
-       0.5001,
-       0.667
-      ],
-      "non_uniform": 1.6675,
-      "mean_scale": 0.667,
-      "accepted": false
+      "non_uniform": 1.0737,
+      "mean_scale": 0.8666,
+      "accepted": true
      }
     ],
-    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: CoffeeTable_01 at 5.3 % non-uniform, mean scale 0.6331)",
-    "cap": 1.15
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic",
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/f4031bb5f7e64ebca4c37d4fa5ba6e8d.glb",
+    "sha256_glb": "2bc22be99daf7683d44c72511d94ff01a90a3d79f817289942edcba3606cbe6f",
+    "uid": "f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "title": "LP Table",
+    "author": "doplerato",
+    "source_url": "https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"LP Table\" by doplerato (https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 8.325952670722103
    },
    "status": "verified",
    "evidence": [
@@ -2277,7 +2394,9 @@
      }
     ],
     "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2319,43 +2438,42 @@
    "front_deg": 225.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "ArmChair_01",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.0608,
-     1.1752,
-     1.118
+     0.9978,
+     0.9984,
+     0.9981
     ],
     "bbox_m": [
      0.9,
      0.9,
-     1.1908
+     0.9412
     ],
-    "aspect_error": 0.1024,
-    "gltf": "models/ArmChair_01/ArmChair_01_1k.gltf",
-    "front_axis": "-Y",
+    "aspect_error": 0.0007,
+    "front_axis": "+X",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0344,
-     -0.0004
+     -0.0295,
+     -0.001,
+     0.0002
     ],
-    "rotation_fix_deg": 0.0,
+    "rotation_fix_deg": 270.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "ArmChair_01",
-      "aspect_error": 0.1024,
+      "id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+      "aspect_error": 0.0007,
       "scale": [
-       1.0608,
-       1.1752,
-       1.118
+       0.9978,
+       0.9984,
+       0.9981
       ],
-      "non_uniform": 1.1079,
-      "mean_scale": 1.118,
+      "non_uniform": 1.0007,
+      "mean_scale": 0.9981,
       "accepted": true
      }
     ],
@@ -2363,7 +2481,22 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/aedb9509ef9347a5b055e02deeadeff7.glb",
+    "sha256_glb": "f1e2aca421cebd2ba10178fc88899a41a06c27508609a639ba3c638be6788808",
+    "uid": "aedb9509ef9347a5b055e02deeadeff7",
+    "title": "Sofa",
+    "author": "mustafasahinfb",
+    "source_url": "https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sofa\" by mustafasahinfb (https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -2405,43 +2538,42 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "wooden_display_shelves_01",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9278,
-     0.9421,
-     0.935
+     0.8363,
+     0.8355,
+     0.8359
     ],
     "bbox_m": [
      1.0,
      0.35,
-     1.455
+     1.6659
     ],
-    "aspect_error": 0.0153,
-    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
-    "front_axis": "-X",
+    "aspect_error": 0.001,
+    "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
-     0.0004
+     -0.0101,
+     -0.0
     ],
-    "rotation_fix_deg": 90.0,
-    "front_axis_confidence": "low",
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "wooden_display_shelves_01",
-      "aspect_error": 0.0153,
+      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+      "aspect_error": 0.001,
       "scale": [
-       0.9278,
-       0.9421,
-       0.935
+       0.8363,
+       0.8355,
+       0.8359
       ],
-      "non_uniform": 1.0154,
-      "mean_scale": 0.935,
+      "non_uniform": 1.001,
+      "mean_scale": 0.8359,
       "accepted": true
      }
     ],
@@ -2449,7 +2581,23 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/51d928b33e5549898cc86cbdaf966d83.glb",
+    "sha256_glb": "8876efd23bfdc64030a37788be6960c5cd318440e1da3e8ce945d936977510fa",
+    "uid": "51d928b33e5549898cc86cbdaf966d83",
+    "title": "Simple Book Shelf | [FREE] | Agustin Honnun",
+    "author": "Agustín Hönnun",
+    "source_url": "https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Simple Book Shelf | [FREE] | Agustin Honnun\" by Agustín Hönnun (https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2507,7 +2655,6 @@
      1.5732
     ],
     "aspect_error": 0.0885,
-    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -2535,7 +2682,13 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2593,7 +2746,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -2621,7 +2773,17 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2679,7 +2841,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -2707,7 +2868,17 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2772,9 +2943,48 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type wardrobe is parametric in the catalogue",
-    "cap": 1.15
+    "candidates": [
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "aspect_error": 0.2691,
+      "scale": [
+       1.3923,
+       1.0638,
+       1.2281
+      ],
+      "non_uniform": 1.3088,
+      "mean_scale": 1.2281,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.4784,
+      "scale": [
+       1.7202,
+       1.0661,
+       1.3931
+      ],
+      "non_uniform": 1.6135,
+      "mean_scale": 1.3931,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "aspect_error": 0.5003,
+      "scale": [
+       1.5848,
+       0.9609,
+       1.2729
+      ],
+      "non_uniform": 1.6492,
+      "mean_scale": 1.2729,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b3a99e956be64ab6958f7f5e1895f031 at 30.9 % non-uniform, mean scale 1.2281)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2841,7 +3051,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type bathtub is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2906,9 +3118,48 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type toilet is parametric in the catalogue",
-    "cap": 1.15
+    "candidates": [
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.2233,
+      "scale": [
+       0.8836,
+       1.1046,
+       0.9941
+      ],
+      "non_uniform": 1.2502,
+      "mean_scale": 0.9941,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.2259,
+      "scale": [
+       0.8824,
+       1.106,
+       0.9942
+      ],
+      "non_uniform": 1.2534,
+      "mean_scale": 0.9942,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.2649,
+      "scale": [
+       0.8654,
+       1.1279,
+       0.9967
+      ],
+      "non_uniform": 1.3033,
+      "mean_scale": 0.9967,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2950,32 +3201,67 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:washbasin",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9251,
+     0.9454,
+     0.9352
     ],
     "bbox_m": [
      0.6,
      0.45,
-     1.0
+     0.5141
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0217,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -0.2748
     ],
-    "candidates": [],
-    "fallback_reason": "type washbasin is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0217,
+      "scale": [
+       0.9251,
+       0.9454,
+       0.9352
+      ],
+      "non_uniform": 1.022,
+      "mean_scale": 0.9352,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
    },
    "status": "verified",
    "evidence": [
@@ -3025,7 +3311,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Slim walnut dresser against wall for storage, Japandi style."
+     "text": "Slim walnut dresser against wall for minimal storage without blocking walkway."
     }
    ],
    "checks": {
@@ -3040,7 +3326,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.6,
+      3.7,
       7.6
      ],
      "rotation_deg": 0.0,
@@ -3066,16 +3352,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     9.35,
-     6.729
+     9.071,
+     6.779
     ],
     "size": [
      1.2,
      2.0
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 270.0,
+   "front_deg": 0.0,
    "height": 0.5,
    "asset": null,
    "status": "verified",
@@ -3085,8 +3371,8 @@
      "method": "ai",
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Placed against the wall for Japandi minimalism and to avoid door swing interference."
+     "pass": 1,
+     "text": "Main sleeping area against the wall, leaving space for walkways."
     }
    ],
    "checks": {
@@ -3101,7 +3387,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      9.35,
+      9.375,
       6.2
      ],
      "rotation_deg": 0.0,
@@ -3111,7 +3397,13 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
     ],
     "agreed_by_other_pass": true
    }
@@ -3125,16 +3417,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     8.271,
-     6.3
+     9.375,
+     4.871
     ],
     "size": [
      0.5,
      0.4
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": 0.0,
+   "front_deg": 90.0,
    "height": 0.5,
    "asset": null,
    "status": "verified",
@@ -3144,8 +3436,8 @@
      "method": "ai",
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Positioned beside the bed for easy access, aligned with Japandi simplicity."
+     "pass": 1,
+     "text": "Placed beside the bed for easy access to essentials."
     }
    ],
    "checks": {
@@ -3160,8 +3452,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      8.9,
-      6.2
+      9.375,
+      5.7
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -3170,8 +3462,7 @@
      ]
     },
     "repairs": [
-     "snap",
-     "slide"
+     "snap"
     ],
     "agreed_by_other_pass": false
    }
@@ -3180,82 +3471,22 @@
    "id": "f_L3_025",
    "level_id": "L3",
    "room_id": "r_L3_cocuk_odasi",
-   "type": "nightstand",
+   "type": "wardrobe",
    "type_raw": null,
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     10.2,
-     7.529
+     10.671,
+     4.971
     ],
     "size": [
-     0.5,
-     0.4
+     1.2,
+     0.6
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 180.0
    },
-   "front_deg": 270.0,
-   "height": 0.5,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Balances the bed setup and maintains symmetry for visual harmony."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": true,
-    "proposed": {
-     "center": [
-      9.8,
-      6.2
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.5,
-      0.4
-     ]
-    },
-    "repairs": [
-     "snap",
-     "slide"
-    ],
-    "agreed_by_other_pass": false
-   }
-  },
-  {
-   "id": "f_L3_026",
-   "level_id": "L3",
-   "room_id": "r_L3_cocuk_odasi",
-   "type": "desk",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     11.379,
-     6.129
-    ],
-    "size": [
-     1.4,
-     0.7
-    ],
-    "rotation_deg": 270.0
-   },
-   "front_deg": 180.0,
-   "height": 0.75,
+   "front_deg": 90.0,
+   "height": 2.1,
    "asset": null,
    "status": "verified",
    "evidence": [
@@ -3264,8 +3495,8 @@
      "method": "ai",
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Positioned near the window for natural light and against the wall for space efficiency."
+     "pass": 1,
+     "text": "Storage against the wall, away from door swing and window."
     }
    ],
    "checks": {
@@ -3280,13 +3511,13 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      10.5,
+      8.05,
       6.5
      ],
      "rotation_deg": 0.0,
      "size": [
-      1.4,
-      0.7
+      1.8,
+      0.6
      ]
     },
     "repairs": [
@@ -3300,7 +3531,7 @@
    }
   },
   {
-   "id": "f_L3_027",
+   "id": "f_L3_026",
    "level_id": "L3",
    "room_id": "r_L3_cocuk_odasi",
    "type": "chair",
@@ -3308,12 +3539,12 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     11.4,
-     7.1
+     11.5,
+     5.0
     ],
     "size": [
-     0.4,
-     0.4
+     0.45,
+     0.45
     ],
     "rotation_deg": 0.0
    },
@@ -3327,8 +3558,8 @@
      "method": "ai",
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Placed at the desk for functional use, with clearance for movement."
+     "pass": 1,
+     "text": "Seating for desk, positioned to face the desk."
     }
    ],
    "checks": {
@@ -3343,8 +3574,8 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      10.6,
-      6.3
+      10.5,
+      5.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -3353,8 +3584,6 @@
      ]
     },
     "repairs": [
-     "slide",
-     "shrink",
      "slide"
     ],
     "agreed_by_other_pass": false
@@ -3500,10 +3729,10 @@
    "level_id": "L3",
    "room_id": "r_L3_cocuk_odasi",
    "center": [
-    9.35,
-    7.479
+    8.321,
+    6.779
    ],
-   "rotation_deg": 0.0,
+   "rotation_deg": 90.0,
    "size": [
     0.5,
     0.3
@@ -3517,33 +3746,12 @@
   {
    "id": "dec_L3_008",
    "kind": "decor",
-   "type": "book_set",
-   "level_id": "L3",
-   "room_id": "r_L3_cocuk_odasi",
-   "center": [
-    11.569,
-    5.629
-   ],
-   "rotation_deg": 270.0,
-   "size": [
-    0.3,
-    0.22
-   ],
-   "asset": null,
-   "host_id": "f_L3_026",
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "books on the back corner of the desk"
-  },
-  {
-   "id": "dec_L3_009",
-   "kind": "decor",
    "type": "plant",
    "level_id": "L3",
    "room_id": "r_L3_cocuk_odasi",
    "center": [
     11.5,
-    4.9
+    7.5
    ],
    "rotation_deg": 0.0,
    "size": [

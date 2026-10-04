@@ -1,0 +1,287 @@
+{
+ "schema_version": "0.1",
+ "project": "real01",
+ "views": {
+  "cam_r_L0_bath_toilet_1": {
+   "plan": "cam_r_L0_bath_toilet_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1188,
+    1430
+   ],
+   "scale": 1.50094,
+   "bytes": 57291
+  },
+  "cam_r_L0_bath_toilet_2": {
+   "plan": "cam_r_L0_bath_toilet_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1188,
+    1430
+   ],
+   "scale": 1.50094,
+   "bytes": 54553
+  },
+  "cam_r_L0_bed_room_1": {
+   "plan": "cam_r_L0_bed_room_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    644,
+    1222
+   ],
+   "scale": 1.07962,
+   "bytes": 83682
+  },
+  "cam_r_L0_bed_room_2": {
+   "plan": "cam_r_L0_bed_room_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    644,
+    1222
+   ],
+   "scale": 1.07962,
+   "bytes": 85176
+  },
+  "cam_r_L0_bed_room_2_1": {
+   "plan": "cam_r_L0_bed_room_2_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    644,
+    626
+   ],
+   "scale": 1.07817,
+   "bytes": 82433
+  },
+  "cam_r_L0_bed_room_2_2": {
+   "plan": "cam_r_L0_bed_room_2_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    644,
+    626
+   ],
+   "scale": 1.07817,
+   "bytes": 85419
+  },
+  "cam_r_L0_bed_room_2_3": {
+   "plan": "cam_r_L0_bed_room_2_3_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    644,
+    626
+   ],
+   "scale": 1.07817,
+   "bytes": 85377
+  },
+  "cam_r_L0_bed_room_3": {
+   "plan": "cam_r_L0_bed_room_3_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    644,
+    1222
+   ],
+   "scale": 1.07962,
+   "bytes": 86264
+  },
+  "cam_r_L0_dining_1": {
+   "plan": "cam_r_L0_dining_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1473,
+    626
+   ],
+   "scale": 1.0,
+   "bytes": 73710
+  },
+  "cam_r_L0_dining_2": {
+   "plan": "cam_r_L0_dining_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1473,
+    626
+   ],
+   "scale": 1.0,
+   "bytes": 76748
+  },
+  "cam_r_L0_dining_3": {
+   "plan": "cam_r_L0_dining_3_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1473,
+    626
+   ],
+   "scale": 1.0,
+   "bytes": 77627
+  },
+  "cam_r_L0_drawing_room_1": {
+   "plan": "cam_r_L0_drawing_room_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1473,
+    1054
+   ],
+   "scale": 1.0,
+   "bytes": 104917
+  },
+  "cam_r_L0_drawing_room_2": {
+   "plan": "cam_r_L0_drawing_room_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1473,
+    1054
+   ],
+   "scale": 1.0,
+   "bytes": 108553
+  },
+  "cam_r_L0_drawing_room_3": {
+   "plan": "cam_r_L0_drawing_room_3_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1473,
+    1054
+   ],
+   "scale": 1.0,
+   "bytes": 101887
+  },
+  "cam_r_L0_kitchen_1": {
+   "plan": "cam_r_L0_kitchen_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    2237,
+    626
+   ],
+   "scale": 1.1396,
+   "bytes": 64344
+  },
+  "cam_r_L0_kitchen_2": {
+   "plan": "cam_r_L0_kitchen_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    2237,
+    626
+   ],
+   "scale": 1.1396,
+   "bytes": 60044
+  },
+  "cam_r_L0_kitchen_3": {
+   "plan": "cam_r_L0_kitchen_3_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    2237,
+    626
+   ],
+   "scale": 1.1396,
+   "bytes": 60732
+  },
+  "cam_r_L0_room_1": {
+   "plan": "cam_r_L0_room_1_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1188,
+    626
+   ],
+   "scale": 1.0,
+   "bytes": 46488
+  },
+  "cam_r_L0_room_2": {
+   "plan": "cam_r_L0_room_2_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1188,
+    626
+   ],
+   "scale": 1.0,
+   "bytes": 42705
+  },
+  "cam_r_L0_room_3": {
+   "plan": "cam_r_L0_room_3_plan.jpg",
+   "document": "real01.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "real01.pdf",
+   "crop_origin_px": [
+    1188,
+    626
+   ],
+   "scale": 1.0,
+   "bytes": 41153
+  }
+ },
+ "warnings": []
+}

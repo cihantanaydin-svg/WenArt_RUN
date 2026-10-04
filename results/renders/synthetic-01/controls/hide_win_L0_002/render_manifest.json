@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
+ "scene_sha256": "fc990af5500dc9e8828866d2fbc8a02955768dd4c5d70cac731e1aff8066824f",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -64,41 +64,39 @@
   "f_L0_017": 28,
   "f_L0_018": 29,
   "f_L0_019": 30,
-  "f_L0_020": 31,
-  "f_L0_021": 32,
-  "dec_L0_006": 33,
-  "d_L1_001": 34,
-  "d_L1_002": 35,
-  "d_L1_003": 36,
-  "d_L1_004": 37,
-  "win_L1_001": 38,
-  "win_L1_002": 39,
-  "win_L1_003": 40,
-  "win_L1_004": 41,
-  "win_L1_005": 42,
-  "win_L1_006": 43,
-  "f_L1_001": 44,
-  "f_L1_002": 45,
-  "f_L1_003": 46,
-  "f_L1_004": 47,
-  "f_L1_005": 48,
-  "f_L1_006": 49,
-  "f_L1_007": 50,
-  "f_L1_008": 51,
-  "f_L1_009": 52,
-  "f_L1_010": 53,
-  "f_L1_011": 54,
-  "f_L1_012": 55,
-  "f_L1_013": 56,
-  "f_L1_014": 57,
-  "f_L1_015": 58,
-  "f_L1_016": 59,
-  "f_L1_017": 60,
-  "f_L1_018": 61,
-  "f_L1_019": 62,
-  "dec_L1_004": 63,
-  "dec_L1_007": 64,
-  "dec_L1_010": 65
+  "dec_L0_006": 31,
+  "d_L1_001": 32,
+  "d_L1_002": 33,
+  "d_L1_003": 34,
+  "d_L1_004": 35,
+  "win_L1_001": 36,
+  "win_L1_002": 37,
+  "win_L1_003": 38,
+  "win_L1_004": 39,
+  "win_L1_005": 40,
+  "win_L1_006": 41,
+  "f_L1_001": 42,
+  "f_L1_002": 43,
+  "f_L1_003": 44,
+  "f_L1_004": 45,
+  "f_L1_005": 46,
+  "f_L1_006": 47,
+  "f_L1_007": 48,
+  "f_L1_008": 49,
+  "f_L1_009": 50,
+  "f_L1_010": 51,
+  "f_L1_011": 52,
+  "f_L1_012": 53,
+  "f_L1_013": 54,
+  "f_L1_014": 55,
+  "f_L1_015": 56,
+  "f_L1_016": 57,
+  "f_L1_017": 58,
+  "f_L1_018": 59,
+  "f_L1_019": 60,
+  "dec_L1_004": 61,
+  "dec_L1_007": 62,
+  "dec_L1_009": 63
  },
  "renders": [
   {
@@ -116,17 +114,17 @@
     "normal": "cam_r_L0_salon_2_normal.png",
     "depth": "cam_r_L0_salon_2_depth.png"
    },
-   "preview_bytes": 163914,
-   "seconds": 5.4,
+   "preview_bytes": 155303,
+   "seconds": 3.39,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.8911476135253906,
+    "min": 1.005495548248291,
     "max": 5.712615966796875,
-    "mean": 3.6016347408294678,
+    "mean": 3.61480450630188,
     "coverage": 1.0
    },
    "index_values": [
@@ -134,24 +132,25 @@
     12,
     13,
     14,
-    15
+    15,
+    25
    ],
    "index_stats": {
     "2": {
-     "pixels": 209892,
+     "pixels": 228664,
      "box": [
       133,
       25,
       492,
-      645
+      705
      ]
     },
     "12": {
-     "pixels": 271550,
+     "pixels": 262502,
      "box": [
       0,
-      626,
-      761,
+      588,
+      766,
       1080
      ]
     },
@@ -174,34 +173,43 @@
      ]
     },
     "15": {
-     "pixels": 129103,
+     "pixels": 144111,
      "box": [
-      615,
-      368,
-      1013,
-      898
+      588,
+      474,
+      1017,
+      897
+     ]
+    },
+    "25": {
+     "pixels": 232,
+     "box": [
+      157,
+      468,
+      158,
+      700
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
-   "render_key": "4ce4801aaa921aea",
+   "scene_sha256": "fc990af5500dc9e8828866d2fbc8a02955768dd4c5d70cac731e1aff8066824f",
+   "render_key": "6c8e5dcd047898fc",
    "exposure": {
     "mode": "from",
-    "ev": 3.5,
+    "ev": 3.333333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.163179,
-     0.967559,
-     0.840854
+     1.162015,
+     0.968082,
+     0.839108
     ],
     "wb_mode": "from",
-    "wb_temperature": 5372.8,
-    "wb_tint": -0.38,
+    "wb_temperature": 5371.1,
+    "wb_tint": -0.04,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
@@ -225,6 +233,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1790998008.0,
+ "deadline": 1791066926.0,
  "warnings": []
 }

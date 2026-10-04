@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "gate_validation",
+ "project": "real01",
+ "decision": "flagged",
+ "benign_accept": 0.9464,
+ "negative_reject": 0.9604,
+ "n_benign": 56,
+ "n_negative": 101,
+ "pass_benign": false,
+ "pass_negative": true,
+ "reasons": [
+  "benign controls accepted 0.946 < 0.95 (56 comparisons): the gate also rejects harmless edits"
+ ],
+ "limits": {
+  "benign_accept_min": 0.95,
+  "negative_reject_min": 0.9
+ },
+ "polish_allowed": true,
+ "calibration": {
+  "path": "gate_calibration.json",
+  "sha256": "e4102d6477ba3fdf8442df6c5547539ed051ba0dd0079165113824381804ee71",
+  "incomplete": false,
+  "thresholds_match": true
+ },
+ "created_utc": "2026-10-04T00:41:08Z"
+}

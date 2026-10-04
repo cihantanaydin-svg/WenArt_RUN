@@ -1,0 +1,32 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "ab_render",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 311.99,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "ab/renders/render_manifest.json",
+  "ab/cameras_check.json"
+ ],
+ "started_utc": "2026-10-03T03:39:24Z",
+ "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "log": "logs/ab_render.log",
+ "note": "30 camera(s) kept, 0 dropped",
+ "run_id": "20261003-030812-full-20261003T031435Z",
+ "steps": [
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 39.3
+  },
+  {
+   "name": "render",
+   "rc": 0,
+   "seconds": 272.69
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 # Ingest report: synthetic-05
 
 Status: **ok**
-Source: `projects/synthetic-05`, pipeline commit `95a675fe`, created 2026-10-03T03:15:00Z
+Source: `projects/synthetic-05`, pipeline commit `2be169d6`, created 2026-10-04T00:07:55Z
 
 ## Documents
 
@@ -18,17 +18,17 @@ Source: `projects/synthetic-05`, pipeline commit `95a675fe`, created 2026-10-03T
 
 ## Rooms
 
-| Room | Level | Label | Type | Area computed | Area label | Furniture in documents | Status |
-|---|---|---|---|---|---|---|---|
-| r_L0_salon | L0 | Salon | living | 19,76 | 19,76 | yes | verified |
-| r_L0_ebeveyn_yatak_odasi | L0 | Ebeveyn Yatak Odası | bedroom | 17,86 | - | yes | verified |
-| r_L0_ebeveyn_banyo | L0 | Ebeveyn Banyo | bathroom | 5,95 | - | yes | verified |
-| r_L0_mutfak | L0 | Mutfak | kitchen | 14,72 | - | yes | verified |
-| r_L0_hol | L0 | Hol | hall | 7,92 | - | no | verified |
-| r_L0_calisma_odasi | L0 | Çalışma Odası | other | 13,80 | - | no | verified |
-| r_L0_antre | L0 | Antre | hall | 4,95 | - | no | verified |
-| r_L0_banyo | L0 | Banyo | bathroom | 6,60 | - | yes | verified |
-| r_L0_yatak_odasi | L0 | Yatak Odası | bedroom | 9,57 | - | yes | verified |
+| Room | Level | Label | As drawn | Type | Area computed | Area label | Furniture in documents | Status |
+|---|---|---|---|---|---|---|---|---|
+| r_L0_salon | L0 | Salon | SALON 19,76 m² | living | 19,76 | 19,76 | yes | verified |
+| r_L0_ebeveyn_yatak_odasi | L0 | Ebeveyn Yatak Odası | EBEVEYN YATAK ODASI | bedroom | 17,86 | - | yes | verified |
+| r_L0_ebeveyn_banyo | L0 | Ebeveyn Banyo | EBEVEYN BANYO | bathroom | 5,95 | - | yes | verified |
+| r_L0_mutfak | L0 | Mutfak | MUTFAK | kitchen | 14,72 | - | yes | verified |
+| r_L0_hol | L0 | Hol | HOL | hall | 7,92 | - | no | verified |
+| r_L0_calisma_odasi | L0 | Çalışma Odası | ÇALIŞMA ODASI | other | 13,80 | - | no | verified |
+| r_L0_antre | L0 | Antre | ANTRE | hall | 4,95 | - | no | verified |
+| r_L0_banyo | L0 | Banyo | BANYO | bathroom | 6,60 | - | yes | verified |
+| r_L0_yatak_odasi | L0 | Yatak Odası | YATAK ODASI | bedroom | 9,57 | - | yes | verified |
 
 ## Furniture
 

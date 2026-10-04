@@ -1,0 +1,2660 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-06",
+  "source_folder": "projects/synthetic-06",
+  "created_utc": "2026-10-04T00:07:46Z",
+  "pipeline_commit": "2be169d6",
+  "brief": {
+   "style": "Mid-century modern, walnut floor, white walls, mustard and teal accents, warm daylight"
+  },
+  "unit_system": "imperial"
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_synthetic_06_dwg",
+   "file": "synthetic-06.dwg",
+   "format": "dwg",
+   "converter": "libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 5 fixes",
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": null,
+     "classifier": "generic_labels",
+     "scale": {
+      "metres_per_unit": 0.0254,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS"
+      }
+     },
+     "transform_to_building": [
+      0.0254,
+      0.0,
+      -12.190999999999999,
+      0.0,
+      0.0254,
+      -6.095
+     ],
+     "confidence": 0.6,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "MTEXT:107:0",
+       "text": "LIVING ROOM"
+      },
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "ATTRIB:10A",
+       "block": "ROOMTAG",
+       "text": "KITCHEN"
+      },
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "TEXT:10B",
+       "text": "LOBBY"
+      },
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "TEXT:10C",
+       "text": "BATH"
+      },
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "TEXT:10D",
+       "text": "BED ROOM"
+      },
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "TEXT:10E",
+       "text": "MASTER BED ROOM"
+      }
+     ],
+     "debug_image": "debug/synthetic_06_dwg_p1.png"
+    }
+   ],
+   "conversion": {
+    "libredwg_version": "0.14 d9468ae",
+    "acadver": "AC1015",
+    "release": "R2000",
+    "entity_counts": {
+     "ARC": 5,
+     "DIMENSION": 8,
+     "HATCH": 1,
+     "INSERT": 6,
+     "LINE": 45,
+     "LWPOLYLINE": 6,
+     "MTEXT": 1,
+     "TEXT": 4
+    },
+    "audit": {
+     "errors": 0,
+     "fixes": 5,
+     "messages": []
+    }
+   },
+   "unit_system": "imperial",
+   "source_kind": "dxf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:0",
+     "text": "LIVING ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "ATTRIB:10A",
+     "block": "ROOMTAG",
+     "text": "KITCHEN"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10B",
+     "text": "LOBBY"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10C",
+     "text": "BATH"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10D",
+     "text": "BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10E",
+     "text": "MASTER BED ROOM"
+    }
+   ],
+   "label_source": "assumed"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.231,
+    0.115
+   ],
+   "end": [
+    7.101,
+    0.115
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    0.231,
+    3.963
+   ],
+   "end": [
+    7.087,
+    3.963
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    0.231,
+    5.64
+   ],
+   "end": [
+    7.087,
+    5.64
+   ],
+   "thickness": 0.155,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.231,
+    9.183
+   ],
+   "end": [
+    7.101,
+    9.183
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    0.115,
+    0.001
+   ],
+   "end": [
+    0.115,
+    9.297
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    2.439,
+    4.038
+   ],
+   "end": [
+    2.439,
+    5.5625
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    2.745,
+    2.059
+   ],
+   "end": [
+    2.745,
+    3.8874
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    3.506,
+    5.7175
+   ],
+   "end": [
+    3.506,
+    9.0674
+   ],
+   "thickness": 0.155,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    7.202,
+    0.001
+   ],
+   "end": [
+    7.202,
+    9.297
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    7.202,
+    4.8016
+   ],
+   "width": 0.9144,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_lobby",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CB,LINE:CC"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_006",
+   "center": [
+    2.439,
+    4.8016
+   ],
+   "width": 0.762,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bath",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CD,LINE:CE"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    2.9982,
+    5.64
+   ],
+   "width": 0.8128,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bed_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CF,LINE:D0"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    4.1158,
+    5.64
+   ],
+   "width": 0.8128,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_master_bed_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D1,LINE:D2"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    6.2494,
+    3.963
+   ],
+   "width": 0.8128,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_living_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D3,LINE:D4"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    1.4488,
+    0.115
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:D6"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    4.954,
+    0.115
+   ],
+   "width": 1.8288,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:DB"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    1.8298,
+    9.183
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:EA"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    5.335,
+    9.183
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:EF"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    0.115,
+    4.8016
+   ],
+   "width": 0.6096,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:E5"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    0.115,
+    7.3924
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:F9"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_007",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    7.202,
+    2.0584
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:E0"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_008",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    7.202,
+    7.3924
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:F4"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "o_L0_001",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": null,
+   "virtual": true,
+   "line": [
+    [
+     2.745,
+     0.23
+    ],
+    [
+     2.745,
+     2.059
+    ]
+   ],
+   "center": [
+    2.745,
+    1.1445
+   ],
+   "width": 1.829,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:HATCH:C4|HATCH:C4",
+     "note": "virtual separator (end-to-wall, 1.83 m): two room names shared one face"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_kitchen",
+   "level_id": "L0",
+   "label": "Kitchen",
+   "label_raw": "KITCHEN",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.23,
+     0.23
+    ],
+    [
+     2.745,
+     0.23
+    ],
+    [
+     2.745,
+     2.059
+    ],
+    [
+     2.67,
+     2.059
+    ],
+    [
+     2.67,
+     3.888
+    ],
+    [
+     0.23,
+     3.888
+    ]
+   ],
+   "area_computed": 9.063,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "ATTRIB:10A",
+     "block": "ROOMTAG",
+     "text": "KITCHEN"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_007"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_001"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_living_room",
+   "level_id": "L0",
+   "label": "Living Room",
+   "label_raw": "LIVING ROOM",
+   "room_type": "living",
+   "polygon": [
+    [
+     2.745,
+     0.23
+    ],
+    [
+     7.087,
+     0.23
+    ],
+    [
+     7.087,
+     3.888
+    ],
+    [
+     2.82,
+     3.888
+    ],
+    [
+     2.82,
+     2.059
+    ],
+    [
+     2.745,
+     2.059
+    ]
+   ],
+   "area_computed": 15.746,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:0",
+     "text": "LIVING ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:1",
+     "text": "14'-0\" X 12'-0\""
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_007,w_L0_009"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_001"
+    }
+   ],
+   "label_size": {
+    "text": "14'-0\" X 12'-0\"",
+    "width_m": 4.2672,
+    "length_m": 3.6576,
+    "measured": [
+     4.342,
+     3.658
+    ],
+    "status": "ok",
+    "off_pct": [
+     -1.7,
+     0.0
+    ]
+   }
+  },
+  {
+   "id": "r_L0_bath",
+   "level_id": "L0",
+   "label": "Bath",
+   "label_raw": "BATH",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     0.23,
+     4.038
+    ],
+    [
+     2.364,
+     4.038
+    ],
+    [
+     2.364,
+     5.5625
+    ],
+    [
+     0.23,
+     5.5625
+    ]
+   ],
+   "area_computed": 3.253,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10C",
+     "text": "BATH"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_005,w_L0_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_lobby",
+   "level_id": "L0",
+   "label": "Lobby",
+   "label_raw": "LOBBY",
+   "room_type": "hall",
+   "polygon": [
+    [
+     2.514,
+     4.038
+    ],
+    [
+     7.087,
+     4.038
+    ],
+    [
+     7.087,
+     5.5625
+    ],
+    [
+     2.514,
+     5.5625
+    ]
+   ],
+   "area_computed": 6.972,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10B",
+     "text": "LOBBY"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_006,w_L0_009"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_bed_room",
+   "level_id": "L0",
+   "label": "Bed Room",
+   "label_raw": "BED ROOM",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.23,
+     5.7175
+    ],
+    [
+     3.4285,
+     5.7175
+    ],
+    [
+     3.4285,
+     9.068
+    ],
+    [
+     0.23,
+     9.068
+    ]
+   ],
+   "area_computed": 10.717,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10D",
+     "text": "BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_005,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_master_bed_room",
+   "level_id": "L0",
+   "label": "Master Bed Room",
+   "label_raw": "MASTER BED ROOM",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     3.5835,
+     5.7175
+    ],
+    [
+     7.087,
+     5.7175
+    ],
+    [
+     7.087,
+     9.068
+    ],
+    [
+     3.5835,
+     9.068
+    ]
+   ],
+   "area_computed": 11.738,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10E",
+     "text": "MASTER BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_008,w_L0_009"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_master_bed_room",
+   "type": "bed_double",
+   "type_raw": "BED-DOUBLE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     5.335,
+     8.002
+    ],
+    "size": [
+     2.032,
+     1.524
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bed_double",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.032,
+     1.524,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+      "aspect_error": 0.1534,
+      "scale": [
+       0.8368,
+       0.7178,
+       0.7773
+      ],
+      "non_uniform": 1.1658,
+      "mean_scale": 0.7773,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "aspect_error": 0.4021,
+      "scale": [
+       1.1611,
+       0.7767,
+       0.9689
+      ],
+      "non_uniform": 1.495,
+      "mean_scale": 0.9689,
+      "accepted": false
+     },
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.5993,
+      "scale": [
+       1.3603,
+       0.7471,
+       1.0537
+      ],
+      "non_uniform": 1.8209,
+      "mean_scale": 1.0537,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "aspect_error": 0.8371,
+      "scale": [
+       1.3819,
+       0.5983,
+       0.9901
+      ],
+      "non_uniform": 2.3097,
+      "mean_scale": 0.9901,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 16.6 % non-uniform, mean scale 0.7773)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:101/0,INSERT:101/1,INSERT:101/2,INSERT:101/3",
+     "block": "BED-DOUBLE"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_living_room",
+   "type": "sofa",
+   "type_raw": "SOFA-3",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.954,
+     0.7376
+    ],
+    "size": [
+     2.1336,
+     0.9144
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9883,
+     1.0168,
+     1.0025
+    ],
+    "bbox_m": [
+     2.1336,
+     0.9144,
+     0.7091
+    ],
+    "aspect_error": 0.0284,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0037,
+     0.0481,
+     0.0077
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "Sofa_01",
+      "aspect_error": 0.0233,
+      "scale": [
+       1.3577,
+       1.3897,
+       1.3737
+      ],
+      "non_uniform": 1.0236,
+      "mean_scale": 1.3737,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "aspect_error": 0.0284,
+      "scale": [
+       0.9883,
+       1.0168,
+       1.0025
+      ],
+      "non_uniform": 1.0288,
+      "mean_scale": 1.0025,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+    "uid": "42da0122f2134a189767d0911b401c1c",
+    "title": "Couch Gameready",
+    "author": "elijahorama",
+    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FD/0,INSERT:FD/1,INSERT:FD/2,INSERT:FD/3,INSERT:FD/4,INSERT:FD/5",
+     "block": "SOFA-3"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "table_dining",
+   "type_raw": "DINING-6",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4488,
+     2.0584
+    ],
+    "size": [
+     1.8288,
+     0.9144
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_table",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7602,
+     0.8042,
+     0.7822
+    ],
+    "bbox_m": [
+     1.8288,
+     0.9144,
+     0.7498
+    ],
+    "aspect_error": 0.0563,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0005,
+     0.0027,
+     -0.0005
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "painted_wooden_table",
+      "aspect_error": 0.0563,
+      "scale": [
+       0.7602,
+       0.8042,
+       0.7822
+      ],
+      "non_uniform": 1.0579,
+      "mean_scale": 0.7822,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/painted_wooden_table/painted_wooden_table_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/0",
+     "block": "DINING-6"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_bath",
+   "type": "toilet",
+   "type_raw": "WC",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.636,
+     4.3698
+    ],
+    "size": [
+     0.7112,
+     0.508
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.7112,
+     0.508,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.6312,
+      "scale": [
+       1.5387,
+       0.8186,
+       1.1786
+      ],
+      "non_uniform": 1.8798,
+      "mean_scale": 1.1786,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.6702,
+      "scale": [
+       1.5689,
+       0.8027,
+       1.1858
+      ],
+      "non_uniform": 1.9547,
+      "mean_scale": 1.1858,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.6728,
+      "scale": [
+       1.571,
+       0.8016,
+       1.1863
+      ],
+      "non_uniform": 1.9598,
+      "mean_scale": 1.1863,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_0b3325fad3e740b1ac86173c90b56afd at 88.0 % non-uniform, mean scale 1.1786)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:103/0,INSERT:103/1",
+     "block": "WC"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.7122,
+     2.5156
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/2/0,INSERT:FF/2/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4488,
+     3.2522
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/5/0,INSERT:FF/5/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4488,
+     0.8646
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/6/0,INSERT:FF/6/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.7122,
+     1.6012
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/1/0,INSERT:FF/1/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.1854,
+     2.5156
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/4/0,INSERT:FF/4/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.1854,
+     1.6012
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/3/0,INSERT:FF/3/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_bath",
+   "type": "washbasin",
+   "type_raw": "BASIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.271,
+     5.3096
+    ],
+    "size": [
+     0.508,
+     0.4064
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.7832,
+     0.8538,
+     0.8185
+    ],
+    "bbox_m": [
+     0.508,
+     0.4064,
+     0.4499
+    ],
+    "aspect_error": 0.0863,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0863,
+      "scale": [
+       0.7832,
+       0.8538,
+       0.8185
+      ],
+      "non_uniform": 1.0901,
+      "mean_scale": 0.8185,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:105/0,INSERT:105/1",
+     "block": "BASIN"
+    }
+   ],
+   "type_method": "block_name",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_012",
+   "level_id": "L0",
+   "room_id": "r_L0_lobby",
+   "type": "chair",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     4.82,
+     5.2
+    ],
+    "size": [
+     0.5,
+     0.5
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.9,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Mid-century modern chair for seating near the window area."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      4.12,
+      5.2
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.5
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_013",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.8,
+     8.047
+    ],
+    "size": [
+     1.8,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main sleeping area against the wall, leaving space for walkways and furniture."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.8,
+      7.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      2.0
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_014",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.451,
+     6.8
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand beside the bed for easy access to essentials."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.3,
+      6.8
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_015",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.208,
+     6.9
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and balance."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      2.3,
+      6.8
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "level title missing: assumed L0 Ground floor",
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)"
+ ],
+ "site": {
+  "boundary_walls": [],
+  "areas": [],
+  "decor": [],
+  "openings": []
+ },
+ "decor": [
+  {
+   "id": "dec_L0_001",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_living_room",
+   "center": [
+    4.421,
+    1.02
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.15
+   ],
+   "asset": null,
+   "host_id": "f_L0_002",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion against the sofa back"
+  },
+  {
+   "id": "dec_L0_002",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_living_room",
+   "center": [
+    5.487,
+    1.02
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.15
+   ],
+   "asset": null,
+   "host_id": "f_L0_002",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion against the sofa back"
+  },
+  {
+   "id": "dec_L0_003",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_living_room",
+   "center": [
+    6.837,
+    0.48
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  },
+  {
+   "id": "dec_L0_004",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    1.35,
+    8.797
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_013",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_005",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    2.25,
+    8.797
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_013",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_006",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    0.48,
+    5.968
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  },
+  {
+   "id": "dec_L0_007",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_master_bed_room",
+   "center": [
+    4.823,
+    7.494
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_001",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_008",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_master_bed_room",
+   "center": [
+    4.823,
+    8.51
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_001",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_009",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_master_bed_room",
+   "center": [
+    3.833,
+    8.818
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  }
+ ]
+}

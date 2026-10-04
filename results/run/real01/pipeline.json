@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real01",
+ "stage": "pipeline",
+ "rc": 4,
+ "status": "pending",
+ "seconds": 14.2,
+ "fingerprint": "be2596f3e7b95f2c89ca52848b3fdfe31ae6fd4cbfa31797c5915e381e9a52d9",
+ "inputs": {
+  "projects/real01": "4ca78573cac183908272879f1d88b4c0938f087eb5c5e268c6705a4a11863c5c",
+  "<LibreDWG VERSION>": "0.14 d9468ae"
+ },
+ "outputs": [
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-10-04T00:05:35Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/pipeline.log",
+ "note": "17 recognition question(s) written (recognition/requests.json)",
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "pipeline",
+   "rc": 4,
+   "seconds": 14.2
+  }
+ ],
+ "written": {}
+}

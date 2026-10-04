@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
+ "scene_sha256": "54cc1bbfb9751f84dbb524a31e292abeb9855205cc6e1606b65f477344728e69",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -62,41 +62,39 @@
   "f_L0_017": 28,
   "f_L0_018": 29,
   "f_L0_019": 30,
-  "f_L0_020": 31,
-  "f_L0_021": 32,
-  "dec_L0_006": 33,
-  "d_L1_001": 34,
-  "d_L1_002": 35,
-  "d_L1_003": 36,
-  "d_L1_004": 37,
-  "win_L1_001": 38,
-  "win_L1_002": 39,
-  "win_L1_003": 40,
-  "win_L1_004": 41,
-  "win_L1_005": 42,
-  "win_L1_006": 43,
-  "f_L1_001": 44,
-  "f_L1_002": 45,
-  "f_L1_003": 46,
-  "f_L1_004": 47,
-  "f_L1_005": 48,
-  "f_L1_006": 49,
-  "f_L1_007": 50,
-  "f_L1_008": 51,
-  "f_L1_009": 52,
-  "f_L1_010": 53,
-  "f_L1_011": 54,
-  "f_L1_012": 55,
-  "f_L1_013": 56,
-  "f_L1_014": 57,
-  "f_L1_015": 58,
-  "f_L1_016": 59,
-  "f_L1_017": 60,
-  "f_L1_018": 61,
-  "f_L1_019": 62,
-  "dec_L1_004": 63,
-  "dec_L1_007": 64,
-  "dec_L1_010": 65
+  "dec_L0_006": 31,
+  "d_L1_001": 32,
+  "d_L1_002": 33,
+  "d_L1_003": 34,
+  "d_L1_004": 35,
+  "win_L1_001": 36,
+  "win_L1_002": 37,
+  "win_L1_003": 38,
+  "win_L1_004": 39,
+  "win_L1_005": 40,
+  "win_L1_006": 41,
+  "f_L1_001": 42,
+  "f_L1_002": 43,
+  "f_L1_003": 44,
+  "f_L1_004": 45,
+  "f_L1_005": 46,
+  "f_L1_006": 47,
+  "f_L1_007": 48,
+  "f_L1_008": 49,
+  "f_L1_009": 50,
+  "f_L1_010": 51,
+  "f_L1_011": 52,
+  "f_L1_012": 53,
+  "f_L1_013": 54,
+  "f_L1_014": 55,
+  "f_L1_015": 56,
+  "f_L1_016": 57,
+  "f_L1_017": 58,
+  "f_L1_018": 59,
+  "f_L1_019": 60,
+  "f_L1_020": 61,
+  "dec_L1_004": 62,
+  "dec_L1_007": 63
  },
  "renders": [
   {
@@ -114,17 +112,17 @@
     "normal": "cam_r_L0_salon_1_normal.png",
     "depth": "cam_r_L0_salon_1_depth.png"
    },
-   "preview_bytes": 143283,
-   "seconds": 8.39,
+   "preview_bytes": 161786,
+   "seconds": 5.18,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 2.0613789558410645,
+    "min": 2.0109853744506836,
     "max": 5.559391975402832,
-    "mean": 3.779012680053711,
+    "mean": 3.77476167678833,
     "coverage": 1.0
    },
    "index_values": [
@@ -153,12 +151,12 @@
      ]
     },
     "15": {
-     "pixels": 6478,
+     "pixels": 16898,
      "box": [
       1876,
-      745,
+      656,
       1920,
-      997
+      1080
      ]
     },
     "16": {
@@ -172,26 +170,26 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
-   "render_key": "daeeb1125c334b81",
+   "scene_sha256": "54cc1bbfb9751f84dbb524a31e292abeb9855205cc6e1606b65f477344728e69",
+   "render_key": "4dd5be1f03dd6dc0",
    "exposure": {
     "mode": "from",
-    "ev": 3.5,
+    "ev": 3.333333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.139057,
-     0.970027,
-     0.887441
+     1.139693,
+     0.970344,
+     0.88243
     ],
     "wb_mode": "from",
-    "wb_temperature": 5598.6,
-    "wb_tint": -1.42,
+    "wb_temperature": 5579.8,
+    "wb_tint": -1.03,
     "residual": null,
-    "window_clip_frac": 0.0025,
+    "window_clip_frac": 0.0,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -206,22 +204,22 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 2.5,
-    "clip_before": 0.0812,
+    "pane_ev": 2.333333,
+    "clip_before": 0.0042,
     "clip_after": 0.0,
     "pane_px": 140577,
-    "pane_median": 0.9588,
-    "wall_median": 0.7257,
+    "pane_median": 0.918,
+    "wall_median": 0.6195,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.9095
+      "median": 0.8546
      }
     ],
-    "pane_median_after": 0.9095,
-    "seconds": 0.755
+    "pane_median_after": 0.8546,
+    "seconds": 0.422
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -230,6 +228,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1790998008.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

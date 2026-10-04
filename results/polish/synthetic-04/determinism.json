@@ -2,8 +2,8 @@
  "schema_version": "0.1",
  "camera": "cam_r_L3_banyo_1",
  "max_abs_diff": 0,
- "seconds": 16.68,
- "attempt_key": "5e6a0adb5b221aa3730ade0b94e301c90c996212b9ffcbef66435de0bf1bd734",
+ "seconds": 7.59,
+ "attempt_key": "aaf3354fe042f13c373e313d4866705f46fefdcd2e703fab64779f1cde46d80b",
  "settings": {
   "strength": 0.375,
   "control": "geometry",
@@ -14,7 +14,7 @@
   "steps": 8
  },
  "seconds_each": [
-  8.32,
-  8.36
+  3.79,
+  3.8
  ]
 }

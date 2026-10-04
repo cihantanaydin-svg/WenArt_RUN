@@ -5,22 +5,23 @@
  "stage": "style",
  "rc": 0,
  "status": "ok",
- "seconds": 0.39,
+ "seconds": 0.28,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "style.json"
  ],
- "started_utc": "2026-10-03T03:14:54Z",
- "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "started_utc": "2026-10-04T00:06:38Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
  "log": "logs/style.log",
  "note": null,
- "run_id": "20261003-030812-full-20261003T031435Z",
+ "run_id": "20261004-000052-full-20261004T000516Z",
  "steps": [
   {
    "name": "style",
    "rc": 0,
-   "seconds": 0.39
+   "seconds": 0.28
   }
- ]
+ ],
+ "written": {}
 }

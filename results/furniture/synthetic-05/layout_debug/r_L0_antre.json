@@ -4,11 +4,11 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 1.918,
+   "latency_s": 1.848,
    "error": null,
    "pieces_proposed": 2,
    "prompt": "Task: furnish this empty hall or corridor (Turkish: HOL, ANTRE, KORİDOR) labelled 'Antre' on the plan. Style brief: Modern, white walls, warm daylight, linen textiles, brass details.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_antre\", \"label\": \"Antre\", \"room_type\": \"hall\", \"area_m2\": 4.95, \"polygon_m\": [[3.55, 5.45], [5.05, 5.45], [5.05, 8.75], [3.55, 8.75]], \"doors\": [{\"id\": \"d_L0_001\", \"center\": [4.3, 8.88], \"width\": 0.9, \"opens_into_this_room\": true}, {\"id\": \"d_L0_002\", \"center\": [4.3, 5.4], \"width\": 0.8, \"opens_into_this_room\": false}], \"windows\": []}\n\nAllowed types with their size options [width, depth]:\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nA good layout for this room type: at most one slim dresser (console) or bookshelf against a wall and one chair; keep the corridor between the doors free.\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of dresser, chair, bookshelf\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"dresser\",\n      \"center\": [3.55, 7.1],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Slim dresser against wall for modern storage with linen textiles.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [4.3, 7.1],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed centrally for seating near the dresser, avoiding door swing.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"dresser\",\n      \"center\": [3.55, 7.1],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Slim dresser against wall for modern storage with linen textiles.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [4.3, 7.1],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed centrally for seating near entry, avoiding door swing.\"\n    }\n  ]\n}",
    "data": {
     "pieces": [
      {
@@ -37,7 +37,7 @@
        0.45
       ],
       "against_wall": false,
-      "reason": "Chair placed centrally for seating near the dresser, avoiding door swing."
+      "reason": "Chair placed centrally for seating near entry, avoiding door swing."
      }
     ]
    },
@@ -475,18 +475,18 @@
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 1.051,
+   "latency_s": 1.835,
    "error": null,
-   "pieces_proposed": 1,
+   "pieces_proposed": 2,
    "prompt": "Task: furnish this empty hall or corridor (Turkish: HOL, ANTRE, KORİDOR) labelled 'Antre' on the plan. Style brief: Modern, white walls, warm daylight, linen textiles, brass details.\n\nA good layout for this room type: at most one slim dresser (console) or bookshelf against a wall and one chair; keep the corridor between the doors free.\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nAllowed types with their size options [width, depth]:\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_antre\", \"label\": \"Antre\", \"room_type\": \"hall\", \"area_m2\": 4.95, \"polygon_m\": [[3.55, 5.45], [5.05, 5.45], [5.05, 8.75], [3.55, 8.75]], \"doors\": [{\"id\": \"d_L0_001\", \"center\": [4.3, 8.88], \"width\": 0.9, \"opens_into_this_room\": true}, {\"id\": \"d_L0_002\", \"center\": [4.3, 5.4], \"width\": 0.8, \"opens_into_this_room\": false}], \"windows\": []}\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of dresser, chair, bookshelf\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"dresser\",\n      \"center\": [3.55, 8.2],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Slim dresser against wall for modern storage without blocking walkway.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"dresser\",\n      \"center\": [3.55, 7.6],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Slim dresser against wall for modern storage without blocking walkway.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [4.3, 7.1],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed centrally for seating while maintaining corridor clearance.\"\n    }\n  ]\n}",
    "data": {
     "pieces": [
      {
       "type": "dresser",
       "center": [
        3.55,
-       8.2
+       7.6
       ],
       "rotation_deg": 0,
       "size": [
@@ -495,97 +495,140 @@
       ],
       "against_wall": true,
       "reason": "Slim dresser against wall for modern storage without blocking walkway."
+     },
+     {
+      "type": "chair",
+      "center": [
+       4.3,
+       7.1
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.45,
+       0.45
+      ],
+      "against_wall": false,
+      "reason": "Chair placed centrally for seating while maintaining corridor clearance."
      }
     ]
    },
    "placement": {
     "pieces": [
      {
-      "type": "dresser",
+      "type": "chair",
       "center": [
-       3.796,
-       7.3
+       3.9,
+       6.9
       ],
-      "rotation_deg": 90.0,
+      "rotation_deg": 0.0,
       "size": [
-       1.0,
-       0.45
+       0.4,
+       0.4
       ],
-      "against_wall": true,
-      "reason": "Slim dresser against wall for modern storage without blocking walkway.",
+      "against_wall": false,
+      "reason": "Chair placed centrally for seating while maintaining corridor clearance.",
       "proposed": {
        "center": [
-        3.55,
-        8.2
+        4.3,
+        7.1
        ],
        "rotation_deg": 0.0,
        "size": [
-        1.0,
+        0.45,
         0.45
        ]
       },
       "repairs": [
        {
         "iteration": 1,
-        "type": "dresser",
-        "step": "snap",
-        "before": {
-         "center": [
-          3.55,
-          8.2
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.0,
-          0.45
-         ]
-        },
-        "after": {
-         "center": [
-          3.796,
-          8.2
-         ],
-         "rotation_deg": 90.0,
-         "size": [
-          1.0,
-          0.45
-         ]
-        },
-        "failed": [
-         "inside_room",
-         "doors_free",
-         "wall_contact"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 2,
-        "type": "dresser",
+        "type": "chair",
         "step": "slide",
         "before": {
          "center": [
-          3.796,
-          8.2
+          4.3,
+          7.1
          ],
-         "rotation_deg": 90.0,
+         "rotation_deg": 0.0,
          "size": [
-          1.0,
+          0.45,
           0.45
          ]
         },
         "after": {
          "center": [
-          3.796,
-          7.3
+          3.9,
+          7.1
          ],
-         "rotation_deg": 90.0,
+         "rotation_deg": 0.0,
          "size": [
-          1.0,
+          0.45,
           0.45
          ]
         },
         "failed": [
          "doors_free"
+        ],
+        "ok": true
+       },
+       {
+        "iteration": 3,
+        "type": "chair",
+        "step": "shrink",
+        "before": {
+         "center": [
+          3.9,
+          7.1
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.45,
+          0.45
+         ]
+        },
+        "after": {
+         "center": [
+          3.9,
+          7.1
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.4,
+          0.4
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 4,
+        "type": "chair",
+        "step": "slide",
+        "before": {
+         "center": [
+          3.9,
+          7.1
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.4,
+          0.4
+         ]
+        },
+        "after": {
+         "center": [
+          3.9,
+          6.9
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.4,
+          0.4
+         ]
+        },
+        "failed": [
+         "no_overlap"
         ],
         "ok": true
        }
@@ -600,17 +643,13 @@
       }
      }
     ],
-    "dropped": [],
-    "log": [
+    "dropped": [
      {
-      "iteration": 1,
-      "piece": 0,
       "type": "dresser",
-      "step": "snap",
-      "before": {
+      "proposed": {
        "center": [
         3.55,
-        8.2
+        7.6
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -618,44 +657,10 @@
         0.45
        ]
       },
-      "after": {
+      "last": {
        "center": [
         3.796,
-        8.2
-       ],
-       "rotation_deg": 90.0,
-       "size": [
-        1.0,
-        0.45
-       ]
-      },
-      "failed": [
-       "inside_room",
-       "doors_free",
-       "wall_contact"
-      ],
-      "ok": false
-     },
-     {
-      "iteration": 2,
-      "piece": 0,
-      "type": "dresser",
-      "step": "slide",
-      "before": {
-       "center": [
-        3.796,
-        8.2
-       ],
-       "rotation_deg": 90.0,
-       "size": [
-        1.0,
-        0.45
-       ]
-      },
-      "after": {
-       "center": [
-        3.796,
-        7.3
+        7.6
        ],
        "rotation_deg": 90.0,
        "size": [
@@ -666,14 +671,407 @@
       "failed": [
        "doors_free"
       ],
-      "ok": true
+      "reason": "no repair left",
+      "repairs": [
+       {
+        "iteration": 2,
+        "type": "dresser",
+        "step": "snap",
+        "before": {
+         "center": [
+          3.55,
+          7.6
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "after": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "failed": [
+         "inside_room",
+         "wall_contact"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 5,
+        "type": "dresser",
+        "step": "slide",
+        "before": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "after": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "failed": [
+         "doors_free"
+        ],
+        "ok": false,
+        "note": "no free position on this wall"
+       },
+       {
+        "iteration": 6,
+        "type": "dresser",
+        "step": "relocate",
+        "before": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "after": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "failed": [
+         "doors_free"
+        ],
+        "ok": false,
+        "note": "no free wall"
+       },
+       {
+        "iteration": 7,
+        "type": "dresser",
+        "step": "drop",
+        "before": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "after": {
+         "center": [
+          3.796,
+          7.6
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.45
+         ]
+        },
+        "failed": [
+         "doors_free"
+        ],
+        "ok": true,
+        "note": "no repair left"
+       }
+      ],
+      "log_entry": {
+       "iteration": 7,
+       "piece": 0,
+       "type": "dresser",
+       "step": "drop",
+       "before": {
+        "center": [
+         3.796,
+         7.6
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         3.796,
+         7.6
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.45
+        ]
+       },
+       "failed": [
+        "doors_free"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
      }
     ],
-    "iterations": 2,
+    "log": [
+     {
+      "iteration": 1,
+      "piece": 1,
+      "type": "chair",
+      "step": "slide",
+      "before": {
+       "center": [
+        4.3,
+        7.1
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.45,
+        0.45
+       ]
+      },
+      "after": {
+       "center": [
+        3.9,
+        7.1
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.45,
+        0.45
+       ]
+      },
+      "failed": [
+       "doors_free"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 2,
+      "piece": 0,
+      "type": "dresser",
+      "step": "snap",
+      "before": {
+       "center": [
+        3.55,
+        7.6
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "after": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "failed": [
+       "inside_room",
+       "wall_contact"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 3,
+      "piece": 1,
+      "type": "chair",
+      "step": "shrink",
+      "before": {
+       "center": [
+        3.9,
+        7.1
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.45,
+        0.45
+       ]
+      },
+      "after": {
+       "center": [
+        3.9,
+        7.1
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.4,
+        0.4
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 4,
+      "piece": 1,
+      "type": "chair",
+      "step": "slide",
+      "before": {
+       "center": [
+        3.9,
+        7.1
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.4,
+        0.4
+       ]
+      },
+      "after": {
+       "center": [
+        3.9,
+        6.9
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.4,
+        0.4
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 5,
+      "piece": 0,
+      "type": "dresser",
+      "step": "slide",
+      "before": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "after": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "failed": [
+       "doors_free"
+      ],
+      "ok": false,
+      "note": "no free position on this wall"
+     },
+     {
+      "iteration": 6,
+      "piece": 0,
+      "type": "dresser",
+      "step": "relocate",
+      "before": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "after": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "failed": [
+       "doors_free"
+      ],
+      "ok": false,
+      "note": "no free wall"
+     },
+     {
+      "iteration": 7,
+      "piece": 0,
+      "type": "dresser",
+      "step": "drop",
+      "before": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "after": {
+       "center": [
+        3.796,
+        7.6
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.45
+       ]
+      },
+      "failed": [
+       "doors_free"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    ],
+    "iterations": 7,
     "anchor_first": false
    }
   }
  ],
- "chosen_pass": 2,
+ "chosen_pass": 1,
  "skipped": null
 }

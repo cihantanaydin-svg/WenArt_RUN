@@ -5,26 +5,27 @@
  "stage": "layout",
  "rc": 0,
  "status": "ok",
- "seconds": 18.02,
- "fingerprint": "3f1343bd381c318c8524c85306656455ecdd21b4e6609e93e592a2e0b5912fdd",
+ "seconds": 15.5,
+ "fingerprint": "11412938b296e7f1934d38f75b817170ad2579669038164109cbfcff445c645f",
  "inputs": {
-  "outputs/synthetic-05/building_fitted.json": "f0a42cd4a313bcb75e2c20834545e37c1dbf59abd064e8650efd76f85df8522d",
-  "outputs/synthetic-05/style.json": "b9eafa0a658a8bebf8b84a8f34a56efa0639834cbba63ffca53af970b8ba7b23"
+  "outputs/synthetic-05/building_fitted.json": "ff491d74d5f46ec6a48f80440b558a38fd079c8f74d7e060ba9bc913e748b61d",
+  "outputs/synthetic-05/style.json": "9eab46b8dd70a360ee8987bef799c926f5f3894ec9d833721200720f4ebba186"
  },
  "outputs": [
   "building_furnished.json",
   "layout.json"
  ],
- "started_utc": "2026-10-03T03:24:28Z",
- "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "started_utc": "2026-10-04T00:14:21Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
  "log": "logs/layout.log",
  "note": null,
- "run_id": "20261003-030812-full-20261003T031435Z",
+ "run_id": "20261004-000052-full-20261004T000516Z",
  "steps": [
   {
    "name": "layout",
    "rc": 0,
-   "seconds": 18.02
+   "seconds": 15.5
   }
- ]
+ ],
+ "written": {}
 }

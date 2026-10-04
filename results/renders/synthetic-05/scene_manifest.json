@@ -5,6 +5,7 @@
  "style": "outputs/synthetic-05/style.json",
  "style_profile": {
   "source_text": "Modern, white walls, warm daylight, linen textiles, brass details",
+  "family": "modern",
   "floor": {
    "material": "concrete_polished",
    "asset": "Concrete046"
@@ -3603,55 +3604,42 @@
    "rotation_deg": 90.0,
    "front_deg": 0.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "sofa_02",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.2174,
-     1.1005,
-     1.1589
+     1.019,
+     1.0008,
+     1.0099
     ],
     "bbox_m": [
      2.2,
      0.9,
-     0.8222
+     0.7143
     ],
-    "aspect_error": 0.1009,
-    "gltf": "models/sofa_02/sofa_02_1k.gltf",
+    "aspect_error": 0.0181,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0003,
-     0.0688,
-     0.0002
+     0.0037,
+     0.0481,
+     0.0077
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "Sofa_01",
-      "aspect_error": 0.0232,
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "aspect_error": 0.0181,
       "scale": [
-       1.3999,
-       1.3678,
-       1.3839
+       1.019,
+       1.0008,
+       1.0099
       ],
-      "non_uniform": 1.0235,
-      "mean_scale": 1.3839,
-      "accepted": false
-     },
-     {
-      "id": "sofa_02",
-      "aspect_error": 0.1009,
-      "scale": [
-       1.2174,
-       1.1005,
-       1.1589
-      ],
-      "non_uniform": 1.1062,
-      "mean_scale": 1.1589,
+      "non_uniform": 1.0182,
+      "mean_scale": 1.0099,
       "accepted": true
      }
     ],
@@ -3659,69 +3647,111 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "sofa_02",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "Sofa_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "sofa_03",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_072d0468bb97447ab1ca7e3edea25f1f",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+    "uid": "42da0122f2134a189767d0911b401c1c",
+    "title": "Couch Gameready",
+    "author": "elijahorama",
+    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
    },
    "fit_scale": [
-    1.2174,
-    1.1005,
-    1.1589
+    1.019,
+    1.0008,
+    1.0099
    ],
    "method": "library",
    "bbox_m": [
-    2.2,
-    0.8999,
-    0.8222
+    2.1999,
+    0.9,
+    0.7143
    ],
    "fallback_reason": null,
    "materials": [
-    "sofa_02"
+    "Orange_Throw",
+    "Material",
+    "couchlegs"
    ],
-   "material": "sofa_02",
+   "material": "Orange_Throw",
    "textured": true,
    "fit": {
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0003,
-     0.0688,
-     0.0002
+     0.0037,
+     0.0481,
+     0.0077
     ],
     "origin_offset_applied": [
-     -0.0003,
-     -0.0688,
-     -0.0002
+     -0.0037,
+     -0.0482,
+     -0.0077
     ],
     "bbox_raw_m": [
-     1.8072,
-     0.8178,
-     0.7095
+     2.1589,
+     0.8993,
+     0.7073
     ],
     "bbox_m": [
-     2.2,
-     0.8999,
-     0.8222
+     2.1999,
+     0.9,
+     0.7143
     ],
     "fit_scale": [
-     1.2174,
-     1.1005,
-     1.1589
-    ]
+     1.019,
+     1.0008,
+     1.0099
+    ],
+    "unit_scale": 1.0
    },
-   "file": "/workspace/assets/models/sofa_02/sofa_02_1k.gltf",
+   "file": "/workspace/assets/models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
    "imported_objects": [
-    "sofa_02_Base",
-    "sofa_02_Seat"
+    "couch5k_1",
+    "GLTF_SceneRootNode",
+    "Object_4",
+    "Object_6",
+    "Object_7",
+    "orange_throw_0",
+    "root",
+    "Sketchfab_model"
    ],
    "box3d": {
     "center": [
      0.7,
      2.15,
-     0.4111
+     0.3572
     ],
     "size": [
-     2.2,
-     0.8999,
-     0.8222
+     2.1999,
+     0.9,
+     0.7143
     ],
     "rotation_deg": 90.0
    }
@@ -3789,15 +3819,15 @@
     ],
     "candidates": [
      {
-      "id": "CoffeeTable_01",
-      "aspect_error": 0.0515,
+      "id": "objaverse_1d41e84fd76241e7a8929a314052269c",
+      "aspect_error": 0.1577,
       "scale": [
-       0.6494,
-       0.6168,
-       0.6331
+       0.9626,
+       0.8221,
+       0.8923
       ],
-      "non_uniform": 1.0528,
-      "mean_scale": 0.6331,
+      "non_uniform": 1.1708,
+      "mean_scale": 0.8923,
       "accepted": false
      },
      {
@@ -3813,6 +3843,42 @@
       "accepted": false
      },
      {
+      "id": "objaverse_c17577daa87849d09960669606c0ce27",
+      "aspect_error": 0.2876,
+      "scale": [
+       0.7625,
+       1.0166,
+       0.8895
+      ],
+      "non_uniform": 1.3333,
+      "mean_scale": 0.8895,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_b0c0c9c65d06443c87391134a62e2287",
+      "aspect_error": 0.5108,
+      "scale": [
+       1.1181,
+       0.6708,
+       0.8945
+      ],
+      "non_uniform": 1.6667,
+      "mean_scale": 0.8945,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_c42d069236174467a2fb536f7d42d7f0",
+      "aspect_error": 0.5108,
+      "scale": [
+       1.1181,
+       0.6708,
+       0.8945
+      ],
+      "non_uniform": 1.6667,
+      "mean_scale": 0.8945,
+      "accepted": false
+     },
+     {
       "id": "modern_coffee_table_02",
       "aspect_error": 0.5113,
       "scale": [
@@ -3825,8 +3891,19 @@
       "accepted": false
      }
     ],
-    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: CoffeeTable_01 at 5.3 % non-uniform, mean scale 0.6331)",
-    "cap": 1.15
+    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_1d41e84fd76241e7a8929a314052269c at 17.1 % non-uniform, mean scale 0.8923)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "CoffeeTable_01",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     }
+    ]
    },
    "fit_scale": [
     1.0,
@@ -3941,22 +4018,17 @@
       "non_uniform": 1.3197,
       "mean_scale": 0.7606,
       "accepted": false
-     },
-     {
-      "id": "WoodenTable_03",
-      "aspect_error": 0.4328,
-      "scale": [
-       1.2058,
-       0.7822,
-       0.994
-      ],
-      "non_uniform": 1.5416,
-      "mean_scale": 0.994,
-      "accepted": false
      }
     ],
     "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "WoodenTable_03",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ]
    },
    "fit_scale": [
     1.0,
@@ -4040,106 +4112,161 @@
    "rotation_deg": 0.0,
    "front_deg": 270.0,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:table_dining",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9432,
+     0.8376,
+     0.8904
     ],
     "bbox_m": [
      1.6,
      0.9,
-     0.75
+     0.5788
     ],
-    "aspect_error": null,
+    "aspect_error": 0.1188,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.0066,
+     0.005,
+     -0.0161
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "dining_table",
-      "aspect_error": 0.0913,
+      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+      "aspect_error": 0.1188,
       "scale": [
-       0.7093,
-       0.6474,
-       0.6783
+       0.9432,
+       0.8376,
+       0.8904
       ],
-      "non_uniform": 1.0956,
-      "mean_scale": 0.6783,
-      "accepted": false
+      "non_uniform": 1.1261,
+      "mean_scale": 0.8904,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "dining_table",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
      },
      {
       "id": "wooden_table_02",
-      "aspect_error": 0.1011,
-      "scale": [
-       1.4104,
-       1.2748,
-       1.3426
-      ],
-      "non_uniform": 1.1064,
-      "mean_scale": 1.3426,
-      "accepted": false
+      "reason": "styles ['rustic'] include neither modern nor neutral"
      },
      {
       "id": "painted_wooden_table",
-      "aspect_error": 0.174,
-      "scale": [
-       0.6651,
-       0.7916,
-       0.7283
-      ],
-      "non_uniform": 1.1901,
-      "mean_scale": 0.7283,
-      "accepted": false
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_724d93a7f3644f96909e8c55909c6418",
+      "reason": "styles ['scandinavian', 'rustic'] include neither modern nor neutral"
      }
     ],
-    "fallback_reason": "no table_dining candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: dining_table at 9.6 % non-uniform, mean scale 0.6783)",
-    "cap": 1.15
+    "glb": "models/objaverse/5f235f066a9a416fb7177496a9117ec7.glb",
+    "sha256_glb": "24ecc9ca3ddef33b7899920c493eb837fce57f45917dbbcc3b2c925335eef96a",
+    "uid": "5f235f066a9a416fb7177496a9117ec7",
+    "title": "Low Poly - Chair and Table",
+    "author": "tadeus",
+    "source_url": "https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Low Poly - Chair and Table\" by tadeus (https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.003482351830475967
    },
    "fit_scale": [
-    1.0,
-    1.0,
-    1.0
+    0.9432,
+    0.8376,
+    0.8904
    ],
-   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "method": "library",
    "bbox_m": [
     1.6,
     0.9,
-    0.75
+    0.5788
    ],
-   "fallback_reason": "fitting chose the parametric mesh",
+   "fallback_reason": null,
    "materials": [
-    "wood_veneer_oak__oak_veneer_01"
+    "Material.001"
    ],
-   "material": "wood_veneer_oak__oak_veneer_01",
+   "material": "Material.001",
    "textured": true,
-   "material_keys": {
-    "wood": "wood_veneer_oak"
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0066,
+     0.005,
+     -0.0161
+    ],
+    "origin_offset_applied": [
+     -0.0066,
+     -0.005,
+     0.0161
+    ],
+    "bbox_raw_m": [
+     1.6963,
+     1.0745,
+     0.65
+    ],
+    "bbox_m": [
+     1.6,
+     0.9,
+     0.5788
+    ],
+    "fit_scale": [
+     0.9432,
+     0.8376,
+     0.8904
+    ],
+    "unit_scale": 0.003482351830475967
    },
-   "bevel": {
-    "width_m": 0.05,
-    "segments": 3,
-    "edges": 60,
-    "max_radius_m": 0.004
-   },
+   "file": "/workspace/assets/models/objaverse/5f235f066a9a416fb7177496a9117ec7.glb",
+   "imported_objects": [
+    "1a7a07322ff0471a86b09df38c6c6a27.fbx",
+    "Cube",
+    "Cube.001",
+    "Cube.001_Material_0",
+    "Cube.002",
+    "Cube.002_Material_0",
+    "Cube.003",
+    "Cube.003_Material_0",
+    "Cube.004",
+    "Cube.004_Material_0",
+    "Cube.005",
+    "Cube.005_Material_0",
+    "Cube.006",
+    "Cube.006_Material_0",
+    "Cube_Material_0",
+    "RootNode",
+    "Sketchfab_model"
+   ],
    "box3d": {
     "center": [
      3.2,
      3.35,
-     0.375
+     0.2894
     ],
     "size": [
      1.6,
      0.9,
-     0.75
+     0.5788
     ],
     "rotation_deg": 0.0
    }
@@ -4182,55 +4309,42 @@
    "rotation_deg": 180.0,
    "front_deg": 90.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -4238,68 +4352,131 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "fit_scale": [
-    0.7748,
-    0.7452,
-    0.76
+    0.8707,
+    0.8946,
+    0.8827
    ],
    "method": "library",
    "bbox_m": [
     0.45,
     0.45,
-    0.7856
+    0.732
    ],
    "fallback_reason": null,
    "materials": [
-    "gallinera_chair"
+    "wood"
    ],
-   "material": "gallinera_chair",
+   "material": "wood",
    "textured": true,
    "fit": {
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "origin_offset_applied": [
-     0.0003,
-     0.0363,
-     0.0002
+     -0.0,
+     -0.0148,
+     0.4159
     ],
     "bbox_raw_m": [
-     0.5808,
-     0.6039,
-     1.0337
+     0.5168,
+     0.503,
+     0.8292
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.732
     ],
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
-    ]
+     0.8707,
+     0.8946,
+     0.8827
+    ],
+    "unit_scale": 0.01
    },
-   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
    "imported_objects": [
-    "gallinera_chair"
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
    ],
    "box3d": {
     "center": [
      2.8,
      2.45,
-     0.3928
+     0.366
     ],
     "size": [
      0.45,
      0.45,
-     0.7856
+     0.732
     ],
     "rotation_deg": 180.0
    }
@@ -4342,55 +4519,42 @@
    "rotation_deg": 180.0,
    "front_deg": 90.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -4398,68 +4562,131 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "fit_scale": [
-    0.7748,
-    0.7452,
-    0.76
+    0.8707,
+    0.8946,
+    0.8827
    ],
    "method": "library",
    "bbox_m": [
     0.45,
     0.45,
-    0.7856
+    0.732
    ],
    "fallback_reason": null,
    "materials": [
-    "gallinera_chair"
+    "wood"
    ],
-   "material": "gallinera_chair",
+   "material": "wood",
    "textured": true,
    "fit": {
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "origin_offset_applied": [
-     0.0003,
-     0.0363,
-     0.0002
+     -0.0,
+     -0.0148,
+     0.4159
     ],
     "bbox_raw_m": [
-     0.5808,
-     0.6039,
-     1.0337
+     0.5168,
+     0.503,
+     0.8292
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.732
     ],
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
-    ]
+     0.8707,
+     0.8946,
+     0.8827
+    ],
+    "unit_scale": 0.01
    },
-   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
    "imported_objects": [
-    "gallinera_chair"
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
    ],
    "box3d": {
     "center": [
      3.6,
      2.45,
-     0.3928
+     0.366
     ],
     "size": [
      0.45,
      0.45,
-     0.7856
+     0.732
     ],
     "rotation_deg": 180.0
    }
@@ -4513,43 +4740,42 @@
    "rotation_deg": 0.0,
    "front_deg": 270.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicBed_01",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.0711,
-     0.9804,
-     1.0257
+     0.9143,
+     1.0193,
+     0.9668
     ],
     "bbox_m": [
      1.6,
      2.0,
-     1.5732
+     1.4492
     ],
-    "aspect_error": 0.0885,
-    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
-    "front_axis": "-Y",
+    "aspect_error": 0.1087,
+    "front_axis": "+X",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0355,
-     0.0331,
-     -0.0
+     0.4788,
+     -0.0008,
+     0.0062
     ],
-    "rotation_fix_deg": 0.0,
+    "rotation_fix_deg": 270.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "GothicBed_01",
-      "aspect_error": 0.0885,
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "aspect_error": 0.1087,
       "scale": [
-       1.0711,
-       0.9804,
-       1.0257
+       0.9143,
+       1.0193,
+       0.9668
       ],
-      "non_uniform": 1.0925,
-      "mean_scale": 1.0257,
+      "non_uniform": 1.1148,
+      "mean_scale": 0.9668,
       "accepted": true
      }
     ],
@@ -4557,68 +4783,133 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "GothicBed_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "reason": "styles ['industrial'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/2bd3fcc82c9f43cfb0c8cf26c7d0107c.glb",
+    "sha256_glb": "b374972522eaf883c09fc2896bb788c8aba4afc8a8bd513c96e477b78067fd34",
+    "uid": "2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "title": "Bed For Vr",
+    "author": "olamii",
+    "source_url": "https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Bed For Vr\" by olamii (https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.0008053334349170668
    },
    "fit_scale": [
-    1.0711,
-    0.9804,
-    1.0257
+    0.9143,
+    1.0193,
+    0.9668
    ],
    "method": "library",
    "bbox_m": [
     1.6,
-    2.0,
-    1.5733
+    2.0001,
+    1.4492
    ],
    "fallback_reason": null,
    "materials": [
-    "GothicBed_01"
+    "FABRIC_sofa",
+    "Mat.2",
+    "Wood_17",
+    "Cube_3__0"
    ],
-   "material": "GothicBed_01",
+   "material": "FABRIC_sofa",
    "textured": true,
    "fit": {
-    "front_axis": "-Y",
+    "front_axis": "+X",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0355,
-     0.0331,
-     -0.0
+     0.4788,
+     -0.0008,
+     0.0062
     ],
     "origin_offset_applied": [
-     -0.0356,
-     -0.0331,
-     0.0
+     0.0008,
+     0.4788,
+     -0.0062
     ],
     "bbox_raw_m": [
-     1.4938,
-     2.04,
-     1.5338
+     1.75,
+     1.9622,
+     1.499
     ],
     "bbox_m": [
      1.6,
-     2.0,
-     1.5733
+     2.0001,
+     1.4492
     ],
     "fit_scale": [
-     1.0711,
-     0.9804,
-     1.0257
-    ]
+     0.9143,
+     1.0193,
+     0.9668
+    ],
+    "unit_scale": 0.0008053334349170668
    },
-   "file": "/workspace/assets/models/GothicBed_01/GothicBed_01_1k.gltf",
+   "file": "/workspace/assets/models/objaverse/2bd3fcc82c9f43cfb0c8cf26c7d0107c.glb",
    "imported_objects": [
-    "GothicBed_01"
+    "3159ccd4eb0944a982db055e6786dd21.fbx",
+    "Box005",
+    "Box005_FABRIC_sofa_0",
+    "Box006",
+    "Box006_FABRIC_sofa_0",
+    "Box007",
+    "Box007_FABRIC_sofa_0",
+    "Box008",
+    "Box008_FABRIC_sofa_0",
+    "Box019",
+    "Box019_Mat.2_0",
+    "butterfly_matrac",
+    "butterfly_matrac_Mat.2_0",
+    "butterfly_pillor_squere",
+    "butterfly_pillor_squere_Mat.2_0",
+    "Camera",
+    "colette_king_bed",
+    "Cube",
+    "Cube_2",
+    "Cube_2_Wood 17_1",
+    "Cube_3",
+    "Cube_3__0",
+    "Cube_4",
+    "Cube_4_Wood 17_0",
+    "Cube_5",
+    "Cube_5_Wood 17_1",
+    "Cube_Wood 17_1",
+    "Object_23",
+    "Plane001_001_1",
+    "Plane001_001_1_FABRIC_sofa_1",
+    "RootNode",
+    "Sketchfab_model",
+    "Subdivision_Surface_1",
+    "Subdivision_Surface_10",
+    "Subdivision_Surface_11",
+    "Subdivision_Surface_12",
+    "Subdivision_Surface_13"
    ],
    "box3d": {
     "center": [
      8.4,
      3.05,
-     0.7866
+     0.7246
     ],
     "size": [
      1.6,
-     2.0,
-     1.5733
+     2.0001,
+     1.4492
     ],
     "rotation_deg": 0.0
    }
@@ -4677,7 +4968,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -4705,7 +4995,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "fit_scale": [
     0.9091,
@@ -4751,7 +5060,8 @@
      0.9091,
      0.8889,
      0.899
-    ]
+    ],
+    "unit_scale": 1.0
    },
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
@@ -4825,7 +5135,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -4853,7 +5162,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "fit_scale": [
     0.9091,
@@ -4899,7 +5227,8 @@
      0.9091,
      0.8889,
      0.899
-    ]
+    ],
+    "unit_scale": 1.0
    },
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
@@ -4980,9 +5309,33 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type wardrobe is parametric in the catalogue",
-    "cap": 1.15
+    "candidates": [
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.4784,
+      "scale": [
+       1.7202,
+       1.0661,
+       1.3931
+      ],
+      "non_uniform": 1.6135,
+      "mean_scale": 1.3931,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b46803ba0bc64e12b31f832fb761c4e0 at 61.3 % non-uniform, mean scale 1.3931)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     }
+    ]
    },
    "fit_scale": [
     1.0,
@@ -5089,34 +5442,20 @@
      0.0,
      0.0
     ],
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style modern",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
      {
       "id": "GothicCommode_01",
-      "aspect_error": 0.1485,
-      "scale": [
-       0.9988,
-       0.861,
-       0.9299
-      ],
-      "non_uniform": 1.16,
-      "mean_scale": 0.9299,
-      "accepted": false
+      "reason": "styles ['classic'] include neither modern nor neutral"
      },
      {
       "id": "vintage_wooden_drawer_01",
-      "aspect_error": 0.2469,
-      "scale": [
-       1.3993,
-       1.0931,
-       1.2462
-      ],
-      "non_uniform": 1.28,
-      "mean_scale": 1.2462,
-      "accepted": false
+      "reason": "styles ['classic'] include neither modern nor neutral"
      }
-    ],
-    "fallback_reason": "no dresser candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicCommode_01 at 16.0 % non-uniform, mean scale 0.9299)",
-    "cap": 1.15
+    ]
    },
    "fit_scale": [
     1.0,
@@ -5225,7 +5564,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type shower is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -5332,9 +5673,48 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type toilet is parametric in the catalogue",
-    "cap": 1.15
+    "candidates": [
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.2233,
+      "scale": [
+       0.8836,
+       1.1046,
+       0.9941
+      ],
+      "non_uniform": 1.2502,
+      "mean_scale": 0.9941,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.2259,
+      "scale": [
+       0.8824,
+       1.106,
+       0.9942
+      ],
+      "non_uniform": 1.2534,
+      "mean_scale": 0.9942,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.2649,
+      "scale": [
+       0.8654,
+       1.1279,
+       0.9967
+      ],
+      "non_uniform": 1.3033,
+      "mean_scale": 0.9967,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -5416,71 +5796,162 @@
    "rotation_deg": 0.0,
    "front_deg": 270.0,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:washbasin",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9251,
+     0.9454,
+     0.9352
     ],
     "bbox_m": [
      0.6,
      0.45,
-     1.0
+     0.5141
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0217,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -0.2748
     ],
-    "candidates": [],
-    "fallback_reason": "type washbasin is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0217,
+      "scale": [
+       0.9251,
+       0.9454,
+       0.9352
+      ],
+      "non_uniform": 1.022,
+      "mean_scale": 0.9352,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
    },
    "fit_scale": [
-    1.0,
-    1.0,
-    1.0
+    0.9251,
+    0.9454,
+    0.9352
    ],
-   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "method": "library",
    "bbox_m": [
-    0.6,
+    0.6001,
     0.45,
-    1.0
+    0.5141
    ],
-   "fallback_reason": "fitting chose the parametric mesh",
+   "fallback_reason": null,
    "materials": [
-    "ceramic_white",
-    "steel_brushed"
+    "aiStandardSurface6SG",
+    "aiStandardSurface5SG",
+    "aiStandardSurface2SG"
    ],
-   "material": "ceramic_white",
-   "textured": false,
-   "material_keys": {
-    "ceramic": "ceramic_white",
-    "steel": "steel_brushed"
+   "material": "aiStandardSurface6SG",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.2748
+    ],
+    "bbox_raw_m": [
+     0.6486,
+     0.476,
+     0.5497
+    ],
+    "bbox_m": [
+     0.6001,
+     0.45,
+     0.5141
+    ],
+    "fit_scale": [
+     0.9251,
+     0.9454,
+     0.9352
+    ],
+    "unit_scale": 0.32432313118014205
    },
-   "bevel": {
-    "width_m": 0.05,
-    "segments": 3,
-    "edges": 102,
-    "max_radius_m": 0.02
-   },
+   "file": "/workspace/assets/models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+   "imported_objects": [
+    "Collada visual scene group",
+    "defaultMaterial",
+    "defaultMaterial.001",
+    "defaultMaterial.002",
+    "defaultMaterial.003",
+    "defaultMaterial.004",
+    "defaultMaterial.005",
+    "defaultMaterial.006",
+    "defaultMaterial.007",
+    "defaultMaterial.008",
+    "defaultMaterial.009",
+    "defaultMaterial.010",
+    "defaultMaterial.011",
+    "defaultMaterial.012",
+    "defaultMaterial.013",
+    "defaultMaterial.014",
+    "g",
+    "g.001",
+    "g.002",
+    "g.003",
+    "g.004",
+    "g.005",
+    "g.006",
+    "g.007",
+    "g.008",
+    "g.009",
+    "g.010",
+    "g.011",
+    "g.012",
+    "g.013",
+    "g.014",
+    "Sketchfab_model"
+   ],
    "box3d": {
     "center": [
      11.7,
      3.825,
-     0.5
+     0.257
     ],
     "size": [
-     0.6,
+     0.6001,
      0.45,
-     1.0
+     0.5141
     ],
     "rotation_deg": 0.0
    }
@@ -5549,7 +6020,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type kitchen_counter is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -5661,7 +6134,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type kitchen_counter is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -5773,7 +6248,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type sink_kitchen is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -5894,7 +6371,14 @@
      }
     ],
     "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: electric_stove at 28.8 % non-uniform, mean scale 1.0601)",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+      "reason": "styles ['industrial'] include neither modern nor neutral"
+     }
+    ]
    },
    "fit_scale": [
     1.0,
@@ -5976,71 +6460,131 @@
    "rotation_deg": 0.0,
    "front_deg": 270.0,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:fridge",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9651,
+     1.0029,
+     0.984
     ],
     "bbox_m": [
      0.7,
      0.7,
-     1.8
+     1.0707
     ],
-    "aspect_error": null,
-    "front_axis": "-Y",
+    "aspect_error": 0.0384,
+    "front_axis": "+X",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.0509,
+     -0.0204,
+     -0.5142
     ],
-    "candidates": [],
-    "fallback_reason": "type fridge is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+      "aspect_error": 0.0384,
+      "scale": [
+       0.9651,
+       1.0029,
+       0.984
+      ],
+      "non_uniform": 1.0391,
+      "mean_scale": 0.984,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [],
+    "glb": "models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
+    "sha256_glb": "8f80c749cbd00ea7007e102cda52309771a4f7bb567ba8cb110354caa2e9b7d9",
+    "uid": "68d69bbf7a454a09a2536ac0762532f3",
+    "title": "Old Fridge",
+    "author": "golddog",
+    "source_url": "https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.4196741214858973
    },
    "fit_scale": [
-    1.0,
-    1.0,
-    1.0
+    0.9651,
+    1.0029,
+    0.984
    ],
-   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "method": "library",
    "bbox_m": [
     0.7,
-    0.708,
-    1.8
+    0.7,
+    1.0707
    ],
-   "fallback_reason": "fitting chose the parametric mesh",
+   "fallback_reason": null,
    "materials": [
-    "steel_brushed",
-    "lacquer_dark"
+    "None"
    ],
-   "material": "steel_brushed",
-   "textured": false,
-   "material_keys": {
-    "steel": "steel_brushed",
-    "dark": "lacquer_dark"
+   "material": "None",
+   "textured": true,
+   "fit": {
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0509,
+     -0.0204,
+     -0.5142
+    ],
+    "origin_offset_applied": [
+     0.0204,
+     0.0509,
+     0.5142
+    ],
+    "bbox_raw_m": [
+     0.7253,
+     0.698,
+     1.0881
+    ],
+    "bbox_m": [
+     0.7,
+     0.7,
+     1.0707
+    ],
+    "fit_scale": [
+     0.9651,
+     1.0029,
+     0.984
+    ],
+    "unit_scale": 0.4196741214858973
    },
-   "bevel": {
-    "width_m": 0.05,
-    "segments": 3,
-    "edges": 48,
-    "max_radius_m": 0.006
-   },
+   "file": "/workspace/assets/models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
+   "imported_objects": [
+    "5729c9838a034083ba11474dc07f4824.obj.cleaner.materialmerger.gles",
+    "Object_2",
+    "Sketchfab_model"
+   ],
    "box3d": {
     "center": [
      3.05,
-     8.396,
-     0.9
+     8.4,
+     0.5353
     ],
     "size": [
      0.7,
-     0.708,
-     1.8
+     0.7,
+     1.0707
     ],
     "rotation_deg": 0.0
    }
@@ -6108,7 +6652,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type washing_machine is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -6217,7 +6763,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type bathtub is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -6322,9 +6870,48 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type toilet is parametric in the catalogue",
-    "cap": 1.15
+    "candidates": [
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.2233,
+      "scale": [
+       0.8836,
+       1.1046,
+       0.9941
+      ],
+      "non_uniform": 1.2502,
+      "mean_scale": 0.9941,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.2259,
+      "scale": [
+       0.8824,
+       1.106,
+       0.9942
+      ],
+      "non_uniform": 1.2534,
+      "mean_scale": 0.9942,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.2649,
+      "scale": [
+       0.8654,
+       1.1279,
+       0.9967
+      ],
+      "non_uniform": 1.3033,
+      "mean_scale": 0.9967,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
    },
    "fit_scale": [
     1.0,
@@ -6406,71 +6993,162 @@
    "rotation_deg": 270.0,
    "front_deg": 180.0,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:washbasin",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9251,
+     0.9454,
+     0.9352
     ],
     "bbox_m": [
      0.6,
      0.45,
-     1.0
+     0.5141
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0217,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -0.2748
     ],
-    "candidates": [],
-    "fallback_reason": "type washbasin is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0217,
+      "scale": [
+       0.9251,
+       0.9454,
+       0.9352
+      ],
+      "non_uniform": 1.022,
+      "mean_scale": 0.9352,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
    },
    "fit_scale": [
-    1.0,
-    1.0,
-    1.0
+    0.9251,
+    0.9454,
+    0.9352
    ],
-   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "method": "library",
    "bbox_m": [
-    0.6,
+    0.6001,
     0.45,
-    1.0
+    0.5141
    ],
-   "fallback_reason": "fitting chose the parametric mesh",
+   "fallback_reason": null,
    "materials": [
-    "ceramic_white",
-    "steel_brushed"
+    "aiStandardSurface6SG",
+    "aiStandardSurface5SG",
+    "aiStandardSurface2SG"
    ],
-   "material": "ceramic_white",
-   "textured": false,
-   "material_keys": {
-    "ceramic": "ceramic_white",
-    "steel": "steel_brushed"
+   "material": "aiStandardSurface6SG",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.2748
+    ],
+    "bbox_raw_m": [
+     0.6486,
+     0.476,
+     0.5497
+    ],
+    "bbox_m": [
+     0.6001,
+     0.45,
+     0.5141
+    ],
+    "fit_scale": [
+     0.9251,
+     0.9454,
+     0.9352
+    ],
+    "unit_scale": 0.32432313118014205
    },
-   "bevel": {
-    "width_m": 0.05,
-    "segments": 3,
-    "edges": 101,
-    "max_radius_m": 0.02
-   },
+   "file": "/workspace/assets/models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+   "imported_objects": [
+    "Collada visual scene group",
+    "defaultMaterial",
+    "defaultMaterial.001",
+    "defaultMaterial.002",
+    "defaultMaterial.003",
+    "defaultMaterial.004",
+    "defaultMaterial.005",
+    "defaultMaterial.006",
+    "defaultMaterial.007",
+    "defaultMaterial.008",
+    "defaultMaterial.009",
+    "defaultMaterial.010",
+    "defaultMaterial.011",
+    "defaultMaterial.012",
+    "defaultMaterial.013",
+    "defaultMaterial.014",
+    "g",
+    "g.001",
+    "g.002",
+    "g.003",
+    "g.004",
+    "g.005",
+    "g.006",
+    "g.007",
+    "g.008",
+    "g.009",
+    "g.010",
+    "g.011",
+    "g.012",
+    "g.013",
+    "g.014",
+    "Sketchfab_model"
+   ],
    "box3d": {
     "center": [
      6.925,
      7.0,
-     0.5
+     0.257
     ],
     "size": [
-     0.6,
+     0.6001,
      0.45,
-     1.0
+     0.5141
     ],
     "rotation_deg": 270.0
    }
@@ -6519,43 +7197,42 @@
    "rotation_deg": 0.0,
    "front_deg": 270.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "old_bed_frame",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_b547d81073b64d3e97200fd3ae9a74af",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9948,
-     0.9992,
-     0.997
+     0.9,
+     0.9492,
+     0.9246
     ],
     "bbox_m": [
      0.9,
      2.0,
-     1.1979
+     0.8492
     ],
-    "aspect_error": 0.0044,
-    "gltf": "models/old_bed_frame/old_bed_frame_1k.gltf",
+    "aspect_error": 0.0532,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0048,
-     -0.0024,
-     0.0
+     0.0,
+     0.0,
+     -0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "old_bed_frame",
-      "aspect_error": 0.0044,
+      "id": "objaverse_b547d81073b64d3e97200fd3ae9a74af",
+      "aspect_error": 0.0532,
       "scale": [
-       0.9948,
-       0.9992,
-       0.997
+       0.9,
+       0.9492,
+       0.9246
       ],
-      "non_uniform": 1.0044,
-      "mean_scale": 0.997,
+      "non_uniform": 1.0547,
+      "mean_scale": 0.9246,
       "accepted": true
      }
     ],
@@ -6563,68 +7240,98 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [],
+    "glb": "models/objaverse/b547d81073b64d3e97200fd3ae9a74af.glb",
+    "sha256_glb": "9607742b2ab49f9ead596f3bef9f7bd3aa84bcd7f2ebd578cff2ac98fc665ec3",
+    "uid": "b547d81073b64d3e97200fd3ae9a74af",
+    "title": "Bed - Sample",
+    "author": "Mifu Saja",
+    "source_url": "https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Bed - Sample\" by Mifu Saja (https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "fit_scale": [
-    0.9948,
-    0.9992,
-    0.997
+    0.9,
+    0.9492,
+    0.9246
    ],
    "method": "library",
    "bbox_m": [
     0.9,
-    2.0001,
-    1.1979
+    1.9999,
+    0.8493
    ],
    "fallback_reason": null,
    "materials": [
-    "old_bed_frame"
+    "Bed_Frame",
+    "Bed_Mattress",
+    "Bed_Pillow"
    ],
-   "material": "old_bed_frame",
+   "material": "Bed_Frame",
    "textured": true,
    "fit": {
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0048,
-     -0.0024,
-     0.0
-    ],
-    "origin_offset_applied": [
-     -0.0047,
-     0.0024,
+     0.0,
+     0.0,
      -0.0
     ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
     "bbox_raw_m": [
-     0.9047,
-     2.0017,
-     1.2015
+     1.0,
+     2.107,
+     0.9185
     ],
     "bbox_m": [
      0.9,
-     2.0001,
-     1.1979
+     1.9999,
+     0.8493
     ],
     "fit_scale": [
-     0.9948,
-     0.9992,
-     0.997
-    ]
+     0.9,
+     0.9492,
+     0.9246
+    ],
+    "unit_scale": 0.01
    },
-   "file": "/workspace/assets/models/old_bed_frame/old_bed_frame_1k.gltf",
+   "file": "/workspace/assets/models/objaverse/b547d81073b64d3e97200fd3ae9a74af.glb",
    "imported_objects": [
-    "old_bed_frame"
+    "8ace6f3099114b3cb506c301c6c3cd7e.fbx",
+    "Bed Frame",
+    "Bed Frame_Bed Frame_0",
+    "Bed Mattress",
+    "Bed Mattress_Bed Mattress_0",
+    "Bed Pillow",
+    "Bed Pillow_Bed Pillow_0",
+    "RootNode",
+    "Sketchfab_model"
    ],
    "box3d": {
     "center": [
      8.0,
      7.75,
-     0.5989
+     0.4246
     ],
     "size": [
      0.9,
-     2.0001,
-     1.1979
+     1.9999,
+     0.8493
     ],
     "rotation_deg": 0.0
    }
@@ -6673,43 +7380,42 @@
    "rotation_deg": 0.0,
    "front_deg": 270.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "old_bed_frame",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_b547d81073b64d3e97200fd3ae9a74af",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9948,
-     0.9992,
-     0.997
+     0.9,
+     0.9492,
+     0.9246
     ],
     "bbox_m": [
      0.9,
      2.0,
-     1.1979
+     0.8492
     ],
-    "aspect_error": 0.0044,
-    "gltf": "models/old_bed_frame/old_bed_frame_1k.gltf",
+    "aspect_error": 0.0532,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0048,
-     -0.0024,
-     0.0
+     0.0,
+     0.0,
+     -0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "old_bed_frame",
-      "aspect_error": 0.0044,
+      "id": "objaverse_b547d81073b64d3e97200fd3ae9a74af",
+      "aspect_error": 0.0532,
       "scale": [
-       0.9948,
-       0.9992,
-       0.997
+       0.9,
+       0.9492,
+       0.9246
       ],
-      "non_uniform": 1.0044,
-      "mean_scale": 0.997,
+      "non_uniform": 1.0547,
+      "mean_scale": 0.9246,
       "accepted": true
      }
     ],
@@ -6717,68 +7423,98 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [],
+    "glb": "models/objaverse/b547d81073b64d3e97200fd3ae9a74af.glb",
+    "sha256_glb": "9607742b2ab49f9ead596f3bef9f7bd3aa84bcd7f2ebd578cff2ac98fc665ec3",
+    "uid": "b547d81073b64d3e97200fd3ae9a74af",
+    "title": "Bed - Sample",
+    "author": "Mifu Saja",
+    "source_url": "https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Bed - Sample\" by Mifu Saja (https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "fit_scale": [
-    0.9948,
-    0.9992,
-    0.997
+    0.9,
+    0.9492,
+    0.9246
    ],
    "method": "library",
    "bbox_m": [
     0.9,
-    2.0001,
-    1.1979
+    1.9999,
+    0.8493
    ],
    "fallback_reason": null,
    "materials": [
-    "old_bed_frame"
+    "Bed_Frame",
+    "Bed_Mattress",
+    "Bed_Pillow"
    ],
-   "material": "old_bed_frame",
+   "material": "Bed_Frame",
    "textured": true,
    "fit": {
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0048,
-     -0.0024,
-     0.0
-    ],
-    "origin_offset_applied": [
-     -0.0047,
-     0.0024,
+     0.0,
+     0.0,
      -0.0
     ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
     "bbox_raw_m": [
-     0.9047,
-     2.0017,
-     1.2015
+     1.0,
+     2.107,
+     0.9185
     ],
     "bbox_m": [
      0.9,
-     2.0001,
-     1.1979
+     1.9999,
+     0.8493
     ],
     "fit_scale": [
-     0.9948,
-     0.9992,
-     0.997
-    ]
+     0.9,
+     0.9492,
+     0.9246
+    ],
+    "unit_scale": 0.01
    },
-   "file": "/workspace/assets/models/old_bed_frame/old_bed_frame_1k.gltf",
+   "file": "/workspace/assets/models/objaverse/b547d81073b64d3e97200fd3ae9a74af.glb",
    "imported_objects": [
-    "old_bed_frame"
+    "8ace6f3099114b3cb506c301c6c3cd7e.fbx",
+    "Bed Frame",
+    "Bed Frame_Bed Frame_0",
+    "Bed Mattress",
+    "Bed Mattress_Bed Mattress_0",
+    "Bed Pillow",
+    "Bed Pillow_Bed Pillow_0",
+    "RootNode",
+    "Sketchfab_model"
    ],
    "box3d": {
     "center": [
      9.6,
      7.75,
-     0.5989
+     0.4246
     ],
     "size": [
      0.9,
-     2.0001,
-     1.1979
+     1.9999,
+     0.8493
     ],
     "rotation_deg": 0.0
    }
@@ -6837,7 +7573,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -6865,7 +7600,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "fit_scale": [
     0.9091,
@@ -6911,7 +7665,8 @@
      0.9091,
      0.8889,
      0.899
-    ]
+    ],
+    "unit_scale": 1.0
    },
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
@@ -6945,10 +7700,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Main work surface against the wall, with space for a chair."
+     "text": "Main work surface against the wall, leaving space for movement."
     }
    ],
    "pass_index": 46,
@@ -6961,8 +7716,8 @@
     }
    ],
    "center": [
-    11.371,
-    8.379,
+    10.621,
+    7.0,
     0.375
    ],
    "size": [
@@ -6970,8 +7725,8 @@
     0.7,
     0.75
    ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
    "asset": {
     "library": "parametric",
     "asset_id": "parametric:desk",
@@ -6998,44 +7753,35 @@
     ],
     "candidates": [
      {
-      "id": "metal_office_desk",
-      "aspect_error": 0.0542,
+      "id": "objaverse_b930438e1f804c409fd9c3f5e4b01628",
+      "aspect_error": 0.1494,
       "scale": [
-       0.7,
-       0.739,
-       0.7195
+       0.915,
+       0.788,
+       0.8515
       ],
-      "non_uniform": 1.0557,
-      "mean_scale": 0.7195,
-      "accepted": false
-     },
-     {
-      "id": "WoodenTable_01",
-      "aspect_error": 0.3142,
-      "scale": [
-       0.778,
-       1.0651,
-       0.9215
-      ],
-      "non_uniform": 1.3691,
-      "mean_scale": 0.9215,
-      "accepted": false
-     },
-     {
-      "id": "SchoolDesk_01",
-      "aspect_error": 0.428,
-      "scale": [
-       1.9668,
-       1.2821,
-       1.6244
-      ],
-      "non_uniform": 1.5341,
-      "mean_scale": 1.6244,
+      "non_uniform": 1.1611,
+      "mean_scale": 0.8515,
       "accepted": false
      }
     ],
-    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)",
-    "cap": 1.15
+    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b930438e1f804c409fd9c3f5e4b01628 at 16.1 % non-uniform, mean scale 0.8515)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "metal_office_desk",
+      "reason": "styles ['industrial'] include neither modern nor neutral"
+     },
+     {
+      "id": "WoodenTable_01",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "SchoolDesk_01",
+      "reason": "styles ['industrial'] include neither modern nor neutral"
+     }
+    ]
    },
    "fit_scale": [
     1.0,
@@ -7069,8 +7815,8 @@
    },
    "box3d": {
     "center": [
-     11.371,
-     8.379,
+     10.621,
+     7.0,
      0.375
     ],
     "size": [
@@ -7078,7 +7824,7 @@
      0.7,
      0.75
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 90.0
    }
   },
   {
@@ -7089,176 +7835,30 @@
    "level_id": "L0",
    "element_id": "f_L0_028",
    "room_id": "r_L0_calisma_odasi",
-   "type": "chair",
-   "source": "added_by_ai",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Comfortable seating positioned in front of the desk."
-    }
-   ],
-   "pass_index": 47,
-   "assumed": {},
-   "decor": [],
-   "center": [
-    11.0,
-    6.0,
-    0.45
-   ],
-   "size": [
-    0.5,
-    0.5,
-    0.9
-   ],
-   "rotation_deg": 270.0,
-   "front_deg": 180.0,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "painted_wooden_chair_02",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.782,
-     0.7552,
-     0.7686
-    ],
-    "bbox_m": [
-     0.5,
-     0.5,
-     0.9714
-    ],
-    "aspect_error": 0.0349,
-    "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0152,
-     0.0323,
-     -0.0
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
-      "scale": [
-       0.782,
-       0.7552,
-       0.7686
-      ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.7686,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "fit_scale": [
-    0.782,
-    0.7552,
-    0.7686
-   ],
-   "method": "library",
-   "bbox_m": [
-    0.5,
-    0.5,
-    0.9713
-   ],
-   "fallback_reason": null,
-   "materials": [
-    "painted_wooden_chair_02"
-   ],
-   "material": "painted_wooden_chair_02",
-   "textured": true,
-   "fit": {
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset_catalog": [
-     -0.0152,
-     0.0323,
-     -0.0
-    ],
-    "origin_offset_applied": [
-     0.0152,
-     -0.0322,
-     0.0
-    ],
-    "bbox_raw_m": [
-     0.6394,
-     0.6621,
-     1.2638
-    ],
-    "bbox_m": [
-     0.5,
-     0.5,
-     0.9713
-    ],
-    "fit_scale": [
-     0.782,
-     0.7552,
-     0.7686
-    ]
-   },
-   "file": "/workspace/assets/models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
-   "imported_objects": [
-    "painted_wooden_chair_02"
-   ],
-   "box3d": {
-    "center": [
-     11.0,
-     6.0,
-     0.4857
-    ],
-    "size": [
-     0.5,
-     0.5,
-     0.9713
-    ],
-    "rotation_deg": 270.0
-   }
-  },
-  {
-   "name": "furn_f_L0_029",
-   "wenart_id": "f_L0_029",
-   "kind": "furniture",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_029",
-   "room_id": "r_L0_calisma_odasi",
    "type": "bookshelf",
    "source": "added_by_ai",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Storage for books and decor, placed against the back wall."
+     "text": "Storage for books and office supplies, placed beside the desk."
     }
    ],
-   "pass_index": 48,
+   "pass_index": 47,
    "assumed": {},
    "decor": [
     {
-     "name": "decor_f_L0_029_7",
+     "name": "decor_f_L0_028_7",
      "type": "book_set",
      "method": "parametric (fallback: no asset in the building JSON)"
     }
    ],
    "center": [
-    10.446,
-    8.2,
+    11.721,
+    4.346,
     0.9
    ],
    "size": [
@@ -7266,8 +7866,8 @@
     0.35,
     1.8
    ],
-   "rotation_deg": 90.0,
-   "front_deg": 0.0,
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
    "asset": {
     "library": "polyhaven",
     "asset_id": "wooden_display_shelves_01",
@@ -7285,7 +7885,6 @@
      1.455
     ],
     "aspect_error": 0.0153,
-    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
     "front_axis": "-X",
     "up_axis": "+Z",
     "origin_offset": [
@@ -7313,7 +7912,34 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "Shelf_01",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "wooden_bookshelf_worn",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+      "reason": "styles ['modern minimal', 'minimal'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_6c5ac2547db34c3c81b2e4808b000386",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     }
+    ],
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf"
    },
    "fit_scale": [
     0.9278,
@@ -7359,7 +7985,8 @@
      0.9278,
      0.9421,
      0.935
-    ]
+    ],
+    "unit_scale": 1.0
    },
    "file": "/workspace/assets/models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
    "imported_objects": [
@@ -7370,8 +7997,8 @@
    ],
    "box3d": {
     "center": [
-     10.446,
-     8.2,
+     11.721,
+     4.346,
      0.7275
     ],
     "size": [
@@ -7379,7 +8006,215 @@
      0.35,
      1.455
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
+   }
+  },
+  {
+   "name": "furn_f_L0_029",
+   "wenart_id": "f_L0_029",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_029",
+   "room_id": "r_L0_calisma_odasi",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Seating for use with the desk, positioned for ergonomic access."
+    }
+   ],
+   "pass_index": 48,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    11.0,
+    6.0,
+    0.45
+   ],
+   "size": [
+    0.5,
+    0.5,
+    0.9
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9675,
+     0.994,
+     0.9808
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.8133
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.9675,
+       0.994,
+       0.9808
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.9808,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.9675,
+    0.994,
+    0.9808
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.5,
+    0.8133
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.8133
+    ],
+    "fit_scale": [
+     0.9675,
+     0.994,
+     0.9808
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     11.0,
+     6.0,
+     0.4067
+    ],
+    "size": [
+     0.5,
+     0.5,
+     0.8133
+    ],
+    "rotation_deg": 270.0
    }
   },
   {
@@ -7389,152 +8224,6 @@
    "status": "verified",
    "level_id": "L0",
    "element_id": "f_L0_030",
-   "room_id": "r_L0_calisma_odasi",
-   "type": "armchair",
-   "source": "added_by_ai",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Relaxed seating near the window for reading or contemplation."
-    }
-   ],
-   "pass_index": 49,
-   "assumed": {},
-   "decor": [],
-   "center": [
-    11.9,
-    6.5,
-    0.425
-   ],
-   "size": [
-    0.9,
-    0.9,
-    0.85
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "ArmChair_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     1.0608,
-     1.1752,
-     1.118
-    ],
-    "bbox_m": [
-     0.9,
-     0.9,
-     1.1908
-    ],
-    "aspect_error": 0.1024,
-    "gltf": "models/ArmChair_01/ArmChair_01_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     0.0344,
-     -0.0004
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "ArmChair_01",
-      "aspect_error": 0.1024,
-      "scale": [
-       1.0608,
-       1.1752,
-       1.118
-      ],
-      "non_uniform": 1.1079,
-      "mean_scale": 1.118,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "fit_scale": [
-    1.0608,
-    1.1752,
-    1.118
-   ],
-   "method": "library",
-   "bbox_m": [
-    0.9,
-    0.8999,
-    1.1908
-   ],
-   "fallback_reason": null,
-   "materials": [
-    "Armchair_01"
-   ],
-   "material": "Armchair_01",
-   "textured": true,
-   "fit": {
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset_catalog": [
-     0.0,
-     0.0344,
-     -0.0004
-    ],
-    "origin_offset_applied": [
-     -0.0,
-     -0.0344,
-     0.0004
-    ],
-    "bbox_raw_m": [
-     0.8484,
-     0.7658,
-     1.0651
-    ],
-    "bbox_m": [
-     0.9,
-     0.8999,
-     1.1908
-    ],
-    "fit_scale": [
-     1.0608,
-     1.1752,
-     1.118
-    ]
-   },
-   "file": "/workspace/assets/models/ArmChair_01/ArmChair_01_1k.gltf",
-   "imported_objects": [
-    "ArmChair_01"
-   ],
-   "box3d": {
-    "center": [
-     11.9,
-     6.5,
-     0.5954
-    ],
-    "size": [
-     0.9,
-     0.8999,
-     1.1908
-    ],
-    "rotation_deg": 0.0
-   }
-  },
-  {
-   "name": "furn_f_L0_031",
-   "wenart_id": "f_L0_031",
-   "kind": "furniture",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_031",
    "room_id": "r_L0_antre",
    "type": "dresser",
    "source": "added_by_ai",
@@ -7542,18 +8231,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Slim dresser against wall for modern storage without blocking walkway."
+     "pass": 1,
+     "text": "Slim dresser against wall for modern storage with linen textiles."
     }
    ],
-   "pass_index": 50,
+   "pass_index": 49,
    "assumed": {},
    "decor": [],
    "center": [
     3.796,
-    7.3,
+    7.1,
     0.4
    ],
    "size": [
@@ -7564,115 +8253,84 @@
    "rotation_deg": 90.0,
    "front_deg": 0.0,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicCommode_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:dresser",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     0.8324,
-     0.7749,
-     0.8036
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      1.0,
      0.45,
-     0.974
+     0.8
     ],
-    "aspect_error": 0.0715,
-    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0011,
-     -0.0013,
-     -0.0
+     0.0,
+     0.0,
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style modern",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
      {
       "id": "GothicCommode_01",
-      "aspect_error": 0.0715,
-      "scale": [
-       0.8324,
-       0.7749,
-       0.8036
-      ],
-      "non_uniform": 1.0741,
-      "mean_scale": 0.8036,
-      "accepted": true
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "vintage_wooden_drawer_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
      }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
     ]
    },
    "fit_scale": [
-    0.8324,
-    0.7749,
-    0.8036
+    1.0,
+    1.0,
+    1.0
    ],
-   "method": "library",
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
    "bbox_m": [
     1.0,
-    0.45,
-    0.974
+    0.458,
+    0.8
    ],
-   "fallback_reason": null,
+   "fallback_reason": "fitting chose the parametric mesh",
    "materials": [
-    "GothicCommode_01"
+    "wood_veneer_oak__oak_veneer_01",
+    "painted_wood_white",
+    "steel_brushed"
    ],
-   "material": "GothicCommode_01",
+   "material": "wood_veneer_oak__oak_veneer_01",
    "textured": true,
-   "fit": {
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset_catalog": [
-     -0.0011,
-     -0.0013,
-     -0.0
-    ],
-    "origin_offset_applied": [
-     0.0011,
-     0.0012,
-     0.0
-    ],
-    "bbox_raw_m": [
-     1.2014,
-     0.5807,
-     1.212
-    ],
-    "bbox_m": [
-     1.0,
-     0.45,
-     0.974
-    ],
-    "fit_scale": [
-     0.8324,
-     0.7749,
-     0.8036
-    ]
+   "material_keys": {
+    "wood": "wood_veneer_oak",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
    },
-   "file": "/workspace/assets/models/GothicCommode_01/GothicCommode_01_1k.gltf",
-   "imported_objects": [
-    "GothicCommode_01",
-    "GothicCommode_01_door01",
-    "GothicCommode_01_door02",
-    "GothicCommode_01_door03"
-   ],
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 84,
+    "max_radius_m": 0.006
+   },
    "box3d": {
     "center": [
-     3.796,
-     7.3,
-     0.487
+     3.8,
+     7.1,
+     0.4
     ],
     "size": [
      1.0,
-     0.45,
-     0.974
+     0.458,
+     0.8
     ],
     "rotation_deg": 90.0
    }
@@ -7840,7 +8498,7 @@
      "text": "plant in r_L0_salon on the floor"
     }
    ],
-   "pass_index": 51,
+   "pass_index": 50,
    "assumed": {
     "rest_height": 0.0
    },
@@ -7928,7 +8586,8 @@
      0.5705,
      0.6085,
      0.5895
-    ]
+    ],
+    "unit_scale": 1.0
    },
    "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
    "box3d": {
@@ -8113,84 +8772,9 @@
     "rest_height": 0.75
    },
    "center": [
-    11.871,
-    8.569,
+    10.431,
+    7.5,
     0.86
-   ],
-   "size": [
-    0.3,
-    0.22,
-    0.22
-   ],
-   "rotation_deg": 0.0,
-   "asset": null,
-   "method": "parametric (fallback: no asset in the building JSON)",
-   "bbox_m": [
-    0.296,
-    0.22,
-    0.22
-   ],
-   "fit_scale": [
-    1.0,
-    1.0,
-    1.0
-   ],
-   "materials": [
-    "lacquer_dark",
-    "painted_wood_white",
-    "wood_veneer_oak__oak_veneer_01",
-    "terracotta"
-   ],
-   "material": "lacquer_dark",
-   "textured": true,
-   "fallback_reason": "no asset in the building JSON",
-   "bevel": {
-    "width_m": 0.05,
-    "segments": 3,
-    "edges": 72,
-    "max_radius_m": 0.004
-   },
-   "box3d": {
-    "center": [
-     11.871,
-     8.569,
-     0.86
-    ],
-    "size": [
-     0.296,
-     0.22,
-     0.22
-    ],
-    "rotation_deg": 0.0
-   }
-  },
-  {
-   "name": "decor_f_L0_029_7",
-   "wenart_id": "f_L0_029",
-   "kind": "decor",
-   "status": "assumed",
-   "level_id": "L0",
-   "element_id": "f_L0_029",
-   "host_id": "f_L0_029",
-   "room_id": "r_L0_calisma_odasi",
-   "type": "book_set",
-   "source": "added_by_ai",
-   "evidence": [
-    {
-     "file": "decor",
-     "method": "rule",
-     "confidence": 1.0,
-     "text": "book_set on bookshelf f_L0_029 (on bookshelf f_L0_029)"
-    }
-   ],
-   "pass_index": 48,
-   "assumed": {
-    "rest_height": 0.7
-   },
-   "center": [
-    10.446,
-    8.2,
-    0.8099999999999999
    ],
    "size": [
     0.3,
@@ -8227,9 +8811,9 @@
    },
    "box3d": {
     "center": [
-     10.446,
-     8.2,
-     0.81
+     10.431,
+     7.5,
+     0.86
     ],
     "size": [
      0.296,
@@ -8237,6 +8821,81 @@
      0.22
     ],
     "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "decor_f_L0_028_7",
+   "wenart_id": "f_L0_028",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_028",
+   "host_id": "f_L0_028",
+   "room_id": "r_L0_calisma_odasi",
+   "type": "book_set",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "book_set on bookshelf f_L0_028 (on bookshelf f_L0_028)"
+    }
+   ],
+   "pass_index": 47,
+   "assumed": {
+    "rest_height": 0.7
+   },
+   "center": [
+    11.721,
+    4.346,
+    0.8099999999999999
+   ],
+   "size": [
+    0.3,
+    0.22,
+    0.22
+   ],
+   "rotation_deg": 180.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.296,
+    0.22,
+    0.22
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "lacquer_dark",
+    "painted_wood_white",
+    "wood_veneer_oak__oak_veneer_01",
+    "terracotta"
+   ],
+   "material": "lacquer_dark",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 72,
+    "max_radius_m": 0.004
+   },
+   "box3d": {
+    "center": [
+     11.721,
+     4.346,
+     0.81
+    ],
+    "size": [
+     0.296,
+     0.22,
+     0.22
+    ],
+    "rotation_deg": 180.0
    }
   },
   {
@@ -8402,7 +9061,7 @@
      "text": "plant in r_L0_yatak_odasi on the floor"
     }
    ],
-   "pass_index": 52,
+   "pass_index": 51,
    "assumed": {
     "rest_height": 0.0
    },
@@ -8490,7 +9149,8 @@
      0.5705,
      0.6085,
      0.5895
-    ]
+    ],
+    "unit_scale": 1.0
    },
    "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
    "box3d": {
@@ -8653,32 +9313,6 @@
   {
    "name": "cam_r_L0_hol_1",
    "wenart_id": "cam_r_L0_hol_1",
-   "kind": "camera",
-   "status": "assumed",
-   "level_id": "L0",
-   "element_id": "r_L0_hol",
-   "evidence": [],
-   "material": null,
-   "textured": false,
-   "pass_index": null,
-   "assumed": {}
-  },
-  {
-   "name": "cam_r_L0_hol_2",
-   "wenart_id": "cam_r_L0_hol_2",
-   "kind": "camera",
-   "status": "assumed",
-   "level_id": "L0",
-   "element_id": "r_L0_hol",
-   "evidence": [],
-   "material": null,
-   "textured": false,
-   "pass_index": null,
-   "assumed": {}
-  },
-  {
-   "name": "cam_r_L0_hol_3",
-   "wenart_id": "cam_r_L0_hol_3",
    "kind": "camera",
    "status": "assumed",
    "level_id": "L0",
@@ -9248,7 +9882,7 @@
   }
  ],
  "camera_policy": "search",
- "search_seconds": 1.046,
+ "search_seconds": 0.58,
  "cameras": [
   {
    "name": "cam_r_L0_salon_1",
@@ -9275,27 +9909,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.1835,
-    "furniture": 0.8276,
+    "total": 3.1119,
+    "furniture": 0.748,
     "openings": 1.0,
-    "floor": 0.3559,
+    "floor": 0.3681,
     "depth": 1.0,
-    "penalties": 0.0,
+    "penalties": 0.0042,
     "blocked": false,
     "yaw_deg": 180.0,
     "shares": {
-     "furn": 0.2069,
+     "furn": 0.187,
      "open": 0.122,
      "window": 0.122,
-     "floor": 0.089,
+     "floor": 0.092,
      "ceiling": 0.0,
-     "wall": 0.5308,
+     "wall": 0.5521,
      "near": 0.0,
-     "max_single": 0.1337,
+     "max_single": 0.122,
      "d_wall": 4.0
     }
    },
-   "placement": "search: score 3.183 = furniture 0.828 + openings 1.000 + floor 0.356 + depth 1.000 - penalties 0.000; yaw 180 deg",
+   "placement": "search: score 3.112 = furniture 0.748 + openings 1.000 + floor 0.368 + depth 1.000 - penalties 0.004; yaw 180 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -9303,9 +9937,10 @@
    ],
    "visible_furniture": [
     "f_L0_001",
-    "f_L0_002"
+    "f_L0_002",
+    "f_L0_005"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_salon_2",
@@ -9313,12 +9948,12 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    1.25,
-    3.75,
+    4.25,
+    3.25,
     1.25
    ],
    "target": [
-    1.25,
+    3.383975,
     2.75,
     1.25
    ],
@@ -9332,36 +9967,40 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.0004,
-    "furniture": 0.7122,
+    "total": 3.0768,
+    "furniture": 0.773,
     "openings": 1.0,
-    "floor": 0.2882,
+    "floor": 0.3038,
     "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 270.0,
+    "yaw_deg": 210.0,
     "shares": {
-     "furn": 0.1781,
-     "open": 0.1723,
-     "window": 0.1723,
-     "floor": 0.072,
+     "furn": 0.1933,
+     "open": 0.1228,
+     "window": 0.1228,
+     "floor": 0.076,
      "ceiling": 0.0,
-     "wall": 0.4878,
-     "near": 0.0469,
-     "max_single": 0.207,
-     "d_wall": 3.5
+     "wall": 0.5091,
+     "near": 0.0,
+     "max_single": 0.1228,
+     "d_wall": 3.6545
     }
    },
-   "placement": "search: score 3.000 = furniture 0.712 + openings 1.000 + floor 0.288 + depth 1.000 - penalties 0.000; yaw 270 deg",
+   "placement": "search: score 3.077 = furniture 0.773 + openings 1.000 + floor 0.304 + depth 1.000 - penalties 0.000; yaw 210 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
     "win_L0_001"
    ],
    "visible_furniture": [
-    "f_L0_001"
+    "f_L0_001",
+    "f_L0_002",
+    "f_L0_004",
+    "f_L0_005",
+    "f_L0_006"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_salon_3",
@@ -9388,39 +10027,41 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 2.9815,
-    "furniture": 0.5526,
+    "total": 2.9549,
+    "furniture": 0.5227,
     "openings": 1.0,
-    "floor": 0.4288,
+    "floor": 0.4323,
     "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 120.0,
     "shares": {
-     "furn": 0.1382,
+     "furn": 0.1307,
      "open": 0.1406,
      "window": 0.0,
-     "floor": 0.1072,
+     "floor": 0.1081,
      "ceiling": 0.0,
-     "wall": 0.4418,
+     "wall": 0.4727,
      "near": 0.0,
      "max_single": 0.1406,
-     "d_wall": 4.1037
+     "d_wall": 4.1612
     }
    },
-   "placement": "search: score 2.982 = furniture 0.553 + openings 1.000 + floor 0.429 + depth 1.000 - penalties 0.000; yaw 120 deg",
+   "placement": "search: score 2.955 = furniture 0.523 + openings 1.000 + floor 0.432 + depth 1.000 - penalties 0.000; yaw 120 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
     "d_L0_003"
    ],
    "visible_furniture": [
+    "f_L0_001",
     "f_L0_002",
+    "f_L0_003",
     "f_L0_004",
     "f_L0_005",
     "f_L0_006"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_ebeveyn_yatak_odasi_1",
@@ -9429,12 +10070,12 @@
    "index": 1,
    "position": [
     9.55,
-    1.25,
+    1.75,
     1.25
    ],
    "target": [
     8.55,
-    1.25,
+    1.75,
     1.25
    ],
    "lens_mm": 24.0,
@@ -9447,99 +10088,44 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 4.1363,
-    "furniture": 1.6017,
+    "total": 3.7301,
+    "furniture": 1.1728,
     "openings": 1.0,
-    "floor": 0.5538,
-    "depth": 0.9808,
+    "floor": 0.5573,
+    "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 180.0,
     "shares": {
-     "furn": 0.4004,
-     "open": 0.1315,
-     "window": 0.1315,
-     "floor": 0.1385,
+     "furn": 0.2932,
+     "open": 0.1207,
+     "window": 0.0556,
+     "floor": 0.1393,
      "ceiling": 0.0,
-     "wall": 0.2617,
+     "wall": 0.3915,
      "near": 0.0,
-     "max_single": 0.2595,
-     "d_wall": 2.9425
+     "max_single": 0.2483,
+     "d_wall": 4.0
     }
    },
-   "placement": "search: score 4.136 = furniture 1.602 + openings 1.000 + floor 0.554 + depth 0.981 - penalties 0.000; yaw 180 deg",
+   "placement": "search: score 3.730 = furniture 1.173 + openings 1.000 + floor 0.557 + depth 1.000 - penalties 0.000; yaw 180 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "win_L0_003"
+    "d_L0_005"
    ],
    "visible_furniture": [
+    "f_L0_007",
+    "f_L0_008",
     "f_L0_010"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_ebeveyn_yatak_odasi_2",
    "room_id": "r_L0_ebeveyn_yatak_odasi",
    "level_id": "L0",
    "index": 2,
-   "position": [
-    5.974264,
-    3.625736,
-    1.25
-   ],
-   "target": [
-    6.474264,
-    2.759711,
-    1.25
-   ],
-   "lens_mm": 24.0,
-   "sensor_mm": 36.0,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "shift_x": 0.0,
-   "shift_y": -0.1,
-   "policy": "search",
-   "score": {
-    "total": 3.9084,
-    "furniture": 1.4715,
-    "openings": 0.9404,
-    "floor": 0.4965,
-    "depth": 1.0,
-    "penalties": 0.0,
-    "blocked": false,
-    "yaw_deg": 300.0,
-    "shares": {
-     "furn": 0.3679,
-     "open": 0.1128,
-     "window": 0.1128,
-     "floor": 0.1241,
-     "ceiling": 0.0,
-     "wall": 0.2166,
-     "near": 0.0,
-     "max_single": 0.2817,
-     "d_wall": 3.7704
-    }
-   },
-   "placement": "search: score 3.908 = furniture 1.472 + openings 0.940 + floor 0.496 + depth 1.000 - penalties 0.000; yaw 300 deg",
-   "anchor": null,
-   "warning": null,
-   "visible_openings": [
-    "win_L0_003"
-   ],
-   "visible_furniture": [
-    "f_L0_010",
-    "f_L0_011"
-   ],
-   "search_seconds": 1.046
-  },
-  {
-   "name": "cam_r_L0_ebeveyn_yatak_odasi_3",
-   "room_id": "r_L0_ebeveyn_yatak_odasi",
-   "level_id": "L0",
-   "index": 3,
    "position": [
     7.05,
     0.75,
@@ -9560,8 +10146,8 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.7194,
-    "furniture": 1.3183,
+    "total": 3.7199,
+    "furniture": 1.3189,
     "openings": 1.0,
     "floor": 0.401,
     "depth": 1.0,
@@ -9569,18 +10155,18 @@
     "blocked": false,
     "yaw_deg": 90.0,
     "shares": {
-     "furn": 0.3296,
+     "furn": 0.3297,
      "open": 0.1406,
      "window": 0.0,
      "floor": 0.1003,
      "ceiling": 0.0,
-     "wall": 0.2179,
+     "wall": 0.3108,
      "near": 0.0,
-     "max_single": 0.3576,
+     "max_single": 0.2643,
      "d_wall": 3.3
     }
    },
-   "placement": "search: score 3.719 = furniture 1.318 + openings 1.000 + floor 0.401 + depth 1.000 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 3.720 = furniture 1.319 + openings 1.000 + floor 0.401 + depth 1.000 - penalties 0.000; yaw 90 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -9588,9 +10174,68 @@
    ],
    "visible_furniture": [
     "f_L0_007",
-    "f_L0_008"
+    "f_L0_008",
+    "f_L0_009",
+    "f_L0_010"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
+  },
+  {
+   "name": "cam_r_L0_ebeveyn_yatak_odasi_3",
+   "room_id": "r_L0_ebeveyn_yatak_odasi",
+   "level_id": "L0",
+   "index": 3,
+   "position": [
+    9.55,
+    3.25,
+    1.25
+   ],
+   "target": [
+    8.683975,
+    2.75,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 3.6755,
+    "furniture": 1.3439,
+    "openings": 1.0,
+    "floor": 0.3316,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 210.0,
+    "shares": {
+     "furn": 0.336,
+     "open": 0.1215,
+     "window": 0.1215,
+     "floor": 0.0829,
+     "ceiling": 0.0,
+     "wall": 0.411,
+     "near": 0.0,
+     "max_single": 0.2075,
+     "d_wall": 3.5779
+    }
+   },
+   "placement": "search: score 3.675 = furniture 1.344 + openings 1.000 + floor 0.332 + depth 1.000 - penalties 0.000; yaw 210 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_003"
+   ],
+   "visible_furniture": [
+    "f_L0_007",
+    "f_L0_010"
+   ],
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_ebeveyn_banyo_1",
@@ -9617,27 +10262,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.5236,
-    "furniture": 1.5486,
+    "total": 3.0749,
+    "furniture": 1.0625,
     "openings": 0.9332,
-    "floor": 0.1684,
-    "depth": 0.9134,
-    "penalties": 0.0399,
+    "floor": 0.1771,
+    "depth": 0.9022,
+    "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 330.0,
     "shares": {
-     "furn": 0.3872,
+     "furn": 0.2656,
      "open": 0.112,
      "window": 0.112,
-     "floor": 0.0421,
+     "floor": 0.0443,
      "ceiling": 0.0,
-     "wall": 0.3429,
-     "near": 0.0933,
-     "max_single": 0.2691,
-     "d_wall": 2.7402
+     "wall": 0.3867,
+     "near": 0.0,
+     "max_single": 0.375,
+     "d_wall": 2.7065
     }
    },
-   "placement": "search: score 3.524 = furniture 1.549 + openings 0.933 + floor 0.168 + depth 0.913 - penalties 0.040; yaw 330 deg",
+   "placement": "search: score 3.075 = furniture 1.062 + openings 0.933 + floor 0.177 + depth 0.902 - penalties 0.000; yaw 330 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -9647,7 +10292,7 @@
     "f_L0_012",
     "f_L0_013"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_ebeveyn_banyo_2",
@@ -9655,13 +10300,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    12.931802,
-    2.318198,
+    10.85,
+    2.5,
     1.25
    ],
    "target": [
-    12.065777,
-    2.818198,
+    11.85,
+    2.5,
     1.25
    ],
    "lens_mm": 24.0,
@@ -9674,36 +10319,37 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 2.9457,
-    "furniture": 1.2736,
+    "total": 2.5642,
+    "furniture": 0.8597,
     "openings": 1.0,
-    "floor": 0.1615,
-    "depth": 0.7863,
-    "penalties": 0.2756,
+    "floor": 0.0747,
+    "depth": 0.8,
+    "penalties": 0.1702,
     "blocked": false,
-    "yaw_deg": 150.0,
+    "yaw_deg": 0.0,
     "shares": {
-     "furn": 0.3184,
-     "open": 0.151,
-     "window": 0.0,
-     "floor": 0.0404,
+     "furn": 0.2149,
+     "open": 0.1875,
+     "window": 0.1875,
+     "floor": 0.0187,
      "ceiling": 0.0,
-     "wall": 0.4106,
-     "near": 0.1719,
-     "max_single": 0.1875,
-     "d_wall": 2.3588
+     "wall": 0.4627,
+     "near": 0.1367,
+     "max_single": 0.3125,
+     "d_wall": 2.4
     }
    },
-   "placement": "search: score 2.946 = furniture 1.274 + openings 1.000 + floor 0.162 + depth 0.786 - penalties 0.276; yaw 150 deg",
+   "placement": "search: score 2.564 = furniture 0.860 + openings 1.000 + floor 0.075 + depth 0.800 - penalties 0.170; yaw 0 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "d_L0_006"
+    "win_L0_004"
    ],
    "visible_furniture": [
-    "f_L0_014"
+    "f_L0_012",
+    "f_L0_013"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_mutfak_1",
@@ -9730,8 +10376,8 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.8169,
-    "furniture": 1.0825,
+    "total": 3.7486,
+    "furniture": 1.0143,
     "openings": 1.0,
     "floor": 0.7344,
     "depth": 1.0,
@@ -9739,18 +10385,18 @@
     "blocked": false,
     "yaw_deg": 120.0,
     "shares": {
-     "furn": 0.2706,
+     "furn": 0.2536,
      "open": 0.1693,
      "window": 0.1693,
      "floor": 0.1836,
      "ceiling": 0.0,
-     "wall": 0.2066,
+     "wall": 0.2556,
      "near": 0.0,
      "max_single": 0.1962,
-     "d_wall": 3.9637
+     "d_wall": 3.8151
     }
    },
-   "placement": "search: score 3.817 = furniture 1.083 + openings 1.000 + floor 0.734 + depth 1.000 - penalties 0.000; yaw 120 deg",
+   "placement": "search: score 3.749 = furniture 1.014 + openings 1.000 + floor 0.734 + depth 1.000 - penalties 0.000; yaw 120 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -9764,7 +10410,7 @@
     "f_L0_018",
     "f_L0_019"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_mutfak_2",
@@ -9791,8 +10437,8 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.6724,
-    "furniture": 1.0804,
+    "total": 3.6127,
+    "furniture": 1.0207,
     "openings": 1.0,
     "floor": 0.592,
     "depth": 1.0,
@@ -9800,18 +10446,18 @@
     "blocked": false,
     "yaw_deg": 90.0,
     "shares": {
-     "furn": 0.2701,
+     "furn": 0.2552,
      "open": 0.194,
      "window": 0.194,
      "floor": 0.148,
      "ceiling": 0.0,
-     "wall": 0.2296,
+     "wall": 0.2726,
      "near": 0.0451,
      "max_single": 0.1949,
-     "d_wall": 4.0635
+     "d_wall": 4.1
     }
    },
-   "placement": "search: score 3.672 = furniture 1.080 + openings 1.000 + floor 0.592 + depth 1.000 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 3.613 = furniture 1.021 + openings 1.000 + floor 0.592 + depth 1.000 - penalties 0.000; yaw 90 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -9825,7 +10471,7 @@
     "f_L0_018",
     "f_L0_019"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_mutfak_3",
@@ -9852,27 +10498,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.6577,
-    "furniture": 1.4845,
+    "total": 3.5949,
+    "furniture": 1.3697,
     "openings": 0.9838,
     "floor": 0.2413,
-    "depth": 0.9481,
+    "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 90.0,
     "shares": {
-     "furn": 0.3711,
+     "furn": 0.3424,
      "open": 0.1181,
      "window": 0.1181,
      "floor": 0.0603,
      "ceiling": 0.0,
-     "wall": 0.2465,
+     "wall": 0.329,
      "near": 0.0,
-     "max_single": 0.2044,
-     "d_wall": 2.8444
+     "max_single": 0.1771,
+     "d_wall": 3.0865
     }
    },
-   "placement": "search: score 3.658 = furniture 1.484 + openings 0.984 + floor 0.241 + depth 0.948 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 3.595 = furniture 1.370 + openings 0.984 + floor 0.241 + depth 1.000 - penalties 0.000; yaw 90 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -9880,11 +10526,12 @@
    ],
    "visible_furniture": [
     "f_L0_015",
+    "f_L0_016",
     "f_L0_017",
     "f_L0_018",
     "f_L0_019"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_hol_1",
@@ -9941,121 +10588,7 @@
     "d_L0_009"
    ],
    "visible_furniture": [],
-   "search_seconds": 1.046
-  },
-  {
-   "name": "cam_r_L0_hol_2",
-   "room_id": "r_L0_hol",
-   "level_id": "L0",
-   "index": 2,
-   "position": [
-    5.05,
-    4.65,
-    1.25
-   ],
-   "target": [
-    6.05,
-    4.65,
-    1.25
-   ],
-   "lens_mm": 24.0,
-   "sensor_mm": 36.0,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "shift_x": 0.0,
-   "shift_y": -0.1,
-   "policy": "search",
-   "score": {
-    "total": 2.0087,
-    "furniture": 0.0,
-    "openings": 1.0,
-    "floor": 0.4062,
-    "depth": 0.7374,
-    "penalties": 0.135,
-    "blocked": false,
-    "yaw_deg": 0.0,
-    "shares": {
-     "furn": 0.0,
-     "open": 0.5473,
-     "window": 0.0,
-     "floor": 0.1016,
-     "ceiling": 0.0,
-     "wall": 0.3511,
-     "near": 0.125,
-     "max_single": 0.2656,
-     "d_wall": 2.2123
-    }
-   },
-   "placement": "search: score 2.009 = furniture 0.000 + openings 1.000 + floor 0.406 + depth 0.737 - penalties 0.135; yaw 0 deg",
-   "anchor": null,
-   "warning": null,
-   "visible_openings": [
-    "d_L0_005",
-    "d_L0_007",
-    "d_L0_008",
-    "d_L0_009"
-   ],
-   "visible_furniture": [],
-   "search_seconds": 1.046
-  },
-  {
-   "name": "cam_r_L0_hol_3",
-   "room_id": "r_L0_hol",
-   "level_id": "L0",
-   "index": 3,
-   "position": [
-    3.868198,
-    4.468198,
-    1.25
-   ],
-   "target": [
-    4.734223,
-    4.968198,
-    1.25
-   ],
-   "lens_mm": 24.0,
-   "sensor_mm": 36.0,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "shift_x": 0.0,
-   "shift_y": -0.1,
-   "policy": "search",
-   "score": {
-    "total": 1.9754,
-    "furniture": 0.0,
-    "openings": 1.0,
-    "floor": 0.4844,
-    "depth": 0.626,
-    "penalties": 0.135,
-    "blocked": false,
-    "yaw_deg": 30.0,
-    "shares": {
-     "furn": 0.0,
-     "open": 0.4379,
-     "window": 0.0,
-     "floor": 0.1211,
-     "ceiling": 0.0022,
-     "wall": 0.4388,
-     "near": 0.125,
-     "max_single": 0.2969,
-     "d_wall": 1.878
-    }
-   },
-   "placement": "search: score 1.975 = furniture 0.000 + openings 1.000 + floor 0.484 + depth 0.626 - penalties 0.135; yaw 30 deg",
-   "anchor": null,
-   "warning": null,
-   "visible_openings": [
-    "d_L0_002",
-    "d_L0_007",
-    "d_L0_008",
-    "d_L0_009"
-   ],
-   "visible_furniture": [],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_calisma_odasi_1",
@@ -10064,12 +10597,12 @@
    "index": 1,
    "position": [
     10.568198,
-    4.468198,
+    8.431802,
     1.25
    ],
    "target": [
     11.068198,
-    5.334223,
+    7.565777,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10082,40 +10615,39 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.3033,
-    "furniture": 1.0081,
-    "openings": 1.0,
-    "floor": 0.2951,
+    "total": 3.5834,
+    "furniture": 1.0113,
+    "openings": 0.9766,
+    "floor": 0.5955,
     "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 60.0,
+    "yaw_deg": 300.0,
     "shares": {
-     "furn": 0.252,
-     "open": 0.158,
-     "window": 0.158,
-     "floor": 0.0738,
+     "furn": 0.2528,
+     "open": 0.1172,
+     "window": 0.1068,
+     "floor": 0.1489,
      "ceiling": 0.0,
-     "wall": 0.3737,
-     "near": 0.0,
-     "max_single": 0.1706,
-     "d_wall": 3.6033
+     "wall": 0.5191,
+     "near": 0.013,
+     "max_single": 0.1359,
+     "d_wall": 3.7606
     }
    },
-   "placement": "search: score 3.303 = furniture 1.008 + openings 1.000 + floor 0.295 + depth 1.000 - penalties 0.000; yaw 60 deg",
+   "placement": "search: score 3.583 = furniture 1.011 + openings 0.977 + floor 0.596 + depth 1.000 - penalties 0.000; yaw 300 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "win_L0_009",
-    "win_L0_010"
+    "d_L0_009",
+    "win_L0_009"
    ],
    "visible_furniture": [
     "f_L0_027",
     "f_L0_028",
-    "f_L0_029",
-    "f_L0_030"
+    "f_L0_029"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_calisma_odasi_2",
@@ -10123,13 +10655,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    12.25,
-    4.65,
+    12.825736,
+    4.574264,
     1.25
    ],
    "target": [
-    12.25,
-    5.65,
+    11.959711,
+    5.074264,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10142,39 +10674,38 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.1302,
-    "furniture": 0.8611,
+    "total": 3.389,
+    "furniture": 0.9827,
     "openings": 1.0,
-    "floor": 0.2691,
+    "floor": 0.4062,
     "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 90.0,
+    "yaw_deg": 150.0,
     "shares": {
-     "furn": 0.2153,
-     "open": 0.1836,
-     "window": 0.1836,
-     "floor": 0.0673,
+     "furn": 0.2457,
+     "open": 0.2101,
+     "window": 0.0,
+     "floor": 0.1016,
      "ceiling": 0.0,
-     "wall": 0.4002,
-     "near": 0.0,
-     "max_single": 0.2695,
-     "d_wall": 3.4133
+     "wall": 0.4592,
+     "near": 0.0625,
+     "max_single": 0.2101,
+     "d_wall": 3.2134
     }
    },
-   "placement": "search: score 3.130 = furniture 0.861 + openings 1.000 + floor 0.269 + depth 1.000 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 3.389 = furniture 0.983 + openings 1.000 + floor 0.406 + depth 1.000 - penalties 0.000; yaw 150 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "win_L0_009",
-    "win_L0_010"
+    "d_L0_009"
    ],
    "visible_furniture": [
     "f_L0_027",
-    "f_L0_029",
-    "f_L0_030"
+    "f_L0_028",
+    "f_L0_029"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_calisma_odasi_3",
@@ -10182,13 +10713,13 @@
    "level_id": "L0",
    "index": 3,
    "position": [
-    11.25,
-    6.65,
+    12.25,
+    8.15,
     1.25
    ],
    "target": [
-    11.25,
-    7.65,
+    11.75,
+    7.283975,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10201,43 +10732,100 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.0947,
-    "furniture": 1.3947,
-    "openings": 1.0,
-    "floor": 0.0,
-    "depth": 0.7,
+    "total": 3.2776,
+    "furniture": 1.4656,
+    "openings": 0.3762,
+    "floor": 0.4358,
+    "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 90.0,
+    "yaw_deg": 240.0,
     "shares": {
-     "furn": 0.3487,
-     "open": 0.1979,
-     "window": 0.1979,
-     "floor": 0.0,
+     "furn": 0.3664,
+     "open": 0.0451,
+     "window": 0.0,
+     "floor": 0.1089,
      "ceiling": 0.0,
-     "wall": 0.2925,
-     "near": 0.0278,
-     "max_single": 0.2465,
-     "d_wall": 2.1
+     "wall": 0.5074,
+     "near": 0.0,
+     "max_single": 0.1832,
+     "d_wall": 3.2384
     }
    },
-   "placement": "search: score 3.095 = furniture 1.395 + openings 1.000 + floor 0.000 + depth 0.700 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 3.278 = furniture 1.466 + openings 0.376 + floor 0.436 + depth 1.000 - penalties 0.000; yaw 240 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "win_L0_010"
+    "d_L0_009"
    ],
    "visible_furniture": [
     "f_L0_027",
+    "f_L0_028",
     "f_L0_029"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_antre_1",
    "room_id": "r_L0_antre",
    "level_id": "L0",
    "index": 1,
+   "position": [
+    4.731802,
+    5.768198,
+    1.25
+   ],
+   "target": [
+    4.231802,
+    6.634223,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 3.1305,
+    "furniture": 1.4625,
+    "openings": 1.0,
+    "floor": 0.2066,
+    "depth": 0.5524,
+    "penalties": 0.091,
+    "blocked": false,
+    "yaw_deg": 120.0,
+    "shares": {
+     "furn": 0.3656,
+     "open": 0.2005,
+     "window": 0.0,
+     "floor": 0.0516,
+     "ceiling": 0.0,
+     "wall": 0.5955,
+     "near": 0.0,
+     "max_single": 0.2005,
+     "d_wall": 1.6572
+    }
+   },
+   "placement": "search: score 3.131 = furniture 1.462 + openings 1.000 + floor 0.207 + depth 0.552 - penalties 0.091; yaw 120 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_001"
+   ],
+   "visible_furniture": [
+    "f_L0_030"
+   ],
+   "search_seconds": 0.58
+  },
+  {
+   "name": "cam_r_L0_antre_2",
+   "room_id": "r_L0_antre",
+   "level_id": "L0",
+   "index": 2,
    "position": [
     4.731802,
     8.431802,
@@ -10258,49 +10846,49 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 4.0392,
-    "furniture": 2.1625,
+    "total": 3.1109,
+    "furniture": 1.4625,
     "openings": 1.0,
-    "floor": 0.2326,
-    "depth": 0.6441,
-    "penalties": 0.0,
+    "floor": 0.2066,
+    "depth": 0.5858,
+    "penalties": 0.1439,
     "blocked": false,
     "yaw_deg": 240.0,
     "shares": {
-     "furn": 0.5406,
+     "furn": 0.3656,
      "open": 0.174,
      "window": 0.0,
-     "floor": 0.0582,
+     "floor": 0.0516,
      "ceiling": 0.0,
-     "wall": 0.5425,
+     "wall": 0.622,
      "near": 0.0,
-     "max_single": 0.2253,
-     "d_wall": 1.9322
+     "max_single": 0.174,
+     "d_wall": 1.7573
     }
    },
-   "placement": "search: score 4.039 = furniture 2.163 + openings 1.000 + floor 0.233 + depth 0.644 - penalties 0.000; yaw 240 deg",
+   "placement": "search: score 3.111 = furniture 1.462 + openings 1.000 + floor 0.207 + depth 0.586 - penalties 0.144; yaw 240 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
     "d_L0_002"
    ],
    "visible_furniture": [
-    "f_L0_031"
+    "f_L0_030"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
-   "name": "cam_r_L0_antre_2",
-   "room_id": "r_L0_antre",
+   "name": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
    "level_id": "L0",
-   "index": 2,
+   "index": 1,
    "position": [
-    4.55,
+    6.65,
     6.45,
     1.25
    ],
    "target": [
-    4.05,
+    6.15,
     7.316025,
     1.25
    ],
@@ -10314,90 +10902,37 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.6067,
-    "furniture": 2.3292,
-    "openings": 1.0,
-    "floor": 0.0226,
-    "depth": 0.4811,
-    "penalties": 0.2261,
+    "total": 2.4864,
+    "furniture": 1.1103,
+    "openings": 0.7921,
+    "floor": 0.0,
+    "depth": 0.6516,
+    "penalties": 0.0675,
     "blocked": false,
     "yaw_deg": 120.0,
     "shares": {
-     "furn": 0.5823,
-     "open": 0.3108,
-     "window": 0.0,
-     "floor": 0.0056,
+     "furn": 0.2776,
+     "open": 0.0951,
+     "window": 0.0951,
+     "floor": 0.0,
      "ceiling": 0.0,
-     "wall": 0.441,
-     "near": 0.1554,
-     "max_single": 0.3108,
-     "d_wall": 1.4434
+     "wall": 0.5838,
+     "near": 0.0,
+     "max_single": 0.2578,
+     "d_wall": 1.9548
     }
    },
-   "placement": "search: score 3.607 = furniture 2.329 + openings 1.000 + floor 0.023 + depth 0.481 - penalties 0.226; yaw 120 deg",
-   "anchor": null,
-   "warning": null,
-   "visible_openings": [
-    "d_L0_001"
-   ],
-   "visible_furniture": [],
-   "search_seconds": 1.046
-  },
-  {
-   "name": "cam_r_L0_banyo_1",
-   "room_id": "r_L0_banyo",
-   "level_id": "L0",
-   "index": 1,
-   "position": [
-    6.15,
-    5.95,
-    1.25
-   ],
-   "target": [
-    6.15,
-    6.95,
-    1.25
-   ],
-   "lens_mm": 24.0,
-   "sensor_mm": 36.0,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "shift_x": 0.0,
-   "shift_y": -0.1,
-   "policy": "search",
-   "score": {
-    "total": 2.7159,
-    "furniture": 1.3167,
-    "openings": 0.6149,
-    "floor": 0.0156,
-    "depth": 0.7688,
-    "penalties": 0.0,
-    "blocked": false,
-    "yaw_deg": 90.0,
-    "shares": {
-     "furn": 0.3292,
-     "open": 0.0738,
-     "window": 0.0738,
-     "floor": 0.0039,
-     "ceiling": 0.0,
-     "wall": 0.523,
-     "near": 0.0339,
-     "max_single": 0.1858,
-     "d_wall": 2.3063
-    }
-   },
-   "placement": "search: score 2.716 = furniture 1.317 + openings 0.615 + floor 0.016 + depth 0.769 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 2.486 = furniture 1.110 + openings 0.792 + floor 0.000 + depth 0.652 - penalties 0.068; yaw 120 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
     "win_L0_007"
    ],
    "visible_furniture": [
-    "f_L0_021"
+    "f_L0_021",
+    "f_L0_022"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_banyo_2",
@@ -10405,13 +10940,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    6.15,
-    6.95,
+    5.468198,
+    5.768198,
     1.25
    ],
    "target": [
-    6.15,
-    7.95,
+    5.968198,
+    6.634223,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10424,34 +10959,38 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 2.3852,
-    "furniture": 0.9231,
-    "openings": 1.0,
-    "floor": 0.0,
-    "depth": 0.6,
-    "penalties": 0.1378,
+    "total": 2.3186,
+    "furniture": 0.9901,
+    "openings": 0.5498,
+    "floor": 0.1111,
+    "depth": 0.8124,
+    "penalties": 0.1448,
     "blocked": false,
-    "yaw_deg": 90.0,
+    "yaw_deg": 60.0,
     "shares": {
-     "furn": 0.2308,
-     "open": 0.1215,
-     "window": 0.1215,
-     "floor": 0.0,
+     "furn": 0.2475,
+     "open": 0.066,
+     "window": 0.066,
+     "floor": 0.0278,
      "ceiling": 0.0,
-     "wall": 0.6189,
+     "wall": 0.6224,
      "near": 0.0,
-     "max_single": 0.2595,
-     "d_wall": 1.8
+     "max_single": 0.2053,
+     "d_wall": 2.4372
     }
    },
-   "placement": "search: score 2.385 = furniture 0.923 + openings 1.000 + floor 0.000 + depth 0.600 - penalties 0.138; yaw 90 deg",
+   "placement": "search: score 2.319 = furniture 0.990 + openings 0.550 + floor 0.111 + depth 0.812 - penalties 0.145; yaw 60 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
     "win_L0_007"
    ],
-   "visible_furniture": [],
-   "search_seconds": 1.046
+   "visible_furniture": [
+    "f_L0_021",
+    "f_L0_022",
+    "f_L0_023"
+   ],
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_banyo_3",
@@ -10464,8 +11003,8 @@
     1.25
    ],
    "target": [
-    6.65,
-    6.583975,
+    6.15,
+    8.45,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10478,34 +11017,36 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 1.7691,
-    "furniture": 0.4769,
+    "total": 1.8097,
+    "furniture": 0.5689,
     "openings": 1.0,
     "floor": 0.0,
-    "depth": 0.5837,
-    "penalties": 0.2915,
+    "depth": 0.4333,
+    "penalties": 0.1925,
     "blocked": false,
-    "yaw_deg": 300.0,
+    "yaw_deg": 90.0,
     "shares": {
-     "furn": 0.1192,
-     "open": 0.2812,
-     "window": 0.0,
+     "furn": 0.1422,
+     "open": 0.1997,
+     "window": 0.1997,
      "floor": 0.0,
      "ceiling": 0.0,
-     "wall": 0.5573,
-     "near": 0.1723,
-     "max_single": 0.2812,
-     "d_wall": 1.7512
+     "wall": 0.6463,
+     "near": 0.0,
+     "max_single": 0.1997,
+     "d_wall": 1.3
     }
    },
-   "placement": "search: score 1.769 = furniture 0.477 + openings 1.000 + floor 0.000 + depth 0.584 - penalties 0.291; yaw 300 deg",
+   "placement": "search: score 1.810 = furniture 0.569 + openings 1.000 + floor 0.000 + depth 0.433 - penalties 0.193; yaw 90 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "d_L0_007"
+    "win_L0_007"
    ],
-   "visible_furniture": [],
-   "search_seconds": 1.046
+   "visible_furniture": [
+    "f_L0_021"
+   ],
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_yatak_odasi_1",
@@ -10513,13 +11054,13 @@
    "level_id": "L0",
    "index": 1,
    "position": [
-    7.568198,
-    5.768198,
+    9.725736,
+    5.874264,
     1.25
    ],
    "target": [
-    8.068198,
-    6.634223,
+    9.225736,
+    6.740289,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10532,27 +11073,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.5847,
-    "furniture": 2.0196,
-    "openings": 0.6547,
-    "floor": 0.0295,
-    "depth": 0.8809,
+    "total": 3.5623,
+    "furniture": 1.6319,
+    "openings": 1.0,
+    "floor": 0.0451,
+    "depth": 0.8853,
     "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 60.0,
+    "yaw_deg": 120.0,
     "shares": {
-     "furn": 0.5049,
-     "open": 0.0786,
-     "window": 0.0786,
-     "floor": 0.0074,
+     "furn": 0.408,
+     "open": 0.122,
+     "window": 0.122,
+     "floor": 0.0113,
      "ceiling": 0.0,
-     "wall": 0.3164,
-     "near": 0.0668,
-     "max_single": 0.3568,
-     "d_wall": 2.6426
+     "wall": 0.4583,
+     "near": 0.0,
+     "max_single": 0.2088,
+     "d_wall": 2.6558
     }
    },
-   "placement": "search: score 3.585 = furniture 2.020 + openings 0.655 + floor 0.029 + depth 0.881 - penalties 0.000; yaw 60 deg",
+   "placement": "search: score 3.562 = furniture 1.632 + openings 1.000 + floor 0.045 + depth 0.885 - penalties 0.000; yaw 120 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -10563,7 +11104,7 @@
     "f_L0_025",
     "f_L0_026"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_yatak_odasi_2",
@@ -10571,13 +11112,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    9.831802,
-    5.768198,
+    7.75,
+    5.95,
     1.25
    ],
    "target": [
-    9.331802,
-    6.634223,
+    8.25,
+    6.816025,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10590,27 +11131,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.5109,
-    "furniture": 2.0571,
-    "openings": 0.6619,
-    "floor": 0.0052,
-    "depth": 0.9191,
-    "penalties": 0.1324,
+    "total": 3.5238,
+    "furniture": 1.6417,
+    "openings": 1.0,
+    "floor": 0.0278,
+    "depth": 0.8543,
+    "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 120.0,
+    "yaw_deg": 60.0,
     "shares": {
-     "furn": 0.5143,
-     "open": 0.0794,
-     "window": 0.0794,
-     "floor": 0.0013,
+     "furn": 0.4104,
+     "open": 0.1241,
+     "window": 0.1241,
+     "floor": 0.0069,
      "ceiling": 0.0,
-     "wall": 0.263,
-     "near": 0.1241,
-     "max_single": 0.3672,
-     "d_wall": 2.7572
+     "wall": 0.4601,
+     "near": 0.0,
+     "max_single": 0.2023,
+     "d_wall": 2.563
     }
    },
-   "placement": "search: score 3.511 = furniture 2.057 + openings 0.662 + floor 0.005 + depth 0.919 - penalties 0.132; yaw 120 deg",
+   "placement": "search: score 3.524 = furniture 1.642 + openings 1.000 + floor 0.028 + depth 0.854 - penalties 0.000; yaw 60 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -10621,7 +11162,7 @@
     "f_L0_025",
     "f_L0_026"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   },
   {
    "name": "cam_r_L0_yatak_odasi_3",
@@ -10630,12 +11171,12 @@
    "index": 3,
    "position": [
     8.75,
-    5.95,
+    6.45,
     1.25
    ],
    "target": [
     8.75,
-    6.95,
+    7.45,
     1.25
    ],
    "lens_mm": 24.0,
@@ -10648,27 +11189,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.4779,
-    "furniture": 2.1534,
-    "openings": 0.9802,
-    "floor": 0.059,
-    "depth": 0.9333,
-    "penalties": 0.648,
+    "total": 3.1469,
+    "furniture": 1.375,
+    "openings": 1.0,
+    "floor": 0.0052,
+    "depth": 0.7667,
+    "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 90.0,
     "shares": {
-     "furn": 0.5383,
-     "open": 0.1176,
-     "window": 0.1176,
-     "floor": 0.0148,
+     "furn": 0.3438,
+     "open": 0.1719,
+     "window": 0.1719,
+     "floor": 0.0013,
      "ceiling": 0.0,
-     "wall": 0.2852,
-     "near": 0.296,
-     "max_single": 0.276,
-     "d_wall": 2.8
+     "wall": 0.4614,
+     "near": 0.0,
+     "max_single": 0.1719,
+     "d_wall": 2.3
     }
    },
-   "placement": "search: score 3.478 = furniture 2.153 + openings 0.980 + floor 0.059 + depth 0.933 - penalties 0.648; yaw 90 deg",
+   "placement": "search: score 3.147 = furniture 1.375 + openings 1.000 + floor 0.005 + depth 0.767 - penalties 0.000; yaw 90 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -10679,9 +11220,10 @@
     "f_L0_025",
     "f_L0_026"
    ],
-   "search_seconds": 1.046
+   "search_seconds": 0.58
   }
  ],
+ "rooms_without_view": [],
  "materials": {
   "plaster_white__white_plaster_02": {
    "slug": "plaster_white",
@@ -11135,9 +11677,8 @@
   "f_L0_028": 47,
   "f_L0_029": 48,
   "f_L0_030": 49,
-  "f_L0_031": 50,
-  "dec_L0_003": 51,
-  "dec_L0_010": 52
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
  },
  "assumed": [
   {
@@ -11772,7 +12313,7 @@
   }
  },
  "wenart_mood": "warm daylight",
- "build_fingerprint": "edd15486547d9916ef9a6d293955bd2a6f4ddf25ff1bcfa4b1452b5fe045b492",
+ "build_fingerprint": "0aa25ad5ef2ebf5a1091e26d788170d9799082236184df96f0976244802b8752",
  "build_args": {
   "building": "outputs/synthetic-05/building_final.json",
   "style": "outputs/synthetic-05/style.json",
@@ -11790,10 +12331,10 @@
   "glb": "scene.glb"
  },
  "furniture": {
-  "pieces": 31,
+  "pieces": 30,
   "by_method": {
-   "library": 13,
-   "parametric": 18
+   "library": 15,
+   "parametric": 15
   },
   "fallbacks": [
    {
@@ -11804,11 +12345,6 @@
    {
     "id": "f_L0_003",
     "type": "tv_unit",
-    "reason": "fitting chose the parametric mesh"
-   },
-   {
-    "id": "f_L0_004",
-    "type": "table_dining",
     "reason": "fitting chose the parametric mesh"
    },
    {
@@ -11832,11 +12368,6 @@
     "reason": "fitting chose the parametric mesh"
    },
    {
-    "id": "f_L0_014",
-    "type": "washbasin",
-    "reason": "fitting chose the parametric mesh"
-   },
-   {
     "id": "f_L0_015",
     "type": "kitchen_counter",
     "reason": "fitting chose the parametric mesh"
@@ -11857,11 +12388,6 @@
     "reason": "fitting chose the parametric mesh"
    },
    {
-    "id": "f_L0_019",
-    "type": "fridge",
-    "reason": "fitting chose the parametric mesh"
-   },
-   {
     "id": "f_L0_020",
     "type": "washing_machine",
     "reason": "fitting chose the parametric mesh"
@@ -11877,19 +12403,22 @@
     "reason": "fitting chose the parametric mesh"
    },
    {
-    "id": "f_L0_023",
-    "type": "washbasin",
+    "id": "f_L0_027",
+    "type": "desk",
     "reason": "fitting chose the parametric mesh"
    },
    {
-    "id": "f_L0_027",
-    "type": "desk",
+    "id": "f_L0_030",
+    "type": "dresser",
     "reason": "fitting chose the parametric mesh"
    }
   ],
   "proxies": 0,
   "decor": 10,
-  "proxies_forced": false
+  "proxies_forced": false,
+  "not_built": [],
+  "stairs": []
  },
- "seconds": 23.8
+ "site": null,
+ "seconds": 18.6
 }

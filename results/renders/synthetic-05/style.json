@@ -1,5 +1,6 @@
 {
   "source_text": "Modern, white walls, warm daylight, linen textiles, brass details",
+  "family": "modern",
   "floor": {
     "material": "concrete_polished",
     "asset": "Concrete046"

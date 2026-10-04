@@ -24,7 +24,8 @@
    "images": [
     "crops/sym_L0_001_ctx.png",
     "crops/sym_L0_001_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_002": {
    "task": "symbol_type",
@@ -44,7 +45,8 @@
    "images": [
     "crops/sym_L0_002_ctx.png",
     "crops/sym_L0_002_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_003": {
    "task": "symbol_type",
@@ -64,7 +66,8 @@
    "images": [
     "crops/sym_L0_003_ctx.png",
     "crops/sym_L0_003_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_004": {
    "task": "symbol_type",
@@ -84,7 +87,8 @@
    "images": [
     "crops/sym_L0_004_ctx.png",
     "crops/sym_L0_004_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_005": {
    "task": "symbol_type",
@@ -104,7 +108,8 @@
    "images": [
     "crops/sym_L0_005_ctx.png",
     "crops/sym_L0_005_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_006": {
    "task": "symbol_type",
@@ -124,7 +129,8 @@
    "images": [
     "crops/sym_L0_006_ctx.png",
     "crops/sym_L0_006_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_007": {
    "task": "symbol_type",
@@ -144,7 +150,8 @@
    "images": [
     "crops/sym_L0_007_ctx.png",
     "crops/sym_L0_007_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_008": {
    "task": "symbol_type",
@@ -164,7 +171,8 @@
    "images": [
     "crops/sym_L0_008_ctx.png",
     "crops/sym_L0_008_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_009": {
    "task": "symbol_type",
@@ -184,7 +192,8 @@
    "images": [
     "crops/sym_L0_009_ctx.png",
     "crops/sym_L0_009_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_010": {
    "task": "symbol_type",
@@ -204,7 +213,8 @@
    "images": [
     "crops/sym_L0_010_ctx.png",
     "crops/sym_L0_010_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_011": {
    "task": "symbol_type",
@@ -224,7 +234,8 @@
    "images": [
     "crops/sym_L0_011_ctx.png",
     "crops/sym_L0_011_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_012": {
    "task": "symbol_type",
@@ -244,7 +255,8 @@
    "images": [
     "crops/sym_L0_012_ctx.png",
     "crops/sym_L0_012_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_013": {
    "task": "symbol_type",
@@ -264,7 +276,8 @@
    "images": [
     "crops/sym_L0_013_ctx.png",
     "crops/sym_L0_013_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_014": {
    "task": "symbol_type",
@@ -284,7 +297,8 @@
    "images": [
     "crops/sym_L0_014_ctx.png",
     "crops/sym_L0_014_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_015": {
    "task": "symbol_type",
@@ -304,7 +318,8 @@
    "images": [
     "crops/sym_L0_015_ctx.png",
     "crops/sym_L0_015_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_016": {
    "task": "symbol_type",
@@ -324,7 +339,8 @@
    "images": [
     "crops/sym_L0_016_ctx.png",
     "crops/sym_L0_016_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   },
   "sym_L0_017": {
    "task": "symbol_type",
@@ -344,7 +360,8 @@
    "images": [
     "crops/sym_L0_017_ctx.png",
     "crops/sym_L0_017_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real01/answers_qwen3-vl-8b.json"
   }
  }
 }

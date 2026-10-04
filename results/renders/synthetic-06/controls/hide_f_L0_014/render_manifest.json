@@ -1,0 +1,201 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "ec235c006681a13c9ec3206fa96a9e3171b44534cfe58a8ab39c9a6450495ac6",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "f_L0_014"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "d_L0_005": 5,
+  "win_L0_001": 6,
+  "win_L0_002": 7,
+  "win_L0_003": 8,
+  "win_L0_004": 9,
+  "win_L0_005": 10,
+  "win_L0_006": 11,
+  "win_L0_007": 12,
+  "win_L0_008": 13,
+  "f_L0_001": 14,
+  "f_L0_002": 15,
+  "f_L0_003": 16,
+  "f_L0_004": 17,
+  "f_L0_005": 18,
+  "f_L0_006": 19,
+  "f_L0_007": 20,
+  "f_L0_008": 21,
+  "f_L0_009": 22,
+  "f_L0_010": 23,
+  "f_L0_011": 24,
+  "f_L0_012": 25,
+  "f_L0_013": 26,
+  "f_L0_014": 27,
+  "f_L0_015": 28,
+  "dec_L0_003": 29,
+  "dec_L0_006": 30,
+  "dec_L0_009": 31
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "png": "cam_r_L0_bed_room_1.png",
+   "exr": "cam_r_L0_bed_room_1_passes.exr",
+   "preview": "cam_r_L0_bed_room_1_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_1_depth.png",
+   "index_png": "cam_r_L0_bed_room_1_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_1_index.png",
+    "depth_mm": "cam_r_L0_bed_room_1_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_1_normal.png",
+    "depth": "cam_r_L0_bed_room_1_depth.png"
+   },
+   "preview_bytes": 132398,
+   "seconds": 3.05,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.4444921016693115,
+    "max": 4.010592937469482,
+    "mean": 2.7946527004241943,
+    "coverage": 1.0
+   },
+   "index_values": [
+    8,
+    11,
+    26,
+    30
+   ],
+   "index_stats": {
+    "8": {
+     "pixels": 67537,
+     "box": [
+      1603,
+      0,
+      1920,
+      228
+     ]
+    },
+    "11": {
+     "pixels": 206211,
+     "box": [
+      606,
+      0,
+      1041,
+      500
+     ]
+    },
+    "26": {
+     "pixels": 566573,
+     "box": [
+      875,
+      203,
+      1920,
+      1080
+     ]
+    },
+    "30": {
+     "pixels": 41487,
+     "box": [
+      31,
+      768,
+      303,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "ec235c006681a13c9ec3206fa96a9e3171b44534cfe58a8ab39c9a6450495ac6",
+   "render_key": "7148d9fbbb13ff78",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.0,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.025311,
+     0.995801,
+     0.967062
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6274.6,
+    "wb_tint": 8.78,
+    "residual": null,
+    "window_clip_frac": 0.0035,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "f_L0_014"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.0,
+    "clip_before": 0.1165,
+    "clip_after": 0.0033,
+    "pane_px": 230828,
+    "pane_median": 0.9513,
+    "wall_median": 0.6204,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0031,
+      "median": 0.8978
+     }
+    ],
+    "pane_median_after": 0.8981,
+    "seconds": 0.775
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791078100.0,
+ "warnings": []
+}

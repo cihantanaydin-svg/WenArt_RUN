@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-01",
   "source_folder": "projects/synthetic-01",
-  "created_utc": "2026-10-03T01:52:06Z",
-  "pipeline_commit": "76bd17dd",
+  "created_utc": "2026-10-04T00:05:42Z",
+  "pipeline_commit": "2be169d6",
   "brief": {
    "style": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
   }
@@ -24,6 +24,7 @@
      "kind": "vector",
      "level_id": "L1",
      "level_label_raw": "1. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -58,7 +59,9 @@
      ],
      "debug_image": "debug/1_kat_pdf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
   },
   {
    "id": "doc_1_kat_scan_png",
@@ -68,25 +71,86 @@
    "pages": [
     {
      "page": 1,
-     "class": "other",
-     "skip_reason": "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here",
+     "class": "floor_plan",
+     "skip_reason": null,
      "kind": "scan",
-     "level_id": null,
-     "level_label_raw": null,
-     "scale": null,
-     "transform_to_building": null,
-     "confidence": 0.0,
+     "level_id": "L1",
+     "level_label_raw": "1. KAT PLANI",
+     "classifier": "ocr",
+     "scale": {
+      "metres_per_unit": 0.01695835025823463,
+      "method": "dimension_text",
+      "confidence": 0.9,
+      "evidence": {
+       "file": "1_kat_scan.png",
+       "method": "ocr",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "ocr:8",
+       "text": "4,30",
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "pixel_box": [
+        1103.7,
+        1113.0,
+        1140.2,
+        1127.0
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.01695835025823463,
+      0.0,
+      -16.86,
+      0.0,
+      0.01695835025823463,
+      -11.1389
+     ],
+     "confidence": 0.9,
      "evidence": [
       {
        "file": "1_kat_scan.png",
-       "method": "ai",
+       "method": "ocr",
+       "confidence": 0.9353,
+       "page": 1,
+       "pixel_box": [
+        996.9,
+        583.5,
+        1127.5,
+        599.5
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "1. KAT PLANI"
+      },
+      {
+       "file": "1_kat_scan.png",
+       "method": "raster",
        "confidence": 0.9,
        "text": "kind: paper outline fills the image"
       }
      ],
-     "debug_image": "debug/1_kat_scan_png_p1.png"
+     "debug_image": "debug/1_kat_scan_png_p1.png",
+     "rectified_image": "rectified/1_kat_scan_png_p1.png",
+     "to_original": [
+      [
+       0.999999888,
+       -0.000472818,
+       -0.499054271
+      ],
+      [
+       -0.000472818,
+       -0.999999888,
+       1755.500195836
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "raster_scan"
   },
   {
    "id": "doc_zemin_kat_dxf",
@@ -101,6 +165,7 @@
      "kind": "vector",
      "level_id": "L0",
      "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -132,7 +197,9 @@
      ],
      "debug_image": "debug/zemin_kat_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   }
  ],
  "levels": [
@@ -151,7 +218,8 @@
      "entity": "TEXT:124",
      "text": "ZEMİN KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   },
   {
    "id": "L1",
@@ -168,8 +236,29 @@
      "page": 1,
      "entity": "char:28",
      "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9353,
+     "page": 1,
+     "pixel_box": [
+      996.9,
+      583.5,
+      1127.5,
+      599.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.9,
+     "text": "kind: paper outline fills the image"
     }
-   ]
+   ],
+   "label_source": "title"
   }
  ],
  "walls": [
@@ -395,6 +484,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:1"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      993.9,
+      1080.4,
+      1564.7,
+      1095.4
+     ]
     }
    ]
   },
@@ -420,6 +522,14 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:2"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
     }
    ]
   },
@@ -445,6 +555,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:3"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      994.3,
+      670.1,
+      1564.5,
+      684.5
+     ]
     }
    ]
   },
@@ -470,6 +593,14 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:4"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
     }
    ]
   },
@@ -495,6 +626,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:5"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1245.4,
+      685.2,
+      1251.2,
+      1080.6
+     ]
     }
    ]
   },
@@ -520,6 +664,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:6"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1346.0,
+      684.3,
+      1352.1,
+      1079.6
+     ]
     }
    ]
   },
@@ -545,6 +702,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:7"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1009.1,
+      844.1,
+      1245.4,
+      851.6
+     ]
     }
    ]
   },
@@ -570,6 +740,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:8"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1352.1,
+      855.8,
+      1547.0,
+      863.3
+     ]
     }
    ]
   }
@@ -895,6 +1078,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:11"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:2,seg:54",
+     "pixel_box": [
+      1198.0,
+      747.4,
+      1248.1,
+      793.9
+     ]
     }
    ]
   },
@@ -919,6 +1115,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:13"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:3,seg:65",
+     "pixel_box": [
+      1349.8,
+      950.8,
+      1405.5,
+      1003.3
+     ]
     }
    ]
   },
@@ -943,6 +1152,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:15"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:1,seg:52",
+     "pixel_box": [
+      1348.6,
+      746.9,
+      1400.3,
+      794.9
+     ]
     }
    ]
   },
@@ -967,6 +1189,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:17"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:108,seg:98",
+     "pixel_box": [
+      1073.2,
+      1080.6,
+      1183.2,
+      1095.4
+     ]
     }
    ]
   },
@@ -991,6 +1226,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:21"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:106,seg:94",
+     "pixel_box": [
+      1395.2,
+      1080.5,
+      1505.2,
+      1095.3
+     ]
     }
    ]
   },
@@ -1015,6 +1263,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:25"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:63,seg:64",
+     "pixel_box": [
+      994.4,
+      930.0,
+      1009.2,
+      1002.0
+     ]
     }
    ]
   },
@@ -1039,6 +1300,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:29"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:23,seg:41",
+     "pixel_box": [
+      1091.0,
+      670.3,
+      1164.0,
+      684.4
+     ]
     }
    ]
   },
@@ -1063,6 +1337,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:33"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:25,seg:38",
+     "pixel_box": [
+      1280.0,
+      670.2,
+      1318.0,
+      684.4
+     ]
     }
    ]
   },
@@ -1087,6 +1374,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:37"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:26,seg:37",
+     "pixel_box": [
+      1431.0,
+      670.1,
+      1468.0,
+      684.3
+     ]
     }
    ]
   }
@@ -1407,6 +1707,20 @@
      "text": "HOL"
     },
     {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.964,
+     "page": 1,
+     "pixel_box": [
+      1267.6,
+      874.9,
+      1301.6,
+      888.4
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "HOL"
+    },
+    {
      "file": "1_kat.pdf",
      "method": "derived",
      "confidence": 1.0,
@@ -1450,6 +1764,20 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "char:73",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9244,
+     "page": 1,
+     "pixel_box": [
+      1372.6,
+      975.8,
+      1484.6,
+      989.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
      "text": "YATAK ODASI"
     },
     {
@@ -1499,6 +1827,20 @@
      "text": "BANYO"
     },
     {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.8903,
+     "page": 1,
+     "pixel_box": [
+      1373.5,
+      762.3,
+      1431.5,
+      776.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "BANYO"
+    },
+    {
      "file": "1_kat.pdf",
      "method": "derived",
      "confidence": 1.0,
@@ -1542,6 +1884,20 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "char:89",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9605,
+     "page": 1,
+     "pixel_box": [
+      1030.5,
+      757.0,
+      1146.5,
+      773.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
      "text": "ÇOCUK ODASI"
     },
     {
@@ -1987,8 +2343,8 @@
  "conflicts": [],
  "unverified": [],
  "warnings": [
-  "1_kat_scan.png p1: scan page skipped (no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
-  "Level L1: ceiling height assumed 2.70 m (no section drawing found)"
+  "Level L1: ceiling height assumed 2.70 m (no section drawing found)",
+  "1. Kat: 1_kat_scan.png (scan) is evidence only for 1_kat.pdf p1: 8 walls, 9 openings, 0 furniture pieces and 4 room names confirmed"
  ]
 }

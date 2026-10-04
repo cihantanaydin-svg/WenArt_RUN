@@ -4,17 +4,17 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 6.214,
+   "latency_s": 7.595,
    "error": null,
-   "pieces_proposed": 7,
+   "pieces_proposed": 9,
    "prompt": "Task: furnish this empty kitchen (Turkish: MUTFAK) labelled 'Mutfak' on the plan. Style brief: Scandinavian, light oak floor, white walls, linen textiles, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_mutfak\", \"label\": \"Mutfak\", \"room_type\": \"kitchen\", \"area_m2\": 8.5, \"polygon_m\": [[0.25, 5.25], [5.25, 5.25], [5.25, 6.95], [0.25, 6.95]], \"doors\": [{\"id\": \"d_L0_003\", \"center\": [5.3, 6.1], \"width\": 0.8, \"opens_into_this_room\": true}], \"windows\": [{\"id\": \"win_L0_005\", \"center\": [2.75, 7.08], \"width\": 1.2, \"sill_height\": null}]}\n\nAllowed types with their size options [width, depth]:\n- kitchen_counter: height 0.9 m, size options [1.8, 0.6], [2.4, 0.6], [3.0, 0.6] (usually against a wall)\n- kitchen_island: height 0.9 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- fridge: height 1.8 m, size options [0.6, 0.65], [0.7, 0.7], [0.9, 0.75] (usually against a wall)\n- stove: height 0.9 m, size options [0.5, 0.6], [0.6, 0.6], [0.9, 0.6] (usually against a wall)\n- sink_kitchen: height 0.9 m, size options [0.6, 0.5], [0.8, 0.5], [1.0, 0.6] (usually against a wall)\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- washing_machine: height 0.85 m, size options [0.55, 0.55], [0.6, 0.6], [0.7, 0.7] (usually against a wall)\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill (sill_height null = 0.9 m assumed); beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nA good layout for this room type: a kitchen_counter along the longest free wall, sink_kitchen and stove inside the counter line (place them as separate pieces that touch the counter ends), a fridge at one end, a small dining table with chairs only when there is room.\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, table_dining, chair, washing_machine\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"kitchen_counter\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [3.0, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Main counter along the back wall for food prep.\"\n    },\n    {\n      \"type\": \"sink_kitchen\",\n      \"center\": [1.8, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.8, 0.5],\n      \"against_wall\": true,\n      \"reason\": \"Sink placed at counter left end for easy access.\"\n    },\n    {\n      \"type\": \"stove\",\n      \"center\": [3.6, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Stove placed at counter right end for cooking.\"\n    },\n    {\n      \"type\": \"fridge\",\n      \"center\": [0.25, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.7, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Fridge placed at left wall corner for storage.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [2.75, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Dining table centered in room for meals.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [1.8, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed left of table for seating.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [3.7, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed right of table for seating.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"kitchen_counter\",\n      \"center\": [1.0, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [3.0, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Main counter along the longest wall for prep and storage.\"\n    },\n    {\n      \"type\": \"sink_kitchen\",\n      \"center\": [0.8, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.5],\n      \"against_wall\": true,\n      \"reason\": \"Sink placed at counter end for easy access.\"\n    },\n    {\n      \"type\": \"stove\",\n      \"center\": [1.8, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Stove placed at counter end for cooking convenience.\"\n    },\n    {\n      \"type\": \"fridge\",\n      \"center\": [0.25, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.65],\n      \"against_wall\": true,\n      \"reason\": \"Fridge placed at counter start for easy access.\"\n    },\n    {\n      \"type\": \"kitchen_island\",\n      \"center\": [2.5, 6.3],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Island for extra prep space and casual dining.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [2.5, 6.3],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Dining table placed on island for casual meals.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [2.0, 6.0],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed near table for dining.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [3.0, 6.0],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Second chair for dining.\"\n    },\n    {\n      \"type\": \"washing_machine\",\n      \"center\": [4.5, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Washing machine placed against wall for utility.\"\n    }\n  ]\n}",
    "data": {
     "pieces": [
      {
       "type": "kitchen_counter",
       "center": [
-       2.75,
+       1.0,
        6.95
       ],
       "rotation_deg": 0,
@@ -23,26 +23,26 @@
        0.6
       ],
       "against_wall": true,
-      "reason": "Main counter along the back wall for food prep."
+      "reason": "Main counter along the longest wall for prep and storage."
      },
      {
       "type": "sink_kitchen",
       "center": [
-       1.8,
+       0.8,
        6.95
       ],
       "rotation_deg": 0,
       "size": [
-       0.8,
+       0.6,
        0.5
       ],
       "against_wall": true,
-      "reason": "Sink placed at counter left end for easy access."
+      "reason": "Sink placed at counter end for easy access."
      },
      {
       "type": "stove",
       "center": [
-       3.6,
+       1.8,
        6.95
       ],
       "rotation_deg": 0,
@@ -51,7 +51,7 @@
        0.6
       ],
       "against_wall": true,
-      "reason": "Stove placed at counter right end for cooking."
+      "reason": "Stove placed at counter end for cooking convenience."
      },
      {
       "type": "fridge",
@@ -61,17 +61,17 @@
       ],
       "rotation_deg": 0,
       "size": [
-       0.7,
-       0.7
+       0.6,
+       0.65
       ],
       "against_wall": true,
-      "reason": "Fridge placed at left wall corner for storage."
+      "reason": "Fridge placed at counter start for easy access."
      },
      {
-      "type": "table_dining",
+      "type": "kitchen_island",
       "center": [
-       2.75,
-       5.25
+       2.5,
+       6.3
       ],
       "rotation_deg": 0,
       "size": [
@@ -79,13 +79,27 @@
        0.9
       ],
       "against_wall": false,
-      "reason": "Dining table centered in room for meals."
+      "reason": "Island for extra prep space and casual dining."
+     },
+     {
+      "type": "table_dining",
+      "center": [
+       2.5,
+       6.3
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.6,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Dining table placed on island for casual meals."
      },
      {
       "type": "chair",
       "center": [
-       1.8,
-       5.25
+       2.0,
+       6.0
       ],
       "rotation_deg": 0,
       "size": [
@@ -93,13 +107,13 @@
        0.45
       ],
       "against_wall": false,
-      "reason": "Chair placed left of table for seating."
+      "reason": "Chair placed near table for dining."
      },
      {
       "type": "chair",
       "center": [
-       3.7,
-       5.25
+       3.0,
+       6.0
       ],
       "rotation_deg": 0,
       "size": [
@@ -107,7 +121,21 @@
        0.45
       ],
       "against_wall": false,
-      "reason": "Chair placed right of table for seating."
+      "reason": "Second chair for dining."
+     },
+     {
+      "type": "washing_machine",
+      "center": [
+       4.5,
+       6.95
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.6,
+       0.6
+      ],
+      "against_wall": true,
+      "reason": "Washing machine placed against wall for utility."
      }
     ]
    },
@@ -116,19 +144,19 @@
      {
       "type": "kitchen_counter",
       "center": [
-       2.45,
+       1.771,
        6.629
       ],
       "rotation_deg": 0.0,
       "size": [
-       1.8,
+       3.0,
        0.6
       ],
       "against_wall": true,
-      "reason": "Main counter along the back wall for food prep.",
+      "reason": "Main counter along the longest wall for prep and storage.",
       "proposed": {
        "center": [
-        2.75,
+        1.0,
         6.95
        ],
        "rotation_deg": 0.0,
@@ -139,387 +167,36 @@
       },
       "repairs": [
        {
-        "iteration": 20,
-        "type": "kitchen_counter",
-        "step": "snap",
-        "before": {
-         "center": [
-          2.75,
-          6.95
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          3.0,
-          0.6
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          3.0,
-          0.6
-         ]
-        },
-        "failed": [
-         "inside_room",
-         "wall_contact"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 21,
-        "type": "kitchen_counter",
-        "step": "slide",
-        "before": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          3.0,
-          0.6
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          3.0,
-          0.6
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": false,
-        "note": "no free position on this wall"
-       },
-       {
-        "iteration": 22,
-        "type": "kitchen_counter",
-        "step": "shrink",
-        "before": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          3.0,
-          0.6
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          2.4,
-          0.6
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 23,
-        "type": "kitchen_counter",
-        "step": "slide",
-        "before": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          2.4,
-          0.6
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          2.4,
-          0.6
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": false,
-        "note": "no free position on this wall"
-       },
-       {
-        "iteration": 24,
-        "type": "kitchen_counter",
-        "step": "shrink",
-        "before": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          2.4,
-          0.6
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.8,
-          0.6
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": false
-       },
-       {
         "iteration": 25,
         "type": "kitchen_counter",
-        "step": "slide",
-        "before": {
-         "center": [
-          2.75,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.8,
-          0.6
-         ]
-        },
-        "after": {
-         "center": [
-          2.45,
-          6.629
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.8,
-          0.6
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": true
-       }
-      ],
-      "checks": {
-       "inside_room": true,
-       "no_overlap": true,
-       "clearance_ok": true,
-       "doors_free": true,
-       "windows_free": true,
-       "wall_contact": true
-      }
-     },
-     {
-      "type": "sink_kitchen",
-      "center": [
-       0.521,
-       5.779
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.8,
-       0.5
-      ],
-      "against_wall": true,
-      "reason": "Sink placed at counter left end for easy access.",
-      "proposed": {
-       "center": [
-        1.8,
-        6.95
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.8,
-        0.5
-       ]
-      },
-      "repairs": [
-       {
-        "iteration": 15,
-        "type": "sink_kitchen",
         "step": "snap",
         "before": {
          "center": [
-          1.8,
+          1.0,
           6.95
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.8,
-          0.5
+          3.0,
+          0.6
          ]
         },
         "after": {
          "center": [
-          1.8,
-          6.679
+          1.771,
+          6.629
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.8,
-          0.5
+          3.0,
+          0.6
          ]
         },
         "failed": [
          "inside_room",
-         "no_overlap",
          "wall_contact"
         ],
         "ok": false
-       },
-       {
-        "iteration": 16,
-        "type": "sink_kitchen",
-        "step": "slide",
-        "before": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.8,
-          0.5
-         ]
-        },
-        "after": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.8,
-          0.5
-         ]
-        },
-        "failed": [
-         "no_overlap"
-        ],
-        "ok": false,
-        "note": "no free position on this wall"
-       },
-       {
-        "iteration": 17,
-        "type": "sink_kitchen",
-        "step": "shrink",
-        "before": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.8,
-          0.5
-         ]
-        },
-        "after": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.6,
-          0.5
-         ]
-        },
-        "failed": [
-         "no_overlap"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 18,
-        "type": "sink_kitchen",
-        "step": "slide",
-        "before": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.6,
-          0.5
-         ]
-        },
-        "after": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.6,
-          0.5
-         ]
-        },
-        "failed": [
-         "no_overlap"
-        ],
-        "ok": false,
-        "note": "no free position on this wall"
-       },
-       {
-        "iteration": 19,
-        "type": "sink_kitchen",
-        "step": "relocate",
-        "before": {
-         "center": [
-          1.8,
-          6.679
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.6,
-          0.5
-         ]
-        },
-        "after": {
-         "center": [
-          0.521,
-          5.779
-         ],
-         "rotation_deg": 90.0,
-         "size": [
-          0.8,
-          0.5
-         ]
-        },
-        "failed": [
-         "no_overlap"
-        ],
-        "ok": true
        }
       ],
       "checks": {
@@ -534,7 +211,7 @@
      {
       "type": "stove",
       "center": [
-       1.1,
+       1.4,
        5.571
       ],
       "rotation_deg": 180.0,
@@ -543,10 +220,10 @@
        0.6
       ],
       "against_wall": true,
-      "reason": "Stove placed at counter right end for cooking.",
+      "reason": "Stove placed at counter end for cooking convenience.",
       "proposed": {
        "center": [
-        3.6,
+        1.8,
         6.95
        ],
        "rotation_deg": 0.0,
@@ -557,12 +234,12 @@
       },
       "repairs": [
        {
-        "iteration": 10,
+        "iteration": 19,
         "type": "stove",
         "step": "snap",
         "before": {
          "center": [
-          3.6,
+          1.8,
           6.95
          ],
          "rotation_deg": 0.0,
@@ -573,7 +250,7 @@
         },
         "after": {
          "center": [
-          3.6,
+          1.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -590,12 +267,12 @@
         "ok": false
        },
        {
-        "iteration": 11,
+        "iteration": 20,
         "type": "stove",
         "step": "slide",
         "before": {
          "center": [
-          3.6,
+          1.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -606,7 +283,7 @@
         },
         "after": {
          "center": [
-          3.6,
+          2.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -616,19 +293,17 @@
          ]
         },
         "failed": [
-         "no_overlap",
-         "doors_free"
+         "no_overlap"
         ],
-        "ok": false,
-        "note": "no free position on this wall"
+        "ok": true
        },
        {
-        "iteration": 12,
+        "iteration": 26,
         "type": "stove",
         "step": "shrink",
         "before": {
          "center": [
-          3.6,
+          2.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -639,7 +314,7 @@
         },
         "after": {
          "center": [
-          3.6,
+          2.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -649,18 +324,17 @@
          ]
         },
         "failed": [
-         "no_overlap",
-         "doors_free"
+         "no_overlap"
         ],
         "ok": false
        },
        {
-        "iteration": 13,
+        "iteration": 27,
         "type": "stove",
         "step": "slide",
         "before": {
          "center": [
-          3.6,
+          2.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -671,7 +345,7 @@
         },
         "after": {
          "center": [
-          3.6,
+          2.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -681,19 +355,18 @@
          ]
         },
         "failed": [
-         "no_overlap",
-         "doors_free"
+         "no_overlap"
         ],
         "ok": false,
         "note": "no free position on this wall"
        },
        {
-        "iteration": 14,
+        "iteration": 28,
         "type": "stove",
         "step": "relocate",
         "before": {
          "center": [
-          3.6,
+          2.8,
           6.629
          ],
          "rotation_deg": 0.0,
@@ -704,7 +377,7 @@
         },
         "after": {
          "center": [
-          1.1,
+          1.4,
           5.571
          ],
          "rotation_deg": 180.0,
@@ -714,235 +387,7 @@
          ]
         },
         "failed": [
-         "no_overlap",
-         "doors_free"
-        ],
-        "ok": true
-       }
-      ],
-      "checks": {
-       "inside_room": true,
-       "no_overlap": true,
-       "clearance_ok": true,
-       "doors_free": true,
-       "windows_free": true,
-       "wall_contact": true
-      }
-     },
-     {
-      "type": "fridge",
-      "center": [
-       0.621,
-       6.579
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       0.7,
-       0.7
-      ],
-      "against_wall": true,
-      "reason": "Fridge placed at left wall corner for storage.",
-      "proposed": {
-       "center": [
-        0.25,
-        6.95
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.7,
-        0.7
-       ]
-      },
-      "repairs": [
-       {
-        "iteration": 9,
-        "type": "fridge",
-        "step": "snap",
-        "before": {
-         "center": [
-          0.25,
-          6.95
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.7,
-          0.7
-         ]
-        },
-        "after": {
-         "center": [
-          0.621,
-          6.579
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.7,
-          0.7
-         ]
-        },
-        "failed": [
-         "inside_room",
-         "wall_contact"
-        ],
-        "ok": true
-       }
-      ],
-      "checks": {
-       "inside_room": true,
-       "no_overlap": true,
-       "clearance_ok": true,
-       "doors_free": true,
-       "windows_free": true,
-       "wall_contact": true
-      }
-     },
-     {
-      "type": "table_dining",
-      "center": [
-       2.65,
-       5.75
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       1.2,
-       0.8
-      ],
-      "against_wall": false,
-      "reason": "Dining table centered in room for meals.",
-      "proposed": {
-       "center": [
-        2.75,
-        5.25
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        1.6,
-        0.9
-       ]
-      },
-      "repairs": [
-       {
-        "iteration": 5,
-        "type": "table_dining",
-        "step": "snap",
-        "before": {
-         "center": [
-          2.75,
-          5.25
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.6,
-          0.9
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.6,
-          0.9
-         ]
-        },
-        "failed": [
-         "inside_room"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 6,
-        "type": "table_dining",
-        "step": "slide",
-        "before": {
-         "center": [
-          2.75,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.6,
-          0.9
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.6,
-          0.9
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": false,
-        "note": "no free position within 1 m"
-       },
-       {
-        "iteration": 7,
-        "type": "table_dining",
-        "step": "shrink",
-        "before": {
-         "center": [
-          2.75,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.6,
-          0.9
-         ]
-        },
-        "after": {
-         "center": [
-          2.75,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.2,
-          0.8
-         ]
-        },
-        "failed": [
-         "doors_free"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 8,
-        "type": "table_dining",
-        "step": "slide",
-        "before": {
-         "center": [
-          2.75,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.2,
-          0.8
-         ]
-        },
-        "after": {
-         "center": [
-          2.65,
-          5.75
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          1.2,
-          0.8
-         ]
-        },
-        "failed": [
-         "doors_free"
+         "no_overlap"
         ],
         "ok": true
        }
@@ -959,8 +404,8 @@
      {
       "type": "chair",
       "center": [
-       1.698,
-       5.517
+       2.0,
+       5.6
       ],
       "rotation_deg": 0.0,
       "size": [
@@ -968,11 +413,77 @@
        0.45
       ],
       "against_wall": false,
-      "reason": "Chair placed left of table for seating.",
+      "reason": "Chair placed near table for dining.",
       "proposed": {
        "center": [
-        1.8,
-        5.25
+        2.0,
+        6.0
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.45,
+        0.45
+       ]
+      },
+      "repairs": [
+       {
+        "iteration": 4,
+        "type": "chair",
+        "step": "slide",
+        "before": {
+         "center": [
+          2.0,
+          6.0
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.45,
+          0.45
+         ]
+        },
+        "after": {
+         "center": [
+          2.0,
+          5.6
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.45,
+          0.45
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true
+       }
+      ],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "chair",
+      "center": [
+       3.0,
+       5.6
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.45,
+       0.45
+      ],
+      "against_wall": false,
+      "reason": "Second chair for dining.",
+      "proposed": {
+       "center": [
+        3.0,
+        6.0
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -984,43 +495,11 @@
        {
         "iteration": 3,
         "type": "chair",
-        "step": "snap",
-        "before": {
-         "center": [
-          1.8,
-          5.25
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.45,
-          0.45
-         ]
-        },
-        "after": {
-         "center": [
-          2.098,
-          5.517
-         ],
-         "rotation_deg": 0.0,
-         "size": [
-          0.45,
-          0.45
-         ]
-        },
-        "failed": [
-         "inside_room",
-         "no_overlap"
-        ],
-        "ok": false
-       },
-       {
-        "iteration": 4,
-        "type": "chair",
         "step": "slide",
         "before": {
          "center": [
-          2.098,
-          5.517
+          3.0,
+          6.0
          ],
          "rotation_deg": 0.0,
          "size": [
@@ -1030,8 +509,8 @@
         },
         "after": {
          "center": [
-          1.698,
-          5.517
+          3.0,
+          5.6
          ],
          "rotation_deg": 0.0,
          "size": [
@@ -1055,90 +534,185 @@
       }
      },
      {
-      "type": "chair",
+      "type": "washing_machine",
       "center": [
-       3.802,
-       5.517
+       4.0,
+       5.571
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 180.0,
       "size": [
-       0.45,
-       0.45
+       0.6,
+       0.6
       ],
-      "against_wall": false,
-      "reason": "Chair placed right of table for seating.",
+      "against_wall": true,
+      "reason": "Washing machine placed against wall for utility.",
       "proposed": {
        "center": [
-        3.7,
-        5.25
+        4.5,
+        6.95
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.45,
-        0.45
+        0.6,
+        0.6
        ]
       },
       "repairs": [
        {
         "iteration": 1,
-        "type": "chair",
+        "type": "washing_machine",
         "step": "snap",
         "before": {
          "center": [
-          3.7,
-          5.25
+          4.5,
+          6.95
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.45,
-          0.45
+          0.6,
+          0.6
          ]
         },
         "after": {
          "center": [
-          3.402,
-          5.517
+          4.5,
+          6.629
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.45,
-          0.45
+          0.6,
+          0.6
          ]
         },
         "failed": [
          "inside_room",
-         "no_overlap"
+         "doors_free",
+         "wall_contact"
         ],
         "ok": false
        },
        {
         "iteration": 2,
-        "type": "chair",
+        "type": "washing_machine",
         "step": "slide",
         "before": {
          "center": [
-          3.402,
-          5.517
+          4.5,
+          6.629
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.45,
-          0.45
+          0.6,
+          0.6
          ]
         },
         "after": {
          "center": [
-          3.802,
-          5.517
+          4.0,
+          6.629
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.45,
-          0.45
+          0.6,
+          0.6
          ]
         },
         "failed": [
-         "no_overlap"
+         "doors_free"
+        ],
+        "ok": true
+       },
+       {
+        "iteration": 9,
+        "type": "washing_machine",
+        "step": "shrink",
+        "before": {
+         "center": [
+          4.0,
+          6.629
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.6
+         ]
+        },
+        "after": {
+         "center": [
+          4.0,
+          6.654
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.55,
+          0.55
+         ]
+        },
+        "failed": [
+         "doors_free"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 10,
+        "type": "washing_machine",
+        "step": "slide",
+        "before": {
+         "center": [
+          4.0,
+          6.654
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.55,
+          0.55
+         ]
+        },
+        "after": {
+         "center": [
+          4.0,
+          6.654
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.55,
+          0.55
+         ]
+        },
+        "failed": [
+         "doors_free"
+        ],
+        "ok": false,
+        "note": "no free position on this wall"
+       },
+       {
+        "iteration": 11,
+        "type": "washing_machine",
+        "step": "relocate",
+        "before": {
+         "center": [
+          4.0,
+          6.654
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.55,
+          0.55
+         ]
+        },
+        "after": {
+         "center": [
+          4.0,
+          5.571
+         ],
+         "rotation_deg": 180.0,
+         "size": [
+          0.6,
+          0.6
+         ]
+        },
+        "failed": [
+         "doors_free"
         ],
         "ok": true
        }
@@ -1153,50 +727,850 @@
       }
      }
     ],
-    "dropped": [],
-    "log": [
+    "dropped": [
      {
-      "iteration": 1,
-      "piece": 6,
-      "type": "chair",
-      "step": "snap",
-      "before": {
+      "type": "table_dining",
+      "proposed": {
        "center": [
-        3.7,
-        5.25
+        2.5,
+        6.3
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.45,
-        0.45
+        1.6,
+        0.9
+       ]
+      },
+      "last": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "reason": "no repair left",
+      "repairs": [
+       {
+        "iteration": 5,
+        "type": "table_dining",
+        "step": "slide",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.6,
+          0.9
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.6,
+          0.9
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position within 1 m"
+       },
+       {
+        "iteration": 6,
+        "type": "table_dining",
+        "step": "shrink",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.6,
+          0.9
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 7,
+        "type": "table_dining",
+        "step": "slide",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position within 1 m"
+       },
+       {
+        "iteration": 8,
+        "type": "table_dining",
+        "step": "drop",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true,
+        "note": "no repair left"
+       }
+      ],
+      "log_entry": {
+       "iteration": 8,
+       "piece": 5,
+       "type": "table_dining",
+       "step": "drop",
+       "before": {
+        "center": [
+         2.5,
+         6.3
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.8
+        ]
+       },
+       "after": {
+        "center": [
+         2.5,
+         6.3
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     },
+     {
+      "type": "kitchen_island",
+      "proposed": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "last": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "reason": "no repair left",
+      "repairs": [
+       {
+        "iteration": 12,
+        "type": "kitchen_island",
+        "step": "slide",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.6,
+          0.9
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.6,
+          0.9
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position within 1 m"
+       },
+       {
+        "iteration": 13,
+        "type": "kitchen_island",
+        "step": "shrink",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.6,
+          0.9
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 14,
+        "type": "kitchen_island",
+        "step": "slide",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position within 1 m"
+       },
+       {
+        "iteration": 15,
+        "type": "kitchen_island",
+        "step": "drop",
+        "before": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "after": {
+         "center": [
+          2.5,
+          6.3
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.2,
+          0.8
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true,
+        "note": "no repair left"
+       }
+      ],
+      "log_entry": {
+       "iteration": 15,
+       "piece": 4,
+       "type": "kitchen_island",
+       "step": "drop",
+       "before": {
+        "center": [
+         2.5,
+         6.3
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.8
+        ]
+       },
+       "after": {
+        "center": [
+         2.5,
+         6.3
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     },
+     {
+      "type": "fridge",
+      "proposed": {
+       "center": [
+        0.25,
+        6.95
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "last": {
+       "center": [
+        0.596,
+        6.304
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "reason": "no repair left",
+      "repairs": [
+       {
+        "iteration": 16,
+        "type": "fridge",
+        "step": "snap",
+        "before": {
+         "center": [
+          0.25,
+          6.95
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "after": {
+         "center": [
+          0.571,
+          6.604
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "failed": [
+         "inside_room",
+         "no_overlap",
+         "wall_contact"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 17,
+        "type": "fridge",
+        "step": "slide",
+        "before": {
+         "center": [
+          0.571,
+          6.604
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "after": {
+         "center": [
+          0.571,
+          6.604
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position on this wall"
+       },
+       {
+        "iteration": 18,
+        "type": "fridge",
+        "step": "relocate",
+        "before": {
+         "center": [
+          0.571,
+          6.604
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "after": {
+         "center": [
+          0.596,
+          6.304
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true
+       },
+       {
+        "iteration": 22,
+        "type": "fridge",
+        "step": "drop",
+        "before": {
+         "center": [
+          0.596,
+          6.304
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "after": {
+         "center": [
+          0.596,
+          6.304
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          0.6,
+          0.65
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true,
+        "note": "no repair left"
+       }
+      ],
+      "log_entry": {
+       "iteration": 22,
+       "piece": 3,
+       "type": "fridge",
+       "step": "drop",
+       "before": {
+        "center": [
+         0.596,
+         6.304
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.6,
+         0.65
+        ]
+       },
+       "after": {
+        "center": [
+         0.596,
+         6.304
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.6,
+         0.65
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     },
+     {
+      "type": "sink_kitchen",
+      "proposed": {
+       "center": [
+        0.8,
+        6.95
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.5
+       ]
+      },
+      "last": {
+       "center": [
+        0.521,
+        6.279
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.5
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "reason": "no repair left",
+      "repairs": [
+       {
+        "iteration": 21,
+        "type": "sink_kitchen",
+        "step": "snap",
+        "before": {
+         "center": [
+          0.8,
+          6.95
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "after": {
+         "center": [
+          0.8,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "failed": [
+         "inside_room",
+         "no_overlap",
+         "wall_contact"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 23,
+        "type": "sink_kitchen",
+        "step": "slide",
+        "before": {
+         "center": [
+          0.8,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "after": {
+         "center": [
+          0.8,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position on this wall"
+       },
+       {
+        "iteration": 24,
+        "type": "sink_kitchen",
+        "step": "relocate",
+        "before": {
+         "center": [
+          0.8,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "after": {
+         "center": [
+          0.521,
+          6.279
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true
+       },
+       {
+        "iteration": 29,
+        "type": "sink_kitchen",
+        "step": "drop",
+        "before": {
+         "center": [
+          0.521,
+          6.279
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "after": {
+         "center": [
+          0.521,
+          6.279
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          0.6,
+          0.5
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": true,
+        "note": "no repair left"
+       }
+      ],
+      "log_entry": {
+       "iteration": 29,
+       "piece": 1,
+       "type": "sink_kitchen",
+       "step": "drop",
+       "before": {
+        "center": [
+         0.521,
+         6.279
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.6,
+         0.5
+        ]
+       },
+       "after": {
+        "center": [
+         0.521,
+         6.279
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.6,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     }
+    ],
+    "log": [
+     {
+      "iteration": 1,
+      "piece": 8,
+      "type": "washing_machine",
+      "step": "snap",
+      "before": {
+       "center": [
+        4.5,
+        6.95
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
        ]
       },
       "after": {
        "center": [
-        3.402,
-        5.517
+        4.5,
+        6.629
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.45,
-        0.45
+        0.6,
+        0.6
        ]
       },
       "failed": [
        "inside_room",
-       "no_overlap"
+       "doors_free",
+       "wall_contact"
       ],
       "ok": false
      },
      {
       "iteration": 2,
-      "piece": 6,
+      "piece": 8,
+      "type": "washing_machine",
+      "step": "slide",
+      "before": {
+       "center": [
+        4.5,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
+       ]
+      },
+      "after": {
+       "center": [
+        4.0,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
+       ]
+      },
+      "failed": [
+       "doors_free"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 3,
+      "piece": 7,
       "type": "chair",
       "step": "slide",
       "before": {
        "center": [
-        3.402,
-        5.517
+        3.0,
+        6.0
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1206,8 +1580,8 @@
       },
       "after": {
        "center": [
-        3.802,
-        5.517
+        3.0,
+        5.6
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1221,47 +1595,14 @@
       "ok": true
      },
      {
-      "iteration": 3,
-      "piece": 5,
-      "type": "chair",
-      "step": "snap",
-      "before": {
-       "center": [
-        1.8,
-        5.25
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.45,
-        0.45
-       ]
-      },
-      "after": {
-       "center": [
-        2.098,
-        5.517
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.45,
-        0.45
-       ]
-      },
-      "failed": [
-       "inside_room",
-       "no_overlap"
-      ],
-      "ok": false
-     },
-     {
       "iteration": 4,
-      "piece": 5,
+      "piece": 6,
       "type": "chair",
       "step": "slide",
       "before": {
        "center": [
-        2.098,
-        5.517
+        2.0,
+        6.0
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1271,8 +1612,8 @@
       },
       "after": {
        "center": [
-        1.698,
-        5.517
+        2.0,
+        5.6
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1287,13 +1628,13 @@
      },
      {
       "iteration": 5,
-      "piece": 4,
+      "piece": 5,
       "type": "table_dining",
-      "step": "snap",
+      "step": "slide",
       "before": {
        "center": [
-        2.75,
-        5.25
+        2.5,
+        6.3
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1303,8 +1644,8 @@
       },
       "after": {
        "center": [
-        2.75,
-        5.75
+        2.5,
+        6.3
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1313,19 +1654,20 @@
        ]
       },
       "failed": [
-       "inside_room"
+       "no_overlap"
       ],
-      "ok": false
+      "ok": false,
+      "note": "no free position within 1 m"
      },
      {
       "iteration": 6,
-      "piece": 4,
+      "piece": 5,
       "type": "table_dining",
-      "step": "slide",
+      "step": "shrink",
       "before": {
        "center": [
-        2.75,
-        5.75
+        2.5,
+        6.3
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1335,78 +1677,176 @@
       },
       "after": {
        "center": [
-        2.75,
-        5.75
+        2.5,
+        6.3
        ],
        "rotation_deg": 0.0,
        "size": [
-        1.6,
-        0.9
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 7,
+      "piece": 5,
+      "type": "table_dining",
+      "step": "slide",
+      "before": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "after": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false,
+      "note": "no free position within 1 m"
+     },
+     {
+      "iteration": 8,
+      "piece": 5,
+      "type": "table_dining",
+      "step": "drop",
+      "before": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "after": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     },
+     {
+      "iteration": 9,
+      "piece": 8,
+      "type": "washing_machine",
+      "step": "shrink",
+      "before": {
+       "center": [
+        4.0,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
+       ]
+      },
+      "after": {
+       "center": [
+        4.0,
+        6.654
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.55,
+        0.55
+       ]
+      },
+      "failed": [
+       "doors_free"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 10,
+      "piece": 8,
+      "type": "washing_machine",
+      "step": "slide",
+      "before": {
+       "center": [
+        4.0,
+        6.654
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.55,
+        0.55
+       ]
+      },
+      "after": {
+       "center": [
+        4.0,
+        6.654
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.55,
+        0.55
        ]
       },
       "failed": [
        "doors_free"
       ],
       "ok": false,
-      "note": "no free position within 1 m"
+      "note": "no free position on this wall"
      },
      {
-      "iteration": 7,
-      "piece": 4,
-      "type": "table_dining",
-      "step": "shrink",
+      "iteration": 11,
+      "piece": 8,
+      "type": "washing_machine",
+      "step": "relocate",
       "before": {
        "center": [
-        2.75,
-        5.75
+        4.0,
+        6.654
        ],
        "rotation_deg": 0.0,
        "size": [
-        1.6,
-        0.9
+        0.55,
+        0.55
        ]
       },
       "after": {
        "center": [
-        2.75,
-        5.75
+        4.0,
+        5.571
        ],
-       "rotation_deg": 0.0,
+       "rotation_deg": 180.0,
        "size": [
-        1.2,
-        0.8
-       ]
-      },
-      "failed": [
-       "doors_free"
-      ],
-      "ok": false
-     },
-     {
-      "iteration": 8,
-      "piece": 4,
-      "type": "table_dining",
-      "step": "slide",
-      "before": {
-       "center": [
-        2.75,
-        5.75
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        1.2,
-        0.8
-       ]
-      },
-      "after": {
-       "center": [
-        2.65,
-        5.75
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        1.2,
-        0.8
+        0.6,
+        0.6
        ]
       },
       "failed": [
@@ -1415,7 +1855,138 @@
       "ok": true
      },
      {
-      "iteration": 9,
+      "iteration": 12,
+      "piece": 4,
+      "type": "kitchen_island",
+      "step": "slide",
+      "before": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "after": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false,
+      "note": "no free position within 1 m"
+     },
+     {
+      "iteration": 13,
+      "piece": 4,
+      "type": "kitchen_island",
+      "step": "shrink",
+      "before": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "after": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 14,
+      "piece": 4,
+      "type": "kitchen_island",
+      "step": "slide",
+      "before": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "after": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false,
+      "note": "no free position within 1 m"
+     },
+     {
+      "iteration": 15,
+      "piece": 4,
+      "type": "kitchen_island",
+      "step": "drop",
+      "before": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "after": {
+       "center": [
+        2.5,
+        6.3
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.2,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     },
+     {
+      "iteration": 16,
       "piece": 3,
       "type": "fridge",
       "step": "snap",
@@ -1426,52 +1997,19 @@
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.7,
-        0.7
+        0.6,
+        0.65
        ]
       },
       "after": {
        "center": [
-        0.621,
-        6.579
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.7,
-        0.7
-       ]
-      },
-      "failed": [
-       "inside_room",
-       "wall_contact"
-      ],
-      "ok": true
-     },
-     {
-      "iteration": 10,
-      "piece": 2,
-      "type": "stove",
-      "step": "snap",
-      "before": {
-       "center": [
-        3.6,
-        6.95
+        0.571,
+        6.604
        ],
        "rotation_deg": 0.0,
        "size": [
         0.6,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.6,
-        0.6
+        0.65
        ]
       },
       "failed": [
@@ -1480,227 +2018,157 @@
        "wall_contact"
       ],
       "ok": false
-     },
-     {
-      "iteration": 11,
-      "piece": 2,
-      "type": "stove",
-      "step": "slide",
-      "before": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.6,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.6,
-        0.6
-       ]
-      },
-      "failed": [
-       "no_overlap",
-       "doors_free"
-      ],
-      "ok": false,
-      "note": "no free position on this wall"
-     },
-     {
-      "iteration": 12,
-      "piece": 2,
-      "type": "stove",
-      "step": "shrink",
-      "before": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.6,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.5,
-        0.6
-       ]
-      },
-      "failed": [
-       "no_overlap",
-       "doors_free"
-      ],
-      "ok": false
-     },
-     {
-      "iteration": 13,
-      "piece": 2,
-      "type": "stove",
-      "step": "slide",
-      "before": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.5,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.5,
-        0.6
-       ]
-      },
-      "failed": [
-       "no_overlap",
-       "doors_free"
-      ],
-      "ok": false,
-      "note": "no free position on this wall"
-     },
-     {
-      "iteration": 14,
-      "piece": 2,
-      "type": "stove",
-      "step": "relocate",
-      "before": {
-       "center": [
-        3.6,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.5,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        1.1,
-        5.571
-       ],
-       "rotation_deg": 180.0,
-       "size": [
-        0.6,
-        0.6
-       ]
-      },
-      "failed": [
-       "no_overlap",
-       "doors_free"
-      ],
-      "ok": true
-     },
-     {
-      "iteration": 15,
-      "piece": 1,
-      "type": "sink_kitchen",
-      "step": "snap",
-      "before": {
-       "center": [
-        1.8,
-        6.95
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.8,
-        0.5
-       ]
-      },
-      "after": {
-       "center": [
-        1.8,
-        6.679
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.8,
-        0.5
-       ]
-      },
-      "failed": [
-       "inside_room",
-       "no_overlap",
-       "wall_contact"
-      ],
-      "ok": false
-     },
-     {
-      "iteration": 16,
-      "piece": 1,
-      "type": "sink_kitchen",
-      "step": "slide",
-      "before": {
-       "center": [
-        1.8,
-        6.679
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.8,
-        0.5
-       ]
-      },
-      "after": {
-       "center": [
-        1.8,
-        6.679
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        0.8,
-        0.5
-       ]
-      },
-      "failed": [
-       "no_overlap"
-      ],
-      "ok": false,
-      "note": "no free position on this wall"
      },
      {
       "iteration": 17,
-      "piece": 1,
-      "type": "sink_kitchen",
-      "step": "shrink",
+      "piece": 3,
+      "type": "fridge",
+      "step": "slide",
       "before": {
        "center": [
-        1.8,
-        6.679
+        0.571,
+        6.604
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.8,
-        0.5
+        0.6,
+        0.65
+       ]
+      },
+      "after": {
+       "center": [
+        0.571,
+        6.604
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false,
+      "note": "no free position on this wall"
+     },
+     {
+      "iteration": 18,
+      "piece": 3,
+      "type": "fridge",
+      "step": "relocate",
+      "before": {
+       "center": [
+        0.571,
+        6.604
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "after": {
+       "center": [
+        0.596,
+        6.304
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 19,
+      "piece": 2,
+      "type": "stove",
+      "step": "snap",
+      "before": {
+       "center": [
+        1.8,
+        6.95
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
        ]
       },
       "after": {
        "center": [
         1.8,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
+       ]
+      },
+      "failed": [
+       "inside_room",
+       "no_overlap",
+       "wall_contact"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 20,
+      "piece": 2,
+      "type": "stove",
+      "step": "slide",
+      "before": {
+       "center": [
+        1.8,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
+       ]
+      },
+      "after": {
+       "center": [
+        2.8,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.6
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 21,
+      "piece": 1,
+      "type": "sink_kitchen",
+      "step": "snap",
+      "before": {
+       "center": [
+        0.8,
+        6.95
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.6,
+        0.5
+       ]
+      },
+      "after": {
+       "center": [
+        0.8,
         6.679
        ],
        "rotation_deg": 0.0,
@@ -1710,18 +2178,53 @@
        ]
       },
       "failed": [
-       "no_overlap"
+       "inside_room",
+       "no_overlap",
+       "wall_contact"
       ],
       "ok": false
      },
      {
-      "iteration": 18,
+      "iteration": 22,
+      "piece": 3,
+      "type": "fridge",
+      "step": "drop",
+      "before": {
+       "center": [
+        0.596,
+        6.304
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "after": {
+       "center": [
+        0.596,
+        6.304
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.65
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     },
+     {
+      "iteration": 23,
       "piece": 1,
       "type": "sink_kitchen",
       "step": "slide",
       "before": {
        "center": [
-        1.8,
+        0.8,
         6.679
        ],
        "rotation_deg": 0.0,
@@ -1732,7 +2235,7 @@
       },
       "after": {
        "center": [
-        1.8,
+        0.8,
         6.679
        ],
        "rotation_deg": 0.0,
@@ -1748,13 +2251,13 @@
       "note": "no free position on this wall"
      },
      {
-      "iteration": 19,
+      "iteration": 24,
       "piece": 1,
       "type": "sink_kitchen",
       "step": "relocate",
       "before": {
        "center": [
-        1.8,
+        0.8,
         6.679
        ],
        "rotation_deg": 0.0,
@@ -1766,11 +2269,11 @@
       "after": {
        "center": [
         0.521,
-        5.779
+        6.279
        ],
        "rotation_deg": 90.0,
        "size": [
-        0.8,
+        0.6,
         0.5
        ]
       },
@@ -1780,13 +2283,13 @@
       "ok": true
      },
      {
-      "iteration": 20,
+      "iteration": 25,
       "piece": 0,
       "type": "kitchen_counter",
       "step": "snap",
       "before": {
        "center": [
-        2.75,
+        1.0,
         6.95
        ],
        "rotation_deg": 0.0,
@@ -1797,7 +2300,7 @@
       },
       "after": {
        "center": [
-        2.75,
+        1.771,
         6.629
        ],
        "rotation_deg": 0.0,
@@ -1813,180 +2316,148 @@
       "ok": false
      },
      {
-      "iteration": 21,
-      "piece": 0,
-      "type": "kitchen_counter",
-      "step": "slide",
+      "iteration": 26,
+      "piece": 2,
+      "type": "stove",
+      "step": "shrink",
       "before": {
        "center": [
-        2.75,
+        2.8,
         6.629
        ],
        "rotation_deg": 0.0,
        "size": [
-        3.0,
+        0.6,
         0.6
        ]
       },
       "after": {
        "center": [
-        2.75,
+        2.8,
         6.629
        ],
        "rotation_deg": 0.0,
        "size": [
-        3.0,
+        0.5,
         0.6
        ]
       },
       "failed": [
-       "doors_free"
+       "no_overlap"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 27,
+      "piece": 2,
+      "type": "stove",
+      "step": "slide",
+      "before": {
+       "center": [
+        2.8,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.5,
+        0.6
+       ]
+      },
+      "after": {
+       "center": [
+        2.8,
+        6.629
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.5,
+        0.6
+       ]
+      },
+      "failed": [
+       "no_overlap"
       ],
       "ok": false,
       "note": "no free position on this wall"
      },
      {
-      "iteration": 22,
-      "piece": 0,
-      "type": "kitchen_counter",
-      "step": "shrink",
+      "iteration": 28,
+      "piece": 2,
+      "type": "stove",
+      "step": "relocate",
       "before": {
        "center": [
-        2.75,
+        2.8,
         6.629
        ],
        "rotation_deg": 0.0,
        "size": [
-        3.0,
+        0.5,
         0.6
        ]
       },
       "after": {
        "center": [
-        2.75,
-        6.629
+        1.4,
+        5.571
        ],
-       "rotation_deg": 0.0,
+       "rotation_deg": 180.0,
        "size": [
-        2.4,
+        0.6,
         0.6
        ]
       },
       "failed": [
-       "doors_free"
-      ],
-      "ok": false
-     },
-     {
-      "iteration": 23,
-      "piece": 0,
-      "type": "kitchen_counter",
-      "step": "slide",
-      "before": {
-       "center": [
-        2.75,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        2.4,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        2.75,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        2.4,
-        0.6
-       ]
-      },
-      "failed": [
-       "doors_free"
-      ],
-      "ok": false,
-      "note": "no free position on this wall"
-     },
-     {
-      "iteration": 24,
-      "piece": 0,
-      "type": "kitchen_counter",
-      "step": "shrink",
-      "before": {
-       "center": [
-        2.75,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        2.4,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        2.75,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        1.8,
-        0.6
-       ]
-      },
-      "failed": [
-       "doors_free"
-      ],
-      "ok": false
-     },
-     {
-      "iteration": 25,
-      "piece": 0,
-      "type": "kitchen_counter",
-      "step": "slide",
-      "before": {
-       "center": [
-        2.75,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        1.8,
-        0.6
-       ]
-      },
-      "after": {
-       "center": [
-        2.45,
-        6.629
-       ],
-       "rotation_deg": 0.0,
-       "size": [
-        1.8,
-        0.6
-       ]
-      },
-      "failed": [
-       "doors_free"
+       "no_overlap"
       ],
       "ok": true
+     },
+     {
+      "iteration": 29,
+      "piece": 1,
+      "type": "sink_kitchen",
+      "step": "drop",
+      "before": {
+       "center": [
+        0.521,
+        6.279
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.5
+       ]
+      },
+      "after": {
+       "center": [
+        0.521,
+        6.279
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.6,
+        0.5
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
      }
     ],
-    "iterations": 25,
+    "iterations": 29,
     "anchor_first": false
    }
   },
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 5.416,
+   "latency_s": 5.244,
    "error": null,
    "pieces_proposed": 6,
    "prompt": "Task: furnish this empty kitchen (Turkish: MUTFAK) labelled 'Mutfak' on the plan. Style brief: Scandinavian, light oak floor, white walls, linen textiles, warm daylight.\n\nA good layout for this room type: a kitchen_counter along the longest free wall, sink_kitchen and stove inside the counter line (place them as separate pieces that touch the counter ends), a fridge at one end, a small dining table with chairs only when there is room.\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill (sill_height null = 0.9 m assumed); beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nAllowed types with their size options [width, depth]:\n- kitchen_counter: height 0.9 m, size options [1.8, 0.6], [2.4, 0.6], [3.0, 0.6] (usually against a wall)\n- kitchen_island: height 0.9 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- fridge: height 1.8 m, size options [0.6, 0.65], [0.7, 0.7], [0.9, 0.75] (usually against a wall)\n- stove: height 0.9 m, size options [0.5, 0.6], [0.6, 0.6], [0.9, 0.6] (usually against a wall)\n- sink_kitchen: height 0.9 m, size options [0.6, 0.5], [0.8, 0.5], [1.0, 0.6] (usually against a wall)\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- washing_machine: height 0.85 m, size options [0.55, 0.55], [0.6, 0.6], [0.7, 0.7] (usually against a wall)\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_mutfak\", \"label\": \"Mutfak\", \"room_type\": \"kitchen\", \"area_m2\": 8.5, \"polygon_m\": [[0.25, 5.25], [5.25, 5.25], [5.25, 6.95], [0.25, 6.95]], \"doors\": [{\"id\": \"d_L0_003\", \"center\": [5.3, 6.1], \"width\": 0.8, \"opens_into_this_room\": true}], \"windows\": [{\"id\": \"win_L0_005\", \"center\": [2.75, 7.08], \"width\": 1.2, \"sill_height\": null}]}\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, table_dining, chair, washing_machine\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"kitchen_counter\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [3.0, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Long counter along the back wall for prep and storage.\"\n    },\n    {\n      \"type\": \"sink_kitchen\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.5],\n      \"against_wall\": true,\n      \"reason\": \"Sink placed at the counter end for easy access.\"\n    },\n    {\n      \"type\": \"stove\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Stove placed at the counter end for cooking.\"\n    },\n    {\n      \"type\": \"fridge\",\n      \"center\": [0.25, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.7, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Fridge placed against the left wall for storage.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [2.75, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Dining table placed centrally for meals.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [2.75, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed under the dining table for seating.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"kitchen_counter\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [3.0, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Long counter along the back wall for prep and storage.\"\n    },\n    {\n      \"type\": \"sink_kitchen\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.8, 0.5],\n      \"against_wall\": true,\n      \"reason\": \"Sink placed at the counter end for easy access.\"\n    },\n    {\n      \"type\": \"stove\",\n      \"center\": [2.75, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Stove placed at the counter end for cooking.\"\n    },\n    {\n      \"type\": \"fridge\",\n      \"center\": [0.25, 6.95],\n      \"rotation_deg\": 0,\n      \"size\": [0.7, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Fridge placed against the left wall for storage.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [2.75, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Dining table centered in the room for meals.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [2.75, 5.25],\n      \"rotation_deg\": 0,\n      \"size\": [0.45, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Chair placed under the dining table for seating.\"\n    }\n  ]\n}",
    "data": {
     "pieces": [
      {
@@ -2011,7 +2482,7 @@
       ],
       "rotation_deg": 0,
       "size": [
-       0.6,
+       0.8,
        0.5
       ],
       "against_wall": true,
@@ -2057,7 +2528,7 @@
        0.9
       ],
       "against_wall": false,
-      "reason": "Dining table placed centrally for meals."
+      "reason": "Dining table centered in the room for meals."
      },
      {
       "type": "chair",
@@ -2103,7 +2574,7 @@
       },
       "repairs": [
        {
-        "iteration": 17,
+        "iteration": 19,
         "type": "kitchen_counter",
         "step": "snap",
         "before": {
@@ -2164,7 +2635,7 @@
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.6,
+        0.8,
         0.5
        ]
       },
@@ -2180,7 +2651,72 @@
          ],
          "rotation_deg": 0.0,
          "size": [
-          0.6,
+          0.8,
+          0.5
+         ]
+        },
+        "after": {
+         "center": [
+          2.75,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.8,
+          0.5
+         ]
+        },
+        "failed": [
+         "inside_room",
+         "no_overlap",
+         "wall_contact"
+        ],
+        "ok": false
+       },
+       {
+        "iteration": 15,
+        "type": "sink_kitchen",
+        "step": "slide",
+        "before": {
+         "center": [
+          2.75,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.8,
+          0.5
+         ]
+        },
+        "after": {
+         "center": [
+          2.75,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.8,
+          0.5
+         ]
+        },
+        "failed": [
+         "no_overlap"
+        ],
+        "ok": false,
+        "note": "no free position on this wall"
+       },
+       {
+        "iteration": 16,
+        "type": "sink_kitchen",
+        "step": "shrink",
+        "before": {
+         "center": [
+          2.75,
+          6.679
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          0.8,
           0.5
          ]
         },
@@ -2196,14 +2732,12 @@
          ]
         },
         "failed": [
-         "inside_room",
-         "no_overlap",
-         "wall_contact"
+         "no_overlap"
         ],
         "ok": false
        },
        {
-        "iteration": 15,
+        "iteration": 17,
         "type": "sink_kitchen",
         "step": "slide",
         "before": {
@@ -2235,7 +2769,7 @@
         "note": "no free position on this wall"
        },
        {
-        "iteration": 16,
+        "iteration": 18,
         "type": "sink_kitchen",
         "step": "relocate",
         "before": {
@@ -2548,7 +3082,7 @@
        0.8
       ],
       "against_wall": false,
-      "reason": "Dining table placed centrally for meals.",
+      "reason": "Dining table centered in the room for meals.",
       "proposed": {
        "center": [
         2.75,
@@ -2624,7 +3158,7 @@
         "ok": true
        },
        {
-        "iteration": 18,
+        "iteration": 20,
         "type": "table_dining",
         "step": "shrink",
         "before": {
@@ -2655,7 +3189,7 @@
         "ok": false
        },
        {
-        "iteration": 19,
+        "iteration": 21,
         "type": "table_dining",
         "step": "slide",
         "before": {
@@ -3355,7 +3889,74 @@
        ],
        "rotation_deg": 0.0,
        "size": [
-        0.6,
+        0.8,
+        0.5
+       ]
+      },
+      "after": {
+       "center": [
+        2.75,
+        6.679
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "failed": [
+       "inside_room",
+       "no_overlap",
+       "wall_contact"
+      ],
+      "ok": false
+     },
+     {
+      "iteration": 15,
+      "piece": 1,
+      "type": "sink_kitchen",
+      "step": "slide",
+      "before": {
+       "center": [
+        2.75,
+        6.679
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "after": {
+       "center": [
+        2.75,
+        6.679
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": false,
+      "note": "no free position on this wall"
+     },
+     {
+      "iteration": 16,
+      "piece": 1,
+      "type": "sink_kitchen",
+      "step": "shrink",
+      "before": {
+       "center": [
+        2.75,
+        6.679
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.8,
         0.5
        ]
       },
@@ -3371,14 +3972,12 @@
        ]
       },
       "failed": [
-       "inside_room",
-       "no_overlap",
-       "wall_contact"
+       "no_overlap"
       ],
       "ok": false
      },
      {
-      "iteration": 15,
+      "iteration": 17,
       "piece": 1,
       "type": "sink_kitchen",
       "step": "slide",
@@ -3411,7 +4010,7 @@
       "note": "no free position on this wall"
      },
      {
-      "iteration": 16,
+      "iteration": 18,
       "piece": 1,
       "type": "sink_kitchen",
       "step": "relocate",
@@ -3443,7 +4042,7 @@
       "ok": true
      },
      {
-      "iteration": 17,
+      "iteration": 19,
       "piece": 0,
       "type": "kitchen_counter",
       "step": "snap",
@@ -3476,7 +4075,7 @@
       "ok": false
      },
      {
-      "iteration": 18,
+      "iteration": 20,
       "piece": 4,
       "type": "table_dining",
       "step": "shrink",
@@ -3508,7 +4107,7 @@
       "ok": false
      },
      {
-      "iteration": 19,
+      "iteration": 21,
       "piece": 4,
       "type": "table_dining",
       "step": "slide",
@@ -3540,11 +4139,11 @@
       "ok": true
      }
     ],
-    "iterations": 19,
+    "iterations": 21,
     "anchor_first": false
    }
   }
  ],
- "chosen_pass": 1,
+ "chosen_pass": 2,
  "skipped": null
 }

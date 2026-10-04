@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+ "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -81,9 +81,8 @@
   "f_L0_028": 47,
   "f_L0_029": 48,
   "f_L0_030": 49,
-  "f_L0_031": 50,
-  "dec_L0_003": 51,
-  "dec_L0_010": 52
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
  },
  "renders": [
   {
@@ -101,24 +100,24 @@
     "normal": "cam_r_L0_salon_1_normal.png",
     "depth": "cam_r_L0_salon_1_depth.png"
    },
-   "preview_bytes": 117796,
-   "seconds": 5.05,
+   "preview_bytes": 131941,
+   "seconds": 2.95,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 1.3254189491271973,
+    "min": 1.334028959274292,
     "max": 4.000000476837158,
-    "mean": 3.1020548343658447,
+    "mean": 3.1188440322875977,
     "coverage": 1.0
    },
    "index_values": [
     10,
     21,
     24,
-    51
+    50
    ],
    "index_stats": {
     "10": {
@@ -131,24 +130,24 @@
      ]
     },
     "21": {
-     "pixels": 93743,
+     "pixels": 103405,
      "box": [
       1157,
       742,
-      1832,
+      1852,
       1080
      ]
     },
     "24": {
-     "pixels": 54159,
+     "pixels": 25567,
      "box": [
-      1711,
-      728,
+      1782,
+      778,
       1920,
       1080
      ]
     },
-    "51": {
+    "50": {
      "pixels": 12307,
      "box": [
       625,
@@ -159,26 +158,26 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
-   "render_key": "f12549c091d5f285",
+   "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+   "render_key": "3a53b74e0e2c2c15",
    "exposure": {
     "mode": "from",
-    "ev": 4.0,
+    "ev": 3.833333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.045389,
-     0.991582,
-     0.949734
+     1.045387,
+     0.991194,
+     0.953585
     ],
     "wb_mode": "from",
-    "wb_temperature": 6135.8,
-    "wb_tint": 7.22,
+    "wb_temperature": 6150.8,
+    "wb_tint": 6.89,
     "residual": null,
-    "window_clip_frac": 0.0107,
+    "window_clip_frac": 0.0025,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -191,29 +190,24 @@
    ],
    "plugged": [],
    "window_pull": {
-    "ev": -2.0,
-    "k": 2,
-    "pane_ev": 2.0,
-    "clip_before": 0.5655,
-    "clip_after": 0.0,
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.833333,
+    "clip_before": 0.1737,
+    "clip_after": 0.0016,
     "pane_px": 200715,
-    "pane_median": 0.9927,
-    "wall_median": 0.7465,
+    "pane_median": 0.9641,
+    "wall_median": 0.6537,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.1425,
-      "median": 0.9557
-     },
-     {
-      "k": 2,
-      "clip": 0.0,
-      "median": 0.9059
+      "clip": 0.0016,
+      "median": 0.914
      }
     ],
-    "pane_median_after": 0.9061,
-    "seconds": 0.792
+    "pane_median_after": 0.914,
+    "seconds": 0.851
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -222,6 +216,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

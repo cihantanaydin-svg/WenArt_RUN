@@ -8,59 +8,154 @@
  "single_pass": false,
  "metrics": {
   "baseline": {
-   "views": 25,
-   "views_computed": 25,
-   "required_elements": 39,
+   "views": 23,
+   "views_computed": 23,
+   "required_elements": 36,
    "fa_missing": 0.0,
    "fa_extra": 0.0,
-   "count_error": 0.12,
+   "count_error": 0.0435,
    "disputed": 0.0
   },
   "models": {
    "qwen": {
-    "calls": 25,
-    "answered": 25,
+    "calls": 23,
+    "answered": 23,
     "answer_rate": 1.0,
-    "decoys": 24,
+    "decoys": 23,
     "decoy_accept": 0.0,
     "fa_missing_single": 0.0
    },
    "glm": {
-    "calls": 25,
-    "answered": 25,
+    "calls": 23,
+    "answered": 23,
     "answer_rate": 1.0,
-    "decoys": 24,
+    "decoys": 23,
     "decoy_accept": 0.0,
     "fa_missing_single": 0.0
    }
   },
   "fa_missing": 0.0,
   "fa_extra": 0.0,
-  "count_error": 0.12,
-  "removal_flagged": null,
-  "removal_confirmed": null,
-  "insertion": null,
-  "insertion_flagged": null,
-  "swap_flagged": null,
-  "swap_confirmed": null,
+  "count_error": 0.0435,
+  "removal_flagged": 0.6667,
+  "removal_confirmed": 0.5,
+  "insertion": 0.0,
+  "insertion_flagged": 0.5,
+  "swap_flagged": 1.0,
+  "swap_confirmed": 0.5,
+  "detector_insertion": {
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
+  },
   "controls": {
    "removal": {
-    "n": 0,
-    "flagged": null,
-    "confirmed": null,
-    "rows": []
+    "n": 6,
+    "flagged": 0.6667,
+    "confirmed": 0.5,
+    "rows": [
+     {
+      "camera": "cam_r_L0_ebeveyn_yatak_odasi_1",
+      "kind": "removal:f_L0_010",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_ebeveyn_yatak_odasi_2",
+      "kind": "removal:d_L0_005",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_hol_1",
+      "kind": "removal:d_L0_009",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_mutfak_3",
+      "kind": "removal:f_L0_015",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_mutfak_3",
+      "kind": "removal:win_L0_006",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_salon_1",
+      "kind": "removal:f_L0_001",
+      "flagged": true,
+      "confirmed": true
+     }
+    ]
    },
    "insertion": {
-    "n": 0,
-    "flagged": null,
-    "confirmed": null,
-    "rows": []
+    "n": 6,
+    "flagged": 0.5,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_ebeveyn_yatak_odasi_1",
+      "kind": "insertion:f_L0_010",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_ebeveyn_yatak_odasi_2",
+      "kind": "insertion:d_L0_005",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_hol_1",
+      "kind": "insertion:d_L0_009",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_mutfak_3",
+      "kind": "insertion:f_L0_015",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_mutfak_3",
+      "kind": "insertion:win_L0_006",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_salon_1",
+      "kind": "insertion:f_L0_001",
+      "flagged": true,
+      "confirmed": false
+     }
+    ]
    },
    "swap": {
-    "n": 0,
-    "flagged": null,
-    "confirmed": null,
-    "rows": []
+    "n": 2,
+    "flagged": 1.0,
+    "confirmed": 0.5,
+    "rows": [
+     {
+      "camera": "cam_r_L0_calisma_odasi_2",
+      "kind": "swap:f_L0_027",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_salon_1",
+      "kind": "swap:f_L0_001",
+      "flagged": true,
+      "confirmed": false
+     }
+    ]
    }
   }
  },
@@ -76,33 +171,30 @@
   {
    "target": "removal_flagged_min",
    "metric": "removal_flagged",
-   "value": null,
+   "value": 0.6667,
    "threshold": 0.8,
-   "op": ">=",
-   "reason": "no data"
+   "op": ">="
   },
   {
    "target": "removal_confirmed_min",
    "metric": "removal_confirmed",
-   "value": null,
+   "value": 0.5,
    "threshold": 0.6,
-   "op": ">=",
-   "reason": "no data"
+   "op": ">="
   },
   {
    "target": "insertion_min",
    "metric": "insertion",
-   "value": null,
+   "value": 0.0,
    "threshold": 0.6,
-   "op": ">=",
-   "reason": "no data"
+   "op": ">="
   }
  ],
  "advisory": true,
  "advisory_reasons": [
-  "removal_flagged None misses >= 0.8 (no data)",
-  "removal_confirmed None misses >= 0.6 (no data)",
-  "insertion None misses >= 0.6 (no data)"
+  "removal_flagged 0.6667 misses >= 0.8",
+  "removal_confirmed 0.5 misses >= 0.6",
+  "insertion 0.0 misses >= 0.6"
  ],
  "plan_ab": {
   "cameras": [],

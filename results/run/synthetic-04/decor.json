@@ -5,24 +5,25 @@
  "stage": "decor",
  "rc": 0,
  "status": "ok",
- "seconds": 2.05,
- "fingerprint": "d73857409769c2a14eea17584e1d5ca7af9eced7b05951bd838eb959af503b02",
+ "seconds": 1.63,
+ "fingerprint": "a2a0a04a443db50a2cbfcad440a8effa4aad0b9bc3236c1372b1ba55861cea78",
  "inputs": {
-  "outputs/synthetic-04/building_furnished.json": "e18d601b6f65b67dcc91d188c2ca6705da695e555e11172b50e54e7cfc57e417"
+  "outputs/synthetic-04/building_furnished.json": "7afab61a8b923c4d0ba93763bf0421a84a931e29831ae9764ed8202ca14e7c3b"
  },
  "outputs": [
   "building_decor.json"
  ],
- "started_utc": "2026-10-03T03:24:36Z",
- "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "started_utc": "2026-10-04T00:14:33Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
  "log": "logs/decor.log",
  "note": null,
- "run_id": "20261003-030812-full-20261003T031435Z",
+ "run_id": "20261004-000052-full-20261004T000516Z",
  "steps": [
   {
    "name": "decor",
    "rc": 0,
-   "seconds": 2.05
+   "seconds": 1.63
   }
- ]
+ ],
+ "written": {}
 }

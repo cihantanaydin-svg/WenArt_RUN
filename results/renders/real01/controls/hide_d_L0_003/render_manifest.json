@@ -1,0 +1,218 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "c273c28fa7bf010086a529c41714bdd9283f9a8718df3dd6aef400e606341c76",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L0_003"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "win_L0_001": 1,
+  "win_L0_002": 2,
+  "win_L0_003": 3,
+  "win_L0_004": 4,
+  "win_L0_005": 5,
+  "win_L0_006": 6,
+  "win_L0_007": 7,
+  "win_L0_008": 8,
+  "d_L0_001": 9,
+  "d_L0_002": 10,
+  "d_L0_003": 11,
+  "win_L0_009": 12,
+  "d_L0_004": 13,
+  "d_L0_005": 14,
+  "proxy:f_L0_018": 15,
+  "f_L0_001": 16,
+  "f_L0_002": 17,
+  "f_L0_004": 18,
+  "f_L0_005": 19,
+  "f_L0_006": 20,
+  "f_L0_007": 21,
+  "f_L0_008": 22,
+  "f_L0_009": 23,
+  "f_L0_010": 24,
+  "f_L0_011": 25,
+  "f_L0_012": 26,
+  "f_L0_013": 27,
+  "f_L0_014": 28,
+  "f_L0_015": 29,
+  "f_L0_016": 30,
+  "f_L0_017": 31,
+  "f_L0_019": 32,
+  "f_L0_020": 33,
+  "f_L0_021": 34,
+  "f_L0_022": 35,
+  "dec_L0_005": 36,
+  "dec_L0_008": 37,
+  "f_L0_003": 38
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_drawing_room_3",
+   "room_id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "png": "cam_r_L0_drawing_room_3.png",
+   "exr": "cam_r_L0_drawing_room_3_passes.exr",
+   "preview": "cam_r_L0_drawing_room_3_preview.jpg",
+   "depth_png": "cam_r_L0_drawing_room_3_depth.png",
+   "index_png": "cam_r_L0_drawing_room_3_index.png",
+   "files": {
+    "index": "cam_r_L0_drawing_room_3_index.png",
+    "depth_mm": "cam_r_L0_drawing_room_3_depth_mm.png",
+    "normal": "cam_r_L0_drawing_room_3_normal.png",
+    "depth": "cam_r_L0_drawing_room_3_depth.png"
+   },
+   "preview_bytes": 161188,
+   "seconds": 2.58,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3998639583587646,
+    "max": 4.419057846069336,
+    "mean": 2.5070581436157227,
+    "coverage": 0.9257807677469135
+   },
+   "index_values": [
+    2,
+    15,
+    31,
+    32,
+    33
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 361669,
+     "box": [
+      1260,
+      0,
+      1920,
+      596
+     ]
+    },
+    "15": {
+     "pixels": 361448,
+     "box": [
+      0,
+      559,
+      735,
+      1080
+     ]
+    },
+    "31": {
+     "pixels": 421046,
+     "box": [
+      985,
+      554,
+      1920,
+      1080
+     ]
+    },
+    "32": {
+     "pixels": 1739,
+     "box": [
+      460,
+      1052,
+      579,
+      1080
+     ]
+    },
+    "33": {
+     "pixels": 49894,
+     "box": [
+      796,
+      173,
+      996,
+      976
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "c273c28fa7bf010086a529c41714bdd9283f9a8718df3dd6aef400e606341c76",
+   "render_key": "17c591f60698db45",
+   "exposure": {
+    "mode": "from",
+    "ev": 2.5,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.250625,
+     0.949866,
+     0.758631
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 4882.6,
+    "wb_tint": -4.67,
+    "residual": null,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_003"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 1.5,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 327088,
+    "pane_median": 0.8623,
+    "wall_median": 0.6554,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7813
+     }
+    ],
+    "pane_median_after": 0.7818,
+    "seconds": 0.604
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791078100.0,
+ "warnings": []
+}

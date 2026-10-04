@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-01",
   "source_folder": "projects/synthetic-01",
-  "created_utc": "2026-10-03T01:52:06Z",
-  "pipeline_commit": "76bd17dd",
+  "created_utc": "2026-10-04T00:05:42Z",
+  "pipeline_commit": "2be169d6",
   "brief": {
    "style": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
   }
@@ -24,6 +24,7 @@
      "kind": "vector",
      "level_id": "L1",
      "level_label_raw": "1. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -58,7 +59,9 @@
      ],
      "debug_image": "debug/1_kat_pdf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
   },
   {
    "id": "doc_1_kat_scan_png",
@@ -68,25 +71,86 @@
    "pages": [
     {
      "page": 1,
-     "class": "other",
-     "skip_reason": "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here",
+     "class": "floor_plan",
+     "skip_reason": null,
      "kind": "scan",
-     "level_id": null,
-     "level_label_raw": null,
-     "scale": null,
-     "transform_to_building": null,
-     "confidence": 0.0,
+     "level_id": "L1",
+     "level_label_raw": "1. KAT PLANI",
+     "classifier": "ocr",
+     "scale": {
+      "metres_per_unit": 0.01695835025823463,
+      "method": "dimension_text",
+      "confidence": 0.9,
+      "evidence": {
+       "file": "1_kat_scan.png",
+       "method": "ocr",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "ocr:8",
+       "text": "4,30",
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "pixel_box": [
+        1103.7,
+        1113.0,
+        1140.2,
+        1127.0
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.01695835025823463,
+      0.0,
+      -16.86,
+      0.0,
+      0.01695835025823463,
+      -11.1389
+     ],
+     "confidence": 0.9,
      "evidence": [
       {
        "file": "1_kat_scan.png",
-       "method": "ai",
+       "method": "ocr",
+       "confidence": 0.9353,
+       "page": 1,
+       "pixel_box": [
+        996.9,
+        583.5,
+        1127.5,
+        599.5
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "1. KAT PLANI"
+      },
+      {
+       "file": "1_kat_scan.png",
+       "method": "raster",
        "confidence": 0.9,
        "text": "kind: paper outline fills the image"
       }
      ],
-     "debug_image": "debug/1_kat_scan_png_p1.png"
+     "debug_image": "debug/1_kat_scan_png_p1.png",
+     "rectified_image": "rectified/1_kat_scan_png_p1.png",
+     "to_original": [
+      [
+       0.999999888,
+       -0.000472818,
+       -0.499054271
+      ],
+      [
+       -0.000472818,
+       -0.999999888,
+       1755.500195836
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "raster_scan"
   },
   {
    "id": "doc_zemin_kat_dxf",
@@ -101,6 +165,7 @@
      "kind": "vector",
      "level_id": "L0",
      "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -132,7 +197,9 @@
      ],
      "debug_image": "debug/zemin_kat_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   }
  ],
  "levels": [
@@ -151,7 +218,8 @@
      "entity": "TEXT:124",
      "text": "ZEMİN KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   },
   {
    "id": "L1",
@@ -168,8 +236,29 @@
      "page": 1,
      "entity": "char:28",
      "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9353,
+     "page": 1,
+     "pixel_box": [
+      996.9,
+      583.5,
+      1127.5,
+      599.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.9,
+     "text": "kind: paper outline fills the image"
     }
-   ]
+   ],
+   "label_source": "title"
   }
  ],
  "walls": [
@@ -395,6 +484,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:1"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      993.9,
+      1080.4,
+      1564.7,
+      1095.4
+     ]
     }
    ]
   },
@@ -420,6 +522,14 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:2"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
     }
    ]
   },
@@ -445,6 +555,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:3"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      994.3,
+      670.1,
+      1564.5,
+      684.5
+     ]
     }
    ]
   },
@@ -470,6 +593,14 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:4"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
     }
    ]
   },
@@ -495,6 +626,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:5"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1245.4,
+      685.2,
+      1251.2,
+      1080.6
+     ]
     }
    ]
   },
@@ -520,6 +664,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:6"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1346.0,
+      684.3,
+      1352.1,
+      1079.6
+     ]
     }
    ]
   },
@@ -545,6 +702,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:7"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1009.1,
+      844.1,
+      1245.4,
+      851.6
+     ]
     }
    ]
   },
@@ -570,6 +740,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:8"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1352.1,
+      855.8,
+      1547.0,
+      863.3
+     ]
     }
    ]
   }
@@ -895,6 +1078,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:11"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:2,seg:54",
+     "pixel_box": [
+      1198.0,
+      747.4,
+      1248.1,
+      793.9
+     ]
     }
    ]
   },
@@ -919,6 +1115,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:13"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:3,seg:65",
+     "pixel_box": [
+      1349.8,
+      950.8,
+      1405.5,
+      1003.3
+     ]
     }
    ]
   },
@@ -943,6 +1152,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:15"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:1,seg:52",
+     "pixel_box": [
+      1348.6,
+      746.9,
+      1400.3,
+      794.9
+     ]
     }
    ]
   },
@@ -967,6 +1189,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:17"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:108,seg:98",
+     "pixel_box": [
+      1073.2,
+      1080.6,
+      1183.2,
+      1095.4
+     ]
     }
    ]
   },
@@ -991,6 +1226,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:21"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:106,seg:94",
+     "pixel_box": [
+      1395.2,
+      1080.5,
+      1505.2,
+      1095.3
+     ]
     }
    ]
   },
@@ -1015,6 +1263,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:25"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:63,seg:64",
+     "pixel_box": [
+      994.4,
+      930.0,
+      1009.2,
+      1002.0
+     ]
     }
    ]
   },
@@ -1039,6 +1300,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:29"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:23,seg:41",
+     "pixel_box": [
+      1091.0,
+      670.3,
+      1164.0,
+      684.4
+     ]
     }
    ]
   },
@@ -1063,6 +1337,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:33"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:25,seg:38",
+     "pixel_box": [
+      1280.0,
+      670.2,
+      1318.0,
+      684.4
+     ]
     }
    ]
   },
@@ -1087,6 +1374,19 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "path:37"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:26,seg:37",
+     "pixel_box": [
+      1431.0,
+      670.1,
+      1468.0,
+      684.3
+     ]
     }
    ]
   }
@@ -1407,6 +1707,20 @@
      "text": "HOL"
     },
     {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.964,
+     "page": 1,
+     "pixel_box": [
+      1267.6,
+      874.9,
+      1301.6,
+      888.4
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "HOL"
+    },
+    {
      "file": "1_kat.pdf",
      "method": "derived",
      "confidence": 1.0,
@@ -1450,6 +1764,20 @@
      "confidence": 1.0,
      "page": 1,
      "entity": "char:73",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9244,
+     "page": 1,
+     "pixel_box": [
+      1372.6,
+      975.8,
+      1484.6,
+      989.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
      "text": "YATAK ODASI"
     },
     {
@@ -1499,6 +1827,20 @@
      "text": "BANYO"
     },
     {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.8903,
+     "page": 1,
+     "pixel_box": [
+      1373.5,
+      762.3,
+      1431.5,
+      776.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "BANYO"
+    },
+    {
      "file": "1_kat.pdf",
      "method": "derived",
      "confidence": 1.0,
@@ -1545,6 +1887,20 @@
      "text": "ÇOCUK ODASI"
     },
     {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9605,
+     "page": 1,
+     "pixel_box": [
+      1030.5,
+      757.0,
+      1146.5,
+      773.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "ÇOCUK ODASI"
+    },
+    {
      "file": "1_kat.pdf",
      "method": "derived",
      "confidence": 1.0,
@@ -1575,62 +1931,66 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "sofa_02",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:sofa",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     1.2174,
-     1.1005,
-     1.1589
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      2.2,
      0.9,
-     0.8222
+     0.85
     ],
-    "aspect_error": 0.1009,
-    "gltf": "models/sofa_02/sofa_02_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0003,
-     0.0688,
-     0.0002
+     0.0,
+     0.0,
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "Sofa_01",
-      "aspect_error": 0.0232,
-      "scale": [
-       1.3999,
-       1.3678,
-       1.3839
-      ],
-      "non_uniform": 1.0235,
-      "mean_scale": 1.3839,
-      "accepted": false
-     },
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "sofa_02",
-      "aspect_error": 0.1009,
-      "scale": [
-       1.2174,
-       1.1005,
-       1.1589
-      ],
-      "non_uniform": 1.1062,
-      "mean_scale": 1.1589,
-      "accepted": true
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "Sofa_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "sofa_03",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_072d0468bb97447ab1ca7e3edea25f1f",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_9b1e09abe5e34d6397937ebf59901898",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_9c242421a7c1447f941f72b57e7473e5",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_ef3832963ab24d129ec88fd4cac4818f",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
      }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
     ]
    },
    "status": "verified",
@@ -1691,44 +2051,51 @@
     ],
     "candidates": [
      {
-      "id": "CoffeeTable_01",
-      "aspect_error": 0.0515,
+      "id": "objaverse_1d41e84fd76241e7a8929a314052269c",
+      "aspect_error": 0.1577,
       "scale": [
-       0.6494,
-       0.6168,
-       0.6331
+       0.9626,
+       0.8221,
+       0.8923
       ],
-      "non_uniform": 1.0528,
-      "mean_scale": 0.6331,
-      "accepted": false
-     },
-     {
-      "id": "modern_coffee_table_01",
-      "aspect_error": 0.1838,
-      "scale": [
-       0.8321,
-       1.0,
-       0.916
-      ],
-      "non_uniform": 1.2018,
-      "mean_scale": 0.916,
-      "accepted": false
-     },
-     {
-      "id": "modern_coffee_table_02",
-      "aspect_error": 0.5113,
-      "scale": [
-       0.834,
-       0.5001,
-       0.667
-      ],
-      "non_uniform": 1.6675,
-      "mean_scale": 0.667,
+      "non_uniform": 1.1708,
+      "mean_scale": 0.8923,
       "accepted": false
      }
     ],
-    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: CoffeeTable_01 at 5.3 % non-uniform, mean scale 0.6331)",
-    "cap": 1.15
+    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_1d41e84fd76241e7a8929a314052269c at 17.1 % non-uniform, mean scale 0.8923)",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "CoffeeTable_01",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "modern_coffee_table_01",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "modern_coffee_table_02",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b0c0c9c65d06443c87391134a62e2287",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_c17577daa87849d09960669606c0ce27",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_c42d069236174467a2fb536f7d42d7f0",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -1786,34 +2153,20 @@
      0.0,
      0.0
     ],
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "modern_wooden_cabinet",
-      "aspect_error": 0.2774,
-      "scale": [
-       0.6557,
-       0.8654,
-       0.7606
-      ],
-      "non_uniform": 1.3197,
-      "mean_scale": 0.7606,
-      "accepted": false
+      "reason": "styles ['modern', 'modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "WoodenTable_03",
-      "aspect_error": 0.4328,
-      "scale": [
-       1.2058,
-       0.7822,
-       0.994
-      ],
-      "non_uniform": 1.5416,
-      "mean_scale": 0.994,
-      "accepted": false
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
-    ],
-    "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
-    "cap": 1.15
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -1848,50 +2201,70 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "ArmChair_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:armchair",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     1.0608,
-     1.1752,
-     1.118
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      0.9,
      0.9,
-     1.1908
+     0.85
     ],
-    "aspect_error": 0.1024,
-    "gltf": "models/ArmChair_01/ArmChair_01_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0344,
-     -0.0004
+     0.0,
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "ArmChair_01",
-      "aspect_error": 0.1024,
-      "scale": [
-       1.0608,
-       1.1752,
-       1.118
-      ],
-      "non_uniform": 1.1079,
-      "mean_scale": 1.118,
-      "accepted": true
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "modern_arm_chair_01",
+      "reason": "styles ['modern', 'modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "mid_century_lounge_chair",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_09ee59423b4b428f94f01fc5beccd227",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_124297e7e4574c48b9c1b814b6ddf516",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_69f1c0489a144f3c98e66dcfe72b3969",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_da6d646358d1451fa751f1a9141290a3",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_f7f99449b896488fa6d468e70518b21d",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
      }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
     ]
    },
    "status": "verified",
@@ -1943,7 +2316,6 @@
      1.455
     ],
     "aspect_error": 0.0153,
-    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
     "front_axis": "-X",
     "up_axis": "+Z",
     "origin_offset": [
@@ -1971,7 +2343,34 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "Shelf_01",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "wooden_bookshelf_worn",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_6c5ac2547db34c3c81b2e4808b000386",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2006,50 +2405,59 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicBed_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:bed_double",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     1.0711,
-     0.9804,
-     1.0257
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      1.6,
      2.0,
-     1.5732
+     1.0
     ],
-    "aspect_error": 0.0885,
-    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0355,
-     0.0331,
-     -0.0
+     0.0,
+     0.0,
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "GothicBed_01",
-      "aspect_error": 0.0885,
+      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+      "aspect_error": 0.3574,
       "scale": [
-       1.0711,
-       0.9804,
-       1.0257
+       0.6589,
+       0.942,
+       0.8004
       ],
-      "non_uniform": 1.0925,
-      "mean_scale": 1.0257,
-      "accepted": true
+      "non_uniform": 1.4296,
+      "mean_scale": 0.8004,
+      "accepted": false
      }
     ],
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 43.0 % non-uniform, mean scale 0.8004)",
     "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "GothicBed_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     }
     ]
    },
    "status": "verified",
@@ -2101,7 +2509,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -2129,7 +2536,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2180,7 +2606,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -2208,7 +2633,26 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2266,9 +2710,33 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type wardrobe is parametric in the catalogue",
-    "cap": 1.15
+    "candidates": [
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.4784,
+      "scale": [
+       1.7202,
+       1.0661,
+       1.3931
+      ],
+      "non_uniform": 1.6135,
+      "mean_scale": 1.3931,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b46803ba0bc64e12b31f832fb761c4e0 at 61.3 % non-uniform, mean scale 1.3931)",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -2327,8 +2795,23 @@
      0.0
     ],
     "candidates": [],
-    "fallback_reason": "type toilet is parametric in the catalogue",
-    "cap": 1.15
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -2387,8 +2870,15 @@
      0.0
     ],
     "candidates": [],
-    "fallback_reason": "type washbasin is parametric in the catalogue",
-    "cap": 1.15
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -2448,7 +2938,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type shower is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2508,7 +3000,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type washing_machine is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2532,7 +3026,7 @@
    "footprint": {
     "center": [
      6.704,
-     4.429
+     4.5
     ],
     "size": [
      1.0,
@@ -2543,50 +3037,42 @@
    "front_deg": 180.0,
    "height": 0.8,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicCommode_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:dresser",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     0.8324,
-     0.7749,
-     0.8036
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      1.0,
      0.45,
-     0.974
+     0.8
     ],
-    "aspect_error": 0.0715,
-    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0011,
-     -0.0013,
-     -0.0
+     0.0,
+     0.0,
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "GothicCommode_01",
-      "aspect_error": 0.0715,
-      "scale": [
-       0.8324,
-       0.7749,
-       0.8036
-      ],
-      "non_uniform": 1.0741,
-      "mean_scale": 0.8036,
-      "accepted": true
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "vintage_wooden_drawer_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
      }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
     ]
    },
    "status": "verified",
@@ -2613,7 +3099,7 @@
     "proposed": {
      "center": [
       6.95,
-      6.5
+      6.0
      ],
      "rotation_deg": 270.0,
      "size": [
@@ -2639,11 +3125,11 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     2.45,
+     2.75,
      6.629
     ],
     "size": [
-     1.8,
+     3.0,
      0.6
     ],
     "rotation_deg": 0.0
@@ -2662,7 +3148,7 @@
      1.0
     ],
     "bbox_m": [
-     1.8,
+     3.0,
      0.6,
      0.9
     ],
@@ -2676,17 +3162,19 @@
     ],
     "candidates": [],
     "fallback_reason": "type kitchen_counter is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Main counter along the back wall for food prep."
+     "pass": 2,
+     "text": "Long counter along the back wall for prep and storage."
     }
    ],
    "checks": {
@@ -2711,14 +3199,9 @@
      ]
     },
     "repairs": [
-     "snap",
-     "slide",
-     "shrink",
-     "slide",
-     "shrink",
-     "slide"
+     "snap"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -2730,16 +3213,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     0.521,
-     5.779
+     0.75,
+     5.521
     ],
     "size": [
-     0.8,
+     0.6,
      0.5
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": 0.0,
+   "front_deg": 90.0,
    "height": 0.9,
    "asset": {
     "library": "parametric",
@@ -2753,7 +3236,7 @@
      1.0
     ],
     "bbox_m": [
-     0.8,
+     0.6,
      0.5,
      1.15
     ],
@@ -2767,7 +3250,9 @@
     ],
     "candidates": [],
     "fallback_reason": "type sink_kitchen is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
@@ -2776,8 +3261,8 @@
      "method": "ai",
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Sink placed at counter left end for easy access."
+     "pass": 2,
+     "text": "Sink placed at the counter end for easy access."
     }
    ],
    "checks": {
@@ -2792,7 +3277,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      1.8,
+      2.75,
       6.95
      ],
      "rotation_deg": 0.0,
@@ -2820,7 +3305,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.1,
+     1.35,
      5.571
     ],
     "size": [
@@ -2870,7 +3355,14 @@
      }
     ],
     "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: electric_stove at 28.8 % non-uniform, mean scale 1.0601)",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -2879,8 +3371,8 @@
      "method": "ai",
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Stove placed at counter right end for cooking."
+     "pass": 2,
+     "text": "Stove placed at the counter end for cooking."
     }
    ],
    "checks": {
@@ -2895,7 +3387,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.6,
+      2.75,
       6.95
      ],
      "rotation_deg": 0.0,
@@ -2959,8 +3451,19 @@
      0.0
     ],
     "candidates": [],
-    "fallback_reason": "type fridge is parametric in the catalogue",
-    "cap": 1.15
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_2071bda681b642218b6829b82e4fd93b",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -2969,8 +3472,8 @@
      "method": "ai",
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Fridge placed at left wall corner for storage."
+     "pass": 2,
+     "text": "Fridge placed against the left wall for storage."
     }
    ],
    "checks": {
@@ -3009,7 +3512,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     2.65,
+     2.25,
      5.75
     ],
     "size": [
@@ -3021,50 +3524,79 @@
    "front_deg": 270.0,
    "height": 0.75,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "wooden_table_02",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:table_dining",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     1.0578,
-     1.1331,
-     1.0955
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      1.2,
      0.8,
-     0.8759
+     0.75
     ],
-    "aspect_error": 0.0688,
-    "gltf": "models/wooden_table_02/wooden_table_02_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     -0.0001
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "wooden_table_02",
-      "aspect_error": 0.0688,
+      "id": "objaverse_3b4ee19c627e4fb4a3305621cf925aa2",
+      "aspect_error": 0.3461,
       "scale": [
-       1.0578,
-       1.1331,
-       1.0955
+       0.9167,
+       0.6485,
+       0.7826
       ],
-      "non_uniform": 1.0712,
-      "mean_scale": 1.0955,
-      "accepted": true
+      "non_uniform": 1.4135,
+      "mean_scale": 0.7826,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_724d93a7f3644f96909e8c55909c6418",
+      "aspect_error": 0.4241,
+      "scale": [
+       1.0215,
+       0.6684,
+       0.845
+      ],
+      "non_uniform": 1.5282,
+      "mean_scale": 0.845,
+      "accepted": false
      }
     ],
+    "fallback_reason": "no table_dining candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3b4ee19c627e4fb4a3305621cf925aa2 at 41.3 % non-uniform, mean scale 0.7826)",
     "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "dining_table",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "wooden_table_02",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_table",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5847113c458f4a2483aedd663376c7de",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     }
     ]
    },
    "status": "verified",
@@ -3072,10 +3604,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Dining table centered in room for meals."
+     "pass": 2,
+     "text": "Dining table centered in the room for meals."
     }
    ],
    "checks": {
@@ -3103,242 +3635,6 @@
      "snap",
      "slide",
      "shrink",
-     "slide"
-    ],
-    "agreed_by_other_pass": true
-   }
-  },
-  {
-   "id": "f_L0_020",
-   "level_id": "L0",
-   "room_id": "r_L0_mutfak",
-   "type": "chair",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     1.698,
-     5.517
-    ],
-    "size": [
-     0.45,
-     0.45
-    ],
-    "rotation_deg": 0.0
-   },
-   "front_deg": 270.0,
-   "height": 0.9,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
-    ],
-    "bbox_m": [
-     0.45,
-     0.45,
-     0.7856
-    ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
-      "scale": [
-       0.7038,
-       0.6797,
-       0.6917
-      ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Chair placed left of table for seating."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      1.8,
-      5.25
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.45,
-      0.45
-     ]
-    },
-    "repairs": [
-     "snap",
-     "slide"
-    ],
-    "agreed_by_other_pass": false
-   }
-  },
-  {
-   "id": "f_L0_021",
-   "level_id": "L0",
-   "room_id": "r_L0_mutfak",
-   "type": "chair",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     3.802,
-     5.517
-    ],
-    "size": [
-     0.45,
-     0.45
-    ],
-    "rotation_deg": 0.0
-   },
-   "front_deg": 270.0,
-   "height": 0.9,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
-    ],
-    "bbox_m": [
-     0.45,
-     0.45,
-     0.7856
-    ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
-      "scale": [
-       0.7038,
-       0.6797,
-       0.6917
-      ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Chair placed right of table for seating."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      3.7,
-      5.25
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.45,
-      0.45
-     ]
-    },
-    "repairs": [
-     "snap",
      "slide"
     ],
     "agreed_by_other_pass": false
@@ -3390,20 +3686,35 @@
     ],
     "candidates": [
      {
-      "id": "GothicBed_01",
-      "aspect_error": 0.2063,
+      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+      "aspect_error": 0.2396,
       "scale": [
-       1.205,
-       0.9804,
-       1.0927
+       0.7413,
+       0.942,
+       0.8416
       ],
-      "non_uniform": 1.2291,
-      "mean_scale": 1.0927,
+      "non_uniform": 1.2708,
+      "mean_scale": 0.8416,
       "accepted": false
      }
     ],
-    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)",
-    "cap": 1.15
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 27.1 % non-uniform, mean scale 0.8416)",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "GothicBed_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -3413,7 +3724,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Main bed placed against wall with headboard not under door."
+     "text": "Main bed against wall with headboard not under door."
     }
    ],
    "checks": {
@@ -3453,7 +3764,7 @@
    "footprint": {
     "center": [
      0.471,
-     1.8
+     2.5
     ],
     "size": [
      0.5,
@@ -3480,7 +3791,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -3508,17 +3818,36 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Nightstand on left side of bed for easy access."
+     "text": "Nightstand beside bed for easy access."
     }
    ],
    "checks": {
@@ -3533,8 +3862,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      1.8,
-      1.8
+      1.3,
+      2.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -3545,7 +3874,7 @@
     "repairs": [
      "snap"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    }
   },
   {
@@ -3585,7 +3914,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -3613,17 +3941,36 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Nightstand on right side of bed for symmetry and function."
+     "text": "Nightstand beside bed for easy access."
     }
    ],
    "checks": {
@@ -3638,8 +3985,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      1.8,
-      3.2
+      2.3,
+      2.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -3651,7 +3998,7 @@
      "snap",
      "slide"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -3664,7 +4011,7 @@
    "footprint": {
     "center": [
      0.571,
-     0.871
+     0.9
     ],
     "size": [
      1.2,
@@ -3675,32 +4022,77 @@
    "front_deg": 0.0,
    "height": 2.1,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:wardrobe",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.1468,
+     1.0661,
+     1.1064
     ],
     "bbox_m": [
      1.2,
      0.6,
-     2.1
+     2.8766
     ],
-    "aspect_error": null,
+    "aspect_error": 0.073,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -1.3
     ],
-    "candidates": [],
-    "fallback_reason": "type wardrobe is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.073,
+      "scale": [
+       1.1468,
+       1.0661,
+       1.1064
+      ],
+      "non_uniform": 1.0757,
+      "mean_scale": 1.1064,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/b46803ba0bc64e12b31f832fb761c4e0.glb",
+    "sha256_glb": "bea8ed217db2f3e92a1f5d4d5125b3f9c184a977d9203aba89f7624cc01940ec",
+    "uid": "b46803ba0bc64e12b31f832fb761c4e0",
+    "title": "Simple Tall Shelf",
+    "author": "Blender3D",
+    "source_url": "https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Simple Tall Shelf\" by Blender3D (https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.11815790853312536
    },
    "status": "verified",
    "evidence": [
@@ -3710,7 +4102,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Wardrobe against wall with ample storage, not blocking door swing."
+     "text": "Wardrobe against wall for storage."
     }
    ],
    "checks": {
@@ -3725,10 +4117,10 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      0.25,
-      3.5
+      0.5,
+      1.5
      ],
-     "rotation_deg": 270.0,
+     "rotation_deg": 0.0,
      "size": [
       1.8,
       0.6
@@ -3787,46 +4179,28 @@
      0.0,
      0.0
     ],
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "metal_office_desk",
-      "aspect_error": 0.0542,
-      "scale": [
-       0.6,
-       0.6334,
-       0.6167
-      ],
-      "non_uniform": 1.0557,
-      "mean_scale": 0.6167,
-      "accepted": false
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
      },
      {
       "id": "WoodenTable_01",
-      "aspect_error": 0.3142,
-      "scale": [
-       0.6668,
-       0.913,
-       0.7899
-      ],
-      "non_uniform": 1.3691,
-      "mean_scale": 0.7899,
-      "accepted": false
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
       "id": "SchoolDesk_01",
-      "aspect_error": 0.428,
-      "scale": [
-       1.6859,
-       1.0989,
-       1.3924
-      ],
-      "non_uniform": 1.5341,
-      "mean_scale": 1.3924,
-      "accepted": false
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b930438e1f804c409fd9c3f5e4b01628",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      }
-    ],
-    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.6167)",
-    "cap": 1.15
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -3836,7 +4210,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Desk placed against wall near window for natural light."
+     "text": "Desk against wall for work or dressing."
     }
    ],
    "checks": {
@@ -3890,50 +4264,42 @@
    "front_deg": 0.0,
    "height": 0.8,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicCommode_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:dresser",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     0.8324,
-     0.7749,
-     0.8036
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      1.0,
      0.45,
-     0.974
+     0.8
     ],
-    "aspect_error": 0.0715,
-    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0011,
-     -0.0013,
-     -0.0
+     0.0,
+     0.0,
+     0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "GothicCommode_01",
-      "aspect_error": 0.0715,
-      "scale": [
-       0.8324,
-       0.7749,
-       0.8036
-      ],
-      "non_uniform": 1.0741,
-      "mean_scale": 0.8036,
-      "accepted": true
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "vintage_wooden_drawer_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
      }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
     ]
    },
    "status": "verified",
@@ -3983,55 +4349,54 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     5.5,
-     3.5
+     5.67,
+     3.21
     ],
     "size": [
-     0.5,
-     0.5
+     0.45,
+     0.45
     ],
     "rotation_deg": 0.0
    },
    "front_deg": 270.0,
    "height": 0.9,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "painted_wooden_chair_02",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.782,
-     0.7552,
-     0.7686
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
-     0.5,
-     0.5,
-     0.9714
+     0.45,
+     0.45,
+     0.7319
     ],
-    "aspect_error": 0.0349,
-    "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0152,
-     0.0323,
-     -0.0
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.782,
-       0.7552,
-       0.7686
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.7686,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -4039,7 +4404,55 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "dining_chair_02",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -4049,7 +4462,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Chair placed centrally for seating, avoiding doorways and windows."
+     "text": "Chair placed centrally for seating, leaving walkway clear."
     }
    ],
    "checks": {
@@ -4064,16 +4477,18 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      5.5,
-      3.5
+      5.95,
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
-      0.5,
-      0.5
+      0.45,
+      0.45
      ]
     },
-    "repairs": [],
+    "repairs": [
+     "snap"
+    ],
     "agreed_by_other_pass": false
    }
   },
@@ -4123,30 +4538,45 @@
     ],
     "candidates": [
      {
-      "id": "GothicBed_01",
-      "aspect_error": 0.2063,
+      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+      "aspect_error": 0.2396,
       "scale": [
-       1.205,
-       0.9804,
-       1.0927
+       0.7413,
+       0.942,
+       0.8416
       ],
-      "non_uniform": 1.2291,
-      "mean_scale": 1.0927,
+      "non_uniform": 1.2708,
+      "mean_scale": 0.8416,
       "accepted": false
      }
     ],
-    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)",
-    "cap": 1.15
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 27.1 % non-uniform, mean scale 0.8416)",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "GothicBed_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Main sleeping area against the long wall."
+     "text": "Main sleeping area against the long wall, leaving space for walkways."
     }
    ],
    "checks": {
@@ -4162,7 +4592,7 @@
     "proposed": {
      "center": [
       7.2,
-      2.0
+      2.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4175,7 +4605,7 @@
      "slide",
      "anchor_first"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -4215,7 +4645,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -4243,14 +4672,33 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "Nightstand beside the bed for easy access."
@@ -4268,8 +4716,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      6.7,
-      2.0
+      6.6,
+      2.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4281,7 +4729,7 @@
      "snap",
      "slide"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -4293,16 +4741,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     9.129,
-     2.0
+     6.7,
+     3.729
     ],
     "size": [
      0.5,
      0.4
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 0.0
    },
-   "front_deg": 180.0,
+   "front_deg": 270.0,
    "height": 0.5,
    "asset": {
     "library": "polyhaven",
@@ -4321,7 +4769,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -4349,17 +4796,36 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Second nightstand for symmetry and balance."
+     "text": "Second nightstand for symmetry and convenience."
     }
    ],
    "checks": {
@@ -4374,8 +4840,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      7.7,
-      2.0
+      7.8,
+      2.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4384,9 +4850,10 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -4399,7 +4866,7 @@
    "footprint": {
     "center": [
      9.1,
-     2.5
+     1.1
     ],
     "size": [
      0.4,
@@ -4410,69 +4877,98 @@
    "front_deg": 270.0,
    "height": 0.9,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.774,
+     0.7952,
+     0.7846
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.9
+     0.6506
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
-     0.0
+     0.0148,
+     -0.4159
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.6256,
-       0.6041,
-       0.6149
+       0.774,
+       0.7952,
+       0.7846
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6149,
-      "accepted": false
-     },
+      "non_uniform": 1.0274,
+      "mean_scale": 0.7846,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
      {
       "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.6887,
-       0.6624,
-       0.6755
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.6755,
-      "accepted": false
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
       "id": "dining_chair_02",
-      "aspect_error": 0.2847,
-      "scale": [
-       0.9225,
-       0.694,
-       0.8082
-      ],
-      "non_uniform": 1.3293,
-      "mean_scale": 0.8082,
-      "accepted": false
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: painted_wooden_chair_02 at 3.6 % non-uniform, mean scale 0.6149)",
-    "cap": 1.15
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -4482,7 +4978,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Chair placed at the desk for work or reading."
+     "text": "Chair placed beside the desk for work or study."
     }
    ],
    "checks": {
@@ -4498,7 +4994,7 @@
     "proposed": {
      "center": [
       8.1,
-      2.3
+      1.9
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4525,7 +5021,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     7.15,
+     7.171,
      4.521
     ],
     "size": [
@@ -4562,14 +5058,16 @@
     ],
     "candidates": [],
     "fallback_reason": "type shower is parametric in the catalogue",
-    "cap": 1.15
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "Shower placed against the right wall for easy access and space efficiency."
@@ -4587,7 +5085,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      7.15,
+      7.0,
       5.5
      ],
      "rotation_deg": 270.0,
@@ -4597,9 +5095,13 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    }
   },
   {
@@ -4611,16 +5113,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     6.421,
-     6.5
+     6.6,
+     6.579
     ],
     "size": [
      0.4,
      0.7
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 0.0
    },
-   "front_deg": 0.0,
+   "front_deg": 270.0,
    "height": 0.8,
    "asset": {
     "library": "parametric",
@@ -4647,8 +5149,23 @@
      0.0
     ],
     "candidates": [],
-    "fallback_reason": "type toilet is parametric in the catalogue",
-    "cap": 1.15
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -4658,7 +5175,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Toilet placed against the left wall, not directly opposite the door for privacy."
+     "text": "Toilet placed against the back wall, avoiding direct opposition to the door."
     }
    ],
    "checks": {
@@ -4673,7 +5190,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      6.05,
+      6.5,
       6.2
      ],
      "rotation_deg": 0.0,
@@ -4699,7 +5216,7 @@
    "footprint": {
     "center": [
      6.296,
-     4.371
+     4.4
     ],
     "size": [
      0.6,
@@ -4734,8 +5251,15 @@
      0.0
     ],
     "candidates": [],
-    "fallback_reason": "type washbasin is parametric in the catalogue",
-    "cap": 1.15
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -4760,8 +5284,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      6.05,
-      4.2
+      6.0,
+      4.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4770,13 +5294,106 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide"
     ],
     "agreed_by_other_pass": false
    }
   },
   {
    "id": "f_L1_015",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "type": "bathtub",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     8.954,
+     6.079
+    ],
+    "size": [
+     1.7,
+     0.75
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.6,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bathtub",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.7,
+     0.75,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type bathtub is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Bathtub placed against the back wall to maximize space and keep it away from the door."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      8.0,
+      6.0
+     ],
+     "rotation_deg": 90.0,
+     "size": [
+      1.7,
+      0.75
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_016",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "bed_single",
@@ -4796,55 +5413,79 @@
    "front_deg": 270.0,
    "height": 0.5,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:bed_single",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_6eb4212e70b941a3bd2db196a47828b9",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.0777,
+     1.1135,
+     1.0956
     ],
     "bbox_m": [
      1.2,
      2.0,
-     1.0
+     0.7566
     ],
-    "aspect_error": null,
-    "front_axis": "-Y",
+    "aspect_error": 0.0327,
+    "front_axis": "-X",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.9681,
+     -0.433,
+     -0.0026
     ],
+    "rotation_fix_deg": 90.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "old_bed_frame",
-      "aspect_error": 0.2833,
+      "id": "objaverse_6eb4212e70b941a3bd2db196a47828b9",
+      "aspect_error": 0.0327,
       "scale": [
-       1.3264,
-       0.9992,
-       1.1628
+       1.0777,
+       1.1135,
+       1.0956
       ],
-      "non_uniform": 1.3275,
-      "mean_scale": 1.1628,
-      "accepted": false
+      "non_uniform": 1.0333,
+      "mean_scale": 1.0956,
+      "accepted": true
      }
     ],
-    "fallback_reason": "no bed_single candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: old_bed_frame at 32.7 % non-uniform, mean scale 1.1628)",
-    "cap": 1.15
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [],
+    "glb": "models/objaverse/6eb4212e70b941a3bd2db196a47828b9.glb",
+    "sha256_glb": "a00668740f227e5293b63b9576624111ca0ac64861dafbadd2da6896f1f42f3f",
+    "uid": "6eb4212e70b941a3bd2db196a47828b9",
+    "title": "Lowpoly Bed",
+    "author": "Mohamed199",
+    "source_url": "https://sketchfab.com/3d-models/6eb4212e70b941a3bd2db196a47828b9",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Lowpoly Bed\" by Mohamed199 (https://sketchfab.com/3d-models/6eb4212e70b941a3bd2db196a47828b9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.005352657135546304
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Single bed against the left wall for a children's room."
+     "text": "Single bed against wall for children's room, Scandinavian style."
     }
    ],
    "checks": {
@@ -4871,11 +5512,11 @@
     "repairs": [
      "snap"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_016",
+   "id": "f_L1_017",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "nightstand",
@@ -4911,7 +5552,6 @@
      0.4951
     ],
     "aspect_error": 0.0225,
-    "gltf": "models/side_table_01/side_table_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -4939,17 +5579,36 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Nightstand placed beside the bed for easy access."
+     "text": "Nightstand beside bed for easy access."
     }
    ],
    "checks": {
@@ -4964,7 +5623,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      0.8,
+      0.7,
       6.0
      ],
      "rotation_deg": 0.0,
@@ -4980,11 +5639,11 @@
      "slide",
      "relocate"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_017",
+   "id": "f_L1_018",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "wardrobe",
@@ -5004,32 +5663,77 @@
    "front_deg": 270.0,
    "height": 2.1,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:wardrobe",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.1468,
+     1.0661,
+     1.1064
     ],
     "bbox_m": [
      1.2,
      0.6,
-     2.1
+     2.8766
     ],
-    "aspect_error": null,
+    "aspect_error": 0.073,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -1.3
     ],
-    "candidates": [],
-    "fallback_reason": "type wardrobe is parametric in the catalogue",
-    "cap": 1.15
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.073,
+      "scale": [
+       1.1468,
+       1.0661,
+       1.1064
+      ],
+      "non_uniform": 1.0757,
+      "mean_scale": 1.1064,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/b46803ba0bc64e12b31f832fb761c4e0.glb",
+    "sha256_glb": "bea8ed217db2f3e92a1f5d4d5125b3f9c184a977d9203aba89f7624cc01940ec",
+    "uid": "b46803ba0bc64e12b31f832fb761c4e0",
+    "title": "Simple Tall Shelf",
+    "author": "Blender3D",
+    "source_url": "https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Simple Tall Shelf\" by Blender3D (https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.11815790853312536
    },
    "status": "verified",
    "evidence": [
@@ -5039,7 +5743,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Wardrobe against the right wall for storage."
+     "text": "Wardrobe against wall for storage, Scandinavian minimalism."
     }
    ],
    "checks": {
@@ -5073,7 +5777,7 @@
    }
   },
   {
-   "id": "f_L1_018",
+   "id": "f_L1_019",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "chair",
@@ -5081,8 +5785,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.885,
-     4.498
+     2.985,
+     4.543
     ],
     "size": [
      0.45,
@@ -5093,55 +5797,42 @@
    "front_deg": 270.0,
    "height": 0.9,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "gallinera_chair",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.8707,
+     0.8946,
+     0.8827
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7856
+     0.7319
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0271,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     0.0,
+     0.0148,
+     -0.4159
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.8707,
+       0.8946,
+       0.8827
       ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
       "accepted": true
      }
     ],
@@ -5149,7 +5840,55 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "dining_chair_02",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
    },
    "status": "verified",
    "evidence": [
@@ -5159,7 +5898,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Chair placed in front of the desk for use."
+     "text": "Chair for desk, positioned for comfortable use."
     }
    ],
    "checks": {
@@ -5174,8 +5913,8 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      1.0,
-      3.8
+      2.0,
+      4.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -5191,7 +5930,7 @@
    }
   },
   {
-   "id": "f_L1_019",
+   "id": "f_L1_020",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "bookshelf",
@@ -5199,7 +5938,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     3.0,
+     3.729,
      4.446
     ],
     "size": [
@@ -5227,7 +5966,6 @@
      1.455
     ],
     "aspect_error": 0.0153,
-    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
     "front_axis": "-X",
     "up_axis": "+Z",
     "origin_offset": [
@@ -5255,7 +5993,34 @@
     "uniform_range": [
      0.75,
      1.3
-    ]
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "Shelf_01",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "wooden_bookshelf_worn",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_6c5ac2547db34c3c81b2e4808b000386",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -5265,7 +6030,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Bookshelf against the right wall for books and toys."
+     "text": "Bookshelf against wall for books and decor, Scandinavian style."
     }
    ],
    "checks": {
@@ -5280,8 +6045,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.0,
-      4.0
+      3.5,
+      5.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -5290,7 +6055,11 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
     ],
     "agreed_by_other_pass": false
    }
@@ -5299,9 +6068,9 @@
  "conflicts": [],
  "unverified": [],
  "warnings": [
-  "1_kat_scan.png p1: scan page skipped (no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
-  "Level L1: ceiling height assumed 2.70 m (no section drawing found)"
+  "Level L1: ceiling height assumed 2.70 m (no section drawing found)",
+  "1. Kat: 1_kat_scan.png (scan) is evidence only for 1_kat.pdf p1: 8 walls, 9 openings, 0 furniture pieces and 4 room names confirmed"
  ],
  "decor": [
   {
@@ -5674,7 +6443,7 @@
     0.3
    ],
    "asset": null,
-   "host_id": "f_L1_015",
+   "host_id": "f_L1_016",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion at the head of the bed"
@@ -5686,7 +6455,7 @@
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "center": [
-    3.0,
+    3.729,
     4.446
    ],
    "rotation_deg": 180.0,
@@ -5695,58 +6464,10 @@
     0.22
    ],
    "asset": null,
-   "host_id": "f_L1_019",
+   "host_id": "f_L1_020",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "books on the shelf"
-  },
-  {
-   "id": "dec_L1_010",
-   "kind": "decor",
-   "type": "plant",
-   "level_id": "L1",
-   "room_id": "r_L1_cocuk_odasi",
-   "center": [
-    4.0,
-    4.5
-   ],
-   "rotation_deg": 0.0,
-   "size": [
-    0.4,
-    0.4
-   ],
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "potted_plant_02",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.5705,
-     0.6085,
-     0.5895
-    ],
-    "bbox_m": [
-     0.4,
-     0.4,
-     0.4958
-    ],
-    "aspect_error": 0.0645,
-    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0461,
-     0.0916,
-     0.0001
-    ],
-    "front_axis_confidence": "low",
-    "target": "size"
-   },
-   "host_id": null,
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "potted plant in a free corner"
   }
  ]
 }

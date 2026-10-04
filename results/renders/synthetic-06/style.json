@@ -1,0 +1,49 @@
+{
+  "source_text": "Mid-century modern, walnut floor, white walls, mustard and teal accents, warm daylight",
+  "family": "modern",
+  "floor": {
+    "material": "wood_walnut",
+    "asset": "WoodFloor046"
+  },
+  "walls": {
+    "material": "plaster_white",
+    "asset": "white_plaster_02"
+  },
+  "ceiling": {
+    "material": "plaster_white"
+  },
+  "wet_floor": {
+    "material": "tiles_light",
+    "asset": "Tiles074"
+  },
+  "wet_walls": {
+    "material": "tiles_light"
+  },
+  "trim": {
+    "material": "painted_wood_white"
+  },
+  "door": {
+    "material": "wood_walnut"
+  },
+  "window_frame": {
+    "material": "painted_metal_white"
+  },
+  "lighting": {
+    "hdri": "kloppenheim_06",
+    "sun_elevation_deg": 35,
+    "sun_azimuth_deg": 210,
+    "sun_strength": 3.0,
+    "colour_temperature_k": 5200,
+    "mood": "warm daylight"
+  },
+  "matched_terms": [
+    "Mid-century modern",
+    "walnut floor",
+    "white walls",
+    "warm daylight"
+  ],
+  "unmatched_terms": [
+    "mustard and teal accents"
+  ],
+  "warnings": []
+}

@@ -1,0 +1,25 @@
+{
+ "schema_version": "0.1",
+ "kind": "gate_validation",
+ "project": "synthetic-06",
+ "decision": "ok",
+ "benign_accept": 0.9583,
+ "negative_reject": 0.9722,
+ "n_benign": 48,
+ "n_negative": 72,
+ "pass_benign": true,
+ "pass_negative": true,
+ "reasons": [],
+ "limits": {
+  "benign_accept_min": 0.95,
+  "negative_reject_min": 0.9
+ },
+ "polish_allowed": true,
+ "calibration": {
+  "path": "gate_calibration.json",
+  "sha256": "68db66b994ff5971f21300c90f5c209c4fe669eee021fc1f8f7ec5eb923e69ed",
+  "incomplete": false,
+  "thresholds_match": true
+ },
+ "created_utc": "2026-10-04T01:05:12Z"
+}

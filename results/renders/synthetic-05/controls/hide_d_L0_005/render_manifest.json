@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+ "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -81,28 +81,27 @@
   "f_L0_028": 47,
   "f_L0_029": 48,
   "f_L0_030": 49,
-  "f_L0_031": 50,
-  "dec_L0_003": 51,
-  "dec_L0_010": 52
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
  },
  "renders": [
   {
-   "camera": "cam_r_L0_ebeveyn_yatak_odasi_3",
+   "camera": "cam_r_L0_ebeveyn_yatak_odasi_2",
    "room_id": "r_L0_ebeveyn_yatak_odasi",
    "level_id": "L0",
-   "png": "cam_r_L0_ebeveyn_yatak_odasi_3.png",
-   "exr": "cam_r_L0_ebeveyn_yatak_odasi_3_passes.exr",
-   "preview": "cam_r_L0_ebeveyn_yatak_odasi_3_preview.jpg",
-   "depth_png": "cam_r_L0_ebeveyn_yatak_odasi_3_depth.png",
-   "index_png": "cam_r_L0_ebeveyn_yatak_odasi_3_index.png",
+   "png": "cam_r_L0_ebeveyn_yatak_odasi_2.png",
+   "exr": "cam_r_L0_ebeveyn_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L0_ebeveyn_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L0_ebeveyn_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L0_ebeveyn_yatak_odasi_2_index.png",
    "files": {
-    "index": "cam_r_L0_ebeveyn_yatak_odasi_3_index.png",
-    "depth_mm": "cam_r_L0_ebeveyn_yatak_odasi_3_depth_mm.png",
-    "normal": "cam_r_L0_ebeveyn_yatak_odasi_3_normal.png",
-    "depth": "cam_r_L0_ebeveyn_yatak_odasi_3_depth.png"
+    "index": "cam_r_L0_ebeveyn_yatak_odasi_2_index.png",
+    "depth_mm": "cam_r_L0_ebeveyn_yatak_odasi_2_depth_mm.png",
+    "normal": "cam_r_L0_ebeveyn_yatak_odasi_2_normal.png",
+    "depth": "cam_r_L0_ebeveyn_yatak_odasi_2_depth.png"
    },
-   "preview_bytes": 116246,
-   "seconds": 4.97,
+   "preview_bytes": 97365,
+   "seconds": 3.09,
    "samples": 128,
    "resolution": [
     1920,
@@ -111,7 +110,7 @@
    "depth": {
     "min": 1.2006261348724365,
     "max": 4.644421577453613,
-    "mean": 2.8712589740753174,
+    "mean": 2.906447410583496,
     "coverage": 1.0
    },
    "index_values": [
@@ -132,10 +131,10 @@
      ]
     },
     "26": {
-     "pixels": 432222,
+     "pixels": 502685,
      "box": [
-      1194,
-      221,
+      1190,
+      266,
       1920,
       1080
      ]
@@ -150,12 +149,12 @@
      ]
     },
     "28": {
-     "pixels": 2461,
+     "pixels": 3095,
      "box": [
       1891,
       641,
       1920,
-      732
+      755
      ]
     },
     "29": {
@@ -169,24 +168,142 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
-   "render_key": "3329a8774c175fd0",
+   "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+   "render_key": "c6976eaf7df6820f",
    "exposure": {
     "mode": "from",
-    "ev": 4.333333,
+    "ev": 4.0,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.975673,
-     1.004622,
-     1.025848
+     0.98612,
+     1.003044,
+     1.010722
     ],
     "wb_mode": "from",
-    "wb_temperature": 6709.1,
-    "wb_tint": 11.32,
+    "wb_temperature": 6601.8,
+    "wb_tint": 10.95,
+    "residual": null,
+    "window_clip_frac": null,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_005"
+   ],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_ebeveyn_yatak_odasi_3",
+   "room_id": "r_L0_ebeveyn_yatak_odasi",
+   "level_id": "L0",
+   "png": "cam_r_L0_ebeveyn_yatak_odasi_3.png",
+   "exr": "cam_r_L0_ebeveyn_yatak_odasi_3_passes.exr",
+   "preview": "cam_r_L0_ebeveyn_yatak_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L0_ebeveyn_yatak_odasi_3_depth.png",
+   "index_png": "cam_r_L0_ebeveyn_yatak_odasi_3_index.png",
+   "files": {
+    "index": "cam_r_L0_ebeveyn_yatak_odasi_3_index.png",
+    "depth_mm": "cam_r_L0_ebeveyn_yatak_odasi_3_depth_mm.png",
+    "normal": "cam_r_L0_ebeveyn_yatak_odasi_3_normal.png",
+    "depth": "cam_r_L0_ebeveyn_yatak_odasi_3_depth.png"
+   },
+   "preview_bytes": 97307,
+   "seconds": 3.14,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.2006261348724365,
+    "max": 4.644421577453613,
+    "mean": 2.906447410583496,
+    "coverage": 1.0
+   },
+   "index_values": [
+    7,
+    26,
+    27,
+    28,
+    29
+   ],
+   "index_stats": {
+    "7": {
+     "pixels": 120331,
+     "box": [
+      598,
+      111,
+      805,
+      696
+     ]
+    },
+    "26": {
+     "pixels": 502685,
+     "box": [
+      1190,
+      266,
+      1920,
+      1080
+     ]
+    },
+    "27": {
+     "pixels": 49179,
+     "box": [
+      872,
+      641,
+      1092,
+      899
+     ]
+    },
+    "28": {
+     "pixels": 3095,
+     "box": [
+      1891,
+      641,
+      1920,
+      755
+     ]
+    },
+    "29": {
+     "pixels": 320760,
+     "box": [
+      0,
+      0,
+      297,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "8991286bfb3b2a9e5ee1b9b9cc13c362c8afb363c2591ef09934dea1c634aa72",
+   "render_key": "c6976eaf7df6820f",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.0,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     0.98612,
+     1.003044,
+     1.010722
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6601.8,
+    "wb_tint": 10.95,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
@@ -208,6 +325,8 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
- "warnings": []
+ "deadline": 1791078100.0,
+ "warnings": [
+  "cam_r_L0_ebeveyn_yatak_odasi_3: rendered from another scene build and not asked for in this run"
+ ]
 }

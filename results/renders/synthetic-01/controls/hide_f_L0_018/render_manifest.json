@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
+ "scene_sha256": "54cc1bbfb9751f84dbb524a31e292abeb9855205cc6e1606b65f477344728e69",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -62,41 +62,39 @@
   "f_L0_017": 28,
   "f_L0_018": 29,
   "f_L0_019": 30,
-  "f_L0_020": 31,
-  "f_L0_021": 32,
-  "dec_L0_006": 33,
-  "d_L1_001": 34,
-  "d_L1_002": 35,
-  "d_L1_003": 36,
-  "d_L1_004": 37,
-  "win_L1_001": 38,
-  "win_L1_002": 39,
-  "win_L1_003": 40,
-  "win_L1_004": 41,
-  "win_L1_005": 42,
-  "win_L1_006": 43,
-  "f_L1_001": 44,
-  "f_L1_002": 45,
-  "f_L1_003": 46,
-  "f_L1_004": 47,
-  "f_L1_005": 48,
-  "f_L1_006": 49,
-  "f_L1_007": 50,
-  "f_L1_008": 51,
-  "f_L1_009": 52,
-  "f_L1_010": 53,
-  "f_L1_011": 54,
-  "f_L1_012": 55,
-  "f_L1_013": 56,
-  "f_L1_014": 57,
-  "f_L1_015": 58,
-  "f_L1_016": 59,
-  "f_L1_017": 60,
-  "f_L1_018": 61,
-  "f_L1_019": 62,
-  "dec_L1_004": 63,
-  "dec_L1_007": 64,
-  "dec_L1_010": 65
+  "dec_L0_006": 31,
+  "d_L1_001": 32,
+  "d_L1_002": 33,
+  "d_L1_003": 34,
+  "d_L1_004": 35,
+  "win_L1_001": 36,
+  "win_L1_002": 37,
+  "win_L1_003": 38,
+  "win_L1_004": 39,
+  "win_L1_005": 40,
+  "win_L1_006": 41,
+  "f_L1_001": 42,
+  "f_L1_002": 43,
+  "f_L1_003": 44,
+  "f_L1_004": 45,
+  "f_L1_005": 46,
+  "f_L1_006": 47,
+  "f_L1_007": 48,
+  "f_L1_008": 49,
+  "f_L1_009": 50,
+  "f_L1_010": 51,
+  "f_L1_011": 52,
+  "f_L1_012": 53,
+  "f_L1_013": 54,
+  "f_L1_014": 55,
+  "f_L1_015": 56,
+  "f_L1_016": 57,
+  "f_L1_017": 58,
+  "f_L1_018": 59,
+  "f_L1_019": 60,
+  "f_L1_020": 61,
+  "dec_L1_004": 62,
+  "dec_L1_007": 63
  },
  "renders": [
   {
@@ -114,17 +112,17 @@
     "normal": "cam_r_L0_mutfak_1_normal.png",
     "depth": "cam_r_L0_mutfak_1_depth.png"
    },
-   "preview_bytes": 119304,
-   "seconds": 4.69,
+   "preview_bytes": 125643,
+   "seconds": 2.8,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.9000000953674316,
-    "max": 4.0,
-    "mean": 2.0232315063476562,
+    "min": 0.612440824508667,
+    "max": 3.630681276321411,
+    "mean": 1.8512870073318481,
     "coverage": 1.0
    },
    "index_values": [
@@ -132,86 +130,76 @@
     26,
     27,
     28,
-    30,
-    31
+    30
    ],
    "index_stats": {
     "10": {
-     "pixels": 322252,
+     "pixels": 502648,
      "box": [
-      1438,
+      1157,
       0,
       1920,
-      776
+      749
      ]
     },
     "26": {
-     "pixels": 411917,
+     "pixels": 564187,
      "box": [
-      998,
-      514,
+      570,
+      511,
       1920,
       1080
      ]
     },
     "27": {
-     "pixels": 28736,
+     "pixels": 8421,
      "box": [
-      640,
-      380,
-      937,
-      805
+      0,
+      504,
+      234,
+      554
      ]
     },
     "28": {
-     "pixels": 25175,
+     "pixels": 51284,
      "box": [
-      521,
-      477,
-      819,
-      566
+      0,
+      535,
+      316,
+      727
      ]
     },
     "30": {
-     "pixels": 320526,
+     "pixels": 271698,
      "box": [
       0,
-      566,
-      902,
+      666,
+      823,
       1080
-     ]
-    },
-    "31": {
-     "pixels": 10562,
-     "box": [
-      500,
-      918,
-      650,
-      990
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
-   "render_key": "64b81c2648486104",
+   "scene_sha256": "54cc1bbfb9751f84dbb524a31e292abeb9855205cc6e1606b65f477344728e69",
+   "render_key": "1a789b873606b6fa",
    "exposure": {
     "mode": "from",
-    "ev": 4.666667,
+    "ev": 4.833333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.900717,
-     1.012155,
-     1.171942
+     0.885995,
+     1.014422,
+     1.192841
     ],
     "wb_mode": "from",
-    "wb_temperature": 7785.7,
-    "wb_tint": 12.1,
+    "wb_temperature": 7981.2,
+    "wb_tint": 12.84,
     "residual": null,
-    "window_clip_frac": 0.0176,
+    "window_clip_frac": 0.0,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -226,27 +214,27 @@
    "window_pull": {
     "ev": -2.0,
     "k": 2,
-    "pane_ev": 2.666667,
-    "clip_before": 0.4742,
-    "clip_after": 0.0028,
-    "pane_px": 274889,
-    "pane_median": 0.9762,
-    "wall_median": 0.6431,
+    "pane_ev": 2.833333,
+    "clip_before": 0.3482,
+    "clip_after": 0.0,
+    "pane_px": 441209,
+    "pane_median": 0.9748,
+    "wall_median": 0.521,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0564,
-      "median": 0.9331
+      "clip": 0.0418,
+      "median": 0.9294
      },
      {
       "k": 2,
-      "clip": 0.0028,
-      "median": 0.8776
+      "clip": 0.0,
+      "median": 0.8681
      }
     ],
-    "pane_median_after": 0.8779,
-    "seconds": 0.787
+    "pane_median_after": 0.87,
+    "seconds": 6.525
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -255,6 +243,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1790998008.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

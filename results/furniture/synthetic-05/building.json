@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-05",
   "source_folder": "projects/synthetic-05",
-  "created_utc": "2026-10-03T03:15:00Z",
-  "pipeline_commit": "95a675fe",
+  "created_utc": "2026-10-04T00:07:55Z",
+  "pipeline_commit": "2be169d6",
   "brief": {
    "style": "Modern, white walls, warm daylight, linen textiles, brass details",
    "style_photos": [
@@ -28,6 +28,7 @@
      "kind": "vector",
      "level_id": "L0",
      "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -59,7 +60,9 @@
      ],
      "debug_image": "debug/zemin_kat_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   },
   {
    "id": "doc_zemin_kat_mobilya_dxf",
@@ -74,6 +77,7 @@
      "kind": "vector",
      "level_id": "L0",
      "level_label_raw": "ZEMİN KAT MOBİLYA PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -105,7 +109,9 @@
      ],
      "debug_image": "debug/zemin_kat_mobilya_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   }
  ],
  "levels": [
@@ -131,7 +137,8 @@
      "entity": "TEXT:177",
      "text": "ZEMİN KAT MOBİLYA PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   }
  ],
  "walls": [

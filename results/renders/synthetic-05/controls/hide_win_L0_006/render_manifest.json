@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+ "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -83,9 +83,8 @@
   "f_L0_028": 47,
   "f_L0_029": 48,
   "f_L0_030": 49,
-  "f_L0_031": 50,
-  "dec_L0_003": 51,
-  "dec_L0_010": 52
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
  },
  "renders": [
   {
@@ -103,8 +102,8 @@
     "normal": "cam_r_L0_mutfak_3_normal.png",
     "depth": "cam_r_L0_mutfak_3_depth.png"
    },
-   "preview_bytes": 100249,
-   "seconds": 4.77,
+   "preview_bytes": 111401,
+   "seconds": 2.93,
    "samples": 128,
    "resolution": [
     1920,
@@ -113,7 +112,7 @@
    "depth": {
     "min": 1.2006258964538574,
     "max": 3.0999999046325684,
-    "mean": 2.539471387863159,
+    "mean": 2.592315673828125,
     "coverage": 1.0
    },
    "index_values": [
@@ -161,34 +160,34 @@
      ]
     },
     "38": {
-     "pixels": 428404,
+     "pixels": 203638,
      "box": [
-      1353,
-      55,
-      1841,
-      1013
+      1361,
+      437,
+      1794,
+      981
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
-   "render_key": "74a59fc838a82ee8",
+   "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+   "render_key": "8387c13e0c4a672c",
    "exposure": {
     "mode": "from",
-    "ev": 4.333333,
+    "ev": 4.166667,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.014491,
-     0.997816,
-     0.97896
+     1.013104,
+     0.998795,
+     0.973354
     ],
     "wb_mode": "from",
-    "wb_temperature": 6361.8,
-    "wb_tint": 9.4,
+    "wb_temperature": 6343.3,
+    "wb_tint": 10.1,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
@@ -212,6 +211,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

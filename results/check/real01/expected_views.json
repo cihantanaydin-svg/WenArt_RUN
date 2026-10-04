@@ -1,0 +1,7050 @@
+{
+ "schema_version": "0.1",
+ "project": "real01",
+ "render_dir": "../renders",
+ "views": {
+  "cam_r_L0_bath_toilet_1": {
+   "camera": "cam_r_L0_bath_toilet_1",
+   "room_id": "r_L0_bath_toilet",
+   "room_type": "bathroom",
+   "room_label": "Bath+ Toilet",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 13,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath_toilet",
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 635040,
+     "area_frac": 0.30625,
+     "box_px": [
+      1332,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      693,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:16612,path:16608,path:16607,path:16610,path:16609,path:16606,path:16615,path:16616"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 34,
+     "wenart_id": "f_L0_021",
+     "kind": "furniture",
+     "type": "toilet",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bath_toilet",
+     "room_ids": [
+      "r_L0_bath_toilet"
+     ],
+     "own_room": true,
+     "pixels": 240632,
+     "area_frac": 0.116046,
+     "box_px": [
+      0,
+      404,
+      645,
+      1080
+     ],
+     "box_1000": [
+      0,
+      374,
+      336,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0713,
+     "in_frame": 0.1597,
+     "unoccluded": 0.4465,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Toilet placed against the left wall, not opposite the door."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 35,
+     "wenart_id": "f_L0_022",
+     "kind": "furniture",
+     "type": "washbasin",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bath_toilet",
+     "room_ids": [
+      "r_L0_bath_toilet"
+     ],
+     "own_room": true,
+     "pixels": 178406,
+     "area_frac": 0.086037,
+     "box_px": [
+      301,
+      569,
+      969,
+      1080
+     ],
+     "box_1000": [
+      156,
+      526,
+      505,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2033,
+     "in_frame": 0.4305,
+     "unoccluded": 0.4722,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Washbasin placed against the left wall for functional use."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.5708,
+      "area_frac": 0.29957,
+      "centre_px": [
+       1650.1,
+       540.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 635040
+     },
+     "f_L0_021": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.2235,
+      "area_frac": 0.25992,
+      "centre_px": [
+       397.2,
+       740.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 240632
+     },
+     "f_L0_022": {
+      "kind": "furniture",
+      "type": "washbasin",
+      "visible_share": 0.4702,
+      "area_frac": 0.1822,
+      "centre_px": [
+       637.4,
+       801.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 178406
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bath_toilet_2": {
+   "camera": "cam_r_L0_bath_toilet_2",
+   "room_id": "r_L0_bath_toilet",
+   "room_type": "bathroom",
+   "room_label": "Bath+ Toilet",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 13,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath_toilet",
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 491316,
+     "area_frac": 0.236939,
+     "box_px": [
+      587,
+      0,
+      1042,
+      1080
+     ],
+     "box_1000": [
+      305,
+      0,
+      543,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:16612,path:16608,path:16607,path:16610,path:16609,path:16606,path:16615,path:16616"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 35,
+     "wenart_id": "f_L0_022",
+     "kind": "furniture",
+     "type": "washbasin",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bath_toilet",
+     "room_ids": [
+      "r_L0_bath_toilet"
+     ],
+     "own_room": true,
+     "pixels": 130931,
+     "area_frac": 0.063142,
+     "box_px": [
+      0,
+      777,
+      538,
+      1080
+     ],
+     "box_1000": [
+      0,
+      719,
+      281,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0405,
+     "in_frame": 0.0725,
+     "unoccluded": 0.5584,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Washbasin placed against the left wall for functional use."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7,
+      "area_frac": 0.23084,
+      "centre_px": [
+       814.2,
+       540.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 491316
+     },
+     "f_L0_021": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.2111,
+      "area_frac": 0.49303,
+      "centre_px": [
+       808.9,
+       750.6
+      ],
+      "in_view": false
+     },
+     "f_L0_022": {
+      "kind": "furniture",
+      "type": "washbasin",
+      "visible_share": 0.2625,
+      "area_frac": 0.11308,
+      "centre_px": [
+       258.3,
+       845.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 130931
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_1": {
+   "camera": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 9,
+     "wenart_id": "d_L0_001",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room",
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 542929,
+     "area_frac": 0.261829,
+     "box_px": [
+      8,
+      0,
+      553,
+      1071
+     ],
+     "box_1000": [
+      4,
+      0,
+      289,
+      992
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11564,path:11559,path:11560,path:11561,path:11570,path:11558,path:11562,path:11569"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 526195,
+     "area_frac": 0.253759,
+     "box_px": [
+      840,
+      445,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      437,
+      412,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2109,
+     "in_frame": 0.2669,
+     "unoccluded": 0.7902,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16872-16892,path:16899-16900,path:17082-17097,path:17104-17108,path:17110,path:17112,path:17121-17126"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "top",
+       "reason": "The object's footprint and headboard lines match a bed_double."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 1,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 136698,
+     "area_frac": 0.065923,
+     "box_px": [
+      1622,
+      0,
+      1920,
+      471
+     ],
+     "box_1000": [
+      844,
+      0,
+      1000,
+      437
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11613,path:11614,path:9060,path:9054,path:36866"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 4267,
+     "area_frac": 0.002058,
+     "box_px": [
+      1292,
+      598,
+      1454,
+      647
+     ],
+     "box_1000": [
+      672,
+      553,
+      758,
+      600
+     ],
+     "touches_border": false,
+     "visibility": 0.0694,
+     "in_frame": 1.0,
+     "unoccluded": 0.0694,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17098-17103,path:17109,path:17111,path:17113-17120"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3945,
+      "area_frac": 0.06886,
+      "centre_px": [
+       1778.7,
+       233.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 136698
+     },
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8368,
+      "area_frac": 0.25443,
+      "centre_px": [
+       285.5,
+       516.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 542929
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.4884,
+      "area_frac": 0.32113,
+      "centre_px": [
+       1381.5,
+       762.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 526195
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.1779,
+      "area_frac": 0.02965,
+      "centre_px": [
+       1374.4,
+       620.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 4267
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_2": {
+   "camera": "cam_r_L0_bed_room_2",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 21,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 527934,
+     "area_frac": 0.254598,
+     "box_px": [
+      0,
+      445,
+      1083,
+      1080
+     ],
+     "box_1000": [
+      0,
+      412,
+      565,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2157,
+     "in_frame": 0.2729,
+     "unoccluded": 0.7902,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16872-16892,path:16899-16900,path:17082-17097,path:17104-17108,path:17110,path:17112,path:17121-17126"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "top",
+       "reason": "The object's footprint and headboard lines match a bed_double."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 7,
+     "wenart_id": "win_L0_007",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 202690,
+     "area_frac": 0.097748,
+     "box_px": [
+      801,
+      0,
+      1224,
+      503
+     ],
+     "box_1000": [
+      417,
+      0,
+      638,
+      466
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9077,path:9078,path:9076,path:36866,path:9075"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 1,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 128410,
+     "area_frac": 0.061926,
+     "box_px": [
+      0,
+      0,
+      279,
+      471
+     ],
+     "box_1000": [
+      0,
+      0,
+      146,
+      437
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11613,path:11614,path:9060,path:9054,path:36866"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 3241,
+     "area_frac": 0.001563,
+     "box_px": [
+      471,
+      606,
+      642,
+      651
+     ],
+     "box_1000": [
+      245,
+      561,
+      335,
+      603
+     ],
+     "touches_border": false,
+     "visibility": 0.0517,
+     "in_frame": 1.0,
+     "unoccluded": 0.0517,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16893-16898,path:16901-17081"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3474,
+      "area_frac": 0.06463,
+      "centre_px": [
+       139.3,
+       233.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 128410
+     },
+     "win_L0_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9615,
+      "area_frac": 0.09892,
+      "centre_px": [
+       1015.7,
+       246.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 202690
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.4933,
+      "area_frac": 0.32218,
+      "centre_px": [
+       540.4,
+       762.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 527934
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.1381,
+      "area_frac": 0.03,
+      "centre_px": [
+       556.5,
+       627.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3241
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_2_1": {
+   "camera": "cam_r_L0_bed_room_2_1",
+   "room_id": "r_L0_bed_room_2",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 10,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_room",
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 542929,
+     "area_frac": 0.261829,
+     "box_px": [
+      1367,
+      0,
+      1912,
+      1071
+     ],
+     "box_1000": [
+      711,
+      0,
+      996,
+      992
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11577,path:11573,path:11572,path:5010,path:5007,path:5004,path:5001,path:11582,path:11575,path:11571,path:11583,path:11574"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 527094,
+     "area_frac": 0.254193,
+     "box_px": [
+      0,
+      443,
+      1070,
+      1080
+     ],
+     "box_1000": [
+      0,
+      410,
+      558,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2336,
+     "in_frame": 0.2933,
+     "unoccluded": 0.7964,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16617-16637,path:16644-16645,path:16826-16842,path:16849-16853,path:16855,path:16857,path:16866-16871"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "top",
+       "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 136259,
+     "area_frac": 0.065711,
+     "box_px": [
+      0,
+      0,
+      298,
+      470
+     ],
+     "box_1000": [
+      0,
+      0,
+      156,
+      436
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:16840,path:11509,path:11610,path:11611"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 19,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 3056,
+     "area_frac": 0.001474,
+     "box_px": [
+      472,
+      602,
+      639,
+      645
+     ],
+     "box_1000": [
+      245,
+      557,
+      333,
+      598
+     ],
+     "touches_border": false,
+     "visibility": 0.0501,
+     "in_frame": 1.0,
+     "unoccluded": 0.0501,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16638-16643,path:16646-16826"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3937,
+      "area_frac": 0.06898,
+      "centre_px": [
+       141.8,
+       233.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 136259
+     },
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8368,
+      "area_frac": 0.25443,
+      "centre_px": [
+       1634.5,
+       516.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 542929
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.5033,
+      "area_frac": 0.31917,
+      "centre_px": [
+       534.0,
+       761.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 527094
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.1361,
+      "area_frac": 0.0291,
+      "centre_px": [
+       555.5,
+       621.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3056
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_2_2": {
+   "camera": "cam_r_L0_bed_room_2_2",
+   "room_id": "r_L0_bed_room_2",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 18,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 652868,
+     "area_frac": 0.314848,
+     "box_px": [
+      619,
+      461,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      322,
+      426,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1338,
+     "in_frame": 0.1744,
+     "unoccluded": 0.7672,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16617-16637,path:16644-16645,path:16826-16842,path:16849-16853,path:16855,path:16857,path:16866-16871"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "top",
+       "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 307487,
+     "area_frac": 0.148287,
+     "box_px": [
+      867,
+      0,
+      1534,
+      461
+     ],
+     "box_1000": [
+      451,
+      0,
+      799,
+      427
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:16840,path:11509,path:11610,path:11611"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 8,
+     "wenart_id": "win_L0_008",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 109404,
+     "area_frac": 0.05276,
+     "box_px": [
+      0,
+      0,
+      173,
+      660
+     ],
+     "box_1000": [
+      0,
+      0,
+      91,
+      612
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:9075,path:17129,path:17130,path:9079"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 62259,
+     "area_frac": 0.030025,
+     "box_px": [
+      527,
+      686,
+      812,
+      1012
+     ],
+     "box_1000": [
+      274,
+      635,
+      423,
+      938
+     ],
+     "touches_border": false,
+     "visibility": 0.6668,
+     "in_frame": 1.0,
+     "unoccluded": 0.6668,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 19,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 9638,
+     "area_frac": 0.004648,
+     "box_px": [
+      1707,
+      686,
+      1920,
+      792
+     ],
+     "box_1000": [
+      889,
+      635,
+      1000,
+      734
+     ],
+     "touches_border": true,
+     "visibility": 0.0769,
+     "in_frame": 0.76,
+     "unoccluded": 0.1011,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16638-16643,path:16646-16826"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9032,
+      "area_frac": 0.15815,
+      "centre_px": [
+       1197.2,
+       231.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 307487
+     },
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1415,
+      "area_frac": 0.04352,
+      "centre_px": [
+       69.3,
+       299.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 109404
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.6181,
+      "area_frac": 0.41037,
+      "centre_px": [
+       1199.7,
+       741.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 652868
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.1795,
+      "area_frac": 0.04577,
+      "centre_px": [
+       1816.1,
+       726.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 9638
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.5717,
+      "area_frac": 0.04436,
+      "centre_px": [
+       674.4,
+       845.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 62259
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_2_3": {
+   "camera": "cam_r_L0_bed_room_2_3",
+   "room_id": "r_L0_bed_room_2",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 18,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 720536,
+     "area_frac": 0.347481,
+     "box_px": [
+      95,
+      436,
+      1551,
+      1080
+     ],
+     "box_1000": [
+      49,
+      403,
+      808,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4571,
+     "in_frame": 0.5679,
+     "unoccluded": 0.8049,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16617-16637,path:16644-16645,path:16826-16842,path:16849-16853,path:16855,path:16857,path:16866-16871"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "top",
+       "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 4,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 244916,
+     "area_frac": 0.118111,
+     "box_px": [
+      915,
+      0,
+      1481,
+      461
+     ],
+     "box_1000": [
+      476,
+      0,
+      772,
+      427
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:16840,path:11509,path:11610,path:11611"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 8,
+     "wenart_id": "win_L0_008",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 179402,
+     "area_frac": 0.086517,
+     "box_px": [
+      0,
+      0,
+      350,
+      531
+     ],
+     "box_1000": [
+      0,
+      0,
+      183,
+      492
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:9075,path:17129,path:17130,path:9079"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 19,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 111912,
+     "area_frac": 0.05397,
+     "box_px": [
+      1526,
+      697,
+      1852,
+      1080
+     ],
+     "box_1000": [
+      794,
+      645,
+      965,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.9485,
+     "in_frame": 0.9773,
+     "unoccluded": 0.9705,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16638-16643,path:16646-16826"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room_2",
+     "room_ids": [
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 2594,
+     "area_frac": 0.001251,
+     "box_px": [
+      630,
+      595,
+      781,
+      647
+     ],
+     "box_1000": [
+      328,
+      550,
+      407,
+      600
+     ],
+     "touches_border": false,
+     "visibility": 0.0502,
+     "in_frame": 1.0,
+     "unoccluded": 0.0502,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9305,
+      "area_frac": 0.12697,
+      "centre_px": [
+       1203.5,
+       229.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 244916
+     },
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5369,
+      "area_frac": 0.08369,
+      "centre_px": [
+       173.4,
+       258.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 179402
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.8117,
+      "area_frac": 0.43172,
+      "centre_px": [
+       825.2,
+       758.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 720536
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.9911,
+      "area_frac": 0.05527,
+      "centre_px": [
+       1687.8,
+       889.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 111912
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.1393,
+      "area_frac": 0.02467,
+      "centre_px": [
+       705.1,
+       619.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 2594
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_3": {
+   "camera": "cam_r_L0_bed_room_3",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 21,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 669628,
+     "area_frac": 0.32293,
+     "box_px": [
+      531,
+      457,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      276,
+      423,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1747,
+     "in_frame": 0.2333,
+     "unoccluded": 0.7491,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16872-16892,path:16899-16900,path:17082-17097,path:17104-17108,path:17110,path:17112,path:17121-17126"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "top",
+       "reason": "The object's footprint and headboard lines match a bed_double."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 1,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 290195,
+     "area_frac": 0.139947,
+     "box_px": [
+      830,
+      0,
+      1465,
+      457
+     ],
+     "box_1000": [
+      432,
+      0,
+      764,
+      424
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11613,path:11614,path:9060,path:9054,path:36866"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 49476,
+     "area_frac": 0.02386,
+     "box_px": [
+      499,
+      664,
+      780,
+      985
+     ],
+     "box_1000": [
+      259,
+      614,
+      407,
+      913
+     ],
+     "touches_border": false,
+     "visibility": 0.5612,
+     "in_frame": 1.0,
+     "unoccluded": 0.5612,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17098-17103,path:17109,path:17111,path:17113-17120"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 15899,
+     "area_frac": 0.007667,
+     "box_px": [
+      1631,
+      676,
+      1920,
+      820
+     ],
+     "box_1000": [
+      849,
+      625,
+      1000,
+      760
+     ],
+     "touches_border": true,
+     "visibility": 0.144,
+     "in_frame": 0.979,
+     "unoccluded": 0.1471,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:16893-16898,path:16901-17081"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "nightstand",
+       "front": "right",
+       "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "nightstand",
+       "front": "left",
+       "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9355,
+      "area_frac": 0.14853,
+      "centre_px": [
+       1144.9,
+       229.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 290195
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.6705,
+      "area_frac": 0.43106,
+      "centre_px": [
+       1166.1,
+       757.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 669628
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.2604,
+      "area_frac": 0.05188,
+      "centre_px": [
+       1776.0,
+       741.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 15899
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.5435,
+      "area_frac": 0.04252,
+      "centre_px": [
+       645.0,
+       821.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 49476
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_dining_1": {
+   "camera": "cam_r_L0_dining_1",
+   "room_id": "r_L0_dining",
+   "room_type": "dining",
+   "room_label": "Dining",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 24,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 391926,
+     "area_frac": 0.189008,
+     "box_px": [
+      53,
+      666,
+      1380,
+      1080
+     ],
+     "box_1000": [
+      27,
+      616,
+      719,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2377,
+     "in_frame": 0.277,
+     "unoccluded": 0.8584,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17133-17134,path:17147,path:17930"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_dining",
+       "front": "top",
+       "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "none",
+       "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 321856,
+     "area_frac": 0.155216,
+     "box_px": [
+      0,
+      0,
+      594,
+      583
+     ],
+     "box_1000": [
+      0,
+      0,
+      310,
+      540
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:11607,path:11608,path:11511,path:36865"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 26,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 91792,
+     "area_frac": 0.044267,
+     "box_px": [
+      26,
+      563,
+      480,
+      1080
+     ],
+     "box_1000": [
+      13,
+      521,
+      250,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2765,
+     "in_frame": 0.6878,
+     "unoccluded": 0.402,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17511-17706"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 59481,
+     "area_frac": 0.028685,
+     "box_px": [
+      1119,
+      568,
+      1372,
+      1080
+     ],
+     "box_1000": [
+      582,
+      525,
+      715,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1956,
+     "in_frame": 0.6293,
+     "unoccluded": 0.3108,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17135-17146,path:17148-17315,path:17707-17722"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 12,
+     "wenart_id": "win_L0_009",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 59398,
+     "area_frac": 0.028645,
+     "box_px": [
+      1445,
+      178,
+      1703,
+      418
+     ],
+     "box_1000": [
+      752,
+      164,
+      887,
+      388
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:9045,path:9046,path:11599,path:11597,path:11598,path:36876"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 41360,
+     "area_frac": 0.019946,
+     "box_px": [
+      1359,
+      411,
+      1583,
+      610
+     ],
+     "box_1000": [
+      707,
+      380,
+      825,
+      565
+     ],
+     "touches_border": false,
+     "visibility": 0.9786,
+     "in_frame": 1.0,
+     "unoccluded": 0.9786,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 30,
+     "wenart_id": "f_L0_016",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 33406,
+     "area_frac": 0.01611,
+     "box_px": [
+      623,
+      538,
+      983,
+      1080
+     ],
+     "box_1000": [
+      324,
+      498,
+      512,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1443,
+     "in_frame": 0.8293,
+     "unoccluded": 0.174,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17316-17510"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 28961,
+     "area_frac": 0.013967,
+     "box_px": [
+      1190,
+      409,
+      1384,
+      588
+     ],
+     "box_1000": [
+      619,
+      378,
+      721,
+      545
+     ],
+     "touches_border": false,
+     "visibility": 0.431,
+     "in_frame": 1.0,
+     "unoccluded": 0.431,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 15270,
+     "area_frac": 0.007364,
+     "box_px": [
+      1868,
+      784,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      972,
+      725,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0114,
+     "in_frame": 0.1749,
+     "unoccluded": 0.0654,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17723-17917"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "bottom",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 2388,
+     "area_frac": 0.001152,
+     "box_px": [
+      1190,
+      177,
+      1200,
+      418
+     ],
+     "box_1000": [
+      619,
+      163,
+      625,
+      388
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:36865,path:11512,path:11602,path:11603"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.646,
+      "area_frac": 0.15117,
+      "centre_px": [
+       292.5,
+       282.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 321856
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.0302,
+      "area_frac": 0.0122,
+      "centre_px": [
+       1191.5,
+       298.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 2388
+     },
+     "win_L0_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.02838,
+      "centre_px": [
+       1574.0,
+       298.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59398
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.9978,
+      "area_frac": 0.02038,
+      "centre_px": [
+       1472.9,
+       509.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 41360
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.6348,
+      "area_frac": 0.0324,
+      "centre_px": [
+       1285.4,
+       498.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 28961
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.475,
+      "area_frac": 0.2202,
+      "centre_px": [
+       718.8,
+       874.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 391926
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3662,
+      "area_frac": 0.11265,
+      "centre_px": [
+       1575.7,
+       896.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 15270
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.5192,
+      "area_frac": 0.11011,
+      "centre_px": [
+       250.8,
+       820.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 91792
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.1534,
+      "area_frac": 0.09601,
+      "centre_px": [
+       485.3,
+       939.2
+      ],
+      "in_view": false
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.1422,
+      "area_frac": 0.06016,
+      "centre_px": [
+       158.5,
+       885.7
+      ],
+      "in_view": false
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4249,
+      "area_frac": 0.0923,
+      "centre_px": [
+       1184.6,
+       821.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59481
+     },
+     "f_L0_016": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.369,
+      "area_frac": 0.09257,
+      "centre_px": [
+       805.3,
+       808.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 33406
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_dining_2": {
+   "camera": "cam_r_L0_dining_2",
+   "room_id": "r_L0_dining",
+   "room_type": "dining",
+   "room_label": "Dining",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 5,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 338760,
+     "area_frac": 0.163368,
+     "box_px": [
+      1304,
+      0,
+      1920,
+      595
+     ],
+     "box_1000": [
+      679,
+      0,
+      1000,
+      551
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:11607,path:11608,path:11511,path:36865"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 24,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 213106,
+     "area_frac": 0.102771,
+     "box_px": [
+      382,
+      612,
+      1403,
+      1080
+     ],
+     "box_1000": [
+      198,
+      566,
+      731,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2544,
+     "in_frame": 0.5165,
+     "unoccluded": 0.4927,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17133-17134,path:17147,path:17930"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_dining",
+       "front": "top",
+       "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "none",
+       "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 30,
+     "wenart_id": "f_L0_016",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 127869,
+     "area_frac": 0.061665,
+     "box_px": [
+      1217,
+      678,
+      1686,
+      1080
+     ],
+     "box_1000": [
+      633,
+      627,
+      879,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2353,
+     "in_frame": 0.4613,
+     "unoccluded": 0.5101,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17316-17510"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 120148,
+     "area_frac": 0.057942,
+     "box_px": [
+      750,
+      779,
+      1217,
+      1080
+     ],
+     "box_1000": [
+      390,
+      721,
+      634,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1395,
+     "in_frame": 0.2752,
+     "unoccluded": 0.507,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17135-17146,path:17148-17315,path:17707-17722"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 26,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 46398,
+     "area_frac": 0.022376,
+     "box_px": [
+      1210,
+      528,
+      1509,
+      956
+     ],
+     "box_1000": [
+      630,
+      488,
+      786,
+      886
+     ],
+     "touches_border": false,
+     "visibility": 0.223,
+     "in_frame": 0.9276,
+     "unoccluded": 0.2405,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17511-17706"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 27,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 44232,
+     "area_frac": 0.021331,
+     "box_px": [
+      421,
+      531,
+      716,
+      1080
+     ],
+     "box_1000": [
+      219,
+      491,
+      373,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2409,
+     "in_frame": 0.8672,
+     "unoccluded": 0.2778,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17918-17929,path:17931-18098,path:18295-18310"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_010",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_010",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "left",
+       "reason": "Small seat with backrest line, around a table in a dining room."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 28909,
+     "area_frac": 0.013941,
+     "box_px": [
+      0,
+      968,
+      431,
+      1080
+     ],
+     "box_1000": [
+      0,
+      896,
+      225,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0486,
+     "in_frame": 0.3284,
+     "unoccluded": 0.1479,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17723-17917"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "bottom",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 28,
+     "wenart_id": "f_L0_014",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 21857,
+     "area_frac": 0.010541,
+     "box_px": [
+      764,
+      510,
+      936,
+      654
+     ],
+     "box_1000": [
+      397,
+      472,
+      488,
+      606
+     ],
+     "touches_border": false,
+     "visibility": 0.1468,
+     "in_frame": 1.0,
+     "unoccluded": 0.1468,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:18099-18294"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "left",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6311,
+      "area_frac": 0.15916,
+      "centre_px": [
+       1612.1,
+       287.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 338760
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.5562,
+      "area_frac": 0.2086,
+      "centre_px": [
+       888.8,
+       847.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 213106
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4874,
+      "area_frac": 0.09429,
+      "centre_px": [
+       212.2,
+       849.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 28909
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4936,
+      "area_frac": 0.09306,
+      "centre_px": [
+       1332.1,
+       750.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 46398
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4345,
+      "area_frac": 0.07678,
+      "centre_px": [
+       563.5,
+       806.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 44232
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3562,
+      "area_frac": 0.0718,
+      "centre_px": [
+       902.6,
+       580.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 21857
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3786,
+      "area_frac": 0.11429,
+      "centre_px": [
+       898.5,
+       873.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 120148
+     },
+     "f_L0_016": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4872,
+      "area_frac": 0.12089,
+      "centre_px": [
+       1406.5,
+       844.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 127869
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_dining_3": {
+   "camera": "cam_r_L0_dining_3",
+   "room_id": "r_L0_dining",
+   "room_type": "dining",
+   "room_label": "Dining",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 5,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 248014,
+     "area_frac": 0.119606,
+     "box_px": [
+      1499,
+      0,
+      1920,
+      657
+     ],
+     "box_1000": [
+      780,
+      0,
+      1000,
+      609
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:11607,path:11608,path:11511,path:36865"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 161777,
+     "area_frac": 0.078017,
+     "box_px": [
+      267,
+      690,
+      730,
+      1080
+     ],
+     "box_1000": [
+      139,
+      638,
+      381,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3655,
+     "in_frame": 0.4812,
+     "unoccluded": 0.7596,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17135-17146,path:17148-17315,path:17707-17722"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 30,
+     "wenart_id": "f_L0_016",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 147321,
+     "area_frac": 0.071046,
+     "box_px": [
+      907,
+      690,
+      1285,
+      1080
+     ],
+     "box_1000": [
+      472,
+      638,
+      670,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3935,
+     "in_frame": 0.4698,
+     "unoccluded": 0.8377,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17316-17510"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 24,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 75166,
+     "area_frac": 0.036249,
+     "box_px": [
+      413,
+      607,
+      1256,
+      744
+     ],
+     "box_1000": [
+      215,
+      562,
+      655,
+      689
+     ],
+     "touches_border": false,
+     "visibility": 0.1281,
+     "in_frame": 0.7097,
+     "unoccluded": 0.1805,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17133-17134,path:17147,path:17930"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_dining",
+       "front": "top",
+       "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "none",
+       "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 26,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 69242,
+     "area_frac": 0.033392,
+     "box_px": [
+      1285,
+      544,
+      1559,
+      1080
+     ],
+     "box_1000": [
+      669,
+      503,
+      812,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3098,
+     "in_frame": 0.8483,
+     "unoccluded": 0.3651,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17511-17706"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 62994,
+     "area_frac": 0.030379,
+     "box_px": [
+      117,
+      544,
+      277,
+      1080
+     ],
+     "box_1000": [
+      60,
+      503,
+      145,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2561,
+     "in_frame": 0.8558,
+     "unoccluded": 0.2993,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17723-17917"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "bottom",
+       "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "top",
+       "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 27,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 33486,
+     "area_frac": 0.016149,
+     "box_px": [
+      654,
+      501,
+      824,
+      994
+     ],
+     "box_1000": [
+      340,
+      463,
+      430,
+      921
+     ],
+     "touches_border": false,
+     "visibility": 0.3093,
+     "in_frame": 1.0,
+     "unoccluded": 0.3093,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:17918-17929,path:17931-18098,path:18295-18310"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_010",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_010",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "left",
+       "reason": "Small seat with backrest line, around a table in a dining room."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 28,
+     "wenart_id": "f_L0_014",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_dining",
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": true,
+     "pixels": 17692,
+     "area_frac": 0.008532,
+     "box_px": [
+      937,
+      501,
+      1104,
+      607
+     ],
+     "box_1000": [
+      488,
+      463,
+      575,
+      563
+     ],
+     "touches_border": false,
+     "visibility": 0.1831,
+     "in_frame": 1.0,
+     "unoccluded": 0.1831,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:18099-18294"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "left",
+       "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5178,
+      "area_frac": 0.11304,
+      "centre_px": [
+       1718.9,
+       297.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 248014
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.5246,
+      "area_frac": 0.2008,
+      "centre_px": [
+       834.4,
+       843.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 75166
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.476,
+      "area_frac": 0.1015,
+      "centre_px": [
+       319.7,
+       805.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 62994
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.5958,
+      "area_frac": 0.09145,
+      "centre_px": [
+       1375.6,
+       805.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 69242
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6693,
+      "area_frac": 0.05222,
+      "centre_px": [
+       716.8,
+       743.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 33486
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4571,
+      "area_frac": 0.04659,
+      "centre_px": [
+       1030.6,
+       550.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 17692
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6038,
+      "area_frac": 0.10271,
+      "centre_px": [
+       505.4,
+       843.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 161777
+     },
+     "f_L0_016": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6286,
+      "area_frac": 0.08481,
+      "centre_px": [
+       1096.9,
+       840.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 147321
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_drawing_room_1": {
+   "camera": "cam_r_L0_drawing_room_1",
+   "room_id": "r_L0_drawing_room",
+   "room_type": "living",
+   "room_label": "Drawing Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 31,
+     "wenart_id": "f_L0_017",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 354281,
+     "area_frac": 0.170853,
+     "box_px": [
+      841,
+      484,
+      1716,
+      1048
+     ],
+     "box_1000": [
+      438,
+      448,
+      894,
+      971
+     ],
+     "touches_border": false,
+     "visibility": 0.8939,
+     "in_frame": 1.0,
+     "unoccluded": 0.8939,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11626-11996"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_014",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "left",
+       "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_014",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "left",
+       "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_018",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 291476,
+     "area_frac": 0.140565,
+     "box_px": [
+      0,
+      523,
+      686,
+      1080
+     ],
+     "box_1000": [
+      0,
+      484,
+      358,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2904,
+     "in_frame": 0.352,
+     "unoccluded": 0.8252,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11997-12367"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_015",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "wardrobe",
+       "front": "left",
+       "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_015",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "left",
+       "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 32,
+     "wenart_id": "f_L0_019",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 231846,
+     "area_frac": 0.111808,
+     "box_px": [
+      131,
+      787,
+      1397,
+      1080
+     ],
+     "box_1000": [
+      68,
+      728,
+      728,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1781,
+     "in_frame": 0.1817,
+     "unoccluded": 0.9802,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:12368-12401,path:12404-12430,path:12432-12436,path:12440-12445,path:12448-12474,path:12476-12494,path:12496-12499,path:12501-12599,path:12601-12602,path:12604-12607,path:12609-12626,path:12628,path:12630-12639,path:12641-12676,path:12678-12679,path:12681-12683,path:12685-12852,path:12862-12878,path:12887-12907,path:12919-12943,path:12949-12962,path:12965,path:12967-12976,path:12988-13006,path:13008-13011,path:13015,path:13017-13019,path:13022-13023,path:13029,path:13043-13044,path:13053-13055,path:13063,path:13075-13088,path:13092-13122,path:13126-13158,path:13160-13174,path:13178-13287,path:13292-13347,path:13365-13418,path:13435-13452,path:13458-13492,path:13505-13511,path:13513-13516,path:13520-13755,path:13759-13787,path:13798,path:13806-13819,path:13825,path:13836,path:13839-13841,path:13862-13890,path:13909-13916,path:13919-13937,path:13941-13943,path:13945-13949,path:13959-13961,path:13964-13981,path:13983-14038,path:14040-14042,path:14044,path:14046-14061,path:14063-14088,path:14090-14092,path:14094-14159,path:14161-14162,path:14164-14167,path:14169-14216,path:14220-14447,path:14451-14470,path:14480-14512,path:14514-14528,path:14530-14617,path:14619,path:14621-14624,path:14626-14647,path:14649-14650,path:14652-14655,path:14657-14670,path:14672-14673,path:14675-14692,path:14694-14695,path:14697-14700,path:14702-14722,path:14724-14725,path:14727-14744,path:14746-14747,path:14749-14752,path:14754-14771,path:14773-14774,path:14776-14779,path:14781-15308,path:15310-15314,path:15316-15317,path:15319-15321,path:15323-15341,path:15343-15344,path:15346-15348,path:15350-15361,path:15364-15368,path:15370-15371,path:15373-15375,path:15377-15395,path:15397-15398,path:15400-15402,path:15404-15415,path:15418-15422,path:15424-15425,path:15427-15429,path:15431-15446,path:15448-15450,path:15452-15614"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_016",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_coffee",
+       "front": "none",
+       "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_016",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_coffee",
+       "front": "none",
+       "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 2,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 193460,
+     "area_frac": 0.093297,
+     "box_px": [
+      921,
+      32,
+      1398,
+      478
+     ],
+     "box_1000": [
+      479,
+      29,
+      729,
+      443
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9055,path:11619,path:11620,path:9054,path:36866"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 11,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 117449,
+     "area_frac": 0.05664,
+     "box_px": [
+      282,
+      71,
+      551,
+      551
+     ],
+     "box_1000": [
+      146,
+      65,
+      287,
+      511
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11549,path:11545,path:11544,path:9062,path:11554,path:11547,path:11555,path:11543,path:11546"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 36,
+     "wenart_id": "dec_L0_005",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 27239,
+     "area_frac": 0.013136,
+     "box_px": [
+      1724,
+      717,
+      1920,
+      946
+     ],
+     "box_1000": [
+      897,
+      663,
+      1000,
+      876
+     ],
+     "touches_border": true,
+     "visibility": 0.3709,
+     "in_frame": 0.7845,
+     "unoccluded": 0.4728,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_drawing_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 33,
+     "wenart_id": "f_L0_020",
+     "kind": "furniture",
+     "type": "floor_lamp",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 26310,
+     "area_frac": 0.012688,
+     "box_px": [
+      627,
+      217,
+      780,
+      816
+     ],
+     "box_1000": [
+      326,
+      200,
+      407,
+      756
+     ],
+     "touches_border": false,
+     "visibility": 0.2013,
+     "in_frame": 1.0,
+     "unoccluded": 0.2013,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:15615-15773,path:15775,path:15779,path:15789,path:15802,path:15806,path:15813,path:15827,path:15834,path:15840,path:15844,path:15846-16466,path:16468-16487,path:16489-16531,path:16533-16546,path:16548-16604"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_017",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_017",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9744,
+      "area_frac": 0.09294,
+      "centre_px": [
+       1158.2,
+       256.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 193460
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6191,
+      "area_frac": 0.0795,
+      "centre_px": [
+       413.3,
+       323.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 117449
+     },
+     "f_L0_017": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9469,
+      "area_frac": 0.19114,
+      "centre_px": [
+       1272.8,
+       764.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 354281
+     },
+     "f_L0_018": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.5064,
+      "area_frac": 0.15942,
+      "centre_px": [
+       340.5,
+       796.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 291476
+     },
+     "f_L0_019": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.3904,
+      "area_frac": 0.11407,
+      "centre_px": [
+       774.7,
+       935.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 231846
+     },
+     "f_L0_020": {
+      "kind": "furniture",
+      "type": "floor_lamp",
+      "visible_share": 0.7523,
+      "area_frac": 0.06302,
+      "centre_px": [
+       703.0,
+       515.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 26310
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_drawing_room_2": {
+   "camera": "cam_r_L0_drawing_room_2",
+   "room_id": "r_L0_drawing_room",
+   "room_type": "living",
+   "room_label": "Drawing Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 31,
+     "wenart_id": "f_L0_017",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 359443,
+     "area_frac": 0.173342,
+     "box_px": [
+      782,
+      504,
+      1701,
+      955
+     ],
+     "box_1000": [
+      407,
+      466,
+      886,
+      885
+     ],
+     "touches_border": false,
+     "visibility": 0.8551,
+     "in_frame": 1.0,
+     "unoccluded": 0.8551,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11626-11996"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_014",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "left",
+       "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_014",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "left",
+       "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_018",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 301754,
+     "area_frac": 0.145522,
+     "box_px": [
+      0,
+      606,
+      663,
+      1080
+     ],
+     "box_1000": [
+      0,
+      561,
+      346,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0214,
+     "in_frame": 0.0233,
+     "unoccluded": 0.9166,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11997-12367"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_015",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "wardrobe",
+       "front": "left",
+       "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_015",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "left",
+       "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 2,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 234234,
+     "area_frac": 0.11296,
+     "box_px": [
+      705,
+      44,
+      1251,
+      473
+     ],
+     "box_1000": [
+      367,
+      40,
+      652,
+      438
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9055,path:11619,path:11620,path:9054,path:36866"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 32,
+     "wenart_id": "f_L0_019",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 156306,
+     "area_frac": 0.075379,
+     "box_px": [
+      968,
+      905,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      504,
+      837,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0551,
+     "in_frame": 0.0554,
+     "unoccluded": 0.9938,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:12368-12401,path:12404-12430,path:12432-12436,path:12440-12445,path:12448-12474,path:12476-12494,path:12496-12499,path:12501-12599,path:12601-12602,path:12604-12607,path:12609-12626,path:12628,path:12630-12639,path:12641-12676,path:12678-12679,path:12681-12683,path:12685-12852,path:12862-12878,path:12887-12907,path:12919-12943,path:12949-12962,path:12965,path:12967-12976,path:12988-13006,path:13008-13011,path:13015,path:13017-13019,path:13022-13023,path:13029,path:13043-13044,path:13053-13055,path:13063,path:13075-13088,path:13092-13122,path:13126-13158,path:13160-13174,path:13178-13287,path:13292-13347,path:13365-13418,path:13435-13452,path:13458-13492,path:13505-13511,path:13513-13516,path:13520-13755,path:13759-13787,path:13798,path:13806-13819,path:13825,path:13836,path:13839-13841,path:13862-13890,path:13909-13916,path:13919-13937,path:13941-13943,path:13945-13949,path:13959-13961,path:13964-13981,path:13983-14038,path:14040-14042,path:14044,path:14046-14061,path:14063-14088,path:14090-14092,path:14094-14159,path:14161-14162,path:14164-14167,path:14169-14216,path:14220-14447,path:14451-14470,path:14480-14512,path:14514-14528,path:14530-14617,path:14619,path:14621-14624,path:14626-14647,path:14649-14650,path:14652-14655,path:14657-14670,path:14672-14673,path:14675-14692,path:14694-14695,path:14697-14700,path:14702-14722,path:14724-14725,path:14727-14744,path:14746-14747,path:14749-14752,path:14754-14771,path:14773-14774,path:14776-14779,path:14781-15308,path:15310-15314,path:15316-15317,path:15319-15321,path:15323-15341,path:15343-15344,path:15346-15348,path:15350-15361,path:15364-15368,path:15370-15371,path:15373-15375,path:15377-15395,path:15397-15398,path:15400-15402,path:15404-15415,path:15418-15422,path:15424-15425,path:15427-15429,path:15431-15446,path:15448-15450,path:15452-15614"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_016",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_coffee",
+       "front": "none",
+       "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_016",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_coffee",
+       "front": "none",
+       "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 11,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 75073,
+     "area_frac": 0.036204,
+     "box_px": [
+      0,
+      0,
+      112,
+      702
+     ],
+     "box_1000": [
+      0,
+      0,
+      59,
+      650
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11549,path:11545,path:11544,path:9062,path:11554,path:11547,path:11555,path:11543,path:11546"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 33,
+     "wenart_id": "f_L0_020",
+     "kind": "furniture",
+     "type": "floor_lamp",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 39184,
+     "area_frac": 0.018897,
+     "box_px": [
+      433,
+      175,
+      639,
+      606
+     ],
+     "box_1000": [
+      225,
+      162,
+      333,
+      562
+     ],
+     "touches_border": false,
+     "visibility": 0.1716,
+     "in_frame": 1.0,
+     "unoccluded": 0.1716,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:15615-15773,path:15775,path:15779,path:15789,path:15802,path:15806,path:15813,path:15827,path:15834,path:15840,path:15844,path:15846-16466,path:16468-16487,path:16489-16531,path:16533-16546,path:16548-16604"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_017",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_017",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 36,
+     "wenart_id": "dec_L0_005",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 1270,
+     "area_frac": 0.000612,
+     "box_px": [
+      1701,
+      677,
+      1737,
+      772
+     ],
+     "box_1000": [
+      885,
+      626,
+      905,
+      715
+     ],
+     "touches_border": false,
+     "visibility": 0.0229,
+     "in_frame": 1.0,
+     "unoccluded": 0.0229,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_drawing_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.11057,
+      "centre_px": [
+       977.7,
+       259.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234234
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.1803,
+      "area_frac": 0.0272,
+      "centre_px": [
+       36.5,
+       364.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 75073
+     },
+     "f_L0_017": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9406,
+      "area_frac": 0.20273,
+      "centre_px": [
+       1243.6,
+       726.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 359443
+     },
+     "f_L0_018": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.3974,
+      "area_frac": 0.14566,
+      "centre_px": [
+       330.5,
+       843.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 301754
+     },
+     "f_L0_019": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.229,
+      "area_frac": 0.07585,
+      "centre_px": [
+       1437.7,
+       994.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 156306
+     },
+     "f_L0_020": {
+      "kind": "furniture",
+      "type": "floor_lamp",
+      "visible_share": 0.5659,
+      "area_frac": 0.11009,
+      "centre_px": [
+       532.5,
+       536.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 39184
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_drawing_room_3": {
+   "camera": "cam_r_L0_drawing_room_3",
+   "room_id": "r_L0_drawing_room",
+   "room_type": "living",
+   "room_label": "Drawing Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 31,
+     "wenart_id": "f_L0_017",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 421046,
+     "area_frac": 0.203051,
+     "box_px": [
+      985,
+      554,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      513,
+      512,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1216,
+     "in_frame": 0.1315,
+     "unoccluded": 0.9251,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11626-11996"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_014",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "left",
+       "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_014",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "left",
+       "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 2,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 361669,
+     "area_frac": 0.174416,
+     "box_px": [
+      1260,
+      0,
+      1920,
+      596
+     ],
+     "box_1000": [
+      656,
+      0,
+      1000,
+      552
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9055,path:11619,path:11620,path:9054,path:36866"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_018",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 361448,
+     "area_frac": 0.174309,
+     "box_px": [
+      0,
+      559,
+      735,
+      1080
+     ],
+     "box_1000": [
+      0,
+      517,
+      383,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2069,
+     "in_frame": 0.2135,
+     "unoccluded": 0.9692,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11997-12367"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_015",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "wardrobe",
+       "front": "left",
+       "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "recognition:sym_L0_015",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "left",
+       "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 11,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 172189,
+     "area_frac": 0.083039,
+     "box_px": [
+      566,
+      54,
+      894,
+      741
+     ],
+     "box_1000": [
+      294,
+      50,
+      466,
+      687
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11549,path:11545,path:11544,path:9062,path:11554,path:11547,path:11555,path:11543,path:11546"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 33,
+     "wenart_id": "f_L0_020",
+     "kind": "furniture",
+     "type": "floor_lamp",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 49894,
+     "area_frac": 0.024062,
+     "box_px": [
+      796,
+      173,
+      996,
+      976
+     ],
+     "box_1000": [
+      414,
+      160,
+      519,
+      904
+     ],
+     "touches_border": false,
+     "visibility": 0.245,
+     "in_frame": 1.0,
+     "unoccluded": 0.245,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:15615-15773,path:15775,path:15779,path:15789,path:15802,path:15806,path:15813,path:15827,path:15834,path:15840,path:15844,path:15846-16466,path:16468-16487,path:16489-16531,path:16533-16546,path:16548-16604"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_017",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_017",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 32,
+     "wenart_id": "f_L0_019",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_drawing_room",
+     "room_ids": [
+      "r_L0_drawing_room"
+     ],
+     "own_room": true,
+     "pixels": 1739,
+     "area_frac": 0.000839,
+     "box_px": [
+      460,
+      1052,
+      579,
+      1080
+     ],
+     "box_1000": [
+      239,
+      974,
+      302,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0,
+     "in_frame": 0.0,
+     "unoccluded": 0.8957,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:12368-12401,path:12404-12430,path:12432-12436,path:12440-12445,path:12448-12474,path:12476-12494,path:12496-12499,path:12501-12599,path:12601-12602,path:12604-12607,path:12609-12626,path:12628,path:12630-12639,path:12641-12676,path:12678-12679,path:12681-12683,path:12685-12852,path:12862-12878,path:12887-12907,path:12919-12943,path:12949-12962,path:12965,path:12967-12976,path:12988-13006,path:13008-13011,path:13015,path:13017-13019,path:13022-13023,path:13029,path:13043-13044,path:13053-13055,path:13063,path:13075-13088,path:13092-13122,path:13126-13158,path:13160-13174,path:13178-13287,path:13292-13347,path:13365-13418,path:13435-13452,path:13458-13492,path:13505-13511,path:13513-13516,path:13520-13755,path:13759-13787,path:13798,path:13806-13819,path:13825,path:13836,path:13839-13841,path:13862-13890,path:13909-13916,path:13919-13937,path:13941-13943,path:13945-13949,path:13959-13961,path:13964-13981,path:13983-14038,path:14040-14042,path:14044,path:14046-14061,path:14063-14088,path:14090-14092,path:14094-14159,path:14161-14162,path:14164-14167,path:14169-14216,path:14220-14447,path:14451-14470,path:14480-14512,path:14514-14528,path:14530-14617,path:14619,path:14621-14624,path:14626-14647,path:14649-14650,path:14652-14655,path:14657-14670,path:14672-14673,path:14675-14692,path:14694-14695,path:14697-14700,path:14702-14722,path:14724-14725,path:14727-14744,path:14746-14747,path:14749-14752,path:14754-14771,path:14773-14774,path:14776-14779,path:14781-15308,path:15310-15314,path:15316-15317,path:15319-15321,path:15323-15341,path:15343-15344,path:15346-15348,path:15350-15361,path:15364-15368,path:15370-15371,path:15373-15375,path:15377-15395,path:15397-15398,path:15400-15402,path:15404-15415,path:15418-15422,path:15424-15425,path:15427-15429,path:15431-15446,path:15448-15450,path:15452-15614"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_016",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_coffee",
+       "front": "none",
+       "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+      },
+      {
+       "file": "real01.pdf",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_016",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_coffee",
+       "front": "none",
+       "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7014,
+      "area_frac": 0.17023,
+      "centre_px": [
+       1584.1,
+       287.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 361669
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6925,
+      "area_frac": 0.10318,
+      "centre_px": [
+       726.5,
+       409.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 172189
+     },
+     "f_L0_017": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.5318,
+      "area_frac": 0.21949,
+      "centre_px": [
+       1452.0,
+       816.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 421046
+     },
+     "f_L0_018": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.4633,
+      "area_frac": 0.17505,
+      "centre_px": [
+       361.9,
+       820.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 361448
+     },
+     "f_L0_019": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.0025,
+      "area_frac": 0.00094,
+      "centre_px": [
+       538.5,
+       1071.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1739
+     },
+     "f_L0_020": {
+      "kind": "furniture",
+      "type": "floor_lamp",
+      "visible_share": 0.9682,
+      "area_frac": 0.09821,
+      "centre_px": [
+       898.9,
+       585.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 49894
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kitchen_1": {
+   "camera": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "room_label": "Kitchen",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 17,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 381962,
+     "area_frac": 0.184202,
+     "box_px": [
+      0,
+      470,
+      867,
+      1080
+     ],
+     "box_1000": [
+      0,
+      435,
+      452,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2991,
+     "in_frame": 0.3469,
+     "unoccluded": 0.8623,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 12,
+     "wenart_id": "win_L0_009",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 251298,
+     "area_frac": 0.121189,
+     "box_px": [
+      985,
+      0,
+      1490,
+      515
+     ],
+     "box_1000": [
+      513,
+      0,
+      777,
+      477
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:9045,path:9046,path:11599,path:11597,path:11598,path:36876"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 236655,
+     "area_frac": 0.114128,
+     "box_px": [
+      718,
+      481,
+      1236,
+      1013
+     ],
+     "box_1000": [
+      373,
+      445,
+      644,
+      938
+     ],
+     "touches_border": false,
+     "visibility": 0.9571,
+     "in_frame": 1.0,
+     "unoccluded": 0.9571,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 177412,
+     "area_frac": 0.085557,
+     "box_px": [
+      0,
+      0,
+      336,
+      548
+     ],
+     "box_1000": [
+      0,
+      0,
+      175,
+      508
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:36865,path:11512,path:11602,path:11603"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 14,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_store",
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 14913,
+     "area_frac": 0.007192,
+     "box_px": [
+      1906,
+      0,
+      1920,
+      1069
+     ],
+     "box_1000": [
+      992,
+      0,
+      1000,
+      990
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11590,path:11586,path:11585,path:11587,path:11588,path:11584,path:11596"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4485,
+      "area_frac": 0.08239,
+      "centre_px": [
+       162.0,
+       266.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 177412
+     },
+     "win_L0_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9688,
+      "area_frac": 0.12075,
+      "centre_px": [
+       1243.6,
+       251.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 251298
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 14913
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 1.0,
+      "area_frac": 0.11924,
+      "centre_px": [
+       978.8,
+       748.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 236655
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.5247,
+      "area_frac": 0.21361,
+      "centre_px": [
+       430.7,
+       774.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 381962
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kitchen_2": {
+   "camera": "cam_r_L0_kitchen_2",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "room_label": "Kitchen",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 17,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 531929,
+     "area_frac": 0.256524,
+     "box_px": [
+      0,
+      507,
+      1265,
+      1080
+     ],
+     "box_1000": [
+      0,
+      469,
+      659,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2453,
+     "in_frame": 0.3127,
+     "unoccluded": 0.7844,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 445413,
+     "area_frac": 0.214802,
+     "box_px": [
+      976,
+      544,
+      1892,
+      1080
+     ],
+     "box_1000": [
+      508,
+      503,
+      986,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.5223,
+     "in_frame": 0.5298,
+     "unoccluded": 0.9859,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 319300,
+     "area_frac": 0.153983,
+     "box_px": [
+      0,
+      0,
+      571,
+      580
+     ],
+     "box_1000": [
+      0,
+      0,
+      298,
+      538
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:36865,path:11512,path:11602,path:11603"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 12,
+     "wenart_id": "win_L0_009",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 294881,
+     "area_frac": 0.142207,
+     "box_px": [
+      1435,
+      0,
+      1920,
+      651
+     ],
+     "box_1000": [
+      747,
+      0,
+      1000,
+      603
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:9045,path:9046,path:11599,path:11597,path:11598,path:36876"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5567,
+      "area_frac": 0.15181,
+      "centre_px": [
+       279.9,
+       281.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 319300
+     },
+     "win_L0_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3829,
+      "area_frac": 0.13633,
+      "centre_px": [
+       1683.5,
+       313.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 294881
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.6709,
+      "area_frac": 0.21788,
+      "centre_px": [
+       1432.9,
+       811.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 445413
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.5,
+      "area_frac": 0.32703,
+      "centre_px": [
+       626.4,
+       793.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 531929
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kitchen_3": {
+   "camera": "cam_r_L0_kitchen_3",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "room_label": "Kitchen",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 17,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 454931,
+     "area_frac": 0.219392,
+     "box_px": [
+      497,
+      484,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      258,
+      448,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4603,
+     "in_frame": 0.7667,
+     "unoccluded": 0.6003,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 288495,
+     "area_frac": 0.139128,
+     "box_px": [
+      1237,
+      600,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      644,
+      555,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1333,
+     "in_frame": 0.1356,
+     "unoccluded": 0.9829,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:9047-9048,path:11513,path:36864",
+       "note": "kitchen counter rule: chained legs between wall faces"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 236249,
+     "area_frac": 0.113932,
+     "box_px": [
+      795,
+      0,
+      1265,
+      519
+     ],
+     "box_1000": [
+      414,
+      0,
+      659,
+      481
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:36865,path:11512,path:11602,path:11603"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_dining"
+     ],
+     "own_room": false,
+     "pixels": 42266,
+     "area_frac": 0.020383,
+     "box_px": [
+      0,
+      118,
+      137,
+      443
+     ],
+     "box_1000": [
+      0,
+      109,
+      72,
+      411
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:36866,path:11508,path:11607,path:11608,path:11511,path:36865"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6237,
+      "area_frac": 0.02506,
+      "centre_px": [
+       67.7,
+       281.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 42266
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9272,
+      "area_frac": 0.11499,
+      "centre_px": [
+       1031.9,
+       253.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 236249
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.4349,
+      "area_frac": 0.14155,
+      "centre_px": [
+       1589.2,
+       841.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 288495
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.7872,
+      "area_frac": 0.36548,
+      "centre_px": [
+       1210.3,
+       782.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 454931
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_room_1": {
+   "camera": "cam_r_L0_room_1",
+   "room_id": "r_L0_room",
+   "room_type": "hall",
+   "room_label": "Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 10,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_room",
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 555120,
+     "area_frac": 0.267708,
+     "box_px": [
+      384,
+      0,
+      898,
+      1080
+     ],
+     "box_1000": [
+      200,
+      0,
+      468,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11577,path:11573,path:11572,path:5010,path:5007,path:5004,path:5001,path:11582,path:11575,path:11571,path:11583,path:11574"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 38,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "stair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_room",
+     "room_ids": [
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 490891,
+     "area_frac": 0.236734,
+     "box_px": [
+      898,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      467,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1459,
+     "in_frame": 0.3281,
+     "unoccluded": 0.4445,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11494,path:11517-11524,path:11529-11536",
+       "note": "stair rule: 2 flight(s), 8, 8 tread lines"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 9,
+     "wenart_id": "d_L0_001",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room",
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 248400,
+     "area_frac": 0.119792,
+     "box_px": [
+      0,
+      0,
+      230,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      120,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11564,path:11559,path:11560,path:11561,path:11570,path:11558,path:11562,path:11569"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0541,
+      "area_frac": 0.09466,
+      "centre_px": [
+       56.4,
+       536.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 248400
+     },
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6021,
+      "area_frac": 0.27227,
+      "centre_px": [
+       653.0,
+       539.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 555120
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "stair",
+      "visible_share": 0.385,
+      "area_frac": 0.53256,
+      "centre_px": [
+       1393.4,
+       540.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 490891
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_room_2": {
+   "camera": "cam_r_L0_room_2",
+   "room_id": "r_L0_room",
+   "room_type": "hall",
+   "room_label": "Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 38,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "stair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_room",
+     "room_ids": [
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 648715,
+     "area_frac": 0.312845,
+     "box_px": [
+      707,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      368,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0175,
+     "in_frame": 0.0474,
+     "unoccluded": 0.3686,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11494,path:11517-11524,path:11529-11536",
+       "note": "stair rule: 2 flight(s), 8, 8 tread lines"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 10,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_room",
+      "r_L0_bed_room_2"
+     ],
+     "own_room": true,
+     "pixels": 315360,
+     "area_frac": 0.152083,
+     "box_px": [
+      0,
+      0,
+      292,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      153,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "path:11577,path:11573,path:11572,path:5010,path:5007,path:5004,path:5001,path:11582,path:11575,path:11571,path:11583,path:11574"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.05,
+      "area_frac": 0.1242,
+      "centre_px": [
+       110.7,
+       533.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 315360
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "stair",
+      "visible_share": 0.1487,
+      "area_frac": 0.84867,
+      "centre_px": [
+       1111.9,
+       539.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 648715
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_room_3": {
+   "camera": "cam_r_L0_room_3",
+   "room_id": "r_L0_room",
+   "room_type": "hall",
+   "room_label": "Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 38,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "stair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_room",
+     "room_ids": [
+      "r_L0_room"
+     ],
+     "own_room": true,
+     "pixels": 532092,
+     "area_frac": 0.256603,
+     "box_px": [
+      0,
+      0,
+      864,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      450,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1949,
+     "in_frame": 0.4119,
+     "unoccluded": 0.4732,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "path:11494,path:11517-11524,path:11529-11536",
+       "note": "stair rule: 2 flight(s), 8, 8 tread lines"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 36,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "stair",
+      "visible_share": 0.4487,
+      "area_frac": 0.54223,
+      "centre_px": [
+       535.7,
+       540.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 532092
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  }
+ },
+ "warnings": []
+}

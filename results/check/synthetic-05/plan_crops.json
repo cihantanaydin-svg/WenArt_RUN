@@ -7,162 +7,190 @@
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     544,
     208
    ],
    "scale": 1.60966,
-   "bytes": 39110
+   "bytes": 39927
   },
   "cam_r_L0_antre_2": {
    "plan": "cam_r_L0_antre_2_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     544,
     208
    ],
    "scale": 1.60966,
-   "bytes": 38106
+   "bytes": 39143
   },
   "cam_r_L0_banyo_1": {
    "plan": "cam_r_L0_banyo_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     728,
     208
    ],
    "scale": 1.60966,
-   "bytes": 52110
+   "bytes": 47403
   },
   "cam_r_L0_banyo_2": {
    "plan": "cam_r_L0_banyo_2_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     728,
     208
    ],
    "scale": 1.60966,
-   "bytes": 46123
+   "bytes": 51589
   },
   "cam_r_L0_banyo_3": {
    "plan": "cam_r_L0_banyo_3_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     728,
     208
    ],
    "scale": 1.60966,
-   "bytes": 40760
+   "bytes": 44301
   },
   "cam_r_L0_calisma_odasi_1": {
    "plan": "cam_r_L0_calisma_odasi_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     1316,
     208
    ],
    "scale": 1.23648,
-   "bytes": 57908
+   "bytes": 54779
   },
   "cam_r_L0_calisma_odasi_2": {
    "plan": "cam_r_L0_calisma_odasi_2_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     1316,
     208
    ],
    "scale": 1.23648,
-   "bytes": 57795
+   "bytes": 53307
   },
   "cam_r_L0_calisma_odasi_3": {
    "plan": "cam_r_L0_calisma_odasi_3_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     1316,
     208
    ],
    "scale": 1.23648,
-   "bytes": 48652
+   "bytes": 53003
   },
   "cam_r_L0_ebeveyn_banyo_1": {
    "plan": "cam_r_L0_ebeveyn_banyo_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     1328,
     750
    ],
    "scale": 1.77778,
-   "bytes": 57589
+   "bytes": 54324
   },
   "cam_r_L0_ebeveyn_banyo_2": {
    "plan": "cam_r_L0_ebeveyn_banyo_2_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     1328,
     750
    ],
    "scale": 1.77778,
-   "bytes": 58991
+   "bytes": 56191
   },
   "cam_r_L0_ebeveyn_yatak_odasi_1": {
    "plan": "cam_r_L0_ebeveyn_yatak_odasi_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     774,
     750
    ],
    "scale": 1.21581,
-   "bytes": 60928
+   "bytes": 61937
   },
   "cam_r_L0_ebeveyn_yatak_odasi_2": {
    "plan": "cam_r_L0_ebeveyn_yatak_odasi_2_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     774,
     750
    ],
    "scale": 1.21581,
-   "bytes": 62604
+   "bytes": 63379
   },
   "cam_r_L0_ebeveyn_yatak_odasi_3": {
    "plan": "cam_r_L0_ebeveyn_yatak_odasi_3_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     774,
     750
    ],
    "scale": 1.21581,
-   "bytes": 63429
+   "bytes": 57855
   },
   "cam_r_L0_hol_1": {
    "plan": "cam_r_L0_hol_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     544,
     600
@@ -170,35 +198,13 @@
    "scale": 1.0,
    "bytes": 35350
   },
-  "cam_r_L0_hol_2": {
-   "plan": "cam_r_L0_hol_2_plan.jpg",
-   "document": "zemin_kat.dxf",
-   "page": 1,
-   "format": "dxf",
-   "crop_origin_px": [
-    544,
-    600
-   ],
-   "scale": 1.0,
-   "bytes": 32332
-  },
-  "cam_r_L0_hol_3": {
-   "plan": "cam_r_L0_hol_3_plan.jpg",
-   "document": "zemin_kat.dxf",
-   "page": 1,
-   "format": "dxf",
-   "crop_origin_px": [
-    544,
-    600
-   ],
-   "scale": 1.0,
-   "bytes": 36218
-  },
   "cam_r_L0_mutfak_1": {
    "plan": "cam_r_L0_mutfak_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     163,
     208
@@ -211,6 +217,8 @@
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     163,
     208
@@ -223,6 +231,8 @@
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     163,
     208
@@ -235,6 +245,8 @@
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     163,
     750
@@ -247,60 +259,70 @@
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     163,
     750
    ],
    "scale": 1.11732,
-   "bytes": 51844
+   "bytes": 58319
   },
   "cam_r_L0_salon_3": {
    "plan": "cam_r_L0_salon_3_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     163,
     750
    ],
    "scale": 1.11732,
-   "bytes": 59757
+   "bytes": 59953
   },
   "cam_r_L0_yatak_odasi_1": {
    "plan": "cam_r_L0_yatak_odasi_1_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     970,
     208
    ],
    "scale": 1.60966,
-   "bytes": 59597
+   "bytes": 60159
   },
   "cam_r_L0_yatak_odasi_2": {
    "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     970,
     208
    ],
    "scale": 1.60966,
-   "bytes": 59621
+   "bytes": 60342
   },
   "cam_r_L0_yatak_odasi_3": {
    "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
    "document": "zemin_kat.dxf",
    "page": 1,
    "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "zemin_kat.dxf",
    "crop_origin_px": [
     970,
     208
    ],
    "scale": 1.60966,
-   "bytes": 61622
+   "bytes": 61208
   }
  },
  "warnings": []

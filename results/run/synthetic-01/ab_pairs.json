@@ -1,0 +1,20 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "ab_pairs",
+ "rc": null,
+ "status": "reused",
+ "seconds": 0.0,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "ab/pairs.json"
+ ],
+ "started_utc": "2026-10-03T05:13:11Z",
+ "git_commit": "98507eac73830cb9ad61098c9dd253bbb1012a45",
+ "log": "logs/ab_pairs.log",
+ "note": "ab/pairs.json of the render pod (116 pairs, controls)",
+ "run_id": "20261003-050627-full-20261003T051311Z",
+ "steps": []
+}

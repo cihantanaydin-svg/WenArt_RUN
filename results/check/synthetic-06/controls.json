@@ -1,0 +1,68 @@
+{
+ "schema_version": "0.1",
+ "dir_relative_to": "project_out",
+ "controls": [
+  {
+   "id": "f_L0_002",
+   "index": 15,
+   "kind": "furniture",
+   "type": "sofa",
+   "camera": "cam_r_L0_living_room_2",
+   "room_id": "r_L0_living_room",
+   "area_frac": 0.14297,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_f_L0_002"
+  },
+  {
+   "id": "f_L0_014",
+   "index": 27,
+   "kind": "furniture",
+   "type": "nightstand",
+   "camera": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "area_frac": 0.03674,
+   "source": "added_by_ai",
+   "plug": false,
+   "dir": "controls/hide_f_L0_014"
+  },
+  {
+   "id": "win_L0_002",
+   "index": 7,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L0_living_room_2",
+   "room_id": "r_L0_living_room",
+   "area_frac": 0.11326,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L0_002"
+  },
+  {
+   "id": "d_L0_001",
+   "index": 1,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L0_lobby_1",
+   "room_id": "r_L0_lobby",
+   "area_frac": 0.10706,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L0_001"
+  }
+ ],
+ "swaps": [
+  {
+   "id": "f_L0_002",
+   "index": 15,
+   "type": "sofa",
+   "camera": "cam_r_L0_living_room_2",
+   "room_id": "r_L0_living_room",
+   "area_frac": 0.14297,
+   "source": "from_documents",
+   "swap_to": "bed_double"
+  }
+ ],
+ "project": "synthetic-06",
+ "hide_sets": "cam_r_L0_living_room_2:f_L0_002;cam_r_L0_bed_room_1:f_L0_014;cam_r_L0_living_room_2:win_L0_002+plug;cam_r_L0_lobby_1:d_L0_001"
+}

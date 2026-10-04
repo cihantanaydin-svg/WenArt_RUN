@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-04",
   "source_folder": "projects/synthetic-04",
-  "created_utc": "2026-10-03T03:14:44Z",
-  "pipeline_commit": "95a675fe",
+  "created_utc": "2026-10-04T00:06:34Z",
+  "pipeline_commit": "2be169d6",
   "brief": {
    "style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"
   }
@@ -24,6 +24,7 @@
      "kind": "vector",
      "level_id": "L3",
      "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -55,7 +56,9 @@
      ],
      "debug_image": "debug/3_kat_plani_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   },
   {
    "id": "doc_3_kat_plani_pdf_pdf",
@@ -70,6 +73,7 @@
      "kind": "vector",
      "level_id": "L3",
      "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -104,7 +108,9 @@
      ],
      "debug_image": "debug/3_kat_plani_pdf_pdf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
   }
  ],
  "levels": [
@@ -131,7 +137,8 @@
      "entity": "char:25",
      "text": "3. KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   }
  ],
  "walls": [

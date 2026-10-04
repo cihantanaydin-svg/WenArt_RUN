@@ -1,7 +1,7 @@
 # Ingest report: synthetic-04
 
 Status: **ok**
-Source: `projects/synthetic-04`, pipeline commit `95a675fe`, created 2026-10-03T03:14:44Z
+Source: `projects/synthetic-04`, pipeline commit `2be169d6`, created 2026-10-04T00:06:34Z
 
 ## Documents
 
@@ -18,13 +18,13 @@ Source: `projects/synthetic-04`, pipeline commit `95a675fe`, created 2026-10-03T
 
 ## Rooms
 
-| Room | Level | Label | Type | Area computed | Area label | Furniture in documents | Status |
-|---|---|---|---|---|---|---|---|
-| r_L3_salon_mutfak | L3 | Salon + Mutfak | living | 39,05 | 39,05 | yes | verified |
-| r_L3_yatak_odasi | L3 | Yatak Odası | bedroom | 20,21 | - | yes | verified |
-| r_L3_hol | L3 | Hol | hall | 8,32 | - | no | verified |
-| r_L3_cocuk_odasi | L3 | Çocuk Odası | bedroom | 11,47 | - | no | verified |
-| r_L3_banyo | L3 | Banyo | bathroom | 4,86 | - | yes | verified |
+| Room | Level | Label | As drawn | Type | Area computed | Area label | Furniture in documents | Status |
+|---|---|---|---|---|---|---|---|---|
+| r_L3_salon_mutfak | L3 | Salon + Mutfak | SALON + MUTFAK 39,05 m² | living | 39,05 | 39,05 | yes | verified |
+| r_L3_yatak_odasi | L3 | Yatak Odası | YATAK ODASI | bedroom | 20,21 | - | yes | verified |
+| r_L3_hol | L3 | Hol | HOL | hall | 8,32 | - | no | verified |
+| r_L3_cocuk_odasi | L3 | Çocuk Odası | ÇOCUK ODASI | bedroom | 11,47 | - | no | verified |
+| r_L3_banyo | L3 | Banyo | BANYO | bathroom | 4,86 | - | yes | verified |
 
 ## Furniture
 

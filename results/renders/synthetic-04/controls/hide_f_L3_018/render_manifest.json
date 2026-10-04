@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
+ "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -73,9 +73,8 @@
   "f_L3_024": 39,
   "f_L3_025": 40,
   "f_L3_026": 41,
-  "f_L3_027": 42,
-  "dec_L3_006": 43,
-  "dec_L3_009": 44
+  "dec_L3_006": 42,
+  "dec_L3_008": 43
  },
  "renders": [
   {
@@ -199,11 +198,120 @@
    },
    "alt_preview": null,
    "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L3_yatak_odasi_2",
+   "room_id": "r_L3_yatak_odasi",
+   "level_id": "L3",
+   "png": "cam_r_L3_yatak_odasi_2.png",
+   "exr": "cam_r_L3_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L3_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L3_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L3_yatak_odasi_2_index.png",
+   "files": {
+    "index": "cam_r_L3_yatak_odasi_2_index.png",
+    "depth_mm": "cam_r_L3_yatak_odasi_2_depth_mm.png",
+    "normal": "cam_r_L3_yatak_odasi_2_normal.png",
+    "depth": "cam_r_L3_yatak_odasi_2_depth.png"
+   },
+   "preview_bytes": 119139,
+   "seconds": 4.99,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3340282440185547,
+    "max": 4.000000476837158,
+    "mean": 3.1562185287475586,
+    "coverage": 1.0
+   },
+   "index_values": [
+    14,
+    30
+   ],
+   "index_stats": {
+    "14": {
+     "pixels": 245159,
+     "box": [
+      0,
+      0,
+      415,
+      658
+     ]
+    },
+    "30": {
+     "pixels": 71552,
+     "box": [
+      1701,
+      730,
+      1920,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
+   "render_key": "384306d1f25a7bab",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.333333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.010809,
+     0.994338,
+     1.024256
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6571.8,
+    "wb_tint": 6.02,
+    "residual": null,
+    "window_clip_frac": 0.0128,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "f_L3_018"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.333333,
+    "clip_before": 0.247,
+    "clip_after": 0.0036,
+    "pane_px": 212752,
+    "pane_median": 0.9725,
+    "wall_median": 0.5897,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0036,
+      "median": 0.9255
+     }
+    ],
+    "pane_median_after": 0.9255,
+    "seconds": 0.676
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
   }
  ],
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
- "warnings": []
+ "deadline": 1791078100.0,
+ "warnings": [
+  "cam_r_L3_yatak_odasi_1: rendered from another scene build and not asked for in this run"
+ ]
 }

@@ -1,0 +1,83 @@
+{
+ "project": "real01",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L0_pooja",
+   "label": "Pooja",
+   "room_type": "prayer",
+   "passes": [],
+   "chosen_pass": null,
+   "latency_s": 0,
+   "skipped": "prayer room: never furnished by AI (docs/milestone7.md §0)",
+   "pieces": []
+  },
+  {
+   "room_id": "r_L0_bath_toilet",
+   "label": "Bath+ Toilet",
+   "room_type": "bathroom",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.531,
+     "error": null,
+     "pieces_proposed": 3,
+     "pieces_placed": 2,
+     "pieces_dropped": 1,
+     "iterations": 9,
+     "repair_steps": 9,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 2.791,
+     "error": null,
+     "pieces_proposed": 3,
+     "pieces_placed": 2,
+     "pieces_dropped": 1,
+     "iterations": 9,
+     "repair_steps": 9,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 6.322,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_021",
+     "type": "toilet",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_022",
+     "type": "washbasin",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  }
+ ],
+ "pieces_added": 2,
+ "latency_s": 6.322
+}

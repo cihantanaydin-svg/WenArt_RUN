@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
+ "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -75,9 +75,8 @@
   "f_L3_024": 39,
   "f_L3_025": 40,
   "f_L3_026": 41,
-  "f_L3_027": 42,
-  "dec_L3_006": 43,
-  "dec_L3_009": 44
+  "dec_L3_006": 42,
+  "dec_L3_008": 43
  },
  "renders": [
   {
@@ -95,86 +94,66 @@
     "normal": "cam_r_L3_cocuk_odasi_1_normal.png",
     "depth": "cam_r_L3_cocuk_odasi_1_depth.png"
    },
-   "preview_bytes": 128884,
-   "seconds": 4.55,
+   "preview_bytes": 126727,
+   "seconds": 2.73,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 1.2248821258544922,
+    "min": 1.2970600128173828,
     "max": 4.318933486938477,
-    "mean": 2.9420413970947266,
+    "mean": 2.6836462020874023,
     "coverage": 1.0
    },
    "index_values": [
     12,
     38,
     40,
-    41,
-    42,
-    44
+    43
    ],
    "index_stats": {
     "12": {
-     "pixels": 195636,
+     "pixels": 205479,
      "box": [
       0,
       0,
       407,
-      503
+      528
      ]
     },
     "38": {
-     "pixels": 385857,
+     "pixels": 265215,
      "box": [
       0,
-      465,
-      1055,
+      707,
+      837,
       1080
      ]
     },
     "40": {
-     "pixels": 12754,
+     "pixels": 533520,
      "box": [
-      300,
-      652,
-      529,
-      753
+      1426,
+      0,
+      1920,
+      1080
      ]
     },
-    "41": {
-     "pixels": 111731,
+    "43": {
+     "pixels": 11248,
      "box": [
-      849,
-      459,
-      1482,
-      967
-     ]
-    },
-    "42": {
-     "pixels": 29012,
-     "box": [
-      747,
-      461,
-      940,
-      816
-     ]
-    },
-    "44": {
-     "pixels": 29070,
-     "box": [
-      1628,
-      705,
-      1852,
-      963
+      700,
+      589,
+      840,
+      758
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
-   "render_key": "71e6e9eb884f79d0",
+   "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
+   "render_key": "d911fc0a758b9dd0",
    "exposure": {
     "mode": "from",
     "ev": 4.833333,
@@ -184,15 +163,15 @@
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.94807,
-     1.008874,
-     1.065009
+     0.940987,
+     1.009723,
+     1.077457
     ],
     "wb_mode": "from",
-    "wb_temperature": 7000.9,
-    "wb_tint": 12.72,
+    "wb_temperature": 7091.1,
+    "wb_tint": 12.9,
     "residual": null,
-    "window_clip_frac": 0.0002,
+    "window_clip_frac": 0.0021,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -207,29 +186,24 @@
     "win_L3_008"
    ],
    "window_pull": {
-    "ev": -2.0,
-    "k": 2,
-    "pane_ev": 2.833333,
-    "clip_before": 0.6358,
-    "clip_after": 0.0,
-    "pane_px": 177098,
-    "pane_median": 0.9916,
-    "wall_median": 0.5713,
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.833333,
+    "clip_before": 0.2968,
+    "clip_after": 0.0024,
+    "pane_px": 180913,
+    "pane_median": 0.9681,
+    "wall_median": 0.4956,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0458,
-      "median": 0.9527
-     },
-     {
-      "k": 2,
-      "clip": 0.0,
-      "median": 0.902
+      "clip": 0.0024,
+      "median": 0.9185
      }
     ],
-    "pane_median_after": 0.9022,
-    "seconds": 0.822
+    "pane_median_after": 0.9188,
+    "seconds": 0.79
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -238,6 +212,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791002970.0,
+ "deadline": 1791078100.0,
  "warnings": []
 }

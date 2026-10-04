@@ -4,9 +4,9 @@
  "project": "synthetic-04",
  "decision": "ok",
  "benign_accept": 0.975,
- "negative_reject": 0.9778,
+ "negative_reject": 0.9792,
  "n_benign": 40,
- "n_negative": 90,
+ "n_negative": 96,
  "pass_benign": true,
  "pass_negative": true,
  "reasons": [],
@@ -17,9 +17,9 @@
  "polish_allowed": true,
  "calibration": {
   "path": "gate_calibration.json",
-  "sha256": "ce959e6f3977d678802d6d801d49a373bed45c8604e0dafdd80932c1afb6f986",
+  "sha256": "61e7e4ce621d67eb1fe57193706e3d30b5c095db28695d0a56b74abebb17c276",
   "incomplete": false,
   "thresholds_match": true
  },
- "created_utc": "2026-10-03T03:55:32Z"
+ "created_utc": "2026-10-04T01:00:58Z"
 }
