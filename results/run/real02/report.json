@@ -1,0 +1,28 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real02",
+ "stage": "report",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 2.26,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "final/final_report.md",
+  "final/final_manifest.json"
+ ],
+ "started_utc": "2026-10-06T14:47:55Z",
+ "git_commit": "24f4694e7e141de71024f4b98608ee878aa4e451",
+ "log": "logs/report.log",
+ "note": null,
+ "run_id": "20261006-144127-full-20261006T144622Z",
+ "steps": [
+  {
+   "name": "report",
+   "rc": 0,
+   "seconds": 2.26
+  }
+ ],
+ "written": {}
+}

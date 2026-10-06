@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real02",
+ "stage": "pipeline",
+ "rc": 1,
+ "status": "needs_review",
+ "seconds": 85.98,
+ "fingerprint": "d8fe28ea7a657daea3ffc87c4bb5fcb3abaaa35596ce9e3b0ea04a35daedc601",
+ "inputs": {
+  "projects/real02": "554e11de3e64c8b5f91d6c91dd2afdb98fdfbb50d2a0a30d0b833df623450d46",
+  "<LibreDWG VERSION>": "0.14 d9468ae"
+ },
+ "outputs": [
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-10-06T14:47:53Z",
+ "git_commit": "24f4694e7e141de71024f4b98608ee878aa4e451",
+ "log": "logs/pipeline.log",
+ "note": "building needs review (report.md)",
+ "run_id": "20261006-144127-full-20261006T144622Z",
+ "steps": [
+  {
+   "name": "pipeline",
+   "rc": 1,
+   "seconds": 85.98
+  }
+ ],
+ "written": {}
+}

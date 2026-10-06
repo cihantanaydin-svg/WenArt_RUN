@@ -1,0 +1,168 @@
+{
+ "schema_version": "0.1",
+ "kind": "run_manifest",
+ "run_id": "20261006-144127-full-20261006T144622Z",
+ "job": "20261006-144127-full",
+ "git_commit": "24f4694e7e141de71024f4b98608ee878aa4e451",
+ "profile": "full",
+ "deadline": 1791303731.0,
+ "started_utc": "2026-10-06T14:46:22Z",
+ "finished_utc": "2026-10-06T14:47:59Z",
+ "final": true,
+ "exit_code": 0,
+ "projects": [
+  {
+   "name": "real02",
+   "private": false,
+   "state": "needs_review",
+   "out_dir": "outputs/real02",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "pipeline",
+     "status": "needs_review",
+     "seconds": 86.0,
+     "note": "building needs review (report.md)"
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 2.3,
+     "note": null
+    }
+   ],
+   "gate_decision": null,
+   "views": null
+  }
+ ],
+ "totals": {
+  "ok": 0,
+  "needs_review": 1,
+  "failed": 0,
+  "incomplete": 0
+ },
+ "ab_phase": "all",
+ "ab_controls": null,
+ "ab": [],
+ "realism_summary": null,
+ "phases": [
+  {
+   "phase": 1,
+   "name": "cpu: intake, pipeline, fit, style",
+   "start_utc": "2026-10-06T14:46:22Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 90.5
+  },
+  {
+   "phase": 2,
+   "name": "vlm glm: recognition, style photos",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 3,
+   "name": "vlm qwen: recognition, pipeline_final, fit, style photos, layout, decor questions",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 4,
+   "name": "cpu: assets, decor, refit, A/B prepare",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 5,
+   "name": "blender: build, render, 3D export, controls, A/B control renders",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 6,
+   "name": "diffusion: gate, polish, detect",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 7,
+   "name": "cpu: expected, plan crops, A/B pairs",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 8,
+   "name": "vlm qwen: check, realism",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 9,
+   "name": "vlm glm: check, realism",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:53Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 10,
+   "name": "cpu: combine, realism summary, report",
+   "start_utc": "2026-10-06T14:47:53Z",
+   "end_utc": "2026-10-06T14:47:55Z",
+   "seconds": 2.3
+  },
+  {
+   "phase": 11,
+   "name": "gpu tests, run manifest",
+   "start_utc": "2026-10-06T14:47:55Z",
+   "end_utc": "2026-10-06T14:47:59Z",
+   "seconds": 3.5
+  }
+ ],
+ "servers": [],
+ "tests": [
+  {
+   "group": "full",
+   "files": [
+    "tests/gpu/test_full_run.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-full.xml",
+   "seconds": 3.0
+  },
+  {
+   "group": "polish",
+   "files": [],
+   "rc": null,
+   "status": "skipped",
+   "junit": null,
+   "seconds": 0.0
+  }
+ ],
+ "test_lists": {
+  "RUN_TEST_PROJECTS": "",
+  "NEEDS_REVIEW_TEST_PROJECTS": "real02",
+  "RENDER_TEST_PROJECTS": "",
+  "FURNISH_TEST_PROJECTS": "",
+  "CHECK_TEST_PROJECTS": "",
+  "POLISH_TEST_PROJECTS": "",
+  "GATE_TEST_PROJECTS": "",
+  "DETECT_TEST_PROJECTS": "",
+  "AB_TEST_PROJECTS": "",
+  "AB_CONTROL_PROJECT": "",
+  "SELFTEST_TEST_ALIAS": ""
+ },
+ "force": [],
+ "gpu": null
+}

@@ -1,0 +1,91 @@
+{
+ "schema_version": "0.1",
+ "kind": "final",
+ "project": "real02",
+ "status": "needs_review",
+ "private": false,
+ "reasons": [
+  "one_building.dwg: no building walls found",
+  "one_building.dwg: outer walls do not close (no building walls)"
+ ],
+ "hints": [
+  "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF",
+  "close the walls around every labelled room in the drawing"
+ ],
+ "documents": [
+  {
+   "file": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "class": "floor_plan",
+   "kind": "vector",
+   "level_id": "L0",
+   "scale": "0.001 m/unit (dxf_insunits)",
+   "confidence": 1.0,
+   "skip_reason": null,
+   "debug_image": "debug/one_building_dwg_p1.png",
+   "debug_preview": "debug/one_building_dwg_p1.jpg"
+  }
+ ],
+ "debug_images": [
+  {
+   "source": "debug/one_building_dwg_p1.png",
+   "preview": "debug/one_building_dwg_p1.jpg",
+   "bytes": 67015
+  }
+ ],
+ "building": {
+  "status": "needs_review",
+  "levels": 1,
+  "walls": 0,
+  "openings": 0,
+  "rooms": 0,
+  "furniture": 0,
+  "conflicts": [],
+  "unverified": [],
+  "warnings": [
+   "one_building.dwg: 2 entities on layers that are off or frozen (or invisible) were not read",
+   "one_building.dwg: entity types not read: WIPEOUT x40",
+   "needs review: one_building.dwg: no building walls found",
+   "needs review: one_building.dwg: outer walls do not close (no building walls)",
+   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+   "L0: no walls"
+  ]
+ },
+ "intake": null,
+ "run_id": "20261006-144127-full-20261006T144622Z",
+ "run_stages": [
+  {
+   "stage": "intake",
+   "status": "skipped",
+   "seconds": 0.0,
+   "note": "private only",
+   "rc": null,
+   "started_utc": "2026-10-06T14:46:22Z",
+   "run_id": "20261006-144127-full-20261006T144622Z"
+  },
+  {
+   "stage": "pipeline",
+   "status": "needs_review",
+   "seconds": 85.98,
+   "note": "building needs review (report.md)",
+   "rc": 1,
+   "started_utc": "2026-10-06T14:47:53Z",
+   "run_id": "20261006-144127-full-20261006T144622Z"
+  }
+ ],
+ "earlier_run_stages": [],
+ "summary": {
+  "views": 0,
+  "polished": 0,
+  "cycles": 0,
+  "cycles_by_reason": {},
+  "needs_review": 0
+ },
+ "views": [],
+ "advisory_flags": [
+  "needs review: one_building.dwg: no building walls found",
+  "needs review: one_building.dwg: outer walls do not close (no building walls)"
+ ],
+ "warnings": []
+}
