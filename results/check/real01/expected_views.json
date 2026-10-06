@@ -735,24 +735,24 @@
       "r_L0_bed_room"
      ],
      "own_room": true,
-     "pixels": 1853,
-     "area_frac": 0.000894,
+     "pixels": 2531,
+     "area_frac": 0.001221,
      "box_px": [
-      1269,
-      471,
-      1344,
+      1273,
+      453,
+      1341,
       523
      ],
      "box_1000": [
-      660,
-      436,
-      700,
+      663,
+      419,
+      699,
       485
      ],
      "touches_border": false,
-     "visibility": 0.0536,
+     "visibility": 0.0732,
      "in_frame": 1.0,
-     "unoccluded": 0.0536,
+     "unoccluded": 0.0732,
      "evidence": [
       {
        "file": "real01.pdf",
@@ -846,7 +846,7 @@
       "centre_px": null,
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 1853
+      "rendered_pixels": 2531
      }
     },
     "error": null
@@ -1034,24 +1034,24 @@
       "r_L0_bed_room"
      ],
      "own_room": true,
-     "pixels": 63894,
-     "area_frac": 0.030813,
+     "pixels": 65486,
+     "area_frac": 0.031581,
      "box_px": [
       316,
-      518,
+      497,
       557,
       914
      ],
      "box_1000": [
       164,
-      479,
+      460,
       291,
       847
      ],
      "touches_border": false,
-     "visibility": 0.9892,
+     "visibility": 1.0,
      "in_frame": 1.0,
-     "unoccluded": 0.9892,
+     "unoccluded": 1.0,
      "evidence": [
       {
        "file": "real01.pdf",
@@ -1274,7 +1274,7 @@
      "f_L0_009": {
       "kind": "furniture",
       "type": "nightstand",
-      "visible_share": 0.929,
+      "visible_share": 0.9201,
       "area_frac": 0.03115,
       "centre_px": [
        437.5,
@@ -1282,7 +1282,7 @@
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 63894
+      "rendered_pixels": 65486
      }
     },
     "error": null
@@ -2762,24 +2762,24 @@
       "r_L0_bed_room"
      ],
      "own_room": true,
-     "pixels": 5398,
-     "area_frac": 0.002603,
+     "pixels": 6643,
+     "area_frac": 0.003204,
      "box_px": [
       231,
-      501,
-      428,
+      479,
+      426,
       639
      ],
      "box_1000": [
       120,
-      463,
-      223,
+      443,
+      222,
       592
      ],
      "touches_border": false,
-     "visibility": 0.0896,
+     "visibility": 0.1103,
      "in_frame": 1.0,
-     "unoccluded": 0.0896,
+     "unoccluded": 0.1103,
      "evidence": [
       {
        "file": "real01.pdf",
@@ -2933,15 +2933,15 @@
      "f_L0_009": {
       "kind": "furniture",
       "type": "nightstand",
-      "visible_share": 0.0455,
+      "visible_share": 0.0435,
       "area_frac": 0.02906,
       "centre_px": [
-       290.7,
-       610.5
+       289.1,
+       612.0
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 5398
+      "rendered_pixels": 6643
      }
     },
     "error": null
@@ -3919,24 +3919,24 @@
       "r_L0_dining"
      ],
      "own_room": true,
-     "pixels": 46523,
-     "area_frac": 0.022436,
+     "pixels": 47487,
+     "area_frac": 0.022901,
      "box_px": [
-      167,
-      549,
+      172,
+      583,
       421,
-      1019
+      1016
      ],
      "box_1000": [
-      86,
-      508,
+      89,
+      539,
       220,
-      944
+      941
      ],
      "touches_border": false,
-     "visibility": 0.3199,
-     "in_frame": 0.9939,
-     "unoccluded": 0.3219,
+     "visibility": 0.3519,
+     "in_frame": 0.9934,
+     "unoccluded": 0.3542,
      "evidence": [
       {
        "file": "building.json",
@@ -5069,24 +5069,24 @@
       "r_L0_dining"
      ],
      "own_room": true,
-     "pixels": 11553,
-     "area_frac": 0.005571,
+     "pixels": 11121,
+     "area_frac": 0.005363,
      "box_px": [
-      462,
-      484,
-      627,
-      628
+      478,
+      508,
+      621,
+      648
      ],
      "box_1000": [
-      240,
-      448,
-      327,
-      582
+      248,
+      470,
+      324,
+      600
      ],
      "touches_border": false,
-     "visibility": 0.173,
+     "visibility": 0.1807,
      "in_frame": 1.0,
-     "unoccluded": 0.173,
+     "unoccluded": 0.1807,
      "evidence": [
       {
        "file": "building.json",
@@ -5661,24 +5661,24 @@
       "r_L0_drawing_room"
      ],
      "own_room": true,
-     "pixels": 10381,
-     "area_frac": 0.005006,
+     "pixels": 13340,
+     "area_frac": 0.006433,
      "box_px": [
-      1495,
-      525,
-      1673,
-      664
+      1492,
+      487,
+      1655,
+      640
      ],
      "box_1000": [
-      778,
-      486,
-      872,
-      615
+      777,
+      450,
+      862,
+      593
      ],
      "touches_border": false,
-     "visibility": 0.157,
+     "visibility": 0.179,
      "in_frame": 1.0,
-     "unoccluded": 0.157,
+     "unoccluded": 0.179,
      "evidence": [
       {
        "file": "building.json",
@@ -6160,24 +6160,24 @@
       "r_L0_drawing_room"
      ],
      "own_room": true,
-     "pixels": 30252,
-     "area_frac": 0.014589,
+     "pixels": 32079,
+     "area_frac": 0.01547,
      "box_px": [
-      1538,
-      558,
-      1757,
-      902
+      1539,
+      516,
+      1745,
+      900
      ],
      "box_1000": [
       801,
-      516,
-      916,
-      836
+      477,
+      909,
+      834
      ],
      "touches_border": false,
-     "visibility": 0.3561,
+     "visibility": 0.3375,
      "in_frame": 1.0,
-     "unoccluded": 0.3561,
+     "unoccluded": 0.3375,
      "evidence": [
       {
        "file": "building.json",

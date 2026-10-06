@@ -5,22 +5,22 @@
  "stage": "export",
  "rc": 0,
  "status": "ok",
- "seconds": 35.66,
+ "seconds": 33.9,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "export/export_manifest.json"
  ],
- "started_utc": "2026-10-04T14:26:09Z",
- "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
+ "started_utc": "2026-10-06T07:07:24Z",
+ "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
  "log": "logs/export.log",
  "note": null,
- "run_id": "20261004-141151-full-20261004T141656Z",
+ "run_id": "20261006-065742-full-20261006T070339Z",
  "steps": [
   {
    "name": "export",
    "rc": 0,
-   "seconds": 35.66
+   "seconds": 33.9
   }
  ],
  "written": {}

@@ -1,6 +1,6 @@
 # Change-gate calibration: real01
 
-7 calibration views; benign 55/56 accepted (rate 0.9821); negatives 93/106 rejected (rate 0.8774, small negatives 0.8361); 0 presumed-bad polish attempts (reported only). Gate code m5.2; complete; 75.7 s. Proposals = worst benign value + 25 % of the gap to the best small negative; they are applied to thresholds.yaml by hand after review, and a looser one needs the user's OK.
+7 calibration views; benign 55/56 accepted (rate 0.9821); negatives 93/106 rejected (rate 0.8774, small negatives 0.8361); 0 presumed-bad polish attempts (reported only). Gate code m5.2; complete; 58.5 s. Proposals = worst benign value + 25 % of the gap to the best small negative; they are applied to thresholds.yaml by hand after review, and a looser one needs the user's OK.
 
 ## Rates by control
 
@@ -33,28 +33,28 @@
 
 | check | limit | op | hard | current | worst benign | best small negative | best negative | separates | proposed | looser | benign pass now | negatives fail now |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| edges | global_min | >= | yes | 0.935 | 0.9865 | 1 | 1 | no | - | - | 1 | 0.5769 |
-| edges | region_min | >= | yes | 0.87 | 0.972 | 1 | 1 | no | - | - | 1 | 0.6795 |
+| edges | global_min | >= | yes | 0.935 | 0.9817 | 1 | 1 | no | - | - | 1 | 0.5769 |
+| edges | region_min | >= | yes | 0.87 | 0.9715 | 1 | 1 | no | - | - | 1 | 0.6923 |
 | added_lines | region_max_len_frac | <= | yes | 0.04 | 0 | - | 0 | no | - | - | 1 | 0.9286 |
-| depth | global_max | <= | yes | 0.05 | 0.02953 | 0.00058 | 0.00058 | no | - | - | 1 | 0.0824 |
-| depth | region_max | <= | yes | 0.14 | 0.177 | 0.0007 | 0.0007 | no | - | - | 0.9821 | 0.0471 |
-| masks | region_min | >= | yes | 0.62 | 0.8862 | 0.9884 | 0.9922 | no | - | - | 1 | 0.1538 |
-| colour | global_max | <= | yes | 7.5 | 5.659 | 0.4234 | 0.4234 | no | - | - | 1 | 0 |
-| colour | region_max | <= | yes | 8 | 6.871 | 7.431 | 7.431 | yes | 7.011 | no | 1 | 0.6667 |
+| depth | global_max | <= | yes | 0.05 | 0.02982 | 0.0007 | 0.0007 | no | - | - | 1 | 0.0824 |
+| depth | region_max | <= | yes | 0.14 | 0.1778 | 0.0009 | 0.0009 | no | - | - | 0.9821 | 0.0471 |
+| masks | region_min | >= | yes | 0.62 | 0.888 | 0.9885 | 0.992 | no | - | - | 1 | 0.141 |
+| colour | global_max | <= | yes | 7.5 | 5.667 | 0.4157 | 0.4157 | no | - | - | 1 | 0 |
+| colour | region_max | <= | yes | 8 | 6.872 | 7.431 | 7.431 | yes | 7.012 | no | 1 | 0.6667 |
 | neutral | region_max_dchroma | <= | yes | 2 | 1.471 | 6.845 | 6.845 | yes | 2.814 | yes | 1 | 1 |
-| features | region_min | >= | no | 0.8 | 0.8525 | 0.976 | 0.9851 | no | - | - | 1 | 0.3647 |
+| features | region_min | >= | no | 0.8 | 0.8523 | 0.9759 | 0.9847 | no | - | - | 1 | 0.3647 |
 
 ## What each limit separates on its own
 
 A control is caught when its value closest to passing is beyond the worst benign value. proposed_partial is the 25 % rule on the caught small negatives only (for review, not a proposal).
 
 - edges.global_min: caught -; missed erase, insertion, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
-- edges.region_min: caught rotate:2.0; missed erase, insertion, removal, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6; proposed_partial 0.9381
+- edges.region_min: caught rotate:2.0; missed erase, insertion, removal, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6; proposed_partial 0.9379
 - added_lines.region_max_len_frac: caught paste:1.0; missed insertion
 - depth.global_max: caught -; missed erase, insertion, paste:1.0, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
 - depth.region_max: caught -; missed erase, insertion, paste:1.0, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
 - masks.region_min: caught removal, scale:1.15; missed erase, insertion, rotate:2.0, scale:1.04, scale:1.08, shift:12, shift:25, shift:6
-- colour.global_max: caught white_balance_strong:1.15,1,0.85; missed floor_L:-15.0, wall_b:10.0; proposed_partial 5.89
+- colour.global_max: caught white_balance_strong:1.15,1,0.85; missed floor_L:-15.0, wall_b:10.0; proposed_partial 5.896
 - colour.region_max: caught floor_L:-15.0, wall_b:10.0, white_balance_strong:1.15,1,0.85; missed -
 - neutral.region_max_dchroma: caught wall_b:10.0, white_balance_strong:1.15,1,0.85; missed -
 - features.region_min: caught erase, removal, scale:1.08, scale:1.15; missed insertion, paste:1.0, rotate:2.0, scale:1.04, shift:12, shift:25, shift:6; proposed_partial 0.8497
@@ -66,7 +66,7 @@ A control is caught when its value closest to passing is beyond the worst benign
 
 ## Benign controls rejected
 
-- cam_r_L0_drawing_room_2 local_contrast:1.5: depth f_L0_018 0.177 <= 0.14
+- cam_r_L0_drawing_room_2 local_contrast:1.5: depth f_L0_018 0.1778 <= 0.14
 
 ## Negative controls accepted
 
@@ -94,17 +94,17 @@ None.
 
 ## Explanations
 
-- edges.global_min does not separate every small negative: worst benign 0.9865 vs best small negative 1; no proposal; misses erase, insertion, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
-- edges.region_min does not separate every small negative: worst benign 0.972 vs best small negative 1; no proposal; misses erase, insertion, removal, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6; on the small negatives it catches (rotate:2.0) a threshold of 0.9381 would sit 25 % into the gap (proposed_partial)
+- edges.global_min does not separate every small negative: worst benign 0.9817 vs best small negative 1; no proposal; misses erase, insertion, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
+- edges.region_min does not separate every small negative: worst benign 0.9715 vs best small negative 1; no proposal; misses erase, insertion, removal, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6; on the small negatives it catches (rotate:2.0) a threshold of 0.9379 would sit 25 % into the gap (proposed_partial)
 - added_lines.region_max_len_frac does not separate every gross negative: worst benign 0 vs best gross negative 0; no proposal; misses insertion
-- depth.global_max does not separate every small negative: worst benign 0.02953 vs best small negative 0.00058; no proposal; misses erase, insertion, paste:1.0, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
-- depth.region_max does not separate every small negative: worst benign 0.177 vs best small negative 0.0007; no proposal; misses erase, insertion, paste:1.0, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
-- masks.region_min does not separate every small negative: worst benign 0.8862 vs best small negative 0.9884; no proposal; misses erase, insertion, rotate:2.0, scale:1.04, scale:1.08, shift:12, shift:25, shift:6
-- colour.global_max does not separate every small negative: worst benign 5.659 vs best small negative 0.4234; no proposal; misses floor_L:-15.0, wall_b:10.0; on the small negatives it catches (white_balance_strong:1.15,1,0.85) a threshold of 5.89 would sit 25 % into the gap (proposed_partial)
-- colour.region_max separates: worst benign 6.871 vs best small negative 7.431; proposed 7.011 (current 8)
+- depth.global_max does not separate every small negative: worst benign 0.02982 vs best small negative 0.0007; no proposal; misses erase, insertion, paste:1.0, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
+- depth.region_max does not separate every small negative: worst benign 0.1778 vs best small negative 0.0009; no proposal; misses erase, insertion, paste:1.0, removal, rotate:2.0, scale:1.04, scale:1.08, scale:1.15, shift:12, shift:25, shift:6
+- masks.region_min does not separate every small negative: worst benign 0.888 vs best small negative 0.9885; no proposal; misses erase, insertion, rotate:2.0, scale:1.04, scale:1.08, shift:12, shift:25, shift:6
+- colour.global_max does not separate every small negative: worst benign 5.667 vs best small negative 0.4157; no proposal; misses floor_L:-15.0, wall_b:10.0; on the small negatives it catches (white_balance_strong:1.15,1,0.85) a threshold of 5.896 would sit 25 % into the gap (proposed_partial)
+- colour.region_max separates: worst benign 6.872 vs best small negative 7.431; proposed 7.012 (current 8)
 - neutral.region_max_dchroma separates: worst benign 1.471 vs best small negative 6.845; proposed 2.814 (current 2, LOOSER: needs the user OK)
-- features.region_min does not separate every small negative: worst benign 0.8525 vs best small negative 0.976; no proposal; misses insertion, paste:1.0, rotate:2.0, scale:1.04, shift:12, shift:25, shift:6; on the small negatives it catches (scale:1.08) a threshold of 0.8497 would sit 25 % into the gap (proposed_partial)
-- benign local_contrast:1.5 on cam_r_L0_drawing_room_2 rejected: depth f_L0_018 0.17696 (limit <= 0.14)
+- features.region_min does not separate every small negative: worst benign 0.8523 vs best small negative 0.9759; no proposal; misses insertion, paste:1.0, rotate:2.0, scale:1.04, shift:12, shift:25, shift:6; on the small negatives it catches (scale:1.08) a threshold of 0.8497 would sit 25 % into the gap (proposed_partial)
+- benign local_contrast:1.5 on cam_r_L0_drawing_room_2 rejected: depth f_L0_018 0.17779 (limit <= 0.14)
 - negative shift:6 on win_L0_002 (cam_r_L0_drawing_room_2) accepted
 - negative shift:12 on win_L0_002 (cam_r_L0_drawing_room_2) accepted
 - negative scale:1.04 on win_L0_002 (cam_r_L0_drawing_room_2) accepted

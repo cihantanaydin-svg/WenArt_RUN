@@ -1,0 +1,324 @@
+{
+ "schema_version": "0.1",
+ "kind": "run_manifest",
+ "run_id": "20261006-065742-full-20261006T070339Z",
+ "job": "20261006-065742-full",
+ "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
+ "profile": "full",
+ "deadline": 1791274421.0,
+ "started_utc": "2026-10-06T07:03:39Z",
+ "finished_utc": "2026-10-06T07:15:28Z",
+ "final": true,
+ "exit_code": 0,
+ "projects": [
+  {
+   "name": "real01",
+   "private": false,
+   "state": "ok",
+   "out_dir": "outputs/real01",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "pipeline",
+     "status": "pending",
+     "seconds": 0.0,
+     "note": "reused: 17 recognition question(s) written (recognition/requests.json)"
+    },
+    {
+     "stage": "recognize",
+     "status": "reused",
+     "seconds": 1.9,
+     "note": null
+    },
+    {
+     "stage": "pipeline_final",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": null
+    },
+    {
+     "stage": "photos",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no style photos"
+    },
+    {
+     "stage": "style",
+     "status": "ok",
+     "seconds": 0.2,
+     "note": null
+    },
+    {
+     "stage": "assets",
+     "status": "ok",
+     "seconds": 0.9,
+     "note": null
+    },
+    {
+     "stage": "fit",
+     "status": "ok",
+     "seconds": 1.9,
+     "note": null
+    },
+    {
+     "stage": "layout",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": null
+    },
+    {
+     "stage": "decor_ask",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": null
+    },
+    {
+     "stage": "decor",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": null
+    },
+    {
+     "stage": "refit",
+     "status": "ok",
+     "seconds": 2.3,
+     "note": null
+    },
+    {
+     "stage": "build",
+     "status": "ok",
+     "seconds": 62.2,
+     "note": null
+    },
+    {
+     "stage": "render",
+     "status": "ok",
+     "seconds": 112.8,
+     "note": null
+    },
+    {
+     "stage": "export",
+     "status": "ok",
+     "seconds": 33.9,
+     "note": null
+    },
+    {
+     "stage": "controls",
+     "status": "ok",
+     "seconds": 44.9,
+     "note": null
+    },
+    {
+     "stage": "gate",
+     "status": "ok",
+     "seconds": 61.3,
+     "note": "gate decision polish_disabled"
+    },
+    {
+     "stage": "polish",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "gate not validated"
+    },
+    {
+     "stage": "detect",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "gate not validated"
+    },
+    {
+     "stage": "expected",
+     "status": "ok",
+     "seconds": 12.6,
+     "note": null
+    },
+    {
+     "stage": "check",
+     "status": "ok",
+     "seconds": 76.4,
+     "note": null
+    },
+    {
+     "stage": "combine",
+     "status": "ok",
+     "seconds": 15.4,
+     "note": null
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 5.4,
+     "note": null
+    }
+   ],
+   "gate_decision": "polish_disabled",
+   "views": 20
+  }
+ ],
+ "totals": {
+  "ok": 1,
+  "needs_review": 0,
+  "failed": 0,
+  "incomplete": 0
+ },
+ "ab_phase": "all",
+ "ab_controls": null,
+ "ab": [],
+ "realism_summary": null,
+ "phases": [
+  {
+   "phase": 1,
+   "name": "cpu: intake, pipeline, fit, style",
+   "start_utc": "2026-10-06T07:03:39Z",
+   "end_utc": "2026-10-06T07:03:46Z",
+   "seconds": 7.6
+  },
+  {
+   "phase": 2,
+   "name": "vlm glm: recognition, style photos",
+   "start_utc": "2026-10-06T07:03:46Z",
+   "end_utc": "2026-10-06T07:03:46Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 3,
+   "name": "vlm qwen: recognition, pipeline_final, fit, style photos, layout, decor questions",
+   "start_utc": "2026-10-06T07:03:46Z",
+   "end_utc": "2026-10-06T07:03:51Z",
+   "seconds": 4.6
+  },
+  {
+   "phase": 4,
+   "name": "cpu: assets, decor, refit, A/B prepare",
+   "start_utc": "2026-10-06T07:03:51Z",
+   "end_utc": "2026-10-06T07:03:55Z",
+   "seconds": 4.1
+  },
+  {
+   "phase": 5,
+   "name": "blender: build, render, 3D export, controls, A/B control renders",
+   "start_utc": "2026-10-06T07:03:55Z",
+   "end_utc": "2026-10-06T07:08:09Z",
+   "seconds": 254.0
+  },
+  {
+   "phase": 6,
+   "name": "diffusion: gate, polish, detect",
+   "start_utc": "2026-10-06T07:08:09Z",
+   "end_utc": "2026-10-06T07:09:11Z",
+   "seconds": 62.0
+  },
+  {
+   "phase": 7,
+   "name": "cpu: expected, plan crops, A/B pairs",
+   "start_utc": "2026-10-06T07:09:11Z",
+   "end_utc": "2026-10-06T07:09:24Z",
+   "seconds": 12.6
+  },
+  {
+   "phase": 8,
+   "name": "vlm qwen: check, realism",
+   "start_utc": "2026-10-06T07:09:24Z",
+   "end_utc": "2026-10-06T07:12:34Z",
+   "seconds": 190.3
+  },
+  {
+   "phase": 9,
+   "name": "vlm glm: check, realism",
+   "start_utc": "2026-10-06T07:12:34Z",
+   "end_utc": "2026-10-06T07:14:31Z",
+   "seconds": 117.4
+  },
+  {
+   "phase": 10,
+   "name": "cpu: combine, realism summary, report",
+   "start_utc": "2026-10-06T07:14:31Z",
+   "end_utc": "2026-10-06T07:14:52Z",
+   "seconds": 20.8
+  },
+  {
+   "phase": 11,
+   "name": "gpu tests, run manifest",
+   "start_utc": "2026-10-06T07:14:52Z",
+   "end_utc": "2026-10-06T07:15:28Z",
+   "seconds": 35.2
+  }
+ ],
+ "servers": [
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 150.0,
+   "ok": true,
+   "phase": 8,
+   "started_utc": "2026-10-06T07:12:34Z"
+  },
+  {
+   "key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seqs": 8,
+   "seconds_to_ready": 80.0,
+   "ok": true,
+   "phase": 9,
+   "started_utc": "2026-10-06T07:14:31Z"
+  }
+ ],
+ "tests": [
+  {
+   "group": "full",
+   "files": [
+    "tests/gpu/test_full_run.py",
+    "tests/gpu/test_render.py",
+    "tests/gpu/test_look_m6.py",
+    "tests/gpu/test_furnish.py",
+    "tests/gpu/test_check.py",
+    "tests/gpu/test_m9.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-full.xml",
+   "seconds": 7.5
+  },
+  {
+   "group": "polish",
+   "files": [
+    "tests/gpu/test_polish.py",
+    "tests/gpu/test_polish_backend.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-polish.xml",
+   "seconds": 13.3
+  }
+ ],
+ "test_lists": {
+  "RUN_TEST_PROJECTS": "real01",
+  "NEEDS_REVIEW_TEST_PROJECTS": "",
+  "RENDER_TEST_PROJECTS": "real01",
+  "FURNISH_TEST_PROJECTS": "real01",
+  "CHECK_TEST_PROJECTS": "real01",
+  "POLISH_TEST_PROJECTS": "",
+  "GATE_TEST_PROJECTS": "real01",
+  "DETECT_TEST_PROJECTS": "",
+  "AB_TEST_PROJECTS": "",
+  "AB_CONTROL_PROJECT": "",
+  "SELFTEST_TEST_ALIAS": ""
+ },
+ "force": [],
+ "gpu": {
+  "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_mib": 97887,
+  "speed": 1.634,
+  "speed_of": "RTX PRO 6000",
+  "seqs": {
+   "qwen": 8,
+   "glm": 8
+  }
+ }
+}

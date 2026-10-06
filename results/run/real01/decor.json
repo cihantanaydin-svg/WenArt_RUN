@@ -3,9 +3,9 @@
  "kind": "stage_record",
  "project": "real01",
  "stage": "decor",
- "rc": 0,
- "status": "ok",
- "seconds": 6.02,
+ "rc": null,
+ "status": "reused",
+ "seconds": 0.0,
  "fingerprint": "8875707a9ca4bbb4be338e203e2b9810a400d8761f5f526582fc107a0e39eb84",
  "inputs": {
   "outputs/real01/building_furnished.json": "4ad78c2aa8360df2578a2bca131710b7795899d593ae9041a010636c5c40e0ea",
@@ -15,17 +15,11 @@
  "outputs": [
   "building_decor.json"
  ],
- "started_utc": "2026-10-04T14:21:46Z",
- "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
+ "started_utc": "2026-10-06T07:03:52Z",
+ "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
  "log": "logs/decor.log",
  "note": null,
- "run_id": "20261004-141151-full-20261004T141656Z",
- "steps": [
-  {
-   "name": "decor",
-   "rc": 0,
-   "seconds": 6.02
-  }
- ],
+ "run_id": "20261006-065742-full-20261006T070339Z",
+ "steps": [],
  "written": {}
 }

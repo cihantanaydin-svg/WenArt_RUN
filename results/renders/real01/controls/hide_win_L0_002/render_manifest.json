@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
+ "scene_sha256": "b2117b286aefb94bbce043afba340962e160d2a4d2eedd6e2f00dc7c337adac2",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -97,8 +97,8 @@
     "normal": "cam_r_L0_drawing_room_1_normal.png",
     "depth": "cam_r_L0_drawing_room_1_depth.png"
    },
-   "preview_bytes": 225502,
-   "seconds": 5.31,
+   "preview_bytes": 226896,
+   "seconds": 2.93,
    "samples": 128,
    "resolution": [
     1920,
@@ -107,7 +107,7 @@
    "depth": {
     "min": 0.5905675888061523,
     "max": 3.0,
-    "mean": 2.347007989883423,
+    "mean": 2.34645938873291,
     "coverage": 1.0
    },
    "index_values": [
@@ -175,18 +175,18 @@
      ]
     },
     "39": {
-     "pixels": 10381,
+     "pixels": 13340,
      "box": [
-      1495,
-      525,
-      1673,
-      664
+      1492,
+      487,
+      1655,
+      640
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
-   "render_key": "067af32def8c03de",
+   "scene_sha256": "b2117b286aefb94bbce043afba340962e160d2a4d2eedd6e2f00dc7c337adac2",
+   "render_key": "26508a2a0c6cbba0",
    "exposure": {
     "mode": "from",
     "ev": 2.833333,
@@ -196,13 +196,13 @@
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.227203,
-     0.955098,
-     0.775769
+     1.227314,
+     0.95505,
+     0.77592
     ],
     "wb_mode": "from",
-    "wb_temperature": 4995.6,
-    "wb_tint": -3.35,
+    "wb_temperature": 4995.7,
+    "wb_tint": -3.38,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
@@ -356,7 +356,7 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791128884.0,
+ "deadline": 1791274421.0,
  "warnings": [
   "cam_r_L0_drawing_room_2: rendered from another scene build and not asked for in this run"
  ]

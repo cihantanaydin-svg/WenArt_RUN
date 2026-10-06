@@ -16,14 +16,14 @@
 | rooms mixing polished and Cycles | 0 |
 | advisory | yes |
 | advisory flags | 7 |
-| exposure | -0.67 .. +4.67 EV (0 at a limit), modes auto |
+| exposure | -0.67 .. +4.50 EV (0 at a limit), modes auto |
 | window pull | 15 view(s), -2 .. -1 EV |
 | camera policy | search 20 |
 | camera score (min / mean / max) | 1.90 / 3.52 / 4.67 |
 | rooms by number of views | 2 with 0, 1 with 2, 6 with 3 |
 | gate validation | polish_disabled |
-| seconds: build / render / metering | 50.6 s / 107.6 s / 7.2 s |
-| seconds: polish / gate / check | - / - / 18.4 min |
+| seconds: build / render / metering | 52.2 s / 60.3 s / 7.1 s |
+| seconds: polish / gate / check | - / - / 9.9 min |
 | brief polish | yes (default, not in brief.yaml) |
 | unit system | imperial |
 | side-by-side sheets | 0 |
@@ -34,8 +34,8 @@ Open in Blender: the `.blend` directly (textures packed, cameras with their mete
 
 | file | size |
 |---|---|
-| [real01.blend](3d/real01.blend) | 75.4 MB |
-| [real01.glb](3d/real01.glb) | 150.8 MB |
+| [real01.blend](3d/real01.blend) | 75.8 MB |
+| [real01.glb](3d/real01.glb) | 152.6 MB |
 
 20 cameras; textures scaled to at most 1024 px (72 scaled) for the download.
 
@@ -89,7 +89,7 @@ None: gate validation polish_disabled: no polish for this project.
 | cam_r_L0_bed_room_2_3 | r_L0_bed_room_2 | L0 | cycles | gate_validation | - | - | ok | - | - | +3.83 | -1 | search 3.45 | D5 A1 | 0 | no | [preview](cam_r_L0_bed_room_2_3_final_preview.jpg) [plan](cam_r_L0_bed_room_2_3_plan.jpg) |
 | cam_r_L0_bed_room_3 | r_L0_bed_room | L0 | cycles | gate_validation | - | - | info | - | - | +3.50 | -1 | search 3.44 | D5 | 0 | no | [preview](cam_r_L0_bed_room_3_final_preview.jpg) [plan](cam_r_L0_bed_room_3_plan.jpg) |
 | cam_r_L0_dining_1 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.33 | -1 | search 3.00 | D9 A1 | 0 | no | [preview](cam_r_L0_dining_1_final_preview.jpg) [plan](cam_r_L0_dining_1_plan.jpg) |
-| cam_r_L0_dining_2 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.67 | -2 | search 2.51 | D7 A2 | 0 | no | [preview](cam_r_L0_dining_2_final_preview.jpg) [plan](cam_r_L0_dining_2_plan.jpg) |
+| cam_r_L0_dining_2 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.50 | -1 | search 2.51 | D7 A2 | 0 | no | [preview](cam_r_L0_dining_2_final_preview.jpg) [plan](cam_r_L0_dining_2_plan.jpg) |
 | cam_r_L0_dining_3 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.50 | -2 | search 2.48 | D8 A2 | 0 | no | [preview](cam_r_L0_dining_3_final_preview.jpg) [plan](cam_r_L0_dining_3_plan.jpg) |
 | cam_r_L0_drawing_room_1 | r_L0_drawing_room | L0 | cycles | gate_validation | - | - | ok | - | - | +2.83 | -1 | search 3.83 | D6 A2 | 1 | no | [preview](cam_r_L0_drawing_room_1_final_preview.jpg) [plan](cam_r_L0_drawing_room_1_plan.jpg) |
 | cam_r_L0_drawing_room_2 | r_L0_drawing_room | L0 | cycles | gate_validation | - | - | ok | - | - | +2.67 | -1 | search 3.60 | D6 A2 | 1 | no | [preview](cam_r_L0_drawing_room_2_final_preview.jpg) [plan](cam_r_L0_drawing_room_2_plan.jpg) |
@@ -319,32 +319,32 @@ Model: google/owlv2-base-patch16-ensemble @ cfd3195ba4ea (Apache-2.0).
 
 ## Stages
 
-This run (`20261004-141151-full-20261004T141656Z`):
+This run (`20261006-065742-full-20261006T070339Z`):
 
 | stage | status | seconds | note |
 |---|---|---|---|
 | intake | skipped | 0.0 s | private only |
-| pipeline | pending | 15.7 s | 17 recognition question(s) written (recognition/requests.json) |
-| recognize | reused | 2.1 s | - |
+| pipeline | pending | 0.0 s | reused: 17 recognition question(s) written (recognition/requests.json) |
+| recognize | reused | 1.9 s | - |
 | photos | skipped | 0.0 s | no style photos |
-| style | ok | 0.4 s | - |
-| pipeline_final | ok | 13.9 s | answers applied |
-| fit | ok | 2.6 s | - |
-| layout | ok | 20.6 s | - |
-| decor_ask | ok | 55.9 s | - |
-| assets | ok | 1.1 s | - |
-| decor | ok | 6.0 s | - |
-| refit | ok | 3.1 s | - |
-| build | ok | 61.9 s | - |
-| render | ok | 2.7 min | - |
-| export | ok | 35.7 s | - |
-| controls | ok | 63.0 s | - |
+| style | ok | 0.2 s | - |
+| pipeline_final | reused | 0.0 s | - |
+| fit | ok | 1.9 s | - |
+| decor_ask | reused | 0.0 s | - |
+| layout | reused | 0.0 s | - |
+| assets | ok | 0.9 s | - |
+| decor | reused | 0.0 s | - |
+| refit | ok | 2.3 s | - |
+| build | ok | 62.2 s | - |
+| render | ok | 112.8 s | - |
+| export | ok | 33.9 s | - |
+| controls | ok | 44.9 s | - |
 | detect | skipped | 0.0 s | gate not validated |
-| gate | ok | 78.4 s | gate decision polish_disabled |
+| gate | ok | 61.3 s | gate decision polish_disabled |
 | polish | skipped | 0.0 s | gate not validated |
-| expected | ok | 11.9 s | - |
-| check | ok | 2.5 min | - |
-| combine | ok | 15.7 s | - |
+| expected | ok | 12.6 s | - |
+| check | ok | 76.4 s | - |
+| combine | ok | 15.4 s | - |
 
 The report stage itself is recorded after this report.
 

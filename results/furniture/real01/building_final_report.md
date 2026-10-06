@@ -314,10 +314,12 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - f_L0_020: objaverse_0eba4ad785674d3586aafc82854100fa: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_020: objaverse_33eb258d9873435690254cfbb0ea46ec: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_020: objaverse_71853da424aa4b208e14f6cf430339ae: styles ['industrial', 'classic'] include neither scandinavian nor neutral
+- f_L0_021: gen_toilet_classic_3_293965c2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_industrial_1_3cd5bde9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_japandi_1_42fdb46f: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_japandi_3_4e49add0: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_mediterranean_1_09b9f7e2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: gen_toilet_mediterranean_3_23b530a6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_minimal_1_3799392b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_rustic_1_c2ce66a1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_021: gen_toilet_scandinavian_4_06dcb780: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
@@ -373,10 +375,10 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - cushion: abo_B07BMTNH22 x 2
 - cushion: abo_B07M6PJ4LX x 2
 - mirror: abo_B07RNMMYNR x 1
-- plant: gen_potted_plant_japandi_1_63c10a71 x 1
+- plant: gen_potted_plant_mediterranean_1_38a58433 x 1
 - plant: gen_potted_plant_minimal_1_5cf2e7a2 x 1
-- plant: gen_potted_plant_modern_1_8fbfec3c x 1
-- plant_small: gen_plant_small_scandinavian_2_20075b95 x 1
+- plant: gen_potted_plant_modern_minimal_1_6b4ad5f1 x 1
+- plant_small: gen_plant_small_scandinavian_5_02284d1a x 1
 - rug: abo_B0714MJKX2 x 1
 - rug: abo_B0714MMHBL x 1
 - rug: abo_B0719STLSH x 1

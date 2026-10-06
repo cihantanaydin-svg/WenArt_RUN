@@ -3,9 +3,9 @@
  "kind": "stage_record",
  "project": "real01",
  "stage": "pipeline",
- "rc": 4,
+ "rc": null,
  "status": "pending",
- "seconds": 15.68,
+ "seconds": 0.0,
  "fingerprint": "13551a556661087ad755d817368c76c8083a1b9666959fe4534bfeb332fd553b",
  "inputs": {
   "projects/real01": "4ca78573cac183908272879f1d88b4c0938f087eb5c5e268c6705a4a11863c5c",
@@ -15,17 +15,11 @@
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-04T14:17:17Z",
- "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
+ "started_utc": "2026-10-06T07:03:43Z",
+ "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
  "log": "logs/pipeline.log",
- "note": "17 recognition question(s) written (recognition/requests.json)",
- "run_id": "20261004-141151-full-20261004T141656Z",
- "steps": [
-  {
-   "name": "pipeline",
-   "rc": 4,
-   "seconds": 15.68
-  }
- ],
+ "note": "reused: 17 recognition question(s) written (recognition/requests.json)",
+ "run_id": "20261006-065742-full-20261006T070339Z",
+ "steps": [],
  "written": {}
 }

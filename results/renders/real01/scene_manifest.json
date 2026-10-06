@@ -7829,6 +7829,10 @@
     "style_family": "scandinavian",
     "excluded": [
      {
+      "id": "gen_toilet_classic_3_293965c2",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "gen_toilet_industrial_1_3cd5bde9",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
@@ -7842,6 +7846,10 @@
      },
      {
       "id": "gen_toilet_mediterranean_1_09b9f7e2",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_mediterranean_3_23b530a6",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
@@ -8820,38 +8828,38 @@
    "center": [
     2.886,
     0.5,
-    0.6655
+    0.6983
    ],
    "size": [
-    0.2246,
+    0.2405,
     0.25,
-    0.2894
+    0.355
    ],
    "rotation_deg": 0.0,
    "asset": {
     "library": "generated",
-    "asset_id": "gen_plant_small_scandinavian_2_20075b95",
+    "asset_id": "gen_plant_small_scandinavian_5_02284d1a",
     "licence": "generated (TRELLIS.2-4B, MIT)",
     "license": "generated (TRELLIS.2-4B, MIT)",
     "method": "library",
     "decor_type": "plant_small",
     "fit_scale": [
-     0.8463,
-     0.8463,
-     0.8463
+     0.8757,
+     0.8757,
+     0.8757
     ],
     "bbox_m": [
-     0.2246,
+     0.2405,
      0.25,
-     0.2894
+     0.355
     ],
-    "aspect_error": 0.1071,
+    "aspect_error": 0.0389,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0003,
-     0.0009,
-     -0.1713
+     0.001,
+     -0.0018,
+     -0.2028
     ],
     "front_axis_confidence": "low",
     "target": "within",
@@ -8869,56 +8877,66 @@
     ],
     "pick": {
      "key": "f_L0_009",
-     "index": 9,
-     "of": 10,
+     "index": 19,
+     "of": 20,
      "ids": [
       "gen_plant_small_classic_1_08e9f778",
+      "gen_plant_small_classic_4_53050a52",
       "gen_plant_small_industrial_1_94d74431",
+      "gen_plant_small_industrial_4_26598070",
+      "gen_plant_small_industrial_5_effc724b",
       "gen_plant_small_japandi_1_32d3b9fb",
+      "gen_plant_small_japandi_5_cabc98bd",
       "gen_plant_small_mediterranean_1_3691e399",
+      "gen_plant_small_mediterranean_4_8292bf7a",
       "gen_plant_small_minimal_1_6f2e772d",
+      "gen_plant_small_minimal_4_e8c7266b",
       "gen_plant_small_modern_1_e1ff6032",
+      "gen_plant_small_modern_4_086a8ac4",
       "gen_plant_small_modern_minimal_1_7ea34d3d",
+      "gen_plant_small_modern_minimal_4_e33af5b4",
       "gen_plant_small_rustic_1_5cdaa51b",
+      "gen_plant_small_rustic_4_694dfd55",
       "gen_plant_small_scandinavian_1_0dcfdd60",
-      "gen_plant_small_scandinavian_2_20075b95"
+      "gen_plant_small_scandinavian_2_20075b95",
+      "gen_plant_small_scandinavian_5_02284d1a"
      ],
      "colour": "sage green",
      "colour_matches": 0,
      "not_fitting": [],
      "other_style": 0
     },
-    "glb": "models/generated/gen_plant_small_scandinavian_2_20075b95.glb",
-    "sha256_glb": "20075b958861e970674bf880f553ecb6bfa544908616c4ff225b246241b27d6b",
-    "uid": "gen_plant_small_scandinavian_2_20075b95",
-    "title": "Generated scandinavian plant small (2)",
+    "glb": "models/generated/gen_plant_small_scandinavian_5_02284d1a.glb",
+    "sha256_glb": "02284d1aecab0d16c9f48ab3dc21dcf131a5cda7aeca373abf46aeb575db42d7",
+    "uid": "gen_plant_small_scandinavian_5_02284d1a",
+    "title": "Generated scandinavian plant small (5)",
     "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
     "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
     "licence_url": "",
     "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Generated scandinavian plant small (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "attribution": "\"Generated scandinavian plant small (5)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
     "licence_flag": null,
     "generated": {
      "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
-     "image_sha256": "c6090ba66ff8673dc0199cbefd65c789d24f9208004a427171b6172c0d12783e",
+     "image_sha256": "3434d0733624c2f5e0f4660cf3861e79401fe029885e304f82a5865124874018",
      "model": "microsoft/TRELLIS.2-4B",
      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
-     "seed": 238081903
+     "seed": 501095608
     },
     "style_hint": "scandinavian",
-    "name": "Generated scandinavian plant small (2)",
-    "unit_scale": 0.34128119811775753
+    "name": "Generated scandinavian plant small (5)",
+    "unit_scale": 0.403983968518647
    },
    "method": "library",
    "bbox_m": [
-    0.2246,
+    0.2405,
     0.25,
-    0.2894
+    0.355
    ],
    "fit_scale": [
-    0.8463,
-    0.8462,
-    0.8461
+    0.8759,
+    0.8755,
+    0.8758
    ],
    "materials": [
     "Material_0.001"
@@ -8930,43 +8948,43 @@
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0003,
-     0.0009,
-     -0.1713
+     0.001,
+     -0.0018,
+     -0.2028
     ],
     "origin_offset_applied": [
-     -0.0003,
-     -0.0009,
-     0.1713
+     -0.001,
+     0.0018,
+     0.2028
     ],
     "bbox_raw_m": [
-     0.2654,
-     0.2954,
-     0.342
+     0.2746,
+     0.2855,
+     0.4054
     ],
     "bbox_m": [
-     0.2246,
+     0.2405,
      0.25,
-     0.2894
+     0.355
     ],
     "fit_scale": [
-     0.8463,
-     0.8462,
-     0.8461
+     0.8759,
+     0.8755,
+     0.8758
     ],
-    "unit_scale": 0.34128119811775753
+    "unit_scale": 0.403983968518647
    },
-   "file": "/workspace/assets/models/generated/gen_plant_small_scandinavian_2_20075b95.glb",
+   "file": "/workspace/assets/models/generated/gen_plant_small_scandinavian_5_02284d1a.glb",
    "box3d": {
     "center": [
      2.886,
      0.5,
-     0.6655
+     0.6983
     ],
     "size": [
-     0.2246,
+     0.2405,
      0.25,
-     0.2894
+     0.355
     ],
     "rotation_deg": 0.0
    }
@@ -9942,43 +9960,49 @@
    "center": [
     5.356,
     0.48,
-    0.3698
+    0.42415
    ],
    "size": [
     0.4,
     0.4,
-    0.7396
+    0.8483
    ],
    "rotation_deg": 0.0,
    "asset": {
     "library": "generated",
-    "asset_id": "gen_potted_plant_modern_1_8fbfec3c",
+    "asset_id": "gen_potted_plant_mediterranean_1_38a58433",
     "licence": "generated (TRELLIS.2-4B, MIT)",
     "license": "generated (TRELLIS.2-4B, MIT)",
     "method": "library",
     "decor_type": "plant",
     "fit_scale": [
-     0.7147,
-     0.7629,
-     0.7388
+     0.8052,
+     0.8909,
+     0.848
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.7396
+     0.8483
     ],
-    "aspect_error": 0.0653,
+    "aspect_error": 0.1012,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0018,
-     -0.0073,
+     0.0,
+     0.0001,
      -0.501
     ],
     "front_axis_confidence": "low",
     "target": "size",
     "turned_deg": 0.0,
     "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "mediterranean",
      "neutral"
     ],
     "style_family": "scandinavian",
@@ -9988,18 +10012,19 @@
     ],
     "pick": {
      "key": "dec_L0_010",
-     "index": 6,
-     "of": 15,
+     "index": 5,
+     "of": 16,
      "ids": [
+      "gen_potted_plant_classic_3_6a0eb8d8",
       "gen_potted_plant_industrial_2_eb3d21f5",
       "gen_potted_plant_japandi_1_63c10a71",
       "gen_potted_plant_japandi_2_9a3effd1",
       "gen_potted_plant_japandi_3_36d34f2a",
       "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_mediterranean_3_068971b6",
       "gen_potted_plant_minimal_1_5cf2e7a2",
       "gen_potted_plant_modern_1_8fbfec3c",
       "gen_potted_plant_modern_minimal_1_6b4ad5f1",
-      "gen_potted_plant_rustic_1_978e47a9",
       "gen_potted_plant_scandinavian_1_04f97c4b",
       "gen_potted_plant_scandinavian_2_98f7bbd2",
       "gen_potted_plant_scandinavian_3_ef4f2d99",
@@ -10010,39 +10035,39 @@
      "colour": "sage green",
      "colour_matches": 0,
      "not_fitting": [],
-     "other_style": 6
+     "other_style": 7
     },
-    "glb": "models/generated/gen_potted_plant_modern_1_8fbfec3c.glb",
-    "sha256_glb": "8fbfec3cbf1c93b22bacbf7f37e0c378a36358710636425d759bab158d4c69e7",
-    "uid": "gen_potted_plant_modern_1_8fbfec3c",
-    "title": "Generated modern potted plant (1)",
+    "glb": "models/generated/gen_potted_plant_mediterranean_1_38a58433.glb",
+    "sha256_glb": "38a584339bbcfd9e60c7fb2eb38c81a012d7282a12d86cfa0d560e97df4b8bc5",
+    "uid": "gen_potted_plant_mediterranean_1_38a58433",
+    "title": "Generated mediterranean potted plant (1)",
     "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
     "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
     "licence_url": "",
     "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Generated modern potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "attribution": "\"Generated mediterranean potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
     "licence_flag": null,
     "generated": {
-     "prompt": "a single modern style large indoor plant in a floor pot, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
-     "image_sha256": "d005782fb771ef92b0859e80e6c9ba8e30c8b2587038dacdf5dffd3d1603bf93",
+     "prompt": "a single mediterranean style large indoor plant in a floor pot, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "9cddf737b5f946ab7c6ed3412ae28e8147270571e41cc5279f572f417e281978",
      "model": "microsoft/TRELLIS.2-4B",
      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
-     "seed": 1433942496
+     "seed": 357641359
     },
-    "style_hint": "modern",
-    "name": "Generated modern potted plant (1)",
+    "style_hint": "mediterranean",
+    "name": "Generated mediterranean potted plant (1)",
     "unit_scale": 1.0
    },
    "method": "library",
    "bbox_m": [
     0.4,
     0.4,
-    0.7396
+    0.8483
    ],
    "fit_scale": [
-    0.7147,
-    0.7629,
-    0.7388
+    0.8052,
+    0.8909,
+    0.8481
    ],
    "materials": [
     "Material_0.002"
@@ -10054,43 +10079,43 @@
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0018,
-     -0.0073,
+     0.0,
+     0.0001,
      -0.501
     ],
     "origin_offset_applied": [
-     -0.0018,
-     0.0074,
+     0.0,
+     -0.0001,
      0.501
     ],
     "bbox_raw_m": [
-     0.5597,
-     0.5243,
-     1.0011
+     0.4968,
+     0.449,
+     1.0003
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.7396
+     0.8483
     ],
     "fit_scale": [
-     0.7147,
-     0.7629,
-     0.7388
+     0.8052,
+     0.8909,
+     0.8481
     ],
     "unit_scale": 1.0
    },
-   "file": "/workspace/assets/models/generated/gen_potted_plant_modern_1_8fbfec3c.glb",
+   "file": "/workspace/assets/models/generated/gen_potted_plant_mediterranean_1_38a58433.glb",
    "box3d": {
     "center": [
      5.356,
      0.48,
-     0.3698
+     0.4242
     ],
     "size": [
      0.4,
      0.4,
-     0.7396
+     0.8483
     ],
     "rotation_deg": 0.0
    }
@@ -11079,47 +11104,47 @@
    "center": [
     0.48,
     3.985,
-    0.3927
+    0.39005
    ],
    "size": [
     0.4,
     0.4,
-    0.7854
+    0.7801
    ],
    "rotation_deg": 0.0,
    "asset": {
     "library": "generated",
-    "asset_id": "gen_potted_plant_minimal_1_5cf2e7a2",
+    "asset_id": "gen_potted_plant_modern_minimal_1_6b4ad5f1",
     "licence": "generated (TRELLIS.2-4B, MIT)",
     "license": "generated (TRELLIS.2-4B, MIT)",
     "method": "library",
     "decor_type": "plant",
     "fit_scale": [
-     0.8138,
-     0.7587,
-     0.7863
+     0.7859,
+     0.7819,
+     0.7839
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.7853
+     0.7801
     ],
-    "aspect_error": 0.0701,
+    "aspect_error": 0.0051,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0069,
-     0.0068,
-     -0.501
+     -0.0,
+     0.0009,
+     -0.5008
     ],
     "front_axis_confidence": "low",
     "target": "size",
     "turned_deg": 0.0,
     "styles": [
+     "scandinavian",
      "modern minimal",
      "minimal",
-     "modern",
-     "neutral"
+     "modern"
     ],
     "style_family": "scandinavian",
     "quality": [
@@ -11128,18 +11153,19 @@
     ],
     "pick": {
      "key": "dec_L0_016",
-     "index": 5,
-     "of": 15,
+     "index": 9,
+     "of": 16,
      "ids": [
+      "gen_potted_plant_classic_3_6a0eb8d8",
       "gen_potted_plant_industrial_2_eb3d21f5",
       "gen_potted_plant_japandi_1_63c10a71",
       "gen_potted_plant_japandi_2_9a3effd1",
       "gen_potted_plant_japandi_3_36d34f2a",
       "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_mediterranean_3_068971b6",
       "gen_potted_plant_minimal_1_5cf2e7a2",
       "gen_potted_plant_modern_1_8fbfec3c",
       "gen_potted_plant_modern_minimal_1_6b4ad5f1",
-      "gen_potted_plant_rustic_1_978e47a9",
       "gen_potted_plant_scandinavian_1_04f97c4b",
       "gen_potted_plant_scandinavian_2_98f7bbd2",
       "gen_potted_plant_scandinavian_3_ef4f2d99",
@@ -11150,39 +11176,39 @@
      "colour": "forest green",
      "colour_matches": 0,
      "not_fitting": [],
-     "other_style": 6
+     "other_style": 7
     },
-    "glb": "models/generated/gen_potted_plant_minimal_1_5cf2e7a2.glb",
-    "sha256_glb": "5cf2e7a22d6813f8db84e529c7f1fc0202906596ffc018e7ffd43f445ab82e9e",
-    "uid": "gen_potted_plant_minimal_1_5cf2e7a2",
-    "title": "Generated minimal potted plant (1)",
+    "glb": "models/generated/gen_potted_plant_modern_minimal_1_6b4ad5f1.glb",
+    "sha256_glb": "6b4ad5f116e261f3c0a1b2860c0c9635c0c6780817a19ea22fad83a330db91cc",
+    "uid": "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+    "title": "Generated modern minimal potted plant (1)",
     "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
     "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
     "licence_url": "",
     "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Generated minimal potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "attribution": "\"Generated modern minimal potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
     "licence_flag": null,
     "generated": {
-     "prompt": "a single minimal style large indoor plant in a floor pot, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
-     "image_sha256": "ae5d6e94c549a9ac340ac008c186b5ee4dc45f1abb884f5696e6405f54f026ef",
+     "prompt": "a single modern minimal style large indoor plant in a floor pot, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "97f92722294f33d10c7e21236f20dd9570c8ca0b3ba1febbcdb1295737db99bf",
      "model": "microsoft/TRELLIS.2-4B",
      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
-     "seed": 2048023385
+     "seed": 1189468089
     },
-    "style_hint": "minimal",
-    "name": "Generated minimal potted plant (1)",
+    "style_hint": "modern minimal",
+    "name": "Generated modern minimal potted plant (1)",
     "unit_scale": 1.0
    },
    "method": "library",
    "bbox_m": [
     0.4,
     0.4,
-    0.7854
+    0.7801
    ],
    "fit_scale": [
-    0.8138,
-    0.7588,
-    0.7863
+    0.7859,
+    0.7819,
+    0.7839
    ],
    "materials": [
     "Material_0.003"
@@ -11194,43 +11220,43 @@
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     0.0069,
-     0.0068,
-     -0.501
+     -0.0,
+     0.0009,
+     -0.5008
     ],
     "origin_offset_applied": [
-     -0.0069,
-     -0.0068,
-     0.501
+     0.0001,
+     -0.0009,
+     0.5008
     ],
     "bbox_raw_m": [
-     0.4915,
-     0.5272,
-     0.9988
+     0.509,
+     0.5116,
+     0.9952
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.7854
+     0.7801
     ],
     "fit_scale": [
-     0.8138,
-     0.7588,
-     0.7863
+     0.7859,
+     0.7819,
+     0.7839
     ],
     "unit_scale": 1.0
    },
-   "file": "/workspace/assets/models/generated/gen_potted_plant_minimal_1_5cf2e7a2.glb",
+   "file": "/workspace/assets/models/generated/gen_potted_plant_modern_minimal_1_6b4ad5f1.glb",
    "box3d": {
     "center": [
      0.48,
      3.985,
-     0.3927
+     0.39
     ],
     "size": [
      0.4,
      0.4,
-     0.7854
+     0.7801
     ],
     "rotation_deg": 0.0
    }
@@ -11641,48 +11667,47 @@
    "center": [
     5.356,
     4.902,
-    0.43165
+    0.3927
    ],
    "size": [
     0.4,
     0.4,
-    0.8633
+    0.7854
    ],
    "rotation_deg": 0.0,
    "asset": {
     "library": "generated",
-    "asset_id": "gen_potted_plant_japandi_1_63c10a71",
+    "asset_id": "gen_potted_plant_minimal_1_5cf2e7a2",
     "licence": "generated (TRELLIS.2-4B, MIT)",
     "license": "generated (TRELLIS.2-4B, MIT)",
     "method": "library",
     "decor_type": "plant",
     "fit_scale": [
-     0.8887,
-     0.837,
-     0.8628
+     0.8138,
+     0.7587,
+     0.7863
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.8634
+     0.7853
     ],
-    "aspect_error": 0.0599,
+    "aspect_error": 0.0701,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.004,
-     -0.0086,
+     0.0069,
+     0.0068,
      -0.501
     ],
     "front_axis_confidence": "low",
     "target": "size",
     "turned_deg": 0.0,
     "styles": [
-     "scandinavian",
-     "japandi",
      "modern minimal",
      "minimal",
-     "modern"
+     "modern",
+     "neutral"
     ],
     "style_family": "scandinavian",
     "quality": [
@@ -11691,18 +11716,19 @@
     ],
     "pick": {
      "key": "dec_L0_019",
-     "index": 1,
-     "of": 15,
+     "index": 7,
+     "of": 16,
      "ids": [
+      "gen_potted_plant_classic_3_6a0eb8d8",
       "gen_potted_plant_industrial_2_eb3d21f5",
       "gen_potted_plant_japandi_1_63c10a71",
       "gen_potted_plant_japandi_2_9a3effd1",
       "gen_potted_plant_japandi_3_36d34f2a",
       "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_mediterranean_3_068971b6",
       "gen_potted_plant_minimal_1_5cf2e7a2",
       "gen_potted_plant_modern_1_8fbfec3c",
       "gen_potted_plant_modern_minimal_1_6b4ad5f1",
-      "gen_potted_plant_rustic_1_978e47a9",
       "gen_potted_plant_scandinavian_1_04f97c4b",
       "gen_potted_plant_scandinavian_2_98f7bbd2",
       "gen_potted_plant_scandinavian_3_ef4f2d99",
@@ -11713,39 +11739,39 @@
      "colour": "sage green",
      "colour_matches": 0,
      "not_fitting": [],
-     "other_style": 6
+     "other_style": 7
     },
-    "glb": "models/generated/gen_potted_plant_japandi_1_63c10a71.glb",
-    "sha256_glb": "63c10a7100aa4765c39a4135b82360b91766b24e9d128954798107d15d518e9d",
-    "uid": "gen_potted_plant_japandi_1_63c10a71",
-    "title": "Generated japandi potted plant (1)",
+    "glb": "models/generated/gen_potted_plant_minimal_1_5cf2e7a2.glb",
+    "sha256_glb": "5cf2e7a22d6813f8db84e529c7f1fc0202906596ffc018e7ffd43f445ab82e9e",
+    "uid": "gen_potted_plant_minimal_1_5cf2e7a2",
+    "title": "Generated minimal potted plant (1)",
     "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
     "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
     "licence_url": "",
     "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Generated japandi potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "attribution": "\"Generated minimal potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
     "licence_flag": null,
     "generated": {
-     "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
-     "image_sha256": "689064611ab6697f32def047f5b1c27be0353b1e661cb63e6e7e2ac0d3ccd86d",
+     "prompt": "a single minimal style large indoor plant in a floor pot, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "ae5d6e94c549a9ac340ac008c186b5ee4dc45f1abb884f5696e6405f54f026ef",
      "model": "microsoft/TRELLIS.2-4B",
      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
-     "seed": 1070096842
+     "seed": 2048023385
     },
-    "style_hint": "japandi",
-    "name": "Generated japandi potted plant (1)",
+    "style_hint": "minimal",
+    "name": "Generated minimal potted plant (1)",
     "unit_scale": 1.0
    },
    "method": "library",
    "bbox_m": [
     0.4,
     0.4,
-    0.8633
+    0.7854
    ],
    "fit_scale": [
-    0.8887,
-    0.8369,
-    0.8628
+    0.8138,
+    0.7588,
+    0.7863
    ],
    "materials": [
     "Material_0.004"
@@ -11757,43 +11783,43 @@
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset_catalog": [
-     -0.004,
-     -0.0086,
+     0.0069,
+     0.0068,
      -0.501
     ],
     "origin_offset_applied": [
-     0.004,
-     0.0086,
+     -0.0069,
+     -0.0068,
      0.501
     ],
     "bbox_raw_m": [
-     0.4501,
-     0.4779,
-     1.0006
+     0.4915,
+     0.5272,
+     0.9988
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.8633
+     0.7854
     ],
     "fit_scale": [
-     0.8887,
-     0.8369,
-     0.8628
+     0.8138,
+     0.7588,
+     0.7863
     ],
     "unit_scale": 1.0
    },
-   "file": "/workspace/assets/models/generated/gen_potted_plant_japandi_1_63c10a71.glb",
+   "file": "/workspace/assets/models/generated/gen_potted_plant_minimal_1_5cf2e7a2.glb",
    "box3d": {
     "center": [
      5.356,
      4.902,
-     0.4317
+     0.3927
     ],
     "size": [
      0.4,
      0.4,
-     0.8633
+     0.7854
     ],
     "rotation_deg": 0.0
    }
@@ -12689,7 +12715,7 @@
  ],
  "camera_policy": "search",
  "lens_mm": null,
- "search_seconds": 0.56,
+ "search_seconds": 0.499,
  "cameras": [
   {
    "name": "cam_r_L0_bed_room_1",
@@ -12748,7 +12774,7 @@
     "f_L0_007",
     "f_L0_009"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bed_room_2",
@@ -12808,7 +12834,7 @@
     "f_L0_008",
     "f_L0_009"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bed_room_3",
@@ -12868,7 +12894,7 @@
     "f_L0_008",
     "f_L0_009"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bath_toilet_1",
@@ -12926,7 +12952,7 @@
     "f_L0_021",
     "f_L0_022"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bath_toilet_2",
@@ -12984,7 +13010,7 @@
     "f_L0_021",
     "f_L0_022"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_drawing_room_1",
@@ -13045,7 +13071,7 @@
     "f_L0_019",
     "f_L0_020"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_drawing_room_2",
@@ -13106,7 +13132,7 @@
     "f_L0_019",
     "f_L0_020"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_drawing_room_3",
@@ -13168,7 +13194,7 @@
     "f_L0_019",
     "f_L0_020"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_room_1",
@@ -13223,7 +13249,7 @@
    "visible_furniture": [
     "f_L0_003"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_room_2",
@@ -13281,7 +13307,7 @@
    "visible_furniture": [
     "f_L0_003"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_room_3",
@@ -13338,7 +13364,7 @@
    "visible_furniture": [
     "f_L0_003"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bed_room_2_1",
@@ -13397,7 +13423,7 @@
     "f_L0_004",
     "f_L0_005"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bed_room_2_2",
@@ -13457,7 +13483,7 @@
     "f_L0_005",
     "f_L0_006"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_bed_room_2_3",
@@ -13517,7 +13543,7 @@
     "f_L0_005",
     "f_L0_006"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_kitchen_1",
@@ -13575,7 +13601,7 @@
     "f_L0_001",
     "f_L0_002"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_kitchen_2",
@@ -13634,7 +13660,7 @@
     "f_L0_001",
     "f_L0_002"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_kitchen_3",
@@ -13694,7 +13720,7 @@
     "f_L0_001",
     "f_L0_002"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_dining_1",
@@ -13758,7 +13784,7 @@
     "f_L0_015",
     "f_L0_016"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_dining_2",
@@ -13821,7 +13847,7 @@
     "f_L0_015",
     "f_L0_016"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   },
   {
    "name": "cam_r_L0_dining_3",
@@ -13884,7 +13910,7 @@
     "f_L0_015",
     "f_L0_016"
    ],
-   "search_seconds": 0.56
+   "search_seconds": 0.499
   }
  ],
  "rooms_without_view": [
@@ -14924,7 +14950,7 @@
   }
  },
  "wenart_mood": "warm daylight",
- "build_fingerprint": "3fd8cac50c76e289b2c387e2928ea4f8da55445a28de972ff94e376dd32e944e",
+ "build_fingerprint": "6e27674217d5f9f5830dc63ed38e6762614fa72bb3e65cbed07cf399819b5f8c",
  "build_args": {
   "building": "outputs/real01/building_final.json",
   "style": "outputs/real01/style.json",
@@ -15013,5 +15039,5 @@
    "ids": []
   }
  },
- "seconds": 50.6
+ "seconds": 52.2
 }

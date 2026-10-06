@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
+ "scene_sha256": "b2117b286aefb94bbce043afba340962e160d2a4d2eedd6e2f00dc7c337adac2",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -95,8 +95,8 @@
     "normal": "cam_r_L0_bed_room_2_2_normal.png",
     "depth": "cam_r_L0_bed_room_2_2_depth.png"
    },
-   "preview_bytes": 168820,
-   "seconds": 4.96,
+   "preview_bytes": 168780,
+   "seconds": 2.83,
    "samples": 128,
    "resolution": [
     1920,
@@ -163,8 +163,8 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
-   "render_key": "28e83b0c03c0a898",
+   "scene_sha256": "b2117b286aefb94bbce043afba340962e160d2a4d2eedd6e2f00dc7c337adac2",
+   "render_key": "3c45e280c5762b8e",
    "exposure": {
     "mode": "from",
     "ev": 4.0,
@@ -174,15 +174,15 @@
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.041987,
-     0.992025,
-     0.955365
+     1.041939,
+     0.992029,
+     0.955466
     ],
     "wb_mode": "from",
-    "wb_temperature": 6169.6,
+    "wb_temperature": 6170.2,
     "wb_tint": 7.25,
     "residual": null,
-    "window_clip_frac": 0.0042,
+    "window_clip_frac": 0.0041,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -212,7 +212,7 @@
      }
     ],
     "pane_median_after": 0.8866,
-    "seconds": 0.383
+    "seconds": 0.341
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -221,6 +221,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791128884.0,
+ "deadline": 1791274421.0,
  "warnings": []
 }

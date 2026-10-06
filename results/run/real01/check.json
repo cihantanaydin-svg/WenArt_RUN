@@ -5,48 +5,48 @@
  "stage": "check",
  "rc": 0,
  "status": "ok",
- "seconds": 147.53,
+ "seconds": 76.37,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "check/answers_qwen3-vl-8b.json",
   "check/answers_glm-4.6v-flash.json"
  ],
- "started_utc": "2026-10-04T14:30:37Z",
- "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
+ "started_utc": "2026-10-06T07:12:33Z",
+ "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
  "log": "logs/check.log",
  "note": null,
- "run_id": "20261004-141151-full-20261004T141656Z",
+ "run_id": "20261006-065742-full-20261006T070339Z",
  "steps": [
   {
    "name": "run qwen",
    "rc": 0,
-   "seconds": 67.89
+   "seconds": 35.33
   },
   {
    "name": "preference qwen",
    "rc": 0,
-   "seconds": 3.24
+   "seconds": 2.15
   },
   {
    "name": "style-photo test qwen",
    "rc": 0,
-   "seconds": 2.44
+   "seconds": 2.08
   },
   {
    "name": "run glm",
    "rc": 0,
-   "seconds": 68.49
+   "seconds": 32.92
   },
   {
    "name": "preference glm",
    "rc": 0,
-   "seconds": 3.18
+   "seconds": 1.95
   },
   {
    "name": "style-photo test glm",
    "rc": 0,
-   "seconds": 2.29
+   "seconds": 1.94
   }
  ],
  "written": {}

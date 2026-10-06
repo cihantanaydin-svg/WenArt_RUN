@@ -25,7 +25,7 @@
   "gate_validation": "polish_disabled",
   "expected": "run"
  },
- "run_id": "20261004-141151-full-20261004T141656Z",
+ "run_id": "20261006-065742-full-20261006T070339Z",
  "run_stages": [
   {
    "stage": "intake",
@@ -33,26 +33,26 @@
    "seconds": 0.0,
    "note": "private only",
    "rc": null,
-   "started_utc": "2026-10-04T14:16:56Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:39Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "pipeline",
    "status": "pending",
-   "seconds": 15.68,
-   "note": "17 recognition question(s) written (recognition/requests.json)",
-   "rc": 4,
-   "started_utc": "2026-10-04T14:17:17Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "seconds": 0.0,
+   "note": "reused: 17 recognition question(s) written (recognition/requests.json)",
+   "rc": null,
+   "started_utc": "2026-10-06T07:03:43Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "recognize",
    "status": "reused",
-   "seconds": 2.14,
+   "seconds": 1.87,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:17:19Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:45Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "photos",
@@ -60,116 +60,116 @@
    "seconds": 0.0,
    "note": "no style photos",
    "rc": null,
-   "started_utc": "2026-10-04T14:17:20Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:46Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "style",
    "status": "ok",
-   "seconds": 0.39,
+   "seconds": 0.24,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:17:21Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:46Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "pipeline_final",
-   "status": "ok",
-   "seconds": 13.87,
-   "note": "answers applied",
-   "rc": 0,
-   "started_utc": "2026-10-04T14:17:35Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "status": "reused",
+   "seconds": 0.0,
+   "note": null,
+   "rc": null,
+   "started_utc": "2026-10-06T07:03:47Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "fit",
    "status": "ok",
-   "seconds": 2.65,
+   "seconds": 1.93,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:17:39Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
-  },
-  {
-   "stage": "layout",
-   "status": "ok",
-   "seconds": 20.63,
-   "note": null,
-   "rc": 0,
-   "started_utc": "2026-10-04T14:20:40Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:49Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "decor_ask",
-   "status": "ok",
-   "seconds": 55.93,
+   "status": "reused",
+   "seconds": 0.0,
    "note": null,
-   "rc": 0,
-   "started_utc": "2026-10-04T14:21:37Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "rc": null,
+   "started_utc": "2026-10-06T07:03:51Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
+  },
+  {
+   "stage": "layout",
+   "status": "reused",
+   "seconds": 0.0,
+   "note": null,
+   "rc": null,
+   "started_utc": "2026-10-06T07:03:51Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "assets",
    "status": "ok",
-   "seconds": 1.15,
+   "seconds": 0.9,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:21:39Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:52Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "decor",
-   "status": "ok",
-   "seconds": 6.02,
+   "status": "reused",
+   "seconds": 0.0,
    "note": null,
-   "rc": 0,
-   "started_utc": "2026-10-04T14:21:46Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "rc": null,
+   "started_utc": "2026-10-06T07:03:52Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "refit",
    "status": "ok",
-   "seconds": 3.09,
+   "seconds": 2.34,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:21:49Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:03:55Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "build",
    "status": "ok",
-   "seconds": 61.86,
+   "seconds": 62.16,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:22:51Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:04:57Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "render",
    "status": "ok",
-   "seconds": 161.94,
+   "seconds": 112.79,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:25:33Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:06:50Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "export",
    "status": "ok",
-   "seconds": 35.66,
+   "seconds": 33.9,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:26:09Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:07:24Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "controls",
    "status": "ok",
-   "seconds": 63.0,
+   "seconds": 44.88,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:27:12Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:08:09Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "detect",
@@ -177,17 +177,17 @@
    "seconds": 0.0,
    "note": "gate not validated",
    "rc": null,
-   "started_utc": "2026-10-04T14:28:31Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:09:11Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "gate",
    "status": "ok",
-   "seconds": 78.37,
+   "seconds": 61.26,
    "note": "gate decision polish_disabled",
    "rc": 0,
-   "started_utc": "2026-10-04T14:28:31Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:09:11Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "polish",
@@ -195,35 +195,35 @@
    "seconds": 0.0,
    "note": "gate not validated",
    "rc": null,
-   "started_utc": "2026-10-04T14:28:31Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:09:11Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "expected",
    "status": "ok",
-   "seconds": 11.88,
+   "seconds": 12.62,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:28:43Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:09:24Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "check",
    "status": "ok",
-   "seconds": 147.53,
+   "seconds": 76.37,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:30:37Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:12:33Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   },
   {
    "stage": "combine",
    "status": "ok",
-   "seconds": 15.74,
+   "seconds": 15.38,
    "note": null,
    "rc": 0,
-   "started_utc": "2026-10-04T14:33:28Z",
-   "run_id": "20261004-141151-full-20261004T141656Z"
+   "started_utc": "2026-10-06T07:14:47Z",
+   "run_id": "20261006-065742-full-20261006T070339Z"
   }
  ],
  "earlier_run_stages": [],
@@ -281,7 +281,7 @@
   "unverified_in_view": 3,
   "exposure": {
    "min": -0.666667,
-   "max": 4.666667,
+   "max": 4.5,
    "views": 20,
    "at_limit": 0,
    "modes": [
@@ -309,12 +309,12 @@
    "3": 6
   },
   "seconds": {
-   "build": 50.6,
-   "render": 107.6,
-   "meter": 7.2,
+   "build": 52.2,
+   "render": 60.3,
+   "meter": 7.1,
    "polish": null,
    "gate": null,
-   "check": 1103.4
+   "check": 591.2
   },
   "rooms_mixed": 0
  },
@@ -328,7 +328,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bath_toilet_1.png",
-   "image_sha256": "2cb427dc4d44848c941cbc833db4bc245ec7c53a725c5cbb14444781def1345a",
+   "image_sha256": "a96903ef6ab5b28e9e3eab37767b7fcabb1244fa82b2b5297e2878929666cc95",
    "preview": "cam_r_L0_bath_toilet_1_final_preview.jpg",
    "plan": "cam_r_L0_bath_toilet_1_plan.jpg",
    "polish": null,
@@ -429,7 +429,7 @@
     "wb_tint": 3.36,
     "residual": 0.35,
     "window_clip_frac": null,
-    "meter_seconds": 2.709,
+    "meter_seconds": 3.22,
     "meter": {
      "resolution": [
       240,
@@ -503,7 +503,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bath_toilet_2.png",
-   "image_sha256": "5b48f866c222ff49f5497a3b60f4cc5ec0e05836eb79efe65299e83dc24653c1",
+   "image_sha256": "647075e3906e8bd781aae9fa3a946605a073303b699651643b8985a23157f13e",
    "preview": "cam_r_L0_bath_toilet_2_final_preview.jpg",
    "plan": "cam_r_L0_bath_toilet_2_plan.jpg",
    "polish": null,
@@ -605,7 +605,7 @@
     "wb_tint": 3.28,
     "residual": 0.35,
     "window_clip_frac": null,
-    "meter_seconds": 0.24,
+    "meter_seconds": 0.232,
     "meter": {
      "resolution": [
       240,
@@ -695,7 +695,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bed_room_1.png",
-   "image_sha256": "439524bb43ac95355470d54fb084a44f1ee4c9434ca001f1dbcad1258c988aa2",
+   "image_sha256": "6877383fb63b891a3c8d6ccb90a8a17762708c3573e3ef5387e95549fed29260",
    "preview": "cam_r_L0_bed_room_1_final_preview.jpg",
    "plan": "cam_r_L0_bed_room_1_plan.jpg",
    "polish": null,
@@ -709,7 +709,7 @@
       "unverified": 1
      },
      "mismatches": 0,
-     "extras_confirmed": 1,
+     "extras_confirmed": 0,
      "counts": {
       "door": "ok",
       "window": "ok"
@@ -780,7 +780,7 @@
       "centre_px": null,
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 1853
+      "rendered_pixels": 2531
      }
     },
     "error": null
@@ -789,25 +789,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 3.333333,
-    "ev_raw": 3.2943,
+    "ev_raw": 3.2952,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.091741,
+    "incident_p50": 0.091682,
     "whitepoint": [
-     1.081188,
-     0.984466,
-     0.914808
+     1.081084,
+     0.984492,
+     0.914857
     ],
     "wb_mode": "auto",
-    "wb_temperature": 5883.6,
-    "wb_tint": 4.78,
+    "wb_temperature": 5884.2,
+    "wb_tint": 4.79,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.256,
+    "meter_seconds": 0.199,
     "meter": {
      "resolution": [
       240,
@@ -842,7 +842,7 @@
      }
     ],
     "pane_median_after": 0.8774,
-    "seconds": 0.346
+    "seconds": 0.32
    },
    "camera_plan": {
     "policy": "search",
@@ -900,7 +900,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bed_room_2.png",
-   "image_sha256": "4a91044f21fb16a6c47aec7c890cc5ceac5e9afe1ae2a39f89584c74b24b4ec7",
+   "image_sha256": "544aa77d77648e444f8a1faf8f02207cc50ae75001d23c9dd68956fa978d4d1a",
    "preview": "cam_r_L0_bed_room_2_final_preview.jpg",
    "plan": "cam_r_L0_bed_room_2_plan.jpg",
    "polish": null,
@@ -992,7 +992,7 @@
      "f_L0_009": {
       "kind": "furniture",
       "type": "nightstand",
-      "visible_share": 0.929,
+      "visible_share": 0.9201,
       "area_frac": 0.03115,
       "centre_px": [
        437.5,
@@ -1000,7 +1000,7 @@
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 63894
+      "rendered_pixels": 65486
      }
     },
     "error": null
@@ -1018,16 +1018,16 @@
     ],
     "incident_p50": 0.074531,
     "whitepoint": [
-     1.094479,
+     1.094448,
      0.981816,
-     0.901926
+     0.902016
     ],
     "wb_mode": "auto",
-    "wb_temperature": 5794.0,
-    "wb_tint": 3.86,
+    "wb_temperature": 5794.4,
+    "wb_tint": 3.85,
     "residual": 0.35,
     "window_clip_frac": 0.0011,
-    "meter_seconds": 0.216,
+    "meter_seconds": 0.194,
     "meter": {
      "resolution": [
       240,
@@ -1048,7 +1048,7 @@
     "ev": -2.0,
     "k": 2,
     "pane_ev": 1.666667,
-    "clip_before": 0.1852,
+    "clip_before": 0.1851,
     "clip_after": 0.0001,
     "pane_px": 240742,
     "pane_median": 0.9518,
@@ -1067,7 +1067,7 @@
      }
     ],
     "pane_median_after": 0.8306,
-    "seconds": 0.723
+    "seconds": 0.526
    },
    "camera_plan": {
     "policy": "search",
@@ -1127,7 +1127,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bed_room_2_1.png",
-   "image_sha256": "cde0c3d61488f16a2a719b4fd0ee3ad6debc395b8de61b8c458767004749fa2c",
+   "image_sha256": "d2d4089c94144705ccf8fc61d395b77a845a235194dc306016e9be6cf2caef00",
    "preview": "cam_r_L0_bed_room_2_1_final_preview.jpg",
    "plan": "cam_r_L0_bed_room_2_1_plan.jpg",
    "polish": null,
@@ -1224,25 +1224,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 3.666667,
-    "ev_raw": 3.6129,
+    "ev_raw": 3.6074,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.073561,
+    "incident_p50": 0.073844,
     "whitepoint": [
-     1.028457,
-     0.994106,
-     0.974588
+     1.028434,
+     0.994099,
+     0.974731
     ],
     "wb_mode": "auto",
-    "wb_temperature": 6294.3,
-    "wb_tint": 7.64,
+    "wb_temperature": 6295.0,
+    "wb_tint": 7.63,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.21,
+    "meter_seconds": 0.208,
     "meter": {
      "resolution": [
       240,
@@ -1277,7 +1277,7 @@
      }
     ],
     "pane_median_after": 0.8796,
-    "seconds": 0.385
+    "seconds": 0.299
    },
    "camera_plan": {
     "policy": "search",
@@ -1352,7 +1352,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bed_room_2_2.png",
-   "image_sha256": "23257c10bb0a916be4d9bacda26a23821273d072cfcecd85d328b889ce057130",
+   "image_sha256": "31252ac5be0a195b7d2fd5e3e7205af1532a60a4bffcb44b25f53d6c69a0216f",
    "preview": "cam_r_L0_bed_room_2_2_final_preview.jpg",
    "plan": "cam_r_L0_bed_room_2_2_plan.jpg",
    "polish": null,
@@ -1464,25 +1464,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 4.0,
-    "ev_raw": 4.0529,
+    "ev_raw": 4.0538,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.054227,
+    "incident_p50": 0.054191,
     "whitepoint": [
-     1.041987,
-     0.992025,
-     0.955365
+     1.041939,
+     0.992029,
+     0.955466
     ],
     "wb_mode": "auto",
-    "wb_temperature": 6169.6,
+    "wb_temperature": 6170.2,
     "wb_tint": 7.25,
     "residual": 0.35,
     "window_clip_frac": 0.0041,
-    "meter_seconds": 0.232,
+    "meter_seconds": 0.191,
     "meter": {
      "resolution": [
       240,
@@ -1517,7 +1517,7 @@
      }
     ],
     "pane_median_after": 0.8866,
-    "seconds": 0.416
+    "seconds": 0.345
    },
    "camera_plan": {
     "policy": "search",
@@ -1576,7 +1576,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bed_room_2_3.png",
-   "image_sha256": "47f32eb77d1793e2018410d921c32585f1530e6814e48063db30ee0e55b1d2a0",
+   "image_sha256": "566155e8d0495823b07cb231a0a7c4cac3086f0dee3f9953c4c61f9b5b5ea9af",
    "preview": "cam_r_L0_bed_room_2_3_final_preview.jpg",
    "plan": "cam_r_L0_bed_room_2_3_plan.jpg",
    "polish": null,
@@ -1688,25 +1688,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 3.833333,
-    "ev_raw": 3.772,
+    "ev_raw": 3.7756,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.065879,
+    "incident_p50": 0.065718,
     "whitepoint": [
-     1.028519,
-     0.994064,
-     0.974823
+     1.028388,
+     0.994088,
+     0.974973
     ],
     "wb_mode": "auto",
-    "wb_temperature": 6295.1,
-    "wb_tint": 7.61,
+    "wb_temperature": 6296.1,
+    "wb_tint": 7.62,
     "residual": 0.35,
     "window_clip_frac": 0.0001,
-    "meter_seconds": 0.246,
+    "meter_seconds": 0.183,
     "meter": {
      "resolution": [
       240,
@@ -1727,7 +1727,7 @@
     "ev": -1.0,
     "k": 1,
     "pane_ev": 2.833333,
-    "clip_before": 0.0201,
+    "clip_before": 0.02,
     "clip_after": 0.0,
     "pane_px": 285748,
     "pane_median": 0.9485,
@@ -1741,7 +1741,7 @@
      }
     ],
     "pane_median_after": 0.8936,
-    "seconds": 0.368
+    "seconds": 0.36
    },
    "camera_plan": {
     "policy": "search",
@@ -1801,7 +1801,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_bed_room_3.png",
-   "image_sha256": "7dd31920d11afcab548d1f1e33346d7e6ddca17e9a9e9e3187592c574d134548",
+   "image_sha256": "337c5949914d97aa7f2acd7854fc43e9711b4b72fd9c8ceeccf4e116daae70a3",
    "preview": "cam_r_L0_bed_room_3_final_preview.jpg",
    "plan": "cam_r_L0_bed_room_3_plan.jpg",
    "polish": null,
@@ -1893,15 +1893,15 @@
      "f_L0_009": {
       "kind": "furniture",
       "type": "nightstand",
-      "visible_share": 0.0455,
+      "visible_share": 0.0435,
       "area_frac": 0.02906,
       "centre_px": [
-       290.7,
-       610.5
+       289.1,
+       612.0
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 5398
+      "rendered_pixels": 6643
      }
     },
     "error": null
@@ -1910,25 +1910,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 3.5,
-    "ev_raw": 3.4577,
+    "ev_raw": 3.4559,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.081915,
+    "incident_p50": 0.08202,
     "whitepoint": [
-     1.061742,
+     1.061605,
      0.987647,
-     0.94056
+     0.940966
     ],
     "wb_mode": "auto",
-    "wb_temperature": 6044.4,
-    "wb_tint": 5.51,
+    "wb_temperature": 6046.4,
+    "wb_tint": 5.5,
     "residual": 0.35,
     "window_clip_frac": 0.0014,
-    "meter_seconds": 0.24,
+    "meter_seconds": 0.203,
     "meter": {
      "resolution": [
       240,
@@ -1949,7 +1949,7 @@
     "ev": -1.0,
     "k": 1,
     "pane_ev": 2.5,
-    "clip_before": 0.0135,
+    "clip_before": 0.0134,
     "clip_after": 0.0,
     "pane_px": 328380,
     "pane_median": 0.9392,
@@ -1963,7 +1963,7 @@
      }
     ],
     "pane_median_after": 0.8824,
-    "seconds": 0.379
+    "seconds": 0.326
    },
    "camera_plan": {
     "policy": "search",
@@ -2020,7 +2020,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_dining_1.png",
-   "image_sha256": "fed08b01c8ad9d4fc3db313cc45e849705dfbc61527a628bc4e089f7038cdf04",
+   "image_sha256": "e0415b7232a23c8b48dacd8f39376ada18681688d6f728c9da1e998c0adad125",
    "preview": "cam_r_L0_dining_1_final_preview.jpg",
    "plan": "cam_r_L0_dining_1_plan.jpg",
    "polish": null,
@@ -2213,25 +2213,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 4.333333,
-    "ev_raw": 4.3255,
+    "ev_raw": 4.3212,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.044887,
+    "incident_p50": 0.045022,
     "whitepoint": [
-     1.048194,
-     0.985995,
-     0.996816
+     1.048184,
+     0.986013,
+     0.996667
     ],
     "wb_mode": "auto",
-    "wb_temperature": 6316.5,
-    "wb_tint": 2.7,
+    "wb_temperature": 6315.9,
+    "wb_tint": 2.71,
     "residual": 0.35,
     "window_clip_frac": 0.0004,
-    "meter_seconds": 0.256,
+    "meter_seconds": 0.197,
     "meter": {
      "resolution": [
       240,
@@ -2256,7 +2256,7 @@
     "clip_after": 0.0003,
     "pane_px": 338956,
     "pane_median": 0.9516,
-    "wall_median": 0.584,
+    "wall_median": 0.5842,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
@@ -2266,7 +2266,7 @@
      }
     ],
     "pane_median_after": 0.8997,
-    "seconds": 0.401
+    "seconds": 0.354
    },
    "camera_plan": {
     "policy": "search",
@@ -2330,7 +2330,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_dining_2.png",
-   "image_sha256": "4641dead8c54059885ce8aeaf4ea36e714bf134c6b4cc8994ffc7627cd84c2ff",
+   "image_sha256": "59d6eb35d98d1ef6ea475d3a093a3b7a4a385d8fef4edf0a312196bb53f6d0ea",
    "preview": "cam_r_L0_dining_2_final_preview.jpg",
    "plan": "cam_r_L0_dining_2_plan.jpg",
    "polish": null,
@@ -2477,26 +2477,26 @@
    "preference": null,
    "exposure": {
     "mode": "auto",
-    "ev": 4.666667,
-    "ev_raw": 4.5841,
+    "ev": 4.5,
+    "ev_raw": 4.5789,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.037522,
+    "incident_p50": 0.037659,
     "whitepoint": [
-     0.960011,
-     1.004061,
-     1.077524
+     0.95994,
+     1.004165,
+     1.076705
     ],
     "wb_mode": "auto",
-    "wb_temperature": 7017.6,
-    "wb_tint": 9.86,
+    "wb_temperature": 7013.7,
+    "wb_tint": 9.94,
     "residual": 0.35,
-    "window_clip_frac": 0.0,
-    "meter_seconds": 0.264,
+    "window_clip_frac": 0.0053,
+    "meter_seconds": 0.204,
     "meter": {
      "resolution": [
       240,
@@ -2514,29 +2514,24 @@
     "ev_offset": 0.0
    },
    "window_pull": {
-    "ev": -2.0,
-    "k": 2,
-    "pane_ev": 2.666667,
-    "clip_before": 0.2794,
-    "clip_after": 0.0,
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.2279,
+    "clip_after": 0.0059,
     "pane_px": 263456,
-    "pane_median": 0.9636,
-    "wall_median": 0.6353,
+    "pane_median": 0.956,
+    "wall_median": 0.6148,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0231,
-      "median": 0.9143
-     },
-     {
-      "k": 2,
-      "clip": 0.0,
-      "median": 0.8496
+      "clip": 0.0059,
+      "median": 0.9045
      }
     ],
-    "pane_median_after": 0.8502,
-    "seconds": 0.637
+    "pane_median_after": 0.9048,
+    "seconds": 0.356
    },
    "camera_plan": {
     "policy": "search",
@@ -2599,7 +2594,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_dining_3.png",
-   "image_sha256": "dcad02b4b11b229dbb368409c9fb832bd069cd4fa9fd8f193070d62bd6865d45",
+   "image_sha256": "40da6b73db37ef35634e8697dd65c0258df8559258159ea93c514a5d5eeff2fd",
    "preview": "cam_r_L0_dining_3_final_preview.jpg",
    "plan": "cam_r_L0_dining_3_plan.jpg",
    "polish": null,
@@ -2747,25 +2742,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 4.5,
-    "ev_raw": 4.5249,
+    "ev_raw": 4.5131,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.039095,
+    "incident_p50": 0.039415,
     "whitepoint": [
-     0.969686,
-     1.00219,
-     1.06757
+     0.969465,
+     1.002318,
+     1.066954
     ],
     "wb_mode": "auto",
-    "wb_temperature": 6930.6,
-    "wb_tint": 9.08,
+    "wb_temperature": 6928.4,
+    "wb_tint": 9.16,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.235,
+    "meter_seconds": 0.183,
     "meter": {
      "resolution": [
       240,
@@ -2786,16 +2781,16 @@
     "ev": -2.0,
     "k": 2,
     "pane_ev": 2.5,
-    "clip_before": 0.2341,
+    "clip_before": 0.2343,
     "clip_after": 0.0,
     "pane_px": 234318,
     "pane_median": 0.9535,
-    "wall_median": 0.6092,
+    "wall_median": 0.61,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0437,
+      "clip": 0.0438,
       "median": 0.9017
      },
      {
@@ -2805,7 +2800,7 @@
      }
     ],
     "pane_median_after": 0.8325,
-    "seconds": 0.584
+    "seconds": 0.563
    },
    "camera_plan": {
     "policy": "search",
@@ -2869,7 +2864,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_drawing_room_1.png",
-   "image_sha256": "6b38ec3dbb79b1e02d7405d336695e970a9a17528be27b38d3b46c3b646ed485",
+   "image_sha256": "73c410bc9ce3d7b92fefe2bd9fbd43c710e3cddc14fe76cbf1c747106559ec71",
    "preview": "cam_r_L0_drawing_room_1_final_preview.jpg",
    "plan": "cam_r_L0_drawing_room_1_plan.jpg",
    "polish": null,
@@ -2997,25 +2992,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 2.833333,
-    "ev_raw": 2.8847,
+    "ev_raw": 2.8863,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.121862,
+    "incident_p50": 0.121724,
     "whitepoint": [
-     1.227203,
-     0.955098,
-     0.775769
+     1.227314,
+     0.95505,
+     0.77592
     ],
     "wb_mode": "auto",
-    "wb_temperature": 4995.6,
-    "wb_tint": -3.35,
+    "wb_temperature": 4995.7,
+    "wb_tint": -3.38,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.229,
+    "meter_seconds": 0.251,
     "meter": {
      "resolution": [
       240,
@@ -3050,7 +3045,7 @@
      }
     ],
     "pane_median_after": 0.7992,
-    "seconds": 0.337
+    "seconds": 0.312
    },
    "camera_plan": {
     "policy": "search",
@@ -3114,7 +3109,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_drawing_room_2.png",
-   "image_sha256": "38fab6e49b158693526cd8d0935809ddb77e1eaa1c9364b589dedbc2c3dbdbe6",
+   "image_sha256": "5e3a18cee12f7560fce52392ffff4163b8cb6d5a15796096fcb093cd535ff0fc",
    "preview": "cam_r_L0_drawing_room_2_final_preview.jpg",
    "plan": "cam_r_L0_drawing_room_2_plan.jpg",
    "polish": null,
@@ -3236,25 +3231,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 2.666667,
-    "ev_raw": 2.7253,
+    "ev_raw": 2.7271,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.1361,
+    "incident_p50": 0.135923,
     "whitepoint": [
-     1.224477,
-     0.955923,
-     0.775621
+     1.224705,
+     0.955892,
+     0.77526
     ],
     "wb_mode": "auto",
-    "wb_temperature": 5003.2,
+    "wb_temperature": 5001.6,
     "wb_tint": -2.95,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.238,
+    "meter_seconds": 0.208,
     "meter": {
      "resolution": [
       240,
@@ -3289,7 +3284,7 @@
      }
     ],
     "pane_median_after": 0.7944,
-    "seconds": 0.42
+    "seconds": 0.354
    },
    "camera_plan": {
     "policy": "search",
@@ -3353,7 +3348,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_drawing_room_3.png",
-   "image_sha256": "d4e2006e3df9ba553deac9300bb7b32d5f5327eba3992fdc1a445c4a1967621c",
+   "image_sha256": "220cde1aff746f9433b33e48124c468479174eb7e75d5b81061d8cb673c400f8",
    "preview": "cam_r_L0_drawing_room_3_final_preview.jpg",
    "plan": "cam_r_L0_drawing_room_3_plan.jpg",
    "polish": null,
@@ -3513,16 +3508,16 @@
     ],
     "incident_p50": 0.153463,
     "whitepoint": [
-     1.210227,
-     0.958475,
-     0.792303
+     1.210232,
+     0.958476,
+     0.792278
     ],
     "wb_mode": "auto",
     "wb_temperature": 5089.8,
-    "wb_tint": -2.5,
+    "wb_tint": -2.49,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.226,
+    "meter_seconds": 0.192,
     "meter": {
      "resolution": [
       240,
@@ -3557,7 +3552,7 @@
      }
     ],
     "pane_median_after": 0.8012,
-    "seconds": 0.369
+    "seconds": 0.325
    },
    "camera_plan": {
     "policy": "search",
@@ -3622,7 +3617,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_kitchen_1.png",
-   "image_sha256": "6dc9414552c7b907c7b9d1e947a243451e5baf8b169a3f50a24de41e66a01d97",
+   "image_sha256": "f7d2c0925c23d09c4bad9d2824e6c20166558225d91f3f03b65c9be42730bfc1",
    "preview": "cam_r_L0_kitchen_1_final_preview.jpg",
    "plan": "cam_r_L0_kitchen_1_plan.jpg",
    "polish": null,
@@ -3732,16 +3727,16 @@
     ],
     "incident_p50": 0.045775,
     "whitepoint": [
-     0.930484,
-     1.007281,
-     1.132568
+     0.930472,
+     1.007287,
+     1.132552
     ],
     "wb_mode": "auto",
-    "wb_temperature": 7429.0,
-    "wb_tint": 10.37,
+    "wb_temperature": 7428.9,
+    "wb_tint": 10.38,
     "residual": 0.35,
     "window_clip_frac": 0.001,
-    "meter_seconds": 0.237,
+    "meter_seconds": 0.186,
     "meter": {
      "resolution": [
       240,
@@ -3776,7 +3771,7 @@
      }
     ],
     "pane_median_after": 0.8762,
-    "seconds": 0.359
+    "seconds": 0.343
    },
    "camera_plan": {
     "policy": "search",
@@ -3832,7 +3827,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_kitchen_2.png",
-   "image_sha256": "303e13b1b520983f446c0daccab3f0a9d3c8ecd5300eeed354cad23e8345d4a2",
+   "image_sha256": "dfc4e431754e123b63a5a13eaffbc71739ddc121fe7ad15880cf5923715cb0b4",
    "preview": "cam_r_L0_kitchen_2_final_preview.jpg",
    "plan": "cam_r_L0_kitchen_2_plan.jpg",
    "polish": null,
@@ -3928,25 +3923,25 @@
    "exposure": {
     "mode": "auto",
     "ev": 4.5,
-    "ev_raw": 4.4949,
+    "ev_raw": 4.4972,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -2.0,
      8.0
     ],
-    "incident_p50": 0.039917,
+    "incident_p50": 0.039852,
     "whitepoint": [
-     0.976071,
-     1.000336,
-     1.067136
+     0.976064,
+     1.00034,
+     1.067116
     ],
     "wb_mode": "auto",
     "wb_temperature": 6903.9,
-    "wb_tint": 8.09,
+    "wb_tint": 8.1,
     "residual": 0.35,
     "window_clip_frac": 0.001,
-    "meter_seconds": 0.234,
+    "meter_seconds": 0.186,
     "meter": {
      "resolution": [
       240,
@@ -3981,7 +3976,7 @@
      }
     ],
     "pane_median_after": 0.9258,
-    "seconds": 0.438
+    "seconds": 0.321
    },
    "camera_plan": {
     "policy": "search",
@@ -4037,7 +4032,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_kitchen_3.png",
-   "image_sha256": "c3756bbb1cf9ef465236b38c8338e22a5128c100782e5f28e27d8ea7b2a08cf4",
+   "image_sha256": "db003acda09b43078e53f3d2f38ba7d6dfdb16d2133f08c093f71ab0d88f4065",
    "preview": "cam_r_L0_kitchen_3_final_preview.jpg",
    "plan": "cam_r_L0_kitchen_3_plan.jpg",
    "polish": null,
@@ -4155,16 +4150,16 @@
     ],
     "incident_p50": 0.049622,
     "whitepoint": [
-     0.918753,
-     1.008575,
-     1.154298
+     0.918757,
+     1.00857,
+     1.154335
     ],
     "wb_mode": "auto",
-    "wb_temperature": 7602.9,
-    "wb_tint": 10.59,
+    "wb_temperature": 7603.1,
+    "wb_tint": 10.58,
     "residual": 0.35,
     "window_clip_frac": 0.0003,
-    "meter_seconds": 0.225,
+    "meter_seconds": 0.21,
     "meter": {
      "resolution": [
       240,
@@ -4199,7 +4194,7 @@
      }
     ],
     "pane_median_after": 0.9104,
-    "seconds": 0.397
+    "seconds": 0.321
    },
    "camera_plan": {
     "policy": "search",
@@ -4256,7 +4251,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_room_1.png",
-   "image_sha256": "b02f558aced5a2dabb04f53628855ab1272f2fbe3b0abddddad39549787948f4",
+   "image_sha256": "b2ee8f802582d5cd079a47f13d2f19853c81c1655cba905a2362bd829f5b859e",
    "preview": "cam_r_L0_room_1_final_preview.jpg",
    "plan": "cam_r_L0_room_1_plan.jpg",
    "polish": null,
@@ -4335,16 +4330,16 @@
     ],
     "incident_p50": 0.90798,
     "whitepoint": [
-     1.252376,
+     1.252377,
      0.950595,
-     0.746249
+     0.746248
     ],
     "wb_mode": "auto",
     "wb_temperature": 4846.3,
     "wb_tint": -3.55,
     "residual": 0.35,
     "window_clip_frac": null,
-    "meter_seconds": 0.227,
+    "meter_seconds": 0.206,
     "meter": {
      "resolution": [
       240,
@@ -4414,7 +4409,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_room_2.png",
-   "image_sha256": "f7fa78e0e8050d6ef21ede4de5eacb93a1813c0d766f334c0af3247e6ae1a9ce",
+   "image_sha256": "072155cf390849aab0eb67348991ba401b4929895b6f659cf54e83538ce172bd",
    "preview": "cam_r_L0_room_2_final_preview.jpg",
    "plan": "cam_r_L0_room_2_plan.jpg",
    "polish": null,
@@ -4519,16 +4514,16 @@
     ],
     "incident_p50": 0.977641,
     "whitepoint": [
-     1.240628,
-     0.952903,
-     0.757983
+     1.240626,
+     0.952904,
+     0.75798
     ],
     "wb_mode": "auto",
     "wb_temperature": 4909.8,
     "wb_tint": -3.23,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.225,
+    "meter_seconds": 0.195,
     "meter": {
      "resolution": [
       240,
@@ -4598,7 +4593,7 @@
    "reason": "gate_validation",
    "detail": "gate validation polish_disabled: no polish for this project",
    "image": "../renders/cam_r_L0_room_3.png",
-   "image_sha256": "dd5950f181ef75054e711b8ce2811df4f9e0276eb8759fe8ff7d24a0b415b9a0",
+   "image_sha256": "32ff785ea4d323734f7592de271386e2b76712389698728b158deba522b1c175",
    "preview": "cam_r_L0_room_3_final_preview.jpg",
    "plan": "cam_r_L0_room_3_plan.jpg",
    "polish": null,
@@ -4690,16 +4685,16 @@
     ],
     "incident_p50": 1.270861,
     "whitepoint": [
-     1.231078,
+     1.231077,
      0.954966,
-     0.765669
+     0.76567
     ],
     "wb_mode": "auto",
     "wb_temperature": 4957.5,
     "wb_tint": -2.77,
     "residual": 0.35,
     "window_clip_frac": null,
-    "meter_seconds": 0.248,
+    "meter_seconds": 0.209,
     "meter": {
      "resolution": [
       240,
@@ -5933,11 +5928,11 @@
   "files": {
    "blend": {
     "file": "real01.blend",
-    "bytes": 79088506
+    "bytes": 79530228
    },
    "glb": {
     "file": "real01.glb",
-    "bytes": 158138208
+    "bytes": 160044280
    }
   },
   "max_texture": 1024,

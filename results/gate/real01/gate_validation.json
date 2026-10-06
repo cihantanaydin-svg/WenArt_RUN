@@ -19,9 +19,9 @@
  "polish_allowed": false,
  "calibration": {
   "path": "gate_calibration.json",
-  "sha256": "157decb558b92502bcc5ce9a85325359af6f56662490185ab7bcfdd645cd868e",
+  "sha256": "b1539a1800df99c08ea0acac94620e4c5f99023474e84dc2e93f64e6494c5546",
   "incomplete": false,
   "thresholds_match": true
  },
- "created_utc": "2026-10-04T14:28:31Z"
+ "created_utc": "2026-10-06T07:09:11Z"
 }
