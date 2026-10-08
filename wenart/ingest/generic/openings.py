@@ -974,7 +974,11 @@ def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict, joined: Optional[d
     methods = {q.wall.evidence.get("method") for q in seg}
     method = "raster" if methods == {"raster"} else "vector"
     confidence = min(q.wall.evidence.get("confidence", 1.0) for q in seg)
-    notes = [joined[q.k] for q in seg if q.k in joined]
+    # Walls drawn as face lines carry their layer and the layer choice: kept when every piece has the same.
+    layers = {q.wall.evidence.get("layer") for q in seg}
+    first_notes = {q.wall.evidence.get("note") for q in seg}
+    notes = [first_notes.pop()] if len(first_notes) == 1 and None not in first_notes else []
+    notes += [joined[q.k] for q in seg if q.k in joined]
     for q in seg:
         if q.k in extended:
             ids, reason = extended[q.k]
@@ -984,7 +988,7 @@ def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict, joined: Optional[d
     if len(seg) > 1:
         notes.append(f"run of {len(seg)} pieces")
     ev = B.evidence(base.get("file", ctx.file_rel), method, round(confidence, 3), page=base.get("page", ctx.page_no),
-                    entity=entity)
+                    entity=entity, layer=layers.pop() if len(layers) == 1 else None)
     if notes:
         ev["note"] = "; ".join(notes)
     return WallItem(start=(round(s[0], 4), round(s[1], 4)), end=(round(e[0], 4), round(e[1], 4)),
