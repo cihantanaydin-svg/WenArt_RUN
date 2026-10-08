@@ -452,21 +452,28 @@ def plot_wall_parts(wall: dict, terrain: dict) -> tuple[list, list, dict]:
     a, b = wall["start"], wall["end"]
     length = G.distance(a, b)
     k = max(1, int(math.ceil(length / PLOT_WALL_STEP_M)))
-    parts, zs = [], []
     angle = G.segment_angle_deg(a, b)
+    steps = []                                   # [t0, t1, z0, z1]; neighbours at the same heights are joined
     for i in range(k):
         p = G.point_along_segment(a, b, i / k)
         q = G.point_along_segment(a, b, (i + 1) / k)
         g = [ground_z(terrain, *p), ground_z(terrain, *q), ground_z(terrain, *G.segment_midpoint(p, q))]
-        z0, z1 = min(g) - 0.1, max(g) + h
-        mid = G.segment_midpoint(p, q)
-        # Segments overlap by the thickness so the steps leave no slit.
-        parts.append(geom2d.box((mid[0], mid[1], (z0 + z1) / 2.0), (length / k + (t if k > 1 else 0.0), t, z1 - z0),
-                                angle))
+        z0, z1 = round(min(g) - 0.1, 6), round(max(g) + h, 6)
+        if steps and steps[-1][2:] == [z0, z1]:
+            steps[-1][1] = (i + 1) / k
+        else:
+            steps.append([i / k, (i + 1) / k, z0, z1])
+    parts, zs = [], []
+    for j, (t0, t1, z0, z1) in enumerate(steps):
+        mid = G.point_along_segment(a, b, (t0 + t1) / 2.0)
+        # Steps overlap by the thickness so they leave no slit; every second one is 2 mm thicker so the overlapping
+        # faces are never coplanar (no z-fighting stripes in Cycles).
+        reach = length * (t1 - t0) + (t if len(steps) > 1 else 0.0)
+        parts.append(geom2d.box((mid[0], mid[1], (z0 + z1) / 2.0), (reach, t + 0.002 * (j % 2), z1 - z0), angle))
         zs += [z0, z1]
     verts, faces = geom2d.merge(parts)
     return verts, faces, {"height": h, "height_assumed": assumed, "thickness": t, "segments": k,
-                          "z_range": [round(min(zs), 4), round(max(zs), 4)]}
+                          "steps": len(steps), "z_range": [round(min(zs), 4), round(max(zs), 4)]}
 
 
 def _sphere(center, rx: float, ry: float, rz: float, segments: int = 10, rings: int = 6) -> tuple[list, list]:

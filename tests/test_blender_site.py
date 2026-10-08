@@ -153,8 +153,10 @@ def test_plot_walls_step_with_the_ground_and_trees_stand_on_it():
     assert info["height_assumed"] and info["height"] == 1.2 and info["segments"] == 11
     assert info["z_range"][0] == pytest.approx(-3.1)                    # 0.1 m under the lowest ground
     north = next(w for w in EXAMPLE["site"]["boundary_walls"] if w["id"] == "sw_L0_003")
-    _, _, info = S.plot_wall_parts(north, t)
+    verts, faces, info = S.plot_wall_parts(north, t)
     assert info["z_range"] == pytest.approx([-0.1, 1.2])
+    assert info["steps"] == 1 and len(faces) == 6               # on flat ground one box (no coplanar overlaps)
+    assert 1 < S.plot_wall_parts(south, t)[2]["steps"] <= 11
     tree = EXAMPLE["site"]["decor"][0]
     parts = S.tree_parts(tree, t)
     gz = S.ground_z(t, *tree["center"])
