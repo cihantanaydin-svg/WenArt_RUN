@@ -315,3 +315,77 @@ def test_two_regions_of_one_level_on_one_sheet_keep_their_own_region_ids(tmp_pat
     walls = [w for w in building["walls"] if w["level_id"] == "L0"]
     assert all([e["region_id"] for e in w["evidence"]] == ["r2", "r5"] for w in walls)
     assert not any("left without a region_id" in w for w in building["warnings"])
+
+
+def _two_plan_pdf(path) -> None:
+    """One vector PDF page at 1:100: an L-shaped ground floor (x 0..10 m) and a basement of the same shape cut at
+    x = 3 m, each wall drawn as its two face rings, each plan with its title, scale note and room names."""
+    from reportlab.pdfgen import canvas as rl_canvas
+    from shapely.geometry import Polygon
+
+    pt = 72.0 / 25.4 * 10.0                      # page points per metre at 1:100
+    c = rl_canvas.Canvas(str(path), pagesize=(1190.55, 841.89), invariant=1)
+    c.setFont("Helvetica", 9)
+
+    def plan(poly, ox, title, inner_x, labels):
+        oy = 300.0
+        outer = Polygon(poly)
+        for ring in (outer.exterior.coords, outer.buffer(-0.2, join_style=2).exterior.coords):
+            ring = list(ring)
+            p = c.beginPath()
+            p.moveTo(ox + ring[0][0] * pt, oy + ring[0][1] * pt)
+            for x, y in ring[1:]:
+                p.lineTo(ox + x * pt, oy + y * pt)
+            p.close()
+            c.drawPath(p, stroke=1, fill=0)
+        c.rect(ox + inner_x * pt, oy + 0.2 * pt, 0.1 * pt, 5.6 * pt, stroke=1, fill=0)
+        bx = min(x for x, _ in poly)
+        c.drawString(ox + bx * pt, oy - pt, title)
+        c.drawString(ox + (bx + 1) * pt, oy + pt, "OLCEK 1/100")
+        for text, (x, y) in labels:
+            c.drawString(ox + x * pt, oy + y * pt, text)
+
+    plan([(0, 0), (10, 0), (10, 8), (4, 8), (4, 6), (0, 6)], 60.0, "ZEMIN KAT PLANI", 5.0,
+         [("SALON", (1, 3)), ("MUTFAK", (7, 3))])
+    plan([(3, 0), (10, 0), (10, 8), (4, 8), (4, 6), (3, 6)], 60.0 + 13 * pt, "BODRUM KAT PLANI", 6.0,
+         [("DEPO", (3.5, 3)), ("KAZAN", (7.5, 3))])
+    c.showPage()
+    c.save()
+
+
+def test_a_pdf_region_lands_in_its_registered_frame(tmp_path):
+    # Review finding 13: a vector-PDF region uses the transform the sheets stage registered (moved by the reference's
+    # frame shift) instead of the min corner of its own walls: the narrower basement is not pulled to x = 0.
+    pytest.importorskip("reportlab")
+    project = tmp_path / "pdf"
+    project.mkdir()
+    _two_plan_pdf(project / "plan.pdf")
+    building, build = P.run_project(project, tmp_path / "out", no_ai=True)
+    sheets = json.loads((tmp_path / "out" / "sheets.json").read_text(encoding="utf-8"))
+    registered = {r["id"]: r["transform_to_building"] for r in sheets["regions"] if r["use"] == "read"}
+    pages = {p["region_id"]: p["transform_to_building"] for p in building["documents"][0]["pages"]}
+    assert build.reference_region == "r1" and max(abs(v) for v in build.frame_shift) < 0.005
+    tf = pages["r2"]
+    assert tf[2] == pytest.approx(registered["r2"][2] - build.frame_shift[0], abs=1e-6)
+    assert tf[5] == pytest.approx(registered["r2"][5] - build.frame_shift[1], abs=1e-6)
+    xs = [x for w in building["walls"] if w["level_id"] == "L-1" for x in (w["start"][0], w["end"][0])]
+    assert min(xs) > 2.5                          # registered near x = 3 m, not at its own walls' corner
+    assert not any("is not used" in w or "not a scale and shift" in w for w in building["warnings"])
+
+
+@pytest.mark.parametrize("fmt, units, tf, origin, why", [
+    ("pdf", None, [0.035278, 0.0, -14.98, 0.0, 0.035278, -10.58], (14.98, 10.58), None),
+    ("dxf", 0.01, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], (2.0, 3.0), None),
+    ("dxf", None, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], None, "no drawing unit for the region"),
+    ("dxf", 0.001, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], None, "is not the drawing unit"),
+    ("pdf", None, [0.0, -0.035, 1.0, 0.035, 0.0, 2.0], None, "a rotated or skewed registration"),
+])
+def test_the_region_origin_says_why_it_is_not_used(fmt, units, tf, origin, why):
+    # Review finding 13: a PDF region's registered scale is its own unit; a transform that is not used names why.
+    from wenart.ingest.classify import PageRecord
+
+    record = PageRecord(file="a", page=1, format=fmt, kind="vector")
+    record.region_id, record.region_transform, record.units_override = "r2", tf, units
+    got, reason = P._region_origin(record)
+    assert got == (pytest.approx(origin) if origin else None)
+    assert (reason is None) if why is None else (why in reason)

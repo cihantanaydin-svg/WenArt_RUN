@@ -1472,12 +1472,21 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
         from wenart.sheets import register as RG
         from wenart.sheets import titles as T
         page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
-    origin = _region_origin(record)
+    origin, why = _region_origin(record)
     is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
     if origin is not None and build is not None and not is_reference:
         origin = (origin[0] + build.frame_shift[0], origin[1] + build.frame_shift[1])
     ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
                       rec_dir=out_dir / RECOGNITION_DIR, origin=None if is_reference else origin)
+    if origin is not None and not record.units_override and ex.transform_to_building:
+        # A PDF region: its origin holds only at the registered scale; the core read the scale on its own.
+        core_s, reg_s = float(ex.transform_to_building[0]), float(record.region_transform[0])
+        if abs(core_s - reg_s) > PDF_SCALE_TOL * reg_s:
+            why = f"the core's scale {core_s:.6g} m per unit differs from the registered scale {reg_s:.6g}"
+            origin = None
+            if not is_reference:
+                ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
+                                  rec_dir=out_dir / RECOGNITION_DIR, origin=None)
     if is_reference and origin is not None and ex.walls and ex.report.get("origin_m"):
         core_origin = ex.report["origin_m"]
         build.frame_shift = (round(core_origin[0] - origin[0], 6) + 0.0, round(core_origin[1] - origin[1], 6) + 0.0)
@@ -1488,22 +1497,34 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
     if record.region_id is not None:
         if record.region_transform is not None and origin is None:
             ex.warnings.append(f"{record.file} {record.region_id}: the registered transform "
-                               f"{record.region_transform} is not a scale and shift at the page scale; the level "
-                               f"keeps its own frame (origin at its walls)")
+                               f"{record.region_transform} is not used ({why}); the level keeps its own frame "
+                               f"(origin at its walls)")
         if record.units_override and ex.scale and ex.scale.get("method") == "dxf_insunits" and record.scale:
             ex.scale = dict(ex.scale, evidence=dict(record.scale["evidence"]))
     return ex
 
 
-def _region_origin(record: PageRecord) -> Optional[tuple[float, float]]:
-    """Page-metre origin of a registered region (``[s, 0, c, 0, s, f]`` with ``s`` the unit -> origin ``(-c, -f)``)."""
+PDF_SCALE_TOL = 1e-4        # relative: sheets.json rounds a registered transform to 6 digits
+
+
+def _region_origin(record: PageRecord) -> tuple[Optional[tuple[float, float]], Optional[str]]:
+    """Page-metre origin of a registered region (``[s, 0, c, 0, s, f]`` -> origin ``(-c, -f)``) and, without one, why.
+    ``s`` is the drawing unit of the unit check (CAD) or, for a PDF region, the registered scale itself (checked
+    against the core's scale after the extraction, review finding 13)."""
     tf = record.region_transform
-    if record.region_id is None or not tf or not record.units_override:
-        return None
-    s = float(record.units_override)
-    if abs(tf[1]) > 1e-12 or abs(tf[3]) > 1e-12 or abs(tf[0] - s) > 1e-9 * s or abs(tf[4] - s) > 1e-9 * s:
-        return None
-    return (-float(tf[2]), -float(tf[5]))
+    if record.region_id is None or not tf:
+        return None, None
+    if abs(tf[1]) > 1e-12 or abs(tf[3]) > 1e-12:
+        return None, "a rotated or skewed registration"
+    if record.units_override:
+        s, tol = float(record.units_override), 1e-9 * float(record.units_override)
+    elif record.format == "pdf":
+        s, tol = float(tf[0]), PDF_SCALE_TOL * abs(float(tf[0]))
+    else:
+        return None, "no drawing unit for the region"
+    if abs(tf[0] - s) > tol or abs(tf[4] - s) > tol:
+        return None, f"its scale {tf[0]:.6g} x {tf[4]:.6g} is not the drawing unit {s:.6g}"
+    return (-float(tf[2]), -float(tf[5])), None
 
 
 def _evidence_only_pages(records: list[PageRecord]) -> set[tuple]:
