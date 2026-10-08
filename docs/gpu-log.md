@@ -49,5 +49,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-06 07:16 | 1c3cvhjn3c6t3c | NVIDIA RTX PRO 6000 Blackwell Server Edition | 19 | 0.67 | M9 F2: full run of real01 with the final library (453 + 152, pod L3), AI decor, 3D files | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-06 14:48 | l1mybdmvk9ratb | NVIDIA GeForce RTX 4090 | 7 | 0.09 | real02: full run of the user's DWG with the style photo, AI decor, 3D files | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-08 19:18 | 2yv5dyxk11jis1 | NVIDIA GeForce RTX 5090 | 125 | 2.48 | M10 L1: library with the new types and material slots (ABO + Objaverse survey, thumbnails, recolour slots, two-model judging, catalogue) and the sheet/recognition answers of real02, synthetic-07, real01, synthetic-03 | timeout (watchdog), stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-08 19:57 | pending:20261008-195714-prep | RTX PRO 4000 | 120 | 1.14 | M10 L1b: surveys of the new types (ABO + Objaverse, GLB caches on the volume), thumbnails, material slots of the new and the M9 models | creating (provisional, worst case) |
 
-**Total spent so far: $36.28** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $37.42** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
