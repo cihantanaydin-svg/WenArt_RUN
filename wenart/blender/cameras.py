@@ -53,6 +53,10 @@ point is recorded in the plan's ``warning`` (nothing is moved silently).
 Each plan lists the openings and furniture of the room whose centre is
 inside the camera frustum (used by the final vision check later; pieces of
 other rooms are hidden by walls and are left out).
+
+Milestone 10 (docs/milestone10.md §1.6b row 15): a wall-hung piece
+(``mount_bottom_m``, ``mount_bottom``) is no floor obstacle; its centre for
+the frustum lists is at its hanging height.
 """
 from __future__ import annotations
 
@@ -182,6 +186,13 @@ def room_lens(room: dict, lens_mm: float | None = None) -> tuple[float, str]:
     return LENS_MM, f"room width {width:.2f} m >= {NARROW_ROOM_M:g} m"
 
 
+def mount_bottom(piece: dict) -> float:
+    """How high a wall-hung piece hangs above the floor (``mount_bottom_m``, docs/milestone10.md §1.6b row 15:
+    wall cabinets at 1.45 m); 0 for a piece standing on the floor. Wall-hung pieces are no floor obstacles."""
+    v = piece.get("mount_bottom_m")
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 else 0.0
+
+
 def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
     polygon = [tuple(p[:2]) for p in room["polygon"]]
     if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
@@ -193,9 +204,10 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
                  and f.get("build", True) is not False]
     # Obstacles are the fitted boxes (library bbox x fit scale, parametric
     # box, proxy box), never smaller than the drawn footprint (milestone 4 §2).
-    obstacles = [obstacle_rect(f) for f in furniture]
+    # Wall-hung pieces (mount_bottom_m, Milestone 10) are no floor obstacles.
+    obstacles = [obstacle_rect(f) for f in furniture if mount_bottom(f) <= 0.0]
     # Boxes a camera at CAMERA_HEIGHT would be inside of: never allowed.
-    tall = [obstacle_rect(f) for f in furniture if piece_bbox(f)[2] >= CAMERA_HEIGHT]
+    tall = [obstacle_rect(f) for f in furniture if mount_bottom(f) <= 0.0 and piece_bbox(f)[2] >= CAMERA_HEIGHT]
     openings = room_openings(room, polygon, building)
     centroid = G.polygon_centroid(polygon)
     free = geom2d.free_points(polygon, obstacles)
@@ -257,7 +269,8 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
         plan["visible_furniture"] = [
             f["id"] for f in furniture
             if geom2d.point_in_frustum(
-                (f["footprint"]["center"][0], f["footprint"]["center"][1], floor_z + piece_bbox(f)[2] / 2.0),
+                (f["footprint"]["center"][0], f["footprint"]["center"][1],
+                 floor_z + mount_bottom(f) + piece_bbox(f)[2] / 2.0),
                 pos, tgt, tangents)
         ]
     return plans

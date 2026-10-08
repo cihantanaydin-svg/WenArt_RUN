@@ -123,6 +123,11 @@ lens the side walls of narrow rooms seen through 16 mm made 2 views
 (0.03 -> 0.07); with the scaled distance no view is blocked and every room
 gets its area-rule views.
 
+Milestone 10 (docs/milestone10.md §3.2 item 2, §1.6b row 15): a room under the roof has the sloped ceiling of
+its level's ``ceiling_planes`` in the ray model and keeps ``HEADROOM_M`` above its camera points
+(``headroom_ok``); a wall-hung piece (``mount_bottom_m``, wall cabinets at 1.45 m; ``mount_bottom``) is no floor
+obstacle for the camera points and its boxes hang from that height in the model and the frustum lists.
+
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
 [--report cameras.md] [--level L0] [--lens-mm 18]``.
@@ -392,6 +397,9 @@ def camera_directions(position, target, a: np.ndarray, b: np.ndarray) -> np.ndar
 # The room model
 # --------------------------------------------------------------------------
 
+mount_bottom = cameras.mount_bottom      # Milestone 10: how high a wall-hung piece hangs (0 on the floor)
+
+
 def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]:
     """Boxes ``(x0, y0, x1, y1, top)`` of a piece in its own frame (width X, depth Y, front -Y, back +Y,
     centred on the footprint centre), each standing on the floor up to ``top``.
@@ -578,9 +586,10 @@ class RoomModel:
             rot = math.radians(float(fp.get("rotation_deg") or 0.0))
             c, s = math.cos(rot), math.sin(rot)
             fx, fy = float(fp["center"][0]), float(fp["center"][1])
+            base = self.floor_z + mount_bottom(f)                # a wall-hung piece hangs (Milestone 10)
             for x0, y0, x1, y1, top in piece_profile(f):
                 lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0       # box centre in the piece frame -> world
-                self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, self.floor_z + top / 2.0,
+                self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, base + top / 2.0,
                                    (x1 - x0) / 2.0, (y1 - y0) / 2.0, top / 2.0, c, s))
 
     # ------------------------------------------------------------------
@@ -726,7 +735,8 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     """Camera points of a room and a warning: the free convex-corner points and the free 0.5 m grid
     points (sorted by x, y); without any, the M5 fallback point with its warning."""
     polygon = room_polygon(room)
-    pieces = shown_pieces(room, building)
+    # Wall-hung pieces (mount_bottom_m, docs/milestone10.md §1.6b row 15) are not floor obstacles.
+    pieces = [f for f in shown_pieces(room, building) if mount_bottom(f) <= 0.0]
     obstacles = [obstacle_rect(f) for f in pieces]
     corners = [p for p in convex_corner_points(polygon)
                if geom2d.point_is_free(p, polygon, obstacles, WALL_CLEARANCE, OBSTACLE_CLEARANCE)]
@@ -872,7 +882,7 @@ def _frustum_lists(model: RoomModel, position, target, seen=None,
     pieces = [f["id"] for f in model.pieces
               if seen.get(f["id"], 0.0) > 0.0
               or geom2d.point_in_frustum((f["footprint"]["center"][0], f["footprint"]["center"][1],
-                                          fz + piece_bbox(f)[2] / 2.0), position, target, tangents,
+                                          fz + mount_bottom(f) + piece_bbox(f)[2] / 2.0), position, target, tangents,
                                          shift_x=SHIFT_X, shift_y=SHIFT_Y)]
     return opens, pieces
 
