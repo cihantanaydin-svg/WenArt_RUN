@@ -1,0 +1,4210 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-07",
+  "source_folder": "projects/synthetic-07",
+  "created_utc": "2026-10-01T00:00:00Z",
+  "pipeline_commit": "synthetic-generator",
+  "brief": {
+   "style": "Modern minimal, light oak floor, white walls, warm daylight",
+   "exterior": {
+    "facade": "white render",
+    "roof": "clay tiles",
+    "window_frame": "anthracite aluminium"
+   }
+  }
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_sheet_dxf",
+   "file": "sheet.dxf",
+   "format": "dxf",
+   "converter": null,
+   "unit_system": "metric",
+   "source_kind": "dxf",
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "region_id": "r1",
+     "region_box": [
+      600.0,
+      4200.0,
+      1600.0,
+      5000.0
+     ],
+     "region_class": "floor_plan",
+     "variant": "base",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L-1",
+     "level_label_raw": "BODRUM KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -6.0,
+      0.0,
+      0.01,
+      -42.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "MTEXT:164",
+       "text": "BODRUM KAT PLANI",
+       "region_id": "r1",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "region_id": "r2",
+     "region_box": [
+      2300.0,
+      4175.0,
+      3300.0,
+      4975.0
+     ],
+     "region_class": "alternative_floor_plan",
+     "variant": "Açık mutfak",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L-1b",
+     "level_label_raw": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -23.0,
+      0.0,
+      0.01,
+      -41.75
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "MTEXT:1AF",
+       "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+       "region_id": "r2",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "region_id": "r3",
+     "region_box": [
+      4000.0,
+      3910.0,
+      5000.0,
+      4950.0
+     ],
+     "region_class": "floor_plan",
+     "variant": "base",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -40.0,
+      0.0,
+      0.01,
+      -40.4
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "MTEXT:202",
+       "text": "ZEMİN KAT PLANI",
+       "region_id": "r3",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "region_id": "r4",
+     "region_box": [
+      5700.0,
+      4025.0,
+      6800.0,
+      4925.0
+     ],
+     "region_class": "floor_plan",
+     "variant": "base",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L1",
+     "level_label_raw": "ÇATI KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -57.5,
+      0.0,
+      0.01,
+      -40.75
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "MTEXT:230",
+       "text": "ÇATI KAT PLANI",
+       "region_id": "r4",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "site_plan",
+     "region_id": "r5",
+     "region_box": [
+      7700.0,
+      2000.0,
+      10500.0,
+      4550.0
+     ],
+     "region_class": "site_plan",
+     "variant": null,
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": "VAZİYET PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -85.0,
+      0.0,
+      0.01,
+      -27.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "TEXT:278",
+       "text": "VAZİYET PLANI",
+       "region_id": "r5",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "section",
+     "region_id": "r6",
+     "region_box": [
+      845.0,
+      1680.0,
+      2300.0,
+      2710.602
+     ],
+     "region_class": "section",
+     "variant": null,
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": "A-A KESİTİ",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -12.0,
+      0.0,
+      0.01,
+      -20.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "TEXT:24C",
+       "text": "A-A KESİTİ",
+       "region_id": "r6",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "elevation",
+     "region_id": "r7",
+     "region_box": [
+      3700.0,
+      1990.0,
+      5300.0,
+      2700.602
+     ],
+     "region_class": "elevation",
+     "variant": null,
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": "GÜNEY GÖRÜNÜŞÜ",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -40.0,
+      0.0,
+      0.01,
+      -19.9
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "TEXT:25D",
+       "text": "GÜNEY GÖRÜNÜŞÜ",
+       "region_id": "r7",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "elevation",
+     "region_id": "r8",
+     "region_box": [
+      5900.0,
+      1980.0,
+      7300.0,
+      2690.602
+     ],
+     "region_class": "elevation",
+     "variant": null,
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": "DOĞU GÖRÜNÜŞÜ",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=5"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -62.0,
+      0.0,
+      0.01,
+      -19.8
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A_Yazi",
+       "entity": "TEXT:265",
+       "text": "DOĞU GÖRÜNÜŞÜ",
+       "region_id": "r8",
+       "rule": "title_keyword"
+      }
+     ],
+     "debug_image": null
+    }
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "id": "L-1",
+   "label": "Bodrum Kat",
+   "order": -1,
+   "elevation": -3.0,
+   "ceiling_height": 2.8,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "basement",
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r1",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "method": "vector",
+      "confidence": 1.0,
+      "entity": "LWPOLYLINE:231",
+      "region_id": "r6",
+      "rule": "slab_bands"
+     },
+     {
+      "file": "sheet.dxf",
+      "method": "vector",
+      "confidence": 1.0,
+      "entity": "LWPOLYLINE:232",
+      "region_id": "r6",
+      "rule": "slab_bands"
+     }
+    ]
+   },
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:164",
+     "text": "BODRUM KAT PLANI",
+     "region_id": "r1",
+     "rule": "title_keyword"
+    }
+   ]
+  },
+  {
+   "id": "L-1b",
+   "label": "Bodrum Kat",
+   "order": -1,
+   "elevation": -3.0,
+   "ceiling_height": 2.8,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "basement",
+   "variant_group": "vg_L-1",
+   "variant": "Açık mutfak",
+   "variant_slug": "acik-mutfak",
+   "base_level_id": "L-1",
+   "region_id": "r2",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "method": "vector",
+      "confidence": 1.0,
+      "entity": "LWPOLYLINE:231",
+      "region_id": "r6",
+      "rule": "slab_bands"
+     },
+     {
+      "file": "sheet.dxf",
+      "method": "vector",
+      "confidence": 1.0,
+      "entity": "LWPOLYLINE:232",
+      "region_id": "r6",
+      "rule": "slab_bands"
+     }
+    ]
+   },
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1AF",
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "region_id": "r2",
+     "rule": "title_keyword"
+    }
+   ]
+  },
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.8,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "floor",
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r3",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "method": "vector",
+      "confidence": 1.0,
+      "entity": "LWPOLYLINE:232",
+      "region_id": "r6",
+      "rule": "slab_bands"
+     },
+     {
+      "file": "sheet.dxf",
+      "method": "vector",
+      "confidence": 1.0,
+      "entity": "LWPOLYLINE:233",
+      "region_id": "r6",
+      "rule": "slab_bands"
+     }
+    ]
+   },
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:202",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r3",
+     "rule": "title_keyword"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "label": "Çatı Katı",
+   "order": 1,
+   "elevation": 3.0,
+   "ceiling_height": 3.80083,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "attic",
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r4",
+   "elevation_source": "section",
+   "floor_to_floor": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:230",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r4",
+     "rule": "title_keyword"
+    }
+   ]
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L-1_001",
+   "level_id": "L-1",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    10.0,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:117",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:118",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:119",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:11A",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:123",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:124",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:125",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:12D",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:12E",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_002",
+   "level_id": "L-1",
+   "start": [
+    9.875,
+    0.0
+   ],
+   "end": [
+    9.875,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:11B",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:11C",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:12F",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:135",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:136",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_003",
+   "level_id": "L-1",
+   "start": [
+    0.0,
+    7.875
+   ],
+   "end": [
+    10.0,
+    7.875
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:11D",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:11E",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:11F",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:120",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:128",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:129",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:12A",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:137",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:138",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_004",
+   "level_id": "L-1",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:121",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:122",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:12B",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:12C",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_005",
+   "level_id": "L-1",
+   "start": [
+    6.1,
+    0.25
+   ],
+   "end": [
+    6.1,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:126",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:127",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:132",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:139",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:13A",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_006",
+   "level_id": "L-1",
+   "start": [
+    6.1,
+    4.0
+   ],
+   "end": [
+    9.75,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:130",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:131",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:133",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:134",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_001",
+   "level_id": "L-1b",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    10.0,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:165",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:166",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:167",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:168",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:171",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:172",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:173",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:174",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_002",
+   "level_id": "L-1b",
+   "start": [
+    9.875,
+    0.0
+   ],
+   "end": [
+    9.875,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:169",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:16A",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:175",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:181",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:182",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_003",
+   "level_id": "L-1b",
+   "start": [
+    0.0,
+    7.875
+   ],
+   "end": [
+    10.0,
+    7.875
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:16B",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:16C",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:16D",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:16E",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:17A",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:17B",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:17C",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:183",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:184",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_004",
+   "level_id": "L-1b",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:16F",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:170",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:17D",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:17E",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_005",
+   "level_id": "L-1b",
+   "start": [
+    6.1,
+    3.95
+   ],
+   "end": [
+    6.1,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:178",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:179",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:185",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:186",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_006",
+   "level_id": "L-1b",
+   "start": [
+    6.1,
+    4.0
+   ],
+   "end": [
+    9.75,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:176",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:177",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:17F",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:180",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    10.0,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B0",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B1",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B2",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B3",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1BC",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1BD",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1BE",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C6",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C7",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    9.875,
+    0.0
+   ],
+   "end": [
+    9.875,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B4",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B5",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C8",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C9",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1CF",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    7.875
+   ],
+   "end": [
+    10.0,
+    7.875
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B6",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B7",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B8",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1B9",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C1",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C2",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C3",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1D0",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1D1",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1BA",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1BB",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C4",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C5",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    6.1,
+    0.25
+   ],
+   "end": [
+    6.1,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1BF",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1C0",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1CC",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1D2",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1D3",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    6.1,
+    4.0
+   ],
+   "end": [
+    9.75,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1CA",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1CB",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1CD",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:1CE",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_001",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    10.0,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:203",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:209",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:20F",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_002",
+   "level_id": "L1",
+   "start": [
+    9.875,
+    0.0
+   ],
+   "end": [
+    9.875,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:204",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:205",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:210",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:216",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:217",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_003",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    7.875
+   ],
+   "end": [
+    10.0,
+    7.875
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:206",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:20C",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:218",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_004",
+   "level_id": "L1",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:207",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:208",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:20D",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:20E",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_005",
+   "level_id": "L1",
+   "start": [
+    6.1,
+    0.25
+   ],
+   "end": [
+    6.1,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:20A",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:20B",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:213",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:219",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:21A",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_006",
+   "level_id": "L1",
+   "start": [
+    6.1,
+    4.0
+   ],
+   "end": [
+    9.75,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:211",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:212",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:214",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "AR_w_sld",
+     "entity": "LWPOLYLINE:215",
+     "region_id": "r4"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L-1_001",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_005",
+   "center": [
+    6.1,
+    6.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L-1_salon",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:141",
+     "block": "KAPI_SURME_90",
+     "region_id": "r1"
+    }
+   ],
+   "operation": "sliding",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L-1_002",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_006",
+   "center": [
+    7.6,
+    4.0
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L-1_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:143",
+     "block": "KAPI_80",
+     "region_id": "r1"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L-1_003",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_003",
+   "center": [
+    8.0,
+    7.875
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L-1_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:145",
+     "block": "KAPI_90",
+     "region_id": "r1"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "win_L-1_001",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    1.5,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:147",
+     "block": "PENCERE_120",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_002",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    4.5,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:149",
+     "block": "PENCERE_120",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_003",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    8.0,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:14B",
+     "block": "PENCERE_120",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_004",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_004",
+   "center": [
+    0.125,
+    4.0
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:14D",
+     "block": "PENCERE_120",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_005",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_003",
+   "center": [
+    1.5,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:14F",
+     "block": "PENCERE_120",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_006",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_003",
+   "center": [
+    4.5,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:151",
+     "block": "PENCERE_120",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_007",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_002",
+   "center": [
+    9.875,
+    6.0
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:153",
+     "block": "PENCERE_60",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "d_L-1b_001",
+   "type": "door",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_005",
+   "center": [
+    6.1,
+    6.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L-1b_salon_acik_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:18D",
+     "block": "KAPI_SURME_90",
+     "region_id": "r2"
+    }
+   ],
+   "operation": "sliding",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L-1b_002",
+   "type": "door",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_006",
+   "center": [
+    7.6,
+    4.0
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L-1b_salon_acik_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:18F",
+     "block": "KAPI_80",
+     "region_id": "r2"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L-1b_003",
+   "type": "door",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_003",
+   "center": [
+    8.0,
+    7.875
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L-1b_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:191",
+     "block": "KAPI_90",
+     "region_id": "r2"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "win_L-1b_001",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_001",
+   "center": [
+    1.5,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:193",
+     "block": "PENCERE_120",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_002",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_001",
+   "center": [
+    4.5,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:195",
+     "block": "PENCERE_120",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_003",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_001",
+   "center": [
+    8.0,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:197",
+     "block": "PENCERE_120",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_004",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_004",
+   "center": [
+    0.125,
+    4.0
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:199",
+     "block": "PENCERE_120",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_005",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_003",
+   "center": [
+    1.5,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:19B",
+     "block": "PENCERE_120",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_006",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_003",
+   "center": [
+    4.5,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:19D",
+     "block": "PENCERE_120",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_007",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_002",
+   "center": [
+    9.875,
+    6.0
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:19F",
+     "block": "PENCERE_60",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    8.0,
+    7.875
+   ],
+   "width": 1.4,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:1DA",
+     "block": "KAPI_CIFT_140",
+     "region_id": "r3"
+    }
+   ],
+   "operation": "double",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    6.1,
+    6.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:1DC",
+     "block": "KAPI_90",
+     "region_id": "r3"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_006",
+   "center": [
+    7.6,
+    4.0
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:1DE",
+     "block": "KAPI_80",
+     "region_id": "r3"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    4.5,
+    0.125
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "swing_side": "r_L0_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:1E0",
+     "block": "KAPI_90",
+     "region_id": "r3"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    1.5,
+    0.125
+   ],
+   "width": 1.2,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:1E2",
+     "block": "PENCERE_120",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    8.0,
+    0.125
+   ],
+   "width": 0.6,
+   "height": 0.6,
+   "sill_height": 1.5,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:1E4",
+     "block": "PENCERE_60",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    0.125,
+    4.0
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:1E6",
+     "block": "PENCERE_120",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    1.5,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:1E8",
+     "block": "PENCERE_120",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    4.5,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:1EA",
+     "block": "PENCERE_120",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    9.875,
+    3.0
+   ],
+   "width": 0.6,
+   "height": 0.6,
+   "sill_height": 1.5,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:1EC",
+     "block": "PENCERE_60",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_001",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_005",
+   "center": [
+    6.1,
+    6.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_oyun_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:221",
+     "block": "KAPI_90",
+     "region_id": "r4"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L1_002",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_006",
+   "center": [
+    7.6,
+    4.0
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_teras",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Kapi",
+     "entity": "INSERT:223",
+     "block": "KAPI_80",
+     "region_id": "r4"
+    }
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "win_L1_001",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_004",
+   "center": [
+    0.125,
+    4.0
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:225",
+     "block": "PENCERE_120",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "win_L1_002",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_002",
+   "center": [
+    9.875,
+    6.0
+   ],
+   "width": 0.6,
+   "height": 1.0,
+   "sill_height": 0.6,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Pencere",
+     "entity": "INSERT:227",
+     "block": "PENCERE_60",
+     "region_id": "r4"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L-1_salon",
+   "level_id": "L-1",
+   "label": "Salon",
+   "label_raw": "SALON\n43.5M2",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     6.05,
+     0.25
+    ],
+    [
+     6.05,
+     7.75
+    ],
+    [
+     0.25,
+     7.75
+    ]
+   ],
+   "area_computed": 43.5,
+   "area_label": 43.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:161",
+     "text": "SALON\n43.5M2",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L-1_001,w_L-1_003,w_L-1_004,w_L-1_005",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1_mutfak",
+   "level_id": "L-1",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK\n13.3M2",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     6.15,
+     0.25
+    ],
+    [
+     9.75,
+     0.25
+    ],
+    [
+     9.75,
+     3.95
+    ],
+    [
+     6.15,
+     3.95
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:162",
+     "text": "MUTFAK\n13.3M2",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L-1_001,w_L-1_002,w_L-1_005,w_L-1_006",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1_hol",
+   "level_id": "L-1",
+   "label": "Hol",
+   "label_raw": "HOL\n13.3M2",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.15,
+     4.05
+    ],
+    [
+     9.75,
+     4.05
+    ],
+    [
+     9.75,
+     7.75
+    ],
+    [
+     6.15,
+     7.75
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:163",
+     "text": "HOL\n13.3M2",
+     "region_id": "r1"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L-1_002,w_L-1_003,w_L-1_005,w_L-1_006",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1b_salon_acik_mutfak",
+   "level_id": "L-1b",
+   "label": "Salon + Açık Mutfak",
+   "label_raw": "SALON + AÇIK MUTFAK\n57.2M2",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     9.75,
+     0.25
+    ],
+    [
+     9.75,
+     3.95
+    ],
+    [
+     6.05,
+     3.95
+    ],
+    [
+     6.05,
+     7.75
+    ],
+    [
+     0.25,
+     7.75
+    ]
+   ],
+   "area_computed": 57.19,
+   "area_label": 57.2,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1AD",
+     "text": "SALON + AÇIK MUTFAK\n57.2M2",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L-1b_001,w_L-1b_002,w_L-1b_003,w_L-1b_004,w_L-1b_005,w_L-1b_006",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1b_hol",
+   "level_id": "L-1b",
+   "label": "Hol",
+   "label_raw": "HOL\n13.3M2",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.15,
+     4.05
+    ],
+    [
+     9.75,
+     4.05
+    ],
+    [
+     9.75,
+     7.75
+    ],
+    [
+     6.15,
+     7.75
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1AE",
+     "text": "HOL\n13.3M2",
+     "region_id": "r2"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L-1b_002,w_L-1b_003,w_L-1b_005,w_L-1b_006",
+     "region_id": "r2"
+    }
+   ],
+   "same_as": "r_L-1_hol"
+  },
+  {
+   "id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI\n43.5M2",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     6.05,
+     0.25
+    ],
+    [
+     6.05,
+     7.75
+    ],
+    [
+     0.25,
+     7.75
+    ]
+   ],
+   "area_computed": 43.5,
+   "area_label": 43.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1F8",
+     "text": "YATAK ODASI\n43.5M2",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_003,w_L0_004,w_L0_005",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO\n13.3M2",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     6.15,
+     0.25
+    ],
+    [
+     9.75,
+     0.25
+    ],
+    [
+     9.75,
+     3.95
+    ],
+    [
+     6.15,
+     3.95
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1F9",
+     "text": "BANYO\n13.3M2",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_006",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_hol",
+   "level_id": "L0",
+   "label": "Hol",
+   "label_raw": "HOL\n13.3M2",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.15,
+     4.05
+    ],
+    [
+     9.75,
+     4.05
+    ],
+    [
+     9.75,
+     7.75
+    ],
+    [
+     6.15,
+     7.75
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1FA",
+     "text": "HOL\n13.3M2",
+     "region_id": "r3"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_005,w_L0_006",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_oyun_odasi",
+   "level_id": "L1",
+   "label": "Oyun Odası",
+   "label_raw": "OYUN ODASI\n43.5M2",
+   "room_type": "other",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     6.05,
+     0.25
+    ],
+    [
+     6.05,
+     7.75
+    ],
+    [
+     0.25,
+     7.75
+    ]
+   ],
+   "area_computed": 43.5,
+   "area_label": 43.5,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:22B",
+     "text": "OYUN ODASI\n43.5M2",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_003,w_L1_004,w_L1_005",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_teras",
+   "level_id": "L1",
+   "label": "Teras",
+   "label_raw": "TERAS\n13.3M2",
+   "room_type": "balcony",
+   "polygon": [
+    [
+     6.15,
+     0.25
+    ],
+    [
+     9.75,
+     0.25
+    ],
+    [
+     9.75,
+     3.95
+    ],
+    [
+     6.15,
+     3.95
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:22C",
+     "text": "TERAS\n13.3M2",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_002,w_L1_005,w_L1_006",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_hol",
+   "level_id": "L1",
+   "label": "Hol",
+   "label_raw": "HOL\n13.3M2",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.15,
+     4.05
+    ],
+    [
+     9.75,
+     4.05
+    ],
+    [
+     9.75,
+     7.75
+    ],
+    [
+     6.15,
+     7.75
+    ]
+   ],
+   "area_computed": 13.32,
+   "area_label": 13.3,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:22D",
+     "text": "HOL\n13.3M2",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_002,w_L1_003,w_L1_005,w_L1_006",
+     "region_id": "r4"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L-1_001",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon",
+   "type": "sofa",
+   "type_raw": "KANEPE_3LU",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.2,
+     7.2
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:155",
+     "block": "KANEPE_3LU",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1_002",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "fridge",
+   "type_raw": "BUZDOLABI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.4,
+     0.65
+    ],
+    "size": [
+     0.7,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:157",
+     "block": "BUZDOLABI",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1_003",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": "TEZGAH",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.45,
+     2.2
+    ],
+    "size": [
+     2.4,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:159",
+     "block": "TEZGAH",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1_004",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "EVIYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.5,
+     1.7
+    ],
+    "size": [
+     0.8,
+     0.5
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:15B",
+     "block": "EVIYE",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1_005",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "stove",
+   "type_raw": "OCAK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.45,
+     2.85
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:15D",
+     "block": "OCAK",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1_006",
+   "level_id": "L-1",
+   "room_id": "r_L-1_hol",
+   "type": "stair",
+   "type_raw": "MERDIVEN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.25,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:15F",
+     "block": "MERDIVEN",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1b_001",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "type": "sofa",
+   "type_raw": "KANEPE_3LU",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.2,
+     7.2
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1A1",
+     "block": "KANEPE_3LU",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1b_002",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "type": "fridge",
+   "type_raw": "BUZDOLABI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.4,
+     0.65
+    ],
+    "size": [
+     0.7,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1A3",
+     "block": "BUZDOLABI",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1b_003",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": "TEZGAH",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.45,
+     2.2
+    ],
+    "size": [
+     2.4,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1A5",
+     "block": "TEZGAH",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1b_004",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "EVIYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.5,
+     1.7
+    ],
+    "size": [
+     0.8,
+     0.5
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1A7",
+     "block": "EVIYE",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1b_005",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "type": "stove",
+   "type_raw": "OCAK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.45,
+     2.85
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1A9",
+     "block": "OCAK",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "f_L-1b_006",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_hol",
+   "type": "stair",
+   "type_raw": "MERDIVEN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.25,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1AB",
+     "block": "MERDIVEN",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": "YATAK_CIFT",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.0,
+     6.7
+    ],
+    "size": [
+     1.6,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1EE",
+     "block": "YATAK_CIFT",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "toilet",
+   "type_raw": "KLOZET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.4,
+     2.4
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1F0",
+     "block": "KLOZET",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washbasin",
+   "type_raw": "LAVABO",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.525,
+     1.4
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1F2",
+     "block": "LAVABO",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "shower",
+   "type_raw": "DUS",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.7,
+     0.8
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1F4",
+     "block": "DUS",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_hol",
+   "type": "stair",
+   "type_raw": "MERDIVEN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.25,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:1F6",
+     "block": "MERDIVEN",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "f_L1_001",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "type": "stair",
+   "type_raw": "MERDIVEN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.25,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Mobilya",
+     "entity": "INSERT:229",
+     "block": "MERDIVEN",
+     "region_id": "r4"
+    }
+   ]
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "base": true,
+   "changes": [],
+   "rooms_changed": [],
+   "exterior_changed": false
+  },
+  {
+   "id": "l-1b-acik-mutfak",
+   "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+   "levels": [
+    "L-1b",
+    "L0",
+    "L1"
+   ],
+   "base": false,
+   "changes": [
+    {
+     "variant_group": "vg_L-1",
+     "level_id": "L-1b",
+     "replaces": "L-1"
+    }
+   ],
+   "rooms_changed": [
+    "r_L-1b_salon_acik_mutfak"
+   ],
+   "exterior_changed": false,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1AF",
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "region_id": "r2",
+     "rule": "title_keyword"
+    }
+   ]
+  }
+ ]
+}

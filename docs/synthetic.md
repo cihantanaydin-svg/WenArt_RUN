@@ -120,6 +120,140 @@ every other handle is the same) is a test fixture, not a project:
 (level "Ground Floor" from the title, `label_source: "title"`, classifier `title`). The
 generator writes it when `--out` is the repository's `projects` folder (or `--fixtures DIR`).
 
+## synthetic-07: one CAD sheet with every drawing kind
+
+Milestone 10 test data for the `sheets` stage (docs/milestone10.md §3.4, acceptance row 5): a 10.0 × 8.0 m house with
+a basement and its open-kitchen alternative, a ground floor and an attic under a 35° gable roof with a roof terrace,
+drawn the way a CAD office draws it (like real02): **everything on one model-space sheet in centimetres**, drawings side
+by side, titles below the drawings. It is a `SheetProject` (`wenart/synthetic/sheet.py`: the layout, `sheet_writer.py`:
+the DXF, `sheet_truth.py`: the truth, `generate.generate_sheet_project`). The layout is data (`Prim` lists in one
+metric frame per drawing, the sheet position of each frame), the drawing and every truth number come from it.
+
+| | |
+|---|---|
+| Folder | `sheet.dxf` (the only document), `source/sheet.dwg` (a DWG copy, not a document), `brief.yaml`, `truth/building.json`, `truth/sheets_truth.json`, `truth/heights_truth.json`, `truth/exterior_truth.json` |
+| DXF | R2000 (AC1015), `$INSUNITS = 5` (cm), `$MEASUREMENT = 1`, 25 layers, fixed metadata (byte-identical on every run). The file is cp1252: İ, Ş, Ğ ... are `\U+XXXX` escapes. `ezdxf.recover.readfile` (what the pipeline uses) decodes them, a plain `ezdxf.readfile` does not (`plain_text()` does not either) |
+| DWG | `dxf2dwg --as r2000` from the DXF (LibreDWG 0.14 d9468ae, sha256 pinned in `projects.DWG_SHA256_07`; without `dxf2dwg` the generator does not write it and says so). It reads exactly like the DXF (same entities, layers, blocks, texts; only the MTEXT height field is lost, the height is also written inline as `\H20;`). It sits in `source/` because the pipeline reads the top level only: both files at the top level would be two documents holding the same sheet. A test of the DWG path copies it to a temporary project |
+| Stray | one LINE on layer `0` at (−90000, 80000) – (−89900, 80400) cm, 1,175 m from the nearest drawing |
+
+### The sheet (frame 11,000 × 5,600 cm, title block on its bottom-right edge)
+
+The regions in reading order (top to bottom by box top, then left to right; the box tops all differ by ≥ 10 cm, the
+generator refuses a tie). A region box is the box of its non-text entities (INSERTs by their block geometry), the texts
+join the nearest region by their insertion point, the frame is not a region.
+
+| id | class | title (below the drawing) | level / variant | box (cm) | registration `shift_m` | use |
+|---|---|---|---|---|---|---|
+| r1 | floor_plan | `BODRUM KAT PLANI` | L-1 basement, base | 600, 4200, 1600, 5000 | 34.0, −1.6 | read |
+| r2 | alternative_floor_plan | `BODRUM KAT PLANI (AÇIK MUTFAK)` | L-1b, `Açık mutfak` (`acik-mutfak`, gloss open kitchen) | 2300, 4175, 3300, 4975 | 17.0, −1.35 | read |
+| r3 | floor_plan | `ZEMİN KAT PLANI` (the reference) | L0 | 4000, 3910, 5000, 4950 | 0, 0 | read |
+| r4 | floor_plan | `ÇATI KAT PLANI` | L1 attic | 5700, 4025, 6800, 4925 | −17.5, −0.35 | read |
+| r5 | site_plan | `VAZİYET PLANI` | – | 7700, 2000, 10500, 4550 | −45.0, 13.4 (through its building outline) | exterior |
+| r6 | section | `A-A KESİTİ` | – | 845, 1680, 2300, 2710.602 | – | heights |
+| r7 | elevation | `GÜNEY GÖRÜNÜŞÜ` | – | 3700, 1990, 5300, 2700.602 | – | exterior |
+| r8 | elevation | `DOĞU GÖRÜNÜŞÜ` | – | 5900, 1980, 7300, 2690.602 | – | exterior |
+| r9 | legend | `LEJANT` | – | 8600, 700, 10400, 1450 | – | ignored |
+| r10 | title_block | – (cells `PROJE`, `ÇİZEN`, `ÖLÇEK 1/100`, `TARİH`, `PAFTA`) | – | 5000, 0, 11000, 360 | – | ignored |
+
+Plan titles are MTEXT, the others TEXT (height 30 cm). Each plan sits at its own offset (pure shifts, no rotation), so
+`p_ref = p_source · 0.01 + shift_m` puts it on the ground-floor drawing and `transform_to_building` =
+`[0.01, 0, −X0/100, 0, 0.01, −Y0/100]` (the building frame is the ground plan's frame in metres, origin at the min
+corner of its outer faces; `(X0, Y0)` = the sheet position of the region's local origin). The same form holds for the
+section (x → building y, y → z, **not flipped**: the cut line `A-A` on the ground plan runs along Y at x = 3.0 and looks
+towards −X, so the section's left end is the south end; `cut_axis` y, `cut_at` 3.0, `flipped` false), for the elevations
+(x → metres from the facade's left end seen from outside, y → z: that is the west end of the south facade and the south
+end of the east facade, because a viewer outside the east facade looks west and has north on his right) and for the site
+plan. The north arrow points up the sheet: building +Y is north (`north` 0.0), the south elevation looks north
+(`view_bearing_deg` 90), the east elevation west (180). No unit conflict: the header says cm and every check agrees (area
+labels `43.5M2` match the polygons, level marks match the slab spacing, door arcs 0.9 m, walls 0.10 / 0.25 m, text
+20–30 cm).
+
+### Drawing conventions
+
+- **Plans** (`BODRUM`, `ZEMİN`, `ÇATI`): walls are **open two-point LWPOLYLINEs on layer `AR_w_sld`** (no wall word, like
+  real02's `DBM_w_sld`): the rings of the wall union (outer faces, inner faces) cut at every opening; the gap is the
+  opening's clear width. Columns: six closed 0.25 m squares on `S-BETON` per plan (four corners and the partition's two
+  feet, inside the wall bands). Doors: INSERTs on `A_Kapi` (block `KAPI_80` / `KAPI_90`: leaf line + 90° arc; `KAPI_SURME_90`: a
+  sliding leaf rectangle beside the wall plane with a travel arrow, no arc; `KAPI_CIFT_140`: two leaves, two quarter arcs);
+  windows: INSERTs on `A_Pencere` (`PENCERE_60/120`: three lines across the 0.25 m band and two jambs). Furniture: INSERTs
+  on `A_Mobilya` (`blocks.BLOCKS` names and sizes; `MERDIVEN`, 1.0 × 3.0 m, 12 risers and an arrow, the only new block).
+  Room labels: MTEXT `SALON\P43.5M2` (height 20 cm, inline `\H20;`, top-left at a point inside the room). The attic plan
+  adds the roof outline (closed polyline, `DASHED`, 0.5 m outside the outer faces) and the ridge line (`DASHED`, y = 4.0);
+  the ground plan adds the cut line `A-A` (`DASHDOT`, arms and arrow heads pointing to −X, the letter `A` twice).
+- **Building**: outer faces 0..10 × 0..8, outer walls 0.25 m, inner 0.10 m; a partition at x = 6.10 and one at y = 4.00 (the
+  right side) cut the plan into a large room (5.80 × 7.50 m, 43.5 m²) and two 3.60 × 3.70 m rooms (13.3 m²). The open-kitchen
+  alternative drops the partition below y = 3.95: one L-shaped room (57.2 m²).
+
+| Level | Rooms (label → type) | Drawn furniture | Doors | Windows |
+|---|---|---|---|---|
+| L-1 `BODRUM` (−3.00) | Salon (living), Mutfak (kitchen), Hol (hall) | 3-seat sofa `KANEPE_3LU` in the Salon; the counter run along the Mutfak's east wall (`BUZDOLABI`, `TEZGAH`, `EVIYE`, `OCAK`); `MERDIVEN` in the Hol | outside door (north wall, into the Hol), **sliding** Hol → Salon, swing Hol → Mutfak | 7, sill 2.00 m, height 0.60 m (below the ground line) |
+| L-1b (alternative) | Salon + Açık Mutfak (living, L-shaped, 57.2 m²), Hol (`same_as` r_L-1_hol) | as L-1, in the open room | as L-1 | as L-1 |
+| L0 `ZEMİN` (0.00) | Yatak Odası (bedroom), Banyo (bathroom), Hol | the only bed `YATAK_CIFT` (Yatak Odası), `KLOZET`, `LAVABO`, `DUS` (Banyo), `MERDIVEN` | entrance on the north wall, **double** `KAPI_CIFT_140`; garden door on the south wall; swing Hol → Yatak, Hol → Banyo | 6 (south 1.5 / 8.0, west 4.0, north 1.5 / 4.5, east 3.0) |
+| L1 `ÇATI` (+3.00) | Oyun Odası (other, empty), Teras (balcony, empty), Hol | `MERDIVEN` | two swing doors | west and east gable windows (sill 0.60 m above the attic floor) |
+
+- **Section `A-A KESİTİ`** (looking west, x = 3.0): three slab bands of 0.20 m (closed rectangles, tops −3.00 / ±0.00 / +3.00),
+  wall lines between the bands (outer and inner faces of the south and north walls), ground lines at ±0.00 on both outer
+  sides, level marks `-3.00`, `±0.00`, `+3.00` (a triangle whose apex touches a level line at the slab top, the text to its
+  left), and the roof as one closed 6-point polyline (top line, tip drop, underside back): 35°, eaves 0.50 m outside the
+  outer faces, 0.25 m thick perpendicular to the slope. **Knee wall 1.00 m = the outer face line from the attic floor to the
+  roof underside** (the underside meets the outer face 4.00 m above ±0.00). Nothing else is drawn (no stair, no openings:
+  the cut passes between the windows).
+- **Elevations**: ground line, wall outline, roof, one closed rectangle per window (`G_Pencere`) and door (`G_Kapi`, with a
+  handle line) at its true position and height, leaders with `SIVA` (render), `TAŞ KAPLAMA` (stone cladding), `KİREMİT` (clay
+  tiles). The south facade has the hatched stone plinth (HATCH `ANSI31`, z 0 .. 0.6 m, the whole width). **The elevations draw
+  the roof envelope**: the terrace cut of the attic plan is not shown in them. The basement is below the ground line and not
+  drawn: its openings exist on the plans only.
+- **Site plan**: plot boundary (closed `DASHDOT` polyline, −6..18 × −7..13 m), plot walls (two closed rectangles 0.20 m
+  apart, outer face 0.05 m inside the boundary), the building outline (the ground plan's outer faces), a parking rectangle with
+  `OTOPARK`, `BAHÇE`, three trees (INSERT `AGAC`), a road polygon with `YOL`, the north arrow (INSERT `KUZEY` + the letter `N`).
+- **Legend**: a box with five samples (wall, column, door, dashed line, hatch) and their words.
+
+### Truth (`truth/`)
+
+- `sheets_truth.json`: the field names of `sheets.json` (docs/milestone10.md §1.2) with plain values: `documents[].units`
+  (cm, no conflict), `sheets[]` (box = the frame, `gap_units` = 1.5 % of its diagonal), `regions[]` as in the table above
+  (`entities` = every entity of the region including its texts and title, split into `geometry_entities` and
+  `text_entities`; `features`; `registration` with the reference, `shift_m`, residual 0, no method: the reader's choice),
+  `stray[]`, `levels[]`, `variants[]`, `conflicts` []. `title.box` is the usual estimate (0.8 × height per character).
+- `heights_truth.json`: `cut_axis`, `cut_at`, `flipped`, `datum`, per base level `floor_z` (−3, 0, 3), `ceiling_height`
+  (2.80, 2.80; the attic has no flat part: 3.80083 = the underside at the ridge above the attic floor), `floor_to_floor`
+  3.00 / 3.00 / null, `level_mark` and `level_mark_target_z` (equal), `slabs` (z_top, thickness 0.20), `ground` (south, north,
+  east: 0.00), `roof` (`eaves_z` 3.95509 and `ridge_z` 7.106024 = the top line at the outline edge and at the ridge,
+  `eaves_underside_z`, `ridge_underside_z`, pitch 35, `knee_wall` 1.00, `overhang` 0.50, `thickness` 0.25, `profile`) and the
+  entity of every line.
+- `exterior_truth.json`: roof gable (source section, also the elevation and the plan's roof lines), outline, ridge line, no
+  break line, covering `clay_tiles` (label `KİREMİT`), the terrace opening (room `r_L1_teras`, parapet walls `w_L1_001`,
+  `w_L1_002`); `facade` (south stone plinth from the hatch + label, render from the label `SIVA` on both elevations);
+  `openings_seen` per facade with `positions_m` (kind, `x` = centre from the facade's left end seen from outside, `x_left`,
+  width, sill and head in building z, the plan opening id and level): south 2 windows + 1 door, east 2 windows; the site (plot,
+  plot walls, parking, trees, road, labels, all in building metres), `north` 0.0 and the `brief` words.
+- `building.json`: the usual building truth of the plan levels, schema-valid: levels L-1, L-1b, L0, L1 with the M10 fields
+  (kind, variant, `region_id`, `elevation_source` section, floor to floor with evidence), 24 walls (evidence = the face lines of
+  that wall), 34 openings (`operation` on doors: swing, `sliding` ×2 = one per basement plan, `double` ×1; `operation_source`
+  `geometry`; `height` and `sill_height` only for the openings an elevation draws, otherwise null), 11 rooms (area lines match
+  the polygons; `same_as` on the alternative's Hol), 18 furniture pieces (the stair has no front), one page record per region
+  that is read (`region_id`, `region_box`, `region_class`), the two variants (`rooms_changed` = the open room, `exterior_changed`
+  false). Roof, slabs, facade and site of the building JSON are not part of this file: the pipeline derives them, `heights_truth`
+  and `exterior_truth` hold their truth.
+- Evidence entity strings (`LWPOLYLINE:3F`) are the DXF handles of `sheet.dxf`; the DWG has other handles.
+
+### Expected readings
+
+| Stage | What the reader must find |
+|---|---|
+| split | 10 regions and 1 stray; boxes within 0.01 cm of the table (an independent clustering with gap 185 cm reproduces them: `tests/test_synthetic.py`); the frame is not a region |
+| classify | classes by title; `r2` alternative of `r1` (same level, extra bracket); the title block by geometry; no AI needed |
+| units | `$INSUNITS` 5 agrees with every check: `metres_per_unit` 0.01, no `unit_mismatch` |
+| register | shifts as in the table (± 1 cm), residual 0, stairs aligned (the `MERDIVEN` sits at the same place on all four plans) |
+| heights | slab tops −3.00 / 0.00 / 3.00, 0.20 thick, floor to floor 3.00, ceilings 2.80, marks equal the geometry (no `level_mark_mismatch`), ground 0.00, pitch 35°, eaves 3.95509, ridge 7.10602, knee wall 1.00, overhang 0.50, roof 0.25 thick |
+| exterior | roof gable, facade materials (stone plinth on the south, render), the openings per facade at the positions in `exterior_truth.json` (they match the plans' openings: `elevation_opening_mismatch` must stay empty), site plan, north 0° |
+| plans (A3) | walls from the face lines (no wall word in the layer name), the columns join the wall mask, doors with their `operation`, windows, 11 rooms, 18 pieces typed by block name |
+
+Simplifications, on purpose: the roof terrace is on the attic plan only (the elevations draw the roof envelope and the
+south facade carries the plinth, the east one does not); no DIMENSION entities and no flat ceiling part under the roof (the
+unit evidence is area labels, level marks, door arcs, wall thicknesses and text heights); the basement is below the ground
+line on every side (ground 0.00; its outside door and windows get terrain and light wells from the build, both assumed).
+
 ## Coordinate conventions
 
 | Frame | Units | Origin | Axes | Where |

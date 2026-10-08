@@ -142,23 +142,34 @@ def preview_from_image(image_path: Path, out_jpg: Path) -> Path:
         return write_preview(img, out_jpg)
 
 
-def preview_from_dxf(dxf_path: Path, out_jpg: Path) -> Path:
-    """Render a DXF with ezdxf's matplotlib backend (so the preview shows the real file)."""
+def preview_from_dxf(dxf_path: Path, out_jpg: Path, window=None) -> Path:
+    """Render a DXF with ezdxf's matplotlib backend (so the preview shows the real file). ``window`` =
+    ``(x0, y0, x1, y1)`` in drawing units draws only that part (synthetic-07: the sheet's frame, not the stray
+    LINE far outside it) on a figure of the window's shape."""
     import matplotlib
     matplotlib.use("Agg")
     import ezdxf
+    import ezdxf.recover
     import matplotlib.pyplot as plt
     from ezdxf.addons.drawing import Frontend, RenderContext
     from ezdxf.addons.drawing.config import BackgroundPolicy, Configuration
     from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
 
-    doc = ezdxf.readfile(str(dxf_path))
-    fig = plt.figure(figsize=(12, 9))
+    # recover.readfile decodes the \U+XXXX escapes of an R2000 file (synthetic-07's Turkish texts); ezdxf.readfile does not.
+    doc = ezdxf.readfile(str(dxf_path)) if window is None else ezdxf.recover.readfile(str(dxf_path))[0]
+    if window is None:
+        fig = plt.figure(figsize=(12, 9))
+    else:
+        fig = plt.figure(figsize=(12, 12 * (window[3] - window[1]) / (window[2] - window[0])))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_axis_off()
     # White paper, dark lines (the default renders light lines on a dark background).
     config = Configuration(background_policy=BackgroundPolicy.WHITE)
-    Frontend(RenderContext(doc), MatplotlibBackend(ax), config=config).draw_layout(doc.modelspace(), finalize=True)
+    frontend = Frontend(RenderContext(doc), MatplotlibBackend(ax, adjust_figure=window is None), config=config)
+    frontend.draw_layout(doc.modelspace(), finalize=window is None)
+    if window is not None:
+        ax.set_xlim(window[0], window[2])
+        ax.set_ylim(window[1], window[3])
     with tempfile.TemporaryDirectory() as tmp:
         png = Path(tmp) / "dxf.png"
         fig.savefig(png, dpi=100, facecolor="white")

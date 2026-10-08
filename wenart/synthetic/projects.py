@@ -1,4 +1,4 @@
-"""The five synthetic projects (docs/milestone2.md §1, docs/milestone6.md §3, docs/synthetic.md).
+"""The synthetic projects (docs/milestone2.md §1, docs/milestone6.md §3, docs/synthetic.md).
 
 Everything is written out by hand so the ground truth is readable: room
 rectangles, doors with the room they open into, windows, furniture with the
@@ -17,6 +17,10 @@ that are inconsistent.
   walls, nested furniture blocks, MTEXT/TEXT/attribute labels, feet-inch
   dimensions, an open kitchen behind a wall stub, no title; delivered as a
   DWG written by LibreDWG ``dxf2dwg`` (docs/milestone7.md §5.2).
+- synthetic-07 (Milestone 10): one CAD sheet in centimetres with every drawing
+  kind (plans, an alternative plan, section, elevations, site plan, legend,
+  title block, a stray LINE); its layout is ``wenart/synthetic/sheet.py``
+  (``SheetProject``), listed here by ``all_projects`` (docs/milestone10.md §3.4).
 
 Coordinates: metres in the building frame (origin = outer corner of the
 outer wall, X right, Y up). Rotations: degrees counter-clockwise.
@@ -822,6 +826,13 @@ def project_06() -> CadProject:
                       titled_level=("Ground Floor", 0))
 
 
+# sha256 of projects/synthetic-07/source/sheet.dwg as LibreDWG 0.14 (d9468ae) dxf2dwg --as r2000 writes it from
+# sheet.dxf (same rule as DWG_SHA256_06: update only together with a reviewed change of the sheet).
+DWG_SHA256_07 = "3a60a31ccbbc3398e27e4abe5e57b453b88849837f1058d32ebf5b27abff0b7a"
+
+
 def all_projects() -> list:
-    """synthetic-01..05 (``Project``) and synthetic-06 (``CadProject``)."""
-    return [project_01(), project_02(), project_03(), project_04(), project_05(), project_06()]
+    """synthetic-01..05 (``Project``), synthetic-06 (``CadProject``) and synthetic-07 (``SheetProject``, one CAD sheet
+    with every drawing kind, docs/milestone10.md §3.4)."""
+    from wenart.synthetic.sheet import project_07
+    return [project_01(), project_02(), project_03(), project_04(), project_05(), project_06(), project_07()]
