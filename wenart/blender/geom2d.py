@@ -761,6 +761,22 @@ def edge_breaks(p, q, planes: Sequence[Sequence[float]]) -> list[float]:
     return sorted(ts)
 
 
+def segment_side_faces(p, q, top: Sequence[Sequence[float]], bottom: Sequence[Sequence[float]]
+                       ) -> list[list[tuple[float, float, float]]]:
+    """Vertical quads between the ``bottom`` and ``top`` surfaces along one boundary edge ``p``-``q`` (the
+    solid on its left: the quads face right), split where the lowest plane changes."""
+    faces = []
+    ts = sorted(set(edge_breaks(p, q, top)) | set(edge_breaks(p, q, bottom)))
+    for t0, t1 in zip(ts, ts[1:]):
+        if t1 - t0 < 1e-9:
+            continue
+        a = (p[0] + (q[0] - p[0]) * t0, p[1] + (q[1] - p[1]) * t0)
+        b = (p[0] + (q[0] - p[0]) * t1, p[1] + (q[1] - p[1]) * t1)
+        faces.append([(a[0], a[1], surface_z(bottom, *a)), (b[0], b[1], surface_z(bottom, *b)),
+                      (b[0], b[1], surface_z(top, *b)), (a[0], a[1], surface_z(top, *a))])
+    return faces
+
+
 def side_faces(loop, top: Sequence[Sequence[float]], bottom: Sequence[Sequence[float]]
                ) -> list[list[tuple[float, float, float]]]:
     """Vertical quads closing a solid between the ``bottom`` and ``top`` surfaces along a boundary loop
@@ -768,16 +784,65 @@ def side_faces(loop, top: Sequence[Sequence[float]], bottom: Sequence[Sequence[f
     faces = []
     n = len(loop)
     for i in range(n):
-        p, q = loop[i], loop[(i + 1) % n]
-        ts = sorted(set(edge_breaks(p, q, top)) | set(edge_breaks(p, q, bottom)))
+        faces += segment_side_faces(loop[i], loop[(i + 1) % n], top, bottom)
+    return faces
+
+
+def region_boundary(outer, holes, nudge: float = 1e-4) -> list[tuple[tuple[float, float], tuple[float, float]]]:
+    """The boundary edges of the region inside ``outer`` and outside every hole (holes may reach over the outer
+    edge, as roof terraces cut to the eaves), each with the region on its left: the outer loop's edges and the
+    holes' edges cut where they cross, a piece kept when the point ``nudge`` to its left lies in the region."""
+    outer = ccw(outer)
+    loops = [outer] + [ccw(h)[::-1] for h in holes if len(h) >= 3]
+    edges = []
+    for loop in loops:
+        n = len(loop)
+        edges += [(loop[i], loop[(i + 1) % n]) for i in range(n)]
+
+    def inside(pt) -> bool:
+        if not G.point_in_polygon(pt, outer):
+            return False
+        return not any(G.point_in_polygon(pt, h) for h in holes if len(h) >= 3)
+
+    out = []
+    for p, q in edges:
+        ts = {0.0, 1.0}
+        for e, f in edges:
+            t = _segment_param(p, q, e, f)
+            if t is not None:
+                ts.add(t)
+            for v in (e, f):                               # a vertex of another edge on this one
+                length2 = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
+                if length2 < 1e-18:
+                    continue
+                t = ((v[0] - p[0]) * (q[0] - p[0]) + (v[1] - p[1]) * (q[1] - p[1])) / length2
+                if 1e-9 < t < 1 - 1e-9 and G.point_segment_distance(v, p, q) < 1e-7:
+                    ts.add(t)
+        ts = sorted(ts)
+        nx, ny = G.unit_normal_left(p, q)
         for t0, t1 in zip(ts, ts[1:]):
             if t1 - t0 < 1e-9:
                 continue
             a = (p[0] + (q[0] - p[0]) * t0, p[1] + (q[1] - p[1]) * t0)
             b = (p[0] + (q[0] - p[0]) * t1, p[1] + (q[1] - p[1]) * t1)
-            faces.append([(a[0], a[1], surface_z(bottom, *a)), (b[0], b[1], surface_z(bottom, *b)),
-                          (b[0], b[1], surface_z(top, *b)), (a[0], a[1], surface_z(top, *a))])
-    return faces
+            m = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+            if inside((m[0] + nx * nudge, m[1] + ny * nudge)) and not inside((m[0] - nx * nudge, m[1] - ny * nudge)):
+                out.append((a, b))
+    return out
+
+
+def _segment_param(p, q, e, f) -> float | None:
+    """Parameter along ``p``-``q`` where it properly crosses ``e``-``f`` (None when parallel or not)."""
+    rx, ry = q[0] - p[0], q[1] - p[1]
+    sx, sy = f[0] - e[0], f[1] - e[1]
+    den = rx * sy - ry * sx
+    if abs(den) < 1e-15:
+        return None
+    t = ((e[0] - p[0]) * sy - (e[1] - p[1]) * sx) / den
+    u = ((e[0] - p[0]) * ry - (e[1] - p[1]) * rx) / den
+    if 1e-9 < t < 1 - 1e-9 and -1e-9 <= u <= 1 + 1e-9:
+        return t
+    return None
 
 
 def mesh_from_faces(face_lists: Iterable[tuple[list, int]]) -> tuple[list, list, list[int]]:

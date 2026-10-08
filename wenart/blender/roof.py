@@ -30,10 +30,15 @@ rectangle and the simplification is listed as assumed. Plane names follow the do
 building frame (+Y = north): ``rp_south`` slopes down to -Y. Pure Python (Blender's Python has no shapely or
 numpy needs here), tested on the CPU (tests/test_blender_roof.py).
 
-Conventions of the contract (building.schema.json ``roof``): ``eaves_height`` is the building z of the eaves
-edge (the outline) on the outer roof surface; ``knee_wall`` is read to the drawn roof line at the outer face
-of the wall (the example: eaves 3.65 + 0.5 m x tan 35 = 4.00 = floor 3.00 + knee wall 1.00); ``aspect_deg``
-is the downhill direction, 0 = -Y, counter-clockwise (90 = +X).
+Conventions of the contract (building.schema.json ``roof``, docs/milestone10.md §1.6b rows 1 and 13): planes,
+``eaves_height`` and ``ridge_height`` are the top surface in building z; ``thickness`` is measured square to the
+slope; ``overhang`` is used only without a drawn outline; ``knee_wall`` (the top surface at the outer wall face
+minus the attic floor; the example: eaves 3.65 + 0.5 m x tan 35 = 4.00 = floor 3.00 + 1.00) is a cross-check
+(``knee_wall_check``), and only fills the eaves when no eaves height is given; ``aspect_deg`` is the downhill
+direction in degrees counter-clockwise from +X (downhill -Y = 270), not a compass bearing; roof terrace
+openings reach over the outer walls to the outline, and their ``parapet_wall_ids`` (else the outer walls under
+the opening) end at the parapet height there (``parapet_cuts``). Without any roof evidence the pipeline writes
+``roof: null`` and the build makes an assumed flat roof over the top level (``flat_roof``).
 """
 from __future__ import annotations
 
@@ -87,14 +92,14 @@ plane_regions = geom2d.plane_regions
 
 
 def slope_aspect(plane: Plane) -> tuple[float, Optional[float]]:
-    """``(slope_deg, aspect_deg)``: the slope and the downhill direction (0 = -Y, counter-clockwise; None
-    for a flat plane)."""
+    """``(slope_deg, aspect_deg)``: the slope and the downhill direction, degrees counter-clockwise from +X
+    (downhill -Y = 270; None for a flat plane)."""
     a, b = plane[0], plane[1]
     g = math.hypot(a, b)
     slope = math.degrees(math.atan(g))
     if g < 1e-9:
         return round(slope, 4), None
-    return round(slope, 4), round(math.degrees(math.atan2(-a, b)) % 360.0, 4)
+    return round(slope, 4), round(math.degrees(math.atan2(-b, -a)) % 360.0, 4)
 
 
 def lowered(plane: Plane, thickness: float) -> Plane:
@@ -112,10 +117,11 @@ def _ramp(base: Sequence[float], inward: Sequence[float], z0: float, tan_pitch: 
 
 
 def side_name(aspect: Optional[float]) -> str:
-    """Compass word of a downhill direction in the building frame (+Y = north): south = down to -Y."""
+    """The plane name's word for a downhill direction (counter-clockwise from +X) in the building frame,
+    +Y read as north: ``south`` = down to -Y (270), ``east`` = +X (0)."""
     if aspect is None:
         return "flat"
-    return ("south", "east", "north", "west")[int(((aspect + 45.0) % 360.0) // 90.0)]
+    return ("east", "north", "west", "south")[int(((aspect + 45.0) % 360.0) // 90.0)]
 
 
 def _region_polygons(planes: Sequence[Plane], outline: Sequence[Sequence[float]]) -> list[list]:
@@ -297,7 +303,7 @@ def derive(roof: dict, building: dict) -> dict:
                     "assumed": assumed, "warnings": ["no roof outline and no walls under the roof: no roof"],
                     "notes": notes}
         rect = geom2d.oriented_rectangle(wall_line)
-        outline = _offset_outline(rect, overhang)
+        outline = _offset_outline(rect, overhang) if rtype != "flat" or overhang > 0 else geom2d.ccw(wall_line)
         assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
                         "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
                                   f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"})
@@ -530,18 +536,61 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
                             "reason": (ph or {}).get("note") if isinstance(ph, dict) and ph.get("note")
                             else "parapet height not drawn"})
         openings.append({"id": o.get("id"), "kind": o.get("kind") or "other", "room_id": o.get("room_id"),
-                         "polygon": poly, "parapet_height": height, "parapet_source": psource})
+                         "polygon": poly, "parapet_height": height, "parapet_source": psource,
+                         "parapet_wall_ids": list(o.get("parapet_wall_ids") or [])})
     convex = is_convex(planes)
     warnings = list(der["warnings"])
     if not convex:
         warnings.append("the roof planes are not convex (a valley or a raised part): walls keep their level "
                         "height and attic ceilings stay flat under this roof")
-    return {"type": roof.get("type"), "over_level_id": level["id"] if level else None, "planes": planes,
-            "planes_source": source, "equations": eqs, "outline": outline, "openings": openings,
-            "thickness": thickness, "eaves_z": eaves, "ridge_z": ridge, "convex": convex,
-            "covering": roof.get("covering"), "covering_colour": roof.get("covering_colour"),
-            "covering_source": roof.get("covering_source") or "assumed", "assumed": assumed, "warnings": warnings,
-            "notes": notes, "derived_check": check}
+    model = {"type": roof.get("type"), "over_level_id": level["id"] if level else None, "planes": planes,
+             "planes_source": source, "equations": eqs, "outline": outline, "openings": openings,
+             "thickness": thickness, "eaves_z": eaves, "ridge_z": ridge, "convex": convex,
+             "covering": roof.get("covering"), "covering_colour": roof.get("covering_colour"),
+             "covering_source": roof.get("covering_source"), "assumed": assumed, "warnings": warnings,
+             "notes": notes, "derived_check": check, "profile": roof.get("profile")}
+    model["knee_wall_check"] = knee_wall_check(model, roof, building)
+    if model["knee_wall_check"] and abs(model["knee_wall_check"]["difference"]) > 0.05:
+        warnings.append(f"knee wall {model['knee_wall_check']['drawn']:.2f} m drawn, "
+                        f"{model['knee_wall_check']['derived']:.2f} m from the roof planes at the outer wall face: "
+                        f"the planes are kept")
+    return model
+
+
+def knee_wall_check(model: dict, roof: dict, building: dict) -> Optional[dict]:
+    """The knee wall cross-check (§1.6b row 13): the roof's top surface at the outer face of the outer walls
+    of the level under it, minus its floor, the lowest along those faces (sampled at the wall midpoints),
+    against the drawn ``knee_wall``. None without a drawn knee wall or planes."""
+    drawn = _value(roof.get("knee_wall"))
+    level = over_level(roof, building)
+    if drawn is None or level is None or not model["equations"] or not model["convex"]:
+        return None
+    walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"] and w.get("exterior")]
+    outline, _ = geom2d.wall_outline([w for w in building.get("walls") or [] if w.get("level_id") == level["id"]])
+    heights = []
+    for w in walls:
+        mid = G.segment_midpoint(w["start"], w["end"])
+        nx, ny = G.unit_normal_left(w["start"], w["end"])
+        half = float(w["thickness"]) / 2.0
+        for s in (1.0, -1.0):
+            p = (mid[0] + s * nx * half, mid[1] + s * ny * half)
+            q = (mid[0] + s * nx * (half + 0.05), mid[1] + s * ny * (half + 0.05))
+            if outline and not G.point_in_polygon(q, outline):
+                heights.append(surface_z(model["equations"], *p) - float(level["elevation"]))
+    if not heights:
+        return None
+    derived = min(heights)
+    return {"drawn": drawn, "derived": round(derived, 4), "difference": round(derived - drawn, 4)}
+
+
+def flat_roof(building: dict) -> dict:
+    """The roof of a building whose pipeline found no roof (``roof: null``, §1.6b row 13): a flat roof over
+    the top level on its walls' outline, its height and thickness assumed (``derive``)."""
+    levels = building.get("levels") or []
+    top = max(levels, key=lambda lv: float(lv.get("elevation") or 0.0)) if levels else None
+    return {"type": "flat", "type_source": "assumed", "over_level_id": top["id"] if top else None, "outline": None,
+            "planes": [], "openings": [], "evidence": [],
+            "assumed": ["no roof evidence: a flat roof over the top level (height, outline and thickness assumed)"]}
 
 
 def underside(model: dict) -> list[Plane]:
@@ -590,9 +639,9 @@ def roof_solid(model: dict) -> tuple[list, list, list[int]]:
     outer = geom2d.ccw(model["outline"])
     faces = [(lift(poly, top[i], True), SLOT_COVERING) for i, poly in surface_pieces(outer, holes, top)]
     faces += [(lift(poly, bottom[i], False), SLOT_SOFFIT) for i, poly in surface_pieces(outer, holes, bottom)]
-    loops = [outer] + [geom2d.ccw(h)[::-1] for h in holes]
-    for loop in loops:
-        faces += [(f, SLOT_FASCIA) for f in side_faces(loop, top, bottom)]
+    # Terrace openings reach over the eaves (§1.6b row 13): only the edges of what is left get a fascia.
+    for p, q in geom2d.region_boundary(outer, holes):
+        faces += [(f, SLOT_FASCIA) for f in geom2d.segment_side_faces(p, q, top, bottom)]
     return _mesh(faces)
 
 
@@ -614,68 +663,61 @@ def wall_cut(model: dict) -> Optional[dict]:
 # Roof terraces: parapets
 # --------------------------------------------------------------------------
 
-def parapet_check(model: dict, level: dict, walls: Sequence[dict], step: float = 0.25) -> list[dict]:
-    """Per roof opening (terrace) and edge of its polygon: what closes it at the side (pure).
-
-    Each edge is sampled every ``step`` metres 2 cm outside the opening: ``covered`` where the roof is there
-    (its top surface, measured above the terrace floor, is the parapet the roof forms), ``wall`` where a wall
-    of the level is under the edge, else ``open``. An edge with an open stretch, or whose roof is lower than
-    the parapet height, gets ``needs_parapet``. Returns ``[{"opening_id", "edge": [p, q], "covered", "wall",
-    "open", "min_height", "needs_parapet", "parapet_height"}]``."""
-    floor_z = float(level["elevation"])
-    out = []
-    top = model["equations"]
-    for o in model.get("openings") or []:
-        poly = o["polygon"]
-        n = len(poly)
+def segment_inside(a, b, polygon) -> list[tuple[float, float]]:
+    """``[(t0, t1)]``: the stretches of the segment ``a``-``b`` (parameters 0..1) inside ``polygon`` (its
+    convex pieces clip the segment; touching stretches are joined)."""
+    spans = []
+    ax, ay, bx, by = float(a[0]), float(a[1]), float(b[0]), float(b[1])
+    for piece in geom2d.convex_pieces(polygon):
+        t0, t1 = 0.0, 1.0
+        n = len(piece)
         for i in range(n):
-            p, q = poly[i], poly[(i + 1) % n]
-            length = G.distance(p, q)
-            if length < 1e-6:
-                continue
-            nx, ny = G.unit_normal_left(p, q)          # counter-clockwise polygon: left is inside
-            k = max(2, int(length / step) + 1)
-            counts = {"covered": 0, "wall": 0, "open": 0}
-            heights = []
-            for j in range(k):
-                t = (j + 0.5) / k
-                x, y = p[0] + (q[0] - p[0]) * t - nx * 0.02, p[1] + (q[1] - p[1]) * t - ny * 0.02
-                if covers(model, x, y):
-                    counts["covered"] += 1
-                    heights.append(surface_z(top, x, y) - floor_z)
-                elif any(G.point_segment_distance((x, y), w["start"], w["end"]) <= float(w["thickness"]) / 2.0 + 0.03
-                         for w in walls):
-                    counts["wall"] += 1
-                else:
-                    counts["open"] += 1
-            low = min(heights) if heights else None
-            need = counts["open"] > 0 or (low is not None and low < o["parapet_height"] - 1e-3)
-            out.append({"opening_id": o["id"], "edge": [list(p), list(q)], **counts,
-                        "min_height": None if low is None else round(low, 3), "needs_parapet": bool(need),
-                        "parapet_height": o["parapet_height"]})
-    return out
+            p, q = piece[i], piece[(i + 1) % n]
+            nx, ny = G.unit_normal_left(p, q)                 # into the counter-clockwise piece
+            da = (ax - p[0]) * nx + (ay - p[1]) * ny
+            db = (bx - p[0]) * nx + (by - p[1]) * ny
+            if da < -1e-9 and db < -1e-9:
+                t0, t1 = 1.0, 0.0
+                break
+            if abs(da - db) > 1e-12:
+                t = da / (da - db)
+                if da < 0:
+                    t0 = max(t0, t)
+                elif db < 0:
+                    t1 = min(t1, t)
+        if t1 - t0 > 1e-6:
+            spans.append((t0, t1))
+    spans.sort()
+    joined: list[list[float]] = []
+    for t0, t1 in spans:
+        if joined and t0 <= joined[-1][1] + 1e-6:
+            joined[-1][1] = max(joined[-1][1], t1)
+        else:
+            joined.append([t0, t1])
+    return [(round(a0, 9), round(a1, 9)) for a0, a1 in joined]
 
 
-PARAPET_THICKNESS = 0.15
-
-
-def parapet_boxes(checks: Sequence[dict], level: dict, thickness: float = PARAPET_THICKNESS) -> list[dict]:
-    """The parapets to build (pure): one box per terrace edge with an open stretch (``parapet_check``), just
-    outside the edge, ``thickness`` thick, from the terrace floor up to the parapet height (drawn or assumed).
-    An edge the roof closes, or a wall, gets none. ``[{"opening_id", "edge", "verts", "faces", "height"}]``."""
+def parapet_cuts(model: dict, building: dict, level: dict) -> dict[str, list[dict]]:
+    """Where the walls under a roof terrace end at the parapet (pure; §1.6b row 13): per wall id the
+    stretches of its centre line under a roof opening, ``{"t0", "t1", "z_top", "opening_id", "source"}`` (t
+    from the wall's start). The walls are the opening's ``parapet_wall_ids``, else the outer walls of the level
+    whose centre line runs under the opening; their top there is the terrace floor + the parapet height
+    (drawn or assumed): no roof is over them."""
     floor_z = float(level["elevation"])
-    out = []
-    for c in checks:
-        if not c["needs_parapet"] or not c["open"]:
-            continue
-        (px, py), (qx, qy) = c["edge"]
-        length = G.distance((px, py), (qx, qy))
-        nx, ny = G.unit_normal_left((px, py), (qx, qy))         # into the terrace (counter-clockwise polygon)
-        mid = ((px + qx) / 2.0 - nx * thickness / 2.0, (py + qy) / 2.0 - ny * thickness / 2.0)
-        h = float(c["parapet_height"])
-        verts, faces = geom2d.box((mid[0], mid[1], floor_z + h / 2.0), (length + thickness, thickness, h),
-                                  G.segment_angle_deg((px, py), (qx, qy)))
-        out.append({"opening_id": c["opening_id"], "edge": c["edge"], "verts": verts, "faces": faces, "height": h})
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level["id"]}
+    out: dict[str, list[dict]] = {}
+    for o in model.get("openings") or []:
+        ids = [i for i in o.get("parapet_wall_ids") or [] if i in walls]
+        source = "parapet_wall_ids"
+        if not ids:
+            ids = [w["id"] for w in walls.values() if w.get("exterior")
+                   and segment_inside(w["start"], w["end"], o["polygon"])]
+            source = "outer walls under the opening"
+        for wid in ids:
+            w = walls[wid]
+            for t0, t1 in segment_inside(w["start"], w["end"], o["polygon"]):
+                out.setdefault(wid, []).append({"t0": t0, "t1": t1, "z_top": floor_z + float(o["parapet_height"]),
+                                                "opening_id": o["id"], "source": source})
     return out
 
 

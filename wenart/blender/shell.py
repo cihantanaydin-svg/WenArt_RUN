@@ -541,14 +541,21 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             continue
         mid = G.segment_midpoint(start, end)
         angle = G.segment_angle_deg(start, end)
+        parapets = []
         if cut_planes is not None:
-            # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end).
+            # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end);
+            # under a roof terrace the parapet height instead (roof.parapet_cuts).
             height, wall_assumed = float(roof_cut["top"]) + 0.5 - floor_z, {}
-        verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
-                                  (length, float(wall["thickness"]), height), angle)
-        if cut_planes is not None:
-            verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
+            parapets = trimmed_spans(wall, start, end, (roof_cut.get("parapets") or {}).get(wall["id"]) or [])
+        if parapets:
+            verts, faces = wall_pieces(start, end, float(wall["thickness"]), floor_z, height, cut_planes, parapets)
             height = max(v[2] for v in verts) - floor_z
+        else:
+            verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
+                                      (length, float(wall["thickness"]), height), angle)
+            if cut_planes is not None:
+                verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
+                height = max(v[2] for v in verts) - floor_z
         ob = common.new_mesh_object(wall["id"], verts, faces, collection=collection, wenart_id=wall["id"],
                                     kind="wall", status=wall.get("status", "verified"), materials=slots)
         objects.append(ob)
@@ -595,6 +602,9 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         if cut_planes is not None:
             entry["runs_to"] = "the roof underside (knee wall / gable end)"
             entry["z_range"] = [round(floor_z, 4), round(floor_z + height, 4)]
+        if parapets:
+            entry["parapet"] = [{"s": [round(a, 4), round(b, 4)], "z_top": round(z, 4)} for a, b, z in parapets]
+            entry["runs_to"] += "; a parapet under the roof terrace"
         for field, value in wall_assumed.items():
             assumed.append({"object": wall["id"], "field": field, "value": value,
                             "reason": "wall height from the level ceiling height" if field == "height"
@@ -633,6 +643,45 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         common.delete_object(cutter)
     bpy.context.view_layer.update()
     return objects
+
+
+def trimmed_spans(wall: dict, start, end, cuts: list[dict]) -> list[tuple[float, float, float]]:
+    """``[(s0, s1, z_top)]``: parapet stretches (``roof.parapet_cuts``, parameters along the drawn centre line)
+    in metres along the built (trimmed or corner-joined) centre line ``start``-``end`` (pure)."""
+    length = G.distance(start, end)
+    if length < 1e-9:
+        return []
+    ux, uy = (end[0] - start[0]) / length, (end[1] - start[1]) / length
+    out = []
+    for c in cuts:
+        pts = [G.point_along_segment(wall["start"], wall["end"], float(c[k])) for k in ("t0", "t1")]
+        s = sorted((p[0] - start[0]) * ux + (p[1] - start[1]) * uy for p in pts)
+        # a stretch that reaches a drawn wall end runs to the built end (the joined corner)
+        s0 = 0.0 if float(c["t0"]) <= 1e-6 or s[0] <= 1e-6 else min(max(s[0], 0.0), length)
+        s1 = length if float(c["t1"]) >= 1 - 1e-6 or s[1] >= length - 1e-6 else min(max(s[1], 0.0), length)
+        if s1 - s0 > 1e-4:
+            out.append((s0, s1, float(c["z_top"])))
+    return sorted(out)
+
+
+def wall_pieces(start, end, thickness: float, floor_z: float, height: float, planes, parapets) -> tuple[list, list]:
+    """``(verts, faces)`` of a wall under the roof with parapet stretches (pure): convex boxes along the
+    centre line, each cut by the roof underside ``planes`` or, under a terrace, at its parapet top. The
+    pieces stand side by side in one mesh (their shared end faces lie inside the wall)."""
+    length = G.distance(start, end)
+    angle = G.segment_angle_deg(start, end)
+    marks = sorted({0.0, length} | {s for a, b, _ in parapets for s in (a, b)})
+    parts = []
+    for s0, s1 in zip(marks, marks[1:]):
+        if s1 - s0 < 1e-6:
+            continue
+        sm = (s0 + s1) / 2.0
+        top = next((z for a, b, z in parapets if a - 1e-9 <= sm <= b + 1e-9), None)
+        c = G.point_along_segment(start, end, sm / length)
+        verts, faces = geom2d.box((c[0], c[1], floor_z + height / 2.0), (s1 - s0, thickness, height), angle)
+        cut = [(0.0, 0.0, top)] if top is not None else planes
+        parts.append(geom2d.clip_solid_below(verts, faces, cut))
+    return geom2d.merge(parts)
 
 
 def split_wall_at_room_corners(ob, wall: dict, rooms: list[dict]) -> list[float]:
@@ -1598,8 +1647,8 @@ def slab_solid(rec: dict) -> tuple[list, list]:
     holes = [geom2d.ccw(v) for v in rec["voids"]]
     faces = [(geom2d.lift(p, top[0], True), 0) for p in geom2d.convex_pieces(outline, holes)]
     faces += [(geom2d.lift(p, bottom[0], False), 0) for p in geom2d.convex_pieces(outline, holes)]
-    for loop in [outline] + [h[::-1] for h in holes]:
-        faces += [(f, 0) for f in geom2d.side_faces(loop, top, bottom)]
+    for p, q in geom2d.region_boundary(outline, holes):
+        faces += [(f, 0) for f in geom2d.segment_side_faces(p, q, top, bottom)]
     verts, fs, _ = geom2d.mesh_from_faces(faces)
     return verts, fs
 

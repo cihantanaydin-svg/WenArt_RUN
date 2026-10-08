@@ -922,9 +922,15 @@ def variant_building(building: dict, variant: str = BASE_VARIANT) -> dict:
     for key in ("walls", "openings", "rooms", "furniture", "decor"):
         out[key] = [e for e in building.get(key) or [] if e.get("level_id") in keep]
     if "slabs" in building:
+        # docs/milestone10.md §1.6b row 8: a slab that differs for an alternative is written again as
+        # sl_<above>__<variant id> with variants [<variant id>]; it replaces sl_<above> in that variant.
+        own = {str(s["id"]).split("__", 1)[0] for s in building.get("slabs") or []
+               if isinstance(s, dict) and str(s.get("id", "")).endswith(f"__{variant}")}
         slabs = []
         for s in building.get("slabs") or []:
             if s.get("variants") and variant not in s["variants"]:
+                continue
+            if str(s.get("id")) in own:
                 continue
             s = dict(s)
             for side in ("above_level_id", "below_level_id"):
@@ -943,6 +949,9 @@ def variant_building(building: dict, variant: str = BASE_VARIANT) -> dict:
         walls = {w["id"]: w for w in building.get("walls") or []}
         faces = []
         for f in facade.get("faces") or []:
+            if not f.get("wall_id"):
+                faces.append(f)                  # a whole side (§1.6b row 12): the build finds its walls
+                continue
             wall = walls.get(f.get("wall_id"))
             if wall is not None and wall.get("level_id") in keep:
                 faces.append(f)
@@ -1053,15 +1062,15 @@ def _outer_signature(building: dict, level_id: str) -> tuple[list[dict], list[tu
 
 
 def variant_changes(building: dict, variant: str = BASE_VARIANT) -> dict:
-    """``rooms_changed`` and ``exterior_changed`` of a variant (§1.6: filled by the build).
+    """``rooms_changed`` and ``exterior_changed`` of a variant (§1.6b row 8: written by the pipeline, read here).
 
-    Computed: a room of an alternative level differs when no room of the level it replaces equals it
-    (``rooms_equal``: polygon, openings and drawn furniture within 2 cm); the outside differs when the
-    outer walls (``exterior: true``) or the openings on them differ. The building's own values win when
-    given (``rooms_changed`` non-empty, ``exterior_changed`` true / false; the pipeline leaves them empty /
-    null); a disagreement with the computed value is a warning. Returns ``{"rooms_changed",
-    "exterior_changed", "same_as": {room: base room}, "why": {room: reason}, "computed", "source",
-    "warnings"}``; the base variant has nothing changed."""
+    Computed as well (the pure helper for a building that leaves them null): a room of an alternative level
+    differs when no room of the level it replaces equals it (``rooms_equal``: polygon, openings and drawn
+    furniture within 2 cm); the outside differs when the outer walls (``exterior: true``) or the openings on
+    them differ. The building's values win when given (``rooms_changed`` a list, ``exterior_changed`` true /
+    false; null = not computed); a disagreement with the computed value is a warning. Returns
+    ``{"rooms_changed", "exterior_changed", "same_as": {room: base room}, "why": {room: reason}, "computed",
+    "source", "warnings"}``; the base variant has nothing changed."""
     rec = variant_record(building, variant)
     out = {"rooms_changed": [], "exterior_changed": False, "same_as": {}, "why": {},
            "computed": {"rooms_changed": [], "exterior_changed": False},
@@ -1095,7 +1104,7 @@ def variant_changes(building: dict, variant: str = BASE_VARIANT) -> dict:
             outside = True
     out["computed"] = {"rooms_changed": computed_rooms, "exterior_changed": outside}
     given_rooms = rec.get("rooms_changed")
-    if given_rooms:
+    if isinstance(given_rooms, list):
         out["rooms_changed"] = [str(r) for r in given_rooms]
         out["source"]["rooms_changed"] = "building"
         if sorted(out["rooms_changed"]) != sorted(computed_rooms):
@@ -1117,30 +1126,49 @@ def variant_changes(building: dict, variant: str = BASE_VARIANT) -> dict:
     return out
 
 
-def views_for(building: dict, variant: str = BASE_VARIANT, twin_rooms: Optional[str] = None,
+def _brief_value(building: dict, brief, key: str) -> tuple[object, bool]:
+    """``(value, assumed)`` of a brief key from ``brief`` (a ``wenart.brief.load_brief`` result or a plain
+    values dict), else the building's stored brief and the defaults (``brief_setting``)."""
+    if isinstance(brief, dict):
+        values = brief.get("values") if isinstance(brief.get("values"), dict) else brief
+        cur: object = values
+        for part in key.split("."):
+            if not isinstance(cur, dict) or part not in cur:
+                cur = None
+                break
+            cur = cur[part]
+        if cur is not None:
+            listed = brief.get("assumed") if isinstance(brief.get("assumed"), list) else []
+            return cur, key in listed
+    return brief_setting(building, key)
+
+
+def views_for(building: dict, variant: str = BASE_VARIANT, brief=None, twin_rooms: Optional[str] = None,
               exterior_views: Optional[bool] = None) -> dict:
-    """What a variant renders (docs/milestone10.md §1.6a).
+    """What a variant renders (docs/milestone10.md §1.6a, §1.6b row 10).
 
-    Interior: the base renders every room of its levels; an alternative only its ``rooms_changed``
-    (``variant_changes``; the others equal a base room, whose images are listed for them). With
-    ``render.twin_rooms: one`` (the default) a room that is the second twin of a mirrored pair
+    ``rooms``: the base renders every room of its levels; an alternative its ``rooms_changed``
+    (``variant_changes``); with ``render.twin_rooms: one`` (the default) the second twin of a mirrored pair
     (``twin_of``) is left out when its first twin is built in the same variant (it is still built).
-    Exterior: the base when ``render.exterior_views`` (default true); an alternative only when its
-    outside differs (``exterior_changed``), else the base views are listed for it. ``twin_rooms`` /
-    ``exterior_views`` None: the building's brief, else the defaults (listed in ``assumed``).
+    ``skipped``: ``{room_id, reason}`` with the reason ``twin of <id>``, ``same as <id>`` (an alternative
+    level's room equal to a base room: the pipeline's ``same_as``, else the computed match) or ``unchanged
+    in variant`` (a room of a level the base builds too). ``exterior``: ``render.exterior_views`` and (the
+    base or ``exterior_changed``); ``exterior_from``: ``base`` or the variant id whose exterior views stand
+    for this variant. ``brief``: a ``wenart.brief.load_brief`` result or a values dict; None = the
+    building's stored brief and the defaults (``BRIEF_DEFAULTS``; listed in ``assumed``); ``twin_rooms`` /
+    ``exterior_views`` override it. Cameras are matched to these rooms afterwards (scene manifest).
 
-    Returns ``{"variant", "base", "levels", "rooms": [room ids], "skipped": [{"room_id", "reason",
-    "same_as" | "twin_of"}], "exterior": bool, "exterior_reason", "base_views": {room: base room},
-    "twin_rooms", "exterior_views", "rooms_changed", "exterior_changed", "changes_source", "assumed",
-    "warnings"}``."""
+    Returns ``{"variant", "rooms", "skipped", "exterior", "exterior_from"}`` plus ``base``, ``levels``,
+    ``exterior_reason``, ``base_views`` ({room: base room}), ``twin_rooms``, ``exterior_views``,
+    ``rooms_changed``, ``exterior_changed``, ``changes_source``, ``assumed`` and ``warnings``."""
     rec = variant_record(building, variant)
     assumed: list[str] = []
     if twin_rooms is None:
-        twin_rooms, was_assumed = brief_setting(building, "render.twin_rooms")
+        twin_rooms, was_assumed = _brief_value(building, brief, "render.twin_rooms")
         if was_assumed:
             assumed.append("render.twin_rooms")
     if exterior_views is None:
-        exterior_views, was_assumed = brief_setting(building, "render.exterior_views")
+        exterior_views, was_assumed = _brief_value(building, brief, "render.exterior_views")
         if was_assumed:
             assumed.append("render.exterior_views")
     levels = [str(i) for i in rec.get("levels") or []]
@@ -1149,6 +1177,7 @@ def views_for(building: dict, variant: str = BASE_VARIANT, twin_rooms: Optional[
     changes = variant_changes(building, variant)
     base = is_base_variant(rec)
     changed = set(changes["rooms_changed"])
+    base_views = {}
     skipped = []
     if not base:
         alt_levels = set(variant_replacements(rec).values())
@@ -1156,19 +1185,19 @@ def views_for(building: dict, variant: str = BASE_VARIANT, twin_rooms: Optional[
             if r["id"] in changed:
                 continue
             if r.get("level_id") in alt_levels:
-                skipped.append({"room_id": r["id"], "reason": "equals a base room: the base images are listed",
-                                "same_as": changes["same_as"].get(r["id"])})
+                same = r.get("same_as") or changes["same_as"].get(r["id"])
+                base_views[r["id"]] = same
+                skipped.append({"room_id": r["id"], "reason": f"same as {same}" if same else "unchanged in variant"})
             else:
-                skipped.append({"room_id": r["id"], "reason": "a level the base also builds: the base images "
-                                                              "are listed", "same_as": r["id"]})
+                base_views[r["id"]] = r["id"]
+                skipped.append({"room_id": r["id"], "reason": "unchanged in variant"})
     out_rooms = []
     for r in rooms:
         if not base and r["id"] not in changed:
             continue
         first = r.get("twin_of")
         if twin_rooms == "one" and first and first in built:
-            skipped.append({"room_id": r["id"], "reason": f"second twin of {first}: rendered once "
-                                                          f"(render.twin_rooms: one)", "twin_of": first})
+            skipped.append({"room_id": r["id"], "reason": f"twin of {first}"})
             continue
         out_rooms.append(r["id"])
     if not exterior_views:
@@ -1179,8 +1208,11 @@ def views_for(building: dict, variant: str = BASE_VARIANT, twin_rooms: Optional[
         exterior, why = True, "the outer walls or outer openings differ from the base"
     else:
         exterior, why = False, "the outside equals the base: the base exterior views are listed"
-    return {"variant": rec["id"], "base": base, "levels": levels, "rooms": out_rooms, "skipped": skipped,
-            "exterior": exterior, "exterior_reason": why, "base_views": dict(changes["same_as"]),
-            "twin_rooms": twin_rooms, "exterior_views": bool(exterior_views),
+    exterior_from = rec["id"] if (base or changes["exterior_changed"]) else BASE_VARIANT
+    if base:
+        exterior_from = BASE_VARIANT
+    return {"variant": rec["id"], "rooms": out_rooms, "skipped": skipped, "exterior": exterior,
+            "exterior_from": exterior_from, "base": base, "levels": levels, "exterior_reason": why,
+            "base_views": base_views, "twin_rooms": twin_rooms, "exterior_views": bool(exterior_views),
             "rooms_changed": list(changes["rooms_changed"]), "exterior_changed": changes["exterior_changed"],
             "changes_source": changes["source"], "assumed": assumed, "warnings": list(changes["warnings"])}
