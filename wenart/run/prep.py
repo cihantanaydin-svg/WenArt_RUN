@@ -210,6 +210,7 @@ SETUP_TRELLIS = "scripts/pod_setup_trellis.sh"
 GENERATE_MODULE = Path("wenart") / "assets" / "generate.py"
 REAL_SOURCES = ("abo", "objaverse")         # the first accept of the generate step (wenart.assets.objaverse)
 LIBRARY_CATALOG = CP.LIBRARY_CATALOG        # catalog_library.json
+SYNC_WORKERS = 16                           # parallel file copies of sync_library (network volume)
 EST_CALLS_MIN_S = 120.0                    # a session starts only with room for its server start and some calls
 SESSION_KEYS = {"session_qwen": "qwen", "session_glm": "glm"}     # pass 1, then pass 2 (§3.3, §9.2)
 STATUSES = ("ok", "warning", "skipped", "deadline", "failed")
@@ -614,21 +615,31 @@ class Prep:
 
     def sync_library(self) -> int:
         """Copy the library work folder (``<prep-root>/library``) into ``$RESULTS/library`` (``copy.library_files``:
-        no model file, nothing over 8 MB); the number of files written (a file whose size and bytes are already there
-        is not copied again)."""
+        no model file, nothing over 8 MB); the number of files written. A file whose copy has the same size and
+        modification time (``shutil.copy2`` keeps it) is not copied again, and ``SYNC_WORKERS`` files are copied at
+        once: both folders are on the network volume, where every open and stat waits (pods L1b and L1c of
+        8 Oct 2026: a byte-for-byte compare of about 7000 files, after every step past the deadline, ran the job
+        into the watchdog)."""
         src, dst = Path(self.opts.library), Path(self.opts.results_library)
         if not src.is_dir():
             return 0
-        n = 0
-        for f in CP.library_files(src):
+
+        def one(f: Path) -> int:
             target = dst / f.relative_to(src)
-            if target.is_file() and target.stat().st_size == f.stat().st_size \
-                    and target.read_bytes() == f.read_bytes():
-                continue
+            st = f.stat()
+            try:
+                tt = target.stat()
+                if tt.st_size == st.st_size and int(tt.st_mtime) == int(st.st_mtime):
+                    return 0
+            except FileNotFoundError:
+                pass
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(f, target)
-            n += 1
-        return n
+            shutil.copy2(f, target)
+            return 1
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=SYNC_WORKERS) as pool:
+            return sum(pool.map(one, CP.library_files(src)))
 
     def library_left_out(self) -> list[str]:
         """Library files that ``copy.library_files`` leaves out for their size (model files are meant to stay): a

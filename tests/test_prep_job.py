@@ -2271,3 +2271,22 @@ def test_the_real_surveys_take_the_types_flag_the_prep_passes(tmp_path):
     obj = w.call("objaverse survey")["cmd"]
     assert ABO.parse_args(abo[abo.index("survey"):]).types == "new"
     assert OV.parse_args(obj[obj.index("survey"):]).types == "new"
+
+
+def test_the_library_copy_skips_unchanged_files_and_copies_changed_ones(tmp_path):
+    w = World(tmp_path)
+    lib = w.prep_root / "library"
+    P.write_json(lib / "thumbnails.json", {"objects": {}})
+    (lib / "thumbs").mkdir(parents=True)
+    for i in range(40):
+        (lib / "thumbs" / f"u{i}.jpg").write_bytes(b"jpg" * (i + 1))
+    prep = w.prep()
+    assert prep.sync_library() == 41
+    assert prep.sync_library() == 0                         # size and mtime equal: nothing read or copied again
+    P.write_json(lib / "thumbnails.json", {"objects": {"u1": {"status": "ready"}}})   # rewritten: size changes
+    src = lib / "thumbs" / "u3.jpg"
+    src.write_bytes(b"JPG" * 4)                             # same size, newer mtime
+    os.utime(src, (src.stat().st_atime, src.stat().st_mtime + 5))
+    assert prep.sync_library() == 2
+    assert P.read_json(w.results / "library" / "thumbnails.json") == {"objects": {"u1": {"status": "ready"}}}
+    assert (w.results / "library" / "thumbs" / "u3.jpg").read_bytes() == b"JPG" * 4
