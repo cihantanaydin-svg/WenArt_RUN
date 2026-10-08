@@ -32,8 +32,9 @@ from typing import Optional, Sequence
 
 from wenart import geometry as G
 from wenart.blender import geom2d
+from wenart.blender.shell import outward_side  # noqa: F401 - the outward side of a wall (site and exterior use it)
 
-GRID_M = 1.0                     # ground grid where the terrain is not flat
+GRID_M = 1.0                    # ground grid where the terrain is not flat
 GRID_MAX_CELLS = 80              # per side: a large ground gets a coarser grid
 MARGIN_M = 30.0                  # ground beyond the building (and at least PLOT_MARGIN_M beyond the plot)
 PLOT_MARGIN_M = 15.0
@@ -272,20 +273,6 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
 # --------------------------------------------------------------------------
 # Light wells
 # --------------------------------------------------------------------------
-
-def outward_side(wall: dict, outline: Sequence[Sequence[float]], centre) -> Optional[tuple[float, float]]:
-    """The unit normal of a wall pointing out of the building outline at ``centre`` (None when both or
-    neither side of the wall lie outside the outline: an inner wall)."""
-    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
-    reach = float(wall["thickness"]) / 2.0 + 0.05
-    out = []
-    for s in (1.0, -1.0):
-        p = (centre[0] + s * nx * reach, centre[1] + s * ny * reach)
-        out.append(not G.point_in_polygon(p, outline))
-    if out[0] == out[1]:
-        return None
-    return (nx, ny) if out[0] else (-nx, -ny)
-
 
 def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]]
                 ) -> tuple[list[dict], list[str]]:

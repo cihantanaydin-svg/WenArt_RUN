@@ -483,15 +483,15 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     """Create the wall objects of a level with their openings cut.
 
     ``whole`` (Milestone 10, the whole building; None = the M3-M9 walls): ``{"slab_above": slab record or
-    None, "roof": roof model or None (the level under the roof), "looks": exterior_looks(...), "outline":
-    the building outline, "faces": {wall id: [facade face]}}``. Walls then run to the next floor (the slab
-    above) instead of the ceiling + the assumed 0.30 m slab, walls under the roof are cut by its underside
-    (knee walls, gable ends), L-joins are closed (``corner_extensions``), the outward faces take the facade
-    look and a drawn facade part (``z_range``) its own material; end faces on the outline count as outside."""
+    None, "roof_cut": {"planes", "top"} or None (the level under the roof: ``roof.wall_cut``), "looks":
+    exterior_looks(...), "outline": the level's outline, "faces": {wall id: [facade face]}}``. Walls then
+    run to the next floor (the slab above) instead of the ceiling + the assumed 0.30 m slab, walls under the
+    roof are cut by its underside (knee walls, gable ends), L-joins are closed (``corner_extensions``), the
+    outward faces take the facade look and a drawn facade part (``z_range``) its own material; end faces on
+    the outline count as outside."""
     import bpy
 
     from wenart.blender import common
-    from wenart.blender import roof as R
 
     level_id = level["id"]
     floor_z = float(level["elevation"])
@@ -518,8 +518,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                     slots.append(mat)
                 zr = face.get("z_range") or [-1e9, 1e9]
                 face_slots.setdefault(wid, []).append((float(zr[0]), float(zr[1]), slots.index(mat)))
-    roof = whole.get("roof") if whole else None
-    cut_planes = R.wall_top_planes(roof) if roof is not None and roof.get("convex") else None
+    roof_cut = whole.get("roof_cut") if whole else None
+    cut_planes = roof_cut["planes"] if roof_cut else None
     slab_above = whole.get("slab_above") if whole else None
 
     footprint_centre = _level_centre(walls)
@@ -541,12 +541,11 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         angle = G.segment_angle_deg(start, end)
         if cut_planes is not None:
             # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end).
-            top = max(float(p[2]) for plane in roof["planes"] for p in plane["points"])
-            height, wall_assumed = top + 0.5 - floor_z, {}
+            height, wall_assumed = float(roof_cut["top"]) + 0.5 - floor_z, {}
         verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
                                   (length, float(wall["thickness"]), height), angle)
         if cut_planes is not None:
-            verts, faces = R.clip_solid_below(verts, faces, cut_planes)
+            verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
             height = max(v[2] for v in verts) - floor_z
         ob = common.new_mesh_object(wall["id"], verts, faces, collection=collection, wenart_id=wall["id"],
                                     kind="wall", status=wall.get("status", "verified"), materials=slots)
@@ -1055,7 +1054,6 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     roof: ceilings on the lowest of these planes, ``roof.ceiling_planes``), "open_rooms": {room ids} (roof
     terraces: no ceiling)}``."""
     from wenart.blender import common
-    from wenart.blender import roof as R
 
     level_id = level["id"]
     floor_z = float(level["elevation"])
@@ -1104,7 +1102,7 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
                 rv, rf, c = ceiling_faces(room["polygon"], [loops], ceil_z)
                 if c:
                     holes.extend(loops)
-            cv, cf = R.ceiling_faces(room["polygon"], holes, planes)
+            cv, cf = geom2d.sloped_faces(room["polygon"], holes, planes, facing_up=False)
             cut = [0] if holes else []
         else:
             cv, cf, cut = ceiling_faces(room["polygon"], room_voids, ceil_z)
@@ -1581,17 +1579,15 @@ def slab_solid(rec: dict) -> tuple[list, list]:
     """``(verts, faces)`` of a slab: its outline ``SLAB_EDGE_INSET`` in, minus its openings, from
     ``SLAB_FACE_GAP`` over its bottom to ``SLAB_FACE_GAP`` under its top (the floors above and the ceilings
     below stay in front), closed by its edges and the sides of the openings."""
-    from wenart.blender import roof as R
-
     outline = geom2d.offset_polygon(rec["outline"], SLAB_EDGE_INSET)
     top = [(0.0, 0.0, float(rec["z_top"]) - SLAB_FACE_GAP)]
     bottom = [(0.0, 0.0, float(rec["z_top"]) - float(rec["thickness"]) + SLAB_FACE_GAP)]
     holes = [geom2d.ccw(v) for v in rec["voids"]]
-    faces = [(R.lift(p, top[0], True), 0) for p in geom2d.convex_pieces(outline, holes)]
-    faces += [(R.lift(p, bottom[0], False), 0) for p in geom2d.convex_pieces(outline, holes)]
+    faces = [(geom2d.lift(p, top[0], True), 0) for p in geom2d.convex_pieces(outline, holes)]
+    faces += [(geom2d.lift(p, bottom[0], False), 0) for p in geom2d.convex_pieces(outline, holes)]
     for loop in [outline] + [h[::-1] for h in holes]:
-        faces += [(f, 0) for f in R.side_faces(loop, top, bottom)]
-    verts, fs, _ = R._mesh(faces)
+        faces += [(f, 0) for f in geom2d.side_faces(loop, top, bottom)]
+    verts, fs, _ = geom2d.mesh_from_faces(faces)
     return verts, fs
 
 
@@ -1751,6 +1747,20 @@ def look_material(library, look: dict):
 
 # --- sills and railings ------------------------------------------------------
 
+def outward_side(wall: dict, outline, centre) -> tuple[float, float] | None:
+    """The unit normal of a wall pointing out of the building ``outline`` at ``centre`` (pure; None when both
+    or neither side of the wall lie outside the outline: an inner wall)."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + 0.05
+    out = []
+    for s in (1.0, -1.0):
+        p = (centre[0] + s * nx * reach, centre[1] + s * ny * reach)
+        out.append(not G.point_in_polygon(p, outline))
+    if out[0] == out[1]:
+        return None
+    return (nx, ny) if out[0] else (-nx, -ny)
+
+
 def sill_box(opening: dict, wall: dict, level: dict, levels_above: bool, outward, cfg: dict | None = None
              ) -> tuple[list, list, dict]:
     """``(verts, faces, info)`` of the outside sill of a window (pure): from the frame's outer edge to
@@ -1824,7 +1834,6 @@ def build_outside_details(building: dict, level: dict, collection, library, look
     panel) along the edges of every balcony that no wall carries (``railing_edges``; kind wall, the room as
     parent, status assumed). Returns ``{"sills": n, "railings": n}``."""
     from wenart.blender import common
-    from wenart.blender.site import outward_side
 
     floor_z = float(level["elevation"])
     above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])

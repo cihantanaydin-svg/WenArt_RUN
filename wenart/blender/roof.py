@@ -38,7 +38,7 @@ is the downhill direction, 0 = -Y, counter-clockwise (90 = +X).
 from __future__ import annotations
 
 import math
-from typing import Iterable, Optional, Sequence
+from typing import Optional, Sequence
 
 from wenart import geometry as G
 from wenart.blender import geom2d
@@ -56,10 +56,9 @@ DEFAULTS = {
     "flat_thickness": 0.30,      # a flat roof slab
 }
 CEILING_GAP = 0.001              # attic ceilings stay this far under the roof underside (no coplanar faces)
-TOL = 1e-6
 CONVEX_TOL = 0.01                # drawn planes: a plane more than this above another at its own corners -> not convex
 SAME_TOL = 0.02                  # equivalent planes: corners within 2 cm
-MIN_PIECE_AREA = 1e-5
+MIN_PIECE_AREA = geom2d.MIN_PIECE_AREA
 
 
 # --------------------------------------------------------------------------
@@ -82,8 +81,9 @@ def plane_from_points(points: Sequence[Sequence[float]]) -> Optional[Plane]:
     return (a, b, cz - a * cx - b * cy)
 
 
-def plane_z(plane: Plane, x: float, y: float) -> float:
-    return plane[0] * x + plane[1] * y + plane[2]
+plane_z = geom2d.plane_z
+surface_z = geom2d.surface_z
+plane_regions = geom2d.plane_regions
 
 
 def slope_aspect(plane: Plane) -> tuple[float, Optional[float]]:
@@ -103,11 +103,6 @@ def lowered(plane: Plane, thickness: float) -> Plane:
     return (a, b, c - float(thickness) * math.sqrt(1.0 + a * a + b * b))
 
 
-def surface_z(planes: Sequence[Plane], x: float, y: float) -> float:
-    """The roof surface of a convex roof at ``(x, y)``: the lowest plane there."""
-    return min(plane_z(p, x, y) for p in planes)
-
-
 def _ramp(base: Sequence[float], inward: Sequence[float], z0: float, tan_pitch: float) -> Plane:
     """The plane that is ``z0`` on the line through ``base`` square to ``inward`` and rises along ``inward``
     by ``tan_pitch`` per metre."""
@@ -121,21 +116,6 @@ def side_name(aspect: Optional[float]) -> str:
     if aspect is None:
         return "flat"
     return ("south", "east", "north", "west")[int(((aspect + 45.0) % 360.0) // 90.0)]
-
-
-def plane_regions(planes: Sequence[Plane], piece: Sequence[Sequence[float]]) -> list[tuple[int, list]]:
-    """``[(plane index, polygon)]``: where in the convex ``piece`` each plane is the lowest one."""
-    out = []
-    for i, pi in enumerate(planes):
-        poly = [(float(p[0]), float(p[1])) for p in piece]
-        for j, pj in enumerate(planes):
-            if j == i or not poly:
-                continue
-            # plane_i <= plane_j  <=>  (a_i - a_j) x + (b_i - b_j) y + (c_i - c_j) <= 0; ties go to the lower index.
-            poly = geom2d.clip_half_plane(poly, pi[0] - pj[0], pi[1] - pj[1], pi[2] - pj[2] - (1e-9 if j < i else 0.0))
-        if len(poly) >= 3 and G.polygon_area(poly) > MIN_PIECE_AREA:
-            out.append((i, poly))
-    return out
 
 
 def _region_polygons(planes: Sequence[Plane], outline: Sequence[Sequence[float]]) -> list[list]:
@@ -590,73 +570,13 @@ def covers(model: dict, x: float, y: float) -> bool:
 # Meshes (pure)
 # --------------------------------------------------------------------------
 
-def surface_pieces(outer, holes, planes: Sequence[Plane]) -> list[tuple[int, list]]:
-    """``[(plane index, polygon)]``: the region inside ``outer`` and outside ``holes`` split where each plane
-    is the lowest (convex pieces)."""
-    out = []
-    for piece in geom2d.convex_pieces(outer, holes):
-        out.extend(plane_regions(planes, piece))
-    return out
-
-
-def lift(polygon, plane: Plane, facing_up: bool) -> list[tuple[float, float, float]]:
-    pts = geom2d.ccw(polygon)
-    if not facing_up:
-        pts = pts[::-1]
-    return [(x, y, plane_z(plane, x, y)) for x, y in pts]
-
-
-def edge_breaks(p, q, planes: Sequence[Plane]) -> list[float]:
-    """Parameters 0..1 along ``p``-``q`` where the lowest of ``planes`` may change (every pairwise crossing)."""
-    ts = {0.0, 1.0}
-    zs = [(plane_z(e, *p), plane_z(e, *q)) for e in planes]
-    for i in range(len(zs)):
-        for j in range(i + 1, len(zs)):
-            d0, d1 = zs[i][0] - zs[j][0], zs[i][1] - zs[j][1]
-            if (d0 < -TOL and d1 > TOL) or (d0 > TOL and d1 < -TOL):
-                ts.add(d0 / (d0 - d1))
-    return sorted(ts)
-
-
-def side_faces(loop, top: Sequence[Plane], bottom: Sequence[Plane]) -> list[list[tuple[float, float, float]]]:
-    """Vertical quads closing a solid between the ``bottom`` and ``top`` surfaces along a boundary loop
-    (counter-clockwise for the outer boundary, clockwise for a hole: the quads face away from the solid)."""
-    faces = []
-    n = len(loop)
-    for i in range(n):
-        p, q = loop[i], loop[(i + 1) % n]
-        ts = sorted(set(edge_breaks(p, q, top)) | set(edge_breaks(p, q, bottom)))
-        for t0, t1 in zip(ts, ts[1:]):
-            if t1 - t0 < 1e-9:
-                continue
-            a = (p[0] + (q[0] - p[0]) * t0, p[1] + (q[1] - p[1]) * t0)
-            b = (p[0] + (q[0] - p[0]) * t1, p[1] + (q[1] - p[1]) * t1)
-            faces.append([(a[0], a[1], surface_z(bottom, *a)), (b[0], b[1], surface_z(bottom, *b)),
-                          (b[0], b[1], surface_z(top, *b)), (a[0], a[1], surface_z(top, *a))])
-    return faces
-
-
-def _mesh(face_lists: Iterable[tuple[list, int]]) -> tuple[list, list, list[int]]:
-    """``(verts, faces, slots)`` from ``[(face points, slot)]``, vertices shared by position (0.1 mm)."""
-    verts: list[tuple[float, float, float]] = []
-    index: dict[tuple, int] = {}
-    faces, slots = [], []
-    for pts, slot in face_lists:
-        f = []
-        for p in pts:
-            key = (round(p[0], 4), round(p[1], 4), round(p[2], 4))
-            if key not in index:
-                index[key] = len(verts)
-                verts.append((float(p[0]), float(p[1]), float(p[2])))
-            if not f or f[-1] != index[key]:
-                f.append(index[key])
-        if len(f) > 1 and f[0] == f[-1]:
-            f.pop()
-        if len(set(f)) >= 3:
-            faces.append(f)
-            slots.append(slot)
-    return verts, faces, slots
-
+# The plane-surface helpers live in geom2d (shell.py uses them for slabs, sloped ceilings and knee walls).
+surface_pieces = geom2d.surface_pieces
+lift = geom2d.lift
+edge_breaks = geom2d.edge_breaks
+side_faces = geom2d.side_faces
+_mesh = geom2d.mesh_from_faces
+clip_solid_below = geom2d.clip_solid_below
 
 SLOT_COVERING, SLOT_SOFFIT, SLOT_FASCIA = 0, 1, 2
 
@@ -679,68 +599,15 @@ def roof_solid(model: dict) -> tuple[list, list, list[int]]:
 def ceiling_faces(polygon, holes, planes: Sequence[Plane]) -> tuple[list, list]:
     """``(verts, faces)`` of a room ceiling under a roof: the room minus ``holes`` on the lowest of ``planes``
     (``ceiling_planes``), facing down."""
-    verts, faces, _ = _mesh((lift(poly, planes[i], False), 0) for i, poly in surface_pieces(polygon, holes, planes))
-    return verts, faces
+    return geom2d.sloped_faces(polygon, holes, planes, facing_up=False)
 
 
-# --------------------------------------------------------------------------
-# Convex solids cut by planes (knee walls and gable ends)
-# --------------------------------------------------------------------------
-
-def clip_solid_below(verts: Sequence[Sequence[float]], faces: Sequence[Sequence[int]], planes: Sequence[Plane]
-                     ) -> tuple[list, list]:
-    """The part of a convex solid below every plane (``z <= a x + b y + c``), closed by a cap face per
-    cutting plane (pure; the wall boxes under a roof). Faces stay wound outwards."""
-    polys = [[tuple(float(c) for c in verts[i]) for i in f] for f in faces]
-    for plane in planes:
-        a, b, c = plane
-
-        def d(p):
-            return p[2] - (a * p[0] + b * p[1] + c)
-
-        new_polys, cut_pts = [], []
-        for poly in polys:
-            out = []
-            n = len(poly)
-            for i in range(n):
-                p, q = poly[i], poly[(i + 1) % n]
-                dp, dq = d(p), d(q)
-                if dp <= TOL:
-                    out.append(p)
-                if (dp < -TOL and dq > TOL) or (dp > TOL and dq < -TOL):
-                    t = dp / (dp - dq)
-                    x = tuple(p[k] + t * (q[k] - p[k]) for k in range(3))
-                    out.append(x)
-                    cut_pts.append(x)
-                elif abs(dp) <= TOL:
-                    cut_pts.append(p)
-            if len(out) >= 3:
-                new_polys.append(out)
-        if len(new_polys) == len(polys) and not any(d(p) > TOL for poly in polys for p in poly):
-            continue                       # the plane is above the whole solid
-        cap = _cap_polygon(cut_pts, plane)
-        polys = new_polys + ([cap] if cap else [])
-    verts_out, faces_out, _ = _mesh((poly, 0) for poly in polys)
-    return verts_out, faces_out
-
-
-def _cap_polygon(points, plane: Plane) -> list:
-    """The convex cap of a cut: the cut points ordered counter-clockwise seen from above (normal up)."""
-    uniq: list[tuple] = []
-    for p in points:
-        if not any(math.dist(p, q) < 1e-7 for q in uniq):
-            uniq.append(p)
-    if len(uniq) < 3:
-        return []
-    hull2 = geom2d.convex_hull([(p[0], p[1]) for p in uniq])
-    if len(hull2) < 3:
-        return []
-    return [(x, y, plane_z(plane, x, y)) for x, y in hull2]
-
-
-def wall_top_planes(model: dict) -> list[Plane]:
-    """The planes the walls under the roof are cut with: the roof underside."""
-    return underside(model)
+def wall_cut(model: dict) -> Optional[dict]:
+    """What the walls under the roof are cut with (``shell.build_walls``): ``{"planes": the roof underside,
+    "top": the ridge}``; None for a roof that is not convex (its walls keep their level height)."""
+    if not model or not model.get("convex") or not model.get("equations"):
+        return None
+    return {"planes": underside(model), "top": max(float(p[2]) for pl in model["planes"] for p in pl["points"])}
 
 
 # --------------------------------------------------------------------------

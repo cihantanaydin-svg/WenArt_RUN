@@ -642,7 +642,7 @@ def main(argv: list[str]) -> int:
         if whole:
             wall_whole = {"slab_above": above, "looks": looks, "outline": prep["outlines"].get(level["id"]),
                           "faces": prep["faces"],
-                          "roof": roof if roof and roof["over_level_id"] == level["id"] else None}
+                          "roof_cut": R.wall_cut(roof) if roof and roof["over_level_id"] == level["id"] else None}
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
