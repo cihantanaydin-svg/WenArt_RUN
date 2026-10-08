@@ -154,7 +154,9 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
             frames_all.extend(res.frames)
             for c in res.clusters:
                 rid = f"r{len(regions) + len(doc_regions) + 1}"         # unique in the project (§1.6b row 2)
-                doc_regions.append(Region(id=rid, file=doc.file, sheet=sheet, box=c.box,
+                # The region box is the box of its non-text entities (texts join by their point; a title below the
+                # drawing is outside it): what the pipeline clips and what synthetic-07's truth gives.
+                doc_regions.append(Region(id=rid, file=doc.file, sheet=sheet, box=c.geometry_box,
                                           geometry_box=c.geometry_box, ents=c.ents, texts=c.texts, frame=c.frame,
                                           kind=c.kind))
             for c, dist in res.strays:
@@ -285,8 +287,9 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     if reference is not None and reference.id in outlines:
         b = outlines[reference.id].bounds
         ref_extent = (b[2] - b[0], b[3] - b[1])
+    cut = RG.cut_line(read_plans, sections[0]) if sections and reference is not None and outlines else None
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
-                                  sections[0].file if sections else None, conflict)
+                                  sections[0].file if sections else None, conflict, cut)
     if multi:
         warnings.extend(hw)
     top_plan = None

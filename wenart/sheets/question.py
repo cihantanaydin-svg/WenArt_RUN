@@ -93,6 +93,9 @@ def render(region, px: int = CROP_PX):
     from wenart.ingest.debug_image import _font
 
     b = region.box
+    if region.texts:                                    # the crop shows the title below the drawing too
+        b = (min([b[0]] + [t.box[0] for t in region.texts]), min([b[1]] + [t.box[1] for t in region.texts]),
+             max([b[2]] + [t.box[2] for t in region.texts]), max([b[3]] + [t.box[3] for t in region.texts]))
     w, h = max(b[2] - b[0], 1e-9), max(b[3] - b[1], 1e-9)
     margin = 16
     scale = (px - 2 * margin) / max(w, h)

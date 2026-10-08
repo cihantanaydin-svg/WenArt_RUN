@@ -54,6 +54,7 @@ class Line:
     a: tuple[float, float]
     b: tuple[float, float]
     id: str
+    key: str = ""             # unique per straight piece: the edges of one closed polyline share the entity id
 
     @property
     def length(self) -> float:
@@ -90,8 +91,8 @@ class SectionGeometry:
 
 def _lines(region) -> list[Line]:
     out = []
-    for a, b, st in UC.segments(region.strokes()):
-        out.append(Line(tuple(a), tuple(b), st.id))
+    for k, (a, b, st) in enumerate(UC.segments(region.strokes())):
+        out.append(Line(tuple(a), tuple(b), st.id, f"{st.id}#{k}"))
     return out
 
 
@@ -170,21 +171,8 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
     roof = [ln for ln in slope if ln.length >= roof_min and min(ln.a[1], ln.b[1]) >= top - 1e-6]
     g.roof_lines = len(roof)
     if roof:
-        g.profile, g.profile_ids = _envelope(roof, _metres(PROFILE_TOL_M, mpu, 0.001, width))
-        outer = set(g.profile_ids)
-        g.underside = [ln for ln in roof if ln.id not in outer]
-
-    # Ground lines: horizontal lines outside the walls that reach within 1 m of them.
-    reach = _metres(GROUND_REACH_M, mpu, 0.1, width)
-    min_ground = _metres(GROUND_MIN_M, mpu, 0.1, width)
-    for ln in horiz:
-        lx0, lx1 = sorted((ln.a[0], ln.b[0]))
-        if lx1 - lx0 < min_ground:
-            continue
-        if lx1 <= x0 + 1e-6 and x0 - lx1 <= reach:
-            g.ground.append(("left", ln.a[1], ln.id))
-        elif lx0 >= x1 - 1e-6 and lx0 - x1 <= reach:
-            g.ground.append(("right", ln.a[1], ln.id))
+        g.profile, g.profile_ids, outer = _envelope(roof, _metres(PROFILE_TOL_M, mpu, 0.001, width))
+        g.underside = [ln for ln in roof if ln.key not in outer]
 
     # Level marks.
     segs = UC.segments(region.strokes())
@@ -192,11 +180,29 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
         mp = UC.mark_point(t, segs)
         if mp is not None:
             g.marks.append((t, value, (mp[0], mp[1]), mp[2]))
+
+    # Ground lines: horizontal lines outside the walls that reach within 1 m of them; a level mark's own line (a line
+    # that starts at the mark's apex and runs to the wall) is no ground line; a mark standing on a ground line is.
+    reach = _metres(GROUND_REACH_M, mpu, 0.1, width)
+    min_ground = _metres(GROUND_MIN_M, mpu, 0.1, width)
+    on_tol = _metres(0.01, mpu, 0.001, width)
+    apexes = [m[2] for m in g.marks]
+    for ln in horiz:
+        lx0, lx1 = sorted((ln.a[0], ln.b[0]))
+        if lx1 - lx0 < min_ground:
+            continue
+        if any(min(abs(px - lx0), abs(px - lx1)) <= on_tol and abs(py - ln.a[1]) <= on_tol for px, py in apexes):
+            continue
+        if lx1 <= x0 + 1e-6 and x0 - lx1 <= reach:
+            g.ground.append(("left", ln.a[1], ln.id))
+        elif lx0 >= x1 - 1e-6 and lx0 - x1 <= reach:
+            g.ground.append(("right", ln.a[1], ln.id))
     return g
 
 
-def _envelope(lines: list[Line], tol: float) -> tuple[list[tuple[float, float]], list[str]]:
-    """Upper envelope of sloped lines, as corner points left to right, and the ids of the lines it runs on."""
+def _envelope(lines: list[Line], tol: float) -> tuple[list[tuple[float, float]], list[str], set]:
+    """Upper envelope of sloped lines, as corner points left to right, the entity ids of the lines it runs on and
+    their keys (the edges of one closed roof polyline are told apart by their keys)."""
     xs = sorted({ln.a[0] for ln in lines} | {ln.b[0] for ln in lines})
     x_min, x_max = xs[0], xs[-1]
     n = 2000
@@ -209,13 +215,13 @@ def _envelope(lines: list[Line], tol: float) -> tuple[list[tuple[float, float]],
             if ax - 1e-9 <= x <= bx + 1e-9 and bx > ax:
                 y = ay + (by - ay) * (x - ax) / (bx - ax)
                 if best is None or y > best[0]:
-                    best = (y, ln.id)
+                    best = (y, ln.key or ln.id)
         if best is not None:
             samples.append((x, best[0], best[1]))
     if not samples:
-        return [], []
+        return [], [], set()
     # Corners: where the supporting line changes; the corner is the intersection of the two lines.
-    by_id = {ln.id: ln for ln in lines}
+    by_id = {(ln.key or ln.id): ln for ln in lines}
     pts = [(samples[0][0], samples[0][1])]
     ids = [samples[0][2]]
     for (xa, ya, ia), (xb, yb, ib) in zip(samples, samples[1:]):
@@ -229,7 +235,8 @@ def _envelope(lines: list[Line], tol: float) -> tuple[list[tuple[float, float]],
     for p in pts[1:]:
         if math.dist(p, out[-1]) > tol:
             out.append(p)
-    return out, list(dict.fromkeys(ids))
+    keys = list(dict.fromkeys(ids))
+    return out, list(dict.fromkeys(by_id[k].id for k in keys)), set(keys)
 
 
 def _intersect(l1: Line, l2: Line) -> Optional[tuple[float, float]]:
@@ -276,7 +283,8 @@ def assumed(v: Optional[float], note: str) -> dict:
 
 
 def heights(section: Optional[SectionGeometry], levels: list[dict], reference_extent: Optional[tuple[float, float]],
-            brief_values: dict, file_rel: Optional[str], conflict) -> tuple[dict, list[str]]:
+            brief_values: dict, file_rel: Optional[str], conflict,
+            cut: Optional[dict] = None) -> tuple[dict, list[str]]:
     """The ``heights`` block. ``levels``: the base plan levels bottom-up ``[{id, order, kind}]``;
     ``reference_extent``: (width, height) in metres of the reference plan's outline (cut-axis check); ``conflict``:
     a callable ``(kind, regions, description, resolution) -> id`` that lists a conflict."""
@@ -428,6 +436,14 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
                 fits.append((abs(width_m - ext), axis))
         if fits:
             out["cut_axis"] = min(fits)[1]
+            if cut is not None and cut["axis"] != out["cut_axis"]:
+                warnings.append(f"section {rid}: its width fits the {out['cut_axis']} extent but the cut line on "
+                                f"{cut['region']} runs along {cut['axis']}: the cut line wins")
+                out["cut_axis"] = cut["axis"]
+        elif cut is not None:
+            out["cut_axis"] = cut["axis"]
+            warnings.append(f"section {rid}: {width_m:.2f} m wide, no outline extent fits; the cut line on "
+                            f"{cut['region']} gives the axis {cut['axis']}")
         else:
             conflict("section_width_mismatch", [rid],
                      f"section {rid} is {width_m:.2f} m wide between its outer walls; the reference plan's outline is "
@@ -477,13 +493,24 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
             roof["thickness"] = assumed(None, "not drawn: the roof is one line in the section")
         knee = _knee(section, top_floor_y)
         if knee is not None:
+            under = _underside_at(section, section.walls[0])
+            under_note = "" if under is None or top_floor_y is None else \
+                f"; the underside meets the outer face {(under - top_floor_y) * s:.2f} m above the floor"
             roof["knee_wall"] = _value(knee[0] * s, "vector", [_ev(file_rel, knee[1], "roof_line", rid)],
                                        note="the roof's top surface at the outer face of the outer wall above the top "
-                                            "floor (a cross-check)")
-        # s along cut_axis: 0 at the section's left outer wall face (= the reference outline's min side along the
-        # axis, flipped unknown without a cut line on the plans).
-        roof["profile"] = [[round((x - x0) * s, 3) + 0.0, round(z(y), 3) + 0.0] for x, y in prof]
-    if section.profile or out["ground"]:
+                                            f"floor (a cross-check){under_note}")
+        # s along cut_axis, 0 at the building's min outer face along the axis: the section's left outer wall face,
+        # or its right one when the cut line says the section is seen flipped.
+        if cut is not None and cut["flipped"]:
+            roof["profile"] = [[round((x1 - x) * s, 3) + 0.0, round(z(y), 3) + 0.0] for x, y in reversed(prof)]
+        else:
+            roof["profile"] = [[round((x - x0) * s, 3) + 0.0, round(z(y), 3) + 0.0] for x, y in prof]
+    if cut is not None:
+        out["cut_at"], out["flipped"] = cut["at"], cut["flipped"]
+        if cut["flipped"]:
+            for g in out["ground"]:
+                g["side"] = {"left": "right", "right": "left"}[g["side"]]
+    elif section.profile or out["ground"]:
         warnings.append(f"section {rid}: no cut line on the plans: the section's left end is taken as the building's "
                         f"min side along the cut axis (flipped unknown)")
     _name_ground_sides(out, rid, warnings)
@@ -559,6 +586,12 @@ def _knee(section: SectionGeometry, top_floor_y: Optional[float]) -> Optional[tu
         if ax <= x <= bx and bx > ax:
             return ay + (by - ay) * (x - ax) / (bx - ax) - top_floor_y, lid
     return None
+
+
+def _underside_at(section: SectionGeometry, x: float) -> Optional[float]:
+    """The highest roof underside line's y at ``x`` (None when no underside line passes over ``x``)."""
+    ys = [y for ln in section.underside for y in [_y_on(ln, x)] if y is not None]
+    return max(ys) if ys else None
 
 
 def _assumed_level(out: dict, lv: dict, ceiling: float, slab: float, why: str) -> None:

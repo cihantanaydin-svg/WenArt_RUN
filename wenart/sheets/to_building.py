@@ -135,11 +135,11 @@ def variants_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: O
                                              "level_id": lv["id"], "replaces": lv["base_level_id"]})
                     entry["rooms_changed"] += [r["id"] for r in rooms if r["level_id"] == lv["id"]
                                                and not r.get("same_as")]
-                    if walls is not None and openings is not None:
+                    if walls is not None and openings is not None and lv["base_level_id"] in built:
                         entry["exterior_changed"] = entry["exterior_changed"] or \
                             exterior_changed(lv["id"], lv["base_level_id"], walls, openings)
                     else:
-                        entry["exterior_changed"] = None
+                        entry["exterior_changed"] = None        # no base level to compare with: not computed
         out.append(entry)
     return out
 
@@ -302,12 +302,10 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
         roof["assumed"].append("outline (the outer walls + overhang)")
     for r in rooms:
         if top is not None and r["level_id"] == top["id"] and r.get("room_type") == "balcony":
-            poly = Polygon(r["polygon"])
-            parapets = [w["id"] for w in walls or [] if w["level_id"] == top["id"] and w.get("exterior")
-                        and poly.exterior.distance(Point((w["start"][0] + w["end"][0]) / 2.0,
-                                                         (w["start"][1] + w["end"][1]) / 2.0)) <= w["thickness"]]
+            polygon, parapets = terrace_opening(r, [w for w in walls or [] if w["level_id"] == top["id"]],
+                                                roof["outline"])
             roof["openings"].append({"id": f"ro_{len(roof['openings']) + 1:03d}", "kind": "terrace", "room_id": r["id"],
-                                     "polygon": [list(p) for p in r["polygon"]],
+                                     "polygon": polygon,
                                      "parapet_height": {"value": None, "method": "assumed", "confidence": 0.0,
                                                         "evidence": [], "note": "not drawn"},
                                      "parapet_wall_ids": parapets, "source": "derived"})
@@ -315,6 +313,44 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
         roof["evidence"] = [e for k in ("eaves_z", "ridge_z") for e in (hroof.get(k) or {}).get("evidence") or []][:2]
     roof["status"] = "verified" if ex and roof["type_source"] != "assumed" else "assumed"
     return roof
+
+
+def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> tuple[list, list]:
+    """A roof terrace's opening in the roof (§1.6b row 13): the room's box grown over the walls around it, to the roof
+    outline across an exterior wall (its parapet) and to the centre line of an inner wall; ``(polygon,
+    parapet_wall_ids)``. A room that is not a rectangle keeps its polygon (the parapets still listed)."""
+    from shapely.geometry import LineString
+    poly = Polygon(room["polygon"])
+    b = list(poly.bounds)
+    rect = abs(poly.area - (b[2] - b[0]) * (b[3] - b[1])) <= 0.01 * max(poly.area, 1e-9)
+    ob = None
+    if outline:
+        xs, ys = [p[0] for p in outline], [p[1] for p in outline]
+        ob = (min(xs), min(ys), max(xs), max(ys))
+    parapets = []
+    grown = list(b)
+    for w in walls:
+        line = LineString([w["start"], w["end"]])
+        reach = w["thickness"] / 2.0 + 0.05
+        if line.distance(poly.exterior) > reach or line.intersection(poly.buffer(reach)).length < 0.5:
+            continue
+        (x0, y0), (x1, y1) = w["start"], w["end"]
+        vertical = abs(x1 - x0) < abs(y1 - y0)
+        c = (x0 + x1) / 2.0 if vertical else (y0 + y1) / 2.0
+        side = (0 if c < b[0] + 1e-9 or abs(c - b[0]) <= reach else 2) if vertical else \
+            (1 if c < b[1] + 1e-9 or abs(c - b[1]) <= reach else 3)
+        if w.get("exterior"):
+            parapets.append(w["id"])
+            if ob is not None:
+                grown[side] = ob[side]
+            else:
+                grown[side] = c - w["thickness"] / 2.0 if side in (0, 1) else c + w["thickness"] / 2.0
+        else:
+            grown[side] = c
+    if not rect:
+        return [list(p) for p in room["polygon"]], parapets
+    x0, y0, x1, y1 = (round(v, 4) + 0.0 for v in grown)
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], parapets
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -438,6 +474,8 @@ def _moved_site(sp: dict, shift: Shift) -> dict:
     for key in ("paving", "grass", "parking"):
         out[key] = [dict(x, polygon=moved(x["polygon"], shift)) for x in sp.get(key) or []]
     out["trees"] = [dict(x, points=moved(x["points"], shift)) for x in sp.get("trees") or []]
+    out["plot_walls"] = [dict(x, start=moved([x["start"]], shift)[0], end=moved([x["end"]], shift)[0])
+                         for x in sp.get("plot_walls") or []]
     out["labels"] = [dict(x, point=moved([x["point"]], shift)[0] if x.get("point") else None)
                      for x in sp.get("labels") or []]
     return out
@@ -510,6 +548,18 @@ def site_block(site: dict, sheets: dict, area_kind: Callable, ground_level_id: O
         site["plot"] = {"id": "plot", "polygon": [list(p) for p in sp["plot"]], "z": None, "material": None,
                         "colour": None, "area_id": None, "source": "site_plan", "build": True,
                         "evidence": list(sp.get("evidence") or [])}
+    walls = site.setdefault("boundary_walls", [])
+    for pw in sp.get("plot_walls") or []:
+        dup = next((w for w in walls if G.distance(w["start"], pw["start"]) <= DUPLICATE_M
+                    and G.distance(w["end"], pw["end"]) <= DUPLICATE_M), None)
+        if dup is not None:
+            dup["evidence"] = list(pw["evidence"]) + list(dup.get("evidence") or [])
+            continue
+        walls.append({"id": f"sw_{level_id}_{len(walls) + 1:03d}", "level_id": level_id, "start": list(pw["start"]),
+                      "end": list(pw["end"]), "thickness": pw["thickness"], "kind": "plot",
+                      "height": {"value": None, "method": "assumed", "confidence": 0.0, "evidence": [],
+                                 "note": "no elevation of the plot wall: the build assumes its height"},
+                      "build": True, "evidence": list(pw["evidence"])})
     decor = site.setdefault("decor", [])
     for k, tree in enumerate(sp.get("trees") or []):
         centre = tree["points"][0]

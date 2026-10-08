@@ -264,7 +264,9 @@ def test_site_plan_and_elevation(tmp_path):
     assert seen["region"] == elev["id"] and (seen["windows"], seen["doors"]) == (3, 1)
     # The viewer of the south facade looks north: north is ~30 deg clockwise from +Y, i.e. ~60 deg ccw from +X.
     assert seen["view_bearing_deg"] == pytest.approx((90.0 + NORTH_DEG) % 360.0, abs=3.0)
-    assert [p["x"] for p in seen["positions_m"]] == pytest.approx([1.5, 1.5, 4.5, 7.0])
+    # x = the centre from the facade's left end, x_left its left edge (synthetic-07's convention).
+    assert [p["x"] for p in seen["positions_m"]] == pytest.approx([2.1, 2.1, 4.95, 7.6])
+    assert [p["x_left"] for p in seen["positions_m"]] == pytest.approx([1.5, 1.5, 4.5, 7.0])
     assert seen["plan_check"] is None
 
 

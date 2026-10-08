@@ -1461,6 +1461,12 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
             page = dxf_generic.read_page(record.source_path, record.file, region_box=record.region_box,
                                          units_to_m_override=record.units_override)
     record.generic_page = None                   # the page model is large; the extraction keeps what is needed
+    if record.region_id is not None:
+        # The section cut line (A-A, its arms and arrow heads) is drawing annotation, read by the sheets stage: it
+        # is never a wall, an opening or site decor of the plan.
+        from wenart.sheets import register as RG
+        from wenart.sheets import titles as T
+        page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
     origin = _region_origin(record)
     is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
     if origin is not None and build is not None and not is_reference:

@@ -46,6 +46,17 @@ MATERIAL_WORDS = [
     ("render", r"\bSIVA\b|\bRENDER\b|\bPUTZ\b|\bENDUIT\b|\bSTUCCO\b"),
     ("fibre_cement", r"\bKOMPOZIT\b|\bFIBRE CEMENT\b|\bFIBER CEMENT\b"),
 ]
+# Roof coverings named on an elevation or roof plan (exterior vocabulary slugs, never a colour).
+COVERING_WORDS = [
+    ("concrete_tiles", r"\bBETON KIREMIT\b|\bCONCRETE TILES?\b|\bBETONDACHSTEIN\b|\bTUILES? BETON\b"),
+    ("clay_tiles", r"\bKIREMIT\b|\bCLAY TILES?\b|\bROOF TILES?\b|\bDACHZIEGEL\b|\bZIEGEL\b|\bTUILES?\b"),
+    ("slate", r"\bARDUAZ\b|\bSLATE\b|\bSCHIEFER\b|\bARDOISE\b"),
+    ("standing_seam", r"\bTRAPEZ\b|\bSTANDING SEAM\b|\bSTEHFALZ\b|\bJOINT DEBOUT\b"),
+    ("green_roof", r"\bYESIL CATI\b|\bGREEN ROOF\b|\bGRUNDACH\b|\bGRUENDACH\b|\bTOITURE VEGETALE\b"),
+]
+TREE_BLOCK_RE = re.compile(r"AGAC|TREE|BAUM|ARBRE|ARBOL")
+NORTH_BLOCK_RE = re.compile(r"KUZEY|NORTH|NORD")
+PLOT_WALL_M = (0.05, 0.6)            # site plan: two closed rings this far apart inside the plot are a plot wall
 WINDOW_M = ((0.4, 3.0), (0.4, 2.6))
 DOOR_M = ((0.7, 3.0), (1.9, 2.8))
 
@@ -175,6 +186,25 @@ def roof_from_section(section) -> Optional[tuple[str, list[str]]]:
     return "gambrel", ["mansard/gambrel choice across the section (no roof plan or elevation)"]
 
 
+def gable_end(region) -> Optional[str]:
+    """The entity id of a closed wall outline of an elevation that peaks in the middle (a gable end: two equal eaves
+    corners and one higher point between them), else None."""
+    for e in region.ents:
+        for st in e.strokes:
+            if not st.closed or len(st.pts) < 5:
+                continue
+            xs = [p[0] for p in st.pts]
+            ys = [p[1] for p in st.pts]
+            top = max(range(len(st.pts)), key=lambda k: ys[k])
+            w = max(xs) - min(xs)
+            if w <= 0 or abs(xs[top] - (min(xs) + max(xs)) / 2.0) > 0.05 * w:
+                continue
+            below = sorted(ys)[-3:-1]                         # the two eaves corners under the peak
+            if abs(below[0] - below[1]) <= 0.01 * w and ys[top] - below[1] > 0.05 * w:
+                return e.id
+    return None
+
+
 def elevation_z(region, datum: Optional[float], ground_z: Optional[float]) -> Optional[dict]:
     """How an elevation's y maps to building z: ``z = (y - y_ref) * metres_per_unit + z_ref``.
 
@@ -232,10 +262,11 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
                 entries.append({"region": region.id, "side": side, "z_range": None, "colour": None, "material": slug,
                                 "source": "label", "evidence": [_ev(region, t.id, "facade_label", t.text)]})
                 break
+    segs = UC.segments([st for e in region.ents for st in e.strokes])
     for e in region.ents:
         if e.kind == "HATCH" and mpu:
             b = e.box
-            label = _label_in(region, b)
+            label = _label_in(region, b) or _label_by_leader(region, b, segs)
             entry = {"region": region.id, "side": side, "z_range": zr(b[1], b[3]), "colour": None,
                      "material": label[0] if label else "hatched", "source": "hatch",
                      "evidence": [_ev(region, e.id, "facade_hatch", confidence=0.6)]}
@@ -255,9 +286,13 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
 
     if mpu:
         ground = zmap["y_ref"] if zmap is not None and zmap["method"] == "derived" else region.geometry_box[1]
+        # The facade's left end (seen from outside, as drawn): the widest closed outline standing on the ground (the
+        # wall outline; the roof's eaves reach further out but start above the ground).
+        g_tol = 0.05 / mpu
         outlines = [st.bbox() for e in region.ents for st in e.strokes if st.closed and len(st.pts) >= 4]
-        widest = max(outlines, key=lambda b: (b[2] - b[0]) * (b[3] - b[1]), default=None)
-        x_left = widest[0] if widest is not None else region.geometry_box[0]       # the facade's left end
+        standing = [b for b in outlines if abs(b[1] - ground) <= g_tol] or outlines
+        widest = max(standing, key=lambda b: b[2] - b[0], default=None)
+        x_left = widest[0] if widest is not None else region.geometry_box[0]
         for e in region.ents:
             for st in e.strokes:
                 if not st.closed or len(st.pts) != 4:
@@ -265,20 +300,57 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
                 b = st.bbox()
                 w, h = (b[2] - b[0]) * mpu, (b[3] - b[1]) * mpu
                 at_ground = (b[1] - ground) * mpu <= 0.3
+                kind = None
                 if at_ground and DOOR_M[0][0] <= w <= DOOR_M[0][1] and DOOR_M[1][0] <= h <= DOOR_M[1][1]:
                     doors += 1
-                    positions.append({"kind": "door", "x": round((b[0] - x_left) * mpu, 3), "sill": zy(b[1]),
-                                      "head": zy(b[3])})
+                    kind = "door"
                 elif not at_ground and WINDOW_M[0][0] <= w <= WINDOW_M[0][1] and WINDOW_M[1][0] <= h <= WINDOW_M[1][1]:
                     windows += 1
-                    positions.append({"kind": "window", "x": round((b[0] - x_left) * mpu, 3), "sill": zy(b[1]),
-                                      "head": zy(b[3])})
+                    kind = "window"
+                if kind:
+                    # x: the centre from the facade's left end; sill and head in building z.
+                    positions.append({"kind": kind, "x": round(((b[0] + b[2]) / 2.0 - x_left) * mpu, 3) + 0.0,
+                                      "x_left": round((b[0] - x_left) * mpu, 3) + 0.0, "width": round(w, 3),
+                                      "sill": zy(b[1]), "head": zy(b[3]), "entity": e.id})
     seen = {"region": region.id, "side": side, "view_bearing_deg": view_bearing_deg(side, north_deg),
             "windows": windows, "doors": doors, "positions_m": sorted(positions, key=lambda p: (p["x"], p["sill"])),
             "plan_check": None}
     if region.title:
         seen["title"] = region.title["text"]
     return entries, seen
+
+
+def _label_by_leader(region, box, segs) -> Optional[tuple[str, object]]:
+    """A material label whose leader (a straight line starting next to the label) ends inside ``box``."""
+    for t in region.texts:
+        folded = T.fold(t.text)
+        slug = next((s for s, pattern in MATERIAL_WORDS if re.search(pattern, folded)), None)
+        if slug is None:
+            continue
+        reach = 1.5 * max(t.height, 1e-9)
+        for a, b, _ in segs:
+            for near, far in ((a, b), (b, a)):
+                if _point_box_gap(near, t.box) <= reach and box[0] <= far[0] <= box[2] and box[1] <= far[1] <= box[3]:
+                    return slug, t
+    return None
+
+
+def _point_box_gap(p, box) -> float:
+    dx = max(box[0] - p[0], 0.0, p[0] - box[2])
+    dy = max(box[1] - p[1], 0.0, p[1] - box[3])
+    return math.hypot(dx, dy)
+
+
+def covering_of(regions: list) -> Optional[dict]:
+    """The roof covering named by a label on an elevation or roof plan (``KİREMİT`` -> ``clay_tiles``), or None."""
+    for r in regions:
+        for t in r.texts:
+            folded = T.fold(t.text)
+            for slug, pattern in COVERING_WORDS:
+                if re.search(pattern, folded):
+                    return {"covering": slug, "source": "elevation" if r.cls == "elevation" else "roof_plan",
+                            "evidence": [_ev(r, t.id, "roof_covering_label", t.text)]}
+    return None
 
 
 def _label_in(region, box) -> Optional[tuple[str, object]]:
@@ -337,16 +409,60 @@ def site_of(region, warnings: list) -> Optional[dict]:
         out[target].append({"polygon": [list(_apply(tf, p)) for p in pts], "label": t.text,
                             "evidence": [_ev(region, e.id, f"site_{target}"), _ev(region, t.id, "site_label", t.text)]})
     for e in region.ents:
-        for st in e.strokes:
-            if st.kind == "circle" and st.arc is not None:
-                (cx, cy), r = st.arc["center"], st.arc["radius"]
-                out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3),
-                                     "evidence": [_ev(region, e.id, "site_tree")]})
+        block = T.fold(e.block or "")
+        if block and NORTH_BLOCK_RE.search(block):
+            continue
+        circles = [st for st in e.strokes if st.kind == "circle" and st.arc is not None]
+        is_tree = bool(block and TREE_BLOCK_RE.search(block)) or (not e.block and len(e.strokes) == 1 and circles)
+        if not is_tree or not circles:
+            continue
+        crown = max(circles, key=lambda st: st.arc["radius"])            # the crown; a trunk circle inside is not
+        (cx, cy), r = crown.arc["center"], crown.arc["radius"]
+        out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3),
+                             "evidence": [_ev(region, e.id, "site_tree")]})
+    if out["plot"]:
+        out["plot_walls"] = _plot_walls(region, closed, tf, mpu)
+    return out
+
+
+def _plot_walls(region, closed: list, tf: list, mpu: float) -> list:
+    """Two closed rings inside the plot, one inside the other at a constant 0.05-0.6 m: a plot wall; its centre
+    line's edges are the walls (building metres)."""
+    rings = sorted(((a, e, p) for a, e, p in closed), key=lambda c: -c[0])
+    out = []
+    used = set()
+    for i, (area_o, e_o, p_o) in enumerate(rings):
+        if e_o.id in used:
+            continue
+        po = Polygon(p_o)
+        for area_i, e_i, p_i in rings[i + 1:]:
+            if e_i.id in used:
+                continue
+            pi = Polygon(p_i)
+            if not po.contains(pi):
+                continue
+            bo, bi = po.bounds, pi.bounds
+            gaps = [(bi[0] - bo[0]) * mpu, (bi[1] - bo[1]) * mpu, (bo[2] - bi[2]) * mpu, (bo[3] - bi[3]) * mpu]
+            if max(gaps) - min(gaps) > 0.01 or not (PLOT_WALL_M[0] <= min(gaps) <= PLOT_WALL_M[1]):
+                continue
+            t = sum(gaps) / 4.0
+            mid = po.buffer(-t / 2.0 / mpu, join_style="mitre")
+            if mid.is_empty or mid.geom_type != "Polygon":
+                continue
+            pts = [_apply(tf, p) for p in list(mid.exterior.coords)[:-1]]
+            ev = [_ev(region, e_o.id, "site_plot_wall"), _ev(region, e_i.id, "site_plot_wall")]
+            for a, b in zip(pts, pts[1:] + pts[:1]):
+                out.append({"start": list(a), "end": list(b), "thickness": round(t, 3), "kind": "plot",
+                            "evidence": ev})
+            used |= {e_o.id, e_i.id}
+            break
     return out
 
 
 def north_of(region) -> Optional[dict]:
-    """North from an ``N`` / ``K`` text next to an arrow: the bearing of the drawing's +Y axis."""
+    """North from an ``N`` / ``K`` text next to an arrow: the bearing of the drawing's +Y axis. The arrow is the
+    entity nearest to the letter; its tip is its farthest non-circle point from its centre on the letter's side (the
+    way it points); without such a point the direction from the arrow's centre to the letter is used."""
     for t in region.texts:
         if T.fold(t.text) not in ("N", "K", "KUZEY", "NORTH", "NORD"):
             continue
@@ -354,15 +470,22 @@ def north_of(region) -> Optional[dict]:
         near = [e for e in region.ents if math.dist(e.centre, t.point) <= 8 * h and e.dim is None]
         if not near:
             continue
-        cx = sum(e.centre[0] for e in near) / len(near)
-        cy = sum(e.centre[1] for e in near) / len(near)
-        nx, ny = t.point[0] - cx, t.point[1] - cy
-        if math.hypot(nx, ny) <= 0.5 * h:
+        arrow = min(near, key=lambda e: math.dist(e.centre, t.point))
+        cx, cy = arrow.centre
+        tx, ty = t.point[0] - cx, t.point[1] - cy
+        if math.hypot(tx, ty) <= 0.5 * h:
             continue
+        tips = [p for st in arrow.strokes if st.kind not in ("circle", "arc") for p in st.pts
+                if (p[0] - cx) * tx + (p[1] - cy) * ty > 0]
+        tip = max(tips, key=lambda p: math.dist(p, (cx, cy)), default=None)
+        nx, ny = (tip[0] - cx, tip[1] - cy) if tip is not None and math.dist(tip, (cx, cy)) > 0 else (tx, ty)
         bearing = (math.degrees(math.atan2(ny, nx)) - 90.0) % 360.0
-        return {"value": round(bearing, 1), "method": "vector", "confidence": 0.8,
-                "evidence": [_ev(region, t.id, "north_arrow", t.text, 0.8)],
-                "note": "north points from the arrow's centre to its N; value = compass bearing of +Y"}
+        if round(bearing, 1) >= 360.0:
+            bearing = 0.0
+        return {"value": round(bearing, 1) + 0.0, "method": "vector", "confidence": 0.8,
+                "evidence": [_ev(region, arrow.id, "north_arrow", confidence=0.8),
+                             _ev(region, t.id, "north_arrow", t.text, 0.8)],
+                "note": "north points from the arrow's centre to its tip, next to the N; value = compass bearing of +Y"}
     return None
 
 
@@ -410,9 +533,20 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
                 "evidence": [_ev(section.region, i, "roof_line") for i in section.profile_ids]
                 + (plan_roof["evidence"] if plan_roof else []), "assumed": assumed}
     if roof is not None and roof["type"] == "gable" and roof["type_source"] == "section":
+        ends = [(r, e) for r in elevations for e in [gable_end(r)] if e is not None]
+        if ends:
+            # An elevation draws a gable end (a wall outline peaking in the middle): the choice is drawn.
+            roof["assumed"] = [a for a in roof.get("assumed") or [] if not a.startswith("hip/gable")]
+            roof["also_seen_in"] = ["elevation"]
+            roof["evidence"] = roof["evidence"] + [_ev(r, e, "gable_end") for r, e in ends[:1]]
         roof["ridge_lines"] = ridge_lines(roof, heights, reference_outline)
         if roof["ridge_lines"]:
             roof.setdefault("assumed", []).append("the ridge runs across the cut (a gable read from one section)")
+    if roof is not None:
+        cover = covering_of(elevations)                 # only a drawn covering (§1.6b rows 12, 13)
+        if cover is not None:
+            roof["covering"], roof["covering_source"] = cover["covering"], cover["source"]
+            roof["evidence"] = roof["evidence"] + cover["evidence"]
     out["roof"] = roof
 
     # Site plans (registered onto the reference through the building's outline) and the north.
