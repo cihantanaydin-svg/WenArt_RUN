@@ -33,9 +33,11 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
    companions (an office chair at a desk, a bar stool at an island, a chair at a dining table); the pass
    with the fewest dropped pieces wins (ties: pass 1); a piece the other pass also proposed (same type,
    centre within 0.5 m) gets confidence 0.9 and both passes' evidence, the rest 0.6.
-5. Kitchens: ``wall_cabinets_for`` hangs ``wall_cabinet`` pieces (``method: rule``) along every drawn
-   counter run against a wall, 1.45-2.15 m, never over or within 0.3 m of a window, never over a door
-   (0.15 m, assumed: the frame), the stove, a tall piece or another wall cabinet.
+5. Kitchens (and open kitchens of a living room): ``wall_cabinets_for`` hangs ``wall_cabinet`` pieces
+   (``method: rule``) along every drawn counter run against a wall, 1.45-2.15 m, never over or within 0.3 m
+   of a window (measured along the wall), never over or within 0.15 m of a door (assumed: the frame), never
+   over the stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs shorter than 0.3 m are
+   left out.
 
 Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's room equal to a base room) takes
 its partner's decisions as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them
@@ -375,6 +377,7 @@ def build_question(room: dict, building: dict, drawn: list[Drawn], ctx: placer.R
                 "change_ids": [d.id for d in changeable] if change_types else [],
                 "change_types": change_types, "add": add, "missing": plan["missing"],
                 "anchor_missing": plan["anchor_missing"], "anchors": list(plan["anchors"]),
+                "anchors_addable": [a for a in plan["anchors"] if a in add],
                 "styles": style_families(), "colours": colour_names(), "keep_size": settings.keep_size}
     return question, plan
 
@@ -939,8 +942,7 @@ def complete_room(room: dict, building: dict, out: dict, style_text: str, client
         place_added(rec, answers, ctx, model, out)
     elif asks and not rec.reason:
         rec.reason = "no usable answer (" + "; ".join(f"pass {p['pass']}: {p['error']}" for p in rec.passes) + ")"
-    if room.get("room_type") == "kitchen":
-        add_wall_cabinets(rec, building, out)
+    add_wall_cabinets(rec, building, out)       # any room with a drawn counter run (a kitchen, an open kitchen)
     return rec
 
 
@@ -1036,8 +1038,7 @@ def copy_room(room: dict, partner_rec: RoomCompletion, kind: str, t: Transform, 
     model = next((e.get("model") for c in changes for e in c["evidence"] if e.get("model")), "?")
     run_changes(rec, changes, ctx, model, None, out, mirrored=reverse)
     rec.added, rec.dropped = copy_added(room, list(partner_rec.added), t, rec.final_pieces, building, out, ctx)
-    if room.get("room_type") == "kitchen":
-        add_wall_cabinets(rec, building, out)
+    add_wall_cabinets(rec, building, out)       # any room with a drawn counter run (a kitchen, an open kitchen)
     return rec
 
 

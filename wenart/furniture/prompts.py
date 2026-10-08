@@ -250,8 +250,9 @@ def completion_prompt(question: dict, style_text: str, pass_no: int = 1) -> str:
              "wall):\n" + json.dumps(question["drawn"], ensure_ascii=False))
     missing_items = dict(question["missing"])
     lines = []
-    if question.get("anchor_missing"):
-        lines.append(f"- the room has no {' or '.join(question['anchors'])}: add one")
+    if question.get("anchor_missing") and question.get("anchors_addable"):
+        lines.append(f"- the room has no {' or '.join(question['anchors'])}: add one "
+                     f"({' or '.join(question['anchors_addable'])})")
     if missing_items:
         lines.append(f"- expected for this room type and missing: {_counts(missing_items)}")
     if not lines:
