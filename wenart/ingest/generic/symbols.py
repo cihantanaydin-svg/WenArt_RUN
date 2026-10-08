@@ -4,7 +4,8 @@ A real plan draws furniture as loose strokes with no block names (real01) or as 
 footprint must come from the geometry and the type from a rule, a block name or two agreeing AI passes:
 
 1. **Strokes considered**: every stroke except the wall primitives, the strokes the openings own, the dimension
-   strokes and glyph strokes inside text boxes (grown 10 %). Polylines and closed paths are split into segments, and a
+   strokes and glyph strokes inside text boxes (grown 10 %; a vector stroke only when all of it lies in one, a raster
+   segment by itself). Polylines and closed paths are split into segments, and a
    segment is wall outline (dropped) when >= 90 % of its length lies within 20 mm of the bridged wall geometry (wall
    rectangles plus every opening rectangle) - real01's 94.7 m outline polyline runs across every window and door gap,
    so the whole stroke would never pass a 90 % test against the walls alone - or when >= 50 % of it lies inside the
@@ -295,6 +296,16 @@ def _dimension_ids(dims) -> set[str]:
     return out
 
 
+def _stroke_geom(st: Stroke):
+    """The whole stroke as one geometry (closed paths closed)."""
+    pts = list(st.pts)
+    if len(set(pts)) == 1:
+        return Point(pts[0])
+    if st.closed and len(pts) > 2:
+        pts.append(pts[0])
+    return LineString(pts)
+
+
 def _text_boxes(texts) -> list:
     boxes = []
     for t in texts or []:
@@ -561,13 +572,23 @@ def _rect_sides(geom) -> tuple[float, float]:
 
 def _closed_outline(cl: Cluster, theta: float = 0.0) -> Optional[Polygon]:
     """The cluster's own closed outline: a contour covering >= 80 % of the cluster's bbox area (aligned frame of
-    ``theta``), else None."""
+    ``theta``), else the filled faces of all its strokes noded together when they do (Milestone 10, real02: an
+    armchair whose arms are drawn as open lines ending on the body's sides closes only at those T-junctions; its body
+    alone covers 79.9-80.0 % of the box, so mirrored copies fell either side of the share), else None."""
     b = cl.bounds(theta)
     area = max((b[2] - b[0]) * (b[3] - b[1]), 1e-12)
     best = None
     for poly, _ in contours(cl.segs):
         if poly.area >= 0.8 * area and (best is None or poly.area > best.area):
             best = poly
+    if best is None:
+        lines = [s.geom for s in cl.segs if not s.dot]
+        faces = [p for p in polygonize(unary_union(lines)) if p.area > 1e-6] if lines else []
+        if faces:
+            filled = unary_union([Polygon(f.exterior) for f in faces])
+            top = max(getattr(filled, "geoms", [filled]), key=lambda g: g.area)
+            if top.area >= 0.8 * area:
+                best = Polygon(top.exterior)
     return best
 
 
@@ -1606,9 +1627,17 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         tree = STRtree(boxes)
         kept = []
         glyphs = 0
+        whole_in: dict[str, bool] = {}
         for s in segs:
-            hits = tree.query(s.geom, predicate="within")
-            if len(hits):
+            if s.stroke.source == "vector":
+                # Milestone 10 (real02): a vector stroke is a glyph only when all of it lies in a text box; a room
+                # label written over a fixture (BANYO over the WC bowl) must not cut the fixture's outline.
+                inside = whole_in.get(s.stroke.id)
+                if inside is None:
+                    inside = whole_in[s.stroke.id] = bool(len(tree.query(_stroke_geom(s.stroke), predicate="within")))
+            else:
+                inside = bool(len(tree.query(s.geom, predicate="within")))
+            if inside:
                 glyphs += 1
             else:
                 kept.append(s)

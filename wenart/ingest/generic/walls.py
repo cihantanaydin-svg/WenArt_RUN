@@ -107,6 +107,7 @@ LAYER_EXPLAINS = 0.70          # the wall layer must close around >= 70 % of the
 RAY_COUNT = 32                 # a label is closed in when >= 75 % of 32 rays from it hit wall within 30 m
 RAY_HIT_SHARE = 0.75
 RAY_REACH_M = 30.0
+BRIDGE_M = 3.0                 # ... and a ray through a door or window gap (<= 3 m, openings.GAP_MAX_M) in a band hits
 NEVER_PLOTTED_LAYERS = ("DEFPOINTS",)
 FACE_KINDS = ("face_pair", "face_join", "column")
 
@@ -455,7 +456,8 @@ def _rect_sides(rect) -> tuple[float, float]:
 #
 # The wall layer is chosen by evidence, never by its name: per layer the pieces are built and the room labels are
 # tested (32 rays from each label; a label is closed in when >= 75 % of them hit the layer's walls within 30 m and
-# it does not lie in wall material). The layer closing in the most labels wins when that is >= 70 % of the labelled
+# it does not lie in wall material; a gap of <= 3 m between two pieces of one wall band counts as a hit: drawn doors
+# and windows do not let the rays out). The layer closing in the most labels wins when that is >= 70 % of the labelled
 # rooms; ties go to the larger share of long strokes that pair. Floor tiles fill their rooms (a label inside), stair
 # treads and furniture close in no room, so such layers never win. The primitive only runs when the primitives above
 # close in fewer than 70 % of the labels (real01 and the synthetic pages are unchanged), and a page without room
@@ -789,6 +791,25 @@ def _join(p: _Pair, line: _Line, side: int, elems: list[_Element], tree) -> Opti
             _Pair(p.layer, p.u, p.n, a, b, p.lines))
 
 
+def _gap_bridges(pairs: list[_Pair]) -> list[Polygon]:
+    """For the label test only: the gaps (<= ``BRIDGE_M``) between wall pieces of one band (the same direction and
+    faces within 1 cm), where doors and windows are drawn (synthetic-07's basement: seven window gaps let the rays
+    out of the Salon). The walls themselves keep their gaps: ``openings`` reads them."""
+    bands: dict[tuple, list[_Pair]] = {}
+    for p in pairs:
+        key = (round(_angle_mod180((0.0, 0.0), p.u), 0), round(p.lines[0].off, 2), round(p.lines[1].off, 2))
+        bands.setdefault(key, []).append(p)
+    out = []
+    for items in bands.values():
+        items.sort(key=lambda p: p.lo)
+        reach = items[0].hi
+        for a, b in zip(items, items[1:]):
+            reach = max(reach, a.hi)
+            if 0.0 < b.lo - reach <= BRIDGE_M:
+                out.append(a.polygon(reach, b.lo))
+    return out
+
+
 def _coords(geom) -> list:
     if geom.geom_type == "Polygon":
         return list(geom.exterior.coords)
@@ -876,7 +897,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim])
         if not any(p.primary for p in pairs):
             continue
         elems = _network(pairs, columns)
-        hits = closed_in(anchors, [e.polygon for e in elems])
+        hits = closed_in(anchors, [e.polygon for e in elems] + _gap_bridges(pairs))
         widths = sorted({round(p.width, 3) for p in pairs if p.primary})
         rows.append({"layer": layer, "closed_in": sum(hits), "pair_share": round(paired / max(long_lines, 1), 3),
                      "pairs": sum(1 for p in pairs if p.primary), "widths_m": widths[:8],
