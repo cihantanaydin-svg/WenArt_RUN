@@ -454,10 +454,19 @@ def whitepoint_from(illuminant, residual: float) -> list[float] | None:
 
 
 def wb_residual(mood: str | None) -> tuple[float, str | None]:
-    """``(residual, note)`` for a light mood; unknown moods get 0 and a note."""
+    """``(residual, note)`` for a light mood: ``WB_RESIDUAL`` (the Milestone 5 moods), else the mood's
+    ``wb_residual`` in the vocabulary's ``LIGHTING`` table (Milestone 10's moods of ``wenart/style/finishes.py``:
+    blue hour, interior evening, ...; review #37); unknown moods get 0 and a note."""
     key = str(mood or "").strip().lower()
     if key in WB_RESIDUAL:
         return WB_RESIDUAL[key], None
+    try:
+        from wenart.style.vocabulary import LIGHTING
+        value = (LIGHTING.get(key) or {}).get("wb_residual")
+    except ImportError:
+        value = None
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value), None
     return 0.0, f"mood {mood!r} has no white-balance residual (scene built before Milestone 5?): full correction"
 
 
