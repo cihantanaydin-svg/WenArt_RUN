@@ -63,6 +63,7 @@ import math
 import sys
 from collections import Counter
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
@@ -509,9 +510,31 @@ def agree_changes(answers: dict[int, Optional[dict]], drawn_order: list[str]) ->
     return agreed, other
 
 
+@lru_cache(maxsize=1)
+def _size_table() -> dict:
+    from wenart.recognition import symbols   # the M7 size table and its fit rule (lazy: PyYAML)
+
+    return symbols.load_size_table()
+
+
+def proposal_problem(d: Drawn, new: str) -> Optional[str]:
+    """Why an unverified drawn piece may not take the proposed type (code review #20: the M7 rule, the drawn
+    footprint must fit the type's size range (+15 %, either orientation), a shaped type its drawn shape), else
+    None."""
+    from wenart.recognition import symbols
+
+    w, dep = d.piece.size
+    if not symbols.shape_allows(new, d.item.get("shape")):
+        return f"the drawn outline is not an L: it cannot be a {new}"
+    if not symbols.fits(_size_table(), new, (w, dep)):
+        return f"footprint {w:.2f} x {dep:.2f} does not fit {new} (size table)"
+    return None
+
+
 def check_change_rules(agreed: list[dict], drawn: list[Drawn], plan: dict) -> tuple[list[dict], list[dict]]:
-    """``(kept, refused)``: the main piece stays a main piece type, nothing else becomes one; a change may not
-    take a type over its count (``plan["maxima"]``, at least what the documents draw)."""
+    """``(kept, refused)``: an unverified piece's proposal must fit its drawn footprint (``proposal_problem``); the
+    main piece stays a main piece type, nothing else becomes one; a change may not take a type over its count
+    (``plan["maxima"]``, at least what the documents draw)."""
     anchors = set(plan.get("anchor_roles", plan["anchors"]))   # any bed is the bed (review #18)
     by_id = {d.id: d for d in drawn}
     counts = Counter(t for t, _ in _present(drawn))
@@ -520,10 +543,15 @@ def check_change_rules(agreed: list[dict], drawn: list[Drawn], plan: dict) -> tu
     kept, refused = [], []
     for ch in agreed:
         old, new = by_id[ch["id"]].item["type"], ch["type"]
+        d = by_id[ch["id"]]
         reason = None
-        if old in anchors and new not in anchors:
+        if d.unverified and new != old:
+            reason = proposal_problem(d, new)
+        if reason is not None:
+            pass                                               # the footprint decides first (M7 size rule)
+        elif old in anchors and new not in anchors:
             reason = f"the room's main piece ({old}) may only become another main piece type"
-        elif old not in anchors and new in anchors and (has_anchor or not by_id[ch["id"]].unverified):
+        elif old not in anchors and new in anchors and (has_anchor or not d.unverified):
             reason = f"never a second main piece: {old} cannot become {new}"
         elif (new != old and new not in anchors and new in plan["maxima"]
               and counts[new] + 1 > max(plan["maxima"][new], drawn_counts[new])):

@@ -532,6 +532,44 @@ def test_unverified_bed_proposal_never_adds_a_second_bed():
     assert LK.check(source, out, "complete") == []
 
 
+def test_a_type_proposal_must_fit_the_drawn_footprint():
+    """Code review #20: the M7 size rule holds for type proposals: real01's unknown 1.90 x 0.70 piece never becomes
+    a 0.45 m deep TV unit; an unknown 0.5 x 0.6 symbol never becomes the bedroom's double bed."""
+    import pathlib
+
+    real01 = B.load(pathlib.Path(__file__).resolve().parents[1] / "results" / "furniture" / "real01" /
+                    "building_fitted.json")
+    room = "r_L0_drawing_room"
+    answers = {(room, k): {"changes": [ch("f_L0_018", "tv_unit", (1.6, 0.45))], "added": []} for k in (1, 2)}
+    out, records = C.complete_building(real01, "x", FakeClient(answers), C.Settings())
+    assert piece(out, "f_L0_018")["type"] == "unknown" and "type_proposal" not in piece(out, "f_L0_018")
+    refused = next(c for r in records if r.room_id == room for c in r.changes if c["id"] == "f_L0_018")
+    assert refused["status"] == "refused" and "footprint 1.90 x 0.70 does not fit tv_unit" in refused["reason"]
+    source = drawn_building(example())
+    bed = piece(source, "f_L0_002")
+    bed.update(type="unknown", status="unverified")
+    bed["footprint"]["size"] = [0.5, 0.6]
+    answers = {(BEDROOM, k): {"changes": [ch("f_L0_002", "bed_double", (1.8, 2.0)),
+                                          ], "added": []} for k in (1, 2)}
+    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
+    rec = next(r for r in records if r.room_id == BEDROOM)
+    assert piece(out, "f_L0_002")["type"] == "unknown" and rec.plan["after_changes"]["has_anchor"] is False
+    assert any(c["status"] == "refused" and "does not fit bed_double" in c["reason"] for c in rec.changes)
+
+
+def test_a_rectangle_never_becomes_a_corner_sofa_by_proposal():
+    source = drawn_building(example())
+    sofa = piece(source, "f_L-1_002")
+    sofa.update(type="unknown", status="unverified")
+    sofa["footprint"]["size"] = [2.6, 1.6]
+    sofa["footprint"]["center"] = [3.125, 7.175]
+    answers = {(SALON, k): {"changes": [ch("f_L-1_002", "sofa_corner", (2.6, 1.6))], "added": []} for k in (1, 2)}
+    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
+    assert piece(out, "f_L-1_002")["type"] == "unknown"
+    rec = next(r for r in records if r.room_id == SALON)
+    assert any(c["status"] == "refused" and "not an L" in c["reason"] for c in rec.changes)
+
+
 # --------------------------------------------------------------------------
 # Looks (furniture.design, §1.6b row 15)
 # --------------------------------------------------------------------------
