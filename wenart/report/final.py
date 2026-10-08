@@ -2697,8 +2697,8 @@ def m10_lines(manifest: dict) -> list[str]:
     if variant != "base":
         lines += ["", f"## This report: variant `{variant}`", "",
                   "An alternative's sub-output: it renders the rooms its plan changes, and its exterior views only "
-                  "when its outside differs from the base. The sheets, the whole building and the other variants "
-                  "are in the base project's report (`../../final/final_report.md`). The list of base exterior "
+                  "when its outside differs from the base. The sheets and the other variants are in the base "
+                  "project's report (`../../final/final_report.md`). The list of base exterior "
                   "views: " + (", ".join(manifest.get("base_exterior_views") or []) or "none") + "."]
     if manifest.get("sheets"):
         lines += M.sheets_lines(manifest["sheets"], manifest["private"], stopped=False)
