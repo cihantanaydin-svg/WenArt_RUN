@@ -1355,7 +1355,7 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
                 lo, hi = max(lo, p.a), min(hi, p.b)
                 if hi - lo > 0.01:
                     segs.append((lo, hi, round(off, 3), it))
-        if len(segs) < 3:
+        if len(segs) < 2:
             continue
         cuts = sorted({s[0] for s in segs} | {s[1] for s in segs})
         intervals = []

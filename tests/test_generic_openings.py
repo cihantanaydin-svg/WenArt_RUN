@@ -352,6 +352,63 @@ def test_solid_wall_faces_alone_are_not_a_window():
 
 
 # --------------------------------------------------------------------------
+# Milestone 10: walls drawn as face lines, operations
+# --------------------------------------------------------------------------
+
+def test_two_glass_lines_inside_a_face_line_wall_are_a_window():
+    """real02: the wall faces are the wall primitive (no strokes here); two glass lines 2 mm apart in the band."""
+    w = R.wall((0, 0), (6, 0), 0.2)
+    glass = [R.stroke([(1.0, 0.0), (3.6, 0.0)]), R.stroke([(1.0, 0.002), (3.6, 0.002)])]
+    _, openings, _, _ = _run([w], glass)
+    assert [o.kind for o in openings] == ["window"] and openings[0].width == pytest.approx(2.6)
+    single = [R.stroke([(1.0, 0.0), (3.6, 0.0)])]                  # one line (an axis, a detail) is no window
+    assert _run([w], single)[1] == []
+
+
+def test_walls_crossing_a_split_gap_with_an_empty_part_keep_the_pieces_apart():
+    """real02: the bedroom walls of both dwellings lie on one line; a corridor (empty) and a bathroom (fixtures in
+    the band) between perpendicular walls that run through: no wall across, the parts are open."""
+    run = [R.wall((0, 0), (3, 0), 0.1), R.wall((9, 0), (12, 0), 0.1)]
+    cross = [R.wall((4.5, -3), (4.5, 3), 0.1), R.wall((7.5, -3), (7.5, 3), 0.1)]
+    fixtures = [R.stroke(R.rect(5.0, -0.3, 5.6, 0.3), closed=True)]
+    out_walls, openings, log, _ = _run(run + cross, fixtures)
+    assert openings == []
+    assert [e["class"] for e in log if e["kind"] == "split"] == ["open", "open", "open"]
+    assert all("not one wall" in e["note"] for e in log if e["kind"] == "split")
+    assert len([w for w in out_walls if w.start[1] == 0.0 and w.end[1] == 0.0]) == 2
+
+
+def test_operation_of_swing_double_and_sliding_doors():
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
+    _, openings, _, _ = _run(walls, _door((2.88, 0.08), 0.88, 180, 90))
+    assert (openings[0].operation, openings[0].operation_source) == ("swing", "geometry")
+    walls = [R.wall((0, 0), (2, 0)), R.wall((3.6, 0), (6, 0))]
+    _, openings, _, _ = _run(walls, _door((2.02, 0.08), 0.79, 0, 90) + _door((3.58, 0.08), 0.79, 180, 90))
+    assert (openings[0].operation, openings[0].operation_source) == ("double", "geometry")
+    # Two leaves drawn parallel to the wall, each shorter than the gap, no arc: a sliding door.
+    walls = [R.wall((0, 0), (2, 0)), R.wall((3.6, 0), (6, 0))]
+    leaves = [R.stroke(R.rect(2.0, -0.04, 2.9, -0.01), closed=True), R.stroke(R.rect(2.7, 0.01, 3.6, 0.04), closed=True)]
+    _, openings, log, owned = _run(walls, leaves)
+    assert [o.kind for o in openings] == ["door"] and openings[0].swing_point is None
+    assert (openings[0].operation, openings[0].operation_source) == ("sliding", "geometry")
+    assert {s.id for s in leaves} <= owned and [e.get("operation") for e in log if e["kind"] == "run"] == ["sliding"]
+    # A glass rectangle spanning the whole gap stays a window.
+    glass = [R.stroke(R.rect(2.0, -0.02, 3.6, 0.02), closed=True)]
+    assert [o.kind for o in _run(walls, glass)[1]] == ["window"]
+
+
+def test_operation_from_a_door_block_name():
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
+    door = _door((2.88, 0.08), 0.88, 180, 90)
+    for st in door:
+        st.block = "KAPI/SÜRME KAPI"
+    _, openings, _, _ = _run(walls, door)
+    assert (openings[0].operation, openings[0].operation_source) == ("sliding", "block_name")
+    assert O.operation_word(["katlanır kapı"]) == "folding" and O.operation_word(["ÇİFT KANAT"]) == "double"
+    assert O.operation_word(["PENCERE_SABIT"]) == "fixed" and O.operation_word(["eeere"]) is None
+
+
+# --------------------------------------------------------------------------
 # real01
 # --------------------------------------------------------------------------
 

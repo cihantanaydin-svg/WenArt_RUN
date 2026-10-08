@@ -6,6 +6,11 @@ nightstands; sofa cushions stay one sofa), the unsplittable composite, the stair
 flights), the kitchen counter rule (chaining, wall faces incl. openings), the front candidates, block names and the
 site decor. real01 checks every reference piece: 2 beds, 4 nightstands, 1 table, 6 chairs, 2 sofas, the coffee table,
 the round piece, the 2 counter legs and the stair, no cluster over 4.5 m, and 9 plants plus the entrance step.
+
+Milestone 10 (real02): the Turkish and English block-name words of the new types (whole words for short ones, M7 words
+first, KOLTUK resolved by size), L outlines as corner-sofa candidates (chaise side, depths, the open corner as the
+front), one named piece per block instance (a WC's flush plate joins it, a footstool or nightstands are asked), and
+stairs drawn with nosing strips and no divider line.
 """
 import math
 
@@ -313,6 +318,102 @@ def test_dxf_clusters_split_by_insert_instance():
     coffee = _insert("INSERT:D4", "LIVING-GROUP", (1.5, 1.9, 2.5, 2.59), start=4)
     pieces2, cands2, _ = _furn(sofa + coffee)
     assert not pieces2 and len(cands2) == 2
+
+
+# --------------------------------------------------------------------------
+# Milestone 10 (real02): block-name words, L outlines, named instances, nosing-strip stairs
+# --------------------------------------------------------------------------
+
+def test_m10_block_name_words():
+    assert SY.keyword_type("KÖŞE KOLTUK") == "sofa_corner" and SY.keyword_type("corner-sofa_01") == "sofa_corner"
+    assert SY.keyword_type("puf") == "ottoman" and SY.keyword_type("BANK") == "bench"
+    assert SY.keyword_type("BANKO") is None                         # a counter, not a bench (whole words only)
+    assert SY.keyword_type("BAR TABURESİ") == "bar_stool" and SY.keyword_type("ofis koltuğu") == "office_chair"
+    assert SY.keyword_type("KONSOL") == "console_table" and SY.keyword_type("beşik") == "crib"
+    assert SY.keyword_type("RANZA") == "bunk_bed" and SY.keyword_type("ayakkabı dolabı") == "shoe_cabinet"
+    assert SY.keyword_type("eb_banyo_ustdolap") == "wall_cabinet" and SY.keyword_type("VITRIN") == "display_cabinet"
+    assert SY.keyword_type("merdiven") is None and SY.keyword_type("derr") is None   # unknown names stay unknown
+    assert SY.block_type(["YATAK_TEK"], (1.2, 2.0), TABLE) == "bed_single"           # the M7 word says more
+    assert SY.block_type(["YATAK"], (1.6, 2.0), TABLE) == "bed_double"
+    assert SY.block_type(["YATAK"], (0.9, 2.0), TABLE) == "bed_single"
+    assert SY.block_type(["masa"], (1.6, 0.9), TABLE) == "table_dining"
+    assert SY.block_type(["koltuk"], (0.9, 0.85), TABLE) == "armchair"               # M7: KOLTUK = armchair ...
+    assert SY.block_type(["koltuk011"], (2.2, 0.9), TABLE) == "sofa"                 # ... or a sofa by its size
+    assert SY.block_type(["koltuk"], (2.6, 1.6), TABLE, "L") == "sofa_corner"
+    assert "sofa_corner" not in SY.fitting_types(TABLE, (2.6, 1.6))
+    assert "sofa_corner" in SY.fitting_types(TABLE, (2.6, 1.6), "L")
+
+
+def _l_sofa(notch="bottom-left"):
+    """An L outline in the box x 1.0-3.6, y 2.4-4.0: the main seat 0.9 m deep along y 4.0, the chaise 0.9 m wide."""
+    if notch == "bottom-left":
+        pts = [(1.0, 3.1), (2.7, 3.1), (2.7, 2.4), (3.6, 2.4), (3.6, 4.0), (1.0, 4.0)]
+    else:
+        pts = [(1.0, 2.4), (1.9, 2.4), (1.9, 3.1), (3.6, 3.1), (3.6, 4.0), (1.0, 4.0)]
+    cushions = [R.stroke(R.rect(1.1 + 0.8 * k, 3.2, 1.8 + 0.8 * k, 3.9), closed=True) for k in range(2)]
+    return [R.stroke(pts, closed=True)] + cushions
+
+
+def test_an_l_outline_is_a_corner_sofa_candidate():
+    pieces, cands, _ = _furn(_l_sofa())
+    assert not pieces and len(cands) == 1
+    c = cands[0]
+    assert c["footprint"]["shape"] == "L" and "sofa_corner" in c["fits"]
+    assert sorted(c["footprint"]["size"]) == pytest.approx([1.6, 2.6])
+    assert c["front_candidates"] == [{"front_deg": 270.0, "rule": "L outline: the open inner corner is the front"}]
+    d = c["item"].details
+    assert (d["shape"], d["chaise_side"]) == ("L", "right")         # the contract example: chaise on local +X
+    assert (d["chaise_depth"], d["seat_depth"], d["chaise_width"]) == pytest.approx((1.6, 0.9, 0.9))
+    assert c["item"].evidence["note"].startswith("L outline 2.60 x 1.60 m: main seat 0.90 m deep")
+    _, cands2, _ = _furn(_l_sofa("bottom-right"))
+    assert cands2[0]["item"].details["chaise_side"] == "left"        # the mirrored twin
+
+
+def test_rectangles_and_u_shapes_are_no_l():
+    cl = SY.Cluster(SY._segments([R.stroke(R.rect(1, 1, 3.6, 2.0), closed=True)], set()))
+    assert SY.l_shape(cl, 0.0) is None
+    u = R.stroke([(1, 1), (4, 1), (4, 3), (3.1, 3), (3.1, 1.9), (1.9, 1.9), (1.9, 3), (1, 3)], closed=True)
+    assert SY.l_shape(SY.Cluster(SY._segments([u], set())), 0.0) is None
+
+
+def test_one_named_piece_per_block_instance():
+    # A WC: bowl and a thin flush plate 5 cm behind it, split by the 20 mm clustering: one toilet.
+    bowl = _insert("INSERT:W1", "klozet", (1.0, 1.0, 1.4, 1.6))
+    plate = _insert("INSERT:W1", "klozet", (0.95, 1.65, 1.45, 1.72), start=4)
+    # An armchair block that also draws its footstool: the armchair takes the name, the footstool is asked.
+    chair = _insert("INSERT:K1", "koltuk", (3.0, 1.0, 3.9, 1.85))
+    stool = _insert("INSERT:K1", "koltuk", (3.1, 2.0, 3.7, 2.45), start=4)
+    # A bed block drawn with its two nightstands (touching): the bed takes the name, the nightstands are asked.
+    bed = _insert("INSERT:Y1", "YATAK", (2.0, 3.0, 3.6, 4.9))
+    stands = _insert("INSERT:Y1", "YATAK", (1.5, 4.5, 1.99, 4.9), start=4) + \
+        _insert("INSERT:Y1", "YATAK", (3.61, 4.5, 4.1, 4.9), start=8)
+    notes = []
+    pieces, cands, _ = _furn(bowl + plate + chair + stool + bed + stands, notes=notes)
+    got = sorted((p.type, p.type_method, p.status) for p in pieces)
+    assert got == [("armchair", "block_name", "verified"), ("bed_double", "block_name", "verified"),
+                   ("toilet", "block_name", "verified")]
+    assert len(cands) == 3 and all("next to its named piece" in c["item"].evidence["note"] for c in cands)
+    assert any("2 drawn parts of one block instance are one piece" in n for n in notes)
+    bed_piece = [p for p in pieces if p.type == "bed_double"][0]
+    assert sorted(bed_piece.size) == pytest.approx([1.6, 1.9]) and "takes the name" in bed_piece.evidence["note"]
+
+
+def test_stair_with_nosing_strips_and_no_divider():
+    """real02: every tread drawn as two lines 50 mm apart, the two flights side by side without one divider line,
+    the treads next to the break line shorter: the loose rule finds both flights (the strict one finds none)."""
+    strokes = []
+    for side, (y0, y1) in enumerate(((1.0, 1.95), (2.15, 3.1))):
+        for k in range(6):
+            x = 1.0 + 0.28 * k
+            top = y1 - (0.2 if (side, k) == (1, 3) else 0.0)            # a tread cut short by the break line
+            strokes += [R.stroke([(x, y0), (x, top)]), R.stroke([(x + 0.05, y0), (x + 0.05, top)])]
+    strokes.append(R.stroke(R.rect(0.9, 1.95, 2.7, 2.15), closed=True))  # the handrail band between the flights
+    pieces, cands, _ = _furn(strokes)
+    stairs = [p for p in pieces if p.type == "stair"]
+    assert len(stairs) == 1 and not cands
+    st = stairs[0].details["stair"]
+    assert len(st["flights"]) == 2 and st["turn"] == "U"
+    assert all(f["lines"] == 6 and f["spacing"] == pytest.approx(0.28) for f in st["flights"])
 
 
 def test_id_ranges_keep_non_numeric_ids_sorted():

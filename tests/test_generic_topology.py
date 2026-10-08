@@ -3,8 +3,8 @@
 Synthetic plans (metres) check the C-shaped plot found by its convex hull, other wall components, a free-standing
 wall inside the house, an exterior area enclosed by building walls, labels outside the building, and the separator
 rules (end-to-wall and end-to-end candidates only from empty end gaps, kept only when two names share a face or a
-stair shares a labelled face). real01 checks the plot wall in ``site``, the Parking area, exactly one separator (O2)
-and the single unlabelled hall face that holds the stair.
+stair shares a labelled face; Milestone 10: the end-to-face fallback). real01 checks the plot wall in ``site``, the
+Parking area, exactly one separator (O2) and the single unlabelled hall face that holds the stair.
 """
 import math
 
@@ -182,6 +182,27 @@ def test_unlabelled_face_type():
 # --------------------------------------------------------------------------
 # real01
 # --------------------------------------------------------------------------
+
+def test_end_to_face_separator_when_the_cast_runs_through_a_door():
+    """real02's basement: a wall's free end points across the corridor at a door in the far wall; its cast finds no
+    wall within 3 m (it runs through the door gap), so only the end-to-face fallback separates the two names."""
+    walls = _box_walls(0, 0, 8, 6) + [R.wall((2, 0), (2, 2.6), 0.2), R.wall((2, 3.4), (2, 6), 0.2),
+                                      R.wall((8, 3), (4, 3), 0.15)]
+    door = [R.arc((2.0, 2.6), 0.8, 90, 0)]
+    walls2, openings, log, _ = O.gaps_and_openings(walls, door, "t.pdf", 1)
+    assert [o.kind for o in openings] == ["door"]
+    assert any(e["kind"] == "free_end" and e["gap_class"] == "none" for e in log)
+    labels = [LB("Kitchen", (6, 4.5), "kitchen"), LB("Living", (6, 1.5), "living")]
+    kept, slog = TP.separators(walls2, openings, log, labels, [])
+    assert [e["kind"] for e in slog] == ["end_to_face"] and slog[0]["kept"]
+    line = kept[0].line
+    assert sorted(p[0] for p in line) == pytest.approx([2.1, 4.0], abs=0.01) and all(p[1] == 3.0 for p in line)
+    faces = TP.faces(walls2, openings, kept)
+    assert all(sum(f.contains(Point(p)) for f in faces) == 1 for p in ((6, 4.5), (6, 1.5)))
+    # One name in the face: the fallback is not tried (the log stays as before).
+    kept, slog = TP.separators(walls2, openings, log, labels[:1], [])
+    assert kept == [] and slog == []
+
 
 @pytest.fixture(scope="module")
 def chain():

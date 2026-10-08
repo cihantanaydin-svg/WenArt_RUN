@@ -4,17 +4,24 @@ Synthetic pages (in metres) check each rule: hatch groups (spacing, angle, colou
 outline walls, the mask decomposition of L, T and + junctions (IoU >= 0.97), face snapping and the angled-wall
 warning. real01 checks the result on a real CAD PDF: the two thickness classes 0.150 / 0.230 m, the house and plot
 walls of the reference, and that the coffee table's solid frame (a 0/90 deg line fill) is not a wall.
+
+Milestone 10 (§3.1 item 11): walls drawn as face lines (real02): face pairs of the layer chosen by the room labels
+(not by its name; tiles and a double-outlined bed never win), the corner column cut to the wall bands, a nightstand
+against a wall is no column, no labels or primitives that already close the rooms -> no face pairs; real01 unchanged.
+tests/test_real02_walls.py checks the real drawing.
 """
 import math
 
 import numpy as np
 import pytest
-from shapely.geometry import LineString, box as sbox
+from shapely.geometry import LineString, Point, Polygon, box as sbox
 from shapely.ops import unary_union
 
 import _real01_page as R
+from wenart.ingest.generic import openings as O
+from wenart.ingest.generic import topology as TP
 from wenart.ingest.generic import walls as W
-from wenart.ingest.generic.model import MaskLayer
+from wenart.ingest.generic.model import MaskLayer, TextRun
 
 
 def _walls_of(strokes, outline=None):
@@ -272,3 +279,122 @@ def test_real01_coffee_table_frame_is_not_a_wall(chain):
     assert any("main-style" in n for n in chain["wall_info"]["notes"])
     # Their line fills go back to the furniture strokes.
     assert chain["wall_info"]["dropped_strokes"]
+
+
+def test_real01_draws_no_walls_from_face_pairs(chain):
+    """The hatch walls close in real01's rooms: the face-pair primitive stays out (Milestone 10, no regression)."""
+    assert not any(p.kind in W.FACE_KINDS for p in chain["prims"])
+
+
+# --------------------------------------------------------------------------
+# Walls drawn as face lines (docs/milestone10.md §3.1 item 11, real02)
+# --------------------------------------------------------------------------
+
+def _on(layer, strokes):
+    for st in strokes:
+        st.layer = layer
+    return strokes
+
+
+def _face_plan(wall_layer="W1", texts=True, extra=()):
+    """Two rooms of an 8 x 5 m house drawn as real02 draws walls: one stroke per wall face, 0.20 m outer walls (the
+    outer face one closed outline), a 0.10 m inner wall with a door gap, a 0.40 m corner column on its own layer, a
+    floor-tile patch and a bed drawn with a double outline (pairs 0.05 m and 0.30 m apart that close in no room)."""
+    faces = [R.stroke([(0, 0), (8, 0), (8, 5), (0, 5)], closed=True),
+             R.stroke([(0.4, 0.2), (3.95, 0.2)]), R.stroke([(4.05, 0.2), (7.8, 0.2)]),
+             R.stroke([(0.2, 4.8), (3.95, 4.8)]), R.stroke([(4.05, 4.8), (7.8, 4.8)]),
+             R.stroke([(0.2, 0.4), (0.2, 4.8)]), R.stroke([(7.8, 0.2), (7.8, 4.8)]),
+             R.stroke([(3.95, 0.2), (3.95, 1.0), (4.05, 1.0), (4.05, 0.2)]),
+             R.stroke([(3.95, 4.8), (3.95, 1.9), (4.05, 1.9), (4.05, 4.8)])]
+    column = R.stroke(R.rect(0, 0, 0.4, 0.4), closed=True, prefix="col")
+    tiles = [R.stroke([(5.0 + 0.3 * k, 3.0), (5.0 + 0.3 * k, 4.5)], prefix="tile") for k in range(5)]
+    bed = [R.stroke(R.rect(1.0, 3.0, 2.6, 4.6), closed=True, prefix="bed"),
+           R.stroke(R.rect(1.05, 3.05, 2.55, 4.55), closed=True, prefix="bed")]
+    door = [R.arc((4.0, 1.0), 0.9, 90, 180, prefix="door")]
+    strokes = (_on(wall_layer, faces) + _on("A-BA", [column]) + _on("TILE", tiles) + _on("MOB", bed)
+               + _on("KAPI", door) + list(extra))
+    runs = [TextRun(id="t1", text="SALON", box=(1.4, 2.4, 2.4, 2.6), height=0.2),
+            TextRun(id="t2", text="YATAK ODASI", box=(5.2, 2.4, 6.8, 2.6), height=0.2)] if texts else []
+    return R.synthetic_page(strokes, runs), strokes, column
+
+
+def _face_chain(page):
+    prims = W.wall_primitives(page, 1.0)
+    mask = W.wall_mask(page, prims, 1.0)
+    ids = {i for p in prims for i in p.stroke_ids}
+    rest = [s for s in page.strokes if s.id not in ids]
+    walls, info = W.walls_from_mask(mask, rest, "test.pdf", 1)
+    walls2, openings, _, _ = O.gaps_and_openings(walls, rest, "test.pdf", 1)
+    return prims, walls2, openings, info
+
+
+def test_face_pairs_read_walls_drawn_as_face_lines():
+    page, _, _ = _face_plan()
+    prims, walls, openings, info = _face_chain(page)
+    assert prims and {p.kind for p in prims} <= set(W.FACE_KINDS)
+    assert all(p.layer == "W1" and p.confidence == 0.8 and p.method == "vector" for p in prims)
+    assert {round(c["thickness"], 2) for c in info["thickness_classes"]} == {0.1, 0.2}
+    faces = TP.faces(walls, openings)
+    for anchor in ((1.9, 2.5), (6.0, 2.5)):
+        assert sum(f.contains(Point(anchor)) for f in faces) == 1
+    assert [o.kind for o in openings] == ["door"]
+    ev = walls[0].evidence
+    assert ev["layer"] == "W1" and ev["rule"] == "face_pairs" and ev["note"].startswith(
+        "walls drawn as face lines: layer 'W1' chosen by evidence (closes in 2 of 2 labelled rooms")
+    assert "runner-up" in ev["note"] and info["face_pairs"] == ev["note"] and ev["note"] in info["warnings"]
+
+
+def test_the_wall_layer_is_chosen_by_evidence_not_by_its_name():
+    page, _, _ = _face_plan(wall_layer="MOBILYA")
+    for st in page.strokes:
+        if st.layer == "MOB":
+            st.layer = "DUVAR"                       # the bed on a layer that says "wall"
+    prims, choice = W.face_pair_walls(page, 1.0, [])
+    assert choice["used"] and choice["layer"] == "MOBILYA"
+    rows = {r["layer"]: r for r in choice["layers"]}
+    assert rows["MOBILYA"]["closed_in"] == 2 and rows["DUVAR"]["closed_in"] == 0 and rows["TILE"]["closed_in"] == 0
+    assert rows["TILE"]["pairs"] >= 4 and 0.3 in rows["TILE"]["widths_m"]
+    assert {p.layer for p in prims} == {"MOBILYA"}
+
+
+def test_no_room_labels_no_face_pairs():
+    page, _, _ = _face_plan(texts=False)
+    prims, choice = W.face_pair_walls(page, 1.0, [])
+    assert prims == [] and not choice["used"] and choice["reason"].startswith("no room labels")
+
+
+def test_face_pairs_stay_out_when_the_other_primitives_close_the_rooms():
+    page, strokes, _ = _face_plan()
+    hatches = (R.hatch(R.rect(-0.5, -0.5, 8.5, -0.3)) + R.hatch(R.rect(-0.5, 5.3, 8.5, 5.5))
+               + R.hatch(R.rect(-0.5, -0.5, -0.3, 5.5)) + R.hatch(R.rect(8.3, -0.5, 8.5, 5.5))
+               + R.hatch(R.rect(3.9, -0.5, 4.1, 5.5)))
+    page = R.synthetic_page(strokes + hatches, page.texts)
+    prims = W.wall_primitives(page, 1.0)
+    assert prims and not any(p.kind in W.FACE_KINDS for p in prims)
+    _, choice = W.face_pair_walls(page, 1.0, [p for p in prims if p.kind == "hatch"])
+    assert not choice["used"] and choice["reason"].startswith("the other wall primitives close in")
+
+
+def test_a_polyline_whose_ends_meet_within_1_mm_is_closed():
+    near = R.stroke([(0, 0), (1, 0), (1, 1), (0, 1), (0.0005, 0.0)])
+    apart = R.stroke([(0, 0), (1, 0), (1, 1), (0, 1), (0.002, 0.0)])
+    assert W.ends_meet(near) and not W.ends_meet(apart) and W.ends_meet(R.stroke(R.rect(0, 0, 1, 1), closed=True))
+    assert W.ends_meet(R.stroke([(0, 0), (100, 0), (100, 100), (0, 100), (0.05, 0)]), units_to_m=0.01)
+
+
+def test_a_column_joins_only_inside_the_wall_bands():
+    page, _, column = _face_plan()
+    prims, choice = W.face_pair_walls(page, 1.0, [])
+    cols = [p for p in prims if p.kind == "column"]
+    assert [p.entity for p in cols] == [column.id]
+    assert Polygon(cols[0].polygons[0]).area == pytest.approx(0.4 * 0.2 + 0.2 * 0.2)   # the corner L of the bands
+    assert "1 columns join the walls (0.04 m² of them standing out of the wall bands not modelled)" in choice["note"]
+
+
+def test_a_nightstand_against_a_wall_is_no_column():
+    stand = R.stroke(R.rect(0.2, 2.0, 0.65, 2.4), closed=True, prefix="ns")
+    stand.layer = "MOB"
+    page, _, column = _face_plan(extra=[stand])
+    prims, _ = W.face_pair_walls(page, 1.0, [])
+    assert {p.entity for p in prims if p.kind == "column"} == {column.id}
+    assert not any(stand.id in p.stroke_ids for p in prims)

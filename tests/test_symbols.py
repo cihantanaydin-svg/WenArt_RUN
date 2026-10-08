@@ -17,6 +17,7 @@ import yaml
 
 from wenart import building as B
 from wenart.recognition import answers as A
+from wenart.recognition import prompts
 from wenart.recognition import schemas
 from wenart.recognition import symbols as S
 
@@ -277,6 +278,33 @@ def test_size_veto_when_both_say_a_type_the_footprint_cannot_be(table):
     assert res["conflict"]["kind"] == "symbol_type_disagreement" and "size range" in res["conflict"]["description"]
     assert any("size veto" in w for w in res["warnings"])
     assert [c["type"] for c in res["type_candidates"]] == ["bed_double", "bed_double"]
+
+
+def test_the_corner_sofa_needs_an_l_outline(table):
+    """Milestone 10: ``sofa_corner`` is offered and accepted only for a footprint the core found L-shaped."""
+    assert "sofa_corner" not in S.choices_for((2.6, 1.6), table)
+    assert "sofa_corner" in S.choices_for((2.6, 1.6), table, "L")
+    plain = S.question_facts(candidate(size=(2.6, 1.6)), "vector", table)
+    assert "shape" not in plain and "sofa_corner" not in plain["choices"]          # other items' facts unchanged
+    cand = candidate(size=(2.6, 1.6))
+    cand["footprint"]["shape"] = "L"
+    facts = S.question_facts(cand, "vector", table)
+    assert facts["shape"] == "L" and "sofa_corner" in facts["choices"]
+    assert "Its outline is L-shaped" in prompts.symbol_type_prompt(facts)
+    both = {"qwen": answer("sofa_corner"), "glm": answer("sofa_corner")}
+    res = S.decide(cand, both, table, None)
+    assert res["type"] == "sofa_corner" and res["type_method"] == "ai_two_pass" and res["status"] == "verified"
+    veto = S.decide(candidate(size=(2.6, 1.6)), both, table, None)
+    assert veto["type"] == "unknown" and "not L-shaped" in veto["conflict"]["description"]
+    assert any("shape veto" in w for w in veto["warnings"])
+
+
+def test_new_types_have_hints_and_size_ranges(table):
+    for ftype in ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib",
+                  "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet"):
+        assert ftype in table and ftype in prompts.SYMBOL_HINTS and ftype in prompts.SYMBOL_TYPE_HINTS
+    assert S.fits(table, "sofa_corner", (4.38, 1.97))                     # real02's basement corner sofa
+    assert "bar_stool" in S.choices_for((0.42, 0.42), table) and "crib" in S.choices_for((0.7, 1.4), table)
 
 
 def test_not_furniture_by_both_is_kept_unbuilt(table):
