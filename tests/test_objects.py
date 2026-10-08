@@ -117,7 +117,7 @@ def test_track_e_exterior_words_are_covered():
         for word, e_slug in words:
             if slot == "door" and e_slug == "glass":
                 continue                                                          # a glazed door is a door style, not a material
-            found, _ = P._exterior_words_look(slot, STEMS.get(word, word))
+            found, _ = P.exterior_look_from_words(slot, STEMS.get(word, word))
             assert found and found["material"], f"E knows '{word}' for {slot}, the style tables do not"
             want = E_NAMES.get(e_slug, e_slug)
             assert found["material"] == want, (slot, word, found["material"], want)

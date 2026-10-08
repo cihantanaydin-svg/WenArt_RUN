@@ -14,7 +14,6 @@ import yaml
 
 from wenart.style import colours as C
 from wenart.style import finishes as FIN
-from wenart.style import objects as O
 from wenart.style import profile as P
 from wenart.style import vocabulary as V
 from wenart.style.__main__ import main as style_main
@@ -464,6 +463,17 @@ def test_photo_terms_fill_only_open_slots_and_never_set_a_colour():
     p = P.profile_from_text("oak floor", photo_terms=terms)
     assert p["walls"] == {"material": "plaster_charcoal", "asset": "white_plaster_02", "colour": None}
     assert errors(p) == []
+
+
+def test_exterior_look_from_words_is_public_and_strict():
+    look, notes = P.exterior_look_from_words("facade", "smooth render in warm greige")
+    assert look == {"material": "render", "colour": "warm greige"} and notes == []
+    assert P.exterior_look_from_words("roof", "anthracite concrete tiles")[0] == {"material": "concrete_tiles", "colour": "anthracite"}
+    assert P.exterior_look_from_words("window_frame", "dark bronze")[0] == {"material": "dark_bronze", "colour": None}
+    assert P.exterior_look_from_words("door", "walnut")[0] == {"material": "wood_walnut", "colour": None}
+    assert P.exterior_look_from_words("garden", "mysterious")[0] is None
+    with pytest.raises(ValueError):
+        P.exterior_look_from_words("chimney", "brick")
 
 
 def test_the_default_profile_block_of_defaults_yaml_is_current():

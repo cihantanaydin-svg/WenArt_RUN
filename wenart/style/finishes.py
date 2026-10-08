@@ -15,8 +15,9 @@ Entry shapes (``kind`` is one of ``KINDS``; ``flat`` is linear RGB; ``roughness`
   wenart.assets.fetch check``). ``albedo_mode`` is ``texture`` (the photo's colour, its mean luminance scaled to the
   flat colour's) or ``flat`` (the colour is ``flat`` or the style's colour, the photo adds ``detail`` of its
   luminance variation; docs/milestone5.md §2.2). ``flat_source`` says where ``flat`` comes from: ``measured`` (the mean
-  linear colour of the 1k Diffuse map, Poly Haven), ``colour:<name>`` (a ``colours.py`` name) or ``estimated`` (the
-  asset could not be downloaded in the session: the pod's first fetch may refine it).
+  linear colour of the 1k Diffuse map, Poly Haven), ``colour:<name>`` (the entry's colour is a ``colours.py`` name:
+  flat-mode looks) or ``estimated:<name>`` (a texture-mode ambientCG look whose photo could not be downloaded in the
+  session: the luminance of a ``colours.py`` name stands in until a pod measures it).
 - procedural: ``{source: "procedural", asset: None, procedural: <Blender node group name or None>, kind, flat,
   roughness, albedo_mode: "flat", detail: 0.0, [params], ...}``: no external file. ``procedural: None`` is a plain
   Principled BSDF from ``flat``, ``roughness`` and ``metallic``; a node group name (``wenart_tiles``,
@@ -181,7 +182,7 @@ MATERIALS: dict[str, dict] = {
     "slate_floor": _tex(PH, "granite_tile", "hard", [0.076, 0.077, 0.077], 0.55, [2.3, 2.3], wet_safe=True),
     "vinyl": _tex(PH, "linoleum_brown", "hard", _lin("light grey"), 0.35, [2.0, 2.0], mode="flat", detail=0.25,
                   wet_safe=True, flat_source="colour:light grey"),
-    "cork": _tex(ACG, "Cork002", "soft", _lin("coffee"), 0.7, None, flat_source="colour:coffee"),
+    "cork": _tex(ACG, "Cork002", "soft", _lin("coffee"), 0.7, None, flat_source="estimated:coffee"),
     "carpet_wool": _tex(ACG, "Carpet016", "soft", _lin("light grey"), 0.95, [1.7, 1.7], mode="flat", detail=0.6,
                         flat_source="colour:light grey"),
     "sisal": _tex(PH, "hessian_230", "soft", [0.264, 0.189, 0.101], 0.95, [0.2688, 0.2672]),
@@ -190,7 +191,7 @@ MATERIALS: dict[str, dict] = {
                    params={k: v for k, v in p.items() if k not in ("tile_roughness", "label")},
                    wet_safe=True, flat_source=f"colour:{TILE_DEFAULT_COLOUR[slug]}")
        for slug, p in TILE_PATTERNS.items()},
-    "marble_slab": _tex(ACG, "Marble012", "hard", _lin("silver"), 0.12, None, wet_safe=True, flat_source="colour:silver"),
+    "marble_slab": _tex(ACG, "Marble012", "hard", _lin("silver"), 0.12, None, wet_safe=True, flat_source="estimated:silver"),
     # ---- wallpapers: procedural patterns, base colour from the brief, ink = the base colour with the "dark" modifier --
     **{slug: _proc("wenart_wallpaper", "wallpaper", _lin(p["colour"]), 0.85,
                    params={"pattern": p["pattern"], "repeat_m": p["repeat_m"], "ink_modifier": "dark"},
@@ -223,10 +224,10 @@ MATERIALS: dict[str, dict] = {
     "paving": _tex(PH, "large_square_pattern_01", "ground", [0.204, 0.189, 0.154], 0.8, [3.0, 3.0]),
     "paving_stone": _tex(PH, "floor_tiles_02", "ground", [0.346, 0.282, 0.21], 0.7, [4.0, 4.0]),
     "gravel": _tex(PH, "gravel_floor_02", "ground", [0.405, 0.384, 0.33], 0.95, [2.0, 2.0]),
-    "grass": _tex(ACG, "Grass004", "ground", _lin("olive", "dark"), 0.95, [1.4, 1.4], flat_source="colour:dark olive"),
+    "grass": _tex(ACG, "Grass004", "ground", _lin("olive", "dark"), 0.95, [1.4, 1.4], flat_source="estimated:dark olive"),
     "decking": _tex(PH, "synthetic_wood", "wood", [0.17, 0.078, 0.04], 0.65, [2.0, 2.0]),
     # ---- decor pots ---------------------------------------------------------------------------------------------------
-    "rattan": _tex(ACG, "Wicker005", "organic", _lin("coffee"), 0.8, [0.2, 0.2], flat_source="colour:coffee"),
+    "rattan": _tex(ACG, "Wicker005", "organic", _lin("coffee"), 0.8, [0.2, 0.2], flat_source="estimated:coffee"),
 }
 
 

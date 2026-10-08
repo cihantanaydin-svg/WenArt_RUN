@@ -53,6 +53,10 @@ def test_entries_follow_the_documented_shapes(table_name):
         assert len(e["flat"]) == 3 and all(0.0 <= v <= 1.0 for v in e["flat"]), slug
         assert 0.0 <= e["roughness"] <= 1.0, slug
         assert e.get("flat_source") and e["flat_source"].split(":")[0] in ("measured", "colour", "colour table", "estimated"), slug
+        if e["flat_source"].startswith("estimated"):                                        # only an unmeasured ambientCG photo
+            assert e["source"] == "ambientcg" and e["albedo_mode"] == "texture", slug
+        if e["flat_source"] == "measured":
+            assert e["source"] == "polyhaven", slug                                       # only these could be downloaded
         if e.get("source") == "procedural":
             assert e["asset"] is None and e["albedo_mode"] == "flat" and e["detail"] == 0.0, slug
             assert e["procedural"] in PROCEDURAL_GROUPS, slug
@@ -244,7 +248,7 @@ def test_table_sizes_and_flat_colours_equal_the_checked_values():
 def test_the_flat_colour_of_a_colour_derived_entry_is_that_colour():
     for slug, e in F.MATERIALS.items():
         src = e["flat_source"]
-        if src.startswith("colour:"):
+        if src.startswith(("colour:", "estimated:")):
             assert e["flat"] == pytest.approx(list(C.linear_rgb(src.split(":", 1)[1])), abs=1e-3), slug
 
 

@@ -964,8 +964,13 @@ def apply_photo_terms(scan: dict, photo_terms, warnings: list[str], override: bo
 # Profile assembly
 # --------------------------------------------------------------------------
 
-def _exterior_words_look(slot: str, phrase: str) -> tuple[Optional[dict], list[str]]:
-    """``({material, colour}, notes)`` of the brief's ``exterior:`` words for one slot; None when no material word."""
+def exterior_look_from_words(slot: str, phrase: str) -> tuple[Optional[dict], list[str]]:
+    """``({material, colour}, notes)`` of the brief's ``exterior:`` words for one slot of ``finishes.EXTERIOR_SLOTS``
+    (``facade``, ``roof``, ``window_frame``, ``door``, ``paving``, ``garden``); ``None`` when no material word is in
+    ``phrase``. Public so that ``wenart.blender.exterior.look_from_words`` can use these tables instead of its temporary
+    ones (the material is a slug of the vocabulary, the colour a phrase of ``colours.py``)."""
+    if slot not in FIN.EXTERIOR_SLOTS:
+        raise ValueError(f"unknown exterior slot {slot!r} (slots: {', '.join(FIN.EXTERIOR_SLOTS)})")
     notes: list[str] = []
     d = _new_draft()
     ph = _Phrase(phrase, d, notes, set())
@@ -998,7 +1003,7 @@ def _exterior_slots(d: dict, profile: dict, fallback: dict, exterior_words: dict
     for slot in FIN.EXTERIOR_SLOTS:
         look = None
         if slot in words:
-            found, notes = _exterior_words_look(slot, words[slot])
+            found, notes = exterior_look_from_words(slot, words[slot])
             warnings.extend(notes)
             if found and found.get("material"):
                 look = _look(found["material"], found.get("colour"), "brief", False)
