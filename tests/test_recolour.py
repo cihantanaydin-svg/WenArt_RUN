@@ -552,7 +552,7 @@ def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
     cand = {"uid": "gen_plant_large_modern_1_abcd1234", "source": "generated", "licence": "generated (TRELLIS.2-4B, MIT)",
             "title": "Generated modern plant large (1)", "glb_info": {"textured": True},
             "generated": {"prompt": "p", "image_sha256": "0" * 64, "model": "m", "revision": "r", "seed": 1},
-            "attributes": {"species": "palm", "pot": "rattan"}, "style_hint": "modern", "units_known": False}
+            "attributes": {"species": "palm", "pot": {"material": "rattan", "colour": None}}, "style_hint": "modern", "units_known": False}
     obj = {"unit": {"scale": 1.0, "note": "n", "ok": True}, "measure": {"bbox_min_raw": [0, 0, 0],
                                                                        "bbox_max_raw": [0.5, 0.5, 1.6]}}
     dec = {"type": "plant_large", "kind": "decor", "decor_type": "plant_large", "front_axis": "-Y",
@@ -562,7 +562,7 @@ def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
     fields = {"material_slots": [{"index": 0, "material": "other"}], "material_tags": ["rattan"],
               "recolourable_fabric": False, "recolourable_wood": False, "glb_sha256": "x"}
     entry = ov.catalog_entry(cand, obj, dec, "f" * 64, ov.load_config(), None, fields)
-    assert entry["type"] == "decor_plant_large" and entry["species"] == "palm" and entry["pot"] == "rattan"
+    assert entry["type"] == "decor_plant_large" and entry["species"] == "palm" and entry["pot"] == {"material": "rattan", "colour": None}
     assert entry["material_tags"] == ["rattan"] and entry["recolourable_fabric"] is False
     assert "glb_sha256" not in entry or entry["sha256_glb"] == "f" * 64          # only the four fields are copied
     assert set(ov.MATERIAL_FIELDS) <= set(entry)

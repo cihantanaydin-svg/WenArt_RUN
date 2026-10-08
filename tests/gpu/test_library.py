@@ -32,6 +32,7 @@ from pathlib import Path
 import pytest
 
 from wenart.assets import abo as ABO
+from wenart.assets import generate as G
 from wenart.assets import objaverse as OV
 from wenart.furniture import catalog as C
 from wenart.run import copy as CP
@@ -333,9 +334,11 @@ def test_generated_large_plants_keep_their_species_and_pot():
     plants = [e for e in models_of(cat, "plant_large") if e["source"] == "generated"]
     if not plants:
         pytest.skip("no generated plant_large model in the catalogue")
-    species = {"palm", "monstera", "fiddle-leaf fig", "olive", "fern"}
+    species = {"palm", "monstera", "fiddle_leaf_fig", "olive", "fern"}                  # the schema's decor.species slugs
+    words = {v["species"]: v["words"] for v in G.load_config()["variants"]["plant_large"]["plant"]}
     for e in plants:
-        assert e["species"] in species and e["pot"] and e["species"] in e["generated"]["prompt"], e["id"]
+        assert e["species"] in species and words[e["species"]] in e["generated"]["prompt"], e["id"]
+        assert isinstance(e["pot"], dict) and e["pot"].get("material"), e["id"]          # the schema's decor.pot
     assert {e["species"] for e in plants} >= {"palm", "monstera", "fern"} or len(plants) < 5, (
         "the brief's palms, monsteras and ferns need models of those species")
 
