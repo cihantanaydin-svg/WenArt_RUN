@@ -10,7 +10,9 @@ furniture or layout is ever taken from a photo.
   ``walls`` (5 wall slugs), ``light`` (5 light moods), ``family`` (9 style
   families), each an enum of the vocabulary plus ``unclear``; all four keys
   required, nothing else allowed. ``photo_prompt()`` lists the same options
-  with the brief words of ``vocabulary.py`` (one source, cannot drift).
+  with the brief words of ``vocabulary.py`` (one source, cannot drift). Milestone 10 keeps these option lists
+  (``PHOTO_FLOORS``, ``PHOTO_WALLS``, ``PHOTO_LIGHTS``) although the vocabulary grew: the new finishes and moods come
+  from brief words only.
 - ``read_pass(path, client, model_key)``: one call through
   ``client.run_schema`` (``wenart.recognition.vlm_client``, §1.5) -> a pass
   record ``{model_key, model, pass, data, error, raw_text, latency_s}``. A
@@ -63,11 +65,19 @@ def _unique(values) -> list[str]:
     return out
 
 
-# Options per slot, from the vocabulary tables (order of first appearance).
+# Milestone 10 added many floors, wall finishes and light moods to the vocabulary. The photo question keeps the
+# Milestone 5 options on purpose: two vision models must still agree on a short list, and the stored photo answers stay
+# valid. The new finishes and moods come from brief words (wenart/style/profile.py), never from a photo.
+PHOTO_FLOORS = ("wood_oak_light", "wood_walnut", "wood_parquet", "concrete_polished", "terracotta", "marble",
+                "tiles_light", "carpet")
+PHOTO_WALLS = ("plaster_white", "plaster_cream", "plaster_charcoal", "wood_panel", "brick")
+PHOTO_LIGHTS = ("warm daylight", "cool daylight", "golden evening", "overcast", "night")
+
+# Options per slot, from the vocabulary tables (order of first appearance), restricted to the options above.
 SLOT_VALUES: dict[str, list[str]] = {
-    "floor": _unique(slug for _, slug in V.FLOOR_WORDS),
-    "walls": _unique(slug for _, slug in V.WALL_WORDS),
-    "light": list(V.LIGHTING),
+    "floor": [s for s in _unique(slug for _, slug in V.FLOOR_WORDS) if s in PHOTO_FLOORS],
+    "walls": [s for s in _unique(slug for _, slug in V.WALL_WORDS) if s in PHOTO_WALLS],
+    "light": [m for m in V.LIGHTING if m in PHOTO_LIGHTS],
     "family": [name for name, _ in V.STYLE_FAMILIES],
 }
 

@@ -54,7 +54,7 @@ CHECKED_AGAINST = "matplotlib 3.11.2 colors.CSS4_COLORS / colors.XKCD_COLORS (th
 COLOURS: dict[str, dict] = {
     # whites and creams
     "white":        {"srgb": "#FFFFFF", "source": "css4", "ref": "white"},
-    "off white":    {"srgb": "#FDF5E6", "source": "css4", "ref": "oldlace", "note": "a warm off-white"},
+    "off white":    {"srgb": "#FDF5E6", "source": "css4", "ref": "oldlace", "note": "CSS has no 'off white'; 'oldlace' is a warm off-white"},
     "ivory":        {"srgb": "#FFFFF0", "source": "css4", "ref": "ivory"},
     "cream":        {"srgb": "#FAEBD7", "source": "css4", "ref": "antiquewhite",
                      "note": "CSS has no 'cream'; the survey's cream (#FFFFC2) is a pale yellow, too yellow for a wall"},
@@ -69,7 +69,7 @@ COLOURS: dict[str, dict] = {
     "caramel":      {"srgb": "#AF6F09", "source": "xkcd", "ref": "caramel"},
     "coffee":       {"srgb": "#A6814C", "source": "xkcd", "ref": "coffee"},
     "walnut brown": {"srgb": "#653700", "source": "xkcd", "ref": "brown", "note": "the survey has no 'walnut'; its 'brown' is the darkest plain brown"},
-    "brown":        {"srgb": "#8B4513", "source": "css4", "ref": "saddlebrown"},
+    "brown":        {"srgb": "#8B4513", "source": "css4", "ref": "saddlebrown", "note": "a plain mid brown (the survey's 'brown' is walnut brown)"},
     "chocolate":    {"srgb": "#3D1C02", "source": "xkcd", "ref": "chocolate"},
     # greys and blacks
     "silver":       {"srgb": "#C0C0C0", "source": "css4", "ref": "silver"},
@@ -98,7 +98,7 @@ COLOURS: dict[str, dict] = {
     "terracotta":   {"srgb": "#CA6641", "source": "xkcd", "ref": "terracotta"},
     "rust":         {"srgb": "#A83C09", "source": "xkcd", "ref": "rust"},
     "brick red":    {"srgb": "#8F1402", "source": "xkcd", "ref": "brick red"},
-    "red":          {"srgb": "#B22222", "source": "css4", "ref": "firebrick", "note": "a deep red"},
+    "red":          {"srgb": "#B22222", "source": "css4", "ref": "firebrick", "note": "a deep red (CSS 'red' is #FF0000)"},
     "burgundy":     {"srgb": "#610023", "source": "xkcd", "ref": "burgundy"},
     "plum":         {"srgb": "#580F41", "source": "xkcd", "ref": "plum", "note": "the survey's dark plum (CSS 'plum' is a light orchid)"},
     "blush":        {"srgb": "#F29E8E", "source": "xkcd", "ref": "blush"},
@@ -108,8 +108,8 @@ COLOURS: dict[str, dict] = {
     # yellows, oranges, metals
     "mustard":      {"srgb": "#CEB301", "source": "xkcd", "ref": "mustard"},
     "ochre":        {"srgb": "#BF9005", "source": "xkcd", "ref": "ochre"},
-    "yellow":       {"srgb": "#FFD700", "source": "css4", "ref": "gold"},
-    "orange":       {"srgb": "#FF8C00", "source": "css4", "ref": "darkorange"},
+    "yellow":       {"srgb": "#FFD700", "source": "css4", "ref": "gold", "note": "a warm yellow (CSS 'yellow' is #FFFF00)"},
+    "orange":       {"srgb": "#FF8C00", "source": "css4", "ref": "darkorange", "note": "CSS 'orange' is #FFA500; 'darkorange' reads as orange on a wall or fabric"},
     "burnt orange": {"srgb": "#C04E01", "source": "xkcd", "ref": "burnt orange"},
     "bronze":       {"srgb": "#A87900", "source": "xkcd", "ref": "bronze"},
     "dark bronze":  {"srgb": "#7F684E", "source": "xkcd", "ref": "dark taupe",
@@ -117,7 +117,7 @@ COLOURS: dict[str, dict] = {
                              "dark bronze is darker still: the window-frame material is metallic and reads darker)"},
     "brass":        {"srgb": "#B8860B", "source": "css4", "ref": "darkgoldenrod", "note": "no 'brass' in either list; the nearest metal-like gold"},
     "copper":       {"srgb": "#B66325", "source": "xkcd", "ref": "copper"},
-    "gold":         {"srgb": "#DAA520", "source": "css4", "ref": "goldenrod"},
+    "gold":         {"srgb": "#DAA520", "source": "css4", "ref": "goldenrod", "note": "the metal; CSS 'gold' (#FFD700) is used for 'yellow'"},
 }
 NAMES: tuple[str, ...] = tuple(COLOURS)
 MODIFIERS: tuple[str, ...] = ("light", "dark", "pale", "deep", "warm", "cool", "muted")
@@ -269,6 +269,16 @@ def parse(text) -> tuple[str, tuple[str, ...]] | None:
             continue
         return None
     return None
+
+
+def canonical_phrase(text) -> str | None:
+    """The colour phrase with its alias resolved and its modifiers kept (``"Sage Green"`` -> ``"sage"``, ``"warm
+    gray"`` -> ``"warm grey"``), None when ``text`` is no colour phrase. This is the form the style profile stores."""
+    parsed = parse(text)
+    if parsed is None:
+        return None
+    name, mods = parsed
+    return " ".join((*mods, name))
 
 
 def known(text) -> bool:

@@ -13,26 +13,61 @@ style:
   # The profile wenart.style produces from `text` above. tests/test_style.py
   # checks that this block and the code agree, so keep both in sync.
   profile:
-    source_text: "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
-    family: scandinavian   # Milestone 7: the library style filter of refit (docs/milestone7.md §6.3)
-    floor: {material: wood_oak_light, asset: WoodFloor051}
-    walls: {material: plaster_white, asset: white_plaster_02}
-    ceiling: {material: plaster_white}
-    wet_floor: {material: tiles_light, asset: Tiles074}
-    wet_walls: {material: tiles_light}
-    trim: {material: painted_wood_white}
-    door: {material: wood_oak_light}
-    window_frame: {material: painted_metal_white}
-    lighting:
-      hdri: kloppenheim_06
-      sun_elevation_deg: 35
-      sun_azimuth_deg: 210
-      sun_strength: 3.0
-      colour_temperature_k: 5200
-      mood: warm daylight
+    # Milestone 10: the new slots (wall accent, cabinets, furniture and decor looks, exterior) are in the default too.
+    # python -c "from wenart.style.profile import default_block_yaml as d; print(d())" prints this block.
+    source_text: Scandinavian, light oak floor, white walls, linen textiles, warm daylight
+    family: scandinavian
+    floor: {material: wood_oak_light, asset: WoodFloor051, colour: null}
+    walls: {material: plaster_white, asset: white_plaster_02, colour: white}
+    wall_accent: null
+    ceiling: {material: plaster_white, colour: null}
+    wet_floor: {material: tiles_light, asset: Tiles074, colour: null}
+    wet_walls: {material: tiles_light, asset: Tiles074, tile_size_m: null, pattern: null, colour: null, grout_colour: null}
+    trim: {material: painted_wood_white, colour: null}
+    door: {material: wood_oak_light, asset: WoodFloor051, style: null, colour: null, handle: null}
+    window_frame:
+      material: painted_metal_white
+      asset: Metal032
+      colour: null
+      outside: {material: painted_metal_white, colour: null}
+    cabinets: {front_style: null, colour: null, handle: null, worktop: null, wood: null}
+    furniture:
+      wood: null
+      fabric_colour: null
+      by_type: {}
+      accents: []
+    decor:
+      plant_species: []
+      plant_amount: null
+      pots: []
+      cushion_colours: []
+      throw_colours: []
+      curtain_colour: null
+      rug_colours: []
+    exterior:
+      facade: {material: render, asset: grey_plaster, colour: white, source: fallback, assumed: true}
+      roof: {material: concrete_tiles, asset: grey_roof_01, colour: anthracite, source: fallback, assumed: true}
+      window_frame: {material: painted_metal_white, asset: Metal032, colour: null, source: fallback, assumed: true}
+      door: {material: wood_oak_light, asset: WoodFloor051, colour: null, source: fallback, assumed: true}
+      paving: {material: paving, asset: large_square_pattern_01, colour: grey, source: fallback, assumed: true}
+      garden: {material: grass, asset: Grass004, colour: null, source: fallback, assumed: true}
+    exterior_fallback:
+      facade: {material: render, colour: walls}
+      roof: {material: concrete_tiles, colour: anthracite}
+      window_frame: interior
+      door: interior
+      paving: {material: paving, colour: grey}
+      garden: {material: grass, colour: null}
+    lighting: {hdri: kloppenheim_06, sun_elevation_deg: 35, sun_azimuth_deg: 210, sun_strength: 3.0, colour_temperature_k: 5200,
+      mood: warm daylight}
+    colours:
+      walls: [white]
     matched_terms: [Scandinavian, light oak floor, white walls, warm daylight]
     unmatched_terms: [linen textiles]
-    warnings: []
+    warnings: ['unmatched ''linen textiles'': textile materials name no slot (fabric_linen is the default fabric)', 'assumed:
+        exterior facade render in white, roof concrete_tiles in anthracite, window_frame as inside (painted_metal_white), door
+        as inside (wood_oak_light), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml
+        (no word for them in the brief)']
   # Milestone 10 (docs/milestone10.md §1.3, §4.8): exterior slots used when neither the brief's exterior: block
   # nor the style text names them; every use is listed as assumed. The user left real02's exterior look open
   # (8 Oct 2026), so these apply there too.

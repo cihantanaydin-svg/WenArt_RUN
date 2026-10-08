@@ -76,6 +76,21 @@ def test_every_vocabulary_slug_has_a_colour_and_a_roughness():
     assert materials.flat_colour("nobody_knows_this") == materials.FLAT_COLOURS["unknown"]
 
 
+def test_milestone_10_slugs_reach_the_blender_tables():
+    """The vocabulary's Milestone 10 entries (procedural looks, flat metals, new veneers) are in the tables Blender reads
+    (flat colour, roughness, albedo mode, metallic) and a procedural entry has no texture set to look for."""
+    for slug in ("paint", "tiles_subway", "wallpaper_botanical", "dark_bronze", "pvc_white", "wood_veneer_oak_light", "metal_brass",
+                 "rattan", "wood_oak_natural", "standing_seam"):
+        assert slug in materials.FLAT_COLOURS and slug in materials.ROUGHNESS, slug
+        assert materials.flat_colour(slug) == pytest.approx((V.MATERIALS.get(slug) or V.FURNITURE_MATERIALS[slug])["flat"]), slug
+    assert materials.metallic("dark_bronze") == 0.8 and materials.metallic("metal_brass") == 1.0 and materials.metallic("paint") == 0.0
+    assert materials.albedo_mode("paint") == ("flat", 0.2) and materials.albedo_mode("wood_oak_natural") == ("texture", None)
+    assert materials.albedo_mode("tiles_subway") == ("flat", 0.0)            # a procedural look: the flat colour, no photo detail
+    texture, why = materials.MaterialLibrary({}, None).texture_set(V.MATERIALS["tiles_subway"]["asset"])
+    assert texture is None and "no asset" in why
+    assert V.MATERIALS["tiles_subway"]["procedural"] == "wenart_tiles" and V.MATERIALS["tiles_subway"]["params"]["pattern"] == "running_bond"
+
+
 # --------------------------------------------------------------------------
 # Licence check on the consumer side
 # --------------------------------------------------------------------------

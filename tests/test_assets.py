@@ -227,7 +227,11 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
     assert assets_main(["fetch", "--style", str(style_path), "--assets", str(tmp_path / "a"), "--strict"]) == 1
     ids = {c[1] for c in calls if c[0] == "texture"}
     assert ids == {"WoodFloor051", "white_plaster_02", "Tiles074", "white_planks_clean", "Metal032",
-                   "rough_linen", "oak_veneer_01", "walnut_veneer"}  # Milestone 6 furniture textures
+                   "rough_linen", "oak_veneer_01", "walnut_veneer",   # Milestone 6 furniture textures
+                   # Milestone 10: the default style's exterior looks (render, concrete roof tiles, pavers, lawn) and the
+                   # furniture veneers (docs/milestone10.md §1.6b row 14); procedural looks have nothing to fetch
+                   "grey_plaster", "grey_roof_01", "large_square_pattern_01", "Grass004",
+                   "oak_veneer_02", "ash_veneer", "white_maple_veneer", "teak_veneer", "black_oak_veneer", "cherry_veneer"}
     assert ("hdri", "kloppenheim_06", "1k") in calls
     out = capsys.readouterr().out
     assert "1 failed" in out and "Tiles074" in out
@@ -242,7 +246,7 @@ def test_vocabulary_ids_exist_on_the_apis():
     rows = network_or_skip(fetch.verify_vocabulary)
     missing = [r for r in rows if not r["exists"]]
     assert not missing, missing
-    assert {r["slug"] for r in rows if r["kind"] == "texture"} == set(V.MATERIALS)
+    assert {r["slug"] for r in rows if r["kind"] == "texture"} == {s for s, e in V.MATERIALS.items() if e.get("asset")}
     assert {r["id"] for r in rows if r["kind"] == "hdri"} == set(V.HDRIS)
     for row in rows:
         if row["kind"] == "texture":
@@ -277,3 +281,75 @@ def test_download_one_texture_set_and_one_hdri(monkeypatch):
     monkeypatch.setattr(web, "get_json", no_network)
     assert fetch.fetch_texture(TEST_TEXTURE, ASSETS, size="1k") == entry
     assert fetch.fetch_hdri(TEST_HDRI, ASSETS, size="1k") == hdri
+
+
+# --------------------------------------------------------------------------
+# Milestone 10 (docs/milestone10.md §4.3, §4.8, §4.9; track C): procedural looks, the check record, new ids
+# --------------------------------------------------------------------------
+
+def test_procedural_looks_have_nothing_to_fetch(tmp_path, monkeypatch):
+    """A profile with tiles, a wallpaper, slats, a standing-seam roof and flat metal frames needs only the textures of its
+    other slots; the fetcher is never asked for an entry without an asset id."""
+    from wenart.style import profile as SP
+
+    profile = SP.profile_from_text("zellige bathroom tiles, sage botanical wallpaper, dark bronze window frames, zinc roof, oak floor")
+    for slug in ("tiles_zellige", "wallpaper_botanical", "dark_bronze", "standing_seam"):
+        assert V.MATERIALS[slug]["source"] == "procedural" and V.MATERIALS[slug]["asset"] is None
+    wanted = SP.assets_in_profile(profile)["textures"]
+    slugs = {slug for _, _, slug in wanted}
+    assert not (slugs & {"tiles_zellige", "wallpaper_botanical", "dark_bronze", "standing_seam"})
+    calls = []
+
+    def fake_texture(asset_id, out_dir, size="2k", source=None, licence=None):
+        calls.append(asset_id)
+        return {"id": asset_id, "source": source, "licence": "CC0", "size_m": [1.0, 1.0], "files": {}}
+
+    monkeypatch.setattr(fetch, "fetch_texture", fake_texture)
+    monkeypatch.setattr(fetch, "fetch_hdri", lambda *a, **k: {"file": "x", "source": "polyhaven"})
+    result = fetch.fetch_for_style(profile, tmp_path, size="1k", log=lambda *_: None)
+    assert result["failed"] == {} and None not in calls and "WoodFloor051" in calls
+    assert len(calls) == len(set(calls))
+
+
+def test_source_of_texture_knows_the_new_ids():
+    assert fetch.source_of_texture("oak_wood_planks") == "polyhaven" and fetch.source_of_texture("Cork002") == "ambientcg"
+    assert fetch.source_of_texture("WoodFloor034") == "ambientcg" and fetch.source_of_texture("PaintedBricks004") == "ambientcg"
+
+
+def test_mean_linear_rgb_and_the_check_record_round_trip(tmp_path):
+    Image.new("RGB", (32, 32), (128, 128, 128)).save(tmp_path / "grey.jpg", quality=100)
+    assert fetch.mean_linear_rgb(tmp_path / "grey.jpg") == pytest.approx([0.216, 0.216, 0.216], abs=0.002)       # sRGB 128 -> 0.2158
+    Image.new("RGB", (4, 4), (255, 0, 0)).save(tmp_path / "red.png")
+    assert fetch.mean_linear_rgb(tmp_path / "red.png", side=2) == [1.0, 0.0, 0.0]
+    checks = {"schema": fetch.CHECKS_SCHEMA, "checked": "2026-10-08", "textures": {}, "hdris": {}, "problems": []}
+    path = fetch.write_checks(checks, tmp_path / "sub" / "checks.json")
+    assert fetch.load_checks(path) == checks and path.read_text(encoding="utf-8").endswith("}\n")
+    assert fetch.load_checks(tmp_path / "missing.json") == {}
+    assert fetch.CHECKS_PATH.name == "asset_checks_m10.json" and fetch.CHECKS_PATH.parent.name == "style"
+
+
+def test_download_support_covers_the_new_poly_haven_ids_and_hdris():
+    """Every new Poly Haven texture of the vocabulary has the jpg maps the downloader reads at 1k and 2k, every HDRI the
+    hdr file (the committed check record of the live APIs, 8 Oct 2026: no new fetch code was needed)."""
+    from wenart.style import finishes as FIN
+
+    checks = fetch.load_checks()
+    for slug, e in list(FIN.MATERIALS.items()) + list(FIN.FURNITURE_MATERIALS.items()):
+        if e.get("source") == "polyhaven":
+            record = checks["textures"][f"polyhaven:{e['asset']}"]
+            for key in polyhaven.TEXTURE_MAPS.values():
+                assert {"1k", "2k"} <= set(record["maps"][key]), (slug, key)
+        if e.get("source") == "ambientcg":
+            record = checks["textures"][f"ambientcg:{e['asset']}"]
+            assert {"1K-JPG", "2K-JPG"} <= set(record["downloads"]) and {"color", "normal", "roughness"} <= set(record["maps"]), slug
+    for mood in ("bright noon", "blue hour", "cloudy soft", "interior evening"):
+        hdri = V.LIGHTING[mood]["hdri"]
+        assert {"1k", "2k"} <= set(checks["hdris"][hdri]["sizes"]) and checks["hdris"][hdri]["hdr_1k_2k"], hdri
+
+
+def test_download_a_new_texture_and_hdri(monkeypatch):
+    """One new Poly Haven texture set (1k) and one new HDRI (1k) through the unchanged downloader (network; cached in assets/)."""
+    entry = network_or_skip(fetch.fetch_texture, "oak_veneer_02", ASSETS, size="1k")
+    assert entry["source"] == "polyhaven" and entry["size_m"] == [1.0, 1.0] and set(entry["files"]) >= {"albedo", "normal", "roughness"}
+    hdri = network_or_skip(fetch.fetch_hdri, V.LIGHTING["cloudy soft"]["hdri"], ASSETS, size="1k")
+    assert hdri["licence"] == "CC0" and (ASSETS / hdri["file"]).is_file()

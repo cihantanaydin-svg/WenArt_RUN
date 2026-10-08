@@ -63,8 +63,8 @@ def _tex(source: str, asset: str, kind: str, flat, roughness: float, size, *, mo
         entry["metallic"] = metallic
     if wet_safe:
         entry["wet_safe"] = True
-    if colourable if colourable is not None else mode == "flat":
-        entry["colourable"] = True
+    if mode == "flat" or colourable is not None:
+        entry["colourable"] = (mode == "flat") if colourable is None else bool(colourable)
     entry["flat_source"] = flat_source
     return entry
 
@@ -81,8 +81,7 @@ def _proc(procedural: str | None, kind: str, flat, roughness: float, *, params: 
         entry["metallic"] = metallic
     if wet_safe:
         entry["wet_safe"] = True
-    if colourable:
-        entry["colourable"] = True
+    entry["colourable"] = bool(colourable)
     entry["flat_source"] = flat_source
     return entry
 
@@ -363,17 +362,18 @@ FLOOR_WORDS: list[tuple[str, str]] = [
     ("sisal", "sisal"), ("jute", "sisal"), ("seagrass", "sisal"), ("coir", "sisal"),
 ]
 
+_WALLPAPER_WORDS = (("striped", "wallpaper_stripe"), ("stripe", "wallpaper_stripe"), ("stripes", "wallpaper_stripe"),
+                    ("botanical", "wallpaper_botanical"), ("floral", "wallpaper_botanical"), ("leaf", "wallpaper_botanical"),
+                    ("geometric", "wallpaper_geometric"), ("checked", "wallpaper_check"), ("check", "wallpaper_check"),
+                    ("gingham", "wallpaper_check"), ("herringbone", "wallpaper_herringbone"))
+
 WALL_WORDS: list[tuple[str, str]] = [
     ("lime plaster", "lime_plaster"), ("limewash", "lime_plaster"), ("lime wash", "lime_plaster"),
     ("venetian plaster", "venetian_plaster"), ("marmorino", "venetian_plaster"),
     ("microcement", "microcement"), ("micro-cement", "microcement"), ("micro cement", "microcement"),
     ("polished plaster", "microcement"),
-    ("striped wallpaper", "wallpaper_stripe"), ("stripe wallpaper", "wallpaper_stripe"),
-    ("botanical wallpaper", "wallpaper_botanical"), ("floral wallpaper", "wallpaper_botanical"),
-    ("leaf wallpaper", "wallpaper_botanical"),
-    ("geometric wallpaper", "wallpaper_geometric"),
-    ("checked wallpaper", "wallpaper_check"), ("check wallpaper", "wallpaper_check"), ("gingham wallpaper", "wallpaper_check"),
-    ("herringbone wallpaper", "wallpaper_herringbone"),
+    *[(f"{word} wallpaper", slug) for word, slug in _WALLPAPER_WORDS],
+    *[(f"wallpaper {word}", slug) for word, slug in _WALLPAPER_WORDS],
     ("grasscloth", "wallpaper_grasscloth"), ("grass cloth", "wallpaper_grasscloth"),
     ("wood slat", "wood_slat"), ("wood slats", "wood_slat"), ("slatted wood", "wood_slat"), ("slat panelling", "wood_slat"),
     ("slat paneling", "wood_slat"), ("slat wall", "wood_slat"), ("fluted wood", "wood_slat"),
