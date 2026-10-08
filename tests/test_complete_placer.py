@@ -174,6 +174,58 @@ def test_a_change_may_not_make_another_piece_fail():
     assert final[0] is pieces[0]
 
 
+def test_a_change_may_not_enter_the_door_swing():
+    """A free nightstand changed into a dresser at its centre: 1.4 m and 1.2 m reach into the door swing, 1.0 m
+    does not."""
+    stand = drawn("f1", "nightstand", (2.9, 0.5), (0.5, 0.4))
+    _b, ctx, pieces, anchors = setup([stand])
+    assert anchors[0]["kind"] == "centre"
+    final, results, base = P.place_changes(pieces, [P.ChangeRequest(0, "dresser", (1.4, 0.5), anchors[0])], ctx)
+    steps = results[0].steps
+    assert base["pieces"] == [[]] and [s["ok"] for s in steps] == [False, False, True]
+    assert all(s["failed"] == ["doors_free"] for s in steps[:2]) and steps[2]["size"] == [1.0, 0.45]
+    assert final[0].polygon().intersection(ctx.doors[0].swing).area < P.AREA_EPS
+
+
+def test_a_change_may_not_raise_a_piece_in_front_of_a_window():
+    """A coffee table under the window (allowed) changed into a 2.1 m tall cabinet: the window rule refuses every
+    size: revert."""
+    table = drawn("f1", "table_coffee", (0.5, 2.0), (1.0, 0.6), rotation=90.0, front=None)
+    _b, ctx, pieces, anchors = setup([table], "living")
+    final, results, _base = P.place_changes(pieces, [P.ChangeRequest(0, "tall_cabinet", (0.6, 0.6), anchors[0])], ctx)
+    steps = results[0].steps
+    assert [s["step"] for s in steps] == ["place", "shrink", "revert"]
+    assert all("windows_free" in s["failed"] for s in steps[:2])
+    assert not results[0].applied and final[0].type == "table_coffee"
+
+
+def test_a_deeper_piece_against_a_wall_keeps_its_wall_contact():
+    wardrobe = drawn("f1", "wardrobe", (2.5, 0.32), (1.2, 0.6), rotation=180.0, front=90.0)   # back on the south wall
+    _b, ctx, pieces, anchors = setup([wardrobe])
+    assert anchors[0] == {"kind": "back_edge", "point": [2.5, 0.02], "wall_id": "w_s"}
+    final, results, _base = P.place_changes(pieces, [P.ChangeRequest(0, "tall_cabinet", (0.8, 0.6), anchors[0])], ctx)
+    assert results[0].applied and final[0].center == pytest.approx((2.5, 0.32))
+    assert P.check_all(final, ctx)[0]["wall_contact"] is True
+
+
+def test_added_pieces_are_repaired_off_doors_and_windows():
+    sofa = drawn("f1", "sofa", (2.5, 3.53), (2.2, 0.9))
+    _b, ctx, pieces, _a = setup([sofa], "living")
+    result = P.place([prop("dresser", (4.3, 0.3), 0.0, (1.2, 0.5)),                        # on the door strip
+                      prop("bookshelf", (0.2, 2.0), 270.0, (1.0, 0.35), wall=True)],      # tall, at the window
+                     ctx, obstacles=pieces)
+    placed = {p.type: p for p in result.pieces}
+    assert set(placed) == {"dresser", "bookshelf"}                              # both slid, none dropped
+    for p in result.pieces:
+        assert p.polygon().intersection(ctx.doors[0].zone).area < P.AREA_EPS
+        assert p.polygon().intersection(ctx.doors[0].swing).area < P.AREA_EPS
+    assert placed["bookshelf"].polygon().intersection(ctx.windows[0].band).area < P.AREA_EPS
+    steps = {(e["type"], e["step"]): e for e in result.log}
+    assert "doors_free" in steps[("dresser", "slide")]["failed"]
+    assert "windows_free" in steps[("bookshelf", "slide")]["failed"]
+    assert all(not P.failed_checks(c) for c in result.checks)
+
+
 def test_a_check_the_drawn_layout_already_fails_is_not_counted_against_the_change():
     """A chair drawn on the door's approach strip fails doors_free as drawn; changing it into an office chair
     at the same anchor keeps that failure (drawn_layout) and is applied."""
