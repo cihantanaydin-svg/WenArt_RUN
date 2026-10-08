@@ -8,14 +8,20 @@ whose strokes lie inside the region box (texts by their insertion point), with t
 header says mm; A1's unit check corrects it). Each region then runs through ``core.extract`` (``--no-ai``; the corner
 sofas also with fake agreeing answers).
 
-What is read per region (the targets of the track):
+What is read per region (the targets of the track), and what is not (listed):
 
-| Region | Read | Not read (listed) |
-|---|---|---|
-| ground floor | closed walls of both dwellings (party wall 0.40 m), 12 labelled rooms in 12 faces, 12 doors, 4 glazed openings (windows), 2 stairs (2 flights each), 4 WCs, 4 washbasins, 4 wardrobes, 2 double beds (block YATAK split from its nightstands) | single beds, desks, nightstands stay AI candidates; the E. Yatak wardrobes are read by the counter rule (unverified, not in a kitchen) |
-| basement | closed walls, Banyo, Mutfak, Koridor (with the stair, an end-to-face separator) and Salon faces, 4 doors, windows, 2 stairs, the two drawn L-shaped corner sofas (``sofa_corner``, ``shape: L``, chaise sides mirrored) | the kitchen run (one cluster > 4.5 m), the dining tables are 3.35 x 1.57 m with their chairs (block ``masa``, unverified) |
-| basement "Açık mutfak" | closed walls, Banyo, Oda, Koridor faces, 4 doors, 2 stairs | Açık Mutfak and Salon share one face: no wall or wall end is drawn between them |
-| attic | closed walls, Teras, Banyo, Koridor, Oyun Aktivite faces, 6 doors, windows, 2 stairs | the roof break line clusters (> 4.5 m) |
+- ground floor: closed walls of both dwellings (party wall 0.40 m), 12 labelled rooms in 12 faces, 12 doors, 4 glazed
+  openings (windows), 2 stairs (2 flights each), 4 WCs, 4 washbasins, 4 wardrobes, 2 double beds (block YATAK split
+  from its nightstands). Not: single beds, desks and nightstands stay AI candidates; the E. Yatak wardrobes are read
+  by the counter rule (unverified, not in a kitchen).
+- basement: closed walls, the Banyo, Mutfak, Koridor (with the stair; an end-to-face separator) and Salon faces,
+  4 doors, 4 windows, 2 stairs, the two drawn L-shaped corner sofas (candidates with ``l_outline``, chaise sides
+  mirrored; ``sofa_corner`` with agreeing answers). Not: the kitchen run (one cluster > 4.5 m), the dining tables
+  (block ``masa``, 3.35 x 1.57 m with their chairs: unverified).
+- basement "Açık mutfak": closed walls, the Banyo, Oda and Koridor faces, 4 doors, 2 windows, 2 stairs. Not: Açık
+  Mutfak and Salon share one face (no wall or wall end is drawn between them).
+- attic: closed walls, the Teras, Banyo, Koridor and Oyun Aktivite faces, 6 doors, 2 windows, 2 stairs. Not: the roof
+  break-line clusters (> 4.5 m, unknown).
 """
 from __future__ import annotations
 

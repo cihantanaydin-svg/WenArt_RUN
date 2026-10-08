@@ -387,7 +387,8 @@ def test_operation_of_swing_double_and_sliding_doors():
     assert (openings[0].operation, openings[0].operation_source) == ("double", "geometry")
     # Two leaves drawn parallel to the wall, each shorter than the gap, no arc: a sliding door.
     walls = [R.wall((0, 0), (2, 0)), R.wall((3.6, 0), (6, 0))]
-    leaves = [R.stroke(R.rect(2.0, -0.04, 2.9, -0.01), closed=True), R.stroke(R.rect(2.7, 0.01, 3.6, 0.04), closed=True)]
+    leaves = [R.stroke(R.rect(2.0, -0.04, 2.9, -0.01), closed=True),
+              R.stroke(R.rect(2.7, 0.01, 3.6, 0.04), closed=True)]
     _, openings, log, owned = _run(walls, leaves)
     assert [o.kind for o in openings] == ["door"] and openings[0].swing_point is None
     assert (openings[0].operation, openings[0].operation_source) == ("sliding", "geometry")

@@ -210,7 +210,7 @@ def question_facts(candidate: dict, kind: str = "vector", table: Optional[dict] 
              "size_m": _cm(size[:2]) if size is not None and len(size) >= 2 else None, "room": None,
              "neighbours": None}
     if shape == "L":
-        facts["shape"] = "L"                   # only when drawn: the facts (and hashes) of other items stay as they were
+        facts["shape"] = "L"                   # only when drawn: the facts (and hashes) of other items stay
     if kind == "raster":
         return facts
     label = _clean_label(candidate.get("room_label"))

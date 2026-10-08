@@ -16,10 +16,10 @@
 
 ``separators`` closes open-plan faces only where the drawing needs it: candidates come only from free wall ends
 whose end gap was empty (*end-to-wall*: the empty end gap itself, <= 2.4 m; *end-to-end*: two free ends of parallel
-walls whose end faces lie within 0.20 m of one perpendicular line, <= 2.4 m apart; *end-to-face*: a free end whose
-cast met no wall, on along its axis to the first wall or opening within 2.4 m, real02's basement). A candidate is kept only when a
-face holding >= 2 room-name blocks gets fewer per face, or when it separates a stair from a labelled face; the others
-are logged "considered, not needed".
+walls whose end faces lie within 0.20 m of one perpendicular line, <= 2.4 m apart; *end-to-face*, only while two
+names still share a face: a free end whose cast met no wall, on along its axis to the first wall or opening within
+2.4 m, real02's basement). A candidate is kept only when a face holding >= 2 room-name blocks gets fewer per face, or
+when it separates a stair from a labelled face; the others are logged "considered, not needed".
 
 All geometry is in page metres (y up). Review reasons are returned as warnings starting with ``REVIEW_PREFIX``.
 """

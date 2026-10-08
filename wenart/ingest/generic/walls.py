@@ -12,7 +12,11 @@ rectangles of the synthetic PDFs. This module turns any of these into ``WallItem
    - *outline walls*: closed stroked polygons of 4-12 vertices, minimum width 0.05-0.60 m, length >= 0.4 m, with no
      other stroke inside -> 0.8;
    - *DXF hatches/solids* on wall-hint layers -> 0.95 (the paths of one entity are filled even-odd);
-   - a raster page's own mask -> ``raster`` 0.85.
+   - a raster page's own mask -> ``raster`` 0.85;
+   - Milestone 10, only when the primitives above close in fewer than 70 % of the room labels: *face pairs*, walls
+     drawn as one line per face (real02), of the layer chosen by the labels -> 0.8, ``rule`` ``face_pairs``, the
+     choice and the runner-up in the evidence note (section 1b below). Their face-pair walls snap to their own
+     edges, and an end that stops short of a perpendicular wall's face by <= 1.5 mask pixels is moved onto it.
 2. ``wall_mask``: everything rasterised at 10 mm/px in page metres (polygons even-odd per primitive; hatch lines 1 px
    wide, then a 3 x 3 closing and a 1 px erosion); components < 0.02 m² are dropped. The result is a ``WallMask``
    (a ``MaskLayer`` that also remembers which primitive drew each pixel, for the evidence).
@@ -121,7 +125,7 @@ class WallPrim:
     direction_deg: Optional[float] = None       # hatch direction
     step_m: Optional[float] = None              # hatch comb step
     layer: Optional[str] = None                 # face pairs: the wall layer chosen by evidence
-    faces: list = field(default_factory=list)   # face pairs: the two face lines (snap targets), page metres
+    faces: list = field(default_factory=list)   # face pairs: the edges of the piece (snap targets), page metres
     note: Optional[str] = None                  # face pairs: the layer choice (and the runner-up)
 
     def describe(self) -> dict:
@@ -496,10 +500,6 @@ class _Pair:
     def ids(self) -> list[str]:
         return sorted(set(self.lines[0].ids) | set(self.lines[1].ids))
 
-    def faces(self, lo: Optional[float] = None, hi: Optional[float] = None) -> list:
-        lo, hi = (self.lo if lo is None else lo), (self.hi if hi is None else hi)
-        return [(self.point(lo, ln.off), self.point(hi, ln.off)) for ln in self.lines]
-
 
 @dataclass
 class _Element:
@@ -507,7 +507,6 @@ class _Element:
     kind: str                       # face_pair | column | face_join
     polygon: Polygon
     ids: list[str]
-    faces: list = field(default_factory=list)
     left_out: float = 0.0           # columns: the area outside the wall bands (m²), not modelled
 
 
@@ -526,12 +525,15 @@ def _layer_key(st: Stroke) -> str:
     return f"style {colour} {round(st.width, 3)}"
 
 
-def _straight_pieces(page: GenericPage, s: float) -> dict[str, list[tuple[str, tuple, tuple]]]:
-    """Straight pieces (page metres) of every unfilled, non-curved stroke per layer; layers that never plot are
-    left out. A polyline whose ends meet gets its closing piece."""
+def _straight_pieces(page: GenericPage, s: float, skip: set = frozenset()) -> dict[str, list]:
+    """Straight pieces (page metres) of every unfilled, non-curved stroke per layer, except the strokes of other
+    primitives (``skip``: hatch lines are no faces); layers that never plot are left out. A polyline whose ends meet
+    gets its closing piece."""
     out: dict[str, list] = {}
     for st in page.strokes:
         if st.fill is not None or st.arc is not None or st.kind not in ("line", "polyline") or len(st.pts) < 2:
+            continue
+        if st.id in skip:
             continue
         if st.layer and st.layer.upper() in NEVER_PLOTTED_LAYERS:
             continue
@@ -695,11 +697,12 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     and the joins where a face of a primary pair runs on to wall material (see the section comment).
 
     A column joins the network only inside the bands of the wall pieces that end on it, run on through it (the
-    corner, T or cross it makes), or that run through it; what stands out of the walls into a room (real02: 40 cm columns in 20 cm outer
-    walls) is no wall piece of its own, or ``openings`` would chain the column stubs along a wall into a second,
-    thicker wall across the windows. A column ``_Element`` keeps that left-out area in ``left_out``."""
+    corner, T or cross it makes), or that run through it; what stands out of the walls into a room (real02: 40 cm
+    columns in 20 cm outer walls) is no wall piece of its own, or ``openings`` would chain the column stubs along a
+    wall into a second, thicker wall across the windows. A column ``_Element`` keeps that left-out area in
+    ``left_out``."""
     prim_pairs = [p for p in pairs if p.primary]
-    elems = [_Element("face_pair", p.polygon(), p.ids(), p.faces()) for p in prim_pairs]
+    elems = [_Element("face_pair", p.polygon(), p.ids()) for p in prim_pairs]
     cols = [(poly, sid) for poly, sid in columns
             if any(_ends_on(p, poly) or _runs_through(p, poly) for p in prim_pairs)]
     # A short piece shorter than it is thick is a wall end's cap line paired with the face of the wall it meets
@@ -711,7 +714,7 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
                                                   predicate="intersects"))]
         if not keep:
             break
-        elems.extend(_Element("face_pair", p.polygon(), p.ids(), p.faces()) for p in keep)
+        elems.extend(_Element("face_pair", p.polygon(), p.ids()) for p in keep)
         rest = [p for p in rest if p not in keep]
     accepted = prim_pairs + [p for p in pairs if not p.primary and p.hi - p.lo >= p.width - 1e-9 and p not in rest]
     # Joins first, against the whole columns (a face hidden behind a wardrobe runs on to a column's side) ...
@@ -744,7 +747,7 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
         left = poly.area - part.area
         for g in (getattr(part, "geoms", [part]) if not part.is_empty else []):
             if g.geom_type == "Polygon" and g.area > 1e-8:
-                elems.append(_Element("column", g, [sid], [], left_out=left))
+                elems.append(_Element("column", g, [sid], left_out=left))
                 left = 0.0
     return elems
 
@@ -782,7 +785,7 @@ def _join(p: _Pair, line: _Line, side: int, elems: list[_Element], tree) -> Opti
             return None
     elif not (touched and run <= PAIR_EXTEND_M + 1e-9):
         return None
-    return (_Element("face_join", p.polygon(a, b), list(line.ids), [f for f in p.faces(a, b)]),
+    return (_Element("face_join", p.polygon(a, b), list(line.ids)),
             _Pair(p.layer, p.u, p.n, a, b, p.lines))
 
 
@@ -858,7 +861,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim])
         return prims, choice
     columns = _column_candidates(page, s)
     rows = []
-    for layer, pieces in _straight_pieces(page, s).items():
+    for layer, pieces in _straight_pieces(page, s, {i for p in prims for i in p.stroke_ids}).items():
         pairs: list[_Pair] = []
         long_lines = paired = 0
         for u, n, group in _direction_groups(pieces):
