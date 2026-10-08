@@ -528,7 +528,8 @@ def build_site(plan: dict, collection, materials: dict, manifest_objects: list, 
 
     terrain = plan["terrain"]
     holes = [plan["outline"]] + [w["polygon"] for w in plan["wells"]]
-    summary = {"built": True, "mode": plan["mode"], "objects": [], "terrain": {
+    summary = {"built": True, "mode": plan["mode"], "objects": [],
+               "reason": f"brief site: {plan['mode']} (docs/milestone10.md §3.2 item 5)", "terrain": {
         "kind": terrain["kind"], "z": {k: round(v, 4) for k, v in terrain["z"].items()}, "sides": terrain["sides"],
         "north_deg": terrain["north_deg"], "north_source": terrain["north_source"]},
         "plot_source": plan["plot_source"], "not_built": plan["not_built"], "warnings": plan["warnings"]}
