@@ -48,5 +48,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-04 16:14 | 7h2d98i2io3k2l | NVIDIA GeForce RTX 5090 | 96 | 1.58 | M9 L3: rest of the TRELLIS.2 generation plan to 20 per type, thumbnails, two-model judging, accept, catalogue | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-06 07:16 | 1c3cvhjn3c6t3c | NVIDIA RTX PRO 6000 Blackwell Server Edition | 19 | 0.67 | M9 F2: full run of real01 with the final library (453 + 152, pod L3), AI decor, 3D files | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-06 14:48 | l1mybdmvk9ratb | NVIDIA GeForce RTX 4090 | 7 | 0.09 | real02: full run of the user's DWG with the style photo, AI decor, 3D files | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-08 17:12 | pending:20261008-171255-prep | RTX 5090 | 120 | 2.38 | M10 L1: library with the new types and material slots (ABO + Objaverse survey, thumbnails, recolour slots, two-model judging, catalogue) and the sheet/recognition answers of real02, synthetic-07, real01, synthetic-03 | creating (provisional, worst case) |
 
-**Total spent so far: $33.80** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $36.18** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
