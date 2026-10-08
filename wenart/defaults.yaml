@@ -60,13 +60,13 @@ brief:
   variants: all                    # all | base | a list of alternative names (as titled)
   failed_levels: leave_out         # leave_out (listed, levels above too) | stop (the project ends needs_review)
   site: full                       # full = plot, paving, grass, plot wall, parking as drawn | ground = a neutral ground plane
-  exterior:                        # words for the outside; empty = style words where they fit, else style.exterior_fallback (assumed)
-    facade: null
-    roof: null
-    window_frame: null
-    door: null
-    paving: null
-    garden: null
+  exterior:                        # words for the outside; "" = style words where they fit, else style.exterior_fallback (assumed)
+    facade: ""
+    roof: ""
+    window_frame: ""
+    door: ""
+    paving: ""
+    garden: ""
   render:
     views_per_room: 3
     resolution: [1920, 1080]
