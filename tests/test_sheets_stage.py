@@ -365,3 +365,14 @@ def test_an_untitled_section_at_the_frame_edge_stays_a_section(tmp_path, monkeyp
     assert section["class"] == "section" and section["use"] == "heights"
     assert res.doc["heights"]["section_regions"] == [section["id"]]
     assert res.doc["heights"]["levels"][-1]["floor_z"]["method"] == "vector"
+
+
+def test_steps_outside_the_walls_keep_the_cut_axis(tmp_path):
+    # Review finding 4: the section width is checked against the outer walls' extent, not the stroke outline with an
+    # entrance step 30 cm outside the west wall: the cut axis, the ground sides and the gable ridge stay.
+    res = _run(tmp_path, step=True)
+    h = res.doc["heights"]
+    assert h["cut_axis"] == "x" and [g["side"] for g in h["ground"]] == ["left", "right"]
+    assert not [c for c in res.doc["conflicts"] if c["kind"] == "section_width_mismatch"]
+    roof = res.doc["exterior"]["roof"]
+    assert roof["type"] == "gable" and roof["ridge_lines"]

@@ -280,11 +280,14 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
     top = max(base, key=lambda lv: lv.get("order") or 0) if base else None
     assumed = list((ex or {}).get("assumed") or [])
     profile = None
+    axis = heights.get("cut_axis")
     if hroof.get("profile"):
-        axis = heights.get("cut_axis")
-        ds = shift[0] if axis == "x" else shift[1] if axis == "y" else 0.0
+        # s runs from the building's min outer wall face along the axis: the core's frame already (no shift).
         profile = {"region_id": (heights.get("section_regions") or [None])[0], "cut_axis": axis,
-                   "points": [[round(p[0] - ds, 4) + 0.0, p[1]] for p in hroof["profile"]], "method": "vector"}
+                   "points": [[p[0], p[1]] for p in hroof["profile"]], "method": "vector"}
+    # A ridge read from the section: its position along the cut axis is a profile s (no shift); its ends come from
+    # the roof outline (the sheets frame: shifted).
+    across = (0.0, shift[1]) if axis == "x" else (shift[0], 0.0) if axis == "y" else shift
     roof = {"type": (ex or {}).get("type") or "other", "type_source": (ex or {}).get("type_source") or "assumed",
             "over_level_id": top["id"] if top else None,
             "eaves_height": hroof.get("eaves_z"), "ridge_height": hroof.get("ridge_z"),
@@ -292,7 +295,8 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
             "thickness": hroof.get("thickness"), "knee_wall": hroof.get("knee_wall"), "profile": profile,
             "outline": moved((ex or {}).get("outline"), shift),
             "break_line": moved((ex or {}).get("break_line"), shift),
-            "ridge_lines": [moved(r, shift) for r in (ex or {}).get("ridge_lines") or []], "planes": [], "openings": [],
+            "ridge_lines": [moved(r, across) for r in (ex or {}).get("ridge_lines") or []], "planes": [],
+            "openings": [],
             "covering": (ex or {}).get("covering"), "covering_colour": None,
             "covering_source": (ex or {}).get("covering_source") if (ex or {}).get("covering") else None,
             "assumed": assumed, "evidence": list((ex or {}).get("evidence") or [])}

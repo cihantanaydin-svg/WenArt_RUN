@@ -290,7 +290,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     ref_extent = None
     if reference is not None and reference.id in outlines:
         b = outlines[reference.id].bounds
-        ref_extent = (b[2] - b[0], b[3] - b[1])
+        # The outline's box and the extent most of it reaches (an entrance step outside the walls left out).
+        ref_extent = [(b[2] - b[0], b[3] - b[1]), RG.wall_extent(outlines[reference.id])]
     cut = RG.cut_line(read_plans, sections[0]) if sections and reference is not None and outlines else None
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
                                   sections[0].file if sections else None, conflict, cut)

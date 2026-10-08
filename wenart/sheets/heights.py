@@ -431,11 +431,15 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
     # Cut axis.
     width_m = section.width * s
     if reference_extent is not None:
+        # One (width, height) or several: the outline's box and the extent most of the outline reaches.
+        extents = [reference_extent] if isinstance(reference_extent[0], (int, float)) else list(reference_extent)
+        reference_extent = extents[0]
         fits = []
-        for axis, ext in zip(("x", "y"), reference_extent):
-            tol = max(SECTION_WIDTH_TOL[0] * ext, SECTION_WIDTH_TOL[1])
-            if abs(width_m - ext) <= tol:
-                fits.append((abs(width_m - ext), axis))
+        for ext_xy in extents:
+            for axis, ext in zip(("x", "y"), ext_xy):
+                tol = max(SECTION_WIDTH_TOL[0] * ext, SECTION_WIDTH_TOL[1])
+                if abs(width_m - ext) <= tol:
+                    fits.append((abs(width_m - ext), axis))
         if fits:
             out["cut_axis"] = min(fits)[1]
             if cut is not None and cut["axis"] != out["cut_axis"]:

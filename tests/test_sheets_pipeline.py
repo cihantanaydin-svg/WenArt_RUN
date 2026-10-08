@@ -273,6 +273,9 @@ def test_the_building_origin_is_the_reference_walls_not_the_sheets_outline(tmp_p
     xs = [p[0] for p in building["roof"]["outline"]]
     assert (min(xs), max(xs)) == pytest.approx((-0.5, 10.5), abs=0.02)
     assert building["roof"]["profile"]["points"][0][0] == pytest.approx(-0.5, abs=0.02)
+    # The cut axis survives the step (review finding 4); the ridge sits over the walls' middle.
+    assert building["roof"]["profile"]["cut_axis"] == "x"
+    assert building["roof"]["ridge_lines"] == [[[5.0, -0.5], [5.0, 8.5]]]
 
 
 def test_a_copy_of_a_level_is_cross_checked_not_an_alternative(tmp_path):

@@ -370,6 +370,28 @@ SITE_SIZE_TOL = (0.05, 0.30)          # a site plan's building outline: within 5
 SITE_RESIDUAL_MAX_M = 0.30            # site plans are drawn coarser (1/200, 1/500)
 
 
+CHORD_SHARE = 0.8                     # wall_extent: the chord length most cross-sections reach
+CHORD_SAMPLES = 41
+
+
+def wall_extent(outline_m: Polygon) -> tuple[float, float]:
+    """(x, y) extent of the outline that most of it reaches: per axis, the 80th-percentile chord length over 41
+    cross-sections. A protrusion along less than 20 % of the other side (entrance steps, a stair, a terrace edge
+    line) does not count, unlike in the box of the outline."""
+    b = outline_m.bounds
+    out = []
+    for axis in ("x", "y"):
+        lo, hi = (b[1], b[3]) if axis == "x" else (b[0], b[2])
+        chords = []
+        for k in range(CHORD_SAMPLES):
+            c = lo + (hi - lo) * (k + 0.5) / CHORD_SAMPLES
+            ray = LineString([(b[0] - 1.0, c), (b[2] + 1.0, c)] if axis == "x" else [(c, b[1] - 1.0), (c, b[3] + 1.0)])
+            chords.append(ray.intersection(outline_m).length)
+        chords.sort()
+        out.append(chords[min(len(chords) - 1, int(CHORD_SHARE * len(chords)))])
+    return out[0], out[1]
+
+
 def register_site(region, reference, reference_outline: Polygon, warnings: list) -> bool:
     """Registers a site plan onto the reference plan through the building's outline drawn on it (``site_outline``):
     a closed polyline of the reference outline's size (either way round), fitted at 0/90/180/270 degrees by the

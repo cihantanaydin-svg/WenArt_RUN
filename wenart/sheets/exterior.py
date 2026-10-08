@@ -550,6 +550,8 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             roof["also_seen_in"] = ["elevation"]
             roof["evidence"] = roof["evidence"] + [_ev(r, e, "gable_end") for r, e in ends[:1]]
         roof["ridge_lines"] = ridge_lines(roof, heights, reference_outline)
+        if not roof["ridge_lines"]:
+            roof.setdefault("assumed", []).append("ridge direction (the section's cut direction is unknown)")
         if roof["ridge_lines"]:
             roof.setdefault("assumed", []).append("the ridge runs across the cut (a gable read from one section)")
     if roof is not None:
