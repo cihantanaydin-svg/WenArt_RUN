@@ -10,7 +10,6 @@ import json
 from pathlib import Path
 
 import numpy as np
-import pytest
 
 from test_report import links, make_project, stage_record, write_json
 from wenart import views as VW

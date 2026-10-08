@@ -24,6 +24,15 @@ What it does for ``kind="run"`` (the milestone result):
 6. Previews of the final attempts, ``determinism.json`` (the
    ``determinism_view`` polished twice with the same seed), the report.
 
+Exterior views (Milestone 10, docs/milestone10.md §3.3 items 3 and 5): a camera of kind ``exterior`` has no
+room, so its prompt is built from the build's outside looks (``prompt.build_exterior_prompt``: scene manifest
+``exterior_looks``, the camera's ``view`` and lens), not from the furniture. The exterior views are calibrated and
+validated apart from the rooms (``gate_calibration.json`` ``exterior``; ``wenart.gate.calibrate.exterior_polish``,
+the base project's calibration for an alternative's sub-output): when that decision does not allow the polish
+(``polish_disabled``, ``not_validated``, ``not_applicable`` or unreadable) every exterior view keeps the Cycles
+render before any attempt (``final: cycles``, reason ``gate``, a note, no gate reference, no model prompt) and the
+rooms are polished as usual. The decision is the manifest's ``exterior_gate``; each view entry has ``view_kind``.
+
 ``sweep`` runs every attempt of a grid on every view, each gated, no early
 stop, into ``polish/sweep/`` (``--views auto`` = ``expected.sweep_views(...,
 n=4)``); ``smoke`` runs the 4 smoke settings on a few views into

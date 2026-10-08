@@ -316,3 +316,23 @@ def test_run_and_combine_an_exterior_project_with_a_fake_model(tmp_path):
     report = (project.out / "check" / "check_report.md").read_text(encoding="utf-8")
     assert "## Exterior views" in report and "| ext_1 | south |" in report
     assert "## Elevation check" in report and "## Drawn pieces against the source plan" in report
+
+
+def test_the_check_calibration_keeps_the_exterior_views_apart():
+    """A facade the models count badly must not switch the check of the rooms to advisory."""
+    from wenart.vision_check.calibrate import calibrate
+    from wenart.vision_check.config import load_config
+
+    def entry(result):
+        return {"verdict": "ok", "elements": {"w": {"role": "required", "result": result, "passes": {}}},
+                "extras": [], "counts": {}, "not_computed": []}
+
+    manifest = {"project": "toy", "model_keys": [], "single_pass": False,
+                "views": {"cam_a": {"cycles": entry("ok"), "view_kind": "interior"},
+                          "ext_1": {"cycles": entry("missing"), "view_kind": "exterior"},
+                          "cam_old": {"cycles": entry("ok")}}}
+    metrics = calibrate(manifest, load_config())["metrics"]
+    assert metrics["fa_missing"] == 0.0 and metrics["baseline"]["views"] == 2
+    assert metrics["exterior"]["fa_missing"] == 1.0 and metrics["exterior"]["views"] == 1
+    del manifest["views"]["ext_1"]
+    assert "exterior" not in calibrate(manifest, load_config())["metrics"]

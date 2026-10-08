@@ -27,7 +27,7 @@ from wenart.blender import shell
 from wenart.gate import calibrate as CAL
 from wenart.gate import validate as VAL
 from wenart.polish import prompt as PR
-from wenart.polish.runner import Deps, is_exterior_camera, run_polish
+from wenart.polish.runner import is_exterior_camera, run_polish
 from wenart.polish.schema import validate_manifest
 from wenart.style import vocabulary as VOC
 
