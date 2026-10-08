@@ -76,6 +76,9 @@ _UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", "attribution")
 # ... and of every library model (Milestone 8).
 LIBRARY_META = OBJAVERSE_META + ("licence_flag",)
+# ... and, copied only when the catalogue entry has them (Milestone 10, wenart/assets/recolour.py): the material fields
+# of the two judges and the species / pot of a generated large plant.
+LIBRARY_OPTIONAL = ("material_slots", "material_tags", "recolourable_fabric", "recolourable_wood", "species", "pot")
 
 # glTF component types -> struct format and byte size.
 _COMPONENT = {5120: ("b", 1), 5121: ("B", 1), 5122: ("h", 2), 5123: ("H", 2), 5125: ("I", 4), 5126: ("f", 4)}
@@ -308,7 +311,8 @@ def fetch_library_cached(asset_id: str, out_dir: Path, source: str, licence: str
     ``licence_flag`` and, for a generated model, ``generated``. Raises ``fetch.AssetNotFound`` when the file is
     missing or its sha256 differs from the catalogue's; the manifest entry is ``{"id", "source", "licence", "files":
     {"glb": rel}, "sha256": {"glb": hex}, "uid", "title", "author", "source_url", "licence_url", "via",
-    "attribution", "licence_flag", ["generated",] "cache_only": true, "fetched_utc"}``."""
+    "attribution", "licence_flag", ["generated",] [the ``LIBRARY_OPTIONAL`` material fields, species, pot,] "cache_only":
+    true, "fetched_utc"}``."""
     out_dir = Path(out_dir)
     meta = dict(meta or {})
     sha = str(meta.get("sha256_glb") or "")
@@ -330,6 +334,7 @@ def fetch_library_cached(asset_id: str, out_dir: Path, source: str, licence: str
              **{k: meta.get(k) for k in keep}}
     if source == "generated" and meta.get("generated") is not None:
         entry["generated"] = meta["generated"]
+    entry.update({k: meta[k] for k in LIBRARY_OPTIONAL if meta.get(k) is not None})
     manifest = fetch.load_manifest(out_dir)
     models = _manifest_models(manifest)
     old = models.get(asset_id)

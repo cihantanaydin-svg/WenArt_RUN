@@ -122,10 +122,12 @@ def pairs_of(doc) -> set:
 def test_config_covers_every_type_and_family():
     types = G.plan_types(CFG)
     assert set(CFG["exclude_types"]) == set(FIXED)
-    assert set(types) == set(C.FURNITURE_TYPES) - set(FIXED)
-    # Milestone 9 (docs/milestone9.md §2.3): the decor types the generator makes have words and hints too.
-    assert G.decor_types(CFG) == ["vase", "bowl", "plant_small"] and set(G.decor_types(CFG)) <= set(C.DECOR_TYPES)
-    assert G.target_types(CFG) == types + ["vase", "bowl", "plant_small"]
+    assert set(types) == set(OV.furniture_types()) - set(FIXED) and set(C.FURNITURE_TYPES) - set(FIXED) <= set(types)
+    # Milestone 9 (docs/milestone9.md §2.3): the decor types the generator makes have words and hints too; Milestone 10
+    # adds the decor types ABO cannot fill (docs/milestone10.md §4.6).
+    decor = G.decor_types(CFG)
+    assert decor[:3] == ["vase", "bowl", "plant_small"] and set(decor) <= set(OV.DECOR_TYPES)
+    assert G.target_types(CFG) == types + decor
     assert set(CFG["type_words"]) == set(G.target_types(CFG)), "type_words must name every generated type"
     assert set(CFG["fixture_types"]) <= set(types)
     families = G.known_families()
@@ -209,7 +211,7 @@ def test_plan_never_lists_fixed_equipment(tmp_path):
     empty = accepted_list(tmp_path / "accepted.json", [])
     doc = plan_of(tmp_path, [empty], ["rustic"])
     planned = {p["type"] for p in doc["pairs"]}
-    assert planned == set(C.FURNITURE_TYPES) - set(FIXED)
+    assert planned == set(OV.furniture_types()) - set(FIXED)
     assert not planned & set(FIXED) and doc["excluded_types"] == list(FIXED)
     with pytest.raises(G.UsageError):
         G.parse_types("stair", CFG)

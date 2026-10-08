@@ -30,6 +30,19 @@ Milestone 8 (docs/milestone8.md §1, §2; user decisions 3 and 4 of 4 Oct 2026):
   ``catalog_objaverse.json`` is only a fallback there) with the GLBs in ``<assets>/models/<source>/<uid>.glb``; the
   report and ``ATTRIBUTION.md`` list every source, credit line and licence flag.
 
+Milestone 10 (docs/milestone10.md §4.5, §4.6, §7 pods L1 and L2): 14 new furniture types and 12 new decor types.
+``objaverse.yaml`` gets their heights and fronts (``types``), footprints (``furniture_sizes``, ``decor_sizes``; the
+library's own ranges, they win over ``size_table.yaml``) and LVIS categories; ``TYPE_WORDS`` / ``DECOR_WORDS`` /
+``FRONT_WORDS_BY_TYPE`` hold what each one is and where its front is (the Milestone 8 / 9 questions are byte-identical,
+so their stored answers stay current). The survey reads two new things per ``categories`` entry: ``lvis`` (the LVIS
+name it reads, so several entries may split one broad category: ``cabinet`` into sideboards, shoe, display, tall and
+wall cabinets) and ``require_words`` (the title or a tag must hold one of them; an entry with words wins over the
+plain entries of its LVIS category, two matching entries of different types refuse the object ``several_types``);
+Objaverse objects of a decor type are ``kind: decor``. ``JudgeSpec`` lets the same judging (store, workers, deadline,
+exit codes) ask another task: ``wenart/assets/recolour.py`` asks the material of every slot of an accepted model and
+``write-catalog`` copies its four fields (``MATERIAL_FIELDS``) into the entry; a generated plant keeps its ``species``
+and ``pot``. ``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
+
 The steps as Milestone 7 built them (the Milestone 8 changes above apply on top of this text):
 
 1. ``survey``: downloads ``lvis-annotations.json.gz``, ``object-paths.json.gz`` and the metadata shards into the
@@ -114,6 +127,7 @@ import subprocess
 import sys
 import threading
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -145,7 +159,10 @@ SOURCES: tuple[str, ...] = tuple(SURVEY_FILES)
 REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan follows their accepted models
 SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")   # rank order of docs/milestone8.md §2
 DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",             # = catalog.DECOR_TYPES
-                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9 (§3)
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9 (§3)
+                                 # Milestone 10 (docs/milestone10.md §1.1: the building schema's decor types, bar book_set)
+                                 "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
+                                 "sculpture", "plant_large", "pendant_light", "ceiling_light")
 BED_TYPES: tuple[str, ...] = ("bed_single", "bed_double")
 DOCUMENTED_RULE = "documented"                        # a front only the source's documented convention decides
 THUMBS_JSON = "thumbnails.json"
@@ -283,12 +300,27 @@ def load_size_table(path: Optional[Path] = None) -> tuple[dict, float]:
 
 
 def library_size_table(cfg: dict, path: Optional[Path] = None) -> tuple[dict, float]:
-    """``load_size_table`` plus the decor footprints of ``objaverse.yaml`` ``decor_sizes`` (docs/milestone8.md §4)."""
+    """``load_size_table`` plus the decor footprints of ``objaverse.yaml`` ``decor_sizes`` (docs/milestone8.md §4) and,
+    Milestone 10, the footprints of ``furniture_sizes`` (the new furniture types; they win over the size table)."""
     table, tol = load_size_table(path)
-    for name, spec in (cfg.get("decor_sizes") or {}).items():
-        w, d = spec["width"], spec["depth"]
-        table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
+    for block in ("furniture_sizes", "decor_sizes"):
+        for name, spec in (cfg.get(block) or {}).items():
+            w, d = spec["width"], spec["depth"]
+            table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
     return table, tol
+
+
+def furniture_types() -> tuple[str, ...]:
+    """The furniture types of the library: ``catalog.FURNITURE_TYPES`` plus the types of the building schema it has
+    not learned yet. Milestone 10 adds 14 types to the schema (the frozen contract); the catalogue module follows with
+    track F. Until it does, the library steps (survey, thumbnails, judging, plan) already know them; the order is the
+    catalogue's, then the schema's (``unknown`` last)."""
+    from wenart import building as B
+    from wenart.furniture import catalog as C
+    schema = tuple(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"])
+    extra = tuple(t for t in schema if t not in C.FURNITURE_TYPES)
+    base = tuple(C.FURNITURE_TYPES)
+    return base[:-1] + extra + base[-1:] if extra and base[-1:] == ("unknown",) else base + extra
 
 
 def heights_of(cfg: dict) -> dict:
@@ -556,6 +588,30 @@ def _load_shards(hub, shards: list[str], wanted: dict[str, set], workers: int, l
     return records
 
 
+def lvis_name(cat: str, categories: dict) -> str:
+    """The LVIS category name a ``categories`` entry reads: its ``lvis`` field, else its own key. Several entries may
+    read one LVIS category (Milestone 10: ``cabinet`` holds sideboards, shoe cabinets, wall cabinets ...)."""
+    return str(categories[cat].get("lvis") or cat)
+
+
+def new_counts() -> dict:
+    return {"lvis": 0, "metadata": 0, "licence_ok": 0, "flagged": 0, "prefilter_ok": 0, "tried": 0, "candidates": 0,
+            "not_selected": 0}
+
+
+def resolve_categories(cats: list[str], meta: dict, categories: dict, fields: dict) -> list[str]:
+    """The categories of an object whose entries have ``require_words`` (Milestone 10), on its metadata:
+    - an entry with ``require_words`` stays only when its title or a tag holds one of the words (``prefer_hit``);
+    - a matching entry takes precedence over the plain entries of the same LVIS category (a "sectional" in LVIS
+      ``sofa`` is a corner sofa, not a sofa).
+    Two matching entries of different types leave two type sets: the survey refuses the object ``several_types``
+    (never guessed). The words select the candidates; both judges still decide ``matches_type``."""
+    kept = [c for c in cats if not categories[c].get("require_words")
+            or prefer_hit(meta, fields, categories[c]["require_words"])]
+    specific = {lvis_name(c, categories) for c in kept if categories[c].get("require_words")}
+    return [c for c in kept if categories[c].get("require_words") or lvis_name(c, categories) not in specific]
+
+
 def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, workers: int = 8,
            log: Callable = print) -> dict:
     """§7.1: LVIS categories -> types, licence (any, flagged: docs/milestone8.md §2), credit, prefilter, rank,
@@ -574,16 +630,16 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     paths = read_json_gz(hub.path(ds["paths_file"]))
     if not isinstance(lvis, dict) or not isinstance(paths, dict):
         raise ValueError("lvis-annotations / object-paths are not JSON objects (format changed?)")
-    found = {c: len(lvis.get(c) or []) for c in categories if c in lvis}
-    missing_cats = sorted(c for c in categories if c not in lvis)
-    near = {c: lvis_near_names(c, lvis) for c in missing_cats}
+    found = {c: len(lvis.get(lvis_name(c, categories)) or []) for c in categories if lvis_name(c, categories) in lvis}
+    missing_cats = sorted(c for c in categories if lvis_name(c, categories) not in lvis)
+    near = {c: lvis_near_names(lvis_name(c, categories), lvis) for c in missing_cats}
     for c in missing_cats:
-        log(f"objaverse survey: LVIS category {c!r} not in {ds['lvis_file']}: its types stay parametric (a "
-            f"warning, not a failure); names in the file that share a word: {near[c] or 'none'}")
+        log(f"objaverse survey: LVIS category {lvis_name(c, categories)!r} not in {ds['lvis_file']}: its types stay "
+            f"parametric (a warning, not a failure); names in the file that share a word: {near[c] or 'none'}")
 
     uid_cats: dict[str, list[str]] = {}
     for cat in categories:
-        for uid in lvis.get(cat) or []:
+        for uid in lvis.get(lvis_name(cat, categories)) or []:
             if cat not in uid_cats.setdefault(str(uid), []):
                 uid_cats[str(uid)].append(cat)
 
@@ -591,18 +647,22 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     counts: dict[str, dict] = {}
     pools: dict[str, list[dict]] = {}
     wanted: dict[str, set] = {}
-    staged: list[tuple[str, str, list[str], list[str]]] = []
+    word_filtered = 0
+    staged: list[tuple[str, str, list[str], Optional[list[str]]]] = []
     for uid in sorted(uid_cats):
         cats = uid_cats[uid]
-        type_sets = {tuple(categories[c]["types"]) for c in cats}
-        if len(type_sets) > 1:
-            refused.append(_refusal(uid, "several_types", ", ".join(cats), categories=cats))
-            continue
-        types = list(next(iter(type_sets)))
-        group = group_key(types)
-        c = counts.setdefault(group, {"lvis": 0, "metadata": 0, "licence_ok": 0, "flagged": 0, "prefilter_ok": 0,
-                                      "tried": 0, "candidates": 0, "not_selected": 0})
-        c["lvis"] += 1
+        types = None                    # categories with require_words: the type is resolved on the metadata
+        if not any(categories[c].get("require_words") for c in cats):
+            type_sets = {tuple(categories[c]["types"]) for c in cats}
+            if len(type_sets) > 1:
+                refused.append(_refusal(uid, "several_types", ", ".join(cats), categories=cats))
+                continue
+            types = list(next(iter(type_sets)))
+            group = group_key(types)
+            c = counts.setdefault(group, new_counts())
+            c["lvis"] += 1
+        else:
+            group = None
         if not _UID_RE.fullmatch(uid):
             refused.append(_refusal(uid, "bad_uid", "", categories=cats, group=group))
             continue
@@ -626,10 +686,24 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     missing_fields: dict[str, int] = {}
     max_bytes = float(pre["max_glb_mb"]) * 1024 * 1024
     for uid, opath, cats, types in staged:
+        meta = records.get(uid)
+        if types is None:
+            if meta is None:
+                refused.append(_refusal(uid, "no_metadata", "", categories=cats))
+                continue
+            kept = resolve_categories(cats, meta, categories, fields)
+            if not kept:
+                word_filtered += 1                      # none of its words is in the title or tags: no type
+                continue
+            type_sets = {tuple(categories[c]["types"]) for c in kept}
+            if len(type_sets) > 1:
+                refused.append(_refusal(uid, "several_types", ", ".join(kept), categories=kept))
+                continue
+            cats, types = kept, list(next(iter(type_sets)))
+            counts.setdefault(group_key(types), new_counts())["lvis"] += 1
         group = group_key(types)
         c = counts[group]
         face_lo, face_hi = (int(v) for v in category_prefilter(pre, cats)["face_count"])
-        meta = records.get(uid)
         if meta is None:
             refused.append(_refusal(uid, "no_metadata", "", categories=cats, group=group))
             continue
@@ -677,7 +751,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             "source": SOURCE, "licence_flag": flag, "licence_url": licence_url(licence, cfg),
             "via": cfg["attribution"]["via"],
             "attribution": attribution_line(credit["title"], credit["author"], credit["source_url"], licence, cfg),
-            "style_hint": None, "kind": "furniture", "decor_type": None, "units_known": False,
+            "style_hint": None, "kind": "decor" if types[0] in DECOR_TYPES else "furniture",
+            "decor_type": types[0] if types[0] in DECOR_TYPES else None, "units_known": False,
             "extents_raw": None,
         })
         if category_prefilter(pre, cats).get("allow_flat_colours"):
@@ -727,7 +802,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
         "dataset": {k: ds[k] for k in ("repo", "revision", "licence", "licence_url", "page") if k in ds},
         "hub": hub.describe() if hasattr(hub, "describe") else str(hub), "downloaded": bool(download),
         "config_sha256": config_sha256(cfg), "licences_verified": bool(cfg["licences"].get("verified")),
-        "lvis": {"found": found, "missing": missing_cats, "categories_in_file": len(lvis), "near_missing": near},
+        "lvis": {"found": found, "missing": missing_cats, "categories_in_file": len(lvis), "near_missing": near,
+                 "word_filtered": word_filtered},
         "licence_values": dict(sorted(licence_values.items(), key=lambda kv: (-kv[1], kv[0]))),
         "metadata_keys": sorted(metadata_keys), "missing_fields": dict(sorted(missing_fields.items())),
         "counts": counts, "refused_counts": dict(sorted(refused_counts.items())),
@@ -1638,9 +1714,45 @@ DECOR_WORDS: dict[str, tuple[str, str, str]] = {
                    "one table or desk lamp with its shade or head (not a floor lamp, not a wall or ceiling light)"),
     "mirror": ("wall mirror", "a mirror that hangs on a wall",
                "one wall mirror with or without a frame (not a floor or leaner mirror, not a mirror cabinet)"),
+    # Milestone 10 decor types (docs/milestone10.md §1.1, §4.6): what each one is and is not.
+    "curtain": ("curtain", "a window curtain or drape on a rod, closed or tied back",
+                "one curtain panel, or one pair of curtains, with or without its rod (not a shower curtain, not a "
+                "blind or shade, not a bed canopy, not a theatre curtain)"),
+    "blind": ("window blind", "a roller, venetian, roman or pleated blind or shade for a window",
+              "one window blind, roller shade or shutter (not a curtain, not a lamp shade, not an awning)"),
+    "throw": ("throw blanket", "a soft throw blanket or plaid, folded or draped over a sofa, a chair or a bed",
+              "one throw blanket, folded or draped (not a bed sheet, not a duvet or quilt on a bed, not a cushion, "
+              "not a rug)"),
+    "books": ("books", "a stack or a short row of decorative books for a table, a shelf or a sideboard",
+              "a stack or a short row of books (not a bookshelf or bookcase, not a magazine rack, not one notebook)"),
+    "candle": ("candle", "a candle, a candlestick or a candle holder or lantern with a candle",
+               "one candle, candlestick or candle lantern (not an electric lamp, not a lamp shade, not a chandelier, "
+               "not a vase)"),
+    "basket": ("basket", "a woven, wire or fabric basket for the floor or a shelf",
+               "one basket, with or without handles (not a bin with a lid, not a flower pot, not a bag, not a "
+               "waste bin)"),
+    "tray": ("tray", "a decorative serving or table tray",
+             "one flat tray with a low rim, with or without handles (not a bowl, not a plate, not a tray table)"),
+    "clock": ("wall clock", "a clock that hangs on a wall",
+              "one wall clock (not a floor or grandfather clock, not an alarm clock, not a table clock)"),
+    "sculpture": ("sculpture", "a decorative sculpture, statue or figurine for a table, a shelf or the floor",
+                  "one sculpture, statue, bust or figurine (not a vase, not a toy, not a lamp, not a plant)"),
+    "plant_large": ("large floor plant", "a tall indoor plant in a floor pot, such as a palm, a monstera, a "
+                    "fiddle-leaf fig, an olive tree or a fern, about 1 to 2 m tall",
+                    "a large leafy plant in a pot that stands on the floor, about 1 m tall or taller; a small "
+                    "tabletop plant, an empty pot or a hanging planter is not one"),
+    "pendant_light": ("pendant light", "a light that hangs from the ceiling on a cord, a chain or a rod: a pendant "
+                      "lamp or a chandelier",
+                      "one pendant lamp or chandelier hanging from a cord, chain or rod (not a flush ceiling "
+                      "light, not a wall light, not a floor or table lamp)"),
+    "ceiling_light": ("ceiling light", "a light fixed flat or close to the ceiling: a flush or semi-flush ceiling "
+                      "light or ceiling lamp",
+                      "one flush or semi-flush ceiling light (not a hanging pendant or chandelier, not a wall "
+                      "light, not a recessed spot)"),
 }
 # The side a front-facing decor type shows (the M8 wall art question keeps its words, so its answers stay current).
-DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side"}
+DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side",
+                                     "clock": "the clock face"}
 TYPE_WORDS.update({
     "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
     "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
@@ -1649,6 +1761,44 @@ TYPE_WORDS.update({
     "sink_kitchen": ("kitchen sink unit", "a kitchen base cabinet with a sink and a tap"),
     "shower": ("shower enclosure", "a walk-in or framed shower enclosure on its tray"),
 })
+# Milestone 10 furniture types (docs/milestone10.md §1.1, §4.5): what each one is. A new type gets its own words; the
+# words of the 27 older types stay as they were (their stored judge answers hash the question text).
+TYPE_WORDS.update({
+    "sofa_corner": ("corner sofa", "an L-shaped corner or sectional sofa, a sofa with a chaise or a return, for three "
+                                   "or more people"),
+    "chaise": ("chaise longue", "a long upholstered chair or couch for lying back with the legs raised, for one "
+                                "person"),
+    "ottoman": ("ottoman", "a low padded seat, pouf or footstool without a back, with or without storage"),
+    "bench": ("bench", "a seat for two or more people without a high back: a hall bench, a dining bench or a "
+                       "bench for the foot of a bed"),
+    "bar_stool": ("bar stool", "a tall stool for a kitchen counter, island or bar, with the seat about 0.6 to 0.8 m "
+                               "above the floor"),
+    "office_chair": ("office chair", "a desk chair with a back, usually swivelling on a base with castors"),
+    "console_table": ("console table", "a long narrow table for a hall or behind a sofa, about 0.2 to 0.5 m deep"),
+    "crib": ("baby crib", "a baby's cot with high slatted or barred sides"),
+    "bunk_bed": ("bunk bed", "two beds stacked one above the other, with a ladder"),
+    "sideboard": ("sideboard", "a long, waist-high cabinet with doors and drawers for a dining or living room"),
+    "shoe_cabinet": ("shoe cabinet", "a narrow cabinet, rack or bench that stores shoes, for a hall"),
+    "display_cabinet": ("display cabinet", "a tall cabinet with glass doors for showing china or a collection"),
+    "tall_cabinet": ("tall cabinet", "a tall narrow storage cabinet or pantry cabinet with doors, higher than a "
+                                     "person's chest"),
+    "wall_cabinet": ("wall cabinet", "a cabinet that hangs on a wall, for a kitchen, a bathroom or a hall"),
+})
+# The front of a new type, in the words of the question (judge_prompt); the older types use FRONT_WORDS.
+FRONT_WORDS_BY_TYPE: dict[str, str] = {
+    "sofa_corner": "the side people face when they sit on the long seat, opposite its back",
+    "chaise": "the long open side people sit down from, opposite the backrest",
+    "bench": "the side people face when they sit, opposite the backrest (a backless bench: a long side)",
+    "bar_stool": "the side the sitter faces, opposite the backrest",
+    "office_chair": "the side the sitter faces, opposite the backrest",
+    "crib": "a long side of the crib",
+    "bunk_bed": "the long open side where people climb in, with the ladder",
+    "sideboard": "the side with the doors or drawers",
+    "shoe_cabinet": "the side with the doors, drawers or the open shoe shelves",
+    "display_cabinet": "the side with the glass doors",
+    "tall_cabinet": "the side with the doors",
+    "wall_cabinet": "the side with the doors",
+}
 
 
 def item_kind(item: dict) -> str:
@@ -1731,8 +1881,9 @@ def judge_prompt(ftype: str, dims_m, has_front: bool, normalised: bool = False) 
     is_bed = ftype in BED_TYPES
     mattress = ("true when the bed has a mattress on it, false for a bare frame or base" if is_bed
                 else "null (this is not a bed)")
-    front = (f"the number of the tile that looks straight at the front of the piece ({FRONT_WORDS}); null when you "
-             "cannot tell" if has_front else "null (this type has no front)")
+    front = (f"the number of the tile that looks straight at the front of the piece "
+             f"({FRONT_WORDS_BY_TYPE.get(ftype, FRONT_WORDS)}); null when you cannot tell" if has_front
+             else "null (this type has no front)")
     return "\n\n".join([
         "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey "
         "background. Each tile shows the model from one side, 30 degrees from above, and carries its number: "
@@ -1823,10 +1974,28 @@ def judge_requests(out: Path, cfg: Optional[dict] = None) -> dict:
     return doc
 
 
-def read_requests(out: Path) -> Optional[dict]:
-    doc = read_json(Path(out) / JUDGE_DIR / REQUESTS_NAME)
-    if doc is not None and doc.get("kind") != "objaverse_judge_requests":
-        raise ValueError(f"{Path(out) / JUDGE_DIR / REQUESTS_NAME}: not an Objaverse judging requests file")
+@dataclass(frozen=True)
+class JudgeSpec:
+    """What a judging run asks and how it checks the answers: the library sheets (the default) or, Milestone 10,
+    the material slots of ``wenart.assets.recolour`` (the same answer store, workers, deadline and exit codes). The
+    default spec is the Milestone 7 / 8 judging, so its requests and answers stay as they were."""
+    dir_name: str = JUDGE_DIR                       # <out>/<dir_name>/{requests.json, answers_<slug>.json, sheets/}
+    task: str = TASK
+    system: str = SYSTEM_PROMPT
+    label: str = "objaverse judge"
+    answers_kind: str = "objaverse_judge_answers"
+    requests_kind: str = "objaverse_judge_requests"
+    schema_of: Callable = lambda item: judge_schema(item_kind(item))
+    valid_of: Callable = lambda item, data: valid_judgement(data, item_kind(item))
+
+
+LIBRARY_SPEC = JudgeSpec()
+
+
+def read_requests(out: Path, spec: JudgeSpec = LIBRARY_SPEC) -> Optional[dict]:
+    doc = read_json(Path(out) / spec.dir_name / REQUESTS_NAME)
+    if doc is not None and doc.get("kind") != spec.requests_kind:
+        raise ValueError(f"{Path(out) / spec.dir_name / REQUESTS_NAME}: not a {spec.requests_kind} file")
     for item in (doc or {}).get("items") or []:
         if not _SHA256_RE.match(str(item.get("input_sha256"))):
             raise ValueError(f"request {item.get('key')!r}: input_sha256 is not a sha256 hex digest")
@@ -1845,23 +2014,27 @@ def _store_class():
         from wenart.recognition.answers import AnswerStore
 
         class JudgeStore(AnswerStore):
-            """``judge/answers_<slug>.json``: the recognition answer store with the library judging schema."""
+            """``<spec.dir_name>/answers_<slug>.json``: the recognition answer store with the judging schema of
+            its ``JudgeSpec`` (``valid_of``)."""
+
+            spec: JudgeSpec = LIBRARY_SPEC
 
             def valid(self, item: dict) -> Optional[dict]:
                 rec = self.calls.get(item["key"])
                 if not self.current(rec, item):
                     return None
-                return rec if valid_judgement(rec.get("data"), item_kind(item)) else None
+                return rec if self.spec.valid_of(item, rec.get("data")) else None
 
         _STORE_CLASS = JudgeStore
     return _STORE_CLASS
 
 
-def judge_store(out: Path, key: str, models: Optional[dict] = None):
+def judge_store(out: Path, key: str, models: Optional[dict] = None, spec: JudgeSpec = LIBRARY_SPEC):
     from wenart.recognition import answers as A
     info = A.model_info(key, models)
-    store = _store_class()(A.answers_path(Path(out) / JUDGE_DIR, info["slug"]), key, info["slug"], info["id"])
-    store.data["kind"] = "objaverse_judge_answers"
+    store = _store_class()(A.answers_path(Path(out) / spec.dir_name, info["slug"]), key, info["slug"], info["id"])
+    store.spec = spec
+    store.data["kind"] = spec.answers_kind
     return store
 
 
@@ -1871,25 +2044,26 @@ def item_state(store, item: dict) -> str:
         return "missing"
     if not store.current(rec, item):
         return "stale"
-    return "answered" if valid_judgement(rec.get("data"), item_kind(item)) else "failed"
+    return "answered" if getattr(store, "spec", LIBRARY_SPEC).valid_of(item, rec.get("data")) else "failed"
 
 
-def seed_store(store, items: list[dict], seed_dir: Path, log: Callable = print) -> int:
+def seed_store(store, items: list[dict], seed_dir: Path, log: Callable = print,
+               spec: JudgeSpec = LIBRARY_SPEC) -> int:
     """Copy current, schema-valid answers of ``<seed_dir>/answers_<slug>.json`` (same model id) into ``store``."""
     seed_path = Path(seed_dir) / f"answers_{store.data['slug']}.json"
     seed = read_json(seed_path)
     if seed is None:
-        log(f"objaverse judge: no {seed_path.name} in {seed_dir}: nothing seeded")
+        log(f"{spec.label}: no {seed_path.name} in {seed_dir}: nothing seeded")
         return 0
     if store.data["model"] and seed.get("model") and seed["model"] != store.data["model"]:
-        log(f"objaverse judge: {seed_path} is from {seed['model']}, not {store.data['model']}: nothing seeded")
+        log(f"{spec.label}: {seed_path} is from {seed['model']}, not {store.data['model']}: nothing seeded")
         return 0
     copied = 0
     for item in items:
         if store.valid(item) is not None:
             continue
         rec = (seed.get("calls") or {}).get(item["key"])
-        if not store.current(rec, item) or not valid_judgement(rec.get("data"), item_kind(item)):
+        if not store.current(rec, item) or not spec.valid_of(item, rec.get("data")):
             continue
         store.put(item["key"], dict(rec, seeded_from=str(seed_path)), save=False)
         copied += 1
@@ -1910,11 +2084,11 @@ def _spawn(fn: Callable, tag: int, results: "queue.Queue") -> None:
 
 
 def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, deadline: Optional[float] = None,
-              seed: int = 0, log: Callable = print, clock: Callable[[], float] = time.time) -> dict:
+              seed: int = 0, log: Callable = print, clock: Callable[[], float] = time.time,
+              spec: JudgeSpec = LIBRARY_SPEC) -> dict:
     """Ask every item without a current answer, ``workers`` at once, until ``deadline`` (as
     ``wenart.recognition.answers.ask``: no call starts after it, none is waited for past it)."""
-    judge_dir = Path(out) / JUDGE_DIR
-    schemas = {k: judge_schema(k) for k in ("furniture", "decor")}
+    judge_dir = Path(out) / spec.dir_name
     stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False}
     if deadline is not None and hasattr(client, "deadline"):
         client.deadline = float(deadline)
@@ -1937,8 +2111,8 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
 
             def call(item=item):
                 return client.run_schema([str(judge_dir / p) for p in item["images"]], item["prompt"],
-                                         schemas[item_kind(item)], seed=seed, task=TASK, max_side=0, labels=None,
-                                         system_prompt=SYSTEM_PROMPT)
+                                         spec.schema_of(item), seed=seed, task=spec.task, max_side=0, labels=None,
+                                         system_prompt=spec.system)
             _spawn(call, started, results)
             started += 1
         if not running:
@@ -1948,10 +2122,10 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
             tag, result, exc = results.get(timeout=left)
         except queue.Empty:
             abandoned = len(running)
-            log(f"objaverse judge: deadline reached with {abandoned} call(s) unanswered")
+            log(f"{spec.label}: deadline reached with {abandoned} call(s) unanswered")
             break
         item = running.pop(tag)
-        rec = {"task": TASK, "input_sha256": item["input_sha256"], "model": model, "seed": seed,
+        rec = {"task": spec.task, "input_sha256": item["input_sha256"], "model": model, "seed": seed,
                "images": list(item["images"])}
         if exc is not None:
             rec.update(data=None, raw_text="", error=f"{type(exc).__name__}: {exc}", attempts=0, latency_s=0.0)
@@ -1960,9 +2134,9 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
                        latency_s=round(float(result.latency_s), 3))
         store.put(item["key"], rec)
         stats["asked"] += 1
-        if not valid_judgement(rec["data"], item_kind(item)):
+        if not spec.valid_of(item, rec["data"]):
             stats["failed"] += 1
-            log(f"objaverse judge: {item['key']}: {rec['error'] or 'answer not schema-valid'}")
+            log(f"{spec.label}: {item['key']}: {rec['error'] or 'answer not schema-valid'}")
     stats["left"] = len(pending) - started + abandoned
     stats["incomplete"] = stats["left"] > 0
     store.data["incomplete"] = stats["incomplete"]
@@ -1974,42 +2148,43 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
 
 def judge(out: Path, model_key: str, server: str = DEFAULT_SERVER, workers: Optional[int] = None,
           deadline: Optional[float] = None, seed_dir: Optional[Path] = None, client_factory=None,
-          retries: int = 3, timeout_s: float = 600.0, log: Callable = print) -> int:
+          retries: int = 3, timeout_s: float = 600.0, log: Callable = print, spec: JudgeSpec = LIBRARY_SPEC) -> int:
     """The ``judge`` command: seed, then ask the server for the rest. Exit 0 all answered, 3 deadline, 2 server
     or answer failure (as ``python -m wenart.recognition.answers ask``)."""
     from wenart.recognition import answers as A
-    doc = read_requests(out)
+    doc = read_requests(out, spec)
     if doc is None:
-        raise UsageError(f"{Path(out) / JUDGE_DIR / REQUESTS_NAME} not found: run judge-requests first")
+        raise UsageError(f"{Path(out) / spec.dir_name / REQUESTS_NAME} not found: write the requests first")
     models = A.load_models()
     info = A.model_info(model_key, models)
     items = doc.get("items") or []
-    store = judge_store(out, model_key, models)
+    store = judge_store(out, model_key, models, spec)
     if seed_dir:
-        n = seed_store(store, items, Path(seed_dir), log)
-        log(f"objaverse judge [{model_key}]: {n} answer(s) seeded from {seed_dir}")
+        n = seed_store(store, items, Path(seed_dir), log, spec)
+        log(f"{spec.label} [{model_key}]: {n} answer(s) seeded from {seed_dir}")
     pending = [i for i in items if store.valid(i) is None]
     if not pending:
         store.data["incomplete"] = False
         store.save()
-        log(f"objaverse judge [{model_key}]: all {len(items)} item(s) answered -> {store.path}")
+        log(f"{spec.label} [{model_key}]: all {len(items)} item(s) answered -> {store.path}")
         return EXIT_OK
     deadline = deadline_of(deadline)
     if deadline is not None and time.time() >= deadline:
         store.data["incomplete"] = True
         store.save()
-        log(f"objaverse judge [{model_key}]: deadline already passed, {len(pending)} item(s) left")
+        log(f"{spec.label} [{model_key}]: deadline already passed, {len(pending)} item(s) left")
         return EXIT_DEADLINE
     if client_factory is None:
         from wenart.recognition import vlm_client
         if not vlm_client.health(server):
-            log(f"objaverse judge [{model_key}]: no vLLM server answers at {server}")
+            log(f"{spec.label} [{model_key}]: no vLLM server answers at {server}")
             return EXIT_SERVER
         client = vlm_client.VLMClient(server, model=info["id"], retries=retries, timeout_s=timeout_s)
     else:
         client = client_factory(info, server)
-    stats = judge_ask(items, store, client, out, workers=workers or _workers_default(), deadline=deadline, log=log)
-    log(f"objaverse judge [{model_key}]: {len(items)} item(s): {stats['asked']} asked ({stats['failed']} failed), "
+    stats = judge_ask(items, store, client, out, workers=workers or _workers_default(), deadline=deadline, log=log,
+                      spec=spec)
+    log(f"{spec.label} [{model_key}]: {len(items)} item(s): {stats['asked']} asked ({stats['failed']} failed), "
         f"{stats['reused']} reused, {stats['left']} left -> {store.path}")
     if stats["left"]:
         return EXIT_DEADLINE
@@ -2168,6 +2343,12 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
             # generator's mesh, not a product's back (M8 pod L2: fridges and bathtubs "+Y" against both judges'
             # -Y). Both judges agreeing decide; the geometry is recorded.
             front, view = VIEW_SIDES[va], va
+        elif geo is None and rule == DOCUMENTED_RULE and cfg["types"][ftype].get("front_by_judges"):
+            # Milestone 10 (crib, bunk bed, wall clock): the geometry cannot tell the open side or the clock face,
+            # no source documents it (Objaverse), but the face of a clock and the ladder side of a bunk bed are
+            # plain in the render: both judges naming the same view decide, with the confidence `medium`. Types
+            # without the flag (wall art, mirror: M8, M9) stay refused.
+            front, view, confidence = VIEW_SIDES[va], va, "medium"
         elif geo is None:
             fail.append(("front_not_agreed", f"judges: view {va} ({VIEW_SIDES[va]}); geometry undecided "
                                              f"({obj.get('geometric_note', '')})"))
@@ -2179,6 +2360,9 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
                       f"{obj.get('geometric_note', '')}" if front else "")
         if front and generated and geo != front:
             front_note += " (generated model: the judges decide; the geometry rule is for scanned products)"
+        if front and confidence == "medium":
+            front_note += (f" (no documented front and no geometric rule for a {ftype}: the judges' agreement decides, "
+                           "front_axis_confidence medium)")
 
     order = list(style_values())
     styles = [s for s in order if s in (a.get("styles") or []) and s in (b.get("styles") or [])]
@@ -2333,11 +2517,18 @@ def generated_record(cand: dict) -> dict:
     return rec
 
 
-def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers: Optional[dict] = None) -> dict:
+MATERIAL_FIELDS = ("material_slots", "material_tags", "recolourable_fabric", "recolourable_wood")   # recolour.py
+RECOLOUR_TAGS = "recolour/tags.json"                      # <out>/recolour/tags.json (wenart/assets/recolour.py)
+
+
+def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers: Optional[dict] = None,
+                  material: Optional[dict] = None) -> dict:
     """One ``catalog_library.json`` entry. Boxes are metres in the model frame of the glTF importer (Z up): the
     measured raw box times ``unit_scale``; the scene builder must scale the imported mesh by ``unit_scale`` before
     the fit (``fit_scale`` maps metres to the footprint). Decor models get the type ``decor_<decor_type>`` (they go
-    to the catalogue's ``decor`` section)."""
+    to the catalogue's ``decor`` section). Milestone 10: ``material`` (one model of ``recolour/tags.json``) adds
+    ``material_slots``, ``material_tags``, ``recolourable_fabric``, ``recolourable_wood``; a generated plant has the
+    ``species`` and ``pot`` of its prompt (``generate.yaml variants``)."""
     from wenart.furniture import catalog as C
     u = float(obj["unit"]["scale"])
     m = obj["measure"]
@@ -2368,6 +2559,9 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
     }
     if kind == "decor":
         entry["decor_type"] = dec["decor_type"]
+        for key in ("species", "pot"):
+            if (cand.get("attributes") or {}).get(key):
+                entry[key] = cand["attributes"][key]
     else:
         entry["has_mattress"] = dec.get("has_mattress")
         if dec["type"] in BED_TYPES:
@@ -2385,6 +2579,8 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
                       "brand": cand.get("brand"), "style_hint": cand.get("style_hint")})
     elif source == "generated":
         entry.update({"generated": generated_record(cand), "style_hint": cand.get("style_hint")})
+    if material:
+        entry.update({k: material[k] for k in MATERIAL_FIELDS if k in material})
     return entry
 
 
@@ -2444,6 +2640,9 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
         raise UsageError("accepted.json / thumbnails.json missing: run accept first")
     cands = {c["uid"]: c for c in load_candidates(out)}
     answers = load_judgements(out, models)
+    tags_doc = read_json(Path(out) / RECOLOUR_TAGS) or {}
+    material = tags_doc.get("models") or {}
+    material_stale = []
     entries, decor, problems = [], [], []
     for dec in acc["accepted"]:
         uid = dec["uid"]
@@ -2453,7 +2652,11 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
             problems.append({"uid": uid, "code": "glb_changed", "detail": str(cand.get("glb"))})
             continue
         copy_glb(src, assets, uid, cand["glb_sha256"], cand["source"])
-        entry = catalog_entry(cand, obj, dec, cand["glb_sha256"], cfg, answers.get(uid))
+        tags = material.get(uid)
+        if tags is not None and tags.get("glb_sha256") not in (None, cand["glb_sha256"]):
+            material_stale.append(uid)                       # judged on another GLB: no tags rather than wrong ones
+            tags = None
+        entry = catalog_entry(cand, obj, dec, cand["glb_sha256"], cfg, answers.get(uid), tags)
         (decor if entry["kind"] == "decor" else entries).append(entry)
     path = out / CATALOG_NAME
     if not entries and not decor:
@@ -2461,7 +2664,8 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
             path.unlink()
         log(f"library write-catalog: no accepted model: {CATALOG_NAME} not written")
         return None
-    entries.sort(key=lambda e: (C.FURNITURE_TYPES.index(e["type"]), e["id"]))
+    order = furniture_types()
+    entries.sort(key=lambda e: (order.index(e["type"]) if e["type"] in order else len(order), e["id"]))
     decor.sort(key=lambda e: (DECOR_TYPES.index(e["decor_type"]), e["id"]))
     sources = sorted({e["source"] for e in entries + decor}, key=SOURCE_ORDER.index)
     notices = source_notices(sources, cfg)
@@ -2481,7 +2685,10 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
         "counts": {"entries": len(entries), "decor": len(decor),
                    "by_source": {s: sum(1 for e in entries + decor if e["source"] == s) for s in sources},
                    "licences": dict(sorted(licences.items())), "licence_flags": dict(sorted(flags.items())),
-                   "bed_frames": sum(1 for e in entries if e.get("bed_frame"))},
+                   "bed_frames": sum(1 for e in entries if e.get("bed_frame")),
+                   "material_tagged": sum(1 for e in entries + decor if "material_tags" in e),
+                   "recolourable_fabric": sum(1 for e in entries + decor if e.get("recolourable_fabric")),
+                   "recolourable_wood": sum(1 for e in entries + decor if e.get("recolourable_wood"))},
         "notes": [
             "Written by python -m wenart.assets.objaverse write-catalog on the prep pod (docs/milestone8.md §2); the "
             "integrator copies it into wenart/furniture/ before the full runs (catalog.load merges it, else the M7 "
@@ -2499,6 +2706,7 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
             "unverified: check them before commercial use.",
         ],
         "refused_at_write": problems,
+        "material_tags_stale": material_stale,
         "entries": entries,
         "decor": decor,
     }
@@ -2539,7 +2747,7 @@ def _by_source(items) -> str:
 
 def library_types(cfg: dict) -> list[str]:
     """The furniture types a library source can fill: the Objaverse categories' and the ABO rules' (beds both)."""
-    from wenart.furniture import catalog as C
+    order = furniture_types()
     types = {t for spec in cfg["categories"].values() for t in spec["types"]}
     try:
         from wenart.assets import abo
@@ -2548,7 +2756,7 @@ def library_types(cfg: dict) -> list[str]:
                 types.update(BED_TYPES if t == "bed" else [t])
     except (OSError, ImportError, KeyError):
         pass
-    return sorted((t for t in types if t in C.FURNITURE_TYPES), key=C.FURNITURE_TYPES.index)
+    return sorted((t for t in types if t in order), key=order.index)
 
 
 def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
@@ -2736,6 +2944,28 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
         lines += _table(["Id", "Type", "Source", "Mattress", "Bed frame", "Deck (m)"],
                         [[f"`{e['id']}`", e["type"], e["source"], e.get("has_mattress"), e.get("bed_frame", False),
                           e.get("deck_height_m") or "–"] for e in beds])
+        lines += [""]
+
+    tags_doc = read_json(out / RECOLOUR_TAGS)
+    if tags_doc is not None:
+        counts_t = tags_doc.get("counts") or {}
+        lines += ["## Material tags and recolour (wenart/assets/recolour.py)", "",
+                  f"{counts_t.get('models', 0)} model(s) judged by both models, {counts_t.get('unjudged', 0)} not; "
+                  f"slots without agreement: {counts_t.get('slots_not_agreed', 0)}. Models with a separable fabric slot "
+                  f"(`recolourable_fabric`): {counts_t.get('recolourable_fabric', 0)}; with a separable wood slot "
+                  f"(`recolourable_wood`): {counts_t.get('recolourable_wood', 0)}.", ""]
+        by_type: dict = {}
+        for e in entries:
+            if "material_tags" in e:
+                row = by_type.setdefault(e.get("decor_type") or e["type"], {"n": 0, "fabric": 0, "wood": 0, "tags": {}})
+                row["n"] += 1
+                row["fabric"] += bool(e.get("recolourable_fabric"))
+                row["wood"] += bool(e.get("recolourable_wood"))
+                for t in e["material_tags"]:
+                    row["tags"][t] = row["tags"].get(t, 0) + 1
+        lines += _table(["Type", "Judged", "Fabric recolourable", "Wood recolourable", "Tags"],
+                        [[t, r["n"], r["fabric"], r["wood"], ", ".join(f"{k} {v}" for k, v in sorted(r["tags"].items()))
+                          or "–"] for t, r in sorted(by_type.items())] or [["–", 0, 0, 0, "–"]])
         lines += [""]
 
     lines += ["## Catalogue", ""]

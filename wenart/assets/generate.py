@@ -32,6 +32,13 @@ stored dtype (``dtype="auto"``), so the fp16 BiRefNet is cast to float32, the dt
 background remover is the MIT BiRefNet instead of the gated, non-commercial RMBG-2.0 named in ``pipeline.json``
 (``generate.yaml``); every model is read from its pinned local snapshot (no hub lookups).
 
+Milestone 10 (docs/milestone10.md §4.5, §4.6, §7 pod L2): ``generate.yaml`` has words and prompts for the 14 new furniture
+and 12 new decor types (``plan --target 20`` for furniture, ``--target 15`` for decor: the deficit only). Every
+type x style family has a prompt; textiles, plants, lights and accessories take their own hint groups (``hint_groups``);
+the large floor plant fills its species and pot from ``variants`` (image n of a pair takes the next ones, spread over
+the families), and the survey record, the catalogue entry and the decor item keep ``species`` and ``pot``;
+``trellis_decor_full`` lists the decor types that keep the 1024 cascade (thin leaves, cloth folds).
+
 The module imports only the standard library and stdlib-only wenart modules at the top: ``plan``, ``survey`` and the
 record helpers run on the CPU (tests/test_generate.py); torch, diffusers and trellis2 are imported by the GPU
 backends only.
@@ -60,8 +67,8 @@ import time
 from pathlib import Path
 from typing import Callable, Optional
 
-from wenart.assets.objaverse import (canonical_sha256, deadline_of, glb_info, glb_json, now_utc, read_json,
-                                     sha256_file, write_json)
+from wenart.assets.objaverse import (canonical_sha256, deadline_of, furniture_types, glb_info, glb_json, now_utc,
+                                     read_json, sha256_file, write_json)
 
 HERE = Path(__file__).resolve().parent
 CONFIG_PATH = HERE / "generate.yaml"
@@ -108,10 +115,10 @@ def known_families() -> list[str]:
 
 
 def plan_types(cfg: dict) -> list[str]:
-    """Every furniture type except the fixed equipment of ``exclude_types``, in catalogue order."""
-    from wenart.furniture import catalog as C
+    """Every furniture type except the fixed equipment of ``exclude_types``, in catalogue order (Milestone 10: the
+    types of the building schema the catalogue module does not list yet come after it, ``objaverse.furniture_types``)."""
     excluded = set(cfg.get("exclude_types") or ())
-    return [t for t in C.FURNITURE_TYPES if t not in excluded]
+    return [t for t in furniture_types() if t not in excluded]
 
 
 def decor_types(cfg: dict) -> list[str]:
@@ -177,13 +184,45 @@ def seed_for(ftype: str, family: str, index: int, base: int = 0) -> int:
     return (int(base) + int(digest[:8], 16)) % 2 ** 31
 
 
-def prompt_for(ftype: str, family: str, cfg: dict) -> str:
-    """The fixed prompt template filled with the type words and the family's hints (furniture or fixtures)."""
-    words = cfg["type_words"][ftype]
-    group = "fixtures" if ftype in (cfg.get("fixture_types") or ()) else "furniture"
+def hint_group(ftype: str, cfg: dict) -> str:
+    """The ``family_hints`` group of a type: ``hint_groups`` (Milestone 10: textile, plant, lighting, accessory), else
+    ``fixtures`` for the fixture types, ``decor`` for the decor types, ``furniture``."""
+    named = (cfg.get("hint_groups") or {}).get(ftype)
+    if named:
+        return str(named)
     if ftype in decor_types(cfg):
-        group = "decor"                                       # Milestone 9: the family's decor hints
-    hints = cfg["family_hints"][family][group]
+        return "decor"                                        # Milestone 9: the family's decor hints
+    return "fixtures" if ftype in (cfg.get("fixture_types") or ()) else "furniture"
+
+
+def variant_for(ftype: str, family: str, index: int, cfg: dict) -> Optional[dict]:
+    """The variant of image ``index`` (1-based) of a (type, family) pair for a type with ``variants`` in
+    ``generate.yaml`` (Milestone 10: the species and the pot of ``plant_large``), else None.
+    ``{"values": {slot: words}, "attributes": {key: value}}``: each slot list is cycled from ``index - 1`` plus twice
+    the family's number (so the families do not repeat the same combinations); the attributes (``species``, ``pot``)
+    are what the survey record and the catalogue keep."""
+    slots = (cfg.get("variants") or {}).get(ftype)
+    if not slots:
+        return None
+    families = known_families()
+    shift = 2 * (families.index(family) if family in families else 0)
+    values, attributes = {}, {}
+    for slot, options in slots.items():
+        option = options[(int(index) - 1 + shift) % len(options)]
+        values[slot] = option["words"]
+        attributes.update({k: v for k, v in option.items() if k != "words"})
+    return {"values": values, "attributes": attributes}
+
+
+def prompt_for(ftype: str, family: str, cfg: dict, index: int = 1) -> str:
+    """The fixed prompt template filled with the type words and the family's hints (furniture, fixtures, or the
+    group of ``hint_groups``). A type with ``variants`` fills its slots from image ``index``; every other type has
+    one prompt for all its images, as in Milestone 8 (so their image keys stay)."""
+    words = cfg["type_words"][ftype]
+    variant = variant_for(ftype, family, index, cfg)
+    if variant:
+        words = words.format(**variant["values"])
+    hints = cfg["family_hints"][family][hint_group(ftype, cfg)]
     text = cfg["prompt_template"].format(family=family, type_words=words, hints=hints)
     return " ".join(text.split())
 
@@ -259,7 +298,7 @@ def make_plan(catalogs: list[Path], families: list[str], out: Path, cfg: Optiona
                 "skipped": {}}
         for rec in records:
             ftype = rec.get("type")
-            if ftype not in C.FURNITURE_TYPES:
+            if ftype not in furniture_types():
                 continue
             ok, reason = usable(rec, fmt)
             if not ok:
@@ -289,8 +328,11 @@ def make_plan(catalogs: list[Path], families: list[str], out: Path, cfg: Optiona
             if skipped:
                 reason += "; not counted: " + ", ".join(f"{n} {why}" for why, n in sorted(skipped.items()))
             seeds = [seed_for(ftype, family, i, cfg.get("seed_base", 0)) for i in range(1, n_images + 1)]
-            pairs.append({"pair": pair_id(ftype, family), "type": ftype, "family": family,
-                          "prompt": prompt_for(ftype, family, cfg), "seeds": seeds, "reason": reason})
+            pair = {"pair": pair_id(ftype, family), "type": ftype, "family": family,
+                    "prompt": prompt_for(ftype, family, cfg), "seeds": seeds, "reason": reason}
+            if variant_for(ftype, family, 1, cfg):             # Milestone 10: one prompt per image
+                pair["prompts"] = [prompt_for(ftype, family, cfg, i) for i in range(1, n_images + 1)]
+            pairs.append(pair)
     doc = {
         "schema_version": SCHEMA_VERSION, "kind": "generate_plan", "generated_utc": now_utc(),
         "rules": "docs/milestone8.md §3", "families": list(families), "types": types,
@@ -422,7 +464,7 @@ def make_target_plan(catalogs: list[Path], families: list[str], out: Path, cfg: 
             used[pid] = used.get(pid, 0) + 1
             index = used[pid]
             p["items"].append({"index": index, "seed": seed_for(ftype, family, index, cfg.get("seed_base", 0)),
-                               "prompt": p["prompt"]})
+                               "prompt": prompt_for(ftype, family, cfg, index)})
             p["new"] += 1
             new_by_type[ftype].append([pid, index])
     for rnd in range(max((len(v) for v in new_by_type.values()), default=0)):
@@ -493,8 +535,12 @@ def plan_items(plan: dict, cfg: dict, images_per_pair: Optional[int] = None) -> 
             seeds = p.get("seeds") or []
             seed = int(seeds[index - 1]) if index <= len(seeds) else seed_for(ftype, family, index,
                                                                               cfg.get("seed_base", 0))
+            prompts = p.get("prompts") or []                    # Milestone 10: a type with variants has one per image
+            prompt = (prompts[index - 1] if index <= len(prompts)
+                      else prompt_for(ftype, family, cfg, index) if variant_for(ftype, family, 1, cfg)
+                      else p.get("prompt"))
             items.append({"pair": p.get("pair") or pair_id(ftype, family), "type": ftype, "family": family,
-                          "index": index, "prompt": p.get("prompt") or prompt_for(ftype, family, cfg), "seed": seed})
+                          "index": index, "prompt": prompt or prompt_for(ftype, family, cfg), "seed": seed})
     return items
 
 
@@ -511,7 +557,7 @@ def target_plan_items(plan: dict, cfg: dict) -> list[dict]:
         for it in p.get("items") or []:
             index = int(it["index"])
             by_key[(pair, index)] = {"pair": pair, "type": ftype, "family": family, "index": index,
-                                     "prompt": it.get("prompt") or prompt_for(ftype, family, cfg),
+                                     "prompt": it.get("prompt") or prompt_for(ftype, family, cfg, index),
                                      "seed": int(it["seed"]) if it.get("seed") is not None else
                                      seed_for(ftype, family, index, cfg.get("seed_base", 0))}
     items, seen = [], set()
@@ -546,7 +592,8 @@ def mesh_settings(cfg: dict, item: Optional[dict] = None) -> dict:
     ``trellis_decor`` overrides (small objects: the 512 pipeline, smaller textures). Furniture keeps the M8 settings
     (and so its M8 keys)."""
     out = {k: v for k, v in cfg["trellis"].items() if k != "resident_min_vram_gib"}
-    if item is not None and item.get("type") in decor_types(cfg):
+    if (item is not None and item.get("type") in decor_types(cfg)
+            and item.get("type") not in (cfg.get("trellis_decor_full") or ())):
         out.update(cfg.get("trellis_decor") or {})
     return out
 
@@ -625,6 +672,8 @@ def survey_record(out: Path, item: dict, meta: dict, cfg: dict, rank: int) -> di
         "style_hint": item["family"],
         "generated": {"prompt": item["prompt"], "image_sha256": meta["image_sha256"], "model": tr["repo"],
                       "revision": tr["revision"], "seed": item["seed"]},
+        **({"attributes": variant["attributes"]}
+           if (variant := variant_for(item["type"], item["family"], item["index"], cfg)) else {}),
         "generation": {"pair": item["pair"], "index": item["index"],
                        "image": p["png"].relative_to(Path(out)).as_posix(), "image_model": zi["repo"],
                        "image_revision": zi["revision"], "trellis_code": cfg["trellis_code"]["commit"],

@@ -19,7 +19,10 @@ skip (other GPU jobs collect this folder too). No server is needed: the tests re
 - ``catalog_library.json`` validates and merges with ``catalog.json``; every GLB in the assets cache has the
   catalogue's sha256; the catalogue holds ABO models; licences and flags agree; bed frames have decks;
 - attribution complete: every model's credit line is in ``ATTRIBUTION.md`` and the report, with the notices of
-  the sources present.
+  the sources present;
+- Milestone 10 (docs/milestone10.md §4.5, §4.6, §7): the 14 new furniture and 12 new decor types: models per type
+  (targets 20 and 15 reported), at least 3 style families per type, credits; generated large plants with species and
+  pot; the material tags and recolour flags of ``recolour/tags.json`` in the catalogue entries.
 """
 import math
 import os
@@ -120,7 +123,7 @@ def test_abo_candidates_are_cc_by_with_known_units_and_the_documented_front(surv
         # L2) only has the accepted models' copies in the assets cache (checked below).
         assert c["glb_bytes"] <= acfg["survey"]["max_glb_mb"] * 1024 * 1024, c["uid"]
         assert c["glb_info"]["textured"] or c["glb_info"]["vertex_colours"], c["uid"]
-        assert c["kind"] == ("decor" if c["group"] in C.DECOR_TYPES else "furniture"), c["uid"]
+        assert c["kind"] == ("decor" if c["group"] in OV.DECOR_TYPES else "furniture"), c["uid"]
         per_type[c["group"]] = per_type.get(c["group"], 0) + 1
     assert all(n <= acfg["survey"]["per_type_limit"] for n in per_type.values()), per_type
     surveyed_here = any(Path(c["glb"]).is_file() for c in surv["candidates"])
@@ -147,7 +150,7 @@ def test_thumbnails_were_rendered_on_the_gpu_with_decks_for_beds(surveys):
         assert (LIBRARY / rec["sheet"]).is_file() and (LIBRARY / rec["thumb"]).is_file(), uid
         assert OV.pixels_sha256(LIBRARY / rec["sheet"]) == rec["sheet_pixels"], uid
         assert rec["unit"]["ok"], uid
-        assert rec["type"] in C.FURNITURE_TYPES or rec["type"] in C.DECOR_TYPES, uid
+        assert rec["type"] in OV.furniture_types() or rec["type"] in OV.DECOR_TYPES, uid
         if rec["units_known"]:
             assert rec["unit"]["scale"] == 1.0 and rec["unit"].get("known"), uid
         if rec["type"] in C.BED_TYPES:
@@ -210,11 +213,12 @@ def test_catalog_validates_merges_and_matches_the_cache(cfg):
         assert glb.is_file(), f"{glb} not in the assets cache"
         assert OV.sha256_file(glb) == e["sha256_glb"], e["id"]
         info = OV.glb_info(glb)
-        flat = e["source"] == "objaverse" and e["type"] in flat_ok and info["materials"] > 0
+        own = e.get("decor_type") or e["type"]
+        flat = e["source"] == "objaverse" and own in flat_ok and info["materials"] > 0
         assert info["textured"] or info["vertex_colours"] or flat, e["id"]
         assert e.get("licence_flag") == C.licence_flag_of(e["licence"]), e["id"]
-        own = e.get("decor_type") or e["type"]
-        assert e["front_axis_confidence"] == ("low" if own in frontless else "high"), e["id"]
+        judged_front = e["source"] == "objaverse" and cfg["types"][own].get("front_by_judges")   # Milestone 10
+        assert e["front_axis_confidence"] == ("low" if own in frontless else "medium" if judged_front else "high"), e["id"]
         assert e["styles"] and isinstance(e["unit_scale"], (int, float)), e["id"]
         assert math.isfinite(e["unit_scale"]) and e["unit_scale"] > 0, e["id"]
         if e["source"] == "abo":
@@ -260,3 +264,125 @@ def test_attribution_is_complete(cfg):
             assert f"{e['attribution']} [licence flag: {e['licence_flag']}]" in text, e["id"]
         if e["source"] in ("objaverse", "abo") and e["licence"] != C.LICENCE:
             assert all(str(e.get(k) or "").strip() for k in C.CC_BY_FIELDS), e["id"]
+
+
+# --------------------------------------------------------------------------
+# Milestone 10 (docs/milestone10.md §4.5, §4.6, §4.11, §7 pods L1 and L2): the 14 new furniture types, the 12 new
+# decor types, the material tags
+# --------------------------------------------------------------------------
+
+NEW_FURNITURE = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib",
+                 "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
+NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
+             "pendant_light", "ceiling_light")
+TARGET_FURNITURE, TARGET_DECOR, MIN_FAMILIES = 20, 15, 3
+
+
+def models_of(cat: dict, ftype: str) -> list[dict]:
+    """The catalogue models of a new type: furniture in ``entries``, decor (``decor_type``) in ``decor``."""
+    if ftype in NEW_DECOR:
+        return [e for e in cat.get("decor", []) if e.get("decor_type") == ftype]
+    return [e for e in cat["entries"] if e["type"] == ftype and not e.get("parametric")]
+
+
+def families_of(models: list[dict]) -> set:
+    """The style families the models cover (``neutral`` fits every family)."""
+    families = [s for s in C.style_values() if s != C.NEUTRAL]
+    covered: set = set()
+    for e in models:
+        styles = e.get("styles") or []
+        covered |= set(families) if C.NEUTRAL in styles else set(styles)
+    return covered
+
+
+def test_new_types_have_models_in_three_style_families_and_credits():
+    """Counts per type (the targets 20 and 15 are reported, not required: the sources decide), at least 3 style
+    families per type that has models, and a complete credit for every model of a new type. After the generation
+    (survey_generated.json: the L2 pod) every new type must have a model."""
+    cat = need(OV.CATALOG_NAME)
+    generated = (LIBRARY / OV.SURVEY_FILES["generated"]).is_file()
+    short, empty, thin = [], [], []
+    for ftype in NEW_FURNITURE + NEW_DECOR:
+        models = models_of(cat, ftype)
+        target = TARGET_DECOR if ftype in NEW_DECOR else TARGET_FURNITURE
+        by_source = {s: sum(1 for e in models if e["source"] == s) for s in ("abo", "objaverse", "generated")}
+        if not models:
+            empty.append(ftype)
+            continue
+        if len(models) < target:
+            short.append(f"{ftype} {len(models)}/{target} {by_source}")
+        if len(families_of(models)) < MIN_FAMILIES:
+            thin.append(f"{ftype}: {sorted(families_of(models))}")
+        for e in models:
+            assert e["attribution"] and e["styles"], e["id"]
+            if e["source"] in ("abo", "objaverse"):
+                assert all(str(e.get(k) or "").strip() for k in C.CC_BY_FIELDS), e["id"]
+            else:
+                assert e["licence"].startswith(C.GENERATED_LICENCE_PREFIX) and e["generated"]["prompt"], e["id"]
+    if short:
+        warnings.warn("new types below their target (docs/milestone10.md §4.11 coverage table): " + "; ".join(short))
+    assert not thin, f"fewer than {MIN_FAMILIES} style families: {thin}"
+    if generated:
+        assert not empty, f"after the generation these new types still have no model: {empty}"
+    elif empty:
+        warnings.warn(f"no model yet (the generation has not run): {empty}")
+
+
+def test_generated_large_plants_keep_their_species_and_pot():
+    cat = need(OV.CATALOG_NAME)
+    plants = [e for e in models_of(cat, "plant_large") if e["source"] == "generated"]
+    if not plants:
+        pytest.skip("no generated plant_large model in the catalogue")
+    species = {"palm", "monstera", "fiddle-leaf fig", "olive", "fern"}
+    for e in plants:
+        assert e["species"] in species and e["pot"] and e["species"] in e["generated"]["prompt"], e["id"]
+    assert {e["species"] for e in plants} >= {"palm", "monstera", "fern"} or len(plants) < 5, (
+        "the brief's palms, monsteras and ferns need models of those species")
+
+
+def test_material_tags_of_the_catalogue_follow_both_judges(cfg):
+    """docs/milestone10.md §4.5: the tags and the recolour flags of every judged model (``recolour/tags.json``)
+    are in its catalogue entry; slots, tags and flags agree with each other; every model of the catalogue was
+    judged (a warning lists the ones that were not)."""
+    from wenart.assets import recolour as R
+    tags = need(f"recolour/{R.TAGS_NAME}")
+    cat = need(OV.CATALOG_NAME)
+    rcfg = cfg["recolour"]
+    status = R.status(LIBRARY)
+    assert status["complete"], status["models"]
+    entries = cat["entries"] + cat.get("decor", [])
+    missing = [e["id"] for e in entries if "material_tags" not in e]
+    if missing:
+        warnings.warn(f"{len(missing)} model(s) without material tags (not judged, or the GLB changed): {missing[:10]}")
+    for e in entries:
+        if "material_tags" not in e:
+            continue
+        assert set(e["material_tags"]) <= set(R.TAG_ORDER) and list(e["material_tags"]) == sorted(
+            e["material_tags"], key=R.TAG_ORDER.index), e["id"]
+        assert isinstance(e["recolourable_fabric"], bool) and isinstance(e["recolourable_wood"], bool), e["id"]
+        covered: dict = {}
+        total = 0.0
+        for slot in e["material_slots"]:
+            assert slot["material"] in R.MATERIALS and 0.0 <= slot["share"] <= 1.0 + 1e-6, e["id"]
+            assert slot["separable"] <= slot["agreed"], e["id"]
+            total += slot["share"]
+            if slot["agreed"] and slot["material"] != "other":
+                covered[slot["material"]] = covered.get(slot["material"], 0.0) + slot["share"]
+        assert total <= 1.0 + 1e-3, (e["id"], total)
+        assert set(e["material_tags"]) == {t for t, s in covered.items() if s >= rcfg["min_tag_share"]}, e["id"]
+        for material, flag in (("fabric", e["recolourable_fabric"]), ("wood", e["recolourable_wood"])):
+            ok = any(s["material"] == material and s["agreed"] and s["separable"] and s["share"] >= rcfg[
+                "min_recolour_share"] for s in e["material_slots"])
+            assert flag == ok, (e["id"], material)
+        glb = ASSETS / e["glb"]
+        if glb.is_file():
+            n = len(R.glb_materials(glb)["materials"])
+            assert all(0 <= s["index"] < n for s in e["material_slots"]), e["id"]
+    sofas = [e for e in entries if e["type"] in ("sofa", "armchair", "sofa_corner") and "material_tags" in e]
+    if sofas and not any(e["recolourable_fabric"] for e in sofas):
+        warnings.warn("no sofa or armchair model has a separable fabric slot: a fabric colour brief takes "
+                      "the parametric sofa")
+    tables = [e for e in entries if e["type"] == "table_coffee" and "material_tags" in e]
+    if tables and not any("glass" in e["material_tags"] for e in tables):
+        warnings.warn("no coffee table model is tagged glass: 'glass coffee table' takes the parametric glass top")
+    assert tags["counts"]["models"] >= len([e for e in entries if "material_tags" in e]) - len(tags["unjudged"])

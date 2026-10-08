@@ -7,7 +7,7 @@ furniture and decor types and downloads their GLBs; the shared library steps of 
 files. Nothing here runs in the session except on canned metadata (tests) or with ``--no-download``.
 
     python -m wenart.assets.abo survey --out DIR [--cache /opt/wenart/abo] [--metadata DIR] [--no-download]
-        [--workers N] [--config abo.yaml]
+        [--workers N] [--config abo.yaml] [--summary FILE]
 
 1. Metadata: ``3dmodels/metadata/3dmodels.csv.gz``, the 16 listings shards ``listings/metadata/listings_<s>.json.gz``
    and ``3dmodels/README.md``, read from ``--metadata DIR`` (the files side by side) or from ``<cache>/metadata/``,
@@ -30,6 +30,13 @@ files. Nothing here runs in the session except on canned metadata (tests) or wit
    extents in the importer's Z-up frame: x, z, y of the csv), ``front_documented`` -Y (README convention 2: glTF +Z
    is the product's natural front) and the credit line ``attribution`` (docs/milestone8.md §2), the counts per type
    and every refusal with its reason.
+
+5. Milestone 10 (docs/milestone10.md §4.5, §4.6): the rules of ``abo.yaml`` marked ``since: m10`` map the new
+   furniture and decor types (read from the listings of 8 Oct 2026: STOOL_SEATING, OTTOMAN, BENCH, CLOCK,
+   CANDLE_HOLDER, LIGHT_FIXTURE ... and words of the item names); ``no_listing`` names the types the listings hold no
+   model of (crib, curtain, blind, throw, books). ``--summary FILE`` also writes ``session_summary``: per new type the
+   listings mapped, in the size range and picked, and the rules that took them (``results/library/
+   survey_m10_session.json``, the ABO column of the coverage table of docs/milestone10.md §4.11).
 
 Exit codes: 0 candidates found, 1 none, 2 usage error or metadata missing.
 """
@@ -409,6 +416,8 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
     rules = cfg["rules"]
     counts: dict[str, dict] = {}
     unmapped: dict[str, int] = {}
+    product_types: dict[str, int] = {}
+    rule_counts: dict[str, dict[str, int]] = {}
     refused: list[dict] = []
     pools: dict[str, list[dict]] = {}
     stats = {"listings_with_model": len(listings), "models": len(by_model),
@@ -421,6 +430,7 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
         name_en, tag = english(listing.get("item_name"), tags)
         if name_en is None:
             stats["no_english_name"] += 1
+        product_types[str(ptype)] = product_types.get(str(ptype), 0) + 1
         row = rows.get(mid)
         base = {"uid": f"{UID_PREFIX}{mid}", "abo_3dmodel_id": mid, "item_id": listing.get("item_id")}
         if row is None:
@@ -438,6 +448,8 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
         key = ftype or named
         c = counts.setdefault(key, {"mapped": 0, "in_size": 0, "tried": 0, "candidates": 0, "not_selected": 0})
         c["mapped"] += 1
+        per_rule = rule_counts.setdefault(key, {})
+        per_rule[rule["name"]] = per_rule.get(rule["name"], 0) + 1
         title = name_en or any_value(listing.get("item_name"))[0] or f"ABO item {listing.get('item_id')}"
         style_en = english(listing.get("style"), tags)[0]
         brand = english(listing.get("brand"), tags)[0] or any_value(listing.get("brand"))[0]
@@ -508,11 +520,64 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
                      "readme_checked": readme_ok},
         "downloaded": bool(download_glbs), "cache": str(cache), "config_sha256": OV.canonical_sha256(cfg),
         "listings": stats, "unmapped_product_types": dict(sorted(unmapped.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "product_types": dict(sorted(product_types.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "rule_counts": {k: dict(sorted(v.items())) for k, v in sorted(rule_counts.items())},
         "counts": dict(sorted(counts.items())), "refused_counts": dict(sorted(refused_counts.items())),
         "candidates": candidates, "refused": refused,
     }
     OV.write_json(out / SURVEY_NAME, doc)
     return doc
+
+
+# --------------------------------------------------------------------------
+# The session summary (docs/milestone10.md §4.11: ABO candidates per new type)
+# --------------------------------------------------------------------------
+
+def new_types(cfg: dict) -> list[str]:
+    """The first type of every rule marked ``since: m10`` (the later ones are fallbacks of older types) and the
+    ``no_listing`` types of ``abo.yaml``."""
+    out: list[str] = []
+    for rule in cfg["rules"]:
+        if rule.get("since") == "m10" and rule["types"][0] not in out:
+            out.append(rule["types"][0])
+    return out + [t for t in (cfg.get("no_listing") or {}) if t not in out]
+
+
+def session_summary(doc: dict, cfg: dict, ocfg: dict, command: str = "") -> dict:
+    """The counts of one ABO survey of the session as the coverage table of docs/milestone10.md §4.11 wants them:
+    per new type the listings mapped, in the size range and picked (``survey.per_type_limit``), the rules that took
+    them and a note; the older types the same; the product types of the listings. ``doc`` is a ``survey`` result."""
+    limit = int(cfg["survey"]["per_type_limit"])
+    fresh = set(new_types(cfg))
+    notes = {**(cfg.get("type_notes") or {}), **(cfg.get("no_listing") or {})}
+    counts, by_rule = doc["counts"], doc.get("rule_counts") or {}
+
+    def row(t: str) -> dict:
+        c = counts.get(t) or {}
+        in_size = int(c.get("in_size", 0))
+        out = {"kind": "decor" if t in OV.DECOR_TYPES else "furniture", "mapped": int(c.get("mapped", 0)),
+               "in_size_range": in_size, "candidates": int(c.get("candidates", 0)), "rules": by_rule.get(t, {}),
+               "note": notes.get(t) or ("" if in_size >= 20 else
+                                             f"{in_size} models in range: Objaverse and generated models fill the rest")}
+        return out
+
+    new_rows = {t: row(t) for t in sorted(fresh, key=lambda t: (t in OV.DECOR_TYPES, t))}
+    old_rows = {t: row(t) for t in sorted(counts) if t not in fresh}
+    files = (doc.get("metadata") or {}).get("files") or {}
+    return {
+        "schema_version": OV.SCHEMA_VERSION, "kind": "abo_session_survey", "date": "2026-10-08",
+        "command": command or "python -m wenart.assets.abo survey --metadata DIR --no-download",
+        "source": cfg["dataset"]["index_url"], "per_type_limit": limit,
+        "config_sha256": {"abo.yaml": OV.canonical_sha256(cfg), "objaverse.yaml": OV.canonical_sha256(ocfg)},
+        "metadata_files": {k: {"sha256": v["sha256"], "bytes": v["bytes"]} for k, v in files.items()},
+        "listings": {"with_3d_model": doc["listings"]["listings_with_model"], "models": doc["listings"]["models"],
+                     "no_english_name": doc["listings"]["no_english_name"],
+                     "product_types": doc.get("product_types") or {}},
+        "new_types": new_rows, "old_types": old_rows,
+        "candidates_total": sum(r["candidates"] for r in list(new_rows.values()) + list(old_rows.values())),
+        "refused_size_range": (doc.get("refused_counts") or {}).get("size_range", 0),
+        "unmapped_product_types": dict(list((doc.get("unmapped_product_types") or {}).items())[:25]),
+    }
 
 
 # --------------------------------------------------------------------------
@@ -531,6 +596,7 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--no-download", action="store_true", help="no network: list the candidates without GLBs")
     p.add_argument("--workers", type=int, default=None, help="parallel GLB downloads (default abo.yaml)")
     p.add_argument("--config", default=None, help="abo.yaml (default: next to this module)")
+    p.add_argument("--summary", default=None, help="also write the session summary (counts per new type) to this file")
     return parser.parse_args(argv)
 
 
@@ -548,6 +614,9 @@ def main(argv=None) -> int:
         return EXIT_USAGE
     print(f"abo survey: {len(doc['candidates'])} candidate(s) in {time.time() - t0:.0f} s -> "
           f"{Path(args.out) / SURVEY_NAME}")
+    if args.summary:
+        OV.write_json(Path(args.summary), session_summary(doc, cfg, OV.load_config(), "python -m wenart.assets.abo "
+                      "survey --metadata DIR --no-download --summary " + Path(args.summary).as_posix()))
     return EXIT_OK if doc["candidates"] else EXIT_FAIL
 
 
