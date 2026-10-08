@@ -418,3 +418,26 @@ def test_m10_library_files_copy_the_recolour_folder(tmp_path):
     put(lib / "recolour" / "slots_big.json", size=CP.MAX_TEXT_BYTES + 1)
     got = sorted(f.relative_to(lib).as_posix() for f in CP.library_files(lib))
     assert got == sorted(keep)
+
+
+def test_m10_sheet_questions_answers_and_debug_images_are_copied(tmp_path):
+    """Milestone 10: the sheet_region questions and answers go to recognition/<p>/sheets/ (the next run's seeds),
+    the sheet debug images to furniture/<p>/sheets_debug/; a private project copies none of them."""
+    results, pub, priv = refs(tmp_path)
+    for ref in (pub, priv):
+        out = ref.out_dir
+        put(out / "sheets.json", {"kind": "sheets"})
+        put(out / "sheets_report.md", "# sheets")
+        put(out / "sheets" / "requests.json", {"items": []})
+        put(out / "sheets" / "answers_qwen3-vl-8b.json", {"answers": {}})
+        put(out / "sheets" / "crops" / "sheet_a_r1.png", size=10 * KB)
+        put(out / "sheets_debug" / "plan_s1.png", size=10 * KB)
+        put(out / "sheets_debug" / "big_s2.png", size=4 * 1024 * KB)
+    CP.copy_project(pub)
+    got = files(results)
+    assert {"furniture/p/sheets.json", "furniture/p/sheets_report.md", "recognition/p/sheets/requests.json",
+            "recognition/p/sheets/answers_qwen3-vl-8b.json", "recognition/p/sheets/crops/sheet_a_r1.png",
+            "furniture/p/sheets_debug/plan_s1.png"} <= got
+    assert "furniture/p/sheets_debug/big_s2.png" not in got                     # over 3 MB
+    CP.copy_project(priv)
+    assert not any("sheets" in f for f in files(tmp_path / "pr" / "real-01"))
