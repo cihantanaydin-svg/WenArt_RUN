@@ -8,7 +8,7 @@ import json
 import pytest
 
 import wenart.sheets as SH
-from _sheets_fixture import EXPECTED, PLANS, write_sheet
+from _sheets_fixture import EXPECTED, NORTH_DEG, PLANS, write_sheet
 
 
 def _run(tmp_path, name="p", brief: str | None = None, **opts):
@@ -230,3 +230,44 @@ def test_one_drawing_per_page_is_not_multi_region(tmp_path):
 def test_load_reads_what_run_wrote(result, tmp_path_factory):
     out = next(p for p in tmp_path_factory.getbasetemp().rglob("sheets.json") if "stage" in str(p))
     assert SH.load(out.parent) == json.loads(out.read_text(encoding="utf-8"))
+
+
+def test_site_plan_and_elevation(tmp_path):
+    # §1.6b rows 1, 12: the site plan registered through the building's outline (site_outline), its evidence in
+    # building metres, the north turned with it; an elevation's faces in building z, its viewer's direction.
+    res = _run(tmp_path, exterior=True)
+    doc = res.doc
+    assert SH.validation_errors(doc) == []
+    site_region = next(r for r in doc["regions"] if r["class"] == "site_plan")
+    assert site_region["use"] == "exterior" and site_region["registration"]["method"] == "site_outline"
+    assert site_region["registration"]["residual_m"] <= 0.01 and site_region["registration"]["rotation_deg"] == 0.0
+    ex = doc["exterior"]
+    site = ex["site"]
+    xs = [p[0] for p in site["plot"]]
+    ys = [p[1] for p in site["plot"]]
+    # The building's outline is drawn at (7, 6) m on the site plan: the plot lands 7 m left and 6 m below the origin.
+    assert (min(xs), min(ys), max(xs), max(ys)) == pytest.approx((-7.0, -6.0, 17.0, 14.0), abs=0.01)
+    assert site["parking"][0]["polygon"][0] == pytest.approx([12.0, 8.0], abs=0.01)
+    assert site["trees"][0]["points"][0] == pytest.approx([-4.0, 11.0], abs=0.01)
+    assert {lab["kind"] for lab in site["labels"]} == {"parking", "garden"}
+    assert ex["north"]["value"] == pytest.approx(NORTH_DEG, abs=3.0)
+    assert ex["north"]["evidence"][0]["region_id"] == site_region["id"]
+    elev = next(r for r in doc["regions"] if r["class"] == "elevation")
+    faces = {f["material"]: f for f in ex["facade"]}
+    assert set(faces) == {"render", "stone_cladding"}
+    assert faces["stone_cladding"]["side"] == "south" and faces["stone_cladding"]["z_range"] == pytest.approx([0, 1])
+    assert faces["render"]["z_range"] is None and all(f["colour"] is None for f in faces.values())
+    seen = ex["openings_seen"][0]
+    assert seen["region"] == elev["id"] and (seen["windows"], seen["doors"]) == (3, 1)
+    # The viewer of the south facade looks north: north is ~30 deg clockwise from +Y, i.e. ~60 deg ccw from +X.
+    assert seen["view_bearing_deg"] == pytest.approx((90.0 + NORTH_DEG) % 360.0, abs=3.0)
+    assert [p["x"] for p in seen["positions_m"]] == pytest.approx([1.5, 1.5, 4.5, 7.0])
+    assert seen["plan_check"] is None
+
+
+def test_frames_stay_frames_and_plot_lines_hold_their_site(tmp_path):
+    res = _run(tmp_path, exterior=True)
+    frames = res.doc["documents"][0]["sheets"][0]["frames"]
+    assert [f["box"] for f in frames] == [[0.0, 0.0, 9000.0, 5000.0]]
+    site = next(r for r in res.doc["regions"] if r["class"] == "site_plan")
+    assert site["box"][0] == pytest.approx(6200.0) and site["box"][2] == pytest.approx(8600.0)

@@ -13,9 +13,10 @@ How:
 2. Entities (texts excluded) are clustered by their boxes: two entities whose boxes are within the gap join. An
    INSERT is one entity with the box of its block geometry. Closed rectangles with both sides >= 5 % of the sheet
    are frame candidates and stay out of the first clustering; a candidate that holds >= 2 clusters is a **frame**
-   (never part of a region: frames never bridge drawings); any other candidate joins the clustering again, through
-   its four edges (so a title box that holds only texts is a region of its own, and the roof outline around a
-   plan joins that plan).
+   (never part of a region: frames never bridge drawings) unless it lies inside another frame and holds fewer than
+   two drawing titles: then it is a drawing's own boundary (a site plan's plot line) and everything it holds joins
+   it; any other candidate joins the clustering again, through its four edges (so a title box that holds only
+   texts is a region of its own, and the roof outline around a plan joins that plan).
    A cluster inside another drawing's box (a table in the middle of a room) joins it; a small cluster (<= 5 % of a
    drawing's box, or thin like a dimension chain) within half the drawing's shorter side and with 10 x fewer
    entities joins it too (a single drawing on a sheet without a frame stays one region).
@@ -36,6 +37,7 @@ from typing import Optional
 
 import numpy as np
 
+from wenart.sheets import titles as T
 from wenart.sheets.model import (Box, Ent, Sheet, Txt, box_distance, box_inside, box_size, box_union, in_box,
                                  point_box_distance)
 
@@ -246,12 +248,18 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     # drawings with paper around them, a building outline drawn as one closed polyline holds the walls that run into
     # it. A frame missed this way costs little: only what lies within the gap of its lines joins it.
     frames: list[int] = []
+    boundaries: list[int] = []
     for k in sorted(cand, key=lambda k: -_area(ents[k].rect)):
         rect = ents[k].rect
         held = [(b, len(g)) for b, g in zip(first_boxes, first) if box_inside(b, rect, tol=gap * 0.5)]
         apart = [n for b, n in held if _edge_distance(b, rect) > gap]
         touching = sum(n for b, n in held if _edge_distance(b, rect) <= gap)
         if len(apart) >= 2 and touching < FRAME_TOUCH_SHARE * sum(n for _, n in held):
+            nested = any(box_inside(rect, ents[f].rect, tol=gap * 0.5) for f in frames)
+            titled = sum(1 for t in texts if in_box(t.point, rect) and T.class_of(t.text) is not None)
+            if nested and titled < 2:
+                boundaries.append(k)
+                continue
             frames.append(k)
     frame_set = set(frames)
 
@@ -268,8 +276,9 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
         rect = ents[k].rect
         inside = [g for g in groups if k not in g and box_inside(box_union(ents[i].box for i in g), rect,
                                                                    tol=gap * 0.5)]
-        if len(inside) == 1:
-            uf.union(k, inside[0][0])
+        if len(inside) == 1 or (inside and k in boundaries):
+            for g in inside:
+                uf.union(k, g[0])
             groups = _groups(uf, members)
 
     frame_boxes = [(ents[k].id, ents[k].rect) for k in frames]

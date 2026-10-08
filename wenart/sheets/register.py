@@ -275,3 +275,69 @@ def stairs_check(plans: list, conflict: Callable, warnings: list) -> None:
                                f"{r.id} ({r.level['id']}): its stairs do not overlap the stairs of the level below",
                                "unresolved: each level is built as drawn")
                 r.conflicts.append(cid)
+
+
+SITE_SIZE_TOL = (0.05, 0.30)          # a site plan's building outline: within 5 % or 0.30 m of the reference's size
+SITE_RESIDUAL_MAX_M = 0.30            # site plans are drawn coarser (1/200, 1/500)
+
+
+def register_site(region, reference, reference_outline: Polygon, warnings: list) -> bool:
+    """Registers a site plan onto the reference plan through the building's outline drawn on it (``site_outline``):
+    a closed polyline of the reference outline's size (either way round), fitted at 0/90/180/270 degrees by the
+    same trimmed ICP. Sets ``transform_to_building`` and ``registration`` (``outline_entities`` names the outline);
+    False (listed) when no such outline fits within 0.30 m. A symmetric outline cannot tell an angle from the one
+    180 degrees away: the lower angle is kept and listed."""
+    mpu = region.metres_per_unit
+    ref_tf = reference.transform_to_building
+    if not mpu or ref_tf is None:
+        return False
+    rb = reference_outline.bounds
+    rw, rh = rb[2] - rb[0], rb[3] - rb[1]
+    ring = LineString(reference_outline.exterior.coords)
+
+    def fits(a: float, b: float) -> bool:
+        return abs(a - b) <= max(SITE_SIZE_TOL[0] * b, SITE_SIZE_TOL[1])
+
+    tried = []
+    for e in region.ents:
+        if len(e.strokes) != 1 or not e.strokes[0].closed or len(e.strokes[0].pts) < 4:
+            continue
+        poly = Polygon(e.strokes[0].pts)
+        if not poly.is_valid or poly.area <= 0:
+            continue
+        b = poly.bounds
+        w, h = (b[2] - b[0]) * mpu, (b[3] - b[1]) * mpu
+        if not ((fits(w, rw) and fits(h, rh)) or (fits(w, rh) and fits(h, rw))):
+            continue
+        pts0 = _points(poly, mpu)
+        for theta in (0.0, 90.0, 180.0, 270.0):
+            pts = pts0 @ _rot(theta).T
+            mb = (pts[:, 0].min(), pts[:, 1].min(), pts[:, 0].max(), pts[:, 1].max())
+            init = np.array([(rb[0] + rb[2]) / 2 - (mb[0] + mb[2]) / 2, (rb[1] + rb[3]) / 2 - (mb[1] + mb[3]) / 2])
+            t, rms = icp(pts, ring, init)
+            tried.append(((round(rms, 4), theta), theta, t, e, pts0))
+    best = min(tried, key=lambda x: x[0]) if tried else None
+    if best is None or best[0][0] > SITE_RESIDUAL_MAX_M:
+        found = "" if best is None else f" (best fit {best[0][0]:.2f} m)"
+        warnings.append(f"site plan {region.id}: no closed outline of the building's size ({rw:.2f} x {rh:.2f} m) "
+                        f"fits{found}: not registered")
+        region.registration = {"reference": reference.id, "method": "none", "rotation_deg": 0.0,
+                               "shift_m": [0.0, 0.0], "residual_m": None, "matched": 0, "stairs_aligned": None,
+                               "note": "no building outline of the reference's size"}
+        return False
+    _, theta, t, e, pts0 = best
+    pts = pts0 @ _rot(theta).T + t
+    d = np.hypot(*(_nearest(ring, pts) - pts).T)
+    residual = float(np.sqrt(np.mean(d ** 2)))
+    a = mpu * math.cos(math.radians(theta))
+    b = mpu * math.sin(math.radians(theta))
+    region.transform_to_building = [_r(a), _r(-b), _r(t[0]), _r(b), _r(a), _r(t[1])]
+    region.registration = {"reference": reference.id, "method": "site_outline", "rotation_deg": theta,
+                           "shift_m": [_r(t[0] - ref_tf[2]), _r(t[1] - ref_tf[5])], "residual_m": round(residual, 4),
+                           "matched": int((d <= MATCH_M).sum()), "stairs_aligned": None,
+                           "note": f"the building outline {e.id} on the site plan", "outline_entities": [e.id]}
+    twin = [x for x in tried if x[3] is e and x[1] == (theta + 180.0) % 360.0 and x[0][0] - best[0][0] <= 0.01]
+    if twin:
+        warnings.append(f"site plan {region.id}: its building outline {e.id} fits at {theta:.0f} and "
+                        f"{(theta + 180.0) % 360.0:.0f} deg alike (symmetric): {theta:.0f} deg kept")
+    return True

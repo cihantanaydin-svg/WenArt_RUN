@@ -483,10 +483,29 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
         # s along cut_axis: 0 at the section's left outer wall face (= the reference outline's min side along the
         # axis, flipped unknown without a cut line on the plans).
         roof["profile"] = [[round((x - x0) * s, 3) + 0.0, round(z(y), 3) + 0.0] for x, y in prof]
-    if section.profile:
+    if section.profile or out["ground"]:
         warnings.append(f"section {rid}: no cut line on the plans: the section's left end is taken as the building's "
                         f"min side along the cut axis (flipped unknown)")
+    _name_ground_sides(out, rid, warnings)
     return out, warnings
+
+
+def _name_ground_sides(out: dict, rid: str, warnings: list) -> None:
+    """Section sides -> ``$defs/side``: along x the left end is ``left`` (-X), along y ``front`` (-Y) (not flipped).
+    With the cut axis unknown, one level for both sides is ``all``; two different ones keep left/right (listed)."""
+    names = {"x": {"left": "left", "right": "right"}, "y": {"left": "front", "right": "back"}}.get(out["cut_axis"])
+    if names is not None:
+        for g in out["ground"]:
+            g["side"] = names[g["side"]]
+        return
+    zs = {round(float(g["z"]["value"]), 2) for g in out["ground"]}
+    if len(out["ground"]) == 2 and len(zs) == 1:
+        first = out["ground"][0]
+        first["side"] = "all"
+        first["z"]["evidence"] = first["z"]["evidence"] + out["ground"][1]["z"]["evidence"]
+        out["ground"] = [first]
+    elif out["ground"]:
+        warnings.append(f"section {rid}: the cut direction is unknown: the ground levels keep the section's left/right")
 
 
 def _what_at(section: SectionGeometry, y: float) -> str:
