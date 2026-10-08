@@ -50,9 +50,10 @@ hatch paths ``HATCH:5C#0``. Text ids: ``TEXT:2A``, ``MTEXT:2B`` (``MTEXT:2B:1`` 
 """
 from __future__ import annotations
 
+import dataclasses
 import math
 import re
-from collections import Counter
+from collections import Counter, OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -102,8 +103,38 @@ def is_wall_hint_layer(name: Optional[str]) -> bool:
     return bool(name) and WALL_HINT_RE.search(name) is not None
 
 
-def read_page(path: str | Path, file_rel: str) -> GenericPage:
-    """Read the model space of a DXF into a ``GenericPage`` (one page per file)."""
+def read_page(path: str | Path, file_rel: str, region_box=None, units_to_m_override: Optional[float] = None
+              ) -> GenericPage:
+    """Read the model space of a DXF into a ``GenericPage`` (one page per file).
+
+    Milestone 10 (docs/milestone10.md §1.6a): ``region_box`` (``[x0, y0, x1, y1]`` in drawing units, a
+    ``sheets.json`` region) keeps only what belongs to that region (``clip_page``); ``units_to_m_override`` replaces
+    the ``$INSUNITS`` metres per unit (the unit check of the sheets stage, ``unit_mismatch``)."""
+    page, _info = read_page_info(path, file_rel)
+    if region_box is not None:
+        page = clip_page(page, region_box)
+    if units_to_m_override is not None:
+        page = dataclasses.replace(page, units_to_m=float(units_to_m_override),
+                                   warnings=[w for w in page.warnings if "names no drawing unit" not in w])
+    return page
+
+
+# Milestone 10: the sheets stage and the pipeline read a large DXF once (real02: 25 s); the last two pages read are
+# kept, keyed by the path, its size and its modification time.
+_CACHE: "OrderedDict[tuple, tuple]" = OrderedDict()
+CACHE_SIZE = 2
+
+
+def read_page_info(path: str | Path, file_rel: str) -> tuple[GenericPage, dict]:
+    """The whole model space as a ``GenericPage`` and the header facts the sheets stage needs: ``insunits`` (the
+    ``$INSUNITS`` code as stored), ``layouts`` (``[{name, entities}]`` of the paper-space layouts with entities)."""
+    p = Path(path)
+    stat = p.stat()
+    key = (str(p.resolve()), stat.st_size, stat.st_mtime_ns, file_rel)
+    if key in _CACHE:
+        _CACHE.move_to_end(key)
+        page, info = _CACHE[key]
+        return _copy_page(page), dict(info)
     doc, auditor = recover.readfile(str(path))
     insunits = doc.header.get("$INSUNITS", 0)
     u2m = units_to_m(insunits)
@@ -118,9 +149,95 @@ def read_page(path: str | Path, file_rel: str) -> GenericPage:
                         "come from the dimension texts")
     warnings.extend(reader.warnings)
     layers = sorted({st.layer for st in reader.strokes if st.layer and is_wall_hint_layer(st.layer)})
-    return GenericPage(file=file_rel, page=1, source_kind="dxf", units="dxf", units_to_m=u2m,
+    page = GenericPage(file=file_rel, page=1, source_kind="dxf", units="dxf", units_to_m=u2m,
                        size=reader.extent_size(), strokes=reader.strokes, texts=reader.texts,
                        dimensions=reader.dims, wall_hint_layers=tuple(layers), warnings=warnings)
+    layouts = []
+    for layout in doc.layouts:
+        if layout.name.lower() == "model":
+            continue
+        count = sum(1 for e in layout if e.dxftype() != "VIEWPORT")
+        if count:
+            layouts.append({"name": layout.name, "entities": count})
+    info = {"insunits": int(insunits) if insunits is not None else None, "layouts": layouts,
+            "hidden": _hidden_boxes(reader.hidden_top)}
+    _CACHE[key] = (page, info)
+    while len(_CACHE) > CACHE_SIZE:
+        _CACHE.popitem(last=False)
+    return _copy_page(page), dict(info)
+
+
+def _hidden_boxes(hidden: list) -> list[dict]:
+    """``{id, type, layer, box}`` of the model-space entities that were not read (layer off or frozen, invisible):
+    the sheets stage lists those far from every drawing as strays."""
+    from ezdxf import bbox as dxf_bbox
+
+    out = []
+    for eid, entity in hidden:
+        try:
+            ext = dxf_bbox.extents([entity], fast=True)
+        except Exception:  # noqa: BLE001 - an entity without a box is not listed
+            continue
+        if not ext.has_data:
+            continue
+        out.append({"id": eid, "type": entity.dxftype(), "layer": entity.dxf.get("layer"),
+                    "box": [_r(ext.extmin.x), _r(ext.extmin.y), _r(ext.extmax.x), _r(ext.extmax.y)]})
+    return out
+
+
+def _copy_page(page: GenericPage) -> GenericPage:
+    """A shallow copy with its own lists (strokes and texts are shared and never changed by the readers)."""
+    return dataclasses.replace(page, strokes=list(page.strokes), texts=list(page.texts),
+                               dimensions=list(page.dimensions), warnings=list(page.warnings))
+
+
+def stroke_entity(stroke_id: str) -> str:
+    """The model-space entity a stroke or text id comes from: ``INSERT:4B[2]/3`` -> ``INSERT:4B``,
+    ``LWPOLYLINE:2F:1`` -> ``LWPOLYLINE:2F``, ``HATCH:5C#0`` -> ``HATCH:5C``, ``MTEXT:2B:1`` -> ``MTEXT:2B``."""
+    head = stroke_id.split("/")[0].split("#")[0]
+    head = re.sub(r"\[\d+\]$", "", head)
+    return ":".join(head.split(":")[:2])
+
+
+def clip_page(page: GenericPage, box) -> GenericPage:
+    """The part of a page that belongs to one drawing region (docs/milestone10.md §1.6a): an entity belongs to the
+    region whose box holds the centre of its bounding box (all strokes of an INSERT or a polyline go together), a
+    text by the centre of its box (the adapters' text boxes are estimated from the character count, so this is the
+    text's own place, never an MTEXT column width), a dimension by the centre of its measured span."""
+    x0, y0, x1, y1 = (float(v) for v in box)
+
+    def inside(p) -> bool:
+        return x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+
+    boxes: dict[str, list[float]] = {}
+    for st in page.strokes:
+        key = stroke_entity(st.id)
+        b = st.bbox()
+        cur = boxes.get(key)
+        boxes[key] = list(b) if cur is None else [min(cur[0], b[0]), min(cur[1], b[1]), max(cur[2], b[2]),
+                                                   max(cur[3], b[3])]
+    keep = {k for k, b in boxes.items() if inside(((b[0] + b[2]) / 2.0, (b[1] + b[3]) / 2.0))}
+    strokes = [st for st in page.strokes if stroke_entity(st.id) in keep]
+    tboxes: dict[str, list[float]] = {}
+    for t in page.texts:
+        key = stroke_entity(t.id) if t.id.startswith("MTEXT:") else t.id
+        cur = tboxes.get(key)
+        b = t.box
+        tboxes[key] = list(b) if cur is None else [min(cur[0], b[0]), min(cur[1], b[1]), max(cur[2], b[2]),
+                                                    max(cur[3], b[3])]
+    tkeep = {k for k, b in tboxes.items() if inside(((b[0] + b[2]) / 2.0, (b[1] + b[3]) / 2.0))}
+    texts = [t for t in page.texts if (stroke_entity(t.id) if t.id.startswith("MTEXT:") else t.id) in tkeep]
+    dims = [d for d in page.dimensions if inside(((d.p1[0] + d.p2[0]) / 2.0, (d.p1[1] + d.p2[1]) / 2.0))]
+    pts = [p for st in strokes for p in st.pts] + [(t.box[0], t.box[1]) for t in texts] + \
+        [(t.box[2], t.box[3]) for t in texts] + [p for d in dims for p in (d.p1, d.p2)]
+    size = (0.0, 0.0)
+    if pts:
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        size = (_r(max(xs) - min(xs)), _r(max(ys) - min(ys)))
+    layers = sorted({st.layer for st in strokes if st.layer and is_wall_hint_layer(st.layer)})
+    return dataclasses.replace(page, size=size, strokes=strokes, texts=texts, dimensions=dims,
+                               wall_hint_layers=tuple(layers), warnings=list(page.warnings))
 
 
 def collect_texts(doc, file_rel: Optional[str] = None) -> list[TextRun]:
@@ -243,6 +360,7 @@ class _Reader:
         self.warnings: list[str] = []
         self.skipped: Counter = Counter()
         self.hidden = 0
+        self.hidden_top: list = []         # top-level entities not read (layer off or frozen, invisible): sheets strays
         self.textsize = float(doc.header.get("$TEXTSIZE", 0.0) or 0.0)
         self._layer_cache: dict[str, tuple] = {}
 
@@ -312,6 +430,8 @@ class _Reader:
         layer = self._effective_layer(entity, ref)
         if entity.dxf.get("invisible", 0) or not self._layer_info(layer)[0]:
             self.hidden += 1
+            if ref is None:
+                self.hidden_top.append((eid, entity))
             return
         chain = ref.chain if ref else None
         if kind == "INSERT":
