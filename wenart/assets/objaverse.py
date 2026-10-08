@@ -37,7 +37,9 @@ library's own ranges, they win over ``size_table.yaml``) and LVIS categories; ``
 so their stored answers stay current). The survey reads two new things per ``categories`` entry: ``lvis`` (the LVIS
 name it reads, so several entries may split one broad category: ``cabinet`` into sideboards, shoe, display, tall and
 wall cabinets) and ``require_words`` (the title or a tag must hold one of them; an entry with words wins over the
-plain entries of its LVIS category, two matching entries of different types refuse the object ``several_types``);
+plain entries of its LVIS category, two matching entries of different types refuse the object ``several_types``;
+``not_words`` next to it drops the entry when the title or a tag holds one of those: wall-hung cabinets are not
+sideboards, display or tall cabinets, review finding 41);
 Objaverse objects of a decor type are ``kind: decor``. ``JudgeSpec`` lets the same judging (store, workers, deadline,
 exit codes) ask another task: ``wenart/assets/recolour.py`` asks the material of every slot of an accepted model and
 ``write-catalog`` copies its four fields (``MATERIAL_FIELDS``) into the entry; a generated plant keeps its ``species``
@@ -601,13 +603,15 @@ def new_counts() -> dict:
 
 def resolve_categories(cats: list[str], meta: dict, categories: dict, fields: dict) -> list[str]:
     """The categories of an object whose entries have ``require_words`` (Milestone 10), on its metadata:
-    - an entry with ``require_words`` stays only when its title or a tag holds one of the words (``prefer_hit``);
+    - an entry with ``require_words`` stays only when its title or a tag holds one of the words (``prefer_hit``)
+      and none of its ``not_words``;
     - a matching entry takes precedence over the plain entries of the same LVIS category (a "sectional" in LVIS
       ``sofa`` is a corner sofa, not a sofa).
     Two matching entries of different types leave two type sets: the survey refuses the object ``several_types``
     (never guessed). The words select the candidates; both judges still decide ``matches_type``."""
     kept = [c for c in cats if not categories[c].get("require_words")
-            or prefer_hit(meta, fields, categories[c]["require_words"])]
+            or (prefer_hit(meta, fields, categories[c]["require_words"])
+                and not prefer_hit(meta, fields, categories[c].get("not_words")))]
     specific = {lvis_name(c, categories) for c in kept if categories[c].get("require_words")}
     return [c for c in kept if categories[c].get("require_words") or lvis_name(c, categories) not in specific]
 

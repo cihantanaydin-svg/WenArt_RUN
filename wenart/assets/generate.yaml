@@ -107,7 +107,9 @@ trellis_decor:
 trellis_decor_full: [plant_large, curtain, blind]
 
 # Fixed equipment never generated (docs/milestone8.md §3): stays parametric (or library) as drawn.
-exclude_types: [stair, kitchen_counter, kitchen_island, unknown]
+exclude_types: [stair, kitchen_counter, kitchen_island, unknown, wall_cabinet]
+# wall_cabinet (Milestone 10, review finding 41): built parametrically with the counter run's fronts, colour and handle
+# (docs/milestone10.md §4.4); a library or generated model would replace the parametric unit in the catalogue merge.
 
 # Types whose look comes from ceramics, enamel and metal, not from furniture woods and fabrics: they take the
 # family's "fixtures" hint.
@@ -196,7 +198,6 @@ type_words:
   shoe_cabinet: slim shoe cabinet with flap doors
   display_cabinet: tall display cabinet with glass doors and shelves
   tall_cabinet: tall narrow storage cabinet with two doors
-  wall_cabinet: wall-mounted cabinet with two doors
   # Milestone 10 decor types (docs/milestone10.md §1.1, §4.6)
   curtain: pair of floor-length curtains hanging in soft folds from a curtain rod
   blind: window roller blind, half lowered, on its mounting bracket

@@ -24,6 +24,7 @@ OLD_TYPES = ("bed_single", "bed_double", "sofa", "armchair", "table_dining", "ta
              "plant_small")
 NEW_FURNITURE = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib",
                  "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
+PARAMETRIC_ONLY = ("wall_cabinet",)          # docs/milestone10.md §4.4: built along the counter run, never generated
 NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
              "pendant_light", "ceiling_light")
 
@@ -31,12 +32,16 @@ NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "
 def test_every_new_type_has_a_prompt_for_every_style_family():
     assert len(FAMILIES) == 9
     for t in NEW_FURNITURE + NEW_DECOR:
+        if t in PARAMETRIC_ONLY:
+            continue
         for family in FAMILIES:
             text = G.prompt_for(t, family, CFG)
             assert text.startswith(f"a single {family} style ") and "plain white background" in text, (t, family)
             assert "{" not in text and "}" not in text, f"{t}/{family}: an unfilled slot: {text}"
         assert len({G.prompt_for(t, f, CFG) for f in FAMILIES}) == len(FAMILIES), f"{t}: the families give one prompt"
-    assert set(NEW_FURNITURE) <= set(G.plan_types(CFG)) and set(NEW_DECOR) <= set(G.decor_types(CFG))
+    assert set(NEW_FURNITURE) - set(PARAMETRIC_ONLY) <= set(G.plan_types(CFG)) and not (
+        set(PARAMETRIC_ONLY) & (set(G.plan_types(CFG)) | set(G.target_types(CFG))))     # wall_cabinet: review finding 41
+    assert set(NEW_DECOR) <= set(G.decor_types(CFG))
     assert G.target_types(CFG)[-len(G.decor_types(CFG)):] == G.decor_types(CFG)
 
 

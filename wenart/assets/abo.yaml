@@ -80,13 +80,16 @@ no_listing:
   blind: "no window blind or shade in any item name"
   throw: "no throw blanket: BLANKET is one blanket ladder; 'throw' names 204 throw pillows (cushion)"
   books: "no book or book stack in any item name"
+  # Parametric by design, not for lack of listings (docs/milestone10.md §4.4, review finding 41).
+  wall_cabinet: "no library source: wall cabinets are built parametrically along the counter run with its fronts, colour
+    and handle (docs/milestone10.md §4.4); the ABO holds three wall-hung cabinets (a Stone & Beam wall organizer and
+    the Movian bathroom cabinets), which no rule takes"
 
 # What the few listings of a Milestone 10 type are (session summary, same date).
 type_notes:
   bunk_bed: "one floor bunk bed (Max & Finn); the two metal loft beds are no bunk beds"
   chaise: "six chaise lounges (Ravenna Home tufted, Stone & Beam Varon daybed chaise); the sofa chaises are corner sofas"
   display_cabinet: "one display cabinet (Alkove Malvern); the display cases are flag cases"
-  wall_cabinet: "two wall cabinets in range; the Movian bathroom wall cabinets are 1.4 m tall or have no English name"
   tall_cabinet: "17 in range; most CABINET listings of this kind have no English name, only the height rule takes them"
   sculpture: "one figurine; the SCULPTURE listing is a planter set"
   plant_large: "no tall plant: the tallest PLANTER is a hanging planter, ARTIFICIAL_PLANT is one hanging planter"
@@ -179,12 +182,13 @@ rules:
      words: [sideboard, buffet, credenza], not_words: [lamp, tv, media, island, cart], types: [sideboard]}
   - {name: display_cabinet, since: m10, product_types: [CABINET, SHELF, HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [display, curio, china, vitrine, glass door, glass doors, hutch],
-     not_words: [flag, case, stand, wall mounted, wall mount, floating], types: [display_cabinet]}
-  - {name: wall_cabinet, since: m10, product_types: [CABINET, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
-     words: [wall cabinet, wall mounted, wall-mounted, wall mount, medicine cabinet, hanging cabinet, floating wall],
-     not_words: [rack, hook, hooks, tv, mirror, art, clock, bracket, bracket shelf], types: [wall_cabinet]}
+     not_words: [flag, case, stand, wall mounted, wall mount, wall-mounted, wall-mount, floating],
+     types: [display_cabinet]}
+  # No wall_cabinet rule: wall cabinets are parametric (docs/milestone10.md §4.4); the cabinet rules below keep their
+  # "wall mounted" not_words, so a wall-hung cabinet does not become a sideboard, display or tall cabinet.
   - {name: tall_cabinet, since: m10, product_types: [CABINET], min_height: 1.4,
-     not_words: [wardrobe, armoire, bed, bunk, tv, media, desk, wall mounted, wall mount, floating, closet],
+     not_words: [wardrobe, armoire, bed, bunk, tv, media, desk, wall mounted, wall mount, wall-mounted, wall-mount,
+                 wall hung, wall-hung, hanging, floating, closet],
      types: [tall_cabinet]}
   - {name: bookshelf, product_types: [SHELF], not_words: [floating, wall], min_height: 1.0, types: [bookshelf]}
   - {name: bookshelf_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE],

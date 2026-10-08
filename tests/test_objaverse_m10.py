@@ -28,6 +28,7 @@ NEW_FURNITURE = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "offi
 NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
              "pendant_light", "ceiling_light")
 NEW = NEW_FURNITURE + NEW_DECOR
+PARAMETRIC_ONLY = ("wall_cabinet",)          # docs/milestone10.md §4.4: built along the counter run, no library source
 FRONT_RULES = {"back_taller", "detail_side", "open_side", "none", "documented"}
 
 
@@ -41,8 +42,9 @@ def test_every_new_type_has_a_source_judge_words_sizes_and_a_prompt():
     table, tol = OV.library_size_table(CFG)
     heights = OV.heights_of(CFG)
     for t in NEW:
-        assert t in abo_types or t in objaverse_types, f"{t}: no ABO rule and no Objaverse category"
-        assert t in G.target_types(GCFG) and GCFG["type_words"][t].strip(), f"{t}: no TRELLIS.2 prompt words"
+        if t not in PARAMETRIC_ONLY:
+            assert t in abo_types or t in objaverse_types, f"{t}: no ABO rule and no Objaverse category"
+            assert t in G.target_types(GCFG) and GCFG["type_words"][t].strip(), f"{t}: no TRELLIS.2 prompt words"
         assert t in table and t in heights and t in CFG["types"], t
         assert CFG["types"][t]["front"] in FRONT_RULES, t
     for t in NEW_FURNITURE:
@@ -56,6 +58,29 @@ def test_every_new_type_has_a_source_judge_words_sizes_and_a_prompt():
         if CFG["types"][t]["front"] != "none":
             assert t in OV.FRONT_WORDS_BY_TYPE, t
     assert CFG["types"]["clock"]["front"] == OV.DOCUMENTED_RULE and "clock" in OV.DECOR_FRONT_WORDS
+
+
+def test_wall_cabinets_are_parametric_only_no_library_source_names_them():
+    """Review finding 41: §4.4 builds wall cabinets along the counter run with the brief's fronts and handle, and the
+    catalogue merge drops a parametric entry as soon as one library model of its type exists. So neither ABO, nor
+    Objaverse, nor the generator may produce a wall_cabinet model; the judge words, the height and the size range stay."""
+    assert tuple(CFG["parametric_only"]) == PARAMETRIC_ONLY
+    for t in PARAMETRIC_ONLY:
+        assert all(t not in rule["types"] for rule in ACFG["rules"]), f"{t}: an ABO rule"
+        assert all(t not in spec["types"] for spec in CFG["categories"].values()), f"{t}: an Objaverse category"
+        assert t in GCFG["exclude_types"] and t not in G.plan_types(GCFG) and t not in G.target_types(GCFG)
+        assert t not in GCFG["type_words"]
+        with pytest.raises(G.UsageError):
+            G.parse_types([t], GCFG)
+        with pytest.raises(G.UsageError):
+            G.parse_types([t], GCFG, target=True)
+        assert t in ACFG["no_listing"] and "parametric" in ACFG["no_listing"][t]
+        assert t in A.new_types(ACFG)                                             # still listed in the session summary
+        assert t in OV.TYPE_WORDS and t in CFG["furniture_sizes"] and t in CFG["types"]
+    # the listing that the removed rule took (a wall organizer) is no candidate of any type now
+    rule = A.match_rule("CABINET", "Amazon Brand – Stone & Beam Farmhouse Wall Mounted Cabinet Storage Organzier",
+                        0.5903, ACFG["rules"])
+    assert rule is None or "wall_cabinet" not in rule["types"]
 
 
 def test_ranges_are_sane():
@@ -294,7 +319,9 @@ def test_categories_with_words_pick_by_title_or_tags_and_win_over_the_plain_entr
     sideboard = m.add("cabinet", name="Oak Sideboard")
     shoe = m.add("cabinet", name="Hall cabinet", tags=("shoes",))
     nothing = m.add("cabinet", name="Storage thing")                 # no word of any entry: no type, not refused
-    both = m.add("cabinet", name="Tall wall cabinet")                # two entries of different types
+    both = m.add("cabinet", name="Tall display cabinet")             # two entries of different types
+    wall_hung = m.add("cabinet", name="Tall wall cabinet")           # wall-hung: not_words drop the tall entry (finding 41)
+    wall_tag = m.add("cabinet", name="Display unit", tags=("wall-mounted",))     # ... and the display entry, by a tag
     console = m.add("table", name="Hall table")
     other_table = m.add("table", name="Plain thing")
     office = m.add("chair", name="Gaming chair")
@@ -315,10 +342,10 @@ def test_categories_with_words_pick_by_title_or_tags_and_win_over_the_plain_entr
     assert group[pendant] == "pendant_light" and group[ceiling] == "ceiling_light" and group[floor] == "floor_lamp"
     assert group[clock] == "clock" and group[blind] == "blind" and group[curtain] == "curtain"
     assert group[palm] == "plant_large" and group[pot] == "potted_plant"
-    absent = {nothing, other_table}
+    absent = {nothing, other_table, wall_hung, wall_tag}
     assert not absent & set(group) and both not in group
     refused = {r["uid"]: r for r in doc["refused"]}
-    assert refused[both]["code"] == "several_types" and set(refused[both]["categories"]) == {"cabinet_tall", "cabinet_wall"}
+    assert refused[both]["code"] == "several_types" and set(refused[both]["categories"]) == {"cabinet_tall", "cabinet_display"}
     assert doc["lvis"]["word_filtered"] == len(absent)
     kinds = {c["uid"]: (c["kind"], c["decor_type"]) for c in doc["candidates"]}
     assert kinds[clock] == ("decor", "clock") and kinds[blind] == ("decor", "blind")

@@ -21,8 +21,9 @@ NEW_FURNITURE = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "offi
                  "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
 NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
              "pendant_light", "ceiling_light")
-# Types the 8 Oct 2026 listings hold no model of: no ABO rule (Objaverse and the generated models fill them).
-NO_ABO_LISTING = ("crib", "curtain", "blind", "throw", "books")
+# Types without an ABO rule: the 8 Oct 2026 listings hold no model of them (Objaverse and the generated models fill
+# them), or the type is parametric by design (wall_cabinet, docs/milestone10.md §4.4; review finding 41).
+NO_ABO_LISTING = ("crib", "curtain", "blind", "throw", "books", "wall_cabinet")
 
 
 def mapped(ptype, name, dims):
@@ -101,7 +102,7 @@ def mapped(ptype, name, dims):
      [0.66, 0.42, 1.98], "display_cabinet"),
     ("HOME", "AmazonBasics Flag Display Case, White", [0.64, 0.10, 0.34], None),
     ("CABINET", "Amazon Brand – Stone & Beam Farmhouse Wall Mounted Cabinet Storage Organzier - 23 x19 x 6 Inch, "
-                "Natural Wood", [0.489, 0.1838, 0.5903], "wall_cabinet"),
+                "Natural Wood", [0.489, 0.1838, 0.5903], None),          # wall cabinets are parametric (§4.4): no rule
     ("CABINET", "Amazon Brand - Movian Argenton - Wall-mounted Bathroom Cabinet, 2-Doors 4-Shelves, 30 x 27 x 140 cm",
      [0.30, 0.27, 1.40], None),                                            # taller than a wall cabinet: size refused
     ("CABINET", "Express Furniture", [1.2499, 0.4798, 2.1598], "tall_cabinet"),   # no rule words: height >= 1.4 m
