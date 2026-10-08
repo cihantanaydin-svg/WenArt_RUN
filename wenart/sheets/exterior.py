@@ -208,27 +208,42 @@ def gable_end(region) -> Optional[str]:
 def elevation_z(region, datum: Optional[float], ground_z: Optional[float]) -> Optional[dict]:
     """How an elevation's y maps to building z: ``z = (y - y_ref) * metres_per_unit + z_ref``.
 
-    A level mark wins (``43.00`` with the section's datum 43.00 is z 0; a mark more than 30 m from the datum, or any
-    mark without a datum, is read as relative to the ground floor: ``±0.00`` is z 0); else the lowest horizontal
-    line spanning half the drawing is the ground (z of the section's ground line, else 0.0 assumed); else None."""
+    A level mark wins (``43.00`` with the section's datum 43.00 is z 0; a mark more than 30 m from the datum, or a
+    small mark without a datum, is read as relative to the ground floor: ``±0.00`` is z 0). An absolute mark (over
+    30 m) without a datum is read against the elevation's own ground: the mark on the ground line (else the lowest
+    mark) is taken as the ground's z (assumed, with a ``warning``). Else the lowest horizontal line spanning half the
+    drawing is the ground (z of the section's ground line, else 0.0 assumed); else None."""
     mpu = region.metres_per_unit
     if not mpu:
         return None
     segs = UC.segments([st for e in region.ents for st in e.strokes])
-    for t, value in UC.mark_texts(region.texts):
-        mp = UC.mark_point(t, segs)
-        if mp is None:
-            continue
-        absolute = datum is not None and abs(value - datum) <= 30.0
-        z_ref = value - datum if absolute else value
-        note = (f"level mark {t.text} - datum {datum:.2f}" if absolute else
-                f"level mark {t.text} read relative to the ground floor")
-        return {"y_ref": mp[1], "z_ref": round(z_ref, 4), "method": "vector",
-                "evidence": [_ev(region, t.id, "level_mark", t.text)], "note": note}
     gb = region.geometry_box
     width = gb[2] - gb[0]
     flat = [(min(a[1], b[1]), st) for a, b, st in segs
             if abs(a[1] - b[1]) <= 1e-6 * max(1.0, abs(a[1])) + 1e-9 and abs(b[0] - a[0]) >= 0.5 * width]
+    marks = [(t, value, mp) for t, value in UC.mark_texts(region.texts) for mp in [UC.mark_point(t, segs)]
+             if mp is not None]
+    if marks:
+        t, value, mp = marks[0]
+        if datum is not None and abs(value - datum) <= 30.0:
+            return {"y_ref": mp[1], "z_ref": round(value - datum, 4), "method": "vector",
+                    "evidence": [_ev(region, t.id, "level_mark", t.text)],
+                    "note": f"level mark {t.text} - datum {datum:.2f}"}
+        if abs(value) <= 30.0:
+            return {"y_ref": mp[1], "z_ref": round(value, 4), "method": "vector",
+                    "evidence": [_ev(region, t.id, "level_mark", t.text)],
+                    "note": f"level mark {t.text} read relative to the ground floor"}
+        # Absolute marks and no datum: the elevation's own ground mark is the ground (assumed).
+        g_tol = 0.02 / mpu
+        ground_y = min(f[0] for f in flat) if flat else None
+        on_ground = [m for m in marks if ground_y is not None and abs(m[2][1] - ground_y) <= g_tol]
+        gt, _, gmp = on_ground[0] if on_ground else min(marks, key=lambda m: m[2][1])
+        gz = ground_z if ground_z is not None else 0.0
+        where = "on its ground line" if on_ground else "the lowest"
+        note = f"no section datum: the elevation's mark {gt.text} ({where}) taken as z {gz:.2f} (assumed)"
+        return {"y_ref": gmp[1], "z_ref": round(gz, 4), "method": "derived",
+                "evidence": [_ev(region, gt.id, "level_mark", gt.text, confidence=0.5)], "note": note,
+                "warning": f"elevation {region.id}: {note}"}
     if flat:
         y, st = min(flat, key=lambda f: f[0])
         z_ref = ground_z if ground_z is not None else 0.0
@@ -266,6 +281,13 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
     for e in region.ents:
         if e.kind == "HATCH" and mpu:
             b = e.box
+            band = zr(b[1], b[3])
+            if band is not None and band[1] <= 0.01:
+                # Below the ground floor's level: terrain or a foundation, not a facade (listed).
+                if warnings is not None:
+                    warnings.append(f"elevation {region.id}: hatch {e.id} lies below the ground floor's level "
+                                    f"(z {band[0]:.2f} to {band[1]:.2f} m): terrain or foundation, not a facade")
+                continue
             label = _label_in(region, b) or _label_by_leader(region, b, segs)
             entry = {"region": region.id, "side": side, "z_range": zr(b[1], b[3]), "colour": None,
                      "material": label[0] if label else "hatched", "source": "hatch",
@@ -285,7 +307,9 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
         return round((y - region.geometry_box[1]) * mpu, 3) + 0.0
 
     if mpu:
-        ground = zmap["y_ref"] if zmap is not None and zmap["method"] == "derived" else region.geometry_box[1]
+        # The drawing y of the ground floor's level (building z 0) when the z mapping is known: a terrain hatch or a
+        # foundation drawn below the ground line never moves it.
+        ground = zmap["y_ref"] - zmap["z_ref"] / mpu if zmap is not None else region.geometry_box[1]
         # The facade's left end (seen from outside, as drawn): the widest closed outline standing on the ground (the
         # wall outline; the roof's eaves reach further out but start above the ground).
         g_tol = 0.05 / mpu
@@ -413,13 +437,19 @@ def site_of(region, warnings: list) -> Optional[dict]:
         if block and NORTH_BLOCK_RE.search(block):
             continue
         circles = [st for st in e.strokes if st.kind == "circle" and st.arc is not None]
-        is_tree = bool(block and TREE_BLOCK_RE.search(block)) or (not e.block and len(e.strokes) == 1 and circles)
-        if not is_tree or not circles:
+        if not circles:
+            continue
+        # A tree: a block or a layer that names one (AĞAÇ, TREE, BAUM, ARBRE). Any other lone circle (a north arrow's
+        # ring, a manhole, a round column) is listed, never built as a tree.
+        if not (TREE_BLOCK_RE.search(block) or TREE_BLOCK_RE.search(T.fold(e.layer or ""))):
+            if not e.block and len(e.strokes) == 1:
+                warnings.append(f"site plan {region.id}: circle {e.id} on layer {e.layer!r} is not read as a tree "
+                                f"(neither its layer nor a block names one)")
             continue
         crown = max(circles, key=lambda st: st.arc["radius"])            # the crown; a trunk circle inside is not
         (cx, cy), r = crown.arc["center"], crown.arc["radius"]
-        out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3),
-                             "evidence": [_ev(region, e.id, "site_tree")]})
+        ev = dict(_ev(region, e.id, "site_tree"), layer=e.layer)
+        out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3), "evidence": [ev]})
     if out["plot"]:
         out["plot_walls"] = _plot_walls(region, closed, tf, mpu)
     return out
@@ -519,6 +549,16 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
            "chimneys": []}
     plan_roof = roof_from_plan(top_plan, warnings, section)
     sec_type = roof_from_section(section)
+    if plan_roof is not None and plan_roof["type"] == "mansard" and sec_type is not None and sec_type[0] == "gable":
+        # The section shows one slope per side: the closed line inside the roof outline is no slope break (an outer
+        # wall face, a room outline). The section wins; the line is listed.
+        line = next((e["entity"] for e in plan_roof["evidence"] if e.get("rule") == "roof_break_line"), None)
+        conflict("other", [top_plan.id, section.region.id],
+                 f"roof type: the closed line {line} inside the roof outline on {top_plan.id} reads as a mansard "
+                 f"break line, the section {section.region.id} shows one slope per side (gable)",
+                 "the section wins: gable; the closed line is not used as a break line")
+        plan_roof = dict(plan_roof, type=None, break_line=None,
+                         evidence=[e for e in plan_roof["evidence"] if e.get("rule") != "roof_break_line"])
     roof = None
     if plan_roof is not None and plan_roof["type"]:
         roof = {"type": plan_roof["type"], "type_source": "plan_roof_lines", "outline": plan_roof["outline"],
@@ -540,6 +580,8 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             roof["also_seen_in"] = ["elevation"]
             roof["evidence"] = roof["evidence"] + [_ev(r, e, "gable_end") for r, e in ends[:1]]
         roof["ridge_lines"] = ridge_lines(roof, heights, reference_outline)
+        if not roof["ridge_lines"]:
+            roof.setdefault("assumed", []).append("ridge direction (the section's cut direction is unknown)")
         if roof["ridge_lines"]:
             roof.setdefault("assumed", []).append("the ridge runs across the cut (a gable read from one section)")
     if roof is not None:
@@ -576,6 +618,8 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
     north_deg = (out["north"] or {}).get("value")
     for r in elevations:
         zmap = elevation_z(r, datum, ground_z)
+        if zmap is not None and zmap.get("warning"):
+            warnings.append(zmap["warning"])
         entries, seen = facade_of(r, zmap, north_deg, warnings)
         out["facade"].extend(entries)
         out["openings_seen"].append(seen)

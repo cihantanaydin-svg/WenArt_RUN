@@ -631,13 +631,19 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
             lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
     out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
     for lv in vb["levels"]:
-        out["outlines"][lv["id"]] = geom2d.wall_outline([w for w in vb["walls"] if w["level_id"] == lv["id"]])[0]
+        out["outlines"][lv["id"]], method = geom2d.wall_outline([w for w in vb["walls"] if w["level_id"] == lv["id"]])
+        if method == "convex_hull":               # review #24: an approximate outline is never silent
+            reason = (f"the outline of {lv['id']}'s walls could not be traced: their convex hull stands in for the "
+                      f"terrain cut, the light wells, the facade and sill sides and a derived slab or roof outline")
+            out["warnings"].append(f"{lv['id']}: {reason}")
+            out["assumed"].append({"object": f"level_{lv['id']}", "field": "outline", "value": "convex_hull",
+                                   "reason": reason})
     out["ground_outline"] = ground_outline(vb, out["outlines"])
     if out["ground_outline"]:
         mode = site_mode if site_mode in ("full", "ground") else "full"
         if mode != site_mode:
             out["warnings"].append(f"brief site {site_mode!r} unknown: full used")
-        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode)
+        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode, outlines=out["outlines"])
         out["warnings"] += out["site"]["warnings"]
     out["faces"], warnings = facade_faces(vb, out["outlines"])
     out["warnings"] += warnings

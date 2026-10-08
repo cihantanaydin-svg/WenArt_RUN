@@ -398,6 +398,33 @@ def test_operation_of_swing_double_and_sliding_doors():
     assert [o.kind for o in _run(walls, glass)[1]] == ["window"]
 
 
+def test_a_sliding_door_block_is_a_door_by_its_name_however_its_leaf_is_drawn():
+    # Review #16: a sliding-door block drawn closed (its leaf spans the gap, centred: two glass-like lines) or with
+    # a leaf longer than 1.1 x the gap is a sliding door by its name; the same leaf without a door name stays what
+    # its geometry says (a window; an unclassified gap, its pocket part a window in the wall).
+    walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
+    closed = [R.stroke(R.rect(2.0, -0.02, 2.9, 0.02), closed=True)]
+    long_leaf = [R.stroke(R.rect(1.4, -0.02, 2.6, 0.02), closed=True)]        # 1.2 m for a 0.9 m gap, 0.6 inside
+    for leaf, unnamed in ((closed, ["window"]), (long_leaf, ["opening", "window"])):
+        assert [o.kind for o in _run(walls, leaf)[1]] == unnamed
+        for st in leaf:
+            st.block = "KAPI_SURME_90"
+        _, openings, log, owned = _run(walls, leaf)
+        o = openings[0]
+        assert [x.kind for x in openings] == ["door"] and o.swing_point is None
+        assert (o.operation, o.operation_source) == ("sliding", "block_name")
+        assert "block name 'KAPI_SURME_90'" in o.evidence["note"]
+        assert [e.get("operation") for e in log if e["kind"] == "run"] == ["sliding"]
+    # A window block that names its operation (sliding window) stays a window; a door name with no no-swing word
+    # needs its arc.
+    for st in closed:
+        st.block = "PENCERE_SURME"
+    assert [o.kind for o in _run(walls, closed)[1]] == ["window"]
+    for st in closed:
+        st.block = "KAPI_90"
+    assert [o.kind for o in _run(walls, closed)[1]] == ["window"]
+
+
 def test_operation_from_a_door_block_name():
     walls = [R.wall((0, 0), (2, 0)), R.wall((2.9, 0), (5, 0))]
     door = _door((2.88, 0.08), 0.88, 180, 90)

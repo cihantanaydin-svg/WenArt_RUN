@@ -270,3 +270,61 @@ def test_scene_recolours_the_fabric_slot_of_a_library_sofa(tmp_path):
     assert colours[applied["fabric"]["copy"]] == pytest.approx(CL.linear_rgb("light grey"), abs=1e-3)
     assert colours[applied["wood"]["copy"]] == pytest.approx([0.25, 0.14, 0.08], abs=1e-3)
     assert applied["fabric"]["material"] == "Fabric"           # the glTF material (unused now: not saved)
+
+
+
+# --------------------------------------------------------------------------
+# The corner sofa's chaise side, generated plants, wall cabinets (review findings 40, 41)
+# --------------------------------------------------------------------------
+
+def _corner(mid, side, **fields):
+    return _model(mid, "sofa_corner", bbox=(2.6, 1.6, 0.85), chaise_side=side, **fields)
+
+
+def test_an_l_sofa_takes_only_models_with_its_chaise_side():
+    left = _corner("c_left", "left", chaise_note="measured from the footprint")
+    right = _corner("c_right", "right")
+    unknown = _corner("c_none", None, chaise_note="no notch in the footprint")
+    cat = _catalog(left, right, unknown)
+    piece = _piece("sofa_corner", (2.6, 1.6), shape="L", chaise_side="left", chaise_depth=1.6)
+    # the side matches: that model, its side and note on the asset; the others excluded with their reason
+    a = fit.fit_piece(piece, cat)
+    assert a["asset_id"] == "c_left" and (a["chaise_side"], a["chaise_note"]) == ("left", "measured from the footprint")
+    reasons = {x["id"]: x["reason"] for x in a["excluded"]}
+    assert reasons["c_none"] == "chaise side unknown" and "no mirroring" in reasons["c_right"]
+    assert fit.fit_piece(dict(piece, chaise_side="right"), cat)["asset_id"] == "c_right"
+    assert fit.fit_piece(dict(piece, chaise_side=None), cat)["asset_id"] == "c_right"     # the builder's default
+    # no model with that side: the parametric L (it builds the drawn side); a library model is never mirrored
+    p = fit.fit_piece(piece, _catalog(right, unknown))
+    assert p["method"] == "parametric" and "chaise on the left" in p["fallback_reason"]
+    assert {x["id"]: x["reason"] for x in p["excluded"]}["c_none"] == "chaise side unknown"
+    assert {x["id"] for x in p["excluded"]} == {"c_right", "c_none"}
+    # a corner sofa piece without the L shape is not filtered by side
+    assert fit.fit_piece(_piece("sofa_corner", (2.6, 1.6)), _catalog(unknown))["asset_id"] == "c_none"
+    with pytest.raises(C.CatalogError, match="chaise_side"):
+        _catalog(_corner("c_bad", "middle"))
+
+
+def test_generated_plant_attributes_travel_with_the_asset():
+    plant = _model("p1", "potted_plant", bbox=(0.5, 0.5, 1.0), species="monstera", attributes_status="assumed")
+    asset = fit.fit_piece(_piece("potted_plant", (0.5, 0.5)), _catalog(plant))
+    assert asset["asset_id"] == "p1" and asset["species"] == "monstera" and asset["attributes_status"] == "assumed"
+    assert {"chaise_side", "chaise_note", "attributes_status"} <= set(fit.GLB_ASSET_FIELDS)
+
+
+def test_wall_cabinets_stay_parametric_whatever_the_library_holds():
+    from wenart.furniture import schemas as SC
+
+    assert set(SC.RULE_ONLY_TYPES) <= set(C.PARAMETRIC_ONLY_TYPES) and "wall_cabinet" in C.PARAMETRIC_ONLY_TYPES
+    base = json.loads((ROOT / "wenart" / "furniture" / "catalog.json").read_text(encoding="utf-8"))
+    merged = C.merge(base, {"entries": [_model("wc1", "wall_cabinet", bbox=(0.8, 0.35, 0.7)), _model("s1")]},
+                     source="test")
+    assert merged["merged"]["parametric_only_dropped"] == ["wc1"] and merged["merged"]["models_added"] == 1
+    assert "wall_cabinet" not in merged["merged"]["parametric_replaced"]
+    cat = C.Catalog(merged)
+    assert not cat.candidates("wall_cabinet") and "wall_cabinet" in cat.parametric_types
+    asset = fit.fit_piece(_piece("wall_cabinet", (0.8, 0.35)), cat)
+    assert asset["method"] == "parametric"
+    assert asset["fallback_reason"] == "type wall_cabinet is parametric in the catalogue"
+    reason = next(e["reason"] for e in base["entries"] if e["type"] == "wall_cabinet")
+    assert "parametric only" in reason and "may replace" not in reason

@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "pod_setup_trellis.sh"
 CFG = G.load_config()
 FIXED = ("stair", "kitchen_counter", "kitchen_island", "unknown")
+PARAMETRIC = ("wall_cabinet",)          # Milestone 10 (docs/milestone10.md §4.4): built along the counter run
 UID_RE = re.compile(r"^gen_([a-z_]+?)_(scandinavian|japandi|modern_minimal|minimal|modern|industrial|mediterranean|"
                     r"classic|rustic)_(\d+)_([0-9a-f]{8})$")
 
@@ -121,8 +122,9 @@ def pairs_of(doc) -> set:
 
 def test_config_covers_every_type_and_family():
     types = G.plan_types(CFG)
-    assert set(CFG["exclude_types"]) == set(FIXED)
-    assert set(types) == set(OV.furniture_types()) - set(FIXED) and set(C.FURNITURE_TYPES) - set(FIXED) <= set(types)
+    assert set(CFG["exclude_types"]) == set(FIXED) | set(PARAMETRIC)
+    assert set(types) == set(OV.furniture_types()) - set(FIXED) - set(PARAMETRIC)
+    assert set(C.FURNITURE_TYPES) - set(FIXED) - set(PARAMETRIC) <= set(types)
     # Milestone 9 (docs/milestone9.md §2.3): the decor types the generator makes have words and hints too; Milestone 10
     # adds the decor types ABO cannot fill (docs/milestone10.md §4.6).
     decor = G.decor_types(CFG)
@@ -211,8 +213,8 @@ def test_plan_never_lists_fixed_equipment(tmp_path):
     empty = accepted_list(tmp_path / "accepted.json", [])
     doc = plan_of(tmp_path, [empty], ["rustic"])
     planned = {p["type"] for p in doc["pairs"]}
-    assert planned == set(OV.furniture_types()) - set(FIXED)
-    assert not planned & set(FIXED) and doc["excluded_types"] == list(FIXED)
+    assert planned == set(OV.furniture_types()) - set(FIXED) - set(PARAMETRIC)
+    assert not planned & set(FIXED) and doc["excluded_types"] == list(FIXED) + list(PARAMETRIC)
     with pytest.raises(G.UsageError):
         G.parse_types("stair", CFG)
     assert G.parse_types("sofa, chair", CFG) == ["sofa", "chair"]

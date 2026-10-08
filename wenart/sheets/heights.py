@@ -295,11 +295,13 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
            "slabs": [], "ground": [],
            "roof": {"eaves_z": None, "ridge_z": None, "pitches_deg": [], "knee_wall": None, "overhang": None,
                     "thickness": None, "profile": []}}
-    usable = section is not None and section.mpu and section.bands and section.walls is not None
+    usable = section is not None and section.mpu and section.bands and section.walls is not None and levels
     if not usable:
         why = ("no section drawing" if section is None else
                "the section has no unit" if not section.mpu else
-               "no slab bands found in the section" if not section.bands else "no outer walls found in the section")
+               "no slab bands found in the section" if not section.bands else
+               "no outer walls found in the section" if section.walls is None else
+               "no plan level known to map the slab bands to")
         _assumed_levels(out, levels, ceiling_default, slab_default, why)
         warnings.append(f"heights assumed ({why}): ceiling {ceiling_default:.2f} m, slab {slab_default:.2f} m, "
                         f"floor to floor {FLOOR_TO_FLOOR_M:.2f} m")
@@ -429,11 +431,15 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
     # Cut axis.
     width_m = section.width * s
     if reference_extent is not None:
+        # One (width, height) or several: the outline's box and the extent most of the outline reaches.
+        extents = [reference_extent] if isinstance(reference_extent[0], (int, float)) else list(reference_extent)
+        reference_extent = extents[0]
         fits = []
-        for axis, ext in zip(("x", "y"), reference_extent):
-            tol = max(SECTION_WIDTH_TOL[0] * ext, SECTION_WIDTH_TOL[1])
-            if abs(width_m - ext) <= tol:
-                fits.append((abs(width_m - ext), axis))
+        for ext_xy in extents:
+            for axis, ext in zip(("x", "y"), ext_xy):
+                tol = max(SECTION_WIDTH_TOL[0] * ext, SECTION_WIDTH_TOL[1])
+                if abs(width_m - ext) <= tol:
+                    fits.append((abs(width_m - ext), axis))
         if fits:
             out["cut_axis"] = min(fits)[1]
             if cut is not None and cut["axis"] != out["cut_axis"]:

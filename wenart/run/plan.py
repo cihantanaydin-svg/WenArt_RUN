@@ -180,7 +180,8 @@ def project_minutes(views: Optional[int], ai_rooms: int, recognition: float = 0.
 
 
 def server_starts(uncached_photos: bool, layout: bool, questions: bool = False) -> int:
-    """4 with style photos or recognition questions to ask (a GLM session in phase 2), 3 with empty rooms, else 2."""
+    """4 with style photos or recognition questions to ask (a GLM session in phase 2), 3 with empty rooms or
+    furnished rooms the layout completes (Milestone 10), else 2."""
     return 4 if (uncached_photos or questions) else 3 if layout else 2
 
 
@@ -237,8 +238,8 @@ def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[di
         status = orch.status_of(pr, "sheets")
     planned = "ok" if status in ("ok", "reused") else status
     entry = {"project": pr.name, "status": planned, "stage_status": status, "levels": None, "rooms": None,
-             "empty_rooms": None, "views": None, "questions": None, "recognition_calls": None, "photos": 0,
-             "photos_cached": None, "minutes": 0.0, "server_starts": 0, "pod": None, "verified": planned == "ok",
+             "empty_rooms": None, "completed_rooms": None, "views": None, "questions": None, "recognition_calls": None,
+             "photos": 0, "photos_cached": None, "minutes": 0.0, "server_starts": 0, "pod": None, "verified": planned == "ok",
              "report": None, "note": next((pr.records[s].note for s in ("pipeline", "sheets") if pr.records.get(s)),
                                           None)}
     building = SC.read_json(pr.out / "building.json")
@@ -252,23 +253,27 @@ def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[di
                 break
         return entry
     mode = ((building.get("project") or {}).get("brief") or {}).get("empty_rooms", "ai")
+    from wenart.furniture import complete as CMP
     from wenart.furniture.layout import empty_rooms
     ai = empty_rooms(building) if mode == "ai" and building.get("rooms") else []
+    # Milestone 10 (§2.1): the furnished rooms the layout completes ask the model too (scheduler.layout_needed).
+    settings = CMP.load_settings(pr.ref.project_dir)
+    completed = [r for r in CMP.furnished_rooms(building) if CMP.completion_skip_reason(r, settings) is None]
     pr.photos = orch.photo_list(pr)
     cached = orch.photos_complete(pr) if pr.photos else None
     calls = {}
     if planned == "pending":
-        entry["questions"] = len(orch.recognition_items(pr))
+        entry["questions"] = sum(len(orch.recognition_items(pr, q)) for q in S.QUESTION_DIRS)   # + sheet questions
         calls = {k: len(orch.recognition_missing(pr, k)) for k in orch.recognition_keys()}
         entry["recognition_calls"] = sum(calls.values())
     rooms = building.get("rooms") or []
-    entry.update(empty_rooms=len(ai), views=building_views(building, ai) if rooms else None, photos=len(pr.photos),
-                 photos_cached=cached)
+    entry.update(empty_rooms=len(ai), completed_rooms=len(completed),
+                 views=building_views(building, ai) if rooms else None, photos=len(pr.photos), photos_cached=cached)
     if not rooms:
         entry["note"] = "; ".join(n for n in (entry["note"], "views unknown: no room before the answers") if n)
-    entry["minutes"] = project_minutes(entry["views"], len(ai), recognition_minutes(calls, gpu["seqs"]),
-                                       gpu["speed"])
-    entry["server_starts"] = server_starts(bool(pr.photos) and not cached, len(ai) > 0,
+    entry["minutes"] = project_minutes(entry["views"], len(ai) + len(completed),
+                                       recognition_minutes(calls, gpu["seqs"]), gpu["speed"])
+    entry["server_starts"] = server_starts(bool(pr.photos) and not cached, len(ai) + len(completed) > 0,
                                            bool(entry["recognition_calls"]))
     return entry
 

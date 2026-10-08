@@ -24,6 +24,7 @@ OLD_TYPES = ("bed_single", "bed_double", "sofa", "armchair", "table_dining", "ta
              "plant_small")
 NEW_FURNITURE = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib",
                  "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
+PARAMETRIC_ONLY = ("wall_cabinet",)          # docs/milestone10.md §4.4: built along the counter run, never generated
 NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
              "pendant_light", "ceiling_light")
 
@@ -31,12 +32,16 @@ NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "
 def test_every_new_type_has_a_prompt_for_every_style_family():
     assert len(FAMILIES) == 9
     for t in NEW_FURNITURE + NEW_DECOR:
+        if t in PARAMETRIC_ONLY:
+            continue
         for family in FAMILIES:
             text = G.prompt_for(t, family, CFG)
             assert text.startswith(f"a single {family} style ") and "plain white background" in text, (t, family)
             assert "{" not in text and "}" not in text, f"{t}/{family}: an unfilled slot: {text}"
         assert len({G.prompt_for(t, f, CFG) for f in FAMILIES}) == len(FAMILIES), f"{t}: the families give one prompt"
-    assert set(NEW_FURNITURE) <= set(G.plan_types(CFG)) and set(NEW_DECOR) <= set(G.decor_types(CFG))
+    assert set(NEW_FURNITURE) - set(PARAMETRIC_ONLY) <= set(G.plan_types(CFG)) and not (
+        set(PARAMETRIC_ONLY) & (set(G.plan_types(CFG)) | set(G.target_types(CFG))))     # wall_cabinet: review finding 41
+    assert set(NEW_DECOR) <= set(G.decor_types(CFG))
     assert G.target_types(CFG)[-len(G.decor_types(CFG)):] == G.decor_types(CFG)
 
 
@@ -77,9 +82,11 @@ def test_large_plants_cycle_species_and_pots_over_images_and_families():
             assert set(v["attributes"]) == {"species", "pot"} and set(v["values"]) == {"plant", "pot"}
             text = G.prompt_for("plant_large", family, CFG, index)
             assert v["values"]["plant"] in text and v["values"]["pot"] in text and "floor pot" in text
-            seen.add((v["attributes"]["species"], v["attributes"]["pot"]))
-    assert {s for s, _p in seen} == {"palm", "monstera", "fiddle-leaf fig", "olive", "fern"}     # the brief's species
-    assert {p for _s, p in seen} >= {"rattan", "cream"}                                          # and its pots
+            pot = v["attributes"]["pot"]
+            assert isinstance(pot, dict) and set(pot) == {"material", "colour"}, pot            # the schema's decor.pot
+            seen.add((v["attributes"]["species"], (pot["material"], pot["colour"])))
+    assert {s for s, _p in seen} == {"palm", "monstera", "fiddle_leaf_fig", "olive", "fern"}     # the schema's slugs
+    assert {p for _s, p in seen} >= {("rattan", None), ("ceramic", "cream")}                     # and its pots
     assert len(seen) >= 12
     assert G.prompt_for("plant_large", "modern", CFG, 1) != G.prompt_for("plant_large", "modern", CFG, 2)
     assert G.variant_for("sofa", "modern", 1, CFG) is None and G.variant_for("vase", "modern", 3, CFG) is None
@@ -163,6 +170,36 @@ class SettingsMeshes:
         pass
 
 
+def schema_species() -> list:
+    """The species of the building schema (decor.species), the frozen contract."""
+    schema = json.loads((Path(G.__file__).resolve().parents[1] / "schema" / "building.schema.json").read_text())
+    return [s for s in schema["$defs"]["decor"]["properties"]["species"]["enum"] if s]
+
+
+def test_plant_variants_use_the_frozen_species_slugs_and_the_pot_object_of_the_schema():
+    """Review finding 38: ``fiddle-leaf fig`` (not the slug ``fiddle_leaf_fig``) made ``write-catalog`` fail in the
+    catalogue validator and never matched a brief's species. Every species of the variants must be an enum slug of
+    ``decor.species`` (also ``finishes.PLANT_SPECIES`` when it exists) and every pot a ``{material, colour}`` object
+    whose material is a key of ``finishes.POT_MATERIALS``."""
+    from wenart.style import finishes
+    enum = schema_species()
+    assert {"palm", "monstera", "fiddle_leaf_fig", "olive", "fern"} <= set(enum)
+    if hasattr(finishes, "PLANT_SPECIES"):
+        assert set(enum) <= set(finishes.PLANT_SPECIES)
+    pot_materials = set(getattr(finishes, "POT_MATERIALS", {"rattan", "ceramic", "terracotta", "concrete", "metal"}))
+    for option in CFG["variants"]["plant_large"]["plant"]:
+        assert option["species"] in enum, option
+    for option in CFG["variants"]["plant_large"]["pot"]:
+        pot = option["pot"]
+        assert isinstance(pot, dict) and set(pot) == {"material", "colour"} and pot["material"] in pot_materials, option
+    for family in FAMILIES:
+        for index in (1, 2, 3, 4):
+            attrs = G.variant_for("plant_large", family, index, CFG)["attributes"]
+            assert attrs["species"] in enum
+            attrs["pot"]["material"] = "changed"                                  # a copy: the config stays as it is
+    assert all(o["pot"]["material"] != "changed" for o in CFG["variants"]["plant_large"]["pot"])
+
+
 def test_a_generated_large_plant_keeps_its_species_and_pot_down_to_the_catalogue(tmp_path):
     empty = accepted_list(tmp_path / "accepted.json", [])
     doc = G.make_target_plan([empty], ["mediterranean"], tmp_path / "lib", CFG, target=2, rate=1.0,
@@ -179,7 +216,8 @@ def test_a_generated_large_plant_keeps_its_species_and_pot_down_to_the_catalogue
     assert {c["kind"] for c in plants + candles} == {"decor"} and plants[0]["decor_type"] == "plant_large"
     species = [c["attributes"]["species"] for c in plants]
     assert species == ["palm", "monstera"] or len(set(species)) == 2
-    assert all(c["attributes"]["species"] in c["generated"]["prompt"] for c in plants)
+    words = {v["species"]: v["words"] for v in CFG["variants"]["plant_large"]["plant"]}
+    assert all(words[c["attributes"]["species"]] in c["generated"]["prompt"] for c in plants)   # the slug is no prompt text
     assert "attributes" not in candles[0]
     by_pair = {call[0]: call[2] for call in mesh_calls}                  # the settings override each pair was given
     assert by_pair == {"plant_large__mediterranean": None, "candle__mediterranean": "512"}
@@ -192,4 +230,5 @@ def test_a_generated_large_plant_keeps_its_species_and_pot_down_to_the_catalogue
            "quality": [5, 4], "licence_flag": None}
     entry = OV.catalog_entry(cand, obj, dec, cand["glb_sha256"], OV.load_config())
     assert entry["species"] == cand["attributes"]["species"] and entry["pot"] == cand["attributes"]["pot"]
+    assert entry["attributes_status"] == "assumed"            # the words of the prompt, not looked at by a judge
     assert entry["type"] == "decor_plant_large" and entry["generated"]["prompt"] == cand["generated"]["prompt"]

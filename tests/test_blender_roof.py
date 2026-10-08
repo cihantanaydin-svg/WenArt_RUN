@@ -122,6 +122,56 @@ def test_real02_mansard_ridge_on_the_party_wall_and_the_drawn_ridge_height():
     assert R.is_convex(d["planes"])
 
 
+def _real02_section(floor=3.15):
+    """real02's section (docs/milestone10.md §0.1; the pipeline's ``roof.profile``): cut along x across the pair,
+    eaves 0.50 m above the attic floor at the outline, 40 degrees for 2.00 m to the break, 13 degrees to the
+    ridge on the party wall (x 7.585)."""
+    e = floor + 0.5
+    b = e + 2.0 * T40
+    p = b + 6.085 * T13
+    return {"region_id": "r6", "cut_axis": "x", "method": "vector",
+            "points": [[-0.5, e], [1.5, b], [7.585, p], [13.67, b], [15.67, e]]}
+
+
+def test_real02_mansard_follows_its_section_ridge_on_the_party_wall():
+    # review #22: the section peaks on the party wall, so the ridge runs along y at x 7.585 at the drawn height;
+    # the plan's break line (2.20 m in) and the section's break (2.00 m in) disagree: listed, the section kept
+    floor = 3.15
+    prof = _real02_section(floor)
+    peak = prof["points"][2][1]
+    roof = _real02_roof(floor, profile=prof, ridge_height=_v(peak))
+    d = R.derive(roof, _attic(floor))
+    upper = [p for p in d["planes"] if p["id"].endswith("_upper")]
+    assert sorted(p["aspect_deg"] for p in upper) == pytest.approx([0.0, 180.0])        # slopes east and west
+    assert all(p["slope_deg"] == pytest.approx(13.0, abs=0.01) for p in upper)
+    assert all(p["slope_deg"] == pytest.approx(40.0, abs=0.01) for p in d["planes"] if p["id"].endswith("_lower"))
+    assert d["ridge_z"] == pytest.approx(peak) and d["eaves_z"] == pytest.approx(floor + 0.5)
+    ridge = {round(q[0], 3) for p in upper for q in p["points"] if abs(q[2] - peak) < 1e-3}
+    assert ridge == {7.585}
+    for s, z in prof["points"]:                                       # the built roof along the cut = the section
+        assert R.surface_z(d["equations"], s, 5.25) == pytest.approx(z, abs=1e-6)
+    fields = {a["field"] for a in d["assumed"]}
+    assert {"ridge_direction", "mansard_ends"} <= fields
+    assert sum("break line: the section breaks" in w for w in d["warnings"]) == 2
+    assert not any("vs the drawn section" in w or "derived ridge" in w for w in d["warnings"])
+    assert R.is_convex(d["planes"])
+    # a section that disagrees with the planes is listed (here: a gable along x against a section peaking in x)
+    gable = _real02_roof(floor, type="gable", ridge_lines=[[[0.0, 5.25], [15.0, 5.25]]], profile=prof)
+    assert any("vs the drawn section" in w for w in R.derive(gable, _attic(floor))["warnings"])
+
+
+def test_ridge_direction_from_the_section_or_assumed():
+    floor = 3.15
+    gable = R.derive(_real02_roof(floor, type="gable"), _attic(floor))
+    assert any(a["field"] == "ridge_direction" and a["value"] == "along the long side" for a in gable["assumed"])
+    prof = {"cut_axis": "x", "points": [[-0.5, 3.65], [7.585, 6.0], [15.67, 3.65]]}
+    gable = R.derive(_real02_roof(floor, type="gable", profile=prof, pitches_deg=[]), _attic(floor))
+    assert sorted(p["aspect_deg"] for p in gable["planes"]) == pytest.approx([0.0, 180.0])   # ridge along y
+    assert any(a["field"] == "ridge_direction" and a["value"] == "across the section cut" for a in gable["assumed"])
+    assert R.section_profile({"profile": dict(prof, points=[[0, 3], [5, 6], [10, 6]])}, {"u": (1, 0), "v": (0, 1)}) \
+        is None                                                       # a flat top gives no single ridge
+
+
 @pytest.mark.parametrize("rtype, count, aspects", [
     ("gable", 2, [90.0, 270.0]),
     ("hip", 4, [0.0, 90.0, 180.0, 270.0]),
@@ -164,8 +214,32 @@ def test_missing_values_are_assumed_and_listed():
     ys = [p[1] for p in d["outline"]]
     assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((-0.5, 10.75, -0.5, 8.75))
     assert all(p["slope_deg"] == pytest.approx(R.DEFAULTS["pitch_deg"]) for p in d["planes"])
-    # eaves: an assumed 1.00 m knee wall at the outer wall face
-    assert d["eaves_z"] == pytest.approx(3.0 + 1.0)
+    # eaves: an assumed 1.00 m knee wall at the outer wall face, the eaves edge 0.50 m further out (review #25)
+    assert d["eaves_z"] == pytest.approx(3.0 + 1.0 - 0.5 * math.tan(math.radians(30.0)))
+    assert R.surface_z(d["equations"], 5.0, 0.0) == pytest.approx(3.0 + 1.0)        # at the south wall's outer face
+
+
+def test_knee_wall_without_a_drawn_outline_holds_at_the_wall_face():
+    # review #25: no roof outline (the walls + the overhang): the drawn knee wall is at the outer wall face
+    roof = dict(copy.deepcopy(EXAMPLE["roof"]), outline=None, eaves_height=None, ridge_height=None, planes=[])
+    m = R.roof_model(roof, EXAMPLE)
+    assert m["eaves_z"] == pytest.approx(3.65, abs=1e-3)
+    assert m["knee_wall_check"]["difference"] == pytest.approx(0.0, abs=1e-3)
+    assert not any("knee wall" in w for w in m["warnings"])
+
+
+def test_no_drawn_outline_follows_an_l_shaped_level():
+    # review #26: an L-shaped top level (10 x 10 m minus a 5 x 5 m notch) and no roof outline: the roof keeps the
+    # notch open and lists the rectangle it was derived on
+    pts = [(0, 0), (10, 0), (10, 5), (5, 5), (5, 10), (0, 10)]
+    walls = [{"id": f"w{i}", "level_id": "L1", "start": list(pts[i]), "end": list(pts[(i + 1) % 6]), "thickness": 0.2}
+             for i in range(6)]
+    building = {"levels": [{"id": "L1", "elevation": 3.0, "ceiling_height": 2.6}], "walls": walls}
+    m = R.roof_model({"type": "hip", "over_level_id": "L1", "outline": None, "eaves_height": _v(5.8),
+                      "pitches_deg": [_v(30.0)], "planes": []}, building)
+    assert not R.covers(m, 8.0, 8.0) and R.covers(m, 2.0, 8.0) and R.covers(m, 8.0, 2.0)
+    assert G.polygon_area(m["outline"]) == pytest.approx(11.2 * 11.2 - 5.0 * 5.0, abs=1e-6)     # faces + 0.5 m
+    assert {a["field"] for a in m["assumed"]} >= {"outline", "outline_rectangle"}
 
 
 def test_other_roof_type_builds_a_gable_and_says_so():

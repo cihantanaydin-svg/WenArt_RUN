@@ -38,7 +38,9 @@ SECONDS = {"pipeline": 5, "pipeline_final": 5, "build": 30, "render": 100, "cont
            "recognize": 10, "pytest": 30}
 # Schema-valid recognition answers (wenart.recognition.schemas.M7_SCHEMAS).
 RECOGNITION_ANSWERS = {"symbol_type": {"type": "sofa", "front": "none", "confidence": 0.9, "reason": "fake"},
-                       "room_label": {"label": "Salon", "size_text": None, "area_text": None, "box": None}}
+                       "room_label": {"label": "Salon", "size_text": None, "area_text": None, "box": None},
+                       "sheet_region": {"class": "section", "level_word": None, "variant_word": None, "confidence": 0.9,
+                                        "reason": "fake"}}
 
 
 def opt(cmd, name, default=None):
@@ -222,6 +224,16 @@ class FakeCLI:
                                     [{"reason": "no readable plan region"}], "answers": opt(cmd, "--answers"),
                                     "no_ai": "--no-ai" in cmd})
         write(out / "sheets_report.md", "# sheets\n")
+        n = int(spec.get("sheet_questions", 0))
+        if n and status == "ok":
+            # Milestone 10: sheet_region questions (exit 4 until the answers or --no-ai are given).
+            items = [{"key": f"sheet_r{i}", "task": "sheet_region", "page": 1, "images": [f"crops/sheet_r{i}.png"],
+                      "input_sha256": hashlib.sha256(f"{project}:sheet:{i}".encode()).hexdigest()}
+                     for i in range(1, n + 1)]
+            write(out / "sheets" / "requests.json", {"kind": "recognition_requests", "project": project,
+                                                     "items": items})
+            if not opt(cmd, "--answers") and "--no-ai" not in cmd:
+                return 4
         return 0 if status == "ok" else 1
 
     def h_pipeline(self, cmd, project, log):
@@ -413,7 +425,9 @@ class FakeCLI:
                "rates": {"benign_accept": 1.0, "negative_reject": 0.95}})
 
     def h_gate_validate(self, cmd, project, log):
-        decision = self.flags.get("gate_decision", {}).get(project, "ok")
+        # wenart.gate validate: not_validated without a complete calibration in the project output (as the real one)
+        cal = Path(opt(cmd, "--project-out")) / "gate" / "gate_calibration.json"
+        decision = self.flags.get("gate_decision", {}).get(project, "ok") if cal.is_file() else "not_validated"
         write(Path(opt(cmd, "--project-out")) / "gate" / "gate_validation.json", {"decision": decision})
 
     def h_polish(self, cmd, project, log):
@@ -2067,3 +2081,52 @@ def test_m10_a_private_variant_is_named_by_number(tmp_path):
     assert VID not in json.dumps(public)
     entry = next(p for p in public["projects"] if p["name"] == "real-01")
     assert entry["variants"] == [{"name": "real-01/variant-1", "private": True, "state": "ok", "variant": None}]
+
+
+def test_m10_a_resume_reuses_the_pipeline_after_pipeline_final_rewrote_sheets_json(tmp_path):
+    """Review finding (run, low): sheets.json is not in the pipeline fingerprint; pipeline_final's answered rewrite
+    of it must not make the next run's first pipeline run again; pipeline_final is reused only while sheets.json is
+    the one it wrote."""
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"sheet_questions": 2}}, projects=["p1"])
+    assert r.run() == 0
+    assert [s["name"] for s in r.record("p1", "pipeline_final")["steps"]] == ["sheets --answers", "pipeline_final"]
+    assert r.record("p1", "pipeline_final")["status"] == "ok"
+    r2 = Run(tmp_path, buildings={"p1": {"sheet_questions": 2}}, projects=["p1"])
+    assert r2.run() == 0
+    names = r2.cli.names("p1")
+    assert "pipeline" not in names and "sheets" not in names and "pipeline_final" not in names, names
+    assert r2.record("p1", "pipeline")["status"] == "pending" and r2.record("p1", "pipeline_final")["status"] == \
+        "reused"
+    # A sheets.json that is not the answered one (e.g. a re-run sheets stage) runs pipeline_final again.
+    write(tmp_path / "outputs" / "p1" / "sheets.json", {"kind": "sheets", "project": "p1", "answers": None})
+    r3 = Run(tmp_path, buildings={"p1": {"sheet_questions": 2}}, projects=["p1"])
+    assert r3.run() == 0
+    assert "pipeline_final" in r3.cli.names("p1") and r3.record("p1", "pipeline_final")["status"] == "ok"
+
+
+def test_m10_missing_sheet_answers_make_pipeline_final_a_warning(tmp_path):
+    """Review finding (run, low): sheet regions decided with --no-ai are said, never 'answers applied'."""
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"sheet_questions": 1}}, projects=["p1"],
+            flags={"recog_fail": {("p1", "glm")}})
+    r.run()
+    rec = r.record("p1", "pipeline_final")
+    assert [s["name"] for s in rec["steps"]][0] == "sheets --no-ai"
+    assert rec["status"] == "warning" and "sheet answers missing: sheets --no-ai" in rec["note"]
+
+
+def test_m10_a_variant_never_keeps_an_older_gate_validation(tmp_path):
+    """Review finding #46: when the base has no calibration in this run, the variant's earlier copy is moved aside
+    and validate runs, so its gate_validation.json says not_validated for this run."""
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"variants": VARIANTS}}, projects=["p1"])
+    assert r.run() == 0
+    vout = tmp_path / "outputs" / "p1" / "variants" / VID
+    assert json.loads((vout / "gate" / "gate_validation.json").read_text())["decision"] == "ok"
+    r2 = Run(tmp_path, buildings={"p1": {"variants": VARIANTS}}, projects=["p1"], rc={("gate calibrate", "p1"): 1},
+             force=frozenset({"gate"}))
+    r2.run()
+    assert r2.record(f"p1/variants/{VID}", "gate")["note"] == \
+        "gate decision not_validated (no calibration of the base project)"
+    assert json.loads((vout / "gate" / "gate_validation.json").read_text())["decision"] == "not_validated"
+    assert not (vout / "gate" / "gate_calibration.json").exists()
+    assert (vout / "gate" / "gate_calibration.failed.json").is_file()
+    assert "polish" not in r2.cli.names(VID)

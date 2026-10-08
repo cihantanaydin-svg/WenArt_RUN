@@ -459,6 +459,11 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
         build.furniture_works.append(master)
     if generic:
         _add_site(build, level_id, ex)
+    if record.region_id is not None:
+        # Everything so far comes from the master region (the rooms' derived evidence too); the other works add
+        # their own evidence below, tagged with their regions when they were read.
+        for element in [*walls, *openings, *rooms, *furniture]:
+            _tag_evidence(element.get("evidence"), record.region_id)
 
     for work in works[1:]:
         if work.record.kind in RASTER_KINDS:
@@ -1467,12 +1472,21 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
         from wenart.sheets import register as RG
         from wenart.sheets import titles as T
         page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
-    origin = _region_origin(record)
+    origin, why = _region_origin(record)
     is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
     if origin is not None and build is not None and not is_reference:
         origin = (origin[0] + build.frame_shift[0], origin[1] + build.frame_shift[1])
     ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
                       rec_dir=out_dir / RECOGNITION_DIR, origin=None if is_reference else origin)
+    if origin is not None and not record.units_override and ex.transform_to_building:
+        # A PDF region: its origin holds only at the registered scale; the core read the scale on its own.
+        core_s, reg_s = float(ex.transform_to_building[0]), float(record.region_transform[0])
+        if abs(core_s - reg_s) > PDF_SCALE_TOL * reg_s:
+            why = f"the core's scale {core_s:.6g} m per unit differs from the registered scale {reg_s:.6g}"
+            origin = None
+            if not is_reference:
+                ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
+                                  rec_dir=out_dir / RECOGNITION_DIR, origin=None)
     if is_reference and origin is not None and ex.walls and ex.report.get("origin_m"):
         core_origin = ex.report["origin_m"]
         build.frame_shift = (round(core_origin[0] - origin[0], 6) + 0.0, round(core_origin[1] - origin[1], 6) + 0.0)
@@ -1483,22 +1497,34 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
     if record.region_id is not None:
         if record.region_transform is not None and origin is None:
             ex.warnings.append(f"{record.file} {record.region_id}: the registered transform "
-                               f"{record.region_transform} is not a scale and shift at the page scale; the level "
-                               f"keeps its own frame (origin at its walls)")
+                               f"{record.region_transform} is not used ({why}); the level keeps its own frame "
+                               f"(origin at its walls)")
         if record.units_override and ex.scale and ex.scale.get("method") == "dxf_insunits" and record.scale:
             ex.scale = dict(ex.scale, evidence=dict(record.scale["evidence"]))
     return ex
 
 
-def _region_origin(record: PageRecord) -> Optional[tuple[float, float]]:
-    """Page-metre origin of a registered region (``[s, 0, c, 0, s, f]`` with ``s`` the unit -> origin ``(-c, -f)``)."""
+PDF_SCALE_TOL = 1e-4        # relative: sheets.json rounds a registered transform to 6 digits
+
+
+def _region_origin(record: PageRecord) -> tuple[Optional[tuple[float, float]], Optional[str]]:
+    """Page-metre origin of a registered region (``[s, 0, c, 0, s, f]`` -> origin ``(-c, -f)``) and, without one, why.
+    ``s`` is the drawing unit of the unit check (CAD) or, for a PDF region, the registered scale itself (checked
+    against the core's scale after the extraction, review finding 13)."""
     tf = record.region_transform
-    if record.region_id is None or not tf or not record.units_override:
-        return None
-    s = float(record.units_override)
-    if abs(tf[1]) > 1e-12 or abs(tf[3]) > 1e-12 or abs(tf[0] - s) > 1e-9 * s or abs(tf[4] - s) > 1e-9 * s:
-        return None
-    return (-float(tf[2]), -float(tf[5]))
+    if record.region_id is None or not tf:
+        return None, None
+    if abs(tf[1]) > 1e-12 or abs(tf[3]) > 1e-12:
+        return None, "a rotated or skewed registration"
+    if record.units_override:
+        s, tol = float(record.units_override), 1e-9 * float(record.units_override)
+    elif record.format == "pdf":
+        s, tol = float(tf[0]), PDF_SCALE_TOL * abs(float(tf[0]))
+    else:
+        return None, "no drawing unit for the region"
+    if abs(tf[0] - s) > tol or abs(tf[4] - s) > tol:
+        return None, f"its scale {tf[0]:.6g} x {tf[4]:.6g} is not the drawing unit {s:.6g}"
+    return (-float(tf[2]), -float(tf[5])), None
 
 
 def _evidence_only_pages(records: list[PageRecord]) -> set[tuple]:
@@ -1740,25 +1766,81 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
         build.warn(f"no base level could be read; only alternative levels remain ({', '.join(sorted(by_level))})")
 
 
+def _labels_outside_building(ex: LevelExtraction) -> list[str]:
+    """Indoor room names of a region page that lie outside the outline of the walls read as the building (review
+    finding 10). A region page holds one plan, so such a name means its outer walls do not close and an inner block
+    of walls was taken for the building: the region cannot be read (its level is left out, §3.1 item 10)."""
+    from shapely.geometry import Point
+    from shapely.ops import unary_union
+
+    from wenart.ingest.generic import topology as TP
+
+    if not ex.walls or ex.transform_to_building is None:
+        return []
+    union = TP.bridged_union(ex.walls, [o for o in ex.openings if not o.virtual], ex.separators)
+    parts = [p for p in getattr(union, "geoms", [union]) if not p.is_empty]
+    outline = unary_union([Polygon(p.exterior) for p in parts]) if parts else Polygon()
+    out = []
+    for t in ex.labels:
+        block = getattr(t, "block", None)
+        if block is None or getattr(block, "exterior", False):
+            continue
+        points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
+        if not any(outline.contains(Point(p)) for p in points):
+            out.append(t.text)
+    return out
+
+
+def _tag_evidence(evidence, region_id: str) -> None:
+    """``region_id`` into every evidence dict that has none (a dict, or a list of dicts)."""
+    for ev in [evidence] if isinstance(evidence, dict) else evidence or []:
+        if isinstance(ev, dict):
+            ev.setdefault("region_id", region_id)
+
+
+def _tag_extraction(ex: LevelExtraction, region_id: str) -> None:
+    """Everything a region page read names that region (``region_id``, §1.6b row 19), tagged while each work is still
+    separate: a copy or a furniture plan of a level on the same sheet keeps its own region id (review finding 14)."""
+    for item in [*ex.walls, *ex.openings, *ex.separators, *ex.furniture, *ex.labels]:
+        _tag_evidence(item.evidence, region_id)
+    for piece in ex.furniture:
+        _tag_evidence(piece.extra_evidence, region_id)
+    site = ex.site or {}
+    for key in ("boundary_walls", "areas", "decor", "openings"):
+        for x in site.get(key) or []:
+            _tag_evidence(x.get("evidence"), region_id)
+
+
 def _tag_regions(build: ProjectBuild) -> None:
-    """Every element's evidence from a region page names that region (``region_id``, §1.6b row 19)."""
-    region_of = {}
+    """Evidence still without a region (written after the works were merged) names the region of its level, file and
+    page when exactly one region was read there; with two or more (a copy, a furniture plan on the same sheet) it is
+    left without one and listed (§1.6b row 19)."""
+    regions_of: dict[tuple, set] = {}
     for work in build.generic:
         rec = work.record
         if rec.region_id is not None:
-            region_of[(rec.level_id, rec.file, rec.page or 1)] = rec.region_id
-    if not region_of:
+            regions_of.setdefault((rec.level_id, rec.file, rec.page or 1), set()).add(rec.region_id)
+    if not regions_of:
         return
     b = build.building
     items = [x for key in ("walls", "openings", "rooms", "furniture", "levels") for x in b.get(key) or []]
     site = b.get("site") or {}
     items += [x for key in ("boundary_walls", "areas", "decor", "openings") for x in site.get(key) or []]
+    untagged: dict[tuple, int] = {}
     for x in items:
         level_id = x.get("level_id") or x.get("id")
         for ev in x.get("evidence") or []:
-            rid = region_of.get((level_id, ev.get("file"), ev.get("page") or 1))
-            if rid is not None and "region_id" not in ev:
-                ev["region_id"] = rid
+            key = (level_id, ev.get("file"), ev.get("page") or 1)
+            rids = regions_of.get(key)
+            if not rids or "region_id" in ev:
+                continue
+            if len(rids) == 1:
+                ev["region_id"] = next(iter(rids))
+            else:
+                untagged[key] = untagged.get(key, 0) + 1
+    for (level_id, file, page), n in untagged.items():
+        build.warn(f"{level_id} {file} p{page}: {n} evidence item(s) could not be tied to one of the regions "
+                   f"{', '.join(sorted(regions_of[(level_id, file, page)]))}; left without a region_id")
 
 
 def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
@@ -1906,6 +1988,14 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             extraction = extract_dxf(record.source_path, record.level_id, record.file)
         else:
             extraction = extract_pdf_page(record.source_path, record.page, record.level_id, record.file)
+        if record.region_id is not None:
+            _tag_extraction(extraction, record.region_id)
+            if build.sheets is not None and extraction.source_kind is not None:
+                outside = _labels_outside_building(extraction)
+                if outside:
+                    extraction.review.append(
+                        f"{record.file} {record.region_id}: outer walls do not close: room label(s) "
+                        f"{', '.join(repr(t) for t in outside)} lie outside the walls read as the building")
         audit = (record.conversion or {}).get("audit") or {}
         if audit.get("errors"):
             _mark_unverified(extraction)

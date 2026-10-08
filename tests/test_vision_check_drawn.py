@@ -101,8 +101,10 @@ def test_a_removed_drawn_piece_is_a_violation(final):
     gone = copy.deepcopy(final)
     gone["furniture"] = [f for f in gone["furniture"] if f["id"] != "f_L0_006"]
     check = DR.drawn_check(gone, source_of(final))
-    assert "f_L0_006: drawn piece missing from the final building" in check["violations"]
-    assert any("drawn toilet removed" in v for v in check["violations"])
+    # One violation per removed piece: the locked check and the missing-piece loop must not both report it.
+    removed = [v for v in check["violations"] if v.startswith("f_L0_006:")]
+    assert len(removed) == 1 and "drawn toilet removed" in removed[0], check["violations"]
+    assert len(check["violations"]) == len(set(check["violations"]))
 
 
 def test_a_changed_piece_without_the_ai_label_is_a_violation(final):

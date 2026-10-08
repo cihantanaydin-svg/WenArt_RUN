@@ -320,11 +320,18 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
         "schema_version": "0.1", "kind": "gate_calibration", "project": project, "incomplete": False,
         "gate_code": GATE_CODE_VERSION, "models": gate.model_info(), "thresholds": gate.thresholds,
         "views": [], "objects": {}, "benign": [], "negative": [], "presumed_bad": [], "skipped": [],
-        "warnings": warnings, "seconds": 0.0,
+        "exterior_incomplete": False, "warnings": warnings, "seconds": 0.0,
     }
 
-    def expired() -> bool:
+    def expired(exterior: bool = False) -> bool:
+        """The deadline has passed. A cut in the exterior comparisons (the last CPU phase) sets only
+        ``exterior_incomplete``: the rooms' controls are complete and their validation stands (Milestone 10)."""
         if deadline is not None and time.time() >= float(deadline):
+            if exterior and not cal["incomplete"]:
+                if not cal["exterior_incomplete"]:
+                    warnings.append("deadline reached: the exterior comparisons were not started")
+                cal["exterior_incomplete"] = True
+                return True
             if not cal["incomplete"]:
                 warnings.append("deadline reached: the remaining comparisons were not started")
             cal["incomplete"] = True
@@ -352,40 +359,44 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
     donors = donor_crops(views, cams, table)
     log(f"{project}: {len(cams)} calibration views, {len(donors)} donor crops")
 
-    # CPU controls per view.
-    for cam in cams:
-        if expired():
-            break
-        view = views[cam]
-        rgb = view.read_rgb()
-        ref = gate.prepare(view, rgb)
-        index = view.read_index()
-        depth_mm = view.read_depth_mm()
-        for ctl in K.benign_controls(rgb, seed=K.seed_for(project, cam, "noise")):
-            if expired():
+    # CPU controls per view. The room views come first, the exterior views after the GPU controls of the rooms
+    # (below): a deadline that cuts the exterior comparisons must not make the rooms' calibration incomplete.
+    def cpu_controls(cam_list: list, exterior: bool = False) -> None:
+        for cam in cam_list:
+            if expired(exterior):
                 break
-            res = gate.compare(ref, ctl["image"])
-            cal["benign"].append(_record(cam, ctl["control"], ctl["magnitude"], None, res, view_kind=kinds[cam]))
-        for element in objects.get(cam, []):
-            for ctl in K.object_negatives(rgb, index, depth_mm, element["index"], element["wenart_id"]):
-                if expired():
+            view = views[cam]
+            rgb = view.read_rgb()
+            ref = gate.prepare(view, rgb)
+            index = view.read_index()
+            depth_mm = view.read_depth_mm()
+            for ctl in K.benign_controls(rgb, seed=K.seed_for(project, cam, "noise")):
+                if expired(exterior):
                     break
                 res = gate.compare(ref, ctl["image"])
+                cal["benign"].append(_record(cam, ctl["control"], ctl["magnitude"], None, res, view_kind=kinds[cam]))
+            for element in objects.get(cam, []):
+                for ctl in K.object_negatives(rgb, index, depth_mm, element["index"], element["wenart_id"]):
+                    if expired(exterior):
+                        break
+                    res = gate.compare(ref, ctl["image"])
+                    cal["negative"].append(_record(cam, ctl["control"], ctl["magnitude"], ctl["object"], res,
+                                                   view_kind=kinds[cam]))
+            for ctl in K.view_negatives(rgb, ref.regions.masks, donor_for(donors, cam, kinds)):
+                if expired(exterior):
+                    break
+                if ctl["image"] is None:
+                    cal["skipped"].append({"camera": cam, "control": ctl["control"], "reason": ctl["skipped"]})
+                    continue
+                res = gate.compare(ref, ctl["image"])
                 cal["negative"].append(_record(cam, ctl["control"], ctl["magnitude"], ctl["object"], res,
-                                               view_kind=kinds[cam]))
-        for ctl in K.view_negatives(rgb, ref.regions.masks, donor_for(donors, cam, kinds)):
-            if expired():
-                break
-            if ctl["image"] is None:
-                cal["skipped"].append({"camera": cam, "control": ctl["control"], "reason": ctl["skipped"]})
-                continue
-            res = gate.compare(ref, ctl["image"])
-            cal["negative"].append(_record(cam, ctl["control"], ctl["magnitude"], ctl["object"], res,
-                                           view_kind=kinds[cam],
-                                           **({"info": ctl["info"]} if ctl.get("info") else {})))
-        log(f"  {cam}: {sum(r['camera'] == cam for r in cal['benign'])} benign, "
-            f"{sum(r['camera'] == cam for r in cal['negative'])} negative comparisons")
-        save()
+                                               view_kind=kinds[cam],
+                                               **({"info": ctl["info"]} if ctl.get("info") else {})))
+            log(f"  {cam}: {sum(r['camera'] == cam for r in cal['benign'])} benign, "
+                f"{sum(r['camera'] == cam for r in cal['negative'])} negative comparisons")
+            save()
+
+    cpu_controls([c for c in cams if kinds[c] != EXTERIOR])
 
     # GPU controls: removal and insertion from the --hide renders.
     controls_path = project_out / "check" / "controls.json"
@@ -431,6 +442,9 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
         save()
     else:
         warnings.append("check/controls.json not found: no removal/insertion controls")
+
+    cpu_controls([c for c in cams if kinds[c] == EXTERIOR], exterior=True)
+    save()
 
     # Presumed-bad polish attempts (reported only).
     sweep_path = project_out / "polish" / "sweep" / "polish_manifest.json"
@@ -625,7 +639,8 @@ def exterior_validation(cal: Optional[dict], limits: dict, thresholds: Optional[
                 "reasons": ["the project rendered no exterior view"], "thresholds_match": None,
                 "exterior_cameras": 0}
     sub = {"benign": of_kind(cal.get("benign"), EXTERIOR), "negative": of_kind(cal.get("negative"), EXTERIOR),
-           "rates": ext.get("rates") or {}, "incomplete": cal.get("incomplete"), "thresholds": cal.get("thresholds")}
+           "rates": ext.get("rates") or {}, "thresholds": cal.get("thresholds"),
+           "incomplete": bool(cal.get("incomplete") or cal.get("exterior_incomplete"))}
     out = VAL.decide_validation(sub, limits, thresholds)
     if cal.get("exterior") is None:
         out["reasons"].insert(0, "the calibration has no exterior block (made before Milestone 10, or the exterior "
@@ -693,6 +708,9 @@ def exterior_md(cal: dict, ext: dict) -> list[str]:
              f"{_fmt(er.get('negative_reject'))}, small negatives {_fmt(er.get('small_negative_reject'))}). They "
              "do not count in the rates above: the exterior views are validated apart, with the same limits "
              "(`validation.yaml`), and a failed exterior validation keeps them Cycles only."]
+    if cal.get("exterior_incomplete"):
+        lines += ["", "**Incomplete**: the deadline cut the exterior comparisons. The rooms' calibration is complete; "
+                      "the exterior views are not validated and stay the Cycles render."]
     lines += [f"- accepted negative: {r['camera']} {_magnitude_key(r['control'], r['magnitude'])} on "
               f"{r.get('object') or 'view'}" for r in negative if r["decision"] == "accept"]
     lines += [f"- rejected benign: {r['camera']} {_magnitude_key(r['control'], r['magnitude'])}: "

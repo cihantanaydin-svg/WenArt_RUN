@@ -248,9 +248,15 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     # it. A frame missed this way costs little: only what lies within the gap of its lines joins it.
     frames: list[int] = []
     boundaries: list[int] = []
+    # A candidate box that holds texts of its own (a title block drawn as one rectangle) counts as a held drawing.
+    text_boxes = [ents[j].rect for j in cand
+                  if any(in_box(t.point, ents[j].rect) and not any(in_box(t.point, b) for b in first_boxes)
+                         for t in texts)]
     for k in sorted(cand, key=lambda k: -_area(ents[k].rect)):
         rect = ents[k].rect
         held = [(b, len(g)) for b, g in zip(first_boxes, first) if box_inside(b, rect, tol=gap * 0.5)]
+        held += [(b, 1) for b in text_boxes if b != rect and box_inside(b, rect, tol=gap * 0.5)
+                 and _edge_distance(b, rect) > gap]
         apart = [n for b, n in held if _edge_distance(b, rect) > gap]
         touching = sum(n for b, n in held if _edge_distance(b, rect) <= gap)
         if len(apart) >= 2 and touching < FRAME_TOUCH_SHARE * sum(n for _, n in held):

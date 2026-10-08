@@ -210,7 +210,7 @@ def variant_for(ftype: str, family: str, index: int, cfg: dict) -> Optional[dict
     for slot, options in slots.items():
         option = options[(int(index) - 1 + shift) % len(options)]
         values[slot] = option["words"]
-        attributes.update({k: v for k, v in option.items() if k != "words"})
+        attributes.update({k: (dict(v) if isinstance(v, dict) else v) for k, v in option.items() if k != "words"})
     return {"values": values, "attributes": attributes}
 
 

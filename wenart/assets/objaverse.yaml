@@ -141,6 +141,11 @@ prefilter:
 # the dining chair is the most repeated drawn piece (real01 has 6) and LVIS has the category (spec_deviations).
 # No category for tv_unit, kitchen_counter, kitchen_island, sink_kitchen, shower, washing_machine, side_table,
 # stair: those stay parametric.
+# Words of a wall-hung cabinet (Milestone 10, review finding 41): wall cabinets are parametric (`parametric_only`), so a
+# title or tag with one of these never makes a sideboard, shoe, display or tall cabinet (`not_words` of an entry with
+# `require_words`).
+wall_hung_words: &wall_hung [wall, hanging, floating, medicine]
+
 categories:
   bed: {types: [bed_double, bed_single]}       # split by the bed width after the unit guess (bed_split_width_m)
   sofa: {types: [sofa]}
@@ -189,20 +194,19 @@ categories:
                                                                     computer chair, executive, ergonomic]}
   table_console: {lvis: table, types: [console_table], require_words: [console, entryway, hallway, "hall table",
                                                                        "sofa table", "entry table"]}
-  cabinet_sideboard: {lvis: cabinet, types: [sideboard], require_words: [sideboard, buffet, credenza]}
-  cabinet_shoe: {lvis: cabinet, types: [shoe_cabinet], require_words: [shoe, shoes]}
+  cabinet_sideboard: {lvis: cabinet, types: [sideboard], require_words: [sideboard, buffet, credenza], not_words: *wall_hung}
+  cabinet_shoe: {lvis: cabinet, types: [shoe_cabinet], require_words: [shoe, shoes], not_words: *wall_hung}
   cabinet_display: {lvis: cabinet, types: [display_cabinet], require_words: [display, curio, china, vitrine,
-                                                                            "glass door", "glass doors"]}
-  cabinet_tall: {lvis: cabinet, types: [tall_cabinet], require_words: [tall, pantry, linen, "storage tower"]}
-  cabinet_wall: {lvis: cabinet, types: [wall_cabinet], require_words: [wall, hanging, medicine]}
-  cupboard_sideboard: {lvis: cupboard, types: [sideboard], require_words: [sideboard, buffet, credenza]}
-  cupboard_shoe: {lvis: cupboard, types: [shoe_cabinet], require_words: [shoe, shoes]}
+                                                                            "glass door", "glass doors"], not_words: *wall_hung}
+  cabinet_tall: {lvis: cabinet, types: [tall_cabinet], require_words: [tall, pantry, linen, "storage tower"], not_words: *wall_hung}
+  cupboard_sideboard: {lvis: cupboard, types: [sideboard], require_words: [sideboard, buffet, credenza], not_words: *wall_hung}
+  cupboard_shoe: {lvis: cupboard, types: [shoe_cabinet], require_words: [shoe, shoes], not_words: *wall_hung}
   cupboard_display: {lvis: cupboard, types: [display_cabinet], require_words: [display, curio, china, vitrine,
-                                                                              "glass door", "glass doors"]}
-  cupboard_tall: {lvis: cupboard, types: [tall_cabinet], require_words: [tall, pantry, linen, "storage tower"]}
-  cupboard_wall: {lvis: cupboard, types: [wall_cabinet], require_words: [wall, hanging, medicine]}
+                                                                              "glass door", "glass doors"], not_words: *wall_hung}
+  cupboard_tall: {lvis: cupboard, types: [tall_cabinet], require_words: [tall, pantry, linen, "storage tower"], not_words: *wall_hung}
+  # No wall_cabinet category (`parametric_only`): the kitchen's wall cabinets are built along the counter run.
   bookcase_display: {lvis: bookcase, types: [display_cabinet], require_words: [display, curio, china, vitrine,
-                                                                              "glass door", "glass doors"]}
+                                                                              "glass door", "glass doors"], not_words: *wall_hung}
   # decor (kind decor by the type; the catalogue's decor section)
   curtain: {types: [curtain]}
   curtain_blind: {lvis: curtain, types: [blind], require_words: [blind, blinds, roller, venetian, shade, shutter]}
@@ -330,6 +334,12 @@ types:
 # stools 0.4-0.7, office chairs 0.5-0.8, console tables 1.0-1.8 x 0.3-0.45, storage benches 0.9-1.5 x 0.35-0.45);
 # crib 0.7 x 1.3 m (US 28 x 52 in), bunk bed 0.9 x 2.0 m. They win over wenart/recognition/size_table.yaml for these
 # types (the drawn-footprint ranges of track A3 may differ: a drawn L-shaped sofa is its bounding rectangle).
+# Types that are built parametrically and never come from a library or from generation (docs/milestone10.md §4.4,
+# review finding 41): a library model of one would replace the parametric unit in the catalogue merge and ignore the
+# brief's fronts and handles. No ABO rule, no category above and no generated prompt may name them (tests); the judge
+# words, the height and the size range stay, so a model that somehow reaches the catalogue is still checked.
+parametric_only: [wall_cabinet]
+
 furniture_sizes:
   sofa_corner:  {width: [1.60, 4.00], depth: [1.30, 3.20]}
   chaise:       {width: [0.55, 1.05], depth: [1.15, 2.20]}
@@ -435,6 +445,23 @@ bed_frame:
   min_hits: 3
   deck_range_m: [0.08, 0.90]
 
+# Milestone 10 (review finding 40): the footprint of a corner sofa, measured by the thumbnail job (Blender) in the model's
+# own frame, and the chaise side read from it with the model's front (`chaise_side`). `grid` x `grid` cells of the box
+# x, y; `samples` points on the surface, seeded; a cell is filled by two points and `min_fraction` of the median count.
+# The strips are fractions of the box depth: an L has a back strip filled across (>= `min_back`), a chaise half whose
+# front strip is filled at least `min_chaise` and a notch half at most `max_notch_ratio` of that. Designer values
+# (assumed); anything else (a straight or U-shaped sofa, a front that does not fit) gives no side, never a guess.
+footprint:
+  grid: 24
+  samples: 60000
+  min_fraction: 0.05
+  seed: 0
+  front_strip: 0.25
+  back_strip: 0.25
+  min_back: 0.6
+  min_chaise: 0.3
+  max_notch_ratio: 0.5
+
 accept:
   min_quality: 4                # both judges' photoreal_quality >= 4
   per_type_max: 20              # catalog_library.json keeps <= 20 per furniture type (docs/milestone9.md §1; M8: 12)
@@ -447,6 +474,12 @@ accept:
                                                          # quality, likes, views, survey rank, uid
 
 # The survey files the shared steps read (each source's survey writes its own; docs/milestone8.md §2).
+# The 14 furniture and 12 decor types of Milestone 10 (docs/milestone10.md §1.1): `--types new` of both surveys. The
+# older types are covered by the Milestone 9 library (their thumbnails, answers and models stay).
+new_types: [sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard,
+            shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet,
+            curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light]
+
 survey_files:
   objaverse: survey.json
   abo: survey_abo.json

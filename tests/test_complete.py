@@ -241,6 +241,25 @@ def test_change_rules_main_piece_and_counts():
     assert kept                                                           # a bed may become another bed type
 
 
+@pytest.mark.parametrize("subtype, bed, size", [("child", "bed_double", (1.6, 2.0)), (None, "bunk_bed", (1.0, 2.05)),
+                                                (None, "crib", (1.36, 0.7))])
+def test_any_drawn_bed_is_the_rooms_main_piece(subtype, bed, size):
+    """Code review #18: a double bed drawn in a child's room, or a bunk bed / crib in another bedroom, is the room's
+    bed: no second bed is asked for or added, and the drawn bed never becomes a wardrobe."""
+    plan = schemas.completion_plan("bedroom", subtype, [(bed, size)])
+    assert plan["has_anchor"] and not plan["anchor_missing"]
+    assert not {"bed_double", "bed_single", "bunk_bed", "crib"} & set(plan["addable"])
+    drawn = _drawn([_item("bed", bed, size)], "bedroom")
+    kept, refused = C.check_change_rules([{"id": "bed", "type": "wardrobe", "size": (2.4, 0.6)}], drawn, plan)
+    assert not kept and "main piece" in refused[0]["reason"]
+    other = next(t for t in schemas.anchor_types("bedroom", subtype) if t != bed)
+    kept, _ = C.check_change_rules([{"id": "bed", "type": other, "size": schemas.default_size(other)}], drawn, plan)
+    assert kept                                                           # another bed type of the room's list
+    kept, refused = C.filter_added([pc(t, (1, 1), 0, schemas.default_size(t))
+                                    for t in schemas.anchor_types("bedroom", subtype)], plan, "bedroom")
+    assert kept == [] and refused
+
+
 def test_filter_added_counts_and_one_main_piece():
     plan = schemas.completion_plan("bedroom", None, [("wardrobe", (1.8, 0.6))])
     items = [pc("bed_double", (1, 1), 0, (1.6, 2.0)), pc("bed_single", (3, 1), 0, (0.9, 2.0)),
@@ -513,6 +532,44 @@ def test_unverified_bed_proposal_never_adds_a_second_bed():
     assert LK.check(source, out, "complete") == []
 
 
+def test_a_type_proposal_must_fit_the_drawn_footprint():
+    """Code review #20: the M7 size rule holds for type proposals: real01's unknown 1.90 x 0.70 piece never becomes
+    a 0.45 m deep TV unit; an unknown 0.5 x 0.6 symbol never becomes the bedroom's double bed."""
+    import pathlib
+
+    real01 = B.load(pathlib.Path(__file__).resolve().parents[1] / "results" / "furniture" / "real01" /
+                    "building_fitted.json")
+    room = "r_L0_drawing_room"
+    answers = {(room, k): {"changes": [ch("f_L0_018", "tv_unit", (1.6, 0.45))], "added": []} for k in (1, 2)}
+    out, records = C.complete_building(real01, "x", FakeClient(answers), C.Settings())
+    assert piece(out, "f_L0_018")["type"] == "unknown" and "type_proposal" not in piece(out, "f_L0_018")
+    refused = next(c for r in records if r.room_id == room for c in r.changes if c["id"] == "f_L0_018")
+    assert refused["status"] == "refused" and "footprint 1.90 x 0.70 does not fit tv_unit" in refused["reason"]
+    source = drawn_building(example())
+    bed = piece(source, "f_L0_002")
+    bed.update(type="unknown", status="unverified")
+    bed["footprint"]["size"] = [0.5, 0.6]
+    answers = {(BEDROOM, k): {"changes": [ch("f_L0_002", "bed_double", (1.8, 2.0)),
+                                          ], "added": []} for k in (1, 2)}
+    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
+    rec = next(r for r in records if r.room_id == BEDROOM)
+    assert piece(out, "f_L0_002")["type"] == "unknown" and rec.plan["after_changes"]["has_anchor"] is False
+    assert any(c["status"] == "refused" and "does not fit bed_double" in c["reason"] for c in rec.changes)
+
+
+def test_a_rectangle_never_becomes_a_corner_sofa_by_proposal():
+    source = drawn_building(example())
+    sofa = piece(source, "f_L-1_002")
+    sofa.update(type="unknown", status="unverified")
+    sofa["footprint"]["size"] = [2.6, 1.6]
+    sofa["footprint"]["center"] = [3.125, 7.175]
+    answers = {(SALON, k): {"changes": [ch("f_L-1_002", "sofa_corner", (2.6, 1.6))], "added": []} for k in (1, 2)}
+    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
+    assert piece(out, "f_L-1_002")["type"] == "unknown"
+    rec = next(r for r in records if r.room_id == SALON)
+    assert any(c["status"] == "refused" and "not an L" in c["reason"] for c in rec.changes)
+
+
 # --------------------------------------------------------------------------
 # Looks (furniture.design, §1.6b row 15)
 # --------------------------------------------------------------------------
@@ -681,6 +738,29 @@ def test_mirror_transform_maps_points_fronts_and_sides():
     given = C.given_transform({"twin_transform": [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]})
     assert given.point((3.0, 1.0)) == pytest.approx((5.2, 1.0)) and given.side("left") == "right"
     assert C.given_transform({"twin_transform": None}) is None and C.given_transform({}) is None
+
+
+def test_a_twin_takes_the_partners_type_proposal():
+    """Review (low, unverified): the second twin's unknown piece gets the first twin's type proposal too, so both
+    dwellings stay the same; it stays unverified with its own footprint and is listed."""
+    source = twin_building()
+    for pid, rid, x in (("f_L0_003", TWIN_A, 1.0), ("f_L0_004", TWIN_B, 7.2)):
+        source["furniture"].append({"id": pid, "level_id": "L0", "room_id": rid, "type": "unknown", "type_raw": None,
+                                    "source": "from_documents", "status": "unverified",
+                                    "evidence": [B.evidence("p.dxf", "vector", 1.0)],
+                                    "footprint": {"center": [x, 0.285], "size": [0.9, 0.35], "rotation_deg": 180.0},
+                                    "front_deg": 90.0, "height": None})
+    source["unverified"] = ["f_L0_003", "f_L0_004"]
+    answers = {(TWIN_A, k): {"changes": [ch("f_L0_003", "bench", (1.2, 0.4))], "added": []} for k in (1, 2)}
+    client = FakeClient(answers)
+    out, records = C.complete_building(source, "x", client, C.Settings())
+    assert {r for r, _ in client.calls} == {TWIN_A}
+    a, b = piece(out, "f_L0_003"), piece(out, "f_L0_004")
+    assert a["type"] == b["type"] == "bench" and b["type_proposal"] is True and b["drawn_type"] == "unknown"
+    assert b["status"] == "unverified" and b["footprint"] == piece(source, "f_L0_004")["footprint"]
+    assert b["mirrored_from"] == "f_L0_003" and "modified_by_ai" not in b
+    assert any(w.startswith("f_L0_004: unverified drawn piece, AI type proposal") for w in out["warnings"])
+    assert LK.check(source, out, "complete") == []
 
 
 def test_twin_rooms_all_asks_both():

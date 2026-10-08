@@ -18,6 +18,7 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -423,6 +424,7 @@ class World:
                     m6_outputs=self.m6, prep_root=self.prep_root, assets=self.assets, hf_cache=self.tmp / "hf",
                     logs_dir=self.logs, job_dir=self.tmp / "job", job_id="t1", deadline=None, py="/venv/python",
                     polish_py="/fast/venv-polish/python", repo_root=self.repo, abo_cache=self.tmp / "abo",
+                    objaverse_cache=self.tmp / "objaverse-cache",
                     fast=self.tmp / "fast", trellis_py=str(self.trellis_py))
         base.update(kw)
         return P.PrepOptions(**base)
@@ -462,10 +464,16 @@ class World:
 
         lib = Path(arg("--out")) if label.startswith(("objaverse ", "abo ", "generate ", "recolour ")) else None
 
-        if label == "objaverse survey":
-            P.write_json(lib / "survey.json", {"candidates": [{"uid": "u1"}, {"uid": "u2"}]})
-        elif label == "abo survey":
-            P.write_json(lib / "survey_abo.json", {"candidates": [{"uid": "abo_A1"}, {"uid": "abo_A2"}]})
+        if label in ("objaverse survey", "abo survey"):
+            # The real surveys download the candidate GLBs into --cache and record their absolute paths.
+            cache = Path(arg("--cache"))
+            folder = cache / ("hub" if label == "objaverse survey" else "original")
+            uids = ("u1", "u2") if label == "objaverse survey" else ("abo_A1", "abo_A2")
+            folder.mkdir(parents=True, exist_ok=True)
+            for uid in uids:
+                (folder / f"{uid}.glb").write_bytes(b"glTF")
+            P.write_json(lib / ("survey.json" if label == "objaverse survey" else "survey_abo.json"),
+                         {"candidates": [{"uid": uid, "glb": str(folder / f"{uid}.glb")} for uid in uids]})
         elif label == "bash scripts/pod_setup_trellis.sh":
             P.write_json(Path(env["WENART_RESULTS"]) / "setup_trellis.json", self.trellis_setup)
             return 0 if self.trellis_setup.get("ok") else 1
@@ -642,7 +650,7 @@ def test_commands_of_every_step(tmp_path):
     assert w.call("abo survey")["cmd"] == ["/venv/python", "-m", "wenart.assets.abo", "survey", "--cache",
                                            str(tmp_path / "abo"), "--out", lib]
     assert w.call("objaverse survey")["cmd"] == ["/venv/python", "-m", "wenart.assets.objaverse", "survey",
-                                                 "--cache", str(tmp_path / "hf"), "--out", lib]
+                                                 "--cache", str(tmp_path / "objaverse-cache"), "--out", lib]
     thumbs = w.call("objaverse thumbnails")["cmd"][3:]
     assert thumbs == ["thumbnails", "--out", lib, "--work", str(w.prep_root / "library-work")]
     det = w.call("gate detect-calibrate")["cmd"]
@@ -1546,9 +1554,13 @@ def test_the_library_copy_leaves_model_files_out(tmp_path):
 def test_cli_options_of_the_library_sources(tmp_path, monkeypatch):
     monkeypatch.setenv("WENART_FAST", str(tmp_path / "fast"))
     monkeypatch.delenv("WENART_ABO_CACHE", raising=False)
+    monkeypatch.delenv("WENART_OBJAVERSE_CACHE", raising=False)
+    monkeypatch.delenv("WENART_PREP_ROOT", raising=False)
     monkeypatch.delenv("WENART_TRELLIS_PY", raising=False)
     opts = P.options_from_args(P.parse_args(["--results", str(tmp_path / "r")]))
-    assert opts.abo_cache == tmp_path / "fast" / "abo" and opts.fast == tmp_path / "fast"
+    # Milestone 10: the surveys' caches are on the volume (under the prep root), no longer on the container disk.
+    assert opts.abo_cache == Path("/workspace/prep/cache/abo") and opts.fast == tmp_path / "fast"
+    assert opts.objaverse_cache == Path("/workspace/prep/cache/objaverse")
     assert opts.trellis_python == str(tmp_path / "fast" / "venv-trellis" / "bin" / "python")
     opts = P.options_from_args(P.parse_args(["--results", "r", "--abo-cache", "/x/abo", "--trellis-py", "/t/py",
                                              "--skip", "trellis_setup,generate"]))
@@ -2070,20 +2082,192 @@ def test_the_library_copy_takes_the_recolour_folder_and_names_what_it_leaves_out
 
 
 def test_the_documented_m10_pod_commands_name_real_steps(tmp_path):
-    """prep.sh's header holds the L1 and L2 commands the lead copies: every PREP_ONLY / PREP_SKIP list in it names
-    steps of ``STEPS`` (a typo would fail the job at the pod's start), L1 asks the sheets of the M10 projects and L2
-    generates."""
+    """prep.sh's header holds the L1b, L1c and L2 commands the lead copies: every PREP_ONLY / PREP_SKIP list in it names
+    steps of ``STEPS`` (a typo would fail the job at the pod's start); L1b surveys the new types and keeps the
+    downloads on the volume, L1c answers the questions and writes the catalogue without a survey, L2 generates."""
     text = " ".join(ln.lstrip("#").strip() for ln in _text().splitlines() if ln.startswith("#"))
     lists = re.findall(r"PREP_(?:ONLY|SKIP)=([a-z_,]+)", text)
     assert lists
     for names in lists:
         assert {n for n in names.split(",") if n} <= set(P.STEPS), names      # a wrapped list ends with a comma
-    m10 = [ln for ln in text.split("scripts/gpu_run.py run") if "M10 L1" in ln or "M10 L2" in ln]
-    assert len(m10) == 2
-    l1, l2 = m10
-    assert "PREP_PROJECTS=real02,synthetic-07" in l1 and "pipelines" in re.search(r"PREP_ONLY=([a-z_,]+)", l1).group(1)
-    assert "WENART_GENERATE_TARGET=20" in l2 and "generate" in re.search(r"PREP_ONLY=([a-z_,]+)", l2).group(1)
-    for part in (l1, l2):
-        only = re.search(r"PREP_ONLY=([a-z_,]+)", part).group(1).split(",")
-        assert "recolour_slots" in only and only.index("recolour_slots") > only.index("judge_requests")
-        assert P.options_from_args(P.parse_args(["--results", str(tmp_path), "--only", ",".join(only)])).only
+    parts = {m.group(1): part for part in text.split("scripts/gpu_run.py run")
+             for m in [re.search(r'"M10 (L1b|L1c|L2):', part)] if m}
+    assert set(parts) == {"L1b", "L1c", "L2"}
+
+    def only(part: str) -> list:
+        return re.search(r"PREP_ONLY=([a-z_,]+)", part).group(1).split(",")
+
+    b, c, l2 = only(parts["L1b"]), only(parts["L1c"]), only(parts["L2"])
+    assert "PREP_SURVEY_TYPES=new" in parts["L1b"] and "PREP_SURVEY_TYPES" not in parts["L1c"]
+    assert {"abo_survey", "survey", "thumbnails", "recolour_slots", "copy"} <= set(b)
+    assert not {"session_qwen", "session_glm", "pipelines", "library"} & set(b)
+    assert {"pipelines", "session_qwen", "session_glm", "pipeline_final", "library", "copy"} <= set(c)
+    assert not {"abo_survey", "survey", "thumbnails", "recolour_slots"} & set(c)       # the caches are on the volume
+    assert len(set(b) | set(c)) >= 12 and set(b) & set(c) == {"copy"}
+    assert "WENART_GENERATE_TARGET=20" in parts["L2"] and "generate" in l2
+    for part_only in (b, c, l2):
+        assert P.options_from_args(P.parse_args(["--results", str(tmp_path), "--only", ",".join(part_only)])).only
+    for name in ("L1b", "L1c"):
+        assert "PREP_PROJECTS=real02,synthetic-07,real01,synthetic-03" in parts[name]
+    assert "recolour_slots" in l2 and l2.index("recolour_slots") > l2.index("judge_requests")
+    assert P.STEPS.index("judge_requests") < P.STEPS.index("recolour_slots") and "--max-minutes 120" in parts["L1b"]
+
+
+# --------------------------------------------------------------------------
+# Milestone 10, after pod L1 of 8 Oct 2026: survey types, caches on the volume, deadline cuts, partial results
+# --------------------------------------------------------------------------
+
+def test_survey_types_reach_both_surveys(tmp_path, monkeypatch):
+    """PREP_SURVEY_TYPES -> ``--types`` of the ABO and of the Objaverse survey; nothing for every type."""
+    w = World(tmp_path)
+    w.prep(survey_types="new").run_all()
+    for label in ("abo survey", "objaverse survey"):
+        assert w.call(label)["cmd"][-2:] == ["--types", "new"], label
+    w2 = World(tmp_path / "b")
+    w2.prep(survey_types="bar_stool,crib").run_all()
+    assert w2.call("abo survey")["cmd"][-2:] == ["--types", "bar_stool,crib"]
+    for n, none in enumerate((None, "", "all")):
+        w3 = World(tmp_path / f"c{n}")
+        w3.prep(survey_types=none).run_all()
+        assert not [c for c in w3.calls if "--types" in c["cmd"]], none
+    # Options: the flag, the environment, spaces or commas, "all", refused names.
+    monkeypatch.delenv("PREP_SURVEY_TYPES", raising=False)
+    assert P.options_from_args(P.parse_args(["--results", "r"])).survey_types is None
+    monkeypatch.setenv("PREP_SURVEY_TYPES", "new")
+    assert P.options_from_args(P.parse_args(["--results", "r"])).survey_types == "new"
+    assert P.options_from_args(P.parse_args(["--results", "r", "--survey-types", "sofa crib"])).survey_types == \
+        "sofa,crib"
+    assert P.options_from_args(P.parse_args(["--results", "r", "--survey-types", "all"])).survey_types is None
+    assert P.main(["--results", str(tmp_path / "r"), "--survey-types", "new;rm"]) == 2
+    assert P.main(["--results", str(tmp_path / "r"), "--survey-types", "all,sofa"]) == 2
+
+
+def test_the_survey_caches_are_on_the_volume_and_the_weights_stay_on_the_container_disk(tmp_path, monkeypatch):
+    """Both surveys download into ``<prep-root>/cache/{abo,objaverse}`` (a pod cut by the deadline leaves them for the
+    next); ``HF_HOME`` (the model weights) is not the Objaverse survey's cache."""
+    opts = P.PrepOptions(results=tmp_path / "r", prep_root=tmp_path / "prep")
+    assert opts.abo_cache == tmp_path / "prep" / "cache" / "abo"
+    assert opts.objaverse_cache == tmp_path / "prep" / "cache" / "objaverse"
+    assert opts.hf_cache == Path("/opt/wenart/hf") and opts.hf_cache not in (opts.abo_cache, opts.objaverse_cache)
+    w = World(tmp_path / "w")
+    w.prep(abo_cache=None, objaverse_cache=None).run_all()
+    abo, obj = w.prep_root / "cache" / "abo", w.prep_root / "cache" / "objaverse"
+    abo_cmd, obj_cmd = w.call("abo survey")["cmd"], w.call("objaverse survey")["cmd"]
+    assert abo_cmd[abo_cmd.index("--cache") + 1] == str(abo) and obj_cmd[obj_cmd.index("--cache") + 1] == str(obj)
+    for label in ("abo survey", "objaverse survey"):          # the weights are still found in HF_HOME
+        assert w.call(label)["env"]["HF_HOME"] == str(w.tmp / "hf")
+    assert w.steps()["survey"]["cache"] == str(obj) and w.steps()["abo_survey"]["cache"] == str(abo)
+    # The CLI: flags and environment override the defaults.
+    for var in ("WENART_ABO_CACHE", "WENART_OBJAVERSE_CACHE", "WENART_PREP_ROOT"):
+        monkeypatch.delenv(var, raising=False)
+    got = P.options_from_args(P.parse_args(["--results", "r", "--prep-root", str(tmp_path / "pr")]))
+    assert got.abo_cache == tmp_path / "pr" / "cache" / "abo"
+    assert got.objaverse_cache == tmp_path / "pr" / "cache" / "objaverse"
+    monkeypatch.setenv("WENART_OBJAVERSE_CACHE", "/vol/obj")
+    monkeypatch.setenv("WENART_ABO_CACHE", "/vol/abo")
+    got = P.options_from_args(P.parse_args(["--results", "r"]))
+    assert (got.abo_cache, got.objaverse_cache) == (Path("/vol/abo"), Path("/vol/obj"))
+    got = P.options_from_args(P.parse_args(["--results", "r", "--abo-cache", "/a", "--objaverse-cache", "/o"]))
+    assert (got.abo_cache, got.objaverse_cache) == (Path("/a"), Path("/o"))
+
+
+def test_the_steps_that_read_glbs_find_them_in_the_caches_of_an_earlier_pod(tmp_path):
+    """thumbnails, recolour slots and write-catalog read the GLB paths the surveys recorded; those paths are in the
+    volume caches, so a later pod (new container disk: other HF_HOME and fast folders) finds them without a survey."""
+    w = World(tmp_path)
+    lib = w.prep_root / "library"
+    fake_write = w.write
+
+    def write(cmd, label):
+        if label == "objaverse accept":                  # the real accepted.json: one decision per object
+            P.write_json(lib / "accepted.json", {"accepted": [{"uid": "u1"}, {"uid": "abo_A1"}]})
+            return 0
+        return fake_write(cmd, label)
+
+    w.write = write
+    assert w.prep(abo_cache=None, objaverse_cache=None).run_all() == 0, w.lines
+    cache = w.prep_root / "cache"
+    for name in ("survey.json", "survey_abo.json"):
+        for cand in json.loads((lib / name).read_text())["candidates"]:
+            assert Path(cand["glb"]).is_file() and cache in Path(cand["glb"]).parents, cand
+    # Another pod: a new container disk, the same volume. All accepted GLBs are found, the GLB steps run.
+    w.calls.clear()
+    other = w.prep(results=tmp_path / "results-2", hf_cache=tmp_path / "other-hf", fast=tmp_path / "other-fast",
+                   abo_cache=None, objaverse_cache=None, only=("thumbnails", "recolour_slots", "library"))
+    assert other.accepted_glbs_missing() == []
+    assert other.run_all() == 0, w.lines
+    assert [c["label"] for c in w.calls][:2] == ["objaverse thumbnails", "recolour slots"]
+    assert w.steps_of(tmp_path / "results-2")["library"]["status"] in ("ok", "warning")        # not failed: GLBs found
+    # The volume lost its caches: the missing GLBs are named, with where they should be and what to run.
+    shutil.rmtree(cache)
+    w.rc["objaverse write-catalog"] = 1
+    again = w.prep(results=tmp_path / "results-3", abo_cache=None, objaverse_cache=None, only=("library",))
+    assert len(again.accepted_glbs_missing()) == 2
+    assert again.run_all() == 1
+    step = w.steps_of(tmp_path / "results-3")["library"]
+    assert step["glbs_missing"] == 2 and f"in {cache}" not in step["note"]
+    assert str(cache / "objaverse") in step["note"] and str(cache / "abo") in step["note"]
+    assert "on the volume" in step["note"] and "must include survey and abo_survey" in step["note"]
+
+
+@pytest.mark.parametrize("step, label", [("thumbnails", "objaverse thumbnails"), ("survey", "objaverse survey"),
+                                         ("abo_survey", "abo survey"), ("recolour_slots", "recolour slots")])
+def test_a_heavy_step_killed_at_the_deadline_is_deadline_not_failed(tmp_path, step, label):
+    """Pod L1 of 8 Oct 2026: thumbnails ended with exit 124 (the runner's timeout is the deadline) and was `failed`.
+    Exit 124 with a deadline, like the step's own exit 3, is `deadline`; without a deadline it is a hang: `failed`."""
+    def world(base, rc):
+        w = World(base, rc={label: rc})
+        P.write_json(w.prep_root / "library" / "survey.json", {"candidates": []})       # thumbnails needs a survey
+        P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})       # recolour_slots needs this
+        return w
+
+    for rc in (124, 3):
+        w = world(tmp_path / f"d{rc}", rc)
+        w.prep(only=(step,), deadline=w.clock.t + 6 * 3600.0).run_all()
+        assert w.steps()[step]["status"] == "deadline", (step, rc, w.steps()[step])
+    w = world(tmp_path / "nodeadline", 124)
+    assert w.prep(only=(step,)).run_all() == 1
+    assert w.steps()[step]["status"] == "failed"
+    if step in ("survey", "abo_survey"):               # the note says where the downloads stay
+        w = world(tmp_path / "note", 124)
+        w.prep(only=(step,), deadline=w.clock.t + 6 * 3600.0).run_all()
+        cache = w.opts().abo_cache if step == "abo_survey" else w.opts().objaverse_cache
+        assert "the downloads so far stay in" in w.steps()[step]["note"] and str(cache) in w.steps()[step]["note"]
+
+
+def test_a_session_call_killed_at_the_deadline_is_deadline_not_failed(tmp_path):
+    w = World(tmp_path, rc={"ask glm real01": 124})
+    assert w.prep(deadline=w.clock.t + 6 * 3600.0).run_all() == 1
+    assert w.steps()["session_glm"]["status"] == "deadline" and w.steps()["session_qwen"]["status"] == "ok"
+    w2 = World(tmp_path / "b", rc={"ask glm real01": 124})
+    assert w2.prep().run_all() == 1
+    assert w2.steps()["session_glm"]["status"] == "failed"
+
+
+def test_results_are_copied_after_every_step_once_the_deadline_has_passed(tmp_path):
+    """Pod L1 of 8 Oct 2026 was stopped at its maximum runtime before the copy step and left 3 result files: after the
+    deadline the projects' files and the library folder go to $RESULTS after each step."""
+    w = World(tmp_path, step_s=100.0)
+    # abo_survey fits (300 s) and ends before the deadline; the pipelines (8 commands) run into the late time.
+    assert w.prep(only=("abo_survey", "pipelines"), deadline=w.clock.t + 350.0).run_all() == 0, w.lines
+    assert w.steps()["copy"]["status"] == "skipped"                                     # the copy step did not run
+    assert (w.results / "library" / "survey_abo.json").is_file()
+    assert (w.results / "furniture" / "real01" / "building.json").is_file()
+    assert (w.results / "recognition" / "real01" / "requests.json").is_file()
+    # Before the deadline, and without one, nothing is copied early.
+    w2 = World(tmp_path / "b", step_s=100.0)
+    w2.prep(only=("abo_survey",), deadline=w2.clock.t + 3600.0).run_all()
+    w3 = World(tmp_path / "c")
+    w3.prep(only=("abo_survey",)).run_all()
+    assert not (w2.results / "library").exists() and not (w3.results / "library").exists()
+
+
+def test_the_real_surveys_take_the_types_flag_the_prep_passes(tmp_path):
+    from wenart.assets import abo as ABO
+    from wenart.assets import objaverse as OV
+    w = World(tmp_path)
+    w.prep(survey_types="new", only=("abo_survey", "survey")).run_all()
+    abo = w.call("abo survey")["cmd"]
+    obj = w.call("objaverse survey")["cmd"]
+    assert ABO.parse_args(abo[abo.index("survey"):]).types == "new"
+    assert OV.parse_args(obj[obj.index("survey"):]).types == "new"

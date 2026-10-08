@@ -38,7 +38,14 @@ files. Nothing here runs in the session except on canned metadata (tests) or wit
    listings mapped, in the size range and picked, and the rules that took them (``results/library/
    survey_m10_session.json``, the ABO column of the coverage table of docs/milestone10.md §4.11).
 
-Exit codes: 0 candidates found, 1 none, 2 usage error or metadata missing.
+6. ``--types new|T1,T2`` (pod L1 follow-up): only these types are mapped, listed and downloaded (``new`` = the 14 new
+   furniture and 12 new decor types, ``objaverse.yaml new_types``). The candidates, counts and refusals of every other
+   type stay as the earlier ``survey_abo.json`` of ``--out`` has them (their GLBs may be missing on this pod: the
+   thumbnails, the judging and the catalogue use the stored thumbnails, answers and the assets copy), and a uid kept
+   that way is never picked again. The file gets ``types``, ``candidates_new`` and ``carried``.
+
+Exit codes: 0 candidates found (with ``--types``: new ones of the listed types), 1 none, 2 usage error or metadata
+missing.
 """
 from __future__ import annotations
 
@@ -392,11 +399,21 @@ def fetch_glb(rec: dict, cache: Path, cfg: dict, max_bytes: float, fetcher: Opti
 
 def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional[dict] = None,
            download_glbs: bool = True, cache: Optional[Path] = None, fetcher: Optional[Callable] = None,
-           workers: Optional[int] = None, log: Callable = print) -> dict:
-    """The ABO survey (module docstring) -> ``<out>/survey_abo.json``."""
+           workers: Optional[int] = None, log: Callable = print, types=None) -> dict:
+    """The ABO survey (module docstring) -> ``<out>/survey_abo.json``.
+
+    ``types`` (``--types``; Milestone 10 pod L1): only these types are mapped, listed and downloaded. The candidates,
+    counts and refusals of every other type stay as the earlier ``survey_abo.json`` of ``out`` has them (their GLBs may
+    be missing here), and a uid kept that way is never picked again for a listed type."""
     cfg = cfg or load_config()
     ocfg = ocfg or OV.load_config()
     out = Path(out)
+    wanted_types = set(types) if types else None
+    carry, earlier = None, None
+    if wanted_types:
+        earlier = OV.read_json(out / SURVEY_NAME) if (out / SURVEY_NAME).is_file() else None
+        carry = OV.carry_over(earlier, wanted_types)
+    carried_uids = {str(c["uid"]) for c in carry["candidates"]} if carry else set()
     cache = Path(cache) if cache else DEFAULT_CACHE
     scfg, ds = cfg["survey"], cfg["dataset"]
     tags = list(scfg.get("english_tags") or ["en_US", "en_GB"])
@@ -446,6 +463,8 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
             continue
         ftype, named, detail = resolve_type(rule, dims, ocfg, table, tol)
         key = ftype or named
+        if wanted_types and (key not in wanted_types or base["uid"] in carried_uids):
+            continue                                    # another type, or a model the earlier survey keeps
         c = counts.setdefault(key, {"mapped": 0, "in_size": 0, "tried": 0, "candidates": 0, "not_selected": 0})
         c["mapped"] += 1
         per_rule = rule_counts.setdefault(key, {})
@@ -509,6 +528,13 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
         candidates += chosen
         log(f"abo survey: {ftype}: {c['mapped']} mapped, {c['in_size']} in the size range, {len(chosen)} candidates")
 
+    new_candidates = len(candidates)
+    if carry:
+        counts = {**{k: v for k, v in carry["counts"].items() if k not in counts}, **counts}
+        rule_counts = {**{k: v for k, v in ((earlier or {}).get("rule_counts") or {}).items()
+                          if k not in wanted_types and k not in rule_counts}, **rule_counts}
+        refused = refused + carry["refused"]
+        candidates = carry["candidates"] + candidates
     refused_counts: dict[str, int] = {}
     for r in refused:
         refused_counts[r["code"]] = refused_counts.get(r["code"], 0) + 1
@@ -525,6 +551,10 @@ def survey(meta: Metadata, out: Path, cfg: Optional[dict] = None, ocfg: Optional
         "counts": dict(sorted(counts.items())), "refused_counts": dict(sorted(refused_counts.items())),
         "candidates": candidates, "refused": refused,
     }
+    if carry:
+        doc["types"] = sorted(wanted_types)
+        doc["candidates_new"] = new_candidates
+        doc["carried"] = {"candidates": len(carry["candidates"]), "generated_utc": carry["generated_utc"]}
     OV.write_json(out / SURVEY_NAME, doc)
     return doc
 
@@ -597,6 +627,10 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--workers", type=int, default=None, help="parallel GLB downloads (default abo.yaml)")
     p.add_argument("--config", default=None, help="abo.yaml (default: next to this module)")
     p.add_argument("--summary", default=None, help="also write the session summary (counts per new type) to this file")
+    p.add_argument("--types", default=None,
+                   help="only these types are mapped, listed and downloaded: new (the 14 furniture and 12 decor types "
+                        "of Milestone 10) or T1,T2 (default: every type); the other types' records stay as the earlier "
+                        "survey_abo.json of --out has them")
     return parser.parse_args(argv)
 
 
@@ -607,17 +641,20 @@ def main(argv=None) -> int:
         cfg = load_config(Path(args.config) if args.config else None)
         meta = Metadata(cfg, Path(args.metadata) if args.metadata else None, Path(args.cache),
                         download_missing=not args.no_download)
+        types = OV.parse_type_filter(args.types, OV.load_config())
         doc = survey(meta, Path(args.out), cfg, download_glbs=not args.no_download, cache=Path(args.cache),
-                     workers=args.workers)
+                     workers=args.workers, types=types)
     except (UsageError, OV.UsageError, FileNotFoundError) as exc:
         print(f"abo {args.command}: {exc}", file=sys.stderr)
         return EXIT_USAGE
-    print(f"abo survey: {len(doc['candidates'])} candidate(s) in {time.time() - t0:.0f} s -> "
-          f"{Path(args.out) / SURVEY_NAME}")
+    fresh = doc.get("candidates_new", len(doc["candidates"]))
+    print(f"abo survey: {len(doc['candidates'])} candidate(s)"
+          + (f" ({fresh} of the listed types, {len(doc['candidates']) - fresh} kept from the earlier survey)"
+             if types else "") + f" in {time.time() - t0:.0f} s -> {Path(args.out) / SURVEY_NAME}")
     if args.summary:
         OV.write_json(Path(args.summary), session_summary(doc, cfg, OV.load_config(), "python -m wenart.assets.abo "
                       "survey --metadata DIR --no-download --summary " + Path(args.summary).as_posix()))
-    return EXIT_OK if doc["candidates"] else EXIT_FAIL
+    return EXIT_OK if fresh else EXIT_FAIL
 
 
 if __name__ == "__main__":

@@ -969,15 +969,21 @@ class Orchestrator:
                             self.code("pipeline_final"))
         prev = self.previous(pr, "pipeline_final")
         building = pr.out / "building.json"
+        sheet_items = self.recognition_items(pr, S.SHEETS_DIR)
         if not self.forced("pipeline_final") and ST.reusable(prev, fp, pr.out) \
-                and prev.written.get("building.json") == ST.canonical_sha256(building):
+                and prev.written.get("building.json") == ST.canonical_sha256(building) \
+                and (not sheet_items or prev.written.get("sheets.json") == ST.canonical_sha256(pr.out / "sheets.json")):
+            # M10: with sheet questions, also only while sheets.json is the answered one it wrote (a re-run sheets
+            # stage writes the pre-answer version).
             self.finish(pr, "pipeline_final", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs,
                         written=prev.written)
             return
-        if self.recognition_items(pr, S.SHEETS_DIR):
+        sheets_missing = False
+        if sheet_items:
             # M10 §1.5: the sheet analysis again with its sheet_region answers (or --no-ai: title text and geometry
             # decide alone), so the pipeline reads the regions the answers confirm.
             sheets_no_ai = smoke or not self.recognition_complete(pr, S.SHEETS_DIR)
+            sheets_missing = sheets_no_ai and not smoke
             src = self.run_step(pr, "pipeline_final", "sheets --answers" if not sheets_no_ai else "sheets --no-ai",
                                 S.sheets(self.tools, pr.ref, answers=not smoke, no_ai=sheets_no_ai))
             if src not in (0, 1):
@@ -998,10 +1004,12 @@ class Orchestrator:
         rec = {"fingerprint": fp, "inputs": ins, "written": written}
         how = ("smoke profile: --no-ai" if smoke else "answers applied" if complete
                else "--no-ai: the unanswered pieces stay unknown, unverified")
+        if sheets_missing:                      # M10: as prep.do_pipeline_final, never a silent "answers applied"
+            how += "; sheet answers missing: sheets --no-ai (regions decided by title and geometry)"
         if second_round and rc == 0 and status == "ok":
             self.finish(pr, "pipeline_final", "warning", S.SECOND_ROUND_NOTE, **rec)
         elif rc == 0 and status == "ok":
-            self.finish(pr, "pipeline_final", "ok", how, **rec)
+            self.finish(pr, "pipeline_final", "warning" if sheets_missing else "ok", how, **rec)
         elif rc == 1 and status == "needs_review":
             self.finish(pr, "pipeline_final", "needs_review", "building needs review (report.md)", **rec)
         elif rc == TIMEOUT_RC:
@@ -1096,8 +1104,10 @@ class Orchestrator:
             self.finish(pr, "pipeline", "failed", "no project folder")
             return
         cmd = S.pipeline(self.tools, pr.ref)
-        ins = ST.file_hashes([pr.ref.project_dir] + ([pr.out / "sheets.json"] if (pr.out / "sheets.json").is_file()
-                                                     else []))
+        # Milestone 10: sheets.json is not hashed here. It is a function of the inputs below (project files, brief,
+        # converter, the sheets code in PIPELINE_CODE), and pipeline_final rewrites it with the sheet answers, which
+        # would make every resume run the first pipeline again over pipeline_final's building (as prep.py).
+        ins = ST.file_hashes([pr.ref.project_dir])
         ins.update(self.converter_inputs())
         fp = ST.fingerprint("pipeline", S.STAGE_VERSION["pipeline"], cmd[1:], ins, self.code("pipeline"))
         prev = self.previous(pr, "pipeline")
@@ -1923,6 +1933,13 @@ class Orchestrator:
         cal = read_json(src)
         complete = isinstance(cal, dict) and cal.get("kind") == "gate_calibration" and cal.get("incomplete") is False
         if pr.base.gate_decision is None or not complete:
+            # As stage_gate after a failed calibration: an earlier run's copy is moved aside and validate still runs,
+            # so gate_validation.json says not_validated for this run (never an older 'ok'; the report and the
+            # polish read the files, and Inputs.gate_dir would fall back to the base's older folder).
+            own = pr.out / "gate" / "gate_calibration.json"
+            if own.is_file():
+                own.replace(own.with_name("gate_calibration.failed.json"))
+            self.run_step(pr, "gate", "validate", S.gate_validate(self.tools, pr.ref))
             pr.gate_decision = None
             self.finish(pr, "gate", "warning", "gate decision not_validated (no calibration of the base project)",
                         outputs=[])

@@ -136,7 +136,11 @@ Milestone 10 (docs/milestone10.md §3.3 item 6; the sections are built by ``wena
 - a drawn piece the AI changed (``modified_by_ai``) carries the note ``modified_by_ai (drawn <type>)`` next to a
   mismatch, as an added piece carries ``added_by_ai``: a render issue, never a conflict between documents;
 - an alternative's sub-output ``outputs/<p>/variants/<id>`` reads the base project's gate calibration, sheets and
-  ``completion.json`` and is private when its project is.
+  ``completion.json`` and is private when its project is; its header lists the base exterior views of this run
+  (the base scene and render manifests: the base report runs after it);
+- rooms: only the rooms of the levels the variant builds are listed; a room left out on purpose (``twin of``,
+  ``same as``, ``unchanged in variant``: the scene manifest's ``rooms_without_view``) is named with its reason under
+  "Rooms not rendered on purpose" and is not counted as a room without a view.
 """
 from __future__ import annotations
 
@@ -311,7 +315,7 @@ FINAL_MANIFEST = {
         "exterior_sheets": {"type": "object", "additionalProperties": {"type": "string"}},
         "variants": {"type": ["object", "null"]},
         "variant_sheets": {"type": "object", "additionalProperties": {"type": "object"}},
-        "base_exterior_views": {"type": "array"},
+        "base_exterior_views": {"type": ["array", "null"]},
     },
 }
 
@@ -395,7 +399,7 @@ class Inputs:
     variant: str = "base"                                # the variant of this output (outputs/<p>/variants/<id>: <id>)
     root: Optional[Path] = None                          # the project output (= project_out; a variant's: its base)
     variant_manifests: dict = field(default_factory=dict)    # variant id -> its final/final_manifest.json
-    base_manifest: Optional[dict] = None                 # a variant sub-output: the base project's final manifest
+    base_exterior: Optional[list] = None                 # a variant sub-output: the base's exterior views of THIS run
     exterior_sheets: dict = field(default_factory=dict)  # variant -> contact_exterior_<variant>.jpg (write_images)
     variant_sheets: dict = field(default_factory=dict)   # variant id -> {"interior": name, "exterior": name}
     sheets_block: Optional[dict] = None                  # the Sheets block of the report (m10.sheets_block)
@@ -627,8 +631,15 @@ def load_m10_inputs(inp: Inputs) -> None:
                 if isinstance(m, dict) and m.get("kind") == "final":
                     inp.variant_manifests[vid] = m
     else:
-        base = C.read_json(root / FINAL_DIR / MANIFEST_NAME)
-        inp.base_manifest = base if isinstance(base, dict) and base.get("kind") == "final" else None
+        # The base project's report runs after the alternatives' (it reads theirs), so its final manifest is missing
+        # or an earlier run's. The base views of this run are its scene manifest's exterior cameras that have a
+        # render (None = not readable: the report says "not known yet").
+        scene = C.read_json(root / "scene" / "scene_manifest.json")
+        renders = C.read_json(root / "renders" / "render_manifest.json")
+        if isinstance(scene, dict) and isinstance(renders, dict):
+            rendered = {r.get("camera") for r in renders.get("renders") or [] if isinstance(r, dict)}
+            inp.base_exterior = [c["name"] for c in scene.get("cameras") or []
+                                 if isinstance(c, dict) and c.get("kind") == "exterior" and c.get("name") in rendered]
 
 
 def gate_validation_summary(inp: Inputs) -> Optional[dict]:
@@ -1588,20 +1599,38 @@ def camera_summary(views: list[dict]) -> dict:
             "score_max": round(max(scores), 3) if scores else None, "warnings": warnings}
 
 
+#: Reasons (``wenart.views.views_for``) of a room that is left out of a variant's renders on purpose.
+ON_PURPOSE_REASONS = ("twin of ", "same as ", "unchanged in variant")
+
+
 def rooms_summary(inp: Inputs, views: list[dict]) -> dict:
     """Per room: rendered views (1-3 per room in M6), polished/Cycles, polish room rule; building rooms
-    without any rendered view are listed with ``views: []``."""
+    without any rendered view are listed with ``views: []``.
+
+    Milestone 10: only the rooms of the levels this variant builds (the scene manifest's ``variant.levels``) are
+    listed, exterior views belong to no room, and a room without a view carries the reason the scene manifest
+    recorded in ``rooms_without_view`` (``not_rendered``): ``twin of <id>``, ``same as <id>`` and ``unchanged in
+    variant`` are on purpose (``on_purpose``), a camera-search reason is not."""
     rooms: dict[str, dict] = {}
     for v in views:
+        if v.get("view_kind") == "exterior":
+            continue
         r = rooms.setdefault(v["room_id"] or "-", {"views": [], "polished": [], "cycles": []})
         r["views"].append(v["camera"])
         r["polished" if v["final"] == "polished" else "cycles"].append(v["camera"])
     building_rooms = {r.get("id"): r for r in (inp.building or {}).get("rooms") or [] if isinstance(r, dict)}
-    for rid in building_rooms:
-        if rid and rid not in rooms:
+    variant = (inp.scene or {}).get("variant")
+    levels = {str(x) for x in (variant.get("levels") or [])} if isinstance(variant, dict) else set()
+    skips = {s["room_id"]: s for s in (inp.scene or {}).get("rooms_without_view") or []
+             if isinstance(s, dict) and s.get("room_id")}
+    for rid, b in building_rooms.items():
+        if rid and rid not in rooms and (not levels or b.get("level_id") in levels):
             rooms[rid] = {"views": [], "polished": [], "cycles": []}
     rules = (inp.polish or {}).get("rooms") or {}
     for rid, r in rooms.items():
+        why = (skips.get(rid) or {}).get("reason") if not r["views"] else None
+        r["not_rendered"] = str(why) if why else None
+        r["on_purpose"] = bool(why) and str(why).startswith(ON_PURPOSE_REASONS)
         r["mixed"] = bool(r["polished"]) and bool(r["cycles"])
         rule = rules.get(rid) or {}
         r["polish_rule"] = rule.get("rule")
@@ -2024,16 +2053,14 @@ def m10_blocks(inp: Inputs, views: list[dict]) -> dict:
     return {
         "variant": inp.variant,
         "sheets": inp.sheets_block,
-        "building_detail": M.building_block(inp.building),
+        "building_detail": M.building_block(inp.building, inp.private),
         "completion": M.completion_block(inp.completion),
         "drawn_check": M.drawn_block(inp.check),
         "exterior": M.exterior_block(inp.scene, inp.check, views, inp.exterior_gate, inp.variant),
         "exterior_sheets": dict(inp.exterior_sheets),
         "variants": variants,
         "variant_sheets": {vid: dict(names) for vid, names in inp.variant_sheets.items()},
-        "base_exterior_views": own_exterior if inp.variant == "base" else [
-            v.get("camera") for v in (inp.base_manifest or {}).get("views") or []
-            if isinstance(v, dict) and v.get("view_kind") == "exterior"],
+        "base_exterior_views": own_exterior if inp.variant == "base" else inp.base_exterior,
     }
 
 
@@ -2265,7 +2292,7 @@ def views_per_room(rooms: dict) -> dict:
     """``{"<n> views": rooms}`` over the rooms of the report (0 = a building room without a rendered view)."""
     out: dict[str, int] = {}
     for rid, r in rooms.items():
-        if rid == "-":
+        if rid == "-" or r.get("on_purpose"):
             continue
         key = str(len(r["views"]))
         out[key] = out.get(key, 0) + 1
@@ -2698,8 +2725,11 @@ def m10_lines(manifest: dict) -> list[str]:
         lines += ["", f"## This report: variant `{variant}`", "",
                   "An alternative's sub-output: it renders the rooms its plan changes, and its exterior views only "
                   "when its outside differs from the base. The sheets and the other variants are in the base "
-                  "project's report (`../../final/final_report.md`). The list of base exterior "
-                  "views: " + (", ".join(manifest.get("base_exterior_views") or []) or "none") + "."]
+                  "project's report (`../../final/final_report.md`). The base exterior views of this run: "
+                  + (("none rendered" if not manifest["base_exterior_views"] else
+                      ", ".join(manifest["base_exterior_views"]))
+                     if manifest.get("base_exterior_views") is not None else
+                     "not known yet (see the base report)") + "."]
     if manifest.get("sheets"):
         lines += M.sheets_lines(manifest["sheets"], manifest["private"], stopped=False)
     detail = manifest.get("building_detail")
@@ -2844,7 +2874,12 @@ def report_markdown(manifest: dict) -> str:
                           len(r["cycles"]), r["views"]])
     if room_rows:
         lines += C.table(["room", "type", "level", "views", "polished", "Cycles", "cameras"], room_rows)
-        empty = [rid for rid, r in manifest["rooms"].items() if not r["views"] and rid != "-"]
+        rooms = manifest["rooms"]
+        purposely = [f"{rid} ({r['not_rendered']})" for rid, r in rooms.items() if r.get("on_purpose")]
+        if purposely:
+            lines += ["", "Rooms not rendered on purpose: " + ", ".join(purposely) + "."]
+        empty = [rid + (f" ({r['not_rendered']})" if r.get("not_rendered") else "")
+                 for rid, r in rooms.items() if not r["views"] and rid != "-" and not r.get("on_purpose")]
         if empty:
             lines += ["", "Rooms without a rendered view: " + ", ".join(empty) + "."]
     else:
@@ -2994,7 +3029,9 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
             sheets = None
             covered.update(r["stage"] for r in records)
     if sheets is not None:
-        listed = [n for n in sheets.get("needs_review") or [] if isinstance(n, dict) and n.get("reason")]
+        names = sheet_names(sheets, is_private(out, private))
+        listed = [dict(n, reason=M.scrub(n["reason"], names) if is_private(out, private) else n["reason"])
+                  for n in sheets.get("needs_review") or [] if isinstance(n, dict) and n.get("reason")]
         record = next((r for r in records if r["stage"] == "sheets"), None)
         stopped = (record is not None and record["status"] == "needs_review") or \
             (record is None and building is None and bool(listed))

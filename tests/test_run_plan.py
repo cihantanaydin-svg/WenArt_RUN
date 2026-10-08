@@ -105,15 +105,16 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert (s1["status"], s1["levels"], s1["rooms"], s1["empty_rooms"], s1["views"]) == ("ok", 2, 10, 7, 34)
     # Milestone 10: + 5 exterior views (4 corners, 1 aerial; no drawn elevation) of every project (29 before).
     assert P.project_minutes(34, 7) == 27.15                          # the PRO 4500 time, divided by the speed
-    assert s1["minutes"] == P.project_minutes(34, 7, speed=SPEED) == 16.62
+    # Milestone 10: the 3 furnished rooms the layout completes count as AI rooms too (review finding #47).
+    assert s1["completed_rooms"] == 3 and s1["minutes"] == P.project_minutes(34, 7 + 3, speed=SPEED) == 16.92
     assert s1["server_starts"] == 3 and s1["photos"] == 0
     # §6.2: rooms that stay without furniture (a bath, a hall) get one view before the layout too.
     assert (s3["status"], s3["levels"], s3["rooms"], s3["empty_rooms"], s3["views"]) == ("ok", 3, 19, 11, 49)
-    assert s3["minutes"] == P.project_minutes(49, 11, speed=SPEED) and s3["server_starts"] == 3
+    assert s3["minutes"] == P.project_minutes(49, 11 + s3["completed_rooms"], speed=SPEED) and s3["server_starts"] == 3
     if "synthetic-04" in by:
         s4 = by["synthetic-04"]
         assert (s4["status"], s4["views"], s4["empty_rooms"]) == ("ok", 19, 2)
-        assert s4["minutes"] == P.project_minutes(19, 2, speed=SPEED) and s4["server_starts"] == 3
+        assert s4["minutes"] == P.project_minutes(19, 2 + s4["completed_rooms"], speed=SPEED) and s4["server_starts"] == 3
     if "synthetic-05" in by:
         s5 = by["synthetic-05"]
         assert (s5["status"], s5["views"], s5["empty_rooms"], s5["photos"]) == ("ok", 30, 3, 1)
@@ -137,7 +138,7 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == want
     calls = P.recognition_minutes({"qwen": 15, "glm": 15} if seeded else {"qwen": 17, "glm": 17},
                                   plan["gpu"]["seqs"])
-    assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"], calls, speed=SPEED)
+    assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"] + r1["completed_rooms"], calls, speed=SPEED)
     assert r1["views"] == 25 and r1["pod"] is not None
     rv = by["review-01"]
     assert rv["status"] == "needs_review" and rv["views"] is None and rv["minutes"] == 0.0 and rv["pod"] is None
@@ -180,7 +181,7 @@ def test_gpu_speed_and_sequences_change_the_minutes(golden, monkeypatch):
     assert r_slow["minutes"] > r_fast["minutes"]                     # speed 1.0 (and, unseeded, 34 calls at 2)
     monkeypatch.setitem(P.GPU_SPEED, "RTX PRO 6000", 2.0)
     fast = P.make_plan(["synthetic-01"], outputs=out, gpu=GPU)
-    assert fast["projects"][0]["minutes"] == round(P.project_minutes(34, 7, speed=2.0), 2) == 13.58
+    assert fast["projects"][0]["minutes"] == round(P.project_minutes(34, 10, speed=2.0), 2) == 13.83
     assert "speed 2" in P.plan_text(fast)
 
 
@@ -202,7 +203,7 @@ def test_plan_cli(golden, tmp_path, capsys):
                    str(tmp_path / "run_plan.json")])
     assert rc == 0
     text = capsys.readouterr().out
-    assert "| synthetic-01 | ok | 2 | 10 | 7 | 34 | - | - | 16.62 | 3 | 1 |" in text
+    assert "| synthetic-01 | ok | 2 | 10 | 7 | 34 | - | - | 16.92 | 3 | 1 |" in text
     assert "- review-01: needs_review, no pod time" in text
     assert any(line.startswith("GPU: RTX PRO 6000 (speed 1.634;") for line in text.splitlines())
     data = json.loads((tmp_path / "run_plan.json").read_text())

@@ -589,13 +589,23 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             parapets = trimmed_spans(wall, start, end, (roof_cut.get("parapets") or {}).get(wall["id"]) or [])
         if parapets:
             verts, faces = wall_pieces(start, end, float(wall["thickness"]), floor_z, height, cut_planes, parapets)
-            height = max(v[2] for v in verts) - floor_z
         else:
             verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
                                       (length, float(wall["thickness"]), height), angle)
             if cut_planes is not None:
                 verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
-                height = max(v[2] for v in verts) - floor_z
+        if not verts:
+            # Review #23: the roof underside lies below the floor along the whole wall (eaves at or below the
+            # attic floor): nothing of the wall stands; listed, never a crash.
+            on_it = [o["id"] for o in openings if o.get("wall_id") == wall["id"]]
+            reason = (f"the roof underside lies below the floor of {level_id} along the whole wall (eaves at or "
+                      f"below the attic floor): no wall built" + (f"; its openings {', '.join(on_it)} have no wall"
+                                                                   if on_it else ""))
+            warnings.append(f"{wall['id']}: {reason}")
+            assumed.append({"object": wall["id"], "field": "not_built", "value": True, "reason": reason})
+            continue
+        if cut_planes is not None:
+            height = max(v[2] for v in verts) - floor_z
         ob = common.new_mesh_object(wall["id"], verts, faces, collection=collection, wenart_id=wall["id"],
                                     kind="wall", status=wall.get("status", "verified"), materials=slots)
         objects.append(ob)

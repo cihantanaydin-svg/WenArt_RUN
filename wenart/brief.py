@@ -103,8 +103,19 @@ def _names_problem(value: Any) -> Optional[str]:
 
 
 # Dotted keys whose value has a rule of its own (instead of the default's type): a problem text or None.
+def _metres(lo: float, hi: float):
+    """A rule for a length in metres from ``lo`` to ``hi`` (Milestone 10: slab thickness, ceiling height)."""
+    def problem(value: Any) -> Optional[str]:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= float(value) <= hi:
+            return f"expected a length from {lo:g} to {hi:g} m, got {value!r}"
+        return None
+    return problem
+
+
 VALUE_RULES = {
     "render.lens_mm": _lens_problem,
+    "slab_thickness": _metres(0.05, 0.6),                # Milestone 10 (review): a slab, never a typo of cm
+    "ceiling_height": _metres(1.8, 6.0),
     # Milestone 10 (docs/milestone10.md §1.3)
     "furnished_rooms": _one_of("keep", "complete"),
     "furnished_rooms_keep": _names_problem,

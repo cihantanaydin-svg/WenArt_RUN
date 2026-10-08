@@ -6,11 +6,13 @@ What: ``elevation_check`` compares, per drawn elevation (``building.facade.eleva
 - the **window and door count** of the building JSON on the outer walls that face the elevation's side with the
   count the elevation draws;
 - their **positions**: the x of each opening along the facade seen from outside (from its left end), and its
-  sill and head in building z, against the elevation's ``positions_m``. A common offset (the drawn outline may
-  include the roof overhang) is estimated and listed; a mirrored order (the facade read from the wrong side) is
-  tried and listed;
+  sill and head in building z, against the elevation's ``positions_m``. A common x offset (the drawn outline may
+  include the roof overhang) and a common z offset (an elevation without a level mark takes its lowest long line
+  as the ground, z 0.00 assumed) are estimated and listed; a mirrored order (the facade read from the wrong side)
+  is tried and listed;
 - the **built eaves and ridge heights** (the roof object of the scene manifest: the lowest and highest point of
-  its planes) against the section (``sheets.json`` ``heights.roof``, else ``building.roof``).
+  its planes) against the section (``sheets.json`` ``heights.roof.eaves_z`` / ``ridge_z``, else ``building.roof``;
+  the record says which one it used).
 
 Why: the vision check of an exterior view says what the render shows; this check says whether the building the
 render was made from still agrees with the elevations and the section the documents gave. It is deterministic
@@ -34,6 +36,7 @@ TOL_X_M = 0.35
 TOL_Z_M = 0.25
 MAX_OFFSET_M = 1.0
 ROOF_TOL_M = 0.05
+Z_OFFSET_NOTE_M = 0.05                 # a common vertical offset of the drawn heights is listed from this size
 
 
 def sheets_path(project_out) -> Optional[Path]:
@@ -72,7 +75,22 @@ def _offset(drawn: list, built: list) -> float:
     return _median(diffs)
 
 
-def _greedy(drawn: list, built: list, offset: float, tol_x: float, tol_z: float) -> tuple[list, list, list]:
+def _offset_z(drawn: list, built: list) -> float:
+    """The common z offset (drawn - built): the median of the sill (else head) differences of the openings paired
+    by their order along the facade, per kind. A drawn ground at z 0.00 (assumed) shifts every opening alike."""
+    diffs = []
+    for kind in ("window", "door"):
+        d = sorted((p for p in drawn if p["kind"] == kind), key=lambda p: p["x"])
+        b = sorted((p for p in built if p["kind"] == kind), key=lambda p: p["x"])
+        for p, q in zip(d, b):
+            key = "sill" if p.get("sill") is not None and q.get("sill") is not None else "head"
+            if p.get(key) is not None and q.get(key) is not None:
+                diffs.append(p[key] - q[key])
+    return _median(diffs)
+
+
+def _greedy(drawn: list, built: list, offset: float, tol_x: float, tol_z: float,
+            offset_z: float = 0.0) -> tuple[list, list, list]:
     free = list(range(len(built)))
     pairs, missing = [], []
     for i, d in sorted(enumerate(drawn), key=lambda it: it[1]["x"]):
@@ -84,8 +102,8 @@ def _greedy(drawn: list, built: list, offset: float, tol_x: float, tol_z: float)
             dx = d["x"] - (b["x"] + offset)
             if abs(dx) > tol_x:
                 continue
-            dz = max((abs(d[k] - b[k]) for k in ("sill", "head") if d.get(k) is not None and b.get(k) is not None),
-                     default=0.0)
+            dz = max((abs(d[k] - offset_z - b[k]) for k in ("sill", "head")
+                      if d.get(k) is not None and b.get(k) is not None), default=0.0)
             if dz > tol_z:
                 continue
             if best is None or abs(dx) < abs(best_dx):
@@ -103,18 +121,21 @@ def match_openings(drawn: list, built: list, tol_x: float = TOL_X_M, tol_z: floa
 
     Items are ``{"kind": window|door, "x", "sill", "head"}``. Tries the order as it is and mirrored (x -> -x) and
     keeps the one that matches more; returns ``{"matched", "missing_in_building" (drawn, no building opening),
-    "extra_in_building", "offset_x_m", "mirrored", "max_dx_m", "max_dz_m"}``."""
+    "extra_in_building", "offset_x_m", "offset_z_m", "mirrored", "max_dx_m", "max_dz_m"}`` (the max values after the
+    common offsets)."""
     best = None
     for mirrored in (False, True):
         b = [dict(p, x=-p["x"]) for p in built] if mirrored else [dict(p) for p in built]
         off = _offset(drawn, b)
-        pairs, missing, free = _greedy(drawn, b, off, tol_x, tol_z)
+        off_z = _offset_z(drawn, b)
+        pairs, missing, free = _greedy(drawn, b, off, tol_x, tol_z, off_z)
         key = (len(pairs), 0 if mirrored else 1, -abs(off))
         if best is None or key > best[0]:
-            best = (key, mirrored, off, pairs, missing, free)
-    _key, mirrored, off, pairs, missing, free = best
+            best = (key, mirrored, off, pairs, missing, free, off_z)
+    _key, mirrored, off, pairs, missing, free, off_z = best
     return {"matched": len(pairs), "missing_in_building": [drawn[i] for i in missing],
             "extra_in_building": [built[j] for j in sorted(free)], "offset_x_m": round(off, 3),
+            "offset_z_m": round(off_z, 3),
             "mirrored": bool(mirrored and pairs), "max_dx_m": max((abs(p["dx"]) for p in pairs), default=0.0),
             "max_dz_m": max((p["dz"] for p in pairs), default=0.0)}
 
@@ -218,7 +239,8 @@ def _facade(elev: dict, vb: dict, sc: dict, tol: dict) -> dict:
              for p in positions]
     if drawn:
         m = match_openings(drawn, built, tol["x"], tol["z"])
-        rec["positions"] = {k: m[k] for k in ("matched", "offset_x_m", "mirrored", "max_dx_m", "max_dz_m")}
+        rec["positions"] = {k: m[k] for k in ("matched", "offset_x_m", "offset_z_m", "mirrored", "max_dx_m",
+                                              "max_dz_m")}
         rec["positions"]["missing_in_building"] = m["missing_in_building"]
         rec["positions"]["extra_in_building"] = [{k: p[k] for k in ("id", "kind", "x", "sill", "head")}
                                                  for p in m["extra_in_building"]]
@@ -227,6 +249,14 @@ def _facade(elev: dict, vb: dict, sc: dict, tol: dict) -> dict:
             rec["notes"].append(f"the drawn left end is {m['offset_x_m']:+.2f} m from the wall's: more than the "
                                 f"{tol['max_offset']} m a roof overhang explains; positions not trusted")
             ok_pos = False
+        if abs(m["offset_z_m"]) > tol["max_offset"]:
+            rec["notes"].append(f"the drawn heights are {m['offset_z_m']:+.2f} m from the building's: more than the "
+                                f"{tol['max_offset']} m a drawn ground at z 0.00 can explain; positions not trusted")
+            ok_pos = False
+        elif abs(m["offset_z_m"]) >= Z_OFFSET_NOTE_M:
+            rec["notes"].append(f"the drawn heights are {m['offset_z_m']:+.2f} m from the building's (an elevation "
+                                f"without a level mark takes its ground as z 0.00, assumed): a common offset, "
+                                f"listed")
         if m["mirrored"]:
             rec["notes"].append("the openings match only mirrored: the elevation may be read from the wrong side")
             ok_pos = False
@@ -240,7 +270,7 @@ def _facade(elev: dict, vb: dict, sc: dict, tol: dict) -> dict:
 
 def roof_check(vb: dict, scene: Optional[dict], sheets: Optional[dict], tol_m: float) -> dict:
     """Built eaves and ridge (the roof object of the scene manifest) against the section's values."""
-    rec = {"built": None, "drawn": None, "result": "not_checked", "notes": [], "deltas": {}}
+    rec = {"built": None, "drawn": None, "drawn_source": {}, "result": "not_checked", "notes": [], "deltas": {}}
     roof_obj = next((o for o in (scene or {}).get("objects") or [] if o.get("kind") == "roof"), None)
     planes = (roof_obj or {}).get("planes") or []
     zs = [float(p[2]) for pl in planes for p in pl.get("points") or [] if len(p) >= 3]
@@ -256,9 +286,15 @@ def roof_check(vb: dict, scene: Optional[dict], sheets: Optional[dict], tol_m: f
     drawn_roof = vb.get("roof") if isinstance(vb.get("roof"), dict) else {}
     drawn = {}
     for key, bkey in (("eaves", "eaves_height"), ("ridge", "ridge_height")):
-        v = drawn_sheet.get(key) if isinstance(drawn_sheet.get(key), dict) else drawn_roof.get(bkey)
+        # sheets.json writes ``eaves_z`` / ``ridge_z`` (the section's reading); ``eaves`` / ``ridge`` is the older
+        # spelling. Without the section the building's own roof is the reference, and the record says so.
+        v = next((drawn_sheet[k] for k in (f"{key}_z", key) if isinstance(drawn_sheet.get(k), dict)), None)
+        source = "sheets.json heights.roof"
+        if v is None:
+            v, source = drawn_roof.get(bkey), "building.json roof"
         if isinstance(v, dict) and isinstance(v.get("value"), (int, float)):
             drawn[key] = {"value": float(v["value"]), "method": v.get("method")}
+            rec["drawn_source"][key] = source
     rec["drawn"] = drawn or None
     if rec["built"] is None:
         return rec

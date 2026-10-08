@@ -147,14 +147,37 @@ def test_marks_that_agree_give_no_conflict(tmp_path):
     assert not [c for c in res.doc["conflicts"] if c["kind"] == "level_mark_mismatch"]
 
 
-def test_mansard_from_the_attic_plan_lines(result):
+def test_gable_from_the_section_inside_the_plan_roof_outline(result):
     roof = result.doc["exterior"]["roof"]
-    assert roof["type"] == "mansard" and roof["type_source"] == "plan_roof_lines"
+    assert roof["type"] == "gable" and roof["type_source"] == "section" and roof["break_line"] is None
     xs = [p[0] for p in roof["outline"]]
     ys = [p[1] for p in roof["outline"]]
     assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((-0.5, 10.5, -0.5, 8.5), abs=0.01)
-    assert len(roof["break_line"]) == 4
+    # The cut runs along x: the ridge runs along y at the profile's top (5.0 m).
+    assert roof["ridge_lines"] == [[[5.0, -0.5], [5.0, 8.5]]]
     assert result.doc["exterior"]["facade"] == [] and result.doc["exterior"]["north"] is None
+
+
+def test_mansard_from_the_attic_plan_lines(tmp_path):
+    res = _run(tmp_path, roof="mansard")
+    roof = res.doc["exterior"]["roof"]
+    assert roof["type"] == "mansard" and roof["type_source"] == "plan_roof_lines"
+    assert len(roof["break_line"]) == 4
+    assert not any(c["kind"] == "other" and "roof type" in c["description"] for c in res.doc["conflicts"])
+    h = res.doc["heights"]["roof"]
+    assert sorted(round(p["value"]) for p in h["pitches_deg"]) == [13, 45]
+    assert h["ridge_z"]["value"] - 3.15 == pytest.approx(3.3, abs=0.01)
+
+
+def test_a_closed_line_inside_the_roof_outline_does_not_beat_a_gable_section(tmp_path):
+    # Review finding 3: an attic outline (or any closed line) inside the roof outline is no mansard break line when
+    # the section shows one slope per side: the section wins, the line is listed.
+    res = _run(tmp_path, roof="gable", break_line=True)
+    roof = res.doc["exterior"]["roof"]
+    assert roof["type"] == "gable" and roof["type_source"] == "section" and roof["break_line"] is None
+    assert not any(e.get("rule") == "roof_break_line" for e in roof["evidence"])
+    (c,) = [c for c in res.doc["conflicts"] if c["kind"] == "other" and c["description"].startswith("roof type")]
+    assert "gable" in c["description"] and c["resolution"].startswith("the section wins")
 
 
 def test_report_and_debug_image_are_written(result, tmp_path_factory):
@@ -162,7 +185,7 @@ def test_report_and_debug_image_are_written(result, tmp_path_factory):
     out = next(p for p in tmp_path_factory.getbasetemp().rglob("sheets_report.md")
                if p.parent.parent.name.startswith("stage"))
     text = out.read_text(encoding="utf-8")
-    assert "unit_mismatch" in text and "| r4 |" in text and "mansard" in text
+    assert "unit_mismatch" in text and "| r4 |" in text and "gable" in text
     debug = result.doc["documents"][0]["sheets"][0]["debug_image"]
     assert debug == "sheets_debug/sheet_dxf_s1.png"
     assert (out.parent / debug).is_file()
@@ -276,3 +299,127 @@ def test_frames_stay_frames_and_plot_lines_hold_their_site(tmp_path):
     assert [f["box"] for f in frames] == [[0.0, 0.0, 9000.0, 5000.0]]
     site = next(r for r in res.doc["regions"] if r["class"] == "site_plan")
     assert site["box"][0] == pytest.approx(6200.0) and site["box"][2] == pytest.approx(8600.0)
+
+
+def _title_block_sheet(path, table: bool) -> None:
+    """One untitled plan in a frame and a title block near the frame's lower right edge whose field names the
+    drawing (``PAFTA: ZEMİN KAT PLANI``): a lone rectangle (``table`` False) or a table with cell lines."""
+    import ezdxf
+
+    from _sheets_fixture import _blocks, _plan, _rect
+
+    doc = ezdxf.new("R2013")
+    doc.header["$INSUNITS"] = 5
+    for name in ("DUVAR", "KAPI", "MERDIVEN"):
+        doc.layers.add(name)
+    _blocks(doc)
+    msp = doc.modelspace()
+    _rect(msp, 0.0, 0.0, 3000.0, 2000.0, "PAFTA")
+    _plan(msp, (300.0, 900.0), "ÇİZİM 1", ("SALON", "YATAK ODASI"))
+    x0, y0, x1, y1 = 1900.0, 60.0, 2940.0, 460.0
+    _rect(msp, x0, y0, x1, y1, "PAFTA")
+    if table:
+        msp.add_line((x0, 260.0), (x1, 260.0), dxfattribs={"layer": "PAFTA"})
+        msp.add_line((2420.0, y0), (2420.0, y1), dxfattribs={"layer": "PAFTA"})
+    for k, field in enumerate(("PROJE: KONUT", "PAFTA: ZEMİN KAT PLANI", "ÖLÇEK: 1/100", "ÇİZEN: A.B.")):
+        at = (x0 + 30.0 + 520.0 * (k % 2), y0 + 60.0 + 200.0 * (k // 2))
+        msp.add_text(field, height=25, dxfattribs={"insert": at, "layer": "PAFTA"})
+    doc.saveas(path)
+
+
+@pytest.mark.parametrize("table", [False, True])
+def test_a_title_block_naming_the_drawing_is_no_plan(tmp_path, table):
+    # Review finding 1: the title block is decided before any title is read; its field never makes it a plan.
+    from wenart.sheets import __main__ as CLI
+
+    project = tmp_path / "tb"
+    project.mkdir()
+    _title_block_sheet(project / "plan.dxf", table)
+    out = tmp_path / "out"
+    assert CLI.main([str(project), "--out", str(out), "--no-ai"]) == CLI.EXIT_OK
+    doc = SH.load(out)
+    block = next(r for r in doc["regions"] if r["box"][0] >= 1800.0)
+    assert block["class"] == "title_block" and block["use"] == "ignored" and block["class_method"] == "geometry"
+    plans = [r for r in doc["regions"] if r["use"] == "read"]
+    assert len(plans) == 1 and plans[0]["class"] == "floor_plan" and plans[0]["level"]["id"] == "L0"
+    assert doc["needs_review"] == []
+
+
+def test_an_untitled_section_at_the_frame_edge_stays_a_section(tmp_path, monkeypatch):
+    # Review finding 2: the drawing rules come before the frame-edge title-block rule.
+    import ezdxf
+
+    import _sheets_fixture as FX
+
+    monkeypatch.setattr(FX, "SECTION", (2700.0, 150.0))
+    project = tmp_path / "edge"
+    project.mkdir()
+    path = FX.write_sheet(project / "sheet.dxf")
+    doc = ezdxf.readfile(path)
+    msp = doc.modelspace()
+    for k, text in enumerate(("46.15", "KİREMİT")):
+        msp.add_mtext(text, dxfattribs={"insert": (3000.0 + 200.0 * k, 600.0), "char_height": 20})
+    doc.saveas(path)
+    res = SH.run(project, tmp_path / "out", no_ai=True)
+    section = next(r for r in res.doc["regions"] if r["box"][1] < 300.0 and r["box"][0] >= 2000.0)
+    assert section["class"] == "section" and section["use"] == "heights"
+    assert res.doc["heights"]["section_regions"] == [section["id"]]
+    assert res.doc["heights"]["levels"][-1]["floor_z"]["method"] == "vector"
+
+
+def test_steps_outside_the_walls_keep_the_cut_axis(tmp_path):
+    # Review finding 4: the section width is checked against the outer walls' extent, not the stroke outline with an
+    # entrance step 30 cm outside the west wall: the cut axis, the ground sides and the gable ridge stay.
+    res = _run(tmp_path, step=True)
+    h = res.doc["heights"]
+    assert h["cut_axis"] == "x" and [g["side"] for g in h["ground"]] == ["left", "right"]
+    assert not [c for c in res.doc["conflicts"] if c["kind"] == "section_width_mismatch"]
+    roof = res.doc["exterior"]["roof"]
+    assert roof["type"] == "gable" and roof["ridge_lines"]
+
+
+def test_an_absolute_elevation_mark_without_a_section_datum(tmp_path):
+    # Review finding 6: '+43.00' on the elevation's ground line and no section: the mark is the ground (assumed,
+    # listed), not z 43 m.
+    res = _run(tmp_path, exterior=True, section=False, elevation_mark="+43.00")
+    ex = res.doc["exterior"]
+    stone = next(f for f in ex["facade"] if f["material"] == "stone_cladding")
+    assert stone["z_range"] == pytest.approx([0.0, 1.0])
+    seen = ex["openings_seen"][0]
+    assert sorted(p["sill"] for p in seen["positions_m"] if p["kind"] == "window")[0] == pytest.approx(1.0)
+    assert any("no section datum" in w and "+43.00" in w for w in res.doc["warnings"])
+
+
+def test_an_earth_hatch_under_the_elevation_is_no_facade(tmp_path):
+    # Review finding 7: the ground comes from the z mapping, not from the lowest thing drawn: the door stays a door
+    # and the earth hatch below the ground line is no facade entry (listed).
+    res = _run(tmp_path, exterior=True, earth=True)
+    ex = res.doc["exterior"]
+    seen = ex["openings_seen"][0]
+    assert (seen["windows"], seen["doors"]) == (3, 1)
+    assert all((f["z_range"] or [0.0, 1.0])[1] > 0.0 for f in ex["facade"])
+    assert [f["material"] for f in ex["facade"] if f["source"] == "hatch"] == ["stone_cladding"]
+    assert any("below the ground floor's level" in w for w in res.doc["warnings"])
+
+
+def test_a_lone_circle_is_no_tree_unless_its_layer_or_block_says_so(tmp_path):
+    # Review finding 9: a ring round the north arrow (layer VAZIYET) and a manhole (layer RÖGAR) are listed, not
+    # built as trees; the fixture's tree on layer AGAC stays.
+    import ezdxf
+
+    import _sheets_fixture as FX
+
+    project = tmp_path / "trees"
+    project.mkdir()
+    path = FX.write_sheet(project / "sheet.dxf", exterior=True)
+    doc = ezdxf.readfile(path)
+    msp = doc.modelspace()
+    sx, sy = FX.SITE
+    msp.add_circle((sx + 2100.0, sy + 500.0), 90.0, dxfattribs={"layer": "VAZIYET"})
+    msp.add_circle((sx + 1500.0, sy + 300.0), 40.0, dxfattribs={"layer": "RÖGAR"})
+    doc.saveas(path)
+    res = SH.run(project, tmp_path / "out", no_ai=True)
+    trees = res.doc["exterior"]["site"]["trees"]
+    assert [t["points"][0] for t in trees] == [pytest.approx([-4.0, 11.0])]
+    assert trees[0]["evidence"][0]["layer"] == "AGAC"
+    assert sum("is not read as a tree" in w for w in res.doc["warnings"]) == 2

@@ -999,6 +999,37 @@ def _change_candidates(drawn: Piece, req: ChangeRequest) -> list[tuple[str, tupl
     return out
 
 
+def amounts(i: int, pieces: list[Piece], ctx: RoomContext) -> dict[str, float]:
+    """How far piece ``i`` breaks each check, as areas in m² (code review #17): outside the room polygon, overlap
+    with each other piece, on each door strip and swing, in each window band (when taller than its sill), its front
+    clearance outside the room or under another piece, and in each other piece's front clearance. The keys name
+    the check and the other piece / opening, so a changed piece is compared pair by pair with its drawn version."""
+    p = pieces[i]
+    poly = p.polygon()
+    out = {"outside": poly.difference(ctx.polygon).area}
+    for j, o in enumerate(pieces):
+        if j == i:
+            continue
+        out[f"overlap:{j}"] = poly.intersection(o.polygon()).area
+        if o.type in schemas.CLEARANCE_TYPES and p.type not in schemas.CLEARANCE_EXEMPT.get(o.type, ()):
+            out[f"in_clearance:{j}"] = poly.intersection(o.front_zone()).area
+    for door in ctx.doors:
+        out[f"door:{door.id}"] = poly.intersection(door.zone).area
+        if door.swing is not None and not door.swing.is_empty:
+            out[f"swing:{door.id}"] = poly.intersection(door.swing).area
+    if p.type not in schemas.UNDER_WINDOW_TYPES:
+        for win in ctx.windows:
+            out[f"window:{win.id}"] = poly.intersection(win.band).area if p.height() > win.sill + 1e-9 else 0.0
+    if p.type in schemas.CLEARANCE_TYPES:
+        zone = p.front_zone()
+        exempt = schemas.CLEARANCE_EXEMPT.get(p.type, ())
+        out["clearance_outside"] = zone.difference(ctx.polygon.buffer(0.01, join_style="mitre")).area
+        for j, o in enumerate(pieces):
+            if j != i and o.type not in exempt:
+                out[f"clearance:{j}"] = zone.intersection(o.polygon()).area
+    return out
+
+
 def place_changes(drawn: list[Piece], requests: list[ChangeRequest],
                   ctx: RoomContext) -> tuple[list[Piece], list[ChangeResult], dict]:
     """Place the changed drawn pieces at their anchors (§2.5), in the order of ``requests``.
@@ -1006,7 +1037,9 @@ def place_changes(drawn: list[Piece], requests: list[ChangeRequest],
     ``drawn`` are all drawn floor pieces of the room in their drawn footprints (``drawn_piece``, against-wall
     pieces flagged). Each request tries its size, then each next smaller option (``shrink``), every chaise side
     of a corner sofa; a candidate is taken when it fails no check its drawn version passes, makes no other piece
-    fail a check it passed before and breaks no walkway; else the piece stays as drawn (``revert``).
+    fail a check it passed before, breaks no walkway, and breaks no check by more than its drawn version does
+    (``amounts``: a drawn failure is excused only up to its drawn area, never by its name alone; code review
+    #17); else the piece stays as drawn (``revert``).
     Returns the final pieces (drawn order), one result per request and the drawn-layout baseline
     ``{"pieces": [failed checks per drawn piece], "walkways": [broken pairs]}``.
     """
@@ -1019,6 +1052,7 @@ def place_changes(drawn: list[Piece], requests: list[ChangeRequest],
         original = current[i]
         before = [set(failed_checks(c)) for c in check_all(current, ctx)]
         before_walk = set(walkway_failures(current, ctx))
+        before_amounts = amounts(i, current, ctx)
         result = ChangeResult(i, False, original)
         for step, size, side in _change_candidates(original, req):
             cand = _changed_piece(original, req, size, side)
@@ -1029,10 +1063,11 @@ def place_changes(drawn: list[Piece], requests: list[ChangeRequest],
             others = sorted({f"{trial[j].type} #{j}: {name}" for j in range(len(trial)) if j != i
                              for name in checks[j] - before[j]})
             walks = sorted(f"{p[1]} - {p[3]}" for p in set(walkway_failures(trial, ctx)) - before_walk)
-            ok = not own and not others and not walks
+            grown = sorted(k for k, v in amounts(i, trial, ctx).items() if v > before_amounts.get(k, 0.0) + AREA_EPS)
+            ok = not own and not others and not walks and not grown
             entry = {"step": step, "type": req.type, "size": [cand.size[0], cand.size[1]],
                      "center": [round(cand.center[0], 3), round(cand.center[1], 3)], "ok": ok,
-                     "failed": own, "others": others, "walkways": walks}
+                     "failed": own, "others": others, "walkways": walks, "grown": grown}
             if side:
                 entry["chaise_side"] = side
             result.steps.append(entry)
@@ -1042,11 +1077,12 @@ def place_changes(drawn: list[Piece], requests: list[ChangeRequest],
                 break
         if not result.applied:
             last = result.steps[-1] if result.steps else {}
-            why = ", ".join(last.get("failed", []) + last.get("others", []) + last.get("walkways", []))
+            why = ", ".join(last.get("failed", []) + last.get("others", []) + last.get("walkways", [])
+                            + [f"more {k} than drawn" for k in last.get("grown", [])])
             result.reason = f"no size fits at the anchor ({why or 'no candidate'}): drawn type and size kept"
             result.steps.append({"step": "revert", "type": original.type,
                                  "size": [original.size[0], original.size[1]],
                                  "center": [round(original.center[0], 3), round(original.center[1], 3)], "ok": True,
-                                 "failed": [], "others": [], "walkways": []})
+                                 "failed": [], "others": [], "walkways": [], "grown": []})
         results.append(result)
     return current, results, baseline
