@@ -92,6 +92,13 @@ def look_from_words(slot: str, phrase: str) -> Optional[dict]:
     return {"material": look["material"], "colour": look.get("colour")}
 
 
+def _asset_of(slug: Optional[str]) -> Optional[str]:
+    """The vocabulary's asset id of a slug (``wenart.style.profile.asset_of``), None when it has none."""
+    from wenart.style.profile import asset_of
+
+    return asset_of(slug)
+
+
 def _wall_colour(style: dict) -> tuple[Optional[str], Optional[list], str]:
     """``(colour name, linear rgb, how)`` of the style's interior walls: the slot's ``colour`` name, else the
     flat colour of its material (``vocabulary.MATERIALS``)."""
@@ -148,13 +155,22 @@ def resolve_looks(building: dict, style: dict, brief=None) -> dict:
             look = _look(roof["covering"], roof.get("covering_colour"), "documents",
                          f"roof.covering ({roof.get('covering_source') or 'drawn'})")
         phrase = str(words.get(slot) or "").strip()
-        if look is None and phrase:
-            found = look_from_words(slot, phrase)
-            if found:
-                look = _look(found["material"], found["colour"], "brief", f"brief exterior.{slot}: {phrase!r}")
-            else:
-                warnings.append(f"brief exterior.{slot} {phrase!r}: no known material word; the next source decides")
         e = ext.get(slot)
+        if look is None and phrase:
+            if isinstance(e, dict) and e.get("source") == "brief" and (e.get("material") or e.get("slug")) \
+                    and not e.get("assumed"):
+                # The style profile read the same words (track C): its entry, with the asset it fetched (review
+                # #29/#34: the scene, style.json and the fetched assets agree).
+                look = _look(e.get("material") or e.get("slug"), e.get("colour"), "brief",
+                             f"brief exterior.{slot}: {phrase!r} (as the style profile reads it)", asset=e.get("asset"))
+            else:
+                found = look_from_words(slot, phrase)
+                if found:
+                    look = _look(found["material"], found["colour"], "brief", f"brief exterior.{slot}: {phrase!r}",
+                                 asset=_asset_of(found["material"]))
+                else:
+                    warnings.append(f"brief exterior.{slot} {phrase!r}: no known material word; the next source "
+                                    f"decides")
         if look is None and isinstance(e, dict) and (e.get("material") or e.get("slug")) and not e.get("assumed"):
             src = "brief" if e.get("source") == "brief" else "style"
             look = _look(e.get("material") or e.get("slug"), e.get("colour"), src, f"style profile exterior.{slot}",

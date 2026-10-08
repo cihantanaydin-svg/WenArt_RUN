@@ -209,6 +209,23 @@ def test_resolve_looks_documents_brief_style_fallback():
     assert EXAMPLE["facade"]["faces"][0]["material"] == "stone_cladding"                 # nothing written back
 
 
+def test_brief_looks_agree_with_the_style_profile_and_its_assets():
+    # review #29/#34: the brief's exterior words give the scene the style profile's (track C) slugs and the assets
+    # it fetched
+    from wenart.style import profile as P
+
+    words = {"facade": "white painted brick", "window_frame": "black steel", "roof": "red clay tiles"}
+    style = P.profile_from_brief({"style": "Scandinavian, white walls", "exterior": words})
+    looks = E.resolve_looks(EXAMPLE, style, {"exterior": words})
+    for slot in words:
+        got = (looks[slot]["material"], looks[slot]["asset"], looks[slot]["source"])
+        assert got == (style["exterior"][slot]["material"], style["exterior"][slot]["asset"], "brief"), slot
+    assert looks["facade"]["asset"] == "PaintedBricks004"
+    # without the profile's reading (a style without exterior slots) the same words give the same slug and asset
+    bare = E.resolve_looks(EXAMPLE, _style(), {"exterior": words})
+    assert (bare["facade"]["material"], bare["facade"]["asset"]) == ("brick_white", "PaintedBricks004")
+
+
 def test_look_words():
     assert E.look_from_words("facade", "Light grey fibre cement panels") == {"material": "fibre_cement",
                                                                              "colour": "light grey"}
