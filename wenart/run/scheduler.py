@@ -805,6 +805,9 @@ class Orchestrator:
             self.stage_intake(pr)
             if not pr.active:
                 continue
+            self.stage_sheets(pr)
+            if not pr.active:
+                continue
             self.stage_pipeline(pr)
             if not pr.active:
                 continue
@@ -844,61 +847,83 @@ class Orchestrator:
         """The model keys that answer recognition questions in this run (both passes, ``CHECK_MODELS`` order)."""
         return [k for k in self.opts.check_models if k in self.models]
 
-    def recognition_dir(self, pr: ProjectRun) -> Path:
-        return pr.out / S.RECOGNITION_DIR
+    def recognition_dir(self, pr: ProjectRun, qdir: str = S.RECOGNITION_DIR) -> Path:
+        return pr.out / qdir
 
-    def recognition_items(self, pr: ProjectRun) -> list:
-        data = read_json(self.recognition_dir(pr) / "requests.json")
+    def question_dirs(self, pr: ProjectRun) -> list:
+        """The question folders with questions (M10 §1.6a): ``sheets`` (sheet_region) and ``recognition`` (the
+        pipeline's symbol and room-label questions), in that order; both are answered in the same sessions."""
+        return [q for q in S.QUESTION_DIRS if self.recognition_items(pr, q)]
+
+    def recognition_items(self, pr: ProjectRun, qdir: str = S.RECOGNITION_DIR) -> list:
+        data = read_json(self.recognition_dir(pr, qdir) / "requests.json")
         items = data.get("items") if isinstance(data, dict) else None
         return [i for i in items or [] if isinstance(i, dict) and i.get("key") and i.get("input_sha256")]
 
-    def answers_file(self, pr: ProjectRun, key: str) -> Path:
-        return self.recognition_dir(pr) / f"answers_{self.tools.model_slug(key)}.json"
+    def answers_file(self, pr: ProjectRun, key: str, qdir: str = S.RECOGNITION_DIR) -> Path:
+        return self.recognition_dir(pr, qdir) / f"answers_{self.tools.model_slug(key)}.json"
 
-    def recognition_missing(self, pr: ProjectRun, key: str) -> list:
-        """The question keys without a current, schema-valid answer of ``key`` in ``<out>/recognition`` or in the
-        committed seeds (``results/recognition/<p>/``): what a server would have to answer."""
+    def recognition_missing(self, pr: ProjectRun, key: str, qdir: Optional[str] = None) -> list:
+        """The question keys without a current, schema-valid answer of ``key`` in ``<out>/<qdir>`` or in the
+        committed seeds (``results/recognition/<p>/``, M10: ``.../sheets/``): what a server would have to answer.
+        ``qdir`` None: every question folder (keys of the sheets folder prefixed ``sheets:``)."""
+        if qdir is None:
+            out = []
+            for q in S.QUESTION_DIRS:
+                prefix = "" if q == S.RECOGNITION_DIR else f"{q}:"
+                out += [prefix + k for k in self.recognition_missing(pr, key, q)]
+            return out
         from wenart.recognition import answers as A    # lazy: jsonschema
-        items = self.recognition_items(pr)
+        items = self.recognition_items(pr, qdir)
         if not items or key not in self.models:
             return [i["key"] for i in items]
-        store = A.AnswerStore.for_model(self.recognition_dir(pr), key, self.models)
-        seeds = S.recognition_seeds(pr.ref, self.repo_root)
+        store = A.AnswerStore.for_model(self.recognition_dir(pr, qdir), key, self.models)
+        seeds = S.recognition_seeds(pr.ref, self.repo_root, qdir)
         seed = None
         if seeds is not None and (seeds / store.path.name).is_file():
             seed = A.AnswerStore(seeds / store.path.name, key, store.data["slug"], self.tools.model_id(key))
         return [i["key"] for i in items if store.valid(i) is None and (seed is None or seed.valid(i) is None)]
 
-    def recognition_complete(self, pr: ProjectRun) -> bool:
-        """Every question has a current answer of both models in ``<out>/recognition`` (the pipeline's own rule)."""
+    def recognition_complete(self, pr: ProjectRun, qdir: Optional[str] = None) -> bool:
+        """Every question has a current answer of both models in ``<out>/<qdir>`` (the pipeline's own rule);
+        ``qdir`` None: in every question folder."""
         from wenart.recognition import answers as A    # lazy: jsonschema
-        items = self.recognition_items(pr)
+        if qdir is None:
+            return all(self.recognition_complete(pr, q) for q in S.QUESTION_DIRS)
+        items = self.recognition_items(pr, qdir)
         if not items:
             return True
-        return A.is_complete(A.load(self.recognition_dir(pr), items, self.models))
+        return A.is_complete(A.load(self.recognition_dir(pr, qdir), items, self.models))
 
     def recognize_part(self, pr: ProjectRun, key: str, url: Optional[str], seqs: int = 1) -> None:
-        """One model's answers (``url`` None: the stored and committed answers only, no server)."""
+        """One model's answers for every question folder (``url`` None: the stored and committed answers only, no
+        server)."""
         missing = self.recognition_missing(pr, key) if url is not None else []
         if url is not None and not self.can_start(S.est_calls(len(missing), seqs)):
             self.finish(pr, "recognize", "incomplete", f"deadline: recognition ({key}) not started", merge=True,
                         outputs=self.recognition_outputs(pr))
             return
-        seeds = S.recognition_seeds(pr.ref, self.repo_root)
-        cmd = S.recognize(self.tools, pr.ref, key, url, seqs, seeds if seeds is not None and seeds.is_dir() else None)
-        step = f"{'ask' if url is not None else 'stored answers'} {key}"
-        rc = self.run_step(pr, "recognize", step, cmd)
-        if rc == 0:
-            status, note = ("ok", None) if url is not None else ("reused", None)
-        elif rc in (3, TIMEOUT_RC):
-            status, note = "incomplete", f"deadline: recognition ({key}) cut"
-        else:
-            status, note = "warning", f"recognition {key} exit {rc}: its unanswered pieces stay unknown, unverified"
-        self.finish(pr, "recognize", status, note, merge=True, outputs=self.recognition_outputs(pr))
+        for qdir in self.question_dirs(pr):
+            seeds = S.recognition_seeds(pr.ref, self.repo_root, qdir)
+            cmd = S.recognize(self.tools, pr.ref, key, url, seqs, seeds if seeds is not None and seeds.is_dir() else None,
+                              qdir=qdir)
+            what = "" if qdir == S.RECOGNITION_DIR else f" ({qdir})"
+            step = f"{'ask' if url is not None else 'stored answers'} {key}{what}"
+            rc = self.run_step(pr, "recognize", step, cmd)
+            if rc == 0:
+                status, note = ("ok", None) if url is not None else ("reused", None)
+            elif rc in (3, TIMEOUT_RC):
+                status, note = "incomplete", f"deadline: recognition ({key}{what}) cut"
+            else:
+                status, note = ("warning", f"recognition {key}{what} exit {rc}: its unanswered "
+                                f"{'regions stay decided by title and geometry' if what else 'pieces stay unknown, unverified'}")
+            self.finish(pr, "recognize", status, note, merge=True, outputs=self.recognition_outputs(pr))
+            if status == "incomplete":
+                return
 
     def recognition_outputs(self, pr: ProjectRun) -> list:
-        return [f"{S.RECOGNITION_DIR}/{self.answers_file(pr, k).name}" for k in self.recognition_keys()
-                if self.answers_file(pr, k).is_file()]
+        return [f"{q}/{self.answers_file(pr, k, q).name}" for q in S.QUESTION_DIRS for k in self.recognition_keys()
+                if self.answers_file(pr, k, q).is_file()]
 
     def finalize(self, pr: ProjectRun) -> None:
         """A pending project once its answers are in (or will not come): pipeline_final, then fit (phase 3)."""
@@ -913,7 +938,8 @@ class Orchestrator:
             self.stage_fit(pr)
 
     def pipeline_final_inputs(self, pr: ProjectRun) -> dict:
-        ins = ST.file_hashes([pr.ref.project_dir] + [self.answers_file(pr, k) for k in self.models])
+        ins = ST.file_hashes([pr.ref.project_dir] + [self.answers_file(pr, k, q) for q in S.QUESTION_DIRS
+                                                     for k in self.models])
         ins.update(self.converter_inputs())
         return ins
 
@@ -928,7 +954,7 @@ class Orchestrator:
         (``SECOND_ROUND_NOTE``). The record keeps the first command's fingerprint; a resumed run whose
         requests.json now lists the new questions asks them in its sessions and runs pipeline_final again."""
         pr.finalized = True
-        complete = self.recognition_complete(pr)
+        complete = self.recognition_complete(pr, S.RECOGNITION_DIR)
         smoke = self.opts.smoke
         no_ai = smoke or not complete
         cmd = S.pipeline_final(self.tools, pr.ref, answers=not smoke, no_ai=no_ai)
@@ -942,6 +968,17 @@ class Orchestrator:
             self.finish(pr, "pipeline_final", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs,
                         written=prev.written)
             return
+        if self.recognition_items(pr, S.SHEETS_DIR):
+            # M10 §1.5: the sheet analysis again with its sheet_region answers (or --no-ai: title text and geometry
+            # decide alone), so the pipeline reads the regions the answers confirm.
+            sheets_no_ai = smoke or not self.recognition_complete(pr, S.SHEETS_DIR)
+            src = self.run_step(pr, "pipeline_final", "sheets --answers" if not sheets_no_ai else "sheets --no-ai",
+                                S.sheets(self.tools, pr.ref, answers=not smoke, no_ai=sheets_no_ai))
+            if src not in (0, 1):
+                note = "timeout" if src == TIMEOUT_RC else f"sheets exit {src}"
+                self.finish(pr, "pipeline_final", "incomplete" if src == TIMEOUT_RC else "failed", note,
+                            fingerprint=fp, inputs=ins)
+                return
         rc = self.run_step(pr, "pipeline_final", "pipeline_final", cmd)
         second_round = rc == S.EXIT_QUESTIONS and not no_ai
         if second_round:
@@ -950,6 +987,8 @@ class Orchestrator:
         data = read_json(building)
         status = data.get("status") if isinstance(data, dict) else None
         written = {"building.json": ST.canonical_sha256(building)}
+        if (pr.out / "sheets.json").is_file():
+            written["sheets.json"] = ST.canonical_sha256(pr.out / "sheets.json")
         rec = {"fingerprint": fp, "inputs": ins, "written": written}
         how = ("smoke profile: --no-ai" if smoke else "answers applied" if complete
                else "--no-ai: the unanswered pieces stay unknown, unverified")
@@ -1004,6 +1043,46 @@ class Orchestrator:
         else:
             self.finish(pr, "intake", "failed", f"exit {rc}", fingerprint=fp, inputs=ins)
 
+    def stage_sheets(self, pr: ProjectRun) -> None:
+        """Stage sheets (M10 §1.5, §1.6a): exit 0 ok; 4 = sheet_region questions written: the project is ``pending``
+        (the regions are decided by title text and geometry meanwhile, so the pipeline still runs); 1 = needs
+        review (no readable plan region, no unit agreement): the project stops here with the sheets report."""
+        if not pr.ref.project_dir.is_dir():
+            self.finish(pr, "sheets", "failed", "no project folder")
+            return
+        cmd = S.sheets(self.tools, pr.ref)
+        ins = ST.file_hashes([pr.ref.project_dir])
+        ins.update(self.converter_inputs())
+        fp = ST.fingerprint("sheets", S.STAGE_VERSION["sheets"], cmd[1:], ins, self.code("sheets"))
+        prev = self.previous(pr, "sheets")
+        if not self.forced("sheets") and ST.reusable(prev, fp, pr.out):
+            if prev.status == "pending":
+                pr.pending = True
+                self.finish(pr, "sheets", "pending", self.sheets_note(pr, reused=True), fingerprint=fp, inputs=ins,
+                            outputs=prev.outputs)
+            elif prev.status == "needs_review":
+                self.finish(pr, "sheets", "needs_review", prev.note, fingerprint=fp, inputs=ins, outputs=prev.outputs)
+            else:
+                self.finish(pr, "sheets", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
+            return
+        rc = self.run_step(pr, "sheets", "sheets", cmd)
+        if rc == S.EXIT_QUESTIONS:
+            pr.pending = True
+            self.finish(pr, "sheets", "pending", self.sheets_note(pr), fingerprint=fp, inputs=ins)
+        elif rc == 0:
+            self.finish(pr, "sheets", "ok", fingerprint=fp, inputs=ins)
+        elif rc == 1:
+            self.finish(pr, "sheets", "needs_review", "sheets need review (sheets_report.md)", fingerprint=fp,
+                        inputs=ins)
+        elif rc == TIMEOUT_RC:
+            self.finish(pr, "sheets", "incomplete", "timeout", fingerprint=fp, inputs=ins)
+        else:
+            self.finish(pr, "sheets", "failed", f"exit {rc}", fingerprint=fp, inputs=ins)
+
+    def sheets_note(self, pr: ProjectRun, reused: bool = False) -> str:
+        n = len(self.recognition_items(pr, S.SHEETS_DIR))
+        return f"{'reused: ' if reused else ''}{n} sheet question(s) written (sheets/requests.json)"
+
     def stage_pipeline(self, pr: ProjectRun) -> None:
         """Stage pipeline. Exit 4 (checked first) = recognition questions written: ``pending`` (M7 §9.1); a stored
         pending record is reused as ``pending`` (pipeline_final may have rewritten the building since)."""
@@ -1011,7 +1090,8 @@ class Orchestrator:
             self.finish(pr, "pipeline", "failed", "no project folder")
             return
         cmd = S.pipeline(self.tools, pr.ref)
-        ins = ST.file_hashes([pr.ref.project_dir])
+        ins = ST.file_hashes([pr.ref.project_dir] + ([pr.out / "sheets.json"] if (pr.out / "sheets.json").is_file()
+                                                     else []))
         ins.update(self.converter_inputs())
         fp = ST.fingerprint("pipeline", S.STAGE_VERSION["pipeline"], cmd[1:], ins, self.code("pipeline"))
         prev = self.previous(pr, "pipeline")
@@ -1033,7 +1113,9 @@ class Orchestrator:
             self.finish(pr, "pipeline", "needs_review", "building needs review (report.md)", fingerprint=fp,
                         inputs=ins)
         elif rc == 0 and status == "ok":
-            self.finish(pr, "pipeline", "ok", fingerprint=fp, inputs=ins)
+            # Sheet questions pending (stage sheets) keep the project pending: pipeline_final applies their answers.
+            self.finish(pr, "pipeline", "pending" if pr.pending else "ok",
+                        self.pending_note(pr) if pr.pending else None, fingerprint=fp, inputs=ins)
         elif rc == TIMEOUT_RC:
             self.finish(pr, "pipeline", "incomplete", "timeout", fingerprint=fp, inputs=ins)
         else:
@@ -1042,7 +1124,9 @@ class Orchestrator:
 
     def pending_note(self, pr: ProjectRun, reused: bool = False) -> str:
         n = len(self.recognition_items(pr))
-        return f"{'reused: ' if reused else ''}{n} recognition question(s) written (recognition/requests.json)"
+        m = len(self.recognition_items(pr, S.SHEETS_DIR))
+        sheets = f"; {m} sheet question(s) (sheets/requests.json)" if m else ""
+        return f"{'reused: ' if reused else ''}{n} recognition question(s) written (recognition/requests.json){sheets}"
 
     def stage_style(self, pr: ProjectRun, terms: bool) -> None:
         pr.parts.pop("style", None)

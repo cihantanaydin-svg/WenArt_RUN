@@ -91,7 +91,7 @@ SKIP_REASONS = ("private only", "no style photos", "polish off", "no empty or co
                 "no decor questions")                     # Milestone 9: no room for the AI decor to ask about
 PROJECT_STATES = ("ok", "needs_review", "failed", "incomplete")
 # Stages whose own needs_review makes the whole project needs_review (§1.2; pipeline_final: M7 §9.1).
-REVIEW_STAGES = ("intake", "pipeline", "pipeline_final")
+REVIEW_STAGES = ("intake", "sheets", "pipeline", "pipeline_final")   # sheets: Milestone 10
 # How bad a status is, when several parts of one stage (two model sessions) are merged; pending counts as ok.
 SEVERITY = {"skipped": 0, "reused": 1, "ok": 2, "pending": 2, "warning": 3, "incomplete": 4, "failed": 5,
             "needs_review": 6}
@@ -318,7 +318,7 @@ def project_state(records: Iterable[StageRecord]) -> str:
         return "failed"
     if any(r.status == "incomplete" for r in records):
         return "incomplete"
-    if any(r.stage == "pipeline" and r.status == "pending" for r in records) and \
+    if any(r.stage in ("sheets", "pipeline") and r.status == "pending" for r in records) and \
             not any(r.stage == "pipeline_final" and r.status in FINAL_DONE for r in records):
         return "incomplete"           # questions written, the final building never made in this run (§9.1)
     return "ok"

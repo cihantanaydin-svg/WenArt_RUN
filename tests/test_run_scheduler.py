@@ -103,6 +103,8 @@ class FakeCLI:
         sub = cmd[3] if len(cmd) > 3 else ""
         if mod == "wenart.ingest.pipeline":
             return "pipeline_final" if ("--answers" in cmd or "--no-ai" in cmd) else "pipeline"
+        if mod == "wenart.sheets":                              # Milestone 10: the sheet analysis (first or final)
+            return "sheets"
         if mod == "wenart.recognition.answers":
             return "recognize"
         if mod == "wenart.style.photos":
@@ -147,7 +149,7 @@ class FakeCLI:
             if flag in cmd:
                 return Path(opt(cmd, flag)).name
         mod = cmd[2] if len(cmd) > 2 else ""
-        if mod == "wenart.ingest.pipeline":
+        if mod in ("wenart.ingest.pipeline", "wenart.sheets"):
             return Path(opt(cmd, "--out")).name
         if mod == "wenart.recognition.answers":
             return Path(cmd[4]).parent.name
@@ -208,6 +210,19 @@ class FakeCLI:
         manifest = {"status": status, "reasons": reasons if status != "ok" else []}
         write(out.parent.parent / "intake_manifest.json", manifest)
         return 0 if status == "ok" else 4    # wenart.intake: exit 4 = needs_review
+
+    def h_sheets(self, cmd, project, log):
+        """wenart.sheets: sheets.json and sheets_report.md; exit 1 for a project whose spec says
+        ``sheets_status: needs_review``; exit 0 otherwise (the sheet_region questions are tested with track A1's
+        answer schema)."""
+        out = Path(opt(cmd, "--out"))
+        spec = self.buildings.get(project, {})
+        status = spec.get("sheets_status", "ok")
+        write(out / "sheets.json", {"kind": "sheets", "project": project, "needs_review": [] if status == "ok" else
+                                    [{"reason": "no readable plan region"}], "answers": opt(cmd, "--answers"),
+                                    "no_ai": "--no-ai" in cmd})
+        write(out / "sheets_report.md", "# sheets\n")
+        return 0 if status == "ok" else 1
 
     def h_pipeline(self, cmd, project, log):
         """wenart.ingest.pipeline: exit 0 ok, 1 needs_review, 4 when the project has recognition questions (they go
@@ -738,7 +753,7 @@ def test_needs_review_stops_the_project_and_starts_no_server(tmp_path):
     r = Run(tmp_path, {"p2": {}}, buildings={"p2": {"status": "needs_review"}}, projects=["p2"])
     assert r.run() == 0                       # needs_review is a result, not a failure
     assert r.servers.starts == []
-    assert r.cli.names("p2") == ["pipeline", "report"]
+    assert r.cli.names("p2") == ["sheets", "pipeline", "report"]
     assert r.record("p2", "pipeline")["status"] == "needs_review"
     assert r.manifest()["projects"][0]["state"] == "needs_review"
     lists = r.manifest()["test_lists"]
@@ -749,7 +764,18 @@ def test_needs_review_stops_the_project_and_starts_no_server(tmp_path):
     r2 = Run(tmp2, {"p1": {}, "p2": {}}, buildings={"p2": {"status": "needs_review"}}, projects=["p1", "p2"])
     assert r2.run() == 0
     assert r2.servers.starts == ["qwen", "qwen", "glm"]
-    assert r2.cli.names("p2") == ["pipeline", "report"]
+    assert r2.cli.names("p2") == ["sheets", "pipeline", "report"]
+
+
+def test_sheets_needs_review_stops_the_project_before_the_pipeline(tmp_path):
+    """Milestone 10 (docs/milestone10.md §1.6a): sheets exit 1 (no readable plan region, no unit agreement) is the
+    project's result; the pipeline never runs, the report does."""
+    r = Run(tmp_path, {"p2": {}}, buildings={"p2": {"sheets_status": "needs_review"}}, projects=["p2"])
+    assert r.run() == 0
+    assert r.cli.names("p2") == ["sheets", "report"]
+    assert r.record("p2", "sheets")["status"] == "needs_review"
+    assert r.manifest()["projects"][0]["state"] == "needs_review"
+    assert r.servers.starts == []
 
 
 def test_build_exit_2_is_failed_with_the_last_build_log_line(tmp_path):
@@ -1594,7 +1620,7 @@ def test_outputs_of_an_earlier_job_are_moved_aside_never_deleted(tmp_path, monke
     assert not (old / "p1" / "renders" / "cam_r_L0_hol_3_preview.jpg").exists() and (old / "p1" / "run").is_dir()
     assert (tmp_path / "po" / "real-01" / "notes.txt").is_file()
     note = f"earlier outputs without run records moved to {moved['p1']}"
-    assert r.record("p1", "pipeline")["note"] == note
+    assert r.record("p1", "sheets")["note"] == note           # the project's first stage of the run (Milestone 10)
     assert r.record("p1", "intake")["note"] == "private only"                 # a skip keeps its reason
     assert r.record("p2", "pipeline")["note"] == f"earlier outputs without run records moved to {moved['p2']}"
     m = r.manifest()

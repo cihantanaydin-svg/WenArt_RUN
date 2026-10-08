@@ -52,6 +52,8 @@ CATALOG_OBJAVERSE = "wenart/furniture/catalog_objaverse.json"
 CATALOG_LIBRARY = "wenart/furniture/catalog_library.json"
 CHECK_YAML = "wenart/vision_check/check.yaml"
 RECOGNITION_DIR = "recognition"            # <out>/recognition: requests.json, answers_<slug>.json, crops/
+SHEETS_DIR = "sheets"                      # <out>/sheets: the sheet_region questions in the same format (M10 §1.6a)
+QUESTION_DIRS = (SHEETS_DIR, RECOGNITION_DIR)   # every folder of AI questions the recognition sessions answer
 EXIT_QUESTIONS = 4                         # wenart.ingest.pipeline: questions written, answers missing (§1.4)
 # pipeline_final exited 4 although its answers were complete (the answers opened new questions, e.g. a raster
 # page's second-round symbol questions): it runs once more with --no-ai and the stage is a warning, never failed.
@@ -100,9 +102,11 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "
             "wenart/geometry.py", "wenart/schema/**")
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
-PIPELINE_CODE = ("wenart/ingest/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
+PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
                  "wenart/geometry.py", "wenart/schema/**", "wenart/recognition/**", "wenart/furniture/__init__.py",
-                 "wenart/furniture/schemas.py", CHECK_YAML)
+                 "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML)
+# Milestone 10 (docs/milestone10.md §3.1): the sheet analysis reads the documents and the brief (failed_levels).
+SHEETS_CODE = PIPELINE_CODE
 # wenart/furniture/decor.py: its DECOR_TYPES are the vision check's decor categories (Milestone 8: rug, wall_art).
 VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/vlm_client.py",
                "wenart/gate/detect.py", "wenart/furniture/decor.py")
@@ -127,7 +131,7 @@ DECOR_ANSWERS = "decor_ai_answers.json"
 
 @dataclass(frozen=True)
 class Stage:
-    number: Optional[int]           # 0..20 for project stages (M7 §9.1), None for A/B stages
+    number: Optional[int]           # 0..23 for project stages (M7 §9.1, M10 §1.5), None for A/B stages
     name: str
     holder: str                     # cpu | vlm | blender | gate | diffusion
     reuse: str                      # fingerprint | photos | always | own
@@ -141,17 +145,22 @@ class Stage:
 STAGE_LIST = (
     Stage(0, "intake", "cpu", "fingerprint", "failed", ("wenart/intake.py", "wenart/run/projects.py"),
           ("input/{name}", "intake_manifest.json")),
-    Stage(1, "pipeline", "cpu", "fingerprint", "failed", PIPELINE_CODE, ("building.json", "report.md")),
-    Stage(2, "recognize", "vlm", "own", "warning", ("wenart/recognition/**", CHECK_YAML), (), heavy=True),
-    Stage(3, "pipeline_final", "cpu", "fingerprint", "failed", PIPELINE_CODE, ("building.json", "report.md")),
-    Stage(4, "photos", "vlm", "photos", "warning",
+    # Milestone 10 (docs/milestone10.md §1.5, §3.1): every sheet split into drawing regions and classified before
+    # any wall is read; its sheet_region questions ride in the recognition sessions (<out>/sheets/requests.json).
+    Stage(1, "sheets", "cpu", "fingerprint", "failed", SHEETS_CODE, ("sheets.json", "sheets_report.md")),
+    Stage(2, "pipeline", "cpu", "fingerprint", "failed", PIPELINE_CODE, ("building.json", "report.md")),
+    Stage(3, "recognize", "vlm", "own", "warning", ("wenart/recognition/**", "wenart/sheets/**", CHECK_YAML), (),
+          heavy=True),
+    Stage(4, "pipeline_final", "cpu", "fingerprint", "failed", PIPELINE_CODE,
+          ("sheets.json", "building.json", "report.md")),
+    Stage(5, "photos", "vlm", "photos", "warning",
           ("wenart/style/photos.py", "wenart/style/vocabulary.py", "wenart/recognition/vlm_client.py"),
           ("style_photos/passes.json", "style_photos/terms.json"), heavy=True),
-    Stage(5, "style", "cpu", "always", "failed", ("wenart/style/**", "wenart/brief.py", "wenart/defaults.yaml"),
+    Stage(6, "style", "cpu", "always", "failed", ("wenart/style/**", "wenart/brief.py", "wenart/defaults.yaml"),
           ("style.json",)),
-    Stage(6, "assets", "cpu", "always", "warning", ("wenart/assets/**",)),
-    Stage(7, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
-    Stage(8, "layout", "vlm", "fingerprint", "failed",
+    Stage(7, "assets", "cpu", "always", "warning", ("wenart/assets/**",)),
+    Stage(8, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
+    Stage(9, "layout", "vlm", "fingerprint", "failed",
           ("wenart/furniture/layout.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
            "wenart/furniture/schemas.py", "wenart/furniture/complete.py", "wenart/furniture/locked.py",
            "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/brief.py", "wenart/defaults.yaml",
@@ -161,27 +170,27 @@ STAGE_LIST = (
     # Milestone 9 (docs/milestone9.md §4): the AI decor's two passes per room, asked in the layout's Qwen session
     # (answers stored by key in decor_ai_answers.json); a failure is a warning: the decor stage then falls back to
     # the rules for the rooms without both answers.
-    Stage(9, "decor_ask", "vlm", "fingerprint", "warning", DECOR_CODE + ("wenart/recognition/vlm_client.py",),
+    Stage(10, "decor_ask", "vlm", "fingerprint", "warning", DECOR_CODE + ("wenart/recognition/vlm_client.py",),
           ("decor_ai_answers.json",), heavy=True),
-    Stage(10, "decor", "cpu", "fingerprint", "failed", DECOR_CODE, ("building_decor.json",)),
-    Stage(11, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
-    Stage(12, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
+    Stage(11, "decor", "cpu", "fingerprint", "failed", DECOR_CODE, ("building_decor.json",)),
+    Stage(12, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
+    Stage(13, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
           heavy=True),
-    Stage(13, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
+    Stage(14, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
     # Milestone 9 (user request of 4 Oct 2026): the 3D files that open in Blender (a packed .blend and a .glb).
-    Stage(14, "export", "blender", "own", "warning", BLENDER_CODE, ("export/export_manifest.json",), heavy=True),
-    Stage(15, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
+    Stage(15, "export", "blender", "own", "warning", BLENDER_CODE, ("export/export_manifest.json",), heavy=True),
+    Stage(16, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
           heavy=True),
-    Stage(16, "gate", "gate", "own", "warning", GATE_CODE,
+    Stage(17, "gate", "gate", "own", "warning", GATE_CODE,
           ("gate/gate_calibration.json", "gate/gate_validation.json"), heavy=True),
-    Stage(17, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
+    Stage(18, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
           heavy=True),
-    Stage(18, "detect", "gate", "own", "warning", GATE_CODE + ("wenart/schema/building.schema.json",),
+    Stage(19, "detect", "gate", "own", "warning", GATE_CODE + ("wenart/schema/building.schema.json",),
           ("detect/detect_manifest.json",), heavy=True),
-    Stage(19, "expected", "cpu", "always", "failed", VISION_CODE, ("check/expected_views.json",)),
-    Stage(20, "check", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
-    Stage(21, "combine", "cpu", "always", "failed", VISION_CODE, ("check/check_manifest.json",)),
-    Stage(22, "report", "cpu", "always", "failed", ("wenart/report/**",),
+    Stage(20, "expected", "cpu", "always", "failed", VISION_CODE, ("check/expected_views.json",)),
+    Stage(21, "check", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
+    Stage(22, "combine", "cpu", "always", "failed", VISION_CODE, ("check/check_manifest.json",)),
+    Stage(23, "report", "cpu", "always", "failed", ("wenart/report/**",),
           ("final/final_report.md", "final/final_manifest.json")),
     # A/B stages (M6 §6.3, realism v2 of M7 §8.2; records under out/run/ab_*.json; they count for the exit code).
     # ab_prepare, ab_m5, ab_render and ab_controls run only for the control project whose control renders are
@@ -255,6 +264,16 @@ def intake(tools: Tools, ref: ProjectRef) -> list[str]:
     return cmd
 
 
+def sheets(tools: Tools, ref: ProjectRef, answers: bool = False, no_ai: bool = False) -> list[str]:
+    """The sheet analysis (M10 §1.6a): exit 0 done, 4 sheet_region questions written and answers missing, 1 needs
+    review (no readable plan region or no unit agreement), 2 usage error. ``answers``: the answers of
+    ``<out>/sheets`` (pipeline_final); ``no_ai``: decide without AI answers (title text and geometry only)."""
+    cmd = [tools.py, "-m", "wenart.sheets", t(ref.project_dir), "--out", _out(ref)]
+    if answers:
+        cmd += ["--answers", _out(ref, SHEETS_DIR)]
+    return cmd + (["--no-ai"] if no_ai else [])
+
+
 def pipeline(tools: Tools, ref: ProjectRef) -> list[str]:
     """The first pipeline run: exit 0 ok, 1 needs_review, 4 recognition questions written (M7 §1.4)."""
     return [tools.py, "-m", "wenart.ingest.pipeline", t(ref.project_dir), "--out", _out(ref)]
@@ -270,21 +289,24 @@ def pipeline_final(tools: Tools, ref: ProjectRef, answers: bool = True, no_ai: b
     return cmd + (["--no-ai"] if no_ai else [])
 
 
-def recognition_seeds(ref: ProjectRef, repo_root: Optional[Path] = None) -> Optional[Path]:
+def recognition_seeds(ref: ProjectRef, repo_root: Optional[Path] = None, qdir: str = RECOGNITION_DIR) -> Optional[Path]:
     """``results/recognition/<p>/`` (the committed answers of earlier runs) of a public project; None for a
-    private one (its answers are never committed)."""
+    private one (its answers are never committed). M10: the sheet_region answers are committed in
+    ``results/recognition/<p>/sheets/``."""
     if ref.private:
         return None
     from wenart.run.projects import REPO_ROOT
-    return Path(repo_root or REPO_ROOT) / RECOGNITION_SEEDS / ref.name
+    root = Path(repo_root or REPO_ROOT) / RECOGNITION_SEEDS / ref.name
+    return root if qdir == RECOGNITION_DIR else root / qdir
 
 
 def recognize(tools: Tools, ref: ProjectRef, key: str, url: Optional[str] = None, seqs: Optional[int] = None,
-              seeds: Optional[Path] = None) -> list[str]:
+              seeds: Optional[Path] = None, qdir: str = RECOGNITION_DIR) -> list[str]:
     """``wenart.recognition.answers ask`` for one model (M7 §1.4). Without ``url`` the command only copies the
     stored answers of ``seeds`` (it asks no server when they complete the set: exit 0); the deadline comes from
-    ``WENART_DEADLINE`` in the environment."""
-    cmd = [tools.py, "-m", "wenart.recognition.answers", "ask", _out(ref, RECOGNITION_DIR), "--model-key", key]
+    ``WENART_DEADLINE`` in the environment. ``qdir`` (M10): the question folder, ``recognition`` (the pipeline's
+    questions) or ``sheets`` (the sheet_region questions)."""
+    cmd = [tools.py, "-m", "wenart.recognition.answers", "ask", _out(ref, qdir), "--model-key", key]
     if url is not None:
         cmd += ["--server", url, "--workers", str(int(seqs or 1))]
     return cmd + (["--seed-answers", t(seeds)] if seeds is not None else [])

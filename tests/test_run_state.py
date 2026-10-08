@@ -177,7 +177,7 @@ def test_project_states():
         assert ST.project_state([rec("pipeline", "pending"), rec("recognize", "warning"),
                                  rec("pipeline_final", status)]) == "ok"
     assert ST.project_state([rec("pipeline", "pending"), rec("recognize", "incomplete")]) == "incomplete"
-    assert ST.REVIEW_STAGES == ("intake", "pipeline", "pipeline_final")
+    assert ST.REVIEW_STAGES == ("intake", "sheets", "pipeline", "pipeline_final")
 
 
 def test_status_vocabulary():

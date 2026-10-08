@@ -23,16 +23,17 @@ URL = "http://127.0.0.1:8001/v1"
 
 
 def test_the_table_columns():
-    assert [s.number for s in S.STAGE_LIST if s.number is not None] == list(range(23))
-    # Milestone 9: decor_ask (the AI decor's two passes, in the layout's Qwen session) and export (the 3D files).
-    assert S.PROJECT_STAGES == ("intake", "pipeline", "recognize", "pipeline_final", "photos", "style", "assets",
+    assert [s.number for s in S.STAGE_LIST if s.number is not None] == list(range(24))
+    # Milestone 9: decor_ask (the AI decor's two passes, in the layout's Qwen session) and export (the 3D files);
+    # Milestone 10: sheets (the sheet analysis before any wall is read, docs/milestone10.md §1.5).
+    assert S.PROJECT_STAGES == ("intake", "sheets", "pipeline", "recognize", "pipeline_final", "photos", "style", "assets",
                                 "fit", "layout", "decor_ask", "decor", "refit", "build", "render", "export",
                                 "controls", "gate", "polish", "detect", "expected", "check", "combine", "report")
     fail = {s.name: s.on_failure for s in S.STAGE_LIST if s.number is not None}
     assert {n for n, v in fail.items() if v == "warning"} == {"recognize", "photos", "assets", "decor_ask", "export",
                                                              "controls", "gate", "polish", "detect"}
     reuse = {s.name: s.reuse for s in S.STAGE_LIST if s.number is not None}
-    assert {n for n, v in reuse.items() if v == "fingerprint"} == {"intake", "pipeline", "pipeline_final", "fit",
+    assert {n for n, v in reuse.items() if v == "fingerprint"} == {"intake", "sheets", "pipeline", "pipeline_final", "fit",
                                                                   "layout", "decor_ask", "decor", "refit"}
     assert {n for n, v in reuse.items() if v == "own"} == {"recognize", "build", "render", "export", "controls",
                                                           "gate", "polish", "detect", "check"}
@@ -51,8 +52,10 @@ def test_the_table_columns():
     assert S.outputs_of("export", "p") == ["export/export_manifest.json"]
     assert S.AB_STAGES == ("ab_prepare", "ab_m5", "ab_render", "ab_controls", "ab_pairs", "ab_realism", "ab_combine")
     assert S.AB_NOT_COUNTED == () and set(S.STAGE_VERSION) == set(S.STAGES)
-    assert S.STAGES["pipeline_final"].code == S.STAGES["pipeline"].code == S.PIPELINE_CODE
-    assert S.outputs_of("pipeline_final", "p") == ["building.json", "report.md"]
+    assert S.STAGES["pipeline_final"].code == S.STAGES["pipeline"].code == S.PIPELINE_CODE == S.STAGES["sheets"].code
+    assert S.outputs_of("pipeline_final", "p") == ["sheets.json", "building.json", "report.md"]
+    assert S.outputs_of("sheets", "p") == ["sheets.json", "sheets_report.md"]
+    assert S.QUESTION_DIRS == ("sheets", "recognition")
     assert S.outputs_of("detect", "p") == ["detect/detect_manifest.json"]
     assert S.outputs_of("ab_pairs", "p") == ["ab/pairs_v2.json"]
     assert S.outputs_of("ab_combine", "p") == ["check/realism/realism2_ab.json"]
@@ -130,7 +133,7 @@ def test_code_lists_cover_the_import_closure():
     """R2: a code fix in any module a fingerprinted stage imports must change the stage's fingerprint (else a
     resumed pod reuses outputs made with the old code). The gate's code hash keys the calibration reuse."""
     private = private_project("real-01", repo_root=REPO_ROOT)
-    commands = {"intake": S.intake(TOOLS, private), "pipeline": S.pipeline(TOOLS, REF),
+    commands = {"intake": S.intake(TOOLS, private), "sheets": S.sheets(TOOLS, REF), "pipeline": S.pipeline(TOOLS, REF),
                 "pipeline_final": S.pipeline_final(TOOLS, REF), "fit": S.fit(TOOLS, REF),
                 "layout": S.layout(TOOLS, REF, URL), "decor": S.decor(TOOLS, REF, True),
                 "decor_ask": S.decor_ask(TOOLS, REF, True, URL), "refit": S.refit(TOOLS, REF),
@@ -146,7 +149,7 @@ def test_code_lists_cover_the_import_closure():
         assert S.CATALOG in S.STAGES[stage].code and "wenart/schema/**" in S.STAGES[stage].code
         # catalog_objaverse.json (once committed) through the catalog*.json pattern (catalog.load merges it).
         assert "wenart/furniture/catalog*.json" in S.STAGES[stage].code
-    for stage in ("pipeline", "pipeline_final"):
+    for stage in ("sheets", "pipeline", "pipeline_final"):
         code = S.STAGES[stage].code
         assert "wenart/schema/**" in code and S.CHECK_YAML in code       # model ids and slugs of the answers
         covered = {p.relative_to(REPO_ROOT).as_posix() for p in ST._code_files(code, REPO_ROOT)}
