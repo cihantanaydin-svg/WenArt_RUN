@@ -92,6 +92,29 @@ def test_tile_sizes():
     assert text[a:b] == "60x120 cm"
 
 
+def test_a_tile_size_without_a_unit_is_read_by_what_is_plausible():
+    """Review finding #36: '600x1200' is millimetres, '60x120' centimetres; a side that is no tile side is dropped."""
+    def read(text):
+        (reading,) = O.tile_size_readings(text)
+        return reading
+    r = read("600x1200 porcelain")
+    assert (r["size_m"], r["unit"], r["assumed"], r["text"]) == ([0.6, 1.2], "mm", True, "600x1200")
+    r = read("60x120 porcelain")
+    assert (r["size_m"], r["unit"], r["assumed"]) == ([0.6, 1.2], "cm", True)
+    assert read("300x300")["size_m"] == [0.3, 0.3] and read("130x60")["size_m"] == [1.3, 0.6] and read("10x10")["size_m"] == [0.1, 0.1]
+    assert read("1300x600")["unit"] == "mm" and read("2,5x2,5 mosaic")["size_m"] == [0.025, 0.025]
+    r = read("60x120 cm")
+    assert (r["unit"], r["assumed"]) == ("cm", False)                       # a named unit is never assumed
+    assert read("9000x9000")["size_m"] is None and read("6 x 12 m")["size_m"] is None and read("0.001 x 0.001 m")["size_m"] is None
+    assert O.tile_sizes("9000x9000") == [] and O.tile_sizes("600x1200")[0][0] == [0.6, 1.2]
+    assert read("3.2 x 1.6 m slab")["size_m"] == [3.2, 1.6]                 # the largest slab is a tile size
+
+
+def test_known_objects_without_a_slot_are_listed_with_a_reason():
+    assert "sills" in O.OBJECTS and O.first_span("oak window sills", O.OBJECT_WORDS).keyword == "window sills"
+    assert all(word in O.HINTS for word in ("sill", "sills"))
+
+
 def test_descriptors_modifiers_and_amounts_do_not_overlap_with_colours_or_objects():
     assert not (O.DESCRIPTORS & set(C.NAMES)) and not (O.MODIFIER_WORDS & O.DESCRIPTORS)
     assert O.MODIFIER_WORDS == set(C.MODIFIERS)

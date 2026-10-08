@@ -76,7 +76,7 @@ OBJECTS = ("walls", "accent_wall", "floor", "ceiling", "trim", "sofa", "armchair
            "wardrobe", "desk", "nightstand", "dresser", "bookshelf", "tv_unit", "sideboard", "console_table",
            "cushions", "throws", "curtains", "rug", "cabinets", "kitchen", "worktop", "furniture", "table_coffee",
            "table_dining", "doors", "handles", "window_frames", "pots", "plants", "textiles", "accents", "wet_walls",
-           "facade", "roof", "paving", "garden", "lighting")
+           "facade", "roof", "paving", "garden", "lighting", "sills")
 
 OBJECT_WORDS: list[tuple[str, str]] = [
     # walls and surfaces
@@ -135,6 +135,9 @@ OBJECT_WORDS: list[tuple[str, str]] = [
     ("ironmongery", "handles"),
     ("window frame", "window_frames"), ("window frames", "window_frames"), ("windows", "window_frames"),
     ("window", "window_frames"),
+    # known objects that have no style slot: the phrase is listed with a reason and nothing else is changed
+    ("window sills", "sills"), ("window sill", "sills"), ("windowsills", "sills"), ("windowsill", "sills"),
+    ("sills", "sills"), ("sill", "sills"),
     # outside
     ("exterior walls", "facade"), ("external walls", "facade"), ("outside walls", "facade"), ("facade", "facade"),
     ("facades", "facade"), ("façade", "facade"), ("cladding", "facade"),
@@ -164,7 +167,9 @@ OBJECT_IN_KEYWORDS = frozenset(("walls", "facade", "roof", "paving", "garden", "
 DESCRIPTORS = frozenset("""a an the of in on at with and or plus & many some several few lots lot plenty large big small
 tall indoor outdoor soft plank planks board boards textured matte matt glossy gloss satin finish style look feel colour
 colours color colors tone tones shade shades all every everywhere throughout also only just very one single two three
-bathroom bathrooms shower showers wc cm mm x by""".split())
+bathroom bathrooms shower showers wc cm mm x by bright crisp pure rich fresh earthy clean simple plain""".split())
+# The last nine are plain adjectives ("bright white", "rich walnut"): they never name an object, so a colour or floor
+# word beside them is still read (profile._bare lists a phrase with any other unknown word and applies nothing).
 MODIFIER_WORDS = frozenset(("light", "dark", "pale", "deep", "warm", "cool", "muted"))
 # Textile material words: known, but they name no slot of the profile (the default fabric is fabric_linen), so an object
 # phrase that holds one together with a colour ("cream linen cushions") does not list them as unknown.
@@ -271,17 +276,37 @@ WET_WALL_WORDS: list[tuple[str, str]] = [
     ("cement tiles", "tiles_cement"), ("cement tile", "tiles_cement"), ("encaustic", "tiles_cement"),
 ]
 TILE_SIZE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(?:x|×|by)\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m)?\b")
-TILE_SIZE_UNITS = {"mm": 0.001, "cm": 0.01, "m": 1.0, None: 0.01}      # no unit: centimetres (tile sizes)
+TILE_SIZE_UNITS = {"mm": 0.001, "cm": 0.01, "m": 1.0}
+# A size with no unit is read as centimetres when both sides are at most 130 cm ("60x120", "7.5x15"), else as
+# millimetres ("600x1200", "300x300"). A side outside TILE_SIDE_M is no tile (the largest slabs are 3.2 m long).
+TILE_CM_MAX = 130.0
+TILE_SIDE_M = (0.005, 3.2)
+
+
+def tile_size_readings(text: str) -> list[dict]:
+    """Every tile size of a phrase (``60x120``, ``7.5 x 15 cm``, ``10 by 10 cm``, ``600x1200``) with how it was read:
+    ``{"text", "span": (start, end), "size_m": [w, h] or None, "unit": "cm" | "mm" | "m", "assumed": bool}``.
+
+    ``assumed`` is true when the text names no unit (the unit was chosen by ``TILE_CM_MAX``). ``size_m`` is None when
+    a side is no plausible tile side (``TILE_SIDE_M``): the size is listed, never used."""
+    out = []
+    for m in TILE_SIZE.finditer(text):
+        a, b = (float(m.group(i).replace(",", ".")) for i in (1, 2))
+        unit = m.group(3)
+        if unit is None:
+            unit = "cm" if max(a, b) <= TILE_CM_MAX else "mm"
+        k = TILE_SIZE_UNITS[unit]
+        size = [round(a * k, 4), round(b * k, 4)]
+        if not all(TILE_SIDE_M[0] <= side <= TILE_SIDE_M[1] for side in size):
+            size = None
+        out.append({"text": m.group().strip(), "span": (m.start(), m.end()), "size_m": size, "unit": unit,
+                    "assumed": m.group(3) is None})
+    return out
 
 
 def tile_sizes(text: str) -> list[tuple[list[float], tuple[int, int]]]:
-    """``[(tile_size_m [w, h], (start, end))]`` of ``60x120``, ``7.5 x 15 cm``, ``10 by 10 cm`` in a phrase."""
-    out = []
-    for m in TILE_SIZE.finditer(text):
-        k = TILE_SIZE_UNITS[m.group(3)]
-        out.append(([round(float(m.group(1).replace(",", ".")) * k, 4), round(float(m.group(2).replace(",", ".")) * k, 4)],
-                    (m.start(), m.end())))
-    return out
+    """``[(tile_size_m [w, h], (start, end))]`` of the plausible sizes of a phrase (see ``tile_size_readings``)."""
+    return [(r["size_m"], r["span"]) for r in tile_size_readings(text) if r["size_m"] is not None]
 
 
 # --------------------------------------------------------------------------
@@ -331,6 +356,10 @@ HINTS: dict[str, str] = {
     "wallpaper": "a wallpaper needs a pattern word: stripe, botanical, geometric, check, herringbone or grasscloth",
     "linen": "textile materials name no slot (fabric_linen is the default fabric)",
     "textiles": "textile words name no slot unless they carry a colour",
+    "sill": "window sills have no style slot (the window frame look is not changed by them)",
+    "sills": "window sills have no style slot (the window frame look is not changed by them)",
+    "windowsill": "window sills have no style slot (the window frame look is not changed by them)",
+    "windowsills": "window sills have no style slot (the window frame look is not changed by them)",
 }
 
 # The accent wall rule recorded with ``wall_accent`` (docs/milestone10.md §4.1).
