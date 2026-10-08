@@ -62,6 +62,10 @@ def _blocks(doc) -> None:
 
 def _plan(msp, origin, title, labels, walls=True, area_text=True):
     ox, oy = origin
+    if not walls:
+        # The outline as four single lines on layer 0: one drawing, but nothing the wall rules read as a wall.
+        for a, b in (((0, 0), (W, 0)), ((W, 0), (W, D)), ((W, D), (0, D)), ((0, D), (0, 0)), ((500, 0), (500, D))):
+            msp.add_line((ox + a[0], oy + a[1]), (ox + b[0], oy + b[1]), dxfattribs={"layer": "0"})
     if walls:
         _rect(msp, ox, oy, ox + W, oy + OUTER, "DUVAR", hatch=True)
         _rect(msp, ox, oy + D - OUTER, ox + W, oy + D, "DUVAR", hatch=True)
