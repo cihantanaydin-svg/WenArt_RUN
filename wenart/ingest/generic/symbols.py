@@ -1620,12 +1620,16 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     kept_ids = {id(s) for s in kept}
     near_wall = [s for s in segs if id(s) not in kept_ids]
     notes.append(f"{n_outline} stroke segments dropped as wall outline (>= 90 % within 20 mm of walls/openings)")
-    # Milestone 10 (real02's attic): a straight line longer than any piece (the mansard's break line runs through the
-    # bathrooms, an axis line) is no furniture stroke: it would chain every fixture it touches into one cluster.
-    long_lines = [s for s in kept if not s.curve and not s.dot and s.length > MAX_SIDE_M]
+    # Milestone 10 (real02's attic): the long sides of an outline larger than any piece in both directions (the
+    # mansard's break line runs through the bathrooms) are no furniture strokes: they would chain every fixture they
+    # touch into one cluster. A long piece drawn by separate lines (one 5 m stroke per side) stays.
+    def _area_outline(s: Seg) -> bool:
+        b = s.stroke.bbox()
+        return min(b[2] - b[0], b[3] - b[1]) > MAX_SIDE_M
+    long_lines = [s for s in kept if not s.curve and not s.dot and s.length > MAX_SIDE_M and _area_outline(s)]
     if long_lines:
         kept = [s for s in kept if s not in long_lines]
-        notes.append(f"{len(long_lines)} straight lines longer than {MAX_SIDE_M} m are no furniture: "
+        notes.append(f"{len(long_lines)} sides of outlines larger than {MAX_SIDE_M} m both ways are no furniture: "
                      f"{_short_ids([s.id for s in long_lines])}")
 
     poly = _as_polygon(outline)
