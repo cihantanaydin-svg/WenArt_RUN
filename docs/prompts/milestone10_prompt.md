@@ -183,7 +183,7 @@ is listed with a reason; a coverage table (types, models, style families, colour
 
 1. Spec `docs/milestone10.md`, my answers, `CLAUDE.md` change for Feature 1 after my OK. Freeze the contracts
    first: building JSON schema changes (`levels.variant*`, `variants`, `roof`, `facade`, `slabs`, buildable
-   `site`, `completes_room`), `sheets.json` format, new brief keys, new vocabulary slugs.
+   `site`, `completes_room`, `modified_by_ai`, `drawn_*`), `sheets.json` format, new brief keys, new vocabulary slugs.
 2. Then in parallel (see "Parallel work with subagents"):
    - Track A: Feature 2.1 sheet analysis + `synthetic-07` (CPU), because it unblocks real02.
    - Track B: Feature 1 (CPU + placer tests).
