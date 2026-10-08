@@ -127,7 +127,8 @@ def test_slabs_roof_and_site(built):
     assert stair["type"] == "stair" and stair["level_id"] == "L-1"
     assert all(s["variants"] == [] for s in slabs.values())
     roof = building["roof"]
-    assert roof["type"] == "mansard" and roof["type_source"] == "plan_roof_lines" and roof["planes"] == []
+    assert roof["type"] == "gable" and roof["type_source"] == "section" and roof["planes"] == []
+    assert roof["ridge_lines"] == [[[5.0, -0.5], [5.0, 8.5]]]
     assert roof["over_level_id"] == "L1" and roof["eaves_height"]["value"] == pytest.approx(3.65, abs=0.01)
     assert roof["profile"]["region_id"] == "r6" and roof["profile"]["cut_axis"] == "x"
     assert roof["profile"]["points"][0] == pytest.approx([-0.5, 3.65], abs=0.01) and roof["covering"] is None
@@ -272,6 +273,9 @@ def test_the_building_origin_is_the_reference_walls_not_the_sheets_outline(tmp_p
     xs = [p[0] for p in building["roof"]["outline"]]
     assert (min(xs), max(xs)) == pytest.approx((-0.5, 10.5), abs=0.02)
     assert building["roof"]["profile"]["points"][0][0] == pytest.approx(-0.5, abs=0.02)
+    # The cut axis survives the step (review finding 4); the ridge sits over the walls' middle.
+    assert building["roof"]["profile"]["cut_axis"] == "x"
+    assert building["roof"]["ridge_lines"] == [[[5.0, -0.5], [5.0, 8.5]]]
 
 
 def test_a_copy_of_a_level_is_cross_checked_not_an_alternative(tmp_path):
@@ -282,3 +286,185 @@ def test_a_copy_of_a_level_is_cross_checked_not_an_alternative(tmp_path):
     pages = [p for p in building["documents"][0]["pages"] if p.get("level_id") == "L-1"]
     assert [p["region_id"] for p in pages] == ["r3", "r4"]
     assert building["status"] == "ok"
+
+
+def test_an_alternative_whose_base_was_left_out_gets_its_slabs(tmp_path):
+    # Review finding 5: the base basement fails, its alternative is built: the slab under the alternative and the
+    # slab over it (with the alternative's stair void) are written for the variant, and listed.
+    building, build, _ = _build(tmp_path, walls={"basement": False})
+    assert [x["region_id"] for x in building["levels_left_out"]] == ["r3"]
+    slabs = {s["id"]: s for s in building["slabs"]}
+    under = slabs["sl_L-1__l-1b-acik-mutfak"]
+    assert under["above_level_id"] == "L-1" and under["variants"] == ["l-1b-acik-mutfak"]
+    over = slabs["sl_L0__l-1b-acik-mutfak"]
+    assert over["below_level_id"] == "L-1" and [o["kind"] for o in over["openings"]] == ["stair_void"]
+    stair = next(f for f in building["furniture"] if f["id"] == over["openings"][0]["furniture_id"])
+    assert stair["level_id"] == "L-1b"
+    assert any("base level L-1 left out" in w for w in building["warnings"])
+
+
+def test_two_regions_of_one_level_on_one_sheet_keep_their_own_region_ids(tmp_path):
+    # Review finding 14: the attic plan titled as the ground floor is a copy of L0 (r5) on the same sheet as its base
+    # (r2): the base's walls, rooms and furniture name r2, the copy's cross-check evidence names r5.
+    building, _, _ = _build(tmp_path, titles={"attic": "ZEMİN KAT PLANI"})
+    level = next(lv for lv in building["levels"] if lv["id"] == "L0")
+    assert sorted({e["region_id"] for e in level["evidence"]}) == ["r2", "r5"]
+    for key in ("walls", "rooms", "furniture"):
+        items = [x for x in building[key] if x["level_id"] == "L0"]
+        assert items and all(x["evidence"][0]["region_id"] == "r2" for x in items), key
+    walls = [w for w in building["walls"] if w["level_id"] == "L0"]
+    assert all([e["region_id"] for e in w["evidence"]] == ["r2", "r5"] for w in walls)
+    assert not any("left without a region_id" in w for w in building["warnings"])
+
+
+def _two_plan_pdf(path) -> None:
+    """One vector PDF page at 1:100: an L-shaped ground floor (x 0..10 m) and a basement of the same shape cut at
+    x = 3 m, each wall drawn as its two face rings, each plan with its title, scale note and room names."""
+    from reportlab.pdfgen import canvas as rl_canvas
+    from shapely.geometry import Polygon
+
+    pt = 72.0 / 25.4 * 10.0                      # page points per metre at 1:100
+    c = rl_canvas.Canvas(str(path), pagesize=(1190.55, 841.89), invariant=1)
+    c.setFont("Helvetica", 9)
+
+    def plan(poly, ox, title, inner_x, labels):
+        oy = 300.0
+        outer = Polygon(poly)
+        for ring in (outer.exterior.coords, outer.buffer(-0.2, join_style=2).exterior.coords):
+            ring = list(ring)
+            p = c.beginPath()
+            p.moveTo(ox + ring[0][0] * pt, oy + ring[0][1] * pt)
+            for x, y in ring[1:]:
+                p.lineTo(ox + x * pt, oy + y * pt)
+            p.close()
+            c.drawPath(p, stroke=1, fill=0)
+        c.rect(ox + inner_x * pt, oy + 0.2 * pt, 0.1 * pt, 5.6 * pt, stroke=1, fill=0)
+        bx = min(x for x, _ in poly)
+        c.drawString(ox + bx * pt, oy - pt, title)
+        c.drawString(ox + (bx + 1) * pt, oy + pt, "OLCEK 1/100")
+        for text, (x, y) in labels:
+            c.drawString(ox + x * pt, oy + y * pt, text)
+
+    plan([(0, 0), (10, 0), (10, 8), (4, 8), (4, 6), (0, 6)], 60.0, "ZEMIN KAT PLANI", 5.0,
+         [("SALON", (1, 3)), ("MUTFAK", (7, 3))])
+    plan([(3, 0), (10, 0), (10, 8), (4, 8), (4, 6), (3, 6)], 60.0 + 13 * pt, "BODRUM KAT PLANI", 6.0,
+         [("DEPO", (3.5, 3)), ("KAZAN", (7.5, 3))])
+    c.showPage()
+    c.save()
+
+
+def test_a_pdf_region_lands_in_its_registered_frame(tmp_path):
+    # Review finding 13: a vector-PDF region uses the transform the sheets stage registered (moved by the reference's
+    # frame shift) instead of the min corner of its own walls: the narrower basement is not pulled to x = 0.
+    pytest.importorskip("reportlab")
+    project = tmp_path / "pdf"
+    project.mkdir()
+    _two_plan_pdf(project / "plan.pdf")
+    building, build = P.run_project(project, tmp_path / "out", no_ai=True)
+    sheets = json.loads((tmp_path / "out" / "sheets.json").read_text(encoding="utf-8"))
+    registered = {r["id"]: r["transform_to_building"] for r in sheets["regions"] if r["use"] == "read"}
+    pages = {p["region_id"]: p["transform_to_building"] for p in building["documents"][0]["pages"]}
+    assert build.reference_region == "r1" and max(abs(v) for v in build.frame_shift) < 0.005
+    tf = pages["r2"]
+    assert tf[2] == pytest.approx(registered["r2"][2] - build.frame_shift[0], abs=1e-6)
+    assert tf[5] == pytest.approx(registered["r2"][5] - build.frame_shift[1], abs=1e-6)
+    xs = [x for w in building["walls"] if w["level_id"] == "L-1" for x in (w["start"][0], w["end"][0])]
+    assert min(xs) > 2.5                          # registered near x = 3 m, not at its own walls' corner
+    assert not any("is not used" in w or "not a scale and shift" in w for w in building["warnings"])
+
+
+def test_a_pdf_region_whose_registered_scale_is_not_the_cores_keeps_its_own_frame(tmp_path, monkeypatch):
+    # Review finding 13: the origin of a registered transform holds only at its scale; when the core reads another
+    # scale the region is read again in its own frame (origin at its walls) and the reason is listed.
+    pytest.importorskip("reportlab")
+    from wenart.ingest import classify as C
+
+    real = C._region_record
+
+    def scaled(rec, r, units, base_of):
+        new = real(rec, r, units, base_of)
+        if new.region_id == "r2" and new.region_transform:
+            tf = list(new.region_transform)
+            tf[0] *= 1.02
+            tf[4] *= 1.02
+            new.region_transform = tf
+        return new
+
+    monkeypatch.setattr(C, "_region_record", scaled)
+    project = tmp_path / "pdf"
+    project.mkdir()
+    _two_plan_pdf(project / "plan.pdf")
+    building, _ = P.run_project(project, tmp_path / "out", no_ai=True)
+    xs = [x for w in building["walls"] if w["level_id"] == "L-1" for x in (w["start"][0], w["end"][0])]
+    assert min(xs) == pytest.approx(0.0, abs=0.01)
+    assert any("plan.pdf r2" in w and "differs from the registered scale" in w for w in building["warnings"])
+
+
+@pytest.mark.parametrize("fmt, units, tf, origin, why", [
+    ("pdf", None, [0.035278, 0.0, -14.98, 0.0, 0.035278, -10.58], (14.98, 10.58), None),
+    ("dxf", 0.01, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], (2.0, 3.0), None),
+    ("dxf", None, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], None, "no drawing unit for the region"),
+    ("dxf", 0.001, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], None, "is not the drawing unit"),
+    ("pdf", None, [0.0, -0.035, 1.0, 0.035, 0.0, 2.0], None, "a rotated or skewed registration"),
+])
+def test_the_region_origin_says_why_it_is_not_used(fmt, units, tf, origin, why):
+    # Review finding 13: a PDF region's registered scale is its own unit; a transform that is not used names why.
+    from wenart.ingest.classify import PageRecord
+
+    record = PageRecord(file="a", page=1, format=fmt, kind="vector")
+    record.region_id, record.region_transform, record.units_override = "r2", tf, units
+    got, reason = P._region_origin(record)
+    assert got == (pytest.approx(origin) if origin else None)
+    assert (reason is None) if why is None else (why in reason)
+
+
+def test_a_region_whose_outer_walls_do_not_close_is_left_out(tmp_path):
+    # Review finding 10: the basement's east wall is not drawn; the west room closes and was taken for the building,
+    # MUTFAK lay outside it and the level was built with one room (status ok). Now the region cannot be read: its
+    # level is left out, named with the label.
+    import ezdxf
+
+    import _sheets_fixture as FX
+
+    project = tmp_path / "open"
+    project.mkdir()
+    path = write_sheet(project / "sheet.dxf")
+    doc = ezdxf.readfile(path)
+    msp = doc.modelspace()
+    ox, oy = FX.PLANS["basement"][0]
+    east = ox + FX.W - FX.OUTER
+    for e in list(msp.query("LWPOLYLINE HATCH")):
+        pts = list(e.get_points("xy")) if e.dxftype() == "LWPOLYLINE" else list(e.paths[0].vertices)
+        if e.dxf.layer == "DUVAR" and abs(min(p[0] for p in pts) - east) < 1e-6 and min(p[1] for p in pts) > oy:
+            msp.delete_entity(e)
+    doc.saveas(path)
+    building, _ = P.run_project(project, tmp_path / "out", no_ai=True)
+    left = {x["region_id"]: x["reason"] for x in building["levels_left_out"]}
+    assert list(left) == ["r3"] and "outer walls do not close" in left["r3"] and "'MUTFAK'" in left["r3"]
+    assert [lv["id"] for lv in building["levels"]] == ["L-1b", "L0", "L1"]
+    assert not any(r["level_id"] == "L-1" for r in building["rooms"])
+
+
+def test_an_l_shaped_terrace_opening_reaches_over_its_parapets_to_the_roof_outline():
+    # Lead item (track E, real02 ro_001): the L-shaped terrace along the west wall and round the north-west corner
+    # grows over the west, south and north outer walls to the roof outline (§1.6b row 13), and to the centre line of
+    # the inner wall at its east end; the walls along its inner edges are not crossed.
+    from shapely.geometry import Point, Polygon
+
+    from wenart.sheets import to_building as TB
+
+    def wall(wid, a, b, exterior):
+        return {"id": wid, "start": list(a), "end": list(b), "thickness": 0.2, "exterior": exterior}
+
+    room = {"polygon": [[0.2, 0.2], [1.7, 0.2], [1.7, 10.3], [3.2, 10.3], [3.2, 11.8], [0.2, 11.8]]}
+    walls = [wall("south", (0.0, 0.1), (15.2, 0.1), True), wall("north", (0.0, 11.9), (15.2, 11.9), True),
+             wall("west", (0.1, 0.2), (0.1, 11.8), True), wall("inner_x", (1.8, 0.2), (1.8, 10.2), False),
+             wall("inner_y", (1.7, 10.2), (8.0, 10.2), False), wall("east_end", (3.3, 10.3), (3.3, 11.8), False)]
+    outline = [[-0.5, -0.5], [15.7, -0.5], [15.7, 12.5], [-0.5, 12.5]]
+    polygon, parapets = TB.terrace_opening(room, walls, outline)
+    assert sorted(parapets) == ["north", "south", "west"]
+    assert polygon == [[-0.5, -0.5], [1.7, -0.5], [1.7, 10.3], [3.3, 10.3], [3.3, 12.5], [-0.5, 12.5]]
+    grown = Polygon(polygon)
+    # the parapet walls' stretches by the terrace lie under the opening; the inner wall along its east edge does not
+    assert all(grown.contains(Point(p)) for p in [(0.1, 6.0), (1.0, 0.1), (2.5, 11.9)])
+    assert not grown.contains(Point(1.8, 5.0))

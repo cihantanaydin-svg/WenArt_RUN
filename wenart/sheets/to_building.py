@@ -214,7 +214,8 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
                 warn, variants: Optional[list[dict]] = None) -> list[dict]:
     """One slab under every built base level (``sl_<level id>``); for each alternative, the slabs under and over its
     level again as ``sl_<above>__<variant id>`` (``variants: [id]``, level ids naming the base levels) when their
-    outline or stair voids differ (an alternative's stair within 0.1 m of the base stair keeps the base slab)."""
+    outline or stair voids differ (an alternative's stair within 0.1 m of the base stair keeps the base slab); when the
+    base level was left out, the alternative's slabs are always written (listed)."""
     by_base = {}
     for s in (sheets.get("heights") or {}).get("slabs") or []:
         if s["between"][1]:
@@ -242,11 +243,15 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
         for ch in v.get("changes") or []:
             alt = next((lv for lv in levels if lv["id"] == ch["level_id"]), None)
             base_lv = next((lv for lv in base if lv["id"] == ch["replaces"]), None)
-            if alt is None or base_lv is None:
+            if alt is None:
                 continue
+            if base_lv is None:
+                warn(f"variant {v['id']}: base level {ch['replaces']} left out; the slabs under and over "
+                     f"{alt['id']} are built from the alternative")
             alt_as_base = dict(alt, id=alt["id"])
-            above = next((b for b in base if below_of(b) is base_lv), None)
-            pairs = [(f"sl_{base_lv['id']}", alt_as_base, below_of(base_lv), base_lv["id"])]
+            ref = base_lv or alt                        # the level whose order places the alternative
+            above = next((b for b in base if (b.get("order") or 0) == (ref.get("order") or 0) + 1), None)
+            pairs = [(f"sl_{ch['replaces']}", alt_as_base, below_of(ref), ch["replaces"])]
             if above is not None:
                 pairs.append((f"sl_{above['id']}", above, alt_as_base, above["id"]))
             for base_slab_id, top, under, above_id in pairs:
@@ -280,11 +285,14 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
     top = max(base, key=lambda lv: lv.get("order") or 0) if base else None
     assumed = list((ex or {}).get("assumed") or [])
     profile = None
+    axis = heights.get("cut_axis")
     if hroof.get("profile"):
-        axis = heights.get("cut_axis")
-        ds = shift[0] if axis == "x" else shift[1] if axis == "y" else 0.0
+        # s runs from the building's min outer wall face along the axis: the core's frame already (no shift).
         profile = {"region_id": (heights.get("section_regions") or [None])[0], "cut_axis": axis,
-                   "points": [[round(p[0] - ds, 4) + 0.0, p[1]] for p in hroof["profile"]], "method": "vector"}
+                   "points": [[p[0], p[1]] for p in hroof["profile"]], "method": "vector"}
+    # A ridge read from the section: its position along the cut axis is a profile s (no shift); its ends come from
+    # the roof outline (the sheets frame: shifted).
+    across = (0.0, shift[1]) if axis == "x" else (shift[0], 0.0) if axis == "y" else shift
     roof = {"type": (ex or {}).get("type") or "other", "type_source": (ex or {}).get("type_source") or "assumed",
             "over_level_id": top["id"] if top else None,
             "eaves_height": hroof.get("eaves_z"), "ridge_height": hroof.get("ridge_z"),
@@ -292,7 +300,8 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
             "thickness": hroof.get("thickness"), "knee_wall": hroof.get("knee_wall"), "profile": profile,
             "outline": moved((ex or {}).get("outline"), shift),
             "break_line": moved((ex or {}).get("break_line"), shift),
-            "ridge_lines": [moved(r, shift) for r in (ex or {}).get("ridge_lines") or []], "planes": [], "openings": [],
+            "ridge_lines": [moved(r, across) for r in (ex or {}).get("ridge_lines") or []], "planes": [],
+            "openings": [],
             "covering": (ex or {}).get("covering"), "covering_colour": None,
             "covering_source": (ex or {}).get("covering_source") if (ex or {}).get("covering") else None,
             "assumed": assumed, "evidence": list((ex or {}).get("evidence") or [])}
@@ -318,11 +327,15 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
 def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> tuple[list, list]:
     """A roof terrace's opening in the roof (§1.6b row 13): the room's box grown over the walls around it, to the roof
     outline across an exterior wall (its parapet) and to the centre line of an inner wall; ``(polygon,
-    parapet_wall_ids)``. A room that is not a rectangle keeps its polygon (the parapets still listed)."""
+    parapet_wall_ids)``. A room with only axis-parallel edges that is not a rectangle (real02's L-shaped terraces) moves
+    the vertices on its box sides the same way (a wall along an inner edge is not crossed); any other room keeps its
+    polygon (the parapets still listed)."""
     from shapely.geometry import LineString
     poly = Polygon(room["polygon"])
     b = list(poly.bounds)
     rect = abs(poly.area - (b[2] - b[0]) * (b[3] - b[1])) <= 0.01 * max(poly.area, 1e-9)
+    pts = [tuple(p) for p in room["polygon"]]
+    rectilinear = all(abs(p[0] - q[0]) <= 1e-6 or abs(p[1] - q[1]) <= 1e-6 for p, q in zip(pts, pts[1:] + pts[:1]))
     ob = None
     if outline:
         xs, ys = [p[0] for p in outline], [p[1] for p in outline]
@@ -337,10 +350,17 @@ def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> t
         (x0, y0), (x1, y1) = w["start"], w["end"]
         vertical = abs(x1 - x0) < abs(y1 - y0)
         c = (x0 + x1) / 2.0 if vertical else (y0 + y1) / 2.0
-        side = (0 if c < b[0] + 1e-9 or abs(c - b[0]) <= reach else 2) if vertical else \
-            (1 if c < b[1] + 1e-9 or abs(c - b[1]) <= reach else 3)
+        if rect:
+            side = (0 if c < b[0] + 1e-9 or abs(c - b[0]) <= reach else 2) if vertical else \
+                (1 if c < b[1] + 1e-9 or abs(c - b[1]) <= reach else 3)
+        else:
+            lo, hi = (0, 2) if vertical else (1, 3)
+            side = lo if abs(c - b[lo]) <= reach else hi if abs(c - b[hi]) <= reach else None
         if w.get("exterior"):
             parapets.append(w["id"])
+        if side is None:
+            continue                                     # a wall along an inner edge of the room: not crossed
+        if w.get("exterior"):
             if ob is not None:
                 grown[side] = ob[side]
             else:
@@ -348,7 +368,13 @@ def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> t
         else:
             grown[side] = c
     if not rect:
-        return [list(p) for p in room["polygon"]], parapets
+        if not rectilinear:
+            return [list(p) for p in room["polygon"]], parapets
+
+        def moved(v, lo, hi):
+            return grown[lo] if abs(v - b[lo]) <= 1e-6 else grown[hi] if abs(v - b[hi]) <= 1e-6 else v
+
+        return [[round(moved(x, 0, 2), 4) + 0.0, round(moved(y, 1, 3), 4) + 0.0] for x, y in pts], parapets
     x0, y0, x1, y1 = (round(v, 4) + 0.0 for v in grown)
     return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], parapets
 
@@ -439,6 +465,11 @@ def facade_block(sheets: dict, walls: list[dict], warn, levels: Optional[list[di
         if entry["side"] == "all":
             warn(f"facade: {entry['material']} ({entry['source']} in {entry.get('region')}) on an elevation without "
                  f"a side: not written")
+            continue
+        if entry["material"] == "hatched":
+            # An unlabelled hatch names no material: listed (unverified), not a face.
+            warn(f"facade: an unlabelled hatch on the {entry['side']} side ({entry.get('region')}, z "
+                 f"{entry.get('z_range')}) names no material: not written (unverified)")
             continue
         faces.append({"side": entry["side"], "wall_id": None, "level_id": _level_of_band(entry.get("z_range"), levels),
                       "z_range": entry.get("z_range"), "material": entry["material"], "colour": entry.get("colour"),
