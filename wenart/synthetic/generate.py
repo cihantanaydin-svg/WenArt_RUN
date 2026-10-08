@@ -36,6 +36,12 @@ must reproduce it (§1.3 fields: block-name furniture, the virtual separator of
 the open kitchen, the assumed level). The titled variant goes to
 ``tests/fixtures/synthetic-06-titled/`` (``--fixtures``; default only when
 ``--out`` is the repository's ``projects`` folder).
+
+synthetic-07 (``SheetProject``, docs/milestone10.md §3.4) is written by ``generate_sheet_project``: one CAD sheet
+``sheet.dxf`` (R2000, centimetres), its DWG copy ``source/sheet.dwg`` (LibreDWG ``dxf2dwg``, sha256 pinned in
+``projects.DWG_SHA256_07``; without ``dxf2dwg`` the DWG is not written and the generator says so), the brief and the four
+truth files (``building.json``, ``sheets_truth.json``, ``heights_truth.json``, ``exterior_truth.json``), all computed
+from the layout of ``wenart.synthetic.sheet`` (see ``sheet_truth``).
 """
 from __future__ import annotations
 
@@ -62,6 +68,10 @@ from wenart.synthetic.model import Level, PageRecord
 from wenart.synthetic.pdf_writer import PAGE_H, write_pdf
 from wenart.synthetic.projects import CadProject, DxfDoc, PdfDoc, Project, RasterDoc, all_projects
 from wenart.synthetic.raster import SCAN_DPI, make_photo, make_scan, preview_from_dxf, preview_from_image, preview_from_pdf
+from wenart.synthetic import sheet as sheet_layout
+from wenart.synthetic import sheet_truth
+from wenart.synthetic.sheet import SheetProject
+from wenart.synthetic.sheet_writer import write_sheet_dxf
 
 CREATED_UTC = "2026-10-01T00:00:00Z"
 PIPELINE_COMMIT = "synthetic-generator"
@@ -616,6 +626,55 @@ def generate_titled_fixture(project: CadProject, fixtures_root: Path) -> dict:
 
 
 # --------------------------------------------------------------------------
+# synthetic-07: one CAD sheet with every drawing kind (docs/milestone10.md §3.4)
+# --------------------------------------------------------------------------
+
+SHEET_PREVIEW = "{name}_sheet_p1.jpg"
+
+
+def _write_json(data: dict, path: Path) -> None:
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
+def write_sheet_dwg(project: SheetProject, project_dir: Path, dwg_sha256: Optional[str]) -> Optional[str]:
+    """The DWG copy of the sheet by ``dxf2dwg`` (R2000). Returns a note when it was not written (no LibreDWG)."""
+    if dwg_tool.find_tool("dxf2dwg") is None:
+        return f"{project.name}: {sheet_layout.FILE_DWG} not written (LibreDWG dxf2dwg not found; scripts/cloud-setup.sh)"
+    dwg_path = dwg_tool.dxf_to_dwg(project_dir / sheet_layout.FILE_DXF, project_dir / sheet_layout.FILE_DWG)
+    sha = _sha256(dwg_path)
+    if dwg_sha256 is not None and sha != dwg_sha256:
+        version = dwg_tool.libredwg_version(dwg_tool.find_tool("dxf2dwg"))
+        raise ValueError(f"{project.name}: {sheet_layout.FILE_DWG} has sha256 {sha}, expected {dwg_sha256} (LibreDWG "
+                         f"{version}); a changed sheet needs DWG_SHA256_07 updated in wenart/synthetic/projects.py, "
+                         "another LibreDWG build needs the pinned 0.14 d9468ae")
+    return None
+
+
+def generate_sheet_project(project: SheetProject, out_root: Path, results_dir: Optional[Path] = None) -> dict:
+    """synthetic-07: the sheet (DXF + DWG copy), the brief, the four truth files and the preview. Returns the building
+    truth."""
+    from wenart.synthetic.projects import DWG_SHA256_07
+
+    project_dir = Path(out_root) / project.name
+    (project_dir / "truth").mkdir(parents=True, exist_ok=True)
+    record = write_sheet_dxf(project, project_dir / sheet_layout.FILE_DXF)
+    note = write_sheet_dwg(project, project_dir, DWG_SHA256_07)
+    if note:
+        print(note, file=sys.stderr)
+    (project_dir / "brief.yaml").write_text(yaml.safe_dump(project.brief, allow_unicode=True, sort_keys=False),
+                                            encoding="utf-8")
+    building = sheet_truth.build_building_truth(project, record, CREATED_UTC, PIPELINE_COMMIT)
+    B.save(building, project_dir / "truth" / "building.json")
+    _write_json(sheet_truth.build_sheets_truth(project, record, CREATED_UTC), project_dir / "truth" / "sheets_truth.json")
+    _write_json(sheet_truth.build_heights_truth(project, record), project_dir / "truth" / "heights_truth.json")
+    _write_json(sheet_truth.build_exterior_truth(project, record), project_dir / "truth" / "exterior_truth.json")
+    if results_dir is not None:
+        preview_from_dxf(project_dir / sheet_layout.FILE_DXF, Path(results_dir) / SHEET_PREVIEW.format(name=project.name),
+                         window=sheet_layout.FRAME)
+    return building
+
+
+# --------------------------------------------------------------------------
 # Orchestration
 # --------------------------------------------------------------------------
 
@@ -654,6 +713,8 @@ def generate_project(project, out_root: Path, results_dir: Optional[Path] = None
     ``fixtures_root`` also receives the titled variant."""
     if isinstance(project, CadProject):
         return generate_cad_project(project, out_root, results_dir, fixtures_root)
+    if isinstance(project, SheetProject):
+        return generate_sheet_project(project, out_root, results_dir)
     project_dir = Path(out_root) / project.name
     project_dir.mkdir(parents=True, exist_ok=True)
     (project_dir / "truth").mkdir(exist_ok=True)

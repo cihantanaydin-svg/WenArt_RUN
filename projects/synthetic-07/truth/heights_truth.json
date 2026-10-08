@@ -1,0 +1,164 @@
+{
+ "schema_version": "1.0",
+ "kind": "heights_truth",
+ "project": "synthetic-07",
+ "section_regions": [
+  "r6"
+ ],
+ "cut_axis": "y",
+ "cut_at": 3.0,
+ "flipped": false,
+ "cut_line_entity": "LINE:1FB",
+ "datum": {
+  "value": 0.0,
+  "printed": "±0.00",
+  "entity": "TEXT:248"
+ },
+ "levels": [
+  {
+   "level_id": "L-1",
+   "floor_z": -3.0,
+   "ceiling_height": 2.8,
+   "floor_to_floor": 3.0,
+   "level_mark": -3.0,
+   "level_mark_text": "-3.00",
+   "level_mark_target_z": -3.0,
+   "entities": {
+    "floor_slab": "LWPOLYLINE:231",
+    "slab_above": "LWPOLYLINE:232",
+    "mark": "LWPOLYLINE:243",
+    "mark_text": "TEXT:245",
+    "mark_line": "LINE:244"
+   }
+  },
+  {
+   "level_id": "L0",
+   "floor_z": 0.0,
+   "ceiling_height": 2.8,
+   "floor_to_floor": 3.0,
+   "level_mark": 0.0,
+   "level_mark_text": "±0.00",
+   "level_mark_target_z": 0.0,
+   "entities": {
+    "floor_slab": "LWPOLYLINE:232",
+    "slab_above": "LWPOLYLINE:233",
+    "mark": "LWPOLYLINE:246",
+    "mark_text": "TEXT:248",
+    "mark_line": "LINE:247"
+   }
+  },
+  {
+   "level_id": "L1",
+   "floor_z": 3.0,
+   "ceiling_height": 3.80083,
+   "floor_to_floor": null,
+   "level_mark": 3.0,
+   "level_mark_text": "+3.00",
+   "level_mark_target_z": 3.0,
+   "entities": {
+    "floor_slab": "LWPOLYLINE:233",
+    "slab_above": null,
+    "mark": "LWPOLYLINE:249",
+    "mark_text": "TEXT:24B",
+    "mark_line": "LINE:24A"
+   }
+  }
+ ],
+ "alternative_levels": {
+  "L-1b": "copies L-1 (floor_z -3.0, ceiling 2.8, floor_to_floor 3.0)"
+ },
+ "slabs": [
+  {
+   "between": [
+    null,
+    "L-1"
+   ],
+   "thickness": 0.2,
+   "z_top": -3.0,
+   "entity": "LWPOLYLINE:231"
+  },
+  {
+   "between": [
+    "L-1",
+    "L0"
+   ],
+   "thickness": 0.2,
+   "z_top": 0.0,
+   "entity": "LWPOLYLINE:232"
+  },
+  {
+   "between": [
+    "L0",
+    "L1"
+   ],
+   "thickness": 0.2,
+   "z_top": 3.0,
+   "entity": "LWPOLYLINE:233"
+  }
+ ],
+ "ground": [
+  {
+   "side": "south",
+   "z": 0.0,
+   "entities": [
+    "LINE:240",
+    "LINE:24D"
+   ]
+  },
+  {
+   "side": "north",
+   "z": 0.0,
+   "entities": [
+    "LINE:241"
+   ]
+  },
+  {
+   "side": "east",
+   "z": 0.0,
+   "entities": [
+    "LINE:25E"
+   ]
+  }
+ ],
+ "roof": {
+  "eaves_z": 3.95509,
+  "ridge_z": 7.106024,
+  "eaves_underside_z": 3.649896,
+  "ridge_underside_z": 6.80083,
+  "pitches_deg": [
+   35.0
+  ],
+  "knee_wall": 1.0,
+  "overhang": 0.5,
+  "thickness": 0.25,
+  "vertical_thickness": 0.305194,
+  "profile": [
+   [
+    -0.5,
+    3.95509
+   ],
+   [
+    4.0,
+    7.106024
+   ],
+   [
+    8.5,
+    3.95509
+   ]
+  ],
+  "definitions": {
+   "eaves_z / ridge_z": "top surface of the roof at the outline edge / at the ridge (building z)",
+   "knee_wall": "attic floor to the roof UNDERSIDE at the outer wall face (the outer face line)",
+   "thickness": "perpendicular to the slope; the vertical gap of the drawn band is thickness / cos(pitch)",
+   "overhang": "roof outline beyond the outer wall face, measured in the section"
+  },
+  "entities": {
+   "roof": "LWPOLYLINE:242",
+   "knee": [
+    "LINE:238",
+    "LINE:23E"
+   ]
+  }
+ },
+ "attic_ceiling_note": "no flat ceiling part is drawn: the attic ceiling_height is the roof underside at the ridge above the attic floor"
+}

@@ -1,14 +1,18 @@
 """CPU tests for the synthetic project generator (docs/milestone2.md §1, docs/milestone6.md §3, docs/milestone7.md
-§5.2).
+§5.2, docs/milestone10.md §3.4).
 
 The generator runs once into a temp folder (module fixture). Tests then check
 files, schema validity, DXF content via ezdxf, PDF content via pdfplumber,
 raster sizes and ink under the truth boxes, determinism, that the
 committed projects/ folder matches a fresh run, the projects' counts,
-the non-rectangular outline builder, the copied style photo, and synthetic-06
-(the CAD project delivered as a DWG, its truth and the titled fixture).
+the non-rectangular outline builder, the copied style photo, synthetic-06
+(the CAD project delivered as a DWG, its truth and the titled fixture) and
+synthetic-07 (one CAD sheet with every drawing kind: the truth files are checked
+against the drawing itself, read back with ezdxf, never against the layout code).
 """
 import json
+import math
+import re
 import shutil
 import subprocess
 from collections import Counter
@@ -33,12 +37,13 @@ from wenart.synthetic.generate import generate_project, generate_titled_fixture,
 from wenart.synthetic.model import LevelBuilder, outer_wall_lines, wall_union
 from wenart.synthetic.projects import (DWG_SHA256_06, INCH, OUTLINE_05, STYLE_PHOTO_05, Project, all_projects,
                                        feet_inches, plan_06, project_06)
+from wenart.synthetic.sheet import project_07
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMITTED = ROOT / "projects"
 # The Level-based projects (Milestones 2 and 6); synthetic-06 is drawn the CAD way and has tests of its own.
 NAMES = ["synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05"]
-ALL_NAMES = NAMES + ["synthetic-06"]
+ALL_NAMES = NAMES + ["synthetic-06", "synthetic-07"]
 HAS_DXF2DWG = dwg_tool.find_tool("dxf2dwg") is not None
 TITLED_06 = ROOT / "tests" / "fixtures" / "synthetic-06-titled"
 
@@ -52,6 +57,10 @@ EXPECTED_FILES = {
     # The DWG is written by LibreDWG's dxf2dwg; where it is not built the generator skips it (and says so).
     "synthetic-06": (["synthetic-06.dwg"] if HAS_DXF2DWG else []) + ["source/synthetic-06.dxf", "brief.yaml",
                                                                       "truth/building.json", "truth/pages.json"],
+    # One CAD sheet; its DWG copy is not a project document (source/), written where dxf2dwg exists.
+    "synthetic-07": (["source/sheet.dwg"] if HAS_DXF2DWG else []) + [
+        "sheet.dxf", "brief.yaml", "truth/building.json", "truth/sheets_truth.json", "truth/heights_truth.json",
+        "truth/exterior_truth.json"],
 }
 # Preview JPEGs per project: one per visible page (results/synthetic/<project>_<file stem>_p<page>.jpg).
 EXPECTED_PREVIEWS = {
@@ -61,6 +70,7 @@ EXPECTED_PREVIEWS = {
     "synthetic-04": ["3_kat_plani_p1", "3_kat_plani_pdf_p1"],
     "synthetic-05": ["zemin_kat_p1", "zemin_kat_mobilya_p1"],
     "synthetic-06": ["synthetic-06_p1"],
+    "synthetic-07": ["sheet_p1"],
 }
 
 
@@ -85,7 +95,7 @@ def pages(generated, name):
 # Files, schema, determinism
 # --------------------------------------------------------------------------
 
-def test_all_projects_lists_six():
+def test_all_projects_lists_seven():
     assert [p.name for p in all_projects()] == ALL_NAMES
 
 
@@ -353,7 +363,7 @@ def test_cli_runs(tmp_path):
 
 @pytest.mark.skipif(not COMMITTED.exists(), reason="projects/ not present")
 def test_committed_previews_are_current(generated):
-    """results/synthetic holds exactly one preview per visible page of the six projects."""
+    """results/synthetic holds exactly one preview per visible page of the seven projects."""
     committed = sorted(p.stem for p in (ROOT / "results" / "synthetic").glob("*.jpg"))
     assert committed == sorted(p.stem for p in generated[1].glob("*.jpg"))
 
@@ -946,3 +956,698 @@ def test_synthetic_06_titled_fixture(generated, tmp_path):
         assert same(fresh[key]) == project[key], key
     texts = [e.dxf.text for e in recover.readfile(str(TITLED_06 / f"{name}.dxf"))[0].modelspace().query("TEXT")]
     assert "GROUND FLOOR PLAN" in texts
+
+
+# --------------------------------------------------------------------------
+# synthetic-07: one CAD sheet with every drawing kind (docs/milestone10.md §3.4)
+# --------------------------------------------------------------------------
+# The truth files are checked against the DXF as ezdxf reads it back (never against the layout code): boxes by an
+# independent clustering, heights and positions by reading the drawn lines and applying the truth's own transforms.
+
+P7 = "synthetic-07"
+WALL_WORD = re.compile("WALL|DUVAR|MUR|PARED", re.IGNORECASE)
+TOL = 1e-6
+
+
+@pytest.fixture(scope="module")
+def sheet(generated):
+    """The written sheet (``recover.readfile`` decodes the \\U+XXXX escapes of the R2000 file) and the four truth files."""
+    folder = generated[0] / P7
+    doc, auditor = recover.readfile(str(folder / "sheet.dxf"))
+
+    def load(name):
+        return json.loads((folder / "truth" / name).read_text(encoding="utf-8"))
+
+    return {"doc": doc, "auditor": auditor, "msp": doc.modelspace(), "folder": folder, "sheets": load("sheets_truth.json"),
+            "heights": load("heights_truth.json"), "exterior": load("exterior_truth.json"),
+            "building": B.load(folder / "truth" / "building.json")}
+
+
+def _regions(sheet):
+    return sheet["sheets"]["regions"]
+
+
+def _region(sheet, **match):
+    hits = [r for r in _regions(sheet) if all(r.get(k) == v for k, v in match.items())]
+    assert len(hits) == 1, (match, len(hits))
+    return hits[0]
+
+
+def _entity(sheet, entity_string):
+    kind, handle = entity_string.split(":")
+    entity = sheet["doc"].entitydb.get(handle)
+    assert entity is not None and entity.dxftype() == kind, entity_string
+    return entity
+
+
+def _box_of(entity):
+    from ezdxf import bbox
+
+    ext = bbox.extents([entity])
+    return [ext.extmin.x, ext.extmin.y, ext.extmax.x, ext.extmax.y]
+
+
+def _box_distance(a, b):
+    return math.hypot(max(a[0] - b[2], b[0] - a[2], 0.0), max(a[1] - b[3], b[1] - a[3], 0.0))
+
+
+def _within(box, outer, tol=1e-3):
+    return outer[0] - tol <= box[0] and outer[1] - tol <= box[1] and box[2] <= outer[2] + tol and box[3] <= outer[3] + tol
+
+
+def _in_region(sheet, region, dxftype=None, layer=None):
+    """Geometry entities of one layer / type whose box lies inside the region's box."""
+    out = []
+    for e in sheet["msp"]:
+        if (dxftype and e.dxftype() != dxftype) or (layer and e.dxf.layer != layer) or e.dxftype() in ("TEXT", "MTEXT"):
+            continue
+        if _within(_box_of(e), region["box"]):
+            out.append(e)
+    return out
+
+
+def _apply(region, point):
+    a, b, c, d, e, f = region["transform_to_building"]
+    return (a * point[0] + b * point[1] + c, d * point[0] + e * point[1] + f)
+
+
+def _rect_of(entity):
+    pts = [(x, y) for x, y in entity.get_points("xy")]
+    assert entity.closed and len(pts) == 4, entity
+    return [min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)]
+
+
+def test_synthetic_07_sheet_is_one_cad_drawing_in_centimetres(sheet):
+    doc, msp = sheet["doc"], sheet["msp"]
+    assert not sheet["auditor"].has_errors and doc.dxfversion == "AC1015"
+    assert doc.header["$INSUNITS"] == 5 and doc.header["$MEASUREMENT"] == 1
+    assert all(not WALL_WORD.search(layer.dxf.name) for layer in doc.layers)         # no layer says "wall"
+    # Walls: open two-point face lines on one layer, never a closed polygon or a hatch.
+    faces = msp.query('LWPOLYLINE[layer=="AR_w_sld"]')
+    assert len(faces) > 60 and all(len(f) == 2 and not f.closed for f in faces)
+    assert {f.dxftype() for f in msp if f.dxf.layer == "AR_w_sld"} == {"LWPOLYLINE"}
+    # Columns: closed 0.25 m squares on a structural layer, six per plan.
+    columns = msp.query('LWPOLYLINE[layer=="S-BETON"]')
+    assert len(columns) == 24
+    for column in columns:
+        x0, y0, x1, y1 = _rect_of(column)
+        assert (x1 - x0, y1 - y0) == (25.0, 25.0)
+    # Doors and windows are INSERTs of blocks; a swing door's block holds a leaf and an arc, the double door two arcs, the
+    # sliding door a leaf rectangle and no arc.
+    door_blocks = {e.dxf.name for e in msp.query('INSERT[layer=="A_Kapi"]')}
+    assert door_blocks == {"KAPI_80", "KAPI_90", "KAPI_SURME_90", "KAPI_CIFT_140"}
+    assert {e.dxf.name for e in msp.query('INSERT[layer=="A_Pencere"]')} == {"PENCERE_60", "PENCERE_120"}
+    arcs = {name: len(doc.blocks.get(name).query("ARC")) for name in door_blocks}
+    assert arcs == {"KAPI_80": 1, "KAPI_90": 1, "KAPI_SURME_90": 0, "KAPI_CIFT_140": 2}
+    assert len(doc.blocks.get("KAPI_SURME_90").query("LWPOLYLINE")) == 1
+    assert {e.dxf.name for e in msp.query('INSERT[layer=="A_Mobilya"]')} == {
+        "KANEPE_3LU", "BUZDOLABI", "TEZGAH", "EVIYE", "OCAK", "YATAK_CIFT", "KLOZET", "LAVABO", "DUS", "MERDIVEN"}
+    # Room labels: MTEXT with the name and the area line, the height also inline; titles and the title block.
+    labels = sorted(e.text for e in msp.query("MTEXT") if "M2" in e.text)
+    assert "\\H20;SALON\\P43.5M2" in labels and "\\H20;SALON + AÇIK MUTFAK\\P57.2M2" in labels and len(labels) == 11
+    texts = {e.dxf.text for e in msp.query("TEXT")} | {e.plain_text() for e in msp.query("MTEXT")}
+    assert not any("\\U+" in t for t in texts)
+    for needed in ("BODRUM KAT PLANI", "BODRUM KAT PLANI (AÇIK MUTFAK)", "ZEMİN KAT PLANI", "ÇATI KAT PLANI", "A-A KESİTİ",
+                   "GÜNEY GÖRÜNÜŞÜ", "DOĞU GÖRÜNÜŞÜ", "VAZİYET PLANI", "LEJANT", "PROJE", "ÇİZEN", "ÖLÇEK 1/100", "TARİH",
+                   "PAFTA", "-3.00", "±0.00", "+3.00", "N", "OTOPARK", "BAHÇE", "YOL", "SIVA", "TAŞ KAPLAMA", "KİREMİT"):
+        assert needed in texts, needed
+    # Frame, hatch and the stray line.
+    frame = msp.query('LWPOLYLINE[layer=="A_Cerceve"]')
+    assert len(frame) == 1 and _rect_of(frame[0]) == [0.0, 0.0, 11000.0, 5600.0]
+    assert len(msp.query("HATCH")) == 2 and all(h.dxf.pattern_name == "ANSI31" for h in msp.query("HATCH"))
+    stray = [e for e in msp.query("LINE") if e.dxf.layer == "0"]
+    assert len(stray) == 1 and stray[0].dxf.start.x < -50000
+
+
+@pytest.fixture(scope="module")
+def sheet_boxes(sheet):
+    """Boxes of the non-text entities of the sheet, the frame left out (what the spec's split clusters)."""
+    return [_box_of(e) for e in sheet["msp"] if e.dxftype() not in ("TEXT", "MTEXT") and e.dxf.layer != "A_Cerceve"]
+
+
+@pytest.mark.parametrize("fraction", [0.005, 0.01, 0.015, 0.02, 0.03])
+def test_synthetic_07_regions_equal_an_independent_clustering(sheet, sheet_boxes, fraction):
+    """The spec's split (docs/milestone10.md §3.1.1): boxes of the non-text entities, the frame left out, clustered with
+    a gap of 1.5 % of the frame's diagonal, give exactly the truth's regions (and one stray) - and so does every gap of the
+    range the spec tested, 0.5 to 3 %."""
+    document = sheet["sheets"]["documents"][0]["sheets"][0]
+    frame = document["frames"][0]["box"]
+    gap = fraction * math.hypot(frame[2] - frame[0], frame[3] - frame[1])
+    if fraction == 0.015:
+        assert gap == pytest.approx(document["gap_units"], abs=1e-3)
+    parent = list(range(len(sheet_boxes)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for i in range(len(sheet_boxes)):
+        for j in range(i + 1, len(sheet_boxes)):
+            if _box_distance(sheet_boxes[i], sheet_boxes[j]) <= gap:
+                parent[find(i)] = find(j)
+    clusters: dict = {}
+    for i, box in enumerate(sheet_boxes):
+        clusters.setdefault(find(i), []).append(box)
+    found = sorted(([min(b[0] for b in m), min(b[1] for b in m), max(b[2] for b in m), max(b[3] for b in m), len(m)]
+                    for m in clusters.values()), key=lambda c: (-c[3], c[0]))
+    stray = sheet["sheets"]["stray"]
+    assert len(stray) == 1 and found[0][:4] == pytest.approx(stray[0]["box"]) and found[0][4] == 1
+    truth = [r["box"] + [r["geometry_entities"]] for r in _regions(sheet)]
+    assert len(found) == 1 + len(truth)
+    assert [v for c in found[1:] for v in c[:4]] == pytest.approx([v for t in truth for v in t[:4]], abs=1e-3)
+    assert [c[4] for c in found[1:]] == [t[4] for t in truth]
+    # Far from everything: the stray is a stray (docs/milestone10.md §1.6b row 5).
+    assert stray[0]["distance_m"] > 1000 and stray[0]["entity"].startswith("LINE:")
+    assert all(_within(r["box"], frame) for r in _regions(sheet))
+
+
+def test_synthetic_07_texts_join_their_region_and_titles_sit_below_it(sheet):
+    regions = _regions(sheet)
+    counts: Counter = Counter()
+    for e in sheet["msp"].query("TEXT MTEXT"):
+        at = [e.dxf.insert.x, e.dxf.insert.y] * 2
+        dist = sorted((_box_distance(at, r["box"]), r["id"]) for r in regions)
+        assert dist[1][0] - dist[0][0] >= 100.0 or dist[0][0] == 0.0, (e.dxf.handle, dist[:2])
+        counts[dist[0][1]] += 1
+    assert {r["id"]: r["text_entities"] for r in regions} == {r["id"]: counts.get(r["id"], 0) for r in regions}
+    for r in regions:
+        if r["title"] is None:
+            assert r["class"] == "title_block"
+            continue
+        entity = _entity(sheet, r["title"]["entity"])
+        text = entity.dxf.text if entity.dxftype() == "TEXT" else entity.plain_text()
+        assert text == r["title"]["text"]
+        x0, y0, x1, y1 = r["title"]["box"]
+        height = r["box"][3] - r["box"][1]
+        assert y1 <= r["box"][1] and r["box"][1] - y1 <= 0.3 * height            # below, within 0.3 x the region height
+        assert abs(x0 - r["box"][0]) < 1e-6
+
+
+def test_synthetic_07_region_truth_fields(sheet):
+    regions = _regions(sheet)
+    assert [r["id"] for r in regions] == [f"r{i}" for i in range(1, 11)]                 # reading order, no ties
+    tops = [r["box"][3] for r in regions]
+    assert tops == sorted(tops, reverse=True) and all(a - b > 1.0 for a, b in zip(tops, tops[1:]))
+    assert [(r["class"], r["use"]) for r in regions] == [
+        ("floor_plan", "read"), ("alternative_floor_plan", "read"), ("floor_plan", "read"), ("floor_plan", "read"),
+        ("site_plan", "exterior"), ("section", "heights"), ("elevation", "exterior"), ("elevation", "exterior"),
+        ("legend", "ignored"), ("title_block", "ignored")]
+    assert [r["title"]["text"] if r["title"] else None for r in regions] == [
+        "BODRUM KAT PLANI", "BODRUM KAT PLANI (AÇIK MUTFAK)", "ZEMİN KAT PLANI", "ÇATI KAT PLANI", "VAZİYET PLANI",
+        "A-A KESİTİ", "GÜNEY GÖRÜNÜŞÜ", "DOĞU GÖRÜNÜŞÜ", "LEJANT", None]
+    plans = {r["id"]: r for r in regions if r["level"]}
+    assert {rid: (r["level"]["id"], r["level"]["order"], r["level"]["kind"], r["variant"], r["variant_slug"],
+                 r["variant_group"]) for rid, r in plans.items()} == {
+        "r1": ("L-1", -1, "basement", "base", "base", "vg_L-1"),
+        "r2": ("L-1b", -1, "basement", "Açık mutfak", "acik-mutfak", "vg_L-1"),
+        "r3": ("L0", 0, "floor", "base", "base", None), "r4": ("L1", 1, "attic", "base", "base", None)}
+    assert plans["r2"]["variant_gloss"] == "open kitchen"
+    assert [(lv["id"], lv["base_region"], [a["region"] for a in lv["alternatives"]]) for lv in sheet["sheets"]["levels"]] == [
+        ("L-1", "r1", ["r2"]), ("L0", "r3", []), ("L1", "r4", [])]
+    assert [(v["id"], v["levels"], v["regions"]) for v in sheet["sheets"]["variants"]] == [
+        ("base", ["L-1", "L0", "L1"], ["r1", "r3", "r4"]), ("l-1b-acik-mutfak", ["L-1b", "L0", "L1"], ["r2", "r3", "r4"])]
+    units = sheet["sheets"]["documents"][0]["units"]
+    assert (units["insunits"], units["metres_per_unit"], units["conflict"]) == (5, 0.01, None)
+    assert sheet["sheets"]["conflicts"] == []
+    # One entity per title: no title serves two regions.
+    entities = [r["title"]["entity"] for r in regions if r["title"]]
+    assert len(entities) == len(set(entities)) == 9
+
+
+def test_synthetic_07_registration_and_transforms_match_the_drawing(sheet):
+    """Registration: p_ref = p * 0.01 + shift_m puts every plan on the ground-floor drawing, and transform_to_building
+    maps the outer faces of every plan onto the one building frame (origin = min corner of the ground plan's outer faces)."""
+    corners = {}
+    for r in _regions(sheet):
+        if not r["level"]:
+            continue
+        pts = [p for f in _in_region(sheet, r, "LWPOLYLINE", "AR_w_sld") for p in f.get_points("xy")]
+        lo, hi = (min(p[0] for p in pts), min(p[1] for p in pts)), (max(p[0] for p in pts), max(p[1] for p in pts))
+        corners[r["id"]] = lo
+        assert _apply(r, lo) == pytest.approx((0.0, 0.0), abs=TOL) and _apply(r, hi) == pytest.approx((10.0, 8.0), abs=TOL)
+        reg = r["registration"]
+        assert reg["rotation_deg"] == 0.0 and reg["residual_m"] == 0.0 and reg["stairs_aligned"] is True
+        assert reg["reference"] == (None if r["id"] == "r3" else "r3")
+    ref = (corners["r3"][0] * 0.01, corners["r3"][1] * 0.01)
+    for rid, lo in corners.items():
+        shift = _region(sheet, id=rid)["registration"]["shift_m"]
+        assert (lo[0] * 0.01 + shift[0], lo[1] * 0.01 + shift[1]) == pytest.approx(ref, abs=TOL)
+    assert _region(sheet, id="r1")["registration"]["shift_m"] == pytest.approx([34.0, -1.6])
+    assert _region(sheet, id="r3")["registration"]["shift_m"] == [0.0, 0.0]
+    # The site plan registers through its building outline.
+    site = _region(sheet, id="r5")
+    outline = [e for e in sheet["msp"].query("LWPOLYLINE") if e.dxf.layer == "V_Bina"][0]
+    x0, y0, x1, y1 = _rect_of(outline)
+    assert _apply(site, (x0, y0)) == pytest.approx((0.0, 0.0), abs=TOL)
+    assert _apply(site, (x1, y1)) == pytest.approx((10.0, 8.0), abs=TOL)
+    shift = site["registration"]["shift_m"]
+    assert (x0 * 0.01 + shift[0], y0 * 0.01 + shift[1]) == pytest.approx(ref, abs=TOL)
+    # Section: x -> building y (not flipped), y -> z. Elevations: x from the facade's left end seen from outside.
+    section = _region(sheet, id="r6")
+    bands = [e for e in _in_region(sheet, section, "LWPOLYLINE", "K_Kesit") if e.closed]
+    spans = sorted(_apply(section, _rect_of(e)[:2]) + _apply(section, _rect_of(e)[2:]) for e in bands)
+    assert spans == [pytest.approx(s) for s in ((0.0, -3.2, 8.0, -3.0), (0.0, -0.2, 8.0, 0.0), (0.0, 2.8, 8.0, 3.0))]
+    assert sheet["heights"]["cut_axis"] == "y" and sheet["heights"]["flipped"] is False and sheet["heights"]["cut_at"] == 3.0
+    south = _region(sheet, id="r7")
+    wall = [e for e in _in_region(sheet, south, "LWPOLYLINE", "G_Cephe") if e.closed][0]
+    box = _rect_of(wall)
+    assert _apply(south, box[:2]) == pytest.approx((0.0, 0.0), abs=TOL) and _apply(south, box[2:])[0] == pytest.approx(10.0)
+    east = _region(sheet, id="r8")
+    gable = [e for e in _in_region(sheet, east, "LWPOLYLINE", "G_Cephe") if e.closed][0]
+    pts = [_apply(east, p) for p in gable.get_points("xy")]
+    assert min(p[0] for p in pts) == pytest.approx(0.0) and max(p[0] for p in pts) == pytest.approx(8.0)
+    # The cut line A-A on the ground plan is the one the section's cut_at names: a line along Y at x = cut_at (building).
+    ground = _region(sheet, id="r3")
+    cut = sheet["msp"].query('LINE[layer=="A_Kesit_Cizgisi"]')
+    lines = [(_apply(ground, (e.dxf.start.x, e.dxf.start.y)), _apply(ground, (e.dxf.end.x, e.dxf.end.y))) for e in cut]
+    assert any(a[0] == pytest.approx(3.0) and b[0] == pytest.approx(3.0) and abs(a[1] - b[1]) > 9 for a, b in lines)
+
+
+def _section_numbers(sheet):
+    """What the heights truth names, read from the drawn section (region r6) with the region's own transform."""
+    section = _region(sheet, id="r6")
+    to_sz = lambda p: _apply(section, p)                                                # noqa: E731
+    bands = sorted((e for e in _in_region(sheet, section, "LWPOLYLINE", "K_Kesit") if e.closed), key=lambda e: _rect_of(e)[1])
+    slabs = [(to_sz(_rect_of(e)[2:])[1], to_sz(_rect_of(e)[2:])[1] - to_sz(_rect_of(e)[:2])[1]) for e in bands]
+    marks = []
+    for tri in _in_region(sheet, section, "LWPOLYLINE", "K_Kot"):
+        apex = min(tri.get_points("xy"), key=lambda p: p[1])
+        near = [t for t in sheet["msp"].query("TEXT") if abs(t.dxf.insert.y - apex[1]) < 20 and 0 < apex[0] - t.dxf.insert.x < 200]
+        assert len(near) == 1                                                           # one printed mark per triangle
+        marks.append((round(to_sz(apex)[1], 6), near[0].dxf.text))
+    roof = [e for e in _in_region(sheet, section, "LWPOLYLINE", "K_Cati") if e.closed][0]
+    pts = [to_sz(p) for p in roof.get_points("xy")]
+    assert len(pts) == 6                      # top line (3 points), tip drop, underside back (2 points)
+    pitch = math.degrees(math.atan2(pts[1][1] - pts[0][1], pts[1][0] - pts[0][0]))
+    vertical_gap = pts[1][1] - pts[4][1]
+    lines = [(to_sz((e.dxf.start.x, e.dxf.start.y)), to_sz((e.dxf.end.x, e.dxf.end.y)))
+             for e in _in_region(sheet, section, "LINE", "K_Kesit")]
+    vertical = [(a, b) for a, b in lines if abs(a[0] - b[0]) < 1e-9]
+    outer, far = min(a[0] for a, _ in vertical), max(a[0] for a, _ in vertical)           # the two outer wall faces
+    knee = [round(b[1] - a[1], 6) for a, b in vertical if min(abs(a[0] - outer), abs(a[0] - far)) < 1e-9 and abs(a[1] - 3.0) < 1e-9]
+    ground = [round(a[1], 6) for a, _ in ((to_sz((e.dxf.start.x, e.dxf.start.y)), 0) for e in _in_region(sheet, section, "LINE", "K_Zemin"))]
+    return {"slabs": [(round(t, 6), round(d, 6)) for t, d in slabs], "marks": sorted(marks), "pitch": pitch,
+            "eaves": pts[0][1], "ridge": pts[1][1], "ridge_under": pts[4][1], "eaves_under": pts[5][1],
+            "overhang": outer - pts[0][0], "thickness": vertical_gap * math.cos(math.radians(pitch)), "knee": sorted(knee),
+            "ground": ground, "profile": [list(p) for p in pts[:3]], "roof_entity": f"LWPOLYLINE:{roof.dxf.handle}"}
+
+
+def test_synthetic_07_heights_truth_equals_the_drawn_section(sheet):
+    h = sheet["heights"]
+    got = _section_numbers(sheet)
+    # Slab tops and thicknesses (three bands of 0.20 m); the printed mark equals the z its triangle points at.
+    assert got["slabs"] == [(-3.0, 0.2), (0.0, 0.2), (3.0, 0.2)]
+    assert [(t["z_top"], t["thickness"]) for t in h["slabs"]] == got["slabs"]
+    assert got["marks"] == [(-3.0, "-3.00"), (0.0, "±0.00"), (3.0, "+3.00")]
+    assert [(lv["level_id"], lv["level_mark"], lv["level_mark_target_z"], lv["level_mark_text"]) for lv in h["levels"]] == [
+        ("L-1", -3.0, -3.0, "-3.00"), ("L0", 0.0, 0.0, "±0.00"), ("L1", 3.0, 3.0, "+3.00")]
+    assert h["datum"]["value"] == 0.0 and h["datum"]["printed"] == "±0.00"
+    # Heights add up: floor to floor = difference of the slab tops, ceiling = the slab above's underside - the floor.
+    tops = [t["z_top"] for t in h["slabs"]]
+    levels = {lv["level_id"]: lv for lv in h["levels"]}
+    assert [levels[i]["floor_z"] for i in ("L-1", "L0", "L1")] == tops
+    assert [levels[i]["floor_to_floor"] for i in ("L-1", "L0", "L1")] == [tops[1] - tops[0], tops[2] - tops[1], None] == [3.0, 3.0, None]
+    assert [levels[i]["ceiling_height"] for i in ("L-1", "L0")] == [tops[1] - 0.2 - tops[0], tops[2] - 0.2 - tops[1]] == [2.8, 2.8]
+    roof = h["roof"]
+    assert levels["L1"]["ceiling_height"] == pytest.approx(roof["ridge_underside_z"] - 3.0, abs=1e-5)    # no flat part is drawn
+    assert got["ground"] == [0.0, 0.0] and [g["z"] for g in h["ground"]] == [0.0, 0.0, 0.0]
+    assert [g["side"] for g in h["ground"]] == ["south", "north", "east"]
+    # The roof: 35 degrees, eaves and ridge = the top line, 0.25 m thick perpendicular to the slope, 0.5 m overhang,
+    # knee wall 1.00 m (outer face from the attic floor to the roof underside).
+    assert got["pitch"] == pytest.approx(35.0, abs=1e-6) and roof["pitches_deg"] == [35.0]
+    assert got["eaves"] == pytest.approx(roof["eaves_z"], abs=1e-5) and got["ridge"] == pytest.approx(roof["ridge_z"], abs=1e-5)
+    assert got["ridge_under"] == pytest.approx(roof["ridge_underside_z"], abs=1e-5)
+    assert got["eaves_under"] == pytest.approx(roof["eaves_underside_z"], abs=1e-5)
+    assert got["thickness"] == pytest.approx(roof["thickness"], abs=1e-5) == pytest.approx(0.25)
+    assert got["overhang"] == pytest.approx(roof["overhang"]) == pytest.approx(0.5)
+    assert got["knee"] == [1.0, 1.0] and roof["knee_wall"] == 1.0
+    assert [v for p in roof["profile"] for v in p] == pytest.approx([v for p in got["profile"] for v in p], abs=1e-5)
+    assert roof["entities"]["roof"] == got["roof_entity"]
+    tan = math.tan(math.radians(35.0))
+    assert roof["eaves_underside_z"] == pytest.approx(3.0 + roof["knee_wall"] - roof["overhang"] * tan, abs=1e-5)
+    assert roof["ridge_z"] - roof["eaves_z"] == pytest.approx((4.0 + roof["overhang"]) * tan, abs=1e-5)   # ridge over the middle
+    # The same numbers are in the building truth.
+    levels_b = {lv["id"]: lv for lv in sheet["building"]["levels"]}
+    assert levels_b["L1"]["ceiling_height"] == levels["L1"]["ceiling_height"] and levels_b["L0"]["ceiling_height"] == 2.8
+    assert all(levels_b[i]["floor_to_floor"]["value"] == 3.0 for i in ("L-1", "L-1b", "L0")) and levels_b["L1"]["floor_to_floor"] is None
+    assert [levels_b[i]["elevation"] for i in ("L-1", "L-1b", "L0", "L1")] == [-3.0, -3.0, 0.0, 3.0]
+
+
+def _elevation_rects(sheet, region):
+    """(kind, centre x, width, z0, z1) of every window / door rectangle of an elevation, in metres (region transform)."""
+    out = []
+    for layer, kind in (("G_Pencere", "window"), ("G_Kapi", "door")):
+        for e in _in_region(sheet, region, "LWPOLYLINE", layer):
+            (x0, z0), (x1, z1) = _apply(region, _rect_of(e)[:2]), _apply(region, _rect_of(e)[2:])
+            out.append((kind, round((x0 + x1) / 2, 6), round(x1 - x0, 6), round(z0, 6), round(z1, 6)))
+    return sorted(out, key=lambda t: t[1])
+
+
+def _plan_openings_on(building, side):
+    """The openings on the outer wall of one facade (south: the wall at y 0.125, east: at x 9.875) and their position along
+    the facade seen from outside. A viewer outside the south facade looks north (up = +Z): east is on his right, so the
+    facade runs west to east (x); outside the east facade he looks west, north is on his right, so it runs south to north (y)."""
+    walls = {w["id"]: w for w in building["walls"]}
+    out = []
+    for o in building["openings"]:
+        w = walls[o["wall_id"]]
+        if side == "south" and w["exterior"] and w["start"][1] == w["end"][1] == 0.125:
+            out.append((o, o["center"][0]))
+        elif side == "east" and w["exterior"] and w["start"][0] == w["end"][0] == 9.875:
+            out.append((o, o["center"][1]))
+    return out
+
+
+def test_synthetic_07_elevation_openings_match_the_plan_openings(sheet):
+    building = sheet["building"]
+    elevation = {lv["id"]: lv["elevation"] for lv in building["levels"]}
+    seen = {(item["region"]): item for item in sheet["exterior"]["openings_seen"]}
+    for rid, side in (("r7", "south"), ("r8", "east")):
+        region = _region(sheet, id=rid)
+        drawn = _elevation_rects(sheet, region)
+        plan = _plan_openings_on(building, side)
+        above, below = [(o, x) for o, x in plan if o["height"] is not None], [(o, x) for o, x in plan if o["height"] is None]
+        # Every drawn rectangle is a plan opening of that facade at the same position, width, sill and head; none is missing.
+        expected = sorted((o["type"], round(x, 6), o["width"], round(elevation[o["level_id"]] + o["sill_height"], 6),
+                           round(elevation[o["level_id"]] + o["sill_height"] + o["height"], 6)) for o, x in above)
+        assert [d for d in sorted(drawn)] == expected
+        # What is not drawn stands below the ground line (the basement, plans only) and has no height in the truth.
+        assert below and {o["level_id"] for o, _ in below} == {"L-1", "L-1b"}
+        assert all(elevation[o["level_id"]] + 2.0 + 0.6 <= 0.0 for o, _ in below)
+        # The exterior truth lists the same rectangles, with the entities that draw them.
+        item = seen[rid]
+        assert item["side"] == side and item["windows"] == sum(d[0] == "window" for d in drawn) and item["doors"] == sum(d[0] == "door" for d in drawn)
+        assert [(p["kind"], p["x"], p["width"], p["sill"], p["head"]) for p in item["positions_m"]] == [
+            (d[0], d[1], d[2], d[3], d[4]) for d in drawn]
+        assert {p["opening_id"] for p in item["positions_m"]} == {o["id"] for o, _ in above}
+        for p in item["positions_m"]:
+            assert _entity(sheet, p["entity"]).dxf.layer == ("G_Kapi" if p["kind"] == "door" else "G_Pencere")
+    assert (seen["r7"]["view_bearing_deg"], seen["r8"]["view_bearing_deg"]) == (90.0, 180.0)      # looking north / west
+    assert [(d[0], d[1]) for d in _elevation_rects(sheet, _region(sheet, id="r7"))] == [("window", 1.5), ("door", 4.5), ("window", 8.0)]
+
+
+def test_synthetic_07_exterior_truth_equals_the_drawing(sheet):
+    ext, msp = sheet["exterior"], sheet["msp"]
+    attic, site, south = _region(sheet, id="r4"), _region(sheet, id="r5"), _region(sheet, id="r7")
+    # Roof: the dashed outline 0.5 m outside the outer faces and the ridge line on the attic plan.
+    outline = [e for e in _in_region(sheet, attic, "LWPOLYLINE", "A_Cati") if e.closed][0]
+    assert outline.dxf.linetype == "DASHED"
+    lo, hi = _apply(attic, _rect_of(outline)[:2]), _apply(attic, _rect_of(outline)[2:])
+    faces = [p for f in _in_region(sheet, attic, "LWPOLYLINE", "AR_w_sld") for p in f.get_points("xy")]
+    f0, f1 = _apply(attic, (min(p[0] for p in faces), min(p[1] for p in faces))), _apply(attic, (max(p[0] for p in faces), max(p[1] for p in faces)))
+    assert (f0[0] - lo[0], f0[1] - lo[1], hi[0] - f1[0], hi[1] - f1[1]) == pytest.approx((0.5,) * 4)
+    assert ext["roof"]["outline"] == [[lo[0], lo[1]], [hi[0], lo[1]], [hi[0], hi[1]], [lo[0], hi[1]]]
+    ridge = [e for e in _in_region(sheet, attic, "LINE", "A_Cati")][0]
+    a, b = _apply(attic, (ridge.dxf.start.x, ridge.dxf.start.y)), _apply(attic, (ridge.dxf.end.x, ridge.dxf.end.y))
+    assert [list(a), list(b)] == ext["roof"]["ridge_lines"][0] and a[1] == b[1] == 4.0 and ext["roof"]["break_line"] is None
+    assert ext["roof"]["type"] == "gable" and ext["roof"]["type_source"] == "section"
+    terrace = ext["roof"]["openings"][0]
+    assert terrace["room_id"] == "r_L1_teras" and [w for w in terrace["parapet_wall_ids"]] == ["w_L1_001", "w_L1_002"]
+    assert Polygon(terrace["polygon"]).bounds == pytest.approx((6.1, -0.5, 10.5, 4.0))
+    # Facade: the stone plinth is a hatch on the south elevation (z 0 .. 0.6, the whole width), labelled; SIVA and KİREMİT
+    # are labels.
+    hatch = [h for h in msp.query("HATCH") if _within(_box_of(h), south["box"])][0]
+    path = [_apply(south, p) for p in hatch.paths[0].vertices]
+    assert (min(p[0] for p in path), max(p[0] for p in path), min(p[1] for p in path), max(p[1] for p in path)) == pytest.approx(
+        (0.0, 10.0, 0.0, 0.6))
+    stone, render_s, render_e = ext["facade"]
+    assert (stone["side"], stone["material"], stone["source"], stone["z_range"]) == ("south", "stone_cladding", "hatch", [0.0, 0.6])
+    assert (render_s["material"], render_s["source"], render_e["side"]) == ("render", "label", "east")
+    for item, text in ((stone, "TAŞ KAPLAMA"), (render_s, "SIVA"), (render_e, "SIVA")):
+        assert text in {_entity(sheet, e).dxf.text for e in item["entities"] if e.startswith("TEXT")}
+    assert _entity(sheet, ext["roof"]["covering_entity"]).dxf.text == "KİREMİT" and ext["roof"]["covering"] == "clay_tiles"
+    # Site plan: plot boundary, plot walls, building outline, parking, trees, road, north arrow, labels (building metres).
+    s = ext["site"]
+    to_b = lambda e: [list(_apply(site, p)) for p in e.get_points("xy")]                  # noqa: E731
+    plot = [e for e in _in_region(sheet, site, "LWPOLYLINE", "V_Parsel")][0]
+    assert [v for p in to_b(plot) for v in p] == pytest.approx([v for p in s["plot"] for v in p])
+    outer, inner = sorted((_rect_of(e) for e in _in_region(sheet, site, "LWPOLYLINE", "V_Sinir_Duv")), key=lambda r: r[0])
+    assert (inner[0] - outer[0], inner[1] - outer[1], outer[2] - inner[2], outer[3] - inner[3]) == pytest.approx((20.0,) * 4)
+    cx0, cy0, cx1, cy1 = [(a + b) / 2 for a, b in zip(outer, inner)]                          # centre lines of the 0.20 m walls
+    corners = [_apply(site, p) for p in ((cx0, cy0), (cx1, cy0), (cx1, cy1), (cx0, cy1))]
+    assert [v for w in s["plot_walls"] for v in w["start"] + w["end"]] == pytest.approx(
+        [v for i in range(4) for v in list(corners[i]) + list(corners[(i + 1) % 4])])
+    assert all(w["thickness"] == 0.2 for w in s["plot_walls"]) and len(s["plot_walls"]) == 4
+    parking = [e for e in _in_region(sheet, site, "LWPOLYLINE", "V_Yol") if len(e) == 4 and _rect_of(e)[2] - _rect_of(e)[0] < 1000]
+    assert len(parking) == 1 and [v for p in to_b(parking[0]) for v in p] == pytest.approx([v for p in s["parking"][0]["polygon"] for v in p])
+    trees = sorted(tuple(_apply(site, (e.dxf.insert.x, e.dxf.insert.y))) for e in _in_region(sheet, site, "INSERT", "V_Agac"))
+    assert [v for t in trees for v in t] == pytest.approx([v for t in sorted(t["center"] for t in s["trees"]) for v in t])
+    assert all(e.dxf.name == "AGAC" for e in _in_region(sheet, site, "INSERT", "V_Agac"))
+    north = [e for e in _in_region(sheet, site, "INSERT", "V_Kuzey")][0]
+    assert north.dxf.name == "KUZEY" and north.dxf.rotation == 0.0 and ext["north"]["value"] == 0.0     # building +Y is north
+    arrow = [e for e in sheet["doc"].blocks.get("KUZEY") if e.dxftype() == "LWPOLYLINE"][0]
+    assert min(arrow.get_points("xy"), key=lambda p: p[1]) != max(arrow.get_points("xy"), key=lambda p: p[1])
+    assert max(arrow.get_points("xy"), key=lambda p: p[1]) == (0.0, 70.0)                          # the tip points up the sheet
+    assert {t["text"]: tuple(_apply(site, (_entity(sheet, t["entity"]).dxf.insert.x, _entity(sheet, t["entity"]).dxf.insert.y)))
+            for t in s["labels"]} == {t["text"]: pytest.approx(tuple(t["at"])) for t in s["labels"]}
+    assert _entity(sheet, ext["north"]["letter_entity"]).dxf.text == "N" and _entity(sheet, s["road"]["entity"]).dxf.layer == "V_Yol"
+    assert ext["brief_exterior_words"] == yaml.safe_load((sheet["folder"] / "brief.yaml").read_text(encoding="utf-8"))["exterior"]
+
+
+def test_synthetic_07_building_truth_is_the_usual_plan_truth(sheet):
+    b, msp = sheet["building"], sheet["msp"]
+    assert [lv["id"] for lv in b["levels"]] == ["L-1", "L-1b", "L0", "L1"]
+    assert [(lv["kind"], lv["variant"], lv["variant_slug"], lv["variant_group"], lv["base_level_id"], lv["region_id"])
+            for lv in b["levels"]] == [
+        ("basement", "base", "base", "vg_L-1", None, "r1"), ("basement", "Açık mutfak", "acik-mutfak", "vg_L-1", "L-1", "r2"),
+        ("floor", "base", "base", None, None, "r3"), ("attic", "base", "base", None, None, "r4")]
+    assert [(v["id"], v["rooms_changed"], v["exterior_changed"]) for v in b["variants"]] == [
+        ("base", [], False), ("l-1b-acik-mutfak", ["r_L-1b_salon_acik_mutfak"], False)]
+    assert [(len(b[k])) for k in ("walls", "openings", "rooms", "furniture")] == [24, 34, 11, 18]
+    assert b["conflicts"] == [] and b["unverified"] == [] and b["status"] == "ok"
+    # Pages: one record per region read, used for the heights or the exterior, with the region's box.
+    pages = b["documents"][0]["pages"]
+    assert [p["region_id"] for p in pages] == ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"]
+    for page in pages:
+        region = _region(sheet, id=page["region_id"])
+        assert page["region_box"] == region["box"] and page["region_class"] == region["class"]
+        assert page["transform_to_building"] == region["transform_to_building"] and page["scale"]["metres_per_unit"] == 0.01
+    # Doors: one sliding door per basement plan, one double door (the entrance), the rest swing; windows have no operation.
+    doors = [o for o in b["openings"] if o["type"] == "door"]
+    assert Counter((o["level_id"], o["operation"]) for o in doors if o["operation"] != "swing") == Counter(
+        {("L-1", "sliding"): 1, ("L-1b", "sliding"): 1, ("L0", "double"): 1})
+    assert len(doors) == 12 and all(o["operation_source"] == "geometry" for o in doors)
+    assert all("operation" not in o for o in b["openings"] if o["type"] == "window")
+    by_block = {o["id"]: o["evidence"][0]["block"] for o in b["openings"]}
+    assert {by_block[o["id"]] for o in doors if o["operation"] == "sliding"} == {"KAPI_SURME_90"}
+    assert {by_block[o["id"]] for o in doors if o["operation"] == "double"} == {"KAPI_CIFT_140"}
+    # Furniture only where the brief says: one bed (the bedroom), a 3-seat sofa (the basement salon), toilet, washbasin and
+    # shower (the bathroom), the stair on every level (same footprint), the counter run.
+    types = Counter((f["room_id"], f["type"]) for f in b["furniture"])
+    assert types[("r_L0_yatak_odasi", "bed_double")] == 1 and sum(f["type"] == "bed_double" for f in b["furniture"]) == 1
+    assert types[("r_L-1_salon", "sofa")] == 1 and types[("r_L-1b_salon_acik_mutfak", "sofa")] == 1
+    assert {t for (room, t) in types if room == "r_L0_banyo"} == {"toilet", "washbasin", "shower"}
+    assert {t for (room, t) in types if room == "r_L-1_mutfak"} == {"kitchen_counter", "fridge", "sink_kitchen", "stove"}
+    stairs = [f for f in b["furniture"] if f["type"] == "stair"]
+    assert len(stairs) == 4 and len({json.dumps(f["footprint"]) for f in stairs}) == 1 and all(f["front_deg"] is None for f in stairs)
+    assert {f["room_id"] for f in stairs} == {f"r_{lv}_hol" for lv in ("L-1", "L-1b", "L0", "L1")}
+    # Rooms: labels, area lines that match the polygons, the open-kitchen room, same_as.
+    rooms = {r["id"]: r for r in b["rooms"]}
+    assert rooms["r_L-1_salon"]["label_raw"] == "SALON\n43.5M2" and rooms["r_L1_teras"]["room_type"] == "balcony"
+    assert not rooms["r_L1_oyun_odasi"]["has_documented_furniture"] and not rooms["r_L1_teras"]["has_documented_furniture"]
+    assert len(rooms["r_L-1b_salon_acik_mutfak"]["polygon"]) == 6 and rooms["r_L-1b_hol"]["same_as"] == "r_L-1_hol"
+    for r in rooms.values():
+        assert abs(r["area_label"] - r["area_computed"]) / r["area_label"] <= 0.01
+        assert Polygon(r["polygon"]).is_valid and all(0.25 - 1e-9 <= x <= 9.75 + 1e-9 and 0.25 - 1e-9 <= y <= 7.75 + 1e-9
+                                                      for x, y in r["polygon"])
+    for level in ("L-1", "L-1b", "L0", "L1"):
+        polys = [Polygon(r["polygon"]) for r in rooms.values() if r["level_id"] == level]
+        assert all(p.intersection(q).area < 1e-9 for i, p in enumerate(polys) for q in polys[i + 1:])
+    # Every wall: the same outline on every level (outer faces 0..10 x 0..8, building frame), openings on their walls.
+    walls = {w["id"]: w for w in b["walls"]}
+    for level in ("L-1", "L-1b", "L0", "L1"):
+        outer = [w for w in b["walls"] if w["level_id"] == level and w["exterior"]]
+        assert [(w["start"], w["end"], w["thickness"]) for w in outer] == [
+            ([0.0, 0.125], [10.0, 0.125], 0.25), ([9.875, 0.0], [9.875, 8.0], 0.25), ([0.0, 7.875], [10.0, 7.875], 0.25),
+            ([0.125, 0.0], [0.125, 8.0], 0.25)]
+    for o in b["openings"]:
+        w = walls[o["wall_id"]]
+        assert G.point_segment_distance(o["center"], w["start"], w["end"]) < 1e-6 and w["level_id"] == o["level_id"]
+        if o["type"] == "door":
+            assert rooms[o["swing_side"]]["level_id"] == o["level_id"]
+    # Evidence points at the drawn entities: wall face lines (each line serves exactly one wall), INSERTs, labels.
+    face_lines = {f"LWPOLYLINE:{f.dxf.handle}" for f in msp.query('LWPOLYLINE[layer=="AR_w_sld"]')}
+    used = [e["entity"] for w in b["walls"] for e in w["evidence"]]
+    assert len(used) == len(set(used)) and set(used) == face_lines
+    for o in b["openings"]:
+        e = _entity(sheet, o["evidence"][0]["entity"])
+        assert e.dxftype() == "INSERT" and e.dxf.name == o["evidence"][0]["block"]
+        region = _region(sheet, id=next(lv["region_id"] for lv in b["levels"] if lv["id"] == o["level_id"]))
+        assert _apply(region, (e.dxf.insert.x, e.dxf.insert.y)) == pytest.approx(tuple(o["center"]), abs=TOL)
+    for f in b["furniture"]:
+        e = _entity(sheet, f["evidence"][0]["entity"])
+        region = _region(sheet, id=next(lv["region_id"] for lv in b["levels"] if lv["id"] == f["level_id"]))
+        assert e.dxf.name == f["type_raw"] and G.angle_difference_deg(e.dxf.rotation, f["footprint"]["rotation_deg"]) < 1e-6
+        assert _apply(region, (e.dxf.insert.x, e.dxf.insert.y)) == pytest.approx(tuple(f["footprint"]["center"]), abs=TOL)
+        if f["type"] != "stair":
+            assert f["front_deg"] == G.front_direction_deg(f["footprint"]["rotation_deg"])
+    for r in b["rooms"]:
+        assert _entity(sheet, r["evidence"][0]["entity"]).text == "\\H20;" + r["label_raw"].replace("\n", "\\P")
+
+
+def test_synthetic_07_wall_faces_stop_at_every_opening(sheet):
+    """The face lines are cut at each opening: the gap is the opening's clear width, the faces go on right behind it."""
+    b = sheet["building"]
+    walls = {w["id"]: w for w in b["walls"]}
+    for level in b["levels"]:
+        region = _region(sheet, id=level["region_id"])
+        segments = [[_apply(region, p) for p in f.get_points("xy")] for f in _in_region(sheet, region, "LWPOLYLINE", "AR_w_sld")]
+
+        def covered(p):
+            return any(G.point_segment_distance(p, a, c) < 1e-6 for a, c in segments)
+
+        for o in (o for o in b["openings"] if o["level_id"] == level["id"]):
+            w = walls[o["wall_id"]]
+            length = G.distance(w["start"], w["end"])
+            u = ((w["end"][0] - w["start"][0]) / length, (w["end"][1] - w["start"][1]) / length)
+            n = (-u[1], u[0])
+            for side in (-1, 1):
+                off = side * w["thickness"] / 2
+                base = (o["center"][0] + n[0] * off, o["center"][1] + n[1] * off)
+                inside = [(base[0] + u[0] * k * (o["width"] / 2 - 0.01), base[1] + u[1] * k * (o["width"] / 2 - 0.01)) for k in (-1, 0, 1)]
+                behind = [(base[0] + u[0] * k * (o["width"] / 2 + 0.01), base[1] + u[1] * k * (o["width"] / 2 + 0.01)) for k in (-1, 1)]
+                assert not any(covered(p) for p in inside), (o["id"], side)
+                assert all(covered(p) for p in behind), (o["id"], side)
+
+
+@pytest.mark.skipif(not HAS_DXF2DWG, reason="LibreDWG dxf2dwg not built here (scripts/cloud-setup.sh)")
+def test_synthetic_07_dwg_copy(generated, sheet, tmp_path):
+    import hashlib
+
+    from wenart.synthetic.projects import DWG_SHA256_07
+
+    dwg = generated[0] / P7 / "source" / "sheet.dwg"
+    assert hashlib.sha256(dwg.read_bytes()).hexdigest() == DWG_SHA256_07
+    # The DWG reads like its DXF: the same entities, layers, blocks and texts (only the MTEXT height field is lost, it is
+    # also written inline); the project folder holds one document, the DXF.
+    conv = dwg_tool.convert(dwg, tmp_path)
+    assert conv.acadver == "AC1015" and conv.audit_errors == 0
+    from_dwg, _ = recover.readfile(str(conv.dxf_path))
+
+    def key(e):
+        t, layer = e.dxftype(), e.dxf.layer
+        if t == "LINE":
+            return (t, layer, tuple(round(v, 3) for v in e.dxf.start), tuple(round(v, 3) for v in e.dxf.end))
+        if t == "LWPOLYLINE":
+            return (t, layer, bool(e.closed), tuple((round(x, 3), round(y, 3)) for x, y in e.get_points("xy")))
+        if t == "INSERT":
+            return (t, layer, e.dxf.name, tuple(round(v, 3) for v in e.dxf.insert), round(e.dxf.rotation, 3))
+        if t == "TEXT":
+            return (t, layer, e.dxf.text, tuple(round(v, 3) for v in e.dxf.insert), e.dxf.height)
+        if t == "MTEXT":
+            return (t, layer, e.text, tuple(round(v, 3) for v in e.dxf.insert))
+        return (t, layer)
+
+    assert Counter(key(e) for e in from_dwg.modelspace()) == Counter(key(e) for e in sheet["msp"])
+    assert from_dwg.header["$INSUNITS"] == 5
+    assert sorted(b.name for b in from_dwg.blocks if not b.name.startswith(("*", "_"))) == sorted(
+        b.name for b in sheet["doc"].blocks if not b.name.startswith(("*", "_")))
+    assert [p.name for p in (generated[0] / P7).iterdir() if p.suffix in (".dxf", ".dwg")] == ["sheet.dxf"]
+
+
+def test_synthetic_07_brief(sheet):
+    from wenart import brief as BR
+
+    raw = yaml.safe_load((sheet["folder"] / "brief.yaml").read_text(encoding="utf-8"))
+    assert raw["style"] and raw["exterior"] == {"facade": "white render", "roof": "clay tiles",
+                                               "window_frame": "anthracite aluminium"}
+    merged = BR.merge_brief(raw)
+    assert merged["warnings"] == [] and BR.value(merged, "exterior.facade") == "white render"
+    assert BR.value(merged, "exterior.window_frame") == "anthracite aluminium" and "exterior.paving" in merged["assumed"]
+    assert sheet["building"]["project"]["brief"] == raw
+
+
+def test_synthetic_07_reading_order_refuses_a_tie():
+    project = project_07()
+    assert list(project.region_ids().values()) == [f"r{i}" for i in range(1, 11)]
+    other = project.drawing("basement_alt")
+    other.origin = (other.origin[0], project.drawing("basement").origin[1])
+    with pytest.raises(ValueError, match="same box top"):
+        project.reading_order()
+
+
+def test_synthetic_07_sheets_truth_follows_the_sheets_schema(sheet):
+    """The truth uses the field names of sheets.json: documents, regions, stray, levels and variants validate against the
+    frozen schema's definitions (heights and exterior are plain-number files of their own)."""
+    import jsonschema
+
+    schema = json.loads((ROOT / "wenart" / "schema" / "sheets.schema.json").read_text(encoding="utf-8"))
+    truth = sheet["sheets"]
+    for key, definition in (("documents", "document"), ("regions", "region"), ("stray", "stray"), ("levels", "level"),
+                            ("variants", "variant"), ("conflicts", "conflict")):
+        validator = jsonschema.Draft202012Validator({"$ref": f"#/$defs/{definition}", "$defs": schema["$defs"]})
+        for item in truth[key]:
+            errors = [f"{'/'.join(map(str, e.absolute_path))}: {e.message}" for e in validator.iter_errors(item)]
+            assert errors == [], (key, errors)
+    # The heights and exterior files use the schema's keys too.
+    heights = set(schema["$defs"]["heights"]["properties"])
+    assert {"cut_axis", "cut_at", "flipped", "datum", "levels", "slabs", "ground", "roof"} <= heights
+    assert set(sheet["heights"]) >= {"cut_axis", "cut_at", "flipped", "datum", "levels", "slabs", "ground", "roof"}
+    assert {"floor_z", "ceiling_height", "floor_to_floor", "level_mark", "level_mark_target_z"} <= set(sheet["heights"]["levels"][0])
+    assert set(sheet["heights"]["roof"]) >= {"eaves_z", "ridge_z", "pitches_deg", "knee_wall", "overhang", "thickness", "profile"}
+    assert {"roof", "facade", "openings_seen", "site", "north"} <= set(sheet["exterior"])
+    assert {"type", "type_source", "outline", "break_line", "ridge_lines", "covering"} <= set(sheet["exterior"]["roof"])
+
+
+def test_synthetic_07_wall_faces_are_long_enough_to_pair_up(sheet):
+    """Every wall face piece is at least 0.40 m long (the face-line wall rule of docs/milestone10.md §3.1.11 pairs faces with
+    >= 0.4 m overlap): no pier between two openings, or between an opening and a corner, is shorter."""
+    shortest = []
+    for level in sheet["building"]["levels"]:
+        region = _region(sheet, id=level["region_id"])
+        for f in _in_region(sheet, region, "LWPOLYLINE", "AR_w_sld"):
+            a, b = [_apply(region, p) for p in f.get_points("xy")]
+            shortest.append((G.distance(a, b), level["id"], a, b))
+    assert min(shortest)[0] >= 0.40 - 1e-9, min(shortest)
+
+
+def test_synthetic_07_walls_and_rooms_match_the_face_lines(sheet):
+    """Walls and rooms of building.json against the drawn face lines (read back, in building metres): every face line of a wall
+    lies on that wall's side faces (centre line +- thickness / 2, inside its extent), and every room's polygon edge runs along
+    a face line or across an opening's gap."""
+    b = sheet["building"]
+    rooms_by_level: dict = {}
+    for r in b["rooms"]:
+        rooms_by_level.setdefault(r["level_id"], []).append(r)
+    for level in b["levels"]:
+        region = _region(sheet, id=level["region_id"])
+        lines = {f"LWPOLYLINE:{f.dxf.handle}": [_apply(region, p) for p in f.get_points("xy")]
+                 for f in _in_region(sheet, region, "LWPOLYLINE", "AR_w_sld")}
+        for w in (w for w in b["walls"] if w["level_id"] == level["id"]):
+            length = G.distance(w["start"], w["end"])
+            ux, uy = (w["end"][0] - w["start"][0]) / length, (w["end"][1] - w["start"][1]) / length
+            for ev in w["evidence"]:
+                a, c = lines[ev["entity"]]
+                for p in (a, c):
+                    along = (p[0] - w["start"][0]) * ux + (p[1] - w["start"][1]) * uy
+                    across = (p[0] - w["start"][0]) * -uy + (p[1] - w["start"][1]) * ux
+                    assert abs(abs(across) - w["thickness"] / 2) < 1e-6, (w["id"], ev["entity"])
+                    assert -w["thickness"] / 2 - 1e-6 <= along <= length + w["thickness"] / 2 + 1e-6
+        openings = [o for o in b["openings"] if o["level_id"] == level["id"]]
+        walls = {w["id"]: w for w in b["walls"]}
+
+        def in_gap(p):
+            for o in openings:
+                w = walls[o["wall_id"]]
+                length = G.distance(w["start"], w["end"])
+                ux, uy = (w["end"][0] - w["start"][0]) / length, (w["end"][1] - w["start"][1]) / length
+                along = (p[0] - o["center"][0]) * ux + (p[1] - o["center"][1]) * uy
+                across = (p[0] - o["center"][0]) * -uy + (p[1] - o["center"][1]) * ux
+                if abs(along) <= o["width"] / 2 + 1e-6 and abs(across) <= w["thickness"] / 2 + 1e-6:
+                    return True
+            return False
+
+        for room in rooms_by_level[level["id"]]:
+            poly = room["polygon"]
+            for i, a in enumerate(poly):
+                c = poly[(i + 1) % len(poly)]
+                n = max(2, int(G.distance(a, c) / 0.05))
+                for k in range(n + 1):
+                    p = (a[0] + (c[0] - a[0]) * k / n, a[1] + (c[1] - a[1]) * k / n)
+                    assert any(G.point_segment_distance(p, s0, s1) < 1e-6 for s0, s1 in lines.values()) or in_gap(p), (room["id"], p)
+        for f in (f for f in b["furniture"] if f["level_id"] == level["id"]):
+            corners = G.rotated_rectangle(f["footprint"]["center"], f["footprint"]["size"], f["footprint"]["rotation_deg"])
+            room = next(r for r in rooms_by_level[level["id"]] if r["id"] == f["room_id"])
+            assert all(Polygon(room["polygon"]).buffer(1e-6).contains(Point(c)) for c in corners), f["id"]

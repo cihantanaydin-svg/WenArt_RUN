@@ -1,0 +1,409 @@
+{
+ "schema_version": "1.0",
+ "kind": "exterior_truth",
+ "project": "synthetic-07",
+ "roof": {
+  "type": "gable",
+  "type_source": "section",
+  "also_seen_in": [
+   "elevation",
+   "plan_roof_lines"
+  ],
+  "outline": [
+   [
+    -0.5,
+    -0.5
+   ],
+   [
+    10.5,
+    -0.5
+   ],
+   [
+    10.5,
+    8.5
+   ],
+   [
+    -0.5,
+    8.5
+   ]
+  ],
+  "outline_entity": "LWPOLYLINE:22E",
+  "ridge_lines": [
+   [
+    [
+     -0.5,
+     4.0
+    ],
+    [
+     10.5,
+     4.0
+    ]
+   ]
+  ],
+  "ridge_entity": "LINE:22F",
+  "break_line": null,
+  "covering": "clay_tiles",
+  "covering_source": "label",
+  "covering_label": "KİREMİT",
+  "covering_entity": "TEXT:25B",
+  "openings": [
+   {
+    "kind": "terrace",
+    "room_id": "r_L1_teras",
+    "polygon": [
+     [
+      6.1,
+      -0.5
+     ],
+     [
+      10.5,
+      -0.5
+     ],
+     [
+      10.5,
+      4.0
+     ],
+     [
+      6.1,
+      4.0
+     ]
+    ],
+    "parapet_wall_ids": [
+     "w_L1_001",
+     "w_L1_002"
+    ],
+    "note": "shown on the attic plan; the elevations draw the roof envelope"
+   }
+  ]
+ },
+ "facade": [
+  {
+   "region": "r7",
+   "side": "south",
+   "z_range": [
+    0.0,
+    0.6
+   ],
+   "material": "stone_cladding",
+   "source": "hatch",
+   "label": "TAŞ KAPLAMA",
+   "entities": [
+    "HATCH:252",
+    "TEXT:259"
+   ]
+  },
+  {
+   "region": "r7",
+   "side": "south",
+   "z_range": [
+    0.6,
+    3.649896
+   ],
+   "material": "render",
+   "source": "label",
+   "label": "SIVA",
+   "entities": [
+    "TEXT:257"
+   ]
+  },
+  {
+   "region": "r8",
+   "side": "east",
+   "z_range": [
+    0.0,
+    6.80083
+   ],
+   "material": "render",
+   "source": "label",
+   "label": "SIVA",
+   "entities": [
+    "TEXT:263"
+   ]
+  }
+ ],
+ "openings_seen": [
+  {
+   "region": "r7",
+   "side": "south",
+   "view_bearing_deg": 90.0,
+   "windows": 2,
+   "doors": 1,
+   "positions_m": [
+    {
+     "kind": "window",
+     "opening_id": "win_L0_001",
+     "level_id": "L0",
+     "x": 1.5,
+     "x_left": 0.9,
+     "width": 1.2,
+     "sill": 0.9,
+     "head": 2.1,
+     "entity": "LWPOLYLINE:255"
+    },
+    {
+     "kind": "door",
+     "opening_id": "d_L0_004",
+     "level_id": "L0",
+     "x": 4.5,
+     "x_left": 4.05,
+     "width": 0.9,
+     "sill": 0.0,
+     "head": 2.1,
+     "entity": "LWPOLYLINE:253"
+    },
+    {
+     "kind": "window",
+     "opening_id": "win_L0_002",
+     "level_id": "L0",
+     "x": 8.0,
+     "x_left": 7.7,
+     "width": 0.6,
+     "sill": 1.5,
+     "head": 2.1,
+     "entity": "LWPOLYLINE:256"
+    }
+   ],
+   "not_seen": "basement openings stand below the ground line (z 0.00) and are not drawn"
+  },
+  {
+   "region": "r8",
+   "side": "east",
+   "view_bearing_deg": 180.0,
+   "windows": 2,
+   "doors": 0,
+   "positions_m": [
+    {
+     "kind": "window",
+     "opening_id": "win_L0_006",
+     "level_id": "L0",
+     "x": 3.0,
+     "x_left": 2.7,
+     "width": 0.6,
+     "sill": 1.5,
+     "head": 2.1,
+     "entity": "LWPOLYLINE:261"
+    },
+    {
+     "kind": "window",
+     "opening_id": "win_L1_002",
+     "level_id": "L1",
+     "x": 6.0,
+     "x_left": 5.7,
+     "width": 0.6,
+     "sill": 3.6,
+     "head": 4.6,
+     "entity": "LWPOLYLINE:262"
+    }
+   ],
+   "not_seen": "basement openings stand below the ground line (z 0.00) and are not drawn"
+  }
+ ],
+ "site": {
+  "region": "r5",
+  "plot": [
+   [
+    -6.0,
+    -7.0
+   ],
+   [
+    18.0,
+    -7.0
+   ],
+   [
+    18.0,
+    13.0
+   ],
+   [
+    -6.0,
+    13.0
+   ]
+  ],
+  "plot_entity": "LWPOLYLINE:266",
+  "plot_walls": [
+   {
+    "start": [
+     -5.85,
+     -6.85
+    ],
+    "end": [
+     17.85,
+     -6.85
+    ],
+    "thickness": 0.2,
+    "kind": "plot"
+   },
+   {
+    "start": [
+     17.85,
+     -6.85
+    ],
+    "end": [
+     17.85,
+     12.85
+    ],
+    "thickness": 0.2,
+    "kind": "plot"
+   },
+   {
+    "start": [
+     17.85,
+     12.85
+    ],
+    "end": [
+     -5.85,
+     12.85
+    ],
+    "thickness": 0.2,
+    "kind": "plot"
+   },
+   {
+    "start": [
+     -5.85,
+     12.85
+    ],
+    "end": [
+     -5.85,
+     -6.85
+    ],
+    "thickness": 0.2,
+    "kind": "plot"
+   }
+  ],
+  "plot_wall_entities": [
+   "LWPOLYLINE:267",
+   "LWPOLYLINE:268"
+  ],
+  "building_outline": [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    10.0,
+    0.0
+   ],
+   [
+    10.0,
+    8.0
+   ],
+   [
+    0.0,
+    8.0
+   ]
+  ],
+  "building_entity": "LWPOLYLINE:269",
+  "parking": [
+   {
+    "polygon": [
+     [
+      11.0,
+      8.5
+     ],
+     [
+      16.0,
+      8.5
+     ],
+     [
+      16.0,
+      12.5
+     ],
+     [
+      11.0,
+      12.5
+     ]
+    ],
+    "label": "OTOPARK",
+    "entity": "LWPOLYLINE:26A"
+   }
+  ],
+  "trees": [
+   {
+    "center": [
+     -3.5,
+     -3.5
+    ],
+    "radius": 1.2,
+    "entity": "INSERT:26C"
+   },
+   {
+    "center": [
+     13.5,
+     -4.5
+    ],
+    "radius": 1.2,
+    "entity": "INSERT:26E"
+   },
+   {
+    "center": [
+     -3.0,
+     10.0
+    ],
+    "radius": 1.2,
+    "entity": "INSERT:270"
+   }
+  ],
+  "road": {
+   "polygon": [
+    [
+     -8.0,
+     13.5
+    ],
+    [
+     20.0,
+     13.5
+    ],
+    [
+     20.0,
+     17.5
+    ],
+    [
+     -8.0,
+     17.5
+    ]
+   ],
+   "label": "YOL",
+   "entity": "LWPOLYLINE:26B"
+  },
+  "labels": [
+   {
+    "text": "OTOPARK",
+    "at": [
+     12.3,
+     10.2
+    ],
+    "entity": "TEXT:275"
+   },
+   {
+    "text": "BAHÇE",
+    "at": [
+     1.5,
+     -4.0
+    ],
+    "entity": "TEXT:276"
+   },
+   {
+    "text": "YOL",
+    "at": [
+     6.5,
+     15.2
+    ],
+    "entity": "TEXT:277"
+   }
+  ],
+  "paving": [],
+  "grass": []
+ },
+ "north": {
+  "value": 0.0,
+  "note": "building +Y is north (the arrow points up the sheet, the plans are not rotated)",
+  "entity": "INSERT:272",
+  "letter_entity": "TEXT:274"
+ },
+ "balconies": [],
+ "chimneys": [],
+ "brief_exterior_words": {
+  "facade": "white render",
+  "roof": "clay tiles",
+  "window_frame": "anthracite aluminium"
+ }
+}
