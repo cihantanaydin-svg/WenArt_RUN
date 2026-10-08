@@ -17,7 +17,11 @@ Where the words come from (nothing is guessed; every fallback is listed in
   part is left out;
 - wall / floor words: the slugs of the rendered style profile, the wet-room
   slots for bathrooms, WCs and kitchens (as the scene builder does), through
-  ``MATERIAL_WORDS``;
+  ``MATERIAL_WORDS``; Milestone 10: the walls' ``colour`` (a phrase of
+  ``wenart.style.colours``, "warm greige walls": ``surface_words``) and, in a room
+  type the profile's ``wall_accent`` names, "one <colour> <material> accent
+  wall" (``accent_words``); a lamps-on mood (``vocabulary.LIGHTING[mood]
+  ["lamps_on"]``) says the light comes from the lamps;
 - mood: ``style_profile.lighting.mood`` through ``MOOD_WORDS``;
 - lens: the view's own camera ``lens_mm`` (Milestone 8: 18 or 16 mm for
   searched cameras, the brief's ``render.lens_mm`` when it sets one; the
@@ -196,12 +200,82 @@ def style_family(profile: dict) -> Optional[str]:
     return None
 
 
+def _slot_colour(profile: dict, slot: str) -> Optional[str]:
+    entry = (profile or {}).get(slot)
+    colour = entry.get("colour") if isinstance(entry, dict) else None
+    return colour if isinstance(colour, str) and colour.strip() else None
+
+
 def surfaces(profile: dict, room_type: Optional[str]) -> dict:
-    """``{"walls": slug, "floor": slug, "wet": bool}``: the wet-room slots for bathrooms, WCs and kitchens."""
+    """``{"walls": slug, "walls_colour": phrase | None, "floor": slug, "wet": bool}``: the wet-room slots for
+    bathrooms, WCs and kitchens; the colour is the one of the slot that gave the wall material."""
     wet = room_type in VOC.WET_ROOM_TYPES
     walls = _slot(profile, "wet_walls") if wet else None
     floor = _slot(profile, "wet_floor") if wet else None
-    return {"walls": walls or _slot(profile, "walls"), "floor": floor or _slot(profile, "floor"), "wet": wet}
+    wall_slot = "wet_walls" if walls else "walls"
+    return {"walls": walls or _slot(profile, "walls"), "walls_colour": _slot_colour(profile, wall_slot),
+            "floor": floor or _slot(profile, "floor"), "wet": wet}
+
+
+# Milestone 10 (docs/milestone10.md §1.4, §4.1): finishes whose look is the colour itself. Words of this module's own
+# (the style tables of ``MATERIAL_WORDS`` are another track's); a slug in ``MATERIAL_WORDS`` wins.
+COLOUR_SURFACE_WORDS: dict[str, str] = {
+    "paint": "painted",
+    "lime_plaster": "lime plaster",
+    "microcement": "microcement",
+    "venetian_plaster": "polished Venetian plaster",
+}
+LAMPS_TAIL = ("light from the lit lamps and the last daylight outside the windows, soft natural shadows, realistic "
+              "materials and textures, sharp focus")
+
+
+def colour_phrase(colour) -> Optional[str]:
+    """A style colour phrase as prompt words: its canonical form when ``wenart.style.colours`` knows it ("Sage
+    Green" -> "sage"), else the phrase as written, lower case (an unknown phrase is not guessed at)."""
+    if not isinstance(colour, str) or not colour.strip():
+        return None
+    try:
+        from wenart.style import colours as COL
+        canonical = COL.canonical_phrase(colour)
+    except (ImportError, AttributeError, TypeError, ValueError):
+        canonical = None
+    return str(canonical or colour).strip().lower().replace("_", " ")
+
+
+def surface_words(slug, colour, what: str, warnings: list, table: Optional[dict] = None) -> Optional[str]:
+    """Words of a wall finish with its colour in front: ``paint`` + "warm greige" -> "warm greige painted". The
+    material words come from ``table`` (default ``MATERIAL_WORDS``), then ``COLOUR_SURFACE_WORDS``; a slug in
+    neither is a warning and is used as plain words. A colour already inside the material words is not said
+    twice."""
+    if slug is None:
+        words = None
+    else:
+        table = MATERIAL_WORDS if table is None else table
+        words = table.get(slug) or COLOUR_SURFACE_WORDS.get(slug)
+        if words is None:
+            warnings.append(f"no prompt words for {what} {slug!r}; used the slug")
+            words = str(slug).replace("_", " ")
+    cw = colour_phrase(colour)
+    if cw and words and cw not in words.lower():
+        return f"{cw} {words}"
+    return words or cw
+
+
+def accent_words(profile: dict, room_type: Optional[str], warnings: list) -> Optional[str]:
+    """``one terracotta painted accent wall`` when the profile's ``wall_accent`` names this room type, else None."""
+    acc = (profile or {}).get("wall_accent")
+    if not isinstance(acc, dict) or not acc.get("material"):
+        return None
+    if room_type not in (acc.get("room_types") or ()):
+        return None
+    words = surface_words(acc["material"], acc.get("colour"), "accent wall material", warnings)
+    return f"one {words} accent wall" if words else None
+
+
+def lamps_on(mood) -> bool:
+    """True for a lighting mood whose lamps are on (``vocabulary.LIGHTING[mood]["lamps_on"]``, Milestone 10)."""
+    entry = (VOC.LIGHTING or {}).get(mood) if mood is not None else None
+    return bool(isinstance(entry, dict) and entry.get("lamps_on"))
 
 
 def furniture_types(expected: Optional[dict], limit: int = MAX_FURNITURE) -> list[str]:
@@ -238,8 +312,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
                  lens_mm: Optional[float] = None) -> dict:
     """The prompt of one view and the words it was made from; ``lens_mm``: the view camera's own lens.
 
-    Returns ``{"prompt", "room_type", "room_words", "family", "walls", "floor", "mood",
-    "furniture": [types], "lens_mm", "warnings": [...]}``.
+    Returns ``{"prompt", "room_type", "room_words", "family", "walls", "walls_colour", "accent", "floor",
+    "mood", "lamps_on", "furniture": [types], "lens_mm", "warnings": [...]}``.
     """
     warnings: list[str] = []
     profile = style_profile or {}
@@ -252,7 +326,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     if family is None:
         warnings.append("no style family word in the rendered profile; prompt says no style")
     surf = surfaces(profile, room_type)
-    wall_words = _words(MATERIAL_WORDS, surf["walls"], "wall material", warnings)
+    wall_words = surface_words(surf["walls"], surf["walls_colour"], "wall material", warnings)
+    accent = accent_words(profile, room_type, warnings)
     floor_words = _words(MATERIAL_WORDS, surf["floor"], "floor material", warnings)
     mood = ((profile.get("lighting") or {}).get("mood"))
     mood_words = _words(MOOD_WORDS, mood, "light mood", warnings)
@@ -268,6 +343,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     parts = []
     if wall_words:
         parts.append(f"{wall_words} walls")
+    if accent:
+        parts.append(accent)
     if floor_words:
         parts.append(f"{floor_words} floor")
     parts += furniture_words
@@ -278,9 +355,11 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     lens = lens_words(lens_mm)
     if lens is None:
         warnings.append("no camera lens for the view; prompt names no lens")
-    sentences.append(f"{mood_words} {PROMPT_TAIL}" + (f", {lens}." if lens else "."))
+    tail = LAMPS_TAIL if lamps_on(mood) else PROMPT_TAIL
+    sentences.append(f"{mood_words} {tail}" + (f", {lens}." if lens else "."))
     return {"prompt": " ".join(sentences), "room_type": room_type, "room_words": room, "family": family,
-            "walls": surf["walls"], "floor": surf["floor"], "mood": mood, "furniture": furniture,
+            "walls": surf["walls"], "walls_colour": surf["walls_colour"], "accent": accent, "floor": surf["floor"],
+            "mood": mood, "lamps_on": lamps_on(mood), "furniture": furniture,
             "lens_mm": float(lens_mm) if lens else None, "warnings": warnings}
 
 

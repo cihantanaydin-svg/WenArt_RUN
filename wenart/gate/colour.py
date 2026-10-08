@@ -17,6 +17,15 @@ neither names it, the region is skipped as ``albedo_unknown`` (never guessed).
 Milestone 10 (docs/milestone10.md §3.3 items 4-5): an exterior view has no room, so the walls are the facade
 (``exterior_albedo``: the scene manifest's ``exterior_looks.facade``) and the ceiling region is skipped.
 
+Milestone 10 (docs/milestone10.md §4.1, the style profile of track C): the walls slot may carry a ``colour`` (a
+phrase of ``wenart.style.colours``, e.g. "warm greige") and the profile a ``wall_accent``. The wall record of
+``structure_albedo`` then holds the expected colour (``colour``, its linear RGB, CIELAB and chroma; the gate
+compares the polished walls with the Cycles walls, which show that colour, so the chroma of a coloured wall is
+a value to keep, not zero). A paint colour is a flat colour by construction (``COLOUR_FLAT``): such a wall is
+measured by ``neutral`` even when the vocabulary does not name the material. An accent wall built from a
+textured material makes the walls region ``texture`` in the rooms that have it (``accent``); a colour phrase
+nobody knows is listed (``colour_unknown``), never guessed.
+
 Conversions are numpy only (``lab_planes`` uses ``cv2.LUT``, imported
 inside); ``lab_to_srgb`` is the exact inverse used by the colour controls
 (``controls.py``). The gate runs ``lab_planes`` / ``colour_metrics_layout``
@@ -303,6 +312,60 @@ def _vocabulary_mode(slug: Optional[str]) -> Optional[str]:
     return entry.get("albedo_mode")
 
 
+#: Materials whose look is the paint colour itself (docs/milestone10.md §1.4): flat by construction.
+COLOUR_FLAT = ("paint", "lime_plaster", "microcement", "venetian_plaster")
+
+
+def expected_colour(phrase) -> Optional[dict]:
+    """``{"name", "linear_rgb", "lab", "chroma"}`` of a style colour phrase ("warm greige") through
+    ``wenart.style.colours.linear_rgb``; None for no phrase, a phrase the table does not know, or a colour module
+    that is not filled yet (the caller lists ``colour_unknown``)."""
+    if not phrase or not isinstance(phrase, str):
+        return None
+    try:
+        from wenart.style import colours as COL
+        rgb = [float(v) for v in COL.linear_rgb(phrase)]
+    except (ImportError, AttributeError, KeyError, ValueError, TypeError):
+        return None
+    lab = linear_to_lab(np.asarray(rgb, dtype=np.float64))
+    return {"name": phrase, "linear_rgb": [round(v, 5) for v in rgb], "lab": [round(float(v), 3) for v in lab],
+            "chroma": round(float(np.hypot(lab[1], lab[2])), 3)}
+
+
+def _mode_of(materials: dict, slug: Optional[str], name: Optional[str] = None,
+             colour: Optional[dict] = None) -> tuple[Optional[str], Optional[str]]:
+    """``(albedo_mode, source)`` of a slug: the scene manifest's material record, the vocabulary, else ``flat``
+    for a ``COLOUR_FLAT`` material that has a known colour."""
+    mode, source = _record_mode(materials, slug, name)
+    if mode is None:
+        mode = _vocabulary_mode(slug)
+        source = "vocabulary.MATERIALS" if mode else None
+    if mode is None and slug in COLOUR_FLAT and colour is not None:
+        mode, source = "flat", "gate.colour.COLOUR_FLAT"
+    return mode, source
+
+
+def _accent_record(scene: dict, profile: dict, room_id: Optional[str], materials: dict) -> Optional[dict]:
+    """The profile's accent wall and whether this room has it: a wall object of the scene built from the accent
+    material that is flagged ``accent`` or lists the room in ``room_ids``. None without an accent wall."""
+    acc = profile.get("wall_accent")
+    if not isinstance(acc, dict) or not acc.get("material"):
+        return None
+    slug = acc["material"]
+    colour = expected_colour(acc.get("colour"))
+    mode, source = _mode_of(materials, slug, None, colour)
+    in_room = False
+    for obj in scene.get("objects") or []:
+        if obj.get("kind") != "wall":
+            continue
+        built = str(obj.get("material") or "").split("__")[0]
+        if obj.get("accent") or (built == slug and room_id is not None and room_id in (obj.get("room_ids") or [])):
+            in_room = True
+            break
+    return {"material": slug, "colour": acc.get("colour"), "albedo_mode": mode, "source": source,
+            "in_room": in_room}
+
+
 def _record_mode(materials: dict, slug: Optional[str], name: Optional[str]) -> tuple[Optional[str], Optional[str]]:
     """``(albedo_mode, source)`` from the scene manifest's material records (by record name, then by slug)."""
     if name and isinstance(materials.get(name), dict) and materials[name].get("albedo_mode"):
@@ -377,7 +440,9 @@ def structure_albedo(scene_manifest: Optional[dict], room_id: Optional[str], ext
             ceiling_name = obj.get("material")
     out = {}
     slot = "wet_walls" if wet else "walls"
-    wall_slug = (profile.get(slot) or profile.get("walls") or {}).get("material")
+    wall_slot = profile.get(slot) or profile.get("walls") or {}
+    wall_slug = wall_slot.get("material")
+    wall_colour = expected_colour(wall_slot.get("colour"))
     ceiling_slug = None
     if ceiling_name:
         rec = materials.get(ceiling_name) or {}
@@ -387,9 +452,21 @@ def structure_albedo(scene_manifest: Optional[dict], room_id: Optional[str], ext
     for rid, slug, name, where in ((WALL_REGION, wall_slug, None, f"style_profile.{slot}"),
                                    (CEILING_REGION, ceiling_slug, ceiling_name,
                                     "ceiling object" if ceiling_name else "style_profile.ceiling")):
-        mode, source = _record_mode(materials, slug, name)
-        if mode is None:
-            mode = _vocabulary_mode(slug)
-            source = "vocabulary.MATERIALS" if mode else None
+        mode, source = _mode_of(materials, slug, name, wall_colour if rid == WALL_REGION else None)
         out[rid] = {"material": slug, "albedo_mode": mode, "source": source, "slot": where, "wet": wet}
+    walls = out[WALL_REGION]
+    if wall_slot.get("colour"):
+        walls["colour"] = wall_colour["name"] if wall_colour else wall_slot["colour"]
+        if wall_colour:
+            walls.update(colour_linear_rgb=wall_colour["linear_rgb"], colour_lab=wall_colour["lab"],
+                         colour_chroma=wall_colour["chroma"])
+        else:
+            walls["colour_unknown"] = True
+    accent = _accent_record(scene, profile, room_id, materials) if not wet else None
+    if accent is not None:
+        walls["accent"] = accent
+        if accent["in_room"] and accent["albedo_mode"] != "flat":
+            # One wall of this room is textured (or its mode is not known): the region is not a flat colour.
+            walls["albedo_mode"] = "texture" if accent["albedo_mode"] == "texture" else None
+            walls["source"] = "wall_accent in this room (" + (accent["source"] or "mode unknown") + ")"
     return out
