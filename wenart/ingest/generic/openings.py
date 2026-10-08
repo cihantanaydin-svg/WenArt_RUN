@@ -46,8 +46,8 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
   door or window symbol (or is < 0.25 m); a part that is empty or unclassified makes all parts ``open`` (no wall
-  across), and the free ends cast their own end gaps. A wall *ending* in the band (real01's two bedroom doors) splits
-  as before.
+  across), and the free ends cast their own end gaps. The same holds for any split run gap longer than 3 m (open by
+  itself). A shorter gap split by a wall *ending* in the band (real01's two bedroom doors) splits as before.
 
 Everything is in page metres (y up). Walls at other angles than the plan's dominant pair pass through untouched.
 """
@@ -758,8 +758,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     classify_gap(g, index, trial)
                     _own(g, index, trial)
                 found.append(g)
-            if len(subs) > 1 and any(g.cls in ("empty", "unclassified") for g in found) and _crossed(p, q, ends):
-                # Perpendicular walls cross the gap and one part holds no door or window symbol: the pieces are two
+            two_walls = q.a - p.b > GAP_MAX_M or _crossed(p, q, ends)
+            if len(subs) > 1 and two_walls and any(g.cls in ("empty", "unclassified") for g in found):
+                # A gap open by itself (> 3 m) or crossed by walls, and a part holds no door or window symbol: two
                 # walls on one line (real02: the bedroom walls of both dwellings, the corridor and a bathroom
                 # between them), never one wall across; free ends cast their own end gaps (b).
                 for g in found:
