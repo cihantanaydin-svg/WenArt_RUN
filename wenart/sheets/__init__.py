@@ -1,21 +1,23 @@
 """The ``sheets`` stage (docs/milestone10.md §1.2, §1.6a, §3.1): what is drawn on every sheet of a project.
 
 What: ``analyse(project_dir, out_dir, answers=None, no_ai=False) -> dict`` splits every sheet into drawing regions,
-checks the drawing unit of each CAD document, classifies the regions (title, geometry, then the AI passes as
-evidence), gives the plans their levels and variants, registers them into one building frame, reads the heights
-from the section and the exterior evidence, and writes ``<out>/sheets.json`` (``wenart/schema/sheets.schema.json``,
-validated before writing), ``<out>/sheets_report.md``, ``<out>/sheets_debug/<file>_<sheet>.png`` and the
-``sheet_region`` questions (``<out>/sheets/requests.json``, crops in ``<out>/sheets/crops/``). ``run`` returns the
-same with what the CLI needs for its exit code (questions without answers, needs review).
+checks the drawing unit of each CAD document, classifies the regions (title, then geometry, then two AI passes only
+for a region neither decided), gives the plans their levels and variants, registers them into one building frame,
+reads the heights from the section and the exterior evidence, and writes ``<out>/sheets.json``
+(``wenart/schema/sheets.schema.json``, validated before writing), ``<out>/sheets_report.md``,
+``<out>/sheets_debug/<file>_<sheet>.png`` and the ``sheet_region`` questions of the undecided regions
+(``<out>/sheets/requests.json``, crops in ``<out>/sheets/crops/``; none when title or geometry decided every
+region). ``run`` returns the same with what the CLI needs for its exit code (questions without answers, needs
+review).
 
 Why: real02 holds four plans and a section on one sheet, drawn in centimetres under a millimetre header; the
 pipeline must read each plan on its own, at the right scale, in one frame, with heights from the section.
 
 How: ``read`` -> ``split`` -> ``units_check`` -> ``classify`` -> ``question`` (merge) -> ``levels`` ->
 ``variants`` -> ``register`` -> ``heights`` -> ``exterior`` -> ``debug`` / ``report``. Regions are numbered
-``r<n>`` per document in reading order. Raster pages (images, scanned PDF pages) are one region each, left to the
-pipeline's OCR classification (M7). The brief is read through ``wenart.brief.load_brief`` (``variants``,
-``ceiling_height``, ``slab_thickness``, ``failed_levels``).
+``r<n>`` in the project (documents in order, then sheets, then reading order). Raster pages (images, scanned PDF
+pages) are one region each, left to the pipeline's OCR classification (M7). The brief is read through
+``wenart.brief.load_brief`` (``variants``, ``ceiling_height``, ``slab_thickness``, ``failed_levels``).
 """
 from __future__ import annotations
 
@@ -214,11 +216,16 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     for s in strays_json:
         s.pop("_m", None)
 
-    # AI questions and answers.
-    asked = [r for r in regions if r.kind != "raster"]
+    # AI questions and answers: the fall-through of §3.1 item 2 (title, then geometry, then two AI passes). Only a
+    # region whose class neither its title nor its geometry decided is asked; a decided region (also one that only
+    # lacks its level word: an AI-only answer never makes a plan) costs no question and no model-server start.
+    asked = [r for r in regions if r.kind != "raster" and r.class_method not in ("title", "geometry")]
     items: list[dict] = []
     pending: list[str] = []
     qdir = out_dir / QUESTIONS_DIR
+    if questions and not asked and (qdir / A.REQUESTS_NAME).is_file():
+        # A stale request file of an earlier run must not make the run wait for answers.
+        A.write_requests(qdir, project_dir.name, [], crop_version=Q.CROP_VERSION)
     if questions and asked:
         items = Q.requests(asked, qdir)
         A.write_requests(qdir, project_dir.name, items, crop_version=Q.CROP_VERSION)

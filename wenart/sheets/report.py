@@ -122,9 +122,13 @@ def write_report(doc: dict, path: Path, pending: list[str]) -> Path:
         lines.append("None.")
     lines += ["", "## Needs review", ""]
     lines += [f"- {_cell(n['reason'])}" for n in doc["needs_review"]] or ["None."]
+    undecided = [r["id"] for r in doc["regions"] if r.get("class_method") not in ("title", "geometry")
+                 and not (r.get("features") or {}).get("raster")]
     lines += ["", "## AI questions", "",
-              f"{doc.get('questions', 0)} `sheet_region` questions (`sheets/requests.json`); "
-              f"{len(pending)} waiting for answers; answers folder: {_cell(doc.get('answers'))}."]
+              f"Only regions whose class neither the title nor the geometry decided are asked (two passes). "
+              f"{doc.get('questions', 0)} `sheet_region` questions (`sheets/requests.json`)"
+              + (f" for {', '.join(undecided)}" if undecided and doc.get("questions") else "")
+              + f"; {len(pending)} waiting for answers; answers folder: {_cell(doc.get('answers'))}."]
     lines += ["", "## Warnings", ""]
     lines += [f"- {_cell(w)}" for w in doc["warnings"]] or ["None."]
     path.parent.mkdir(parents=True, exist_ok=True)

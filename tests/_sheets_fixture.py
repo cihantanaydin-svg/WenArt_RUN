@@ -9,7 +9,8 @@ rectangles on layer ``DUVAR``), two labelled rooms, a door block (quarter arc + 
 Why: real02 needs LibreDWG; this sheet tests the same rules in a second, with known answers (``EXPECTED``).
 Options vary one thing at a time: the header unit, where the 40.00 mark points, the alternative's title, a plan
 without walls, the plans' positions; ``exterior=True`` widens the frame and adds a site plan and a south elevation;
-``step=True`` draws an entrance step's edge outside the ground plan's walls.
+``step=True`` draws an entrance step's edge outside the ground plan's walls; ``detail=True`` an untitled drawing no
+title or geometry rule classifies.
 """
 from __future__ import annotations
 
@@ -168,7 +169,7 @@ def _section(msp, origin, mark40_at_bottom: bool) -> None:
 def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
                 alternative_title: str = PLANS["alternative"][1], walls: dict | None = None, titles: dict | None = None,
                 stray: bool = True, section: bool = True, frame: bool = True, exterior: bool = False,
-                step: bool = False) -> Path:
+                step: bool = False, detail: bool = False) -> Path:
     """Write the sheet (DXF R2013) and return its path."""
     doc = ezdxf.new("R2013")
     doc.header["$INSUNITS"] = insunits
@@ -190,6 +191,10 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
     for key, (origin, title) in PLANS.items():
         t = alternative_title if key == "alternative" else (titles or {}).get(key, title)
         _plan(msp, origin, t, labels[key], walls=walls.get(key, True))
+    if detail:
+        # An untitled drawing that no geometry rule classifies (five circles): the only region the AI is asked about.
+        for k in range(5):
+            msp.add_circle((4700.0 + 250.0 * k, 700.0), 100.0, dxfattribs={"layer": "0"})
     if step:
         # An entrance step's edge 30 cm outside the ground plan's west wall (1.2 m long): the sheets outline starts
         # there, the building frame at the outer wall faces.
