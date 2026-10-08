@@ -343,6 +343,25 @@ def test_generated_large_plants_keep_their_species_and_pot():
         "the brief's palms, monsteras and ferns need models of those species")
 
 
+def test_corner_sofas_record_their_chaise_side_or_why_not():
+    """Review finding 40: a placed L-shaped sofa has a chaise side, so a library corner sofa must say which side its
+    chaise is on (measured from the footprint and the model's front, ``objaverse.chaise_side``), or why it cannot:
+    the fit uses only models whose side matches the piece's, and none of those with no side."""
+    cat = need(OV.CATALOG_NAME)
+    corner = models_of(cat, "sofa_corner")
+    if not corner:
+        pytest.skip("no sofa_corner model in the catalogue")
+    for e in corner:
+        assert "chaise_side" in e and e["chaise_side"] in ("left", "right", None), e["id"]
+        assert e.get("chaise_note"), f"{e['id']}: the chaise side has no note"
+    known = [e for e in corner if e["chaise_side"]]
+    if len(known) < 0.5 * len(corner):
+        warnings.warn(f"only {len(known)} of {len(corner)} corner sofas have a chaise side "
+                      f"({sorted({e['chaise_note'][:40] for e in corner if not e['chaise_side']})})")
+    if len(known) >= 6:
+        assert {e["chaise_side"] for e in known} == {"left", "right"}, "all chaises on one side: check the front axes"
+
+
 def test_material_tags_of_the_catalogue_follow_both_judges(cfg):
     """docs/milestone10.md §4.5: the tags and the recolour flags of every judged model (``recolour/tags.json``)
     are in its catalogue entry; slots, tags and flags agree with each other; every model of the catalogue was

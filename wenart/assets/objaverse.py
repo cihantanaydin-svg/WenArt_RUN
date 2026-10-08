@@ -43,7 +43,9 @@ sideboards, display or tall cabinets, review finding 41);
 Objaverse objects of a decor type are ``kind: decor``. ``JudgeSpec`` lets the same judging (store, workers, deadline,
 exit codes) ask another task: ``wenart/assets/recolour.py`` asks the material of every slot of an accepted model and
 ``write-catalog`` copies its four fields (``MATERIAL_FIELDS``) into the entry; a generated plant keeps its ``species``
-and ``pot``. ``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
+and ``pot``; the thumbnail job measures the footprint of a corner sofa (``FOOTPRINT_TYPES``) and its entry gets
+``chaise_side`` (left / right as the viewer facing the front sees it, or null with ``chaise_note``: review finding 40).
+``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
 
 The steps as Milestone 7 built them (the Milestone 8 changes above apply on top of this text):
 
@@ -1365,6 +1367,116 @@ def _measure_done(measure_path: Path, sha: str, views: list[Path]) -> bool:
     return bool(rec and rec.get("glb_sha256") == sha and rec.get("ok") and all(v.is_file() for v in views))
 
 
+# --------------------------------------------------------------------------
+# The chaise side of a corner sofa (docs/milestone10.md §1.6b, review finding 40)
+# --------------------------------------------------------------------------
+
+# Types whose footprint the thumbnail step measures (an L-shaped piece has a chaise on its left or right).
+FOOTPRINT_TYPES = ("sofa_corner",)
+# front axis of the model (importer frame, Z up) -> (axis of the viewer's right and its sign, axis of the front and its
+# sign). A viewer who faces the sofa's front sees its chaise on the right when it is on +X for the front -Y
+# (building.schema.json `shape.chaise_side`): right = front x up.
+FRONT_FRAMES: dict[str, tuple[tuple[int, int], tuple[int, int]]] = {
+    "-Y": ((0, 1), (1, -1)), "+Y": ((0, -1), (1, 1)), "-X": ((1, -1), (0, -1)), "+X": ((1, 1), (0, 1))}
+
+
+def footprint_occupancy(polygons, mins, maxs, grid: int = 24, samples: int = 60000, min_fraction: float = 0.05,
+                        seed: int = 0) -> dict:
+    """Where the model stands, seen from above, in the model's own frame (Z up): ``samples`` points spread over the
+    surface of ``polygons`` (lists of world vertices, fanned into triangles; the number of points of a triangle follows
+    its area, the generator is seeded, so the same model gives the same grid) are counted in a ``grid`` x ``grid``
+    raster of the box x, y. A cell is filled when it holds at least two points and ``min_fraction`` of the median
+    count of the cells that hold any (a few stray points of a leg or a cable do not fill it).
+    ``{"grid", "rows": [str] (row j = y from the box minimum up, character i = x from the box minimum up; "1" filled),
+    "filled": fraction of all cells, "samples"}``."""
+    import numpy as np
+    tris = []
+    for poly in polygons:
+        for k in range(1, len(poly) - 1):
+            tris.append((poly[0], poly[k], poly[k + 1]))
+    if not tris:
+        raise ValueError("no polygons")
+    t = np.asarray(tris, dtype=float)
+    area = 0.5 * np.linalg.norm(np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0]), axis=1)
+    total = float(area.sum())
+    if not total > 0.0:
+        raise ValueError("no surface")
+    rng = np.random.default_rng(int(seed))
+    pick = rng.choice(len(t), size=int(samples), p=area / total)
+    r1, r2 = rng.random(int(samples)), rng.random(int(samples))
+    fold = r1 + r2 > 1.0
+    r1, r2 = np.where(fold, 1.0 - r1, r1), np.where(fold, 1.0 - r2, r2)
+    pts = t[pick, 0] + r1[:, None] * (t[pick, 1] - t[pick, 0]) + r2[:, None] * (t[pick, 2] - t[pick, 0])
+    sx, sy = max(float(maxs[0]) - float(mins[0]), 1e-9), max(float(maxs[1]) - float(mins[1]), 1e-9)
+    ix = np.clip(((pts[:, 0] - float(mins[0])) / sx * grid).astype(int), 0, grid - 1)
+    iy = np.clip(((pts[:, 1] - float(mins[1])) / sy * grid).astype(int), 0, grid - 1)
+    counts = np.bincount(iy * grid + ix, minlength=grid * grid).reshape(grid, grid)
+    seen = counts[counts > 0]
+    floor = max(2.0, float(min_fraction) * float(np.median(seen))) if seen.size else 2.0
+    filled = counts >= floor
+    return {"grid": int(grid), "rows": ["".join("1" if filled[j, i] else "0" for i in range(grid)) for j in range(grid)],
+            "filled": round(float(filled.mean()), 4), "samples": int(samples)}
+
+
+def strip_fill(footprint: dict, front_axis: str, front: bool, side_right: bool, depth: float) -> float:
+    """The filled fraction of the cells in the front (or back) strip of ``depth`` (a fraction of the box depth) on the
+    viewer's right (or left) half, with the model facing ``front_axis``."""
+    (r_axis, r_sign), (f_axis, f_sign) = FRONT_FRAMES[front_axis]
+    grid = int(footprint["grid"])
+    rows = footprint["rows"]
+    strip = max(1, int(round(float(depth) * grid)))
+    cells = filled = 0
+    for j in range(grid):
+        for i in range(grid):
+            idx = (i, j)
+            u = (idx[r_axis] + 0.5) / grid - 0.5              # along the axis of the viewer's right (centre 0)
+            if (u * r_sign > 0) != side_right:
+                continue
+            front_pos = grid - 1 - idx[f_axis] if f_sign > 0 else idx[f_axis]       # 0 at the front edge
+            if front and front_pos >= strip:
+                continue
+            if not front and front_pos < grid - strip:
+                continue
+            cells += 1
+            filled += rows[j][i] == "1"
+    return filled / cells if cells else 0.0
+
+
+def chaise_side(footprint: Optional[dict], front_axis: Optional[str], cfg: Optional[dict] = None
+                ) -> tuple[Optional[str], str]:
+    """``("left" | "right" | None, note)``: the side of the chaise of a corner sofa, from the measured footprint and the
+    model's front (the viewer facing the front sees the chaise on that side; ``shape.chaise_side`` of the building
+    schema). An L has a full back strip across the width, and in the front strip one half filled (the chaise) and the
+    other nearly empty (the notch): the chaise is the filled half. A straight or U-shaped sofa, a sofa whose front is
+    unknown or whose footprint was not measured gives None with the reason (never a guess). The strip depths and
+    fractions are ``objaverse.yaml footprint`` (designer values, assumed)."""
+    if not footprint or not footprint.get("rows"):
+        return None, "footprint not measured"
+    if front_axis not in FRONT_FRAMES:
+        return None, f"front axis {front_axis!r} unknown"
+    s = {**(((cfg or {}).get("footprint")) or {})}
+    depth = float(s.get("front_strip", 0.25))
+    back_depth = float(s.get("back_strip", 0.25))
+    left = strip_fill(footprint, front_axis, True, False, depth)
+    right = strip_fill(footprint, front_axis, True, True, depth)
+    back = min(strip_fill(footprint, front_axis, False, False, back_depth),
+               strip_fill(footprint, front_axis, False, True, back_depth))
+    shown = f"front strip left {left:.2f}, right {right:.2f}, back strip {back:.2f}"
+    if back < float(s.get("min_back", 0.6)):
+        return None, f"no full back strip ({shown}): not an L with this front"
+    big, small = max(left, right), min(left, right)
+    if big < float(s.get("min_chaise", 0.3)):
+        return None, f"front strip empty ({shown}): no chaise, or a front that does not fit"
+    if small > float(s.get("max_notch_ratio", 0.5)) * big:
+        return None, f"both front halves filled ({shown}): a straight sofa, a U-shape or a chaise on both sides"
+    return ("right" if right > left else "left"), shown
+
+
+def needs_footprint(cand: dict) -> bool:
+    """A corner sofa candidate: the thumbnail step measures its footprint (the chaise side)."""
+    return any(t in FOOTPRINT_TYPES for t in cand.get("types") or [])
+
+
 def needs_deck(cand: dict) -> bool:
     """A bed candidate: the thumbnail step measures its deck (docs/milestone8.md §2)."""
     return any(t in BED_TYPES for t in cand.get("types") or [])
@@ -1464,6 +1576,8 @@ def _thumb_settings(cfg: dict, device: str) -> dict:
     s["side_fraction"] = float(rules["side_fraction"])
     s["normal_dot"] = float(rules["open_side"]["normal_dot"])
     s["deck_ray_offset"] = float((cfg.get("bed_frame") or {}).get("ray_offset", 0.2))
+    s["footprint"] = {k: cfg.get("footprint", {}).get(k) for k in ("grid", "samples", "min_fraction", "seed")
+                      if cfg.get("footprint", {}).get(k) is not None}
     return s
 
 
@@ -1490,12 +1604,14 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
     for cand in cands:
         measure, views = _measure_paths(work, cand["uid"])
         deck = needs_deck(cand)
+        footprint = needs_footprint(cand)
         job = {"uid": cand["uid"], "glb": cand["glb"], "glb_sha256": cand["glb_sha256"], "measure": str(measure),
-               "views": [str(v) for v in views], "deck": deck, "render": True}
+               "views": [str(v) for v in views], "deck": deck, "footprint": footprint, "render": True}
         if _measure_done(measure, cand["glb_sha256"], views):
-            if not deck or "deck" in (read_json(measure) or {}):
+            done = read_json(measure) or {}
+            if (not deck or "deck" in done) and (not footprint or "footprint" in done):
                 continue
-            job["render"] = False                       # measured before M8: the deck only, the views stay
+            job["render"] = False                       # measured before M8 / M10: the missing numbers only
         jobs.append(job)
     rc = EXIT_OK
     if jobs:
@@ -1512,7 +1628,7 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
             runner = run_blender
         timeout = (deadline - time.time() + 120.0) if deadline else 3.0 * 3600.0
         log(f"library thumbnails: rendering {sum(j['render'] for j in jobs)} object(s), measuring "
-            f"{sum(not j['render'] for j in jobs)} deck(s) only, in one Blender process")
+            f"{sum(not j['render'] for j in jobs)} deck(s) / footprint(s) only, in one Blender process")
         rc = runner(blender, jobs_path, work / "blender.log", timeout)
         log(f"library thumbnails: Blender exited {rc}")
     status = read_json(work / "blender_status.json") or {}
@@ -1566,6 +1682,8 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
         if cand.get("front_documented") and rule != FRONTLESS_RULE:
             rec["front_documented"] = cand["front_documented"]
             rec["front_documented_note"] = cand.get("front_note") or f"{cand['source']} documents the front"
+        if ftype in FOOTPRINT_TYPES and m.get("footprint"):
+            rec["footprint"] = m["footprint"]
         if ftype in BED_TYPES:
             deck = m.get("deck") or {}
             rec["deck"] = deck
@@ -2576,6 +2694,9 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
                 entry[key] = cand["attributes"][key]
     else:
         entry["has_mattress"] = dec.get("has_mattress")
+        if dec["type"] in FOOTPRINT_TYPES:
+            # the side of the chaise as a viewer facing the sofa's front sees it (null: not measurable, with the reason)
+            entry["chaise_side"], entry["chaise_note"] = chaise_side(obj.get("footprint"), front, cfg)
         if dec["type"] in BED_TYPES:
             entry["bed_frame"] = bool(dec.get("bed_frame"))
             if dec.get("bed_frame"):
@@ -2958,6 +3079,17 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
                           e.get("deck_height_m") or "–"] for e in beds])
         lines += [""]
 
+    corner = [e for e in furniture if e["type"] in FOOTPRINT_TYPES]
+    if corner:
+        lines += ["## Corner sofas (chaise side)", "",
+                  "The side of the chaise, as a viewer facing the sofa's front sees it (`chaise_side`), measured from the "
+                  "footprint of the model and its front; `–` = not measurable (the fit must not use such a model for a "
+                  "placed L-shaped sofa).", ""]
+        lines += _table(["Id", "Source", "Front", "Chaise side", "Note"],
+                        [[f"`{e['id']}`", e["source"], e["front_axis"], e.get("chaise_side") or "–",
+                          e.get("chaise_note") or "–"] for e in corner])
+        lines += [""]
+
     tags_doc = read_json(out / RECOLOUR_TAGS)
     if tags_doc is not None:
         counts_t = tags_doc.get("counts") or {}
@@ -3219,15 +3351,17 @@ def _bl_one(bpy, Vector, scene, cam, sun, job: dict, s: dict) -> dict:
         if ob.type == "LIGHT":                 # a light shipped in the GLB would change the judged look
             ob.hide_render = True
     bpy.context.view_layer.update()
-    raw = [] if job.get("deck") else None
+    raw = [] if job.get("deck") or job.get("footprint") else None
     points, polys, counts = _bl_measure(bpy, meshes, raw)
     if not points:
         raise RuntimeError("no vertices in the GLB")
     stats = front_stats(points, polys, s["top_fraction"], s["side_fraction"], s["normal_dot"])
     result = {"stats": stats, "vertices": len(points), "triangles": counts["triangles"], "mesh_objects": len(meshes),
               "images": len(counts["images"]), "colour_attributes": counts["colour_attributes"]}
-    if raw is not None:
+    if raw is not None and job.get("deck"):
         result["deck"] = deck_height(raw, stats["bbox_min"], stats["bbox_max"], float(s.get("deck_ray_offset", 0.2)))
+    if raw is not None and job.get("footprint"):
+        result["footprint"] = footprint_occupancy(raw, stats["bbox_min"], stats["bbox_max"], **(s.get("footprint") or {}))
     if job.get("render", True) is False:
         return result                          # measured before M8: the views on disk stay
     centre = [(a + b) / 2.0 for a, b in zip(stats["bbox_min"], stats["bbox_max"])]
