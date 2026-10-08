@@ -72,9 +72,12 @@ BUILTIN_DEFAULTS = {
 
 # Bare colour words that Milestone 3 knew as wall finishes: without modifiers they keep their slug.
 LEGACY_WALL_COLOURS = {"white": "plaster_white", "cream": "plaster_cream", "charcoal": "plaster_charcoal"}
+# The colour a Milestone 3 wall slug is made of: a wall colour phrase equal to it adds nothing (the slug is that colour
+# already, so ``walls.colour`` stays null and the Milestone 9 look of "white walls" does not change); the facade fallback
+# ("the interior wall colour as smooth render") reads it.
+LEGACY_SLUG_COLOURS = {slug: name for name, slug in LEGACY_WALL_COLOURS.items()}
 # A colour word on a floor of this slug makes the colourable variant (carpet in a vocabulary colour).
 FLOOR_COLOUR_VARIANT = {"carpet": "carpet_wool"}
-LOOKS_LISTED_AS_ASSUMED = ("facade", "roof", "window_frame", "door", "paving", "garden")
 
 
 def load_defaults() -> dict:
@@ -348,6 +351,8 @@ def _h_walls(ph: _Phrase, frag: Frag, obj: str = "walls") -> int:
     if slug is None:
         return 0
     colour = _apply_colour(ph, slug, main, "the wall finish")
+    if LEGACY_SLUG_COLOURS.get(slug) == main:                           # "white walls" is plaster_white, no extra colour
+        colour = None
     if ph.take(ph.d, "walls", slug, "walls"):
         ph.d["wall_colour"] = colour
     elif colour != ph.d["wall_colour"] and colour:
@@ -367,6 +372,8 @@ def _h_accent_wall(ph: _Phrase, frag: Frag) -> int:
     if not cols and not finish:
         return 0
     slug = finish.value if finish else "paint"
+    if len(cols) > 1:
+        ph.notes.append(f"ignored colour '{cols[1]['phrase']}' in '{ph.phrase}' (one accent wall colour: '{cols[0]['phrase']}')")
     colour = _apply_colour(ph, slug, cols[0]["phrase"] if cols else None, "the accent finish")
     if ph.d["wall_accent"] is None:
         ph.d["wall_accent"] = {"material": slug, "colour": colour}
@@ -1013,7 +1020,7 @@ def _exterior_slots(d: dict, profile: dict, fallback: dict, exterior_words: dict
                 fb = fb if isinstance(fb, dict) else {}
                 colour = fb.get("colour")
                 if colour == "walls":
-                    colour = profile["walls"].get("colour")
+                    colour = profile["walls"].get("colour") or LEGACY_SLUG_COLOURS.get(profile["walls"]["material"])
                 look = _look(fb.get("material"), colour, "fallback", True)
                 assumed.append(f"{slot} {fb.get('material')}" + (f" in {colour}" if colour else ""))
         out[slot] = look

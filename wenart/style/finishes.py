@@ -23,8 +23,10 @@ Entry shapes (``kind`` is one of ``KINDS``; ``flat`` is linear RGB; ``roughness`
   ``wenart_wallpaper``, ``wenart_slats``, ``wenart_standing_seam``) asks the builder (track F) for that pattern with
   ``params``. ``vocabulary.asset_for`` and ``wenart.assets.fetch`` skip entries without an ``asset``.
 - ``colourable: True`` marks flat-mode (and procedural) looks that take the profile's colour name for their base
-  colour (paint, render, fibre cement, painted brick, tiles, wallpapers ...); a texture-mode look keeps its photo's
-  colour and the profile's colour is only a description of it.
+  colour (paint, render, fibre cement, painted brick, tiles, wallpapers ...); ``colourable: False`` a flat-mode or
+  procedural look that does not (a wood tone, a window-frame metal); a texture-mode look keeps its photo's colour and
+  the profile's colour is only a description of it. ``wenart.style.profile.is_colourable(slug)`` answers for every
+  slug of the vocabulary, the Milestone 3 plaster and paint slugs included (flat mode, no flag).
 - ``wet_safe: True``: a hard floor that stays in bathrooms, WCs and kitchens (the vocabulary's ``WET_SAFE_FLOORS``
   grows by these; ``wet_safe_floors()``).
 
@@ -284,11 +286,6 @@ def wet_safe_floors() -> tuple[str, ...]:
     return tuple(slug for slug, e in MATERIALS.items() if e.get("wet_safe"))
 
 
-def colourable(slug: str) -> bool:
-    """True when the style's colour name sets the base colour of the slug (flat-mode and procedural looks)."""
-    return bool((MATERIALS.get(slug) or FURNITURE_MATERIALS.get(slug) or {}).get("colourable"))
-
-
 # --------------------------------------------------------------------------
 # Lighting moods (docs/milestone10.md §4.9): all nine, every one with hdri_strength, wb_residual and lamps_on
 # --------------------------------------------------------------------------
@@ -333,7 +330,8 @@ LIGHTING: dict[str, dict] = {
 # --------------------------------------------------------------------------
 
 FLOOR_WORDS: list[tuple[str, str]] = [
-    ("natural oak", "wood_oak_natural"),
+    ("natural oak", "wood_oak_natural"), ("honey oak", "wood_oak_natural"), ("white oak", "wood_oak_light"),
+    ("pale oak", "wood_oak_light"), ("blonde oak", "wood_oak_light"),
     ("whitewashed oak", "wood_oak_whitewashed"), ("white-washed oak", "wood_oak_whitewashed"),
     ("white washed oak", "wood_oak_whitewashed"), ("limed oak", "wood_oak_whitewashed"),
     ("bleached oak", "wood_oak_whitewashed"), ("washed oak", "wood_oak_whitewashed"),
@@ -382,7 +380,7 @@ WALL_WORDS: list[tuple[str, str]] = [
     ("ashlar", "stone_wall_ashlar"), ("sandstone blocks", "stone_wall_ashlar"), ("cut stone", "stone_wall_ashlar"),
     ("slate wall", "stone_wall_slate"), ("slate cladding", "stone_wall_slate"),
     ("natural stone", "stone_wall_ledgestone"), ("stone wall", "stone_wall_ledgestone"),
-    ("white-painted brick", "brick_white"), ("white painted brick", "brick_white"), ("whitewashed brick", "brick_white"),
+    ("exposed brick", "brick"), ("white-painted brick", "brick_white"), ("white painted brick", "brick_white"), ("whitewashed brick", "brick_white"),
     ("white brick", "brick_white"), ("painted brick", "brick_white"),
     ("grey brick", "brick_grey"), ("gray brick", "brick_grey"),
     ("reclaimed brick", "brick_reclaimed"), ("antique brick", "brick_reclaimed"), ("old brick", "brick_reclaimed"),

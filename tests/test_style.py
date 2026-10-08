@@ -131,7 +131,7 @@ def test_second_floor_word_is_ignored_and_noted():
     assert any("ignored floor 'marble'" in w for w in profile["warnings"])
     # Milestone 10 (§4.1): two colours with "and" are the main wall colour and one accent wall per living room and bedroom
     profile = P.profile_from_text("charcoal and white, warm daylight")
-    assert profile["walls"]["material"] == "plaster_charcoal" and profile["walls"]["colour"] == "charcoal"
+    assert profile["walls"]["material"] == "plaster_charcoal" and profile["walls"]["colour"] is None      # the slug is charcoal already
     assert profile["wall_accent"]["colour"] == "white" and profile["wall_accent"]["room_types"] == ["living", "bedroom"]
     assert any(w.startswith("accent wall colour white") for w in profile["warnings"])
     # a word inside the winning keyword is not reported as ignored

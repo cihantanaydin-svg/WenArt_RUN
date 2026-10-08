@@ -9,7 +9,7 @@
   "walls": {
     "material": "plaster_white",
     "asset": "white_plaster_02",
-    "colour": "white"
+    "colour": null
   },
   "wall_accent": null,
   "ceiling": {

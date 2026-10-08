@@ -217,6 +217,8 @@ def test_the_check_record_covers_every_texture_and_hdri_without_problems():
     for r in rows:
         rec = CHECKS["textures"][f"{r['source']}:{r['asset']}"]
         assert rec["exists"] is True and rec["licence"] == "CC0" and rec["has_required_maps"] and rec["jpg_1k_2k"], r
+        if r["source"] == "polyhaven":
+            assert rec["api_type"] == fetch.PH_TEXTURE_TYPE, r                              # a texture, not an HDRI or a model
         assert sorted(rec["slugs"]) == sorted(r["slugs"]), r
     assert set(CHECKS["hdris"]) == set(V.HDRIS)
     for hdri_id, rec in CHECKS["hdris"].items():
@@ -280,3 +282,6 @@ def test_a_fake_check_run_finds_a_missing_id_and_a_changed_size(monkeypatch):
     problems = " | ".join(checks["problems"])
     assert "polyhaven:gone: not found" in problems and "polyhaven:small: missing map" in problems
     assert "polyhaven:good" not in problems and len(checks["problems"]) == 2
+    infos["good"] = dict(infos["good"], type=2)                                           # a model id is no texture
+    checks = fetch.check_assets(rows[:1], log=lambda *_: None)
+    assert checks["problems"] and "not a texture" in checks["problems"][0]

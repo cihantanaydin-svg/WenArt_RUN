@@ -1,6 +1,6 @@
 """Milestone 10 named colours (docs/milestone10.md §4.2; track C).
 
-What: ``COLOURS`` (about 60 colour names, each with a documented sRGB value and the source of that value),
+What: ``COLOURS`` (53 colour names, each with a documented sRGB value and the source of that value),
 ``NAMES`` (the names, lower case, single spaces), ``MODIFIERS`` (light, dark, pale, deep, warm, cool, muted),
 ``ALIASES`` (other spellings -> a name) and the colour maths: ``linear_rgb(colour, modifiers=())`` (a name or a
 phrase such as ``"warm greige"``; IEC 61966-2-1 transfer function, CIELAB modifiers), ``parse(text)``,
@@ -119,7 +119,17 @@ COLOURS: dict[str, dict] = {
     "copper":       {"srgb": "#B66325", "source": "xkcd", "ref": "copper"},
     "gold":         {"srgb": "#DAA520", "source": "css4", "ref": "goldenrod", "note": "the metal; CSS 'gold' (#FFD700) is used for 'yellow'"},
 }
-NAMES: tuple[str, ...] = tuple(COLOURS)
+class _Names(tuple):
+    """The colour names in table order. ``x in NAMES`` is also true for an alias and for modifiers plus a name
+    (``"sage green"``, ``"warm greige"``): the style profile stores colour phrases, and callers that guard
+    ``linear_rgb`` with ``name in NAMES`` (``wenart/blender/exterior.py``, ``shell.py``) then work for them too.
+    Iteration, ``len`` and indexing are the base names only."""
+
+    def __contains__(self, item) -> bool:
+        return isinstance(item, str) and parse(item) is not None
+
+
+NAMES: tuple[str, ...] = _Names(COLOURS)
 MODIFIERS: tuple[str, ...] = ("light", "dark", "pale", "deep", "warm", "cool", "muted")
 
 # Other spellings and wordings -> a name of COLOURS. The M9 decor colour list (wenart.blender.parametric.DECOR_COLOURS)

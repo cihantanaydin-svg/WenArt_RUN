@@ -18,7 +18,7 @@ style:
     source_text: Scandinavian, light oak floor, white walls, linen textiles, warm daylight
     family: scandinavian
     floor: {material: wood_oak_light, asset: WoodFloor051, colour: null}
-    walls: {material: plaster_white, asset: white_plaster_02, colour: white}
+    walls: {material: plaster_white, asset: white_plaster_02, colour: null}
     wall_accent: null
     ceiling: {material: plaster_white, colour: null}
     wet_floor: {material: tiles_light, asset: Tiles074, colour: null}

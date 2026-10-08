@@ -184,6 +184,15 @@ def test_parse_prefers_a_name_over_modifier_plus_name():
     assert C.known("cool dusty blue") and not C.known("shiny sage")
 
 
+def test_names_membership_accepts_aliases_and_modified_phrases_but_iterates_base_names():
+    """E's code guards ``linear_rgb`` with ``word in NAMES``: a colour phrase of the style profile passes that guard."""
+    assert "greige" in C.NAMES and "warm greige" in C.NAMES and "sage green" in C.NAMES and "off-white" in C.NAMES
+    assert "ultraviolet" not in C.NAMES and "warm" not in C.NAMES and 5 not in C.NAMES and "" not in C.NAMES
+    assert isinstance(C.NAMES, tuple) and list(C.NAMES) == list(C.COLOURS) and len(C.NAMES) == len(C.COLOURS)
+    assert "sage green" not in list(C.NAMES) and C.NAMES[0] == "white"
+    assert all(len(C.linear_rgb(w)) == 3 for w in ("warm greige", "sage green"))
+
+
 def test_aliases_cover_the_m9_decor_colours_and_the_exterior_words():
     from wenart.blender import parametric as P
 
@@ -204,5 +213,5 @@ def test_track_e_colour_words_resolve():
         pytest.skip("shell._SRGB is gone: track E switched to colours.py")
     for word in table:
         assert C.known(word), word
-    for word in ("greige", "anthracite", "dark bronze", "sage"):                 # the values agree with the cited ones
-        assert shell.colour_rgb(word) == pytest.approx(C.linear_rgb(word), abs=1e-3)
+    for word in ("greige", "anthracite", "dark bronze", "sage", "warm greige", "sage green", "pale terracotta"):
+        assert shell.colour_rgb(word) == pytest.approx(C.linear_rgb(word), abs=1e-3), word       # the cited values, modifiers too

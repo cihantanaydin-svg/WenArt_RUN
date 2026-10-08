@@ -60,15 +60,15 @@ def test_phrases_split_at_commas_and_semicolons_outside_brackets():
 def test_a_colour_applies_to_the_object_of_its_phrase_only():
     """"cream pots" never colours the walls; a bare colour phrase stays the wall colour (Milestone 3)."""
     p = prof("white walls, cream pots")
-    assert p["walls"] == {"material": "plaster_white", "asset": "white_plaster_02", "colour": "white"}
-    assert p["decor"]["pots"] == [{"material": None, "colour": "cream"}]
+    assert p["walls"] == {"material": "plaster_white", "asset": "white_plaster_02", "colour": None}        # the slug is white already
+    assert p["colours"]["walls"] == ["white"] and p["decor"]["pots"] == [{"material": None, "colour": "cream"}]
     p = prof("cream pots, oak floor")
     assert p["walls"]["material"] == "plaster_white" and p["walls"]["colour"] is None            # default walls, not cream
     assert warned(p, "assumed: walls plaster_white")
     p = prof("sage")                                                                             # a bare colour phrase: the wall colour
     assert p["walls"]["material"] == "paint" and p["walls"]["colour"] == "sage"
     p = prof("cream")
-    assert p["walls"]["material"] == "plaster_cream" and p["walls"]["colour"] == "cream"        # the Milestone 3 slug stays
+    assert p["walls"]["material"] == "plaster_cream" and p["walls"]["colour"] is None            # the Milestone 3 slug stays, no extra colour
     p = prof("warm white")                                                                       # a modifier makes it paint, not plaster_white
     assert p["walls"]["material"] == "paint" and p["walls"]["colour"] == "warm white"
     p = prof("mustard cushions, teal throws, sage curtains, grey rug")
@@ -89,7 +89,7 @@ def test_a_floor_phrase_does_not_recolour_the_walls():
 
 def test_colour_pairs_with_and():
     p = prof("charcoal and white, oak floor")
-    assert p["walls"] == {"material": "plaster_charcoal", "asset": "white_plaster_02", "colour": "charcoal"}
+    assert p["walls"] == {"material": "plaster_charcoal", "asset": "white_plaster_02", "colour": None}
     acc = p["wall_accent"]
     assert (acc["material"], acc["colour"], acc["room_types"]) == ("paint", "white", ["living", "bedroom"])
     assert "behind the sofa or the bed head" in acc["rule"] and warned(p, "accent wall colour white")

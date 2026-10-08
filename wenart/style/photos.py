@@ -73,11 +73,11 @@ PHOTO_FLOORS = ("wood_oak_light", "wood_walnut", "wood_parquet", "concrete_polis
 PHOTO_WALLS = ("plaster_white", "plaster_cream", "plaster_charcoal", "wood_panel", "brick")
 PHOTO_LIGHTS = ("warm daylight", "cool daylight", "golden evening", "overcast", "night")
 
-# Options per slot, from the vocabulary tables (order of first appearance), restricted to the options above.
+# Options per slot: the options above that the vocabulary still knows, in the order above (the order of the Milestone 5 prompt).
 SLOT_VALUES: dict[str, list[str]] = {
-    "floor": [s for s in _unique(slug for _, slug in V.FLOOR_WORDS) if s in PHOTO_FLOORS],
-    "walls": [s for s in _unique(slug for _, slug in V.WALL_WORDS) if s in PHOTO_WALLS],
-    "light": [m for m in V.LIGHTING if m in PHOTO_LIGHTS],
+    "floor": [s for s in PHOTO_FLOORS if s in {slug for _, slug in V.FLOOR_WORDS}],
+    "walls": [s for s in PHOTO_WALLS if s in {slug for _, slug in V.WALL_WORDS}],
+    "light": [m for m in PHOTO_LIGHTS if m in V.LIGHTING],
     "family": [name for name, _ in V.STYLE_FAMILIES],
 }
 

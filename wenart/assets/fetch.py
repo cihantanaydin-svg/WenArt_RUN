@@ -428,6 +428,7 @@ def verify_vocabulary() -> list[dict]:
 CHECKS_PATH = Path(__file__).resolve().parents[1] / "style" / "asset_checks_m10.json"
 CHECKS_SCHEMA = "wenart-asset-checks-m10/1"
 PH_MAPS = ("Diffuse", "nor_gl", "Rough", "Displacement", "AO", "arm")
+PH_TEXTURE_TYPE = 1                    # ``type`` of /info: 0 = HDRI, 1 = texture, 2 = model
 REQUIRED_PH_MAPS = ("Diffuse", "nor_gl", "Rough")
 REQUIRED_ACG_MAPS = ("color", "normal", "roughness")
 MEASURE_SIDE = 64
@@ -561,6 +562,8 @@ def check_assets(rows: Optional[list[dict]] = None, measure: bool = False, cache
         want = by_key[key].get("size_m")
         if not record.get("exists"):
             problems.append(f"{key}: not found")
+        elif record["source"] == polyhaven.SOURCE and record.get("api_type") != PH_TEXTURE_TYPE:
+            problems.append(f"{key}: Poly Haven lists it as type {record.get('api_type')}, not a texture ({PH_TEXTURE_TYPE})")
         elif not (record.get("has_required_maps") and record.get("jpg_1k_2k")):
             problems.append(f"{key}: missing map or jpg size")
         elif want and (record.get("size_m") is None or
