@@ -286,3 +286,18 @@ def test_a_copy_of_a_level_is_cross_checked_not_an_alternative(tmp_path):
     pages = [p for p in building["documents"][0]["pages"] if p.get("level_id") == "L-1"]
     assert [p["region_id"] for p in pages] == ["r3", "r4"]
     assert building["status"] == "ok"
+
+
+def test_an_alternative_whose_base_was_left_out_gets_its_slabs(tmp_path):
+    # Review finding 5: the base basement fails, its alternative is built: the slab under the alternative and the
+    # slab over it (with the alternative's stair void) are written for the variant, and listed.
+    building, build, _ = _build(tmp_path, walls={"basement": False})
+    assert [x["region_id"] for x in building["levels_left_out"]] == ["r3"]
+    slabs = {s["id"]: s for s in building["slabs"]}
+    under = slabs["sl_L-1__l-1b-acik-mutfak"]
+    assert under["above_level_id"] == "L-1" and under["variants"] == ["l-1b-acik-mutfak"]
+    over = slabs["sl_L0__l-1b-acik-mutfak"]
+    assert over["below_level_id"] == "L-1" and [o["kind"] for o in over["openings"]] == ["stair_void"]
+    stair = next(f for f in building["furniture"] if f["id"] == over["openings"][0]["furniture_id"])
+    assert stair["level_id"] == "L-1b"
+    assert any("base level L-1 left out" in w for w in building["warnings"])

@@ -214,7 +214,8 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
                 warn, variants: Optional[list[dict]] = None) -> list[dict]:
     """One slab under every built base level (``sl_<level id>``); for each alternative, the slabs under and over its
     level again as ``sl_<above>__<variant id>`` (``variants: [id]``, level ids naming the base levels) when their
-    outline or stair voids differ (an alternative's stair within 0.1 m of the base stair keeps the base slab)."""
+    outline or stair voids differ (an alternative's stair within 0.1 m of the base stair keeps the base slab); when the
+    base level was left out, the alternative's slabs are always written (listed)."""
     by_base = {}
     for s in (sheets.get("heights") or {}).get("slabs") or []:
         if s["between"][1]:
@@ -242,11 +243,15 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
         for ch in v.get("changes") or []:
             alt = next((lv for lv in levels if lv["id"] == ch["level_id"]), None)
             base_lv = next((lv for lv in base if lv["id"] == ch["replaces"]), None)
-            if alt is None or base_lv is None:
+            if alt is None:
                 continue
+            if base_lv is None:
+                warn(f"variant {v['id']}: base level {ch['replaces']} left out; the slabs under and over "
+                     f"{alt['id']} are built from the alternative")
             alt_as_base = dict(alt, id=alt["id"])
-            above = next((b for b in base if below_of(b) is base_lv), None)
-            pairs = [(f"sl_{base_lv['id']}", alt_as_base, below_of(base_lv), base_lv["id"])]
+            ref = base_lv or alt                        # the level whose order places the alternative
+            above = next((b for b in base if (b.get("order") or 0) == (ref.get("order") or 0) + 1), None)
+            pairs = [(f"sl_{ch['replaces']}", alt_as_base, below_of(ref), ch["replaces"])]
             if above is not None:
                 pairs.append((f"sl_{above['id']}", above, alt_as_base, above["id"]))
             for base_slab_id, top, under, above_id in pairs:
