@@ -12,7 +12,10 @@
 - every other component without indoor labels goes to ``site.boundary_walls`` with ``kind "other"`` and a warning,
   except a component lying inside the building outline (a free-standing wall in a room), which stays a building
   wall with a warning; nothing is dropped silently;
-- a building face whose only labels are exterior keywords is a site area with its polygon, not a room.
+- a building face whose only labels are exterior keywords is a site area with its polygon, not a room;
+- an indoor room label in no building face and outside the building outline but inside the convex hull of the
+  building's walls is a review reason ("outer walls do not close": an inner block of walls was taken for the
+  building, review finding 10); outside that hull it stays a warning (M7 §2.5).
 
 ``separators`` closes open-plan faces only where the drawing needs it: candidates come only from free wall ends
 whose end gap was empty (*end-to-wall*: the empty end gap itself, <= 2.4 m; *end-to-end*: two free ends of parallel
@@ -180,6 +183,7 @@ def split_plot(walls: list[WallItem], openings: list[OpeningItem], label_blocks:
     comp_labels = {i: [b for b in indoor if any(_label_in(Polygon(r), b) for r in comps[i].interiors)]
                    for i in range(len(comps))}
     building = {i for i, labels in comp_labels.items() if labels}
+    labelled_building = bool(building)
     if not building:
         warnings.append("no wall component encloses an indoor room label: every wall is kept as a building wall")
         building = set(range(len(comps)))
@@ -254,11 +258,18 @@ def split_plot(walls: list[WallItem], openings: list[OpeningItem], label_blocks:
         extent = _free_extent(b.anchor, all_walls_geom, plot_hulls)
         site["areas"].append(_area(b, None, level_id, extent=extent,
                                    note=None if in_plot else "outside the plot wall"))
+    # Review #10: when some walls close around room labels but another indoor label lies outside them yet inside the
+    # hull of the building's walls, the outer walls do not close and an inner block was taken for the building.
+    hull = unary_union([comps[i] for i in building]).convex_hull if labelled_building else None
     for b in indoor:
         if any(_label_in(f, b) for f in building_faces):
             continue
         if not outline.is_empty and outline.contains(Point(b.anchor)):
             continue                                     # inside the outline but in no face: rooms report it
+        if hull is not None and hull.contains(Point(b.anchor)):
+            warnings.append(REVIEW_PREFIX + f"outer walls do not close: room label '{b.name}' at ({b.anchor[0]:.2f}, "
+                                            f"{b.anchor[1]:.2f}) m lies inside the walls' hull but in no closed face")
+            continue
         where = "inside the plot" if any(h.contains(Point(b.anchor)) for h in plot_hulls) else "outside the plot"
         warnings.append(f"room label '{b.name}' at ({b.anchor[0]:.2f}, {b.anchor[1]:.2f}) m lies outside the "
                         f"building ({where})")
