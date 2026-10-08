@@ -125,10 +125,11 @@ def load_settings(project_dir) -> Settings:
 
 
 def style_families() -> list[str]:
-    """The style enum: the family keywords of ``vocabulary.STYLE_FAMILIES`` and ``neutral`` (the catalogue's)."""
-    from wenart.furniture import catalog as C
+    """The style enum: the family keywords of ``vocabulary.STYLE_FAMILIES`` and ``neutral`` (the words of the
+    catalogue's ``styles``, ``catalog.style_values``)."""
+    from wenart.style import vocabulary as V
 
-    return list(C.style_values())
+    return [name for name, _ in V.STYLE_FAMILIES] + ["neutral"]
 
 
 def colour_names() -> list[str]:
@@ -744,15 +745,16 @@ def place_added(rec: RoomCompletion, answers: dict[int, Optional[dict]], ctx: pl
         if not kept:
             continue
         placement = placer.place(kept, ctx, obstacles=_obstacles(rec))
-        drop = companion_problems(placement.pieces, _obstacles(rec), rtype)
-        for i, piece in enumerate(placement.pieces):
-            if placer.failed_checks(placement.checks[i]) and i not in drop:
-                drop[i] = "fails " + ", ".join(placer.failed_checks(placement.checks[i]))
-        for i in sorted(drop, reverse=True):
-            piece = placement.pieces.pop(i)
-            placement.checks.pop(i)
-            placement.dropped.append({"type": piece.type, "proposed": piece.proposed, "last": piece.state(),
-                                      "failed": [], "reason": drop[i], "repairs": list(piece.repairs)})
+        drop = {i: "fails " + ", ".join(placer.failed_checks(c)) for i, c in enumerate(placement.checks)
+                if placer.failed_checks(c)}                      # defensive: the placer drops these itself
+        drop = drop or companion_problems(placement.pieces, _obstacles(rec), rtype)
+        while drop:
+            for i in sorted(drop, reverse=True):
+                piece = placement.pieces.pop(i)
+                placement.checks.pop(i)
+                placement.dropped.append({"type": piece.type, "proposed": piece.proposed, "last": piece.state(),
+                                          "failed": [], "reason": drop[i], "repairs": list(piece.repairs)})
+            drop = companion_problems(placement.pieces, _obstacles(rec), rtype)   # a dropped desk takes its chair
         rec.placements[pass_no] = placement
         candidates[pass_no] = placement
     for pass_no, placement in sorted(rec.placements.items()):

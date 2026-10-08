@@ -534,7 +534,8 @@ def draw_room_png(room: dict, layout: RoomLayout, path: Path) -> None:
 # --------------------------------------------------------------------------
 
 def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
-    parser = argparse.ArgumentParser(description="AI furniture layout for rooms without documented furniture")
+    parser = argparse.ArgumentParser(description="AI furniture layout for rooms without documented furniture and "
+                                                 "the completion of rooms with drawn furniture (Milestone 10)")
     parser.add_argument("building", help="building.json (or building_fitted.json)")
     parser.add_argument("--style", help="style.json from python -m wenart.style")
     parser.add_argument("--server", default=DEFAULT_SERVER, help=f"vLLM server base URL (default {DEFAULT_SERVER})")

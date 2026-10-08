@@ -244,8 +244,8 @@ def test_dining_rooms_are_furnished_and_prayer_rooms_never():
     rooms["r_L1_yatak_odasi"]["room_type"] = "dining"
     rooms["r_L1_banyo"]["room_type"] = "prayer"
     assert schemas.ALLOWED_TYPES["dining"][:4] == ("table_dining", "chair", "dresser", "bookshelf")
-    assert schemas.layout_types("dining") == ("table_dining", "chair", "dresser", "bookshelf", "sideboard",
-                                              "display_cabinet", "bench")             # Milestone 10
+    assert schemas.layout_types("dining") == ("table_dining", "chair", "dresser", "bookshelf", "display_cabinet",
+                                              "sideboard", "bench")                   # Milestone 10
     assert schemas.ANCHOR_TYPES["dining"] == ("table_dining",) and "dining" in schemas.FURNISHABLE_ROOM_TYPES
     assert "prayer" not in schemas.FURNISHABLE_ROOM_TYPES and schemas.NOT_FURNISHED_ROOM_TYPES == ("prayer",)
     assert [r["id"] for r in L.not_furnished_rooms(building)] == ["r_L1_banyo"]

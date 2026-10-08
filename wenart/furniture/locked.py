@@ -29,7 +29,7 @@ How, mode ``complete`` (per drawn piece):
 - walls, openings and rooms byte-equal.
 
 Mode ``keep`` (and every room in ``keep_rooms``): the old byte rule, the
-fit's ``FROZEN_KEYS`` equal for every drawn piece. Anchors: a piece whose
+fit's ``FROZEN_KEYS`` (``KEEP_KEYS``) equal for every drawn piece. Anchors: a piece whose
 back edge (the edge opposite its ``front_deg``; its three points: both ends
 and the middle) lies within ``placer.WALL_TOUCH_M`` (5 cm) of the level's
 walls has a ``back_edge`` anchor at the edge's midpoint with the id of the
@@ -103,9 +103,10 @@ def anchor_of(piece: dict, building: dict) -> dict:
     return centre
 
 
-def _frozen_keys() -> tuple[str, ...]:
-    from wenart.furniture.fit import FROZEN_KEYS   # lazy: the fit pulls in the catalogue
-    return FROZEN_KEYS
+# keep mode: the fit's own guard keys (``wenart.furniture.fit.FROZEN_KEYS``; a copy, so the layout stage does not
+# import the fit, the catalogue and the asset code; tests/test_locked.py checks that both stay equal).
+KEEP_KEYS: tuple[str, ...] = ("id", "level_id", "room_id", "type", "type_raw", "source", "footprint", "front_deg",
+                              "height", "status", "evidence", "build")
 
 
 def _front_ok(a: Optional[float], b: Optional[float]) -> bool:
@@ -172,7 +173,7 @@ def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[st
     for f in final.get("furniture", []):
         if f.get("source") == "from_documents" and f["id"] not in source_ids:
             out.append(f"{f['id']}: labelled from_documents but not in the source building")
-    frozen = _frozen_keys()
+    frozen = KEEP_KEYS
     for src in source.get("furniture", []):
         if src.get("source") != "from_documents":
             continue

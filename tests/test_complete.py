@@ -403,6 +403,21 @@ def test_outputs_summary_report_and_debug(completed, tmp_path):
     assert (tmp_path / f"{SALON}.png").exists() and json.loads((tmp_path / f"{SALON}.json").read_text())["question"]
 
 
+@pytest.mark.parametrize("with_desk", [True, False])
+def test_an_office_chair_needs_its_desk(with_desk):
+    """§2.3 "desk + office_chair": the chair may stand in the desk's front clearance; without a desk it is dropped."""
+    desk = [pc("desk", (0.5, 2.0), 90, (1.4, 0.7), True, "under the window")] if with_desk else []
+    added = desk + [pc("office_chair", (1.2, 2.0) if with_desk else (3.0, 3.0), 270, (0.6, 0.6), False)]
+    answers = {(BEDROOM, k): {"changes": [], "added": added} for k in (1, 2)}
+    out, records = C.complete_building(drawn_building(example()), "x", FakeClient(answers), C.Settings())
+    rec = next(r for r in records if r.room_id == BEDROOM)
+    types = sorted(f["type"] for f in added_in(out, BEDROOM))
+    if with_desk:
+        assert types == ["desk", "office_chair"] and all(f["evidence"][0]["confidence"] == 0.9 for f in rec.added)
+    else:
+        assert types == [] and any("no desk in the room" in d["reason"] for d in rec.dropped)
+
+
 # --------------------------------------------------------------------------
 # Modes: keep (M9), keep size, keep list
 # --------------------------------------------------------------------------

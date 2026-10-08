@@ -236,6 +236,12 @@ def test_keep_rooms_use_the_keep_rule_in_complete_mode(pair):
     assert any(p.startswith("f_L-1_002: changed") for p in problems)
 
 
+def test_keep_keys_are_the_fits_frozen_keys():
+    from wenart.furniture import fit as F
+
+    assert LK.KEEP_KEYS == F.FROZEN_KEYS
+
+
 def test_unknown_mode_is_an_error(pair):
     source, final = pair
     with pytest.raises(ValueError):

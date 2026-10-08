@@ -141,12 +141,13 @@ CHILD_ONLY_TYPES: tuple[str, ...] = ("bunk_bed", "crib")    # only in a child's 
 LAYOUT_TYPES: tuple[str, ...] = tuple(t for t in SIZE_OPTIONS if t not in DOCUMENTED_ONLY_TYPES + RULE_ONLY_TYPES
                                       + CHANGE_ONLY_TYPES + ISLAND_ONLY_TYPES)
 
-# Room type -> types a room of that type may hold. Milestone 10 (§2.3): the new types at the end of each row;
-# ``layout_types`` (empty rooms) and ``completion_plan`` (rooms with drawn furniture) narrow a row per use; the
-# recognition veto and the vision check's decoy read the whole row.
+# Room type -> types a room of that type may hold. Milestone 10 (§2.3): the new types at the end of each row, the
+# ones least like a type before them first (the vision check's decoy is the first type of the row absent from a
+# view: a corner sofa next to a sofa would be a poor decoy); ``layout_types`` (empty rooms) and
+# ``completion_plan`` (rooms with drawn furniture) narrow a row per use; the recognition veto reads the whole row.
 ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
     "living": ("sofa", "armchair", "table_coffee", "tv_unit", "bookshelf", "table_dining", "chair",
-               "sofa_corner", "chaise", "ottoman", "console_table", "sideboard", "display_cabinet"),
+               "console_table", "sideboard", "display_cabinet", "ottoman", "chaise", "sofa_corner"),
     "bedroom": ("bed_double", "bed_single", "nightstand", "wardrobe", "dresser", "desk", "chair", "bookshelf",
                 "armchair", "bench", "ottoman", "office_chair", "bunk_bed", "crib"),
     "kitchen": ("kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "table_dining", "chair",
@@ -155,7 +156,7 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
     "wc": ("toilet", "washbasin"),
     "hall": ("dresser", "chair", "bookshelf", "console_table", "shoe_cabinet", "bench"),
     "dining": ("table_dining", "chair", "dresser", "bookshelf",      # Milestone 7 (§6.5)
-               "sideboard", "display_cabinet", "bench"),
+               "display_cabinet", "sideboard", "bench"),
     "other": ("armchair", "chair", "table_dining", "bookshelf", "desk"),
 }
 FURNISHABLE_ROOM_TYPES: tuple[str, ...] = tuple(ALLOWED_TYPES)
