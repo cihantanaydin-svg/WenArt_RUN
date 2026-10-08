@@ -208,27 +208,42 @@ def gable_end(region) -> Optional[str]:
 def elevation_z(region, datum: Optional[float], ground_z: Optional[float]) -> Optional[dict]:
     """How an elevation's y maps to building z: ``z = (y - y_ref) * metres_per_unit + z_ref``.
 
-    A level mark wins (``43.00`` with the section's datum 43.00 is z 0; a mark more than 30 m from the datum, or any
-    mark without a datum, is read as relative to the ground floor: ``±0.00`` is z 0); else the lowest horizontal
-    line spanning half the drawing is the ground (z of the section's ground line, else 0.0 assumed); else None."""
+    A level mark wins (``43.00`` with the section's datum 43.00 is z 0; a mark more than 30 m from the datum, or a
+    small mark without a datum, is read as relative to the ground floor: ``±0.00`` is z 0). An absolute mark (over
+    30 m) without a datum is read against the elevation's own ground: the mark on the ground line (else the lowest
+    mark) is taken as the ground's z (assumed, with a ``warning``). Else the lowest horizontal line spanning half the
+    drawing is the ground (z of the section's ground line, else 0.0 assumed); else None."""
     mpu = region.metres_per_unit
     if not mpu:
         return None
     segs = UC.segments([st for e in region.ents for st in e.strokes])
-    for t, value in UC.mark_texts(region.texts):
-        mp = UC.mark_point(t, segs)
-        if mp is None:
-            continue
-        absolute = datum is not None and abs(value - datum) <= 30.0
-        z_ref = value - datum if absolute else value
-        note = (f"level mark {t.text} - datum {datum:.2f}" if absolute else
-                f"level mark {t.text} read relative to the ground floor")
-        return {"y_ref": mp[1], "z_ref": round(z_ref, 4), "method": "vector",
-                "evidence": [_ev(region, t.id, "level_mark", t.text)], "note": note}
     gb = region.geometry_box
     width = gb[2] - gb[0]
     flat = [(min(a[1], b[1]), st) for a, b, st in segs
             if abs(a[1] - b[1]) <= 1e-6 * max(1.0, abs(a[1])) + 1e-9 and abs(b[0] - a[0]) >= 0.5 * width]
+    marks = [(t, value, mp) for t, value in UC.mark_texts(region.texts) for mp in [UC.mark_point(t, segs)]
+             if mp is not None]
+    if marks:
+        t, value, mp = marks[0]
+        if datum is not None and abs(value - datum) <= 30.0:
+            return {"y_ref": mp[1], "z_ref": round(value - datum, 4), "method": "vector",
+                    "evidence": [_ev(region, t.id, "level_mark", t.text)],
+                    "note": f"level mark {t.text} - datum {datum:.2f}"}
+        if abs(value) <= 30.0:
+            return {"y_ref": mp[1], "z_ref": round(value, 4), "method": "vector",
+                    "evidence": [_ev(region, t.id, "level_mark", t.text)],
+                    "note": f"level mark {t.text} read relative to the ground floor"}
+        # Absolute marks and no datum: the elevation's own ground mark is the ground (assumed).
+        g_tol = 0.02 / mpu
+        ground_y = min(f[0] for f in flat) if flat else None
+        on_ground = [m for m in marks if ground_y is not None and abs(m[2][1] - ground_y) <= g_tol]
+        gt, _, gmp = on_ground[0] if on_ground else min(marks, key=lambda m: m[2][1])
+        gz = ground_z if ground_z is not None else 0.0
+        where = "on its ground line" if on_ground else "the lowest"
+        note = f"no section datum: the elevation's mark {gt.text} ({where}) taken as z {gz:.2f} (assumed)"
+        return {"y_ref": gmp[1], "z_ref": round(gz, 4), "method": "derived",
+                "evidence": [_ev(region, gt.id, "level_mark", gt.text, confidence=0.5)], "note": note,
+                "warning": f"elevation {region.id}: {note}"}
     if flat:
         y, st = min(flat, key=lambda f: f[0])
         z_ref = ground_z if ground_z is not None else 0.0
@@ -588,6 +603,8 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
     north_deg = (out["north"] or {}).get("value")
     for r in elevations:
         zmap = elevation_z(r, datum, ground_z)
+        if zmap is not None and zmap.get("warning"):
+            warnings.append(zmap["warning"])
         entries, seen = facade_of(r, zmap, north_deg, warnings)
         out["facade"].extend(entries)
         out["openings_seen"].append(seen)

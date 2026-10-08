@@ -376,3 +376,15 @@ def test_steps_outside_the_walls_keep_the_cut_axis(tmp_path):
     assert not [c for c in res.doc["conflicts"] if c["kind"] == "section_width_mismatch"]
     roof = res.doc["exterior"]["roof"]
     assert roof["type"] == "gable" and roof["ridge_lines"]
+
+
+def test_an_absolute_elevation_mark_without_a_section_datum(tmp_path):
+    # Review finding 6: '+43.00' on the elevation's ground line and no section: the mark is the ground (assumed,
+    # listed), not z 43 m.
+    res = _run(tmp_path, exterior=True, section=False, elevation_mark="+43.00")
+    ex = res.doc["exterior"]
+    stone = next(f for f in ex["facade"] if f["material"] == "stone_cladding")
+    assert stone["z_range"] == pytest.approx([0.0, 1.0])
+    seen = ex["openings_seen"][0]
+    assert sorted(p["sill"] for p in seen["positions_m"] if p["kind"] == "window")[0] == pytest.approx(1.0)
+    assert any("no section datum" in w and "+43.00" in w for w in res.doc["warnings"])
