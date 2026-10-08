@@ -487,6 +487,14 @@ def test_id_ranges_keep_non_numeric_ids_sorted():
         "INSERT:FF/0,INSERT:FF/3/0,INSERT:FF/3/1,LINE:2F"
 
 
+def test_stroke_id_order_does_not_depend_on_the_input_order():
+    # DXF ids are not numeric: they sort by the id itself, not by set iteration (real02's counter_run strokes
+    # changed order from run to run).
+    ids = ["INSERT:2DE26/3", "INSERT:2DE26/12", "INSERT:2DE26/1", "path:12", "path:3"]
+    expected = ["INSERT:2DE26/1", "INSERT:2DE26/12", "INSERT:2DE26/3", "path:3", "path:12"]
+    assert sorted(ids, key=SY._id_key) == sorted(reversed(ids), key=SY._id_key) == expected
+
+
 def test_round_pieces_record_their_shape():
     """§6.4: a side table is round when a circle fits >= 90 % of its outline; a square one is not (its 4 corners
     lie on a circle, its outline does not)."""

@@ -424,11 +424,13 @@ class Cluster:
 
 
 def _id_key(sid: str):
+    """Numeric ids in numeric order; the id itself breaks ties (DXF ids such as ``INSERT:2DE26/3`` all had key
+    ``(head, 0)``, so their order followed Python's per-process string hashing and varied from run to run)."""
     head, _, tail = sid.partition(":")
     try:
-        return (head, int(tail.split("#")[0]))
+        return (head, int(tail.split("#")[0]), sid)
     except ValueError:
-        return (head, 0)
+        return (head, 0, sid)
 
 
 def clusters_of(segs: list[Seg], dist: float = CLUSTER_M) -> list[Cluster]:
