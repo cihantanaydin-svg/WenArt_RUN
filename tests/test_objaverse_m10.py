@@ -411,7 +411,8 @@ def test_new_types_go_from_the_survey_to_the_catalogue(tmp_path, monkeypatch):
     monkeypatch.setattr(C, "FURNITURE_TYPES", OV.furniture_types())
     monkeypatch.setattr(C, "DECOR_TYPES", OV.DECOR_TYPES)
     base = json.loads(C.CATALOG_PATH.read_text(encoding="utf-8"))
-    base["entries"] += [{"type": t, "parametric": True, "reason": "test"} for t in NEW_FURNITURE]
+    have = {e["type"] for e in base["entries"]}                 # track F's catalog.json has the new types already
+    base["entries"] += [{"type": t, "parametric": True, "reason": "test"} for t in NEW_FURNITURE if t not in have]
     base_path = tmp_path / "catalog.json"
     base_path.write_text(json.dumps(base), encoding="utf-8")
     cat = OV.write_catalog(out, tmp_path / "assets", CFG, base_catalog=base_path, log=quiet)
