@@ -90,6 +90,22 @@ SYMBOL_HINTS: dict[str, str] = {
     "side_table": "a small square or round table about 0.4-0.6 m, beside a sofa, armchair or bed",
     "floor_lamp": "a small circle about 0.3-0.5 m, often with rings or spokes, in a corner or beside a sofa",
     "potted_plant": "a circle or star of leaf shapes about 0.3-0.8 m",
+    # Milestone 10 (docs/milestone10.md §1.1).
+    "sofa_corner": "an L-shaped sofa about 2.2-3.0 m by 1.5-2.2 m: two seat rows meeting at a corner, a backrest along "
+                   "the outer sides",
+    "chaise": "a long single seat about 0.7 x 1.6 m with a backrest at one short end",
+    "ottoman": "a small upholstered square or round seat about 0.4-0.9 m without a backrest",
+    "bench": "a long narrow seat about 1.2 x 0.4 m without a backrest, at a bed foot, a table or a hall wall",
+    "bar_stool": "a small circle or square about 0.35-0.45 m at a kitchen island or counter",
+    "office_chair": "a seat about 0.6 m on a round five-star base, at a desk",
+    "console_table": "a narrow table about 1.2 x 0.35 m against a wall, often in a hall",
+    "crib": "a small bed about 0.7 x 1.4 m with barred sides, in a child's room",
+    "bunk_bed": "a single-bed rectangle about 0.9 x 2.0 m drawn as two beds above each other, often with a ladder",
+    "sideboard": "a long low cabinet about 1.6 x 0.45 m against a wall, in a living or dining room",
+    "shoe_cabinet": "a slim cabinet about 0.8 x 0.3 m against a wall near the entrance",
+    "display_cabinet": "a cabinet with glass doors about 1.0 x 0.4 m against a wall",
+    "tall_cabinet": "a tall cabinet about 0.6 x 0.6 m at the end of a kitchen counter run",
+    "wall_cabinet": "a kitchen wall cabinet about 0.6 x 0.35 m above the counter, drawn dashed",
     "unknown": "a clear furniture footprint whose type you cannot tell",
 }
 
@@ -260,6 +276,8 @@ def _fact_lines(facts: dict) -> list[str]:
     lines = []
     if facts.get("size_m"):
         lines.append(f"- Its drawn footprint is about {_metres(facts['size_m'])}.")
+    if facts.get("shape") == "L":
+        lines.append("- Its outline is L-shaped: two arms meeting at a corner (the size is the box around the L).")
     room = facts.get("room")
     if room:
         if room.get("label"):

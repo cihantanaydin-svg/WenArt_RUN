@@ -46,3 +46,20 @@ types:
   side_table:      {width: [0.30, 0.70], depth: [0.30, 0.70], source: "std (side and corner tables 0.4-0.6); r01 F17 round 0.43 (type open)"}
   floor_lamp:      {width: [0.25, 0.60], depth: [0.25, 0.60], source: "std (bases and shades 0.3-0.5 from above); r01 F17 round 0.43 (type open)"}
   potted_plant:    {width: [0.20, 1.00], depth: [0.20, 1.00], source: "std (pots 0.2-0.6, foliage up to 1.0)"}
+  # Milestone 10 (docs/milestone10.md §1.1, checked 8 Oct 2026): the 14 new types. std as above (planning handbook
+  # and manufacturer ranges, widened); no synthetic block and no real01 piece draws them yet; m10 = measured on the
+  # real02 drawing (projects/real02/one_building.dwg converted to DXF, centimetres).
+  sofa_corner:     {width: [1.80, 3.60], depth: [1.40, 3.00], source: "std (L-shaped corner sofas 2.0-3.2 x 1.5-2.5, both legs 0.8-1.0 deep); the footprint is the bounding box of the L"}
+  chaise:          {width: [0.55, 0.95], depth: [1.30, 2.00], source: "std (chaise longues 0.6-0.9 x 1.4-1.9)"}
+  ottoman:         {width: [0.35, 1.00], depth: [0.35, 1.00], source: "std (poufs and footstools 0.4-0.9, square or round)"}
+  bench:           {width: [0.80, 2.00], depth: [0.30, 0.55], source: "std (bed-foot, hall and dining benches 0.9-1.8 x 0.35-0.5)"}
+  bar_stool:       {width: [0.30, 0.50], depth: [0.30, 0.50], source: "std (seats 0.3-0.45, bases up to 0.5)"}
+  office_chair:    {width: [0.50, 0.75], depth: [0.50, 0.75], source: "std (five-star bases 0.6-0.7)"}
+  console_table:   {width: [0.70, 1.60], depth: [0.25, 0.45], source: "std (hall consoles 0.8-1.4 x 0.3-0.4)"}
+  crib:            {width: [0.60, 0.85], depth: [1.15, 1.50], source: "std (cot mattresses 0.6 x 1.2 and 0.7 x 1.4, frame + 5-10 cm)"}
+  bunk_bed:        {width: [0.85, 1.20], depth: [1.90, 2.20], source: "std (single-mattress bunks 0.9-1.0 x 2.0, frame and ladder up to 1.1 x 2.1); from above it looks like a single bed"}
+  sideboard:       {width: [1.00, 2.40], depth: [0.35, 0.55], source: "std (sideboards and buffets 1.2-2.2 x 0.4-0.5)"}
+  shoe_cabinet:    {width: [0.50, 1.40], depth: [0.20, 0.40], source: "std (slim shoe cabinets 0.6-1.2 x 0.2-0.35)"}
+  display_cabinet: {width: [0.50, 1.60], depth: [0.30, 0.55], source: "std (glass-front vitrines 0.6-1.4 x 0.35-0.5)"}
+  tall_cabinet:    {width: [0.30, 1.20], depth: [0.30, 0.70], source: "std (kitchen tall units 0.4-0.6 x 0.6, pantry and utility cabinets up to 1.2)"}
+  wall_cabinet:    {width: [0.30, 1.20], depth: [0.25, 0.40], source: "std (kitchen wall units 0.3-1.2 x 0.3-0.37, seen from above)"}

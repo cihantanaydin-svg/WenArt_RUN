@@ -35,7 +35,11 @@ building may say:
 ``answers`` = ``{model_key: answer dict | None}`` as ``answers.load`` gives per key; the pass number and model id of
 each key come from ``answers.model_info`` (check.yaml). ``candidate`` carries ``key``, ``footprint {center, size,
 rotation_deg}``, ``strokes``, ``bbox`` and, for the evidence, ``file``, ``page``; optional ``element_id`` (put in
-the conflict), ``level``, ``room_id``, ``front_deg`` / ``front_candidates``.
+the conflict), ``level``, ``room_id``, ``front_deg`` / ``front_candidates``, ``shape`` (or ``footprint["shape"]``).
+
+**Shaped types** (Milestone 10, ``SHAPED_TYPES``): the corner sofa ``sofa_corner`` is offered and accepted only for a
+footprint the core found L-shaped (its size range is the bounding box of the L); a both-pass ``sofa_corner`` on
+another outline is a ``symbol_type_disagreement`` conflict (shape veto), like the size veto.
 
 **Question facts** (prep pod finding P5, ``question_facts``): what the question tells the models about one item,
 derived only from the drawing: the drawn footprint size; ``choices`` = the types whose size range fits it (+15 %,
@@ -78,6 +82,9 @@ SIMILAR_MIN_M = 0.03
 NEAR_M = 0.3                       # ... a larger piece (area >= 2x) within 0.3 m of the footprint is "next to" it
 LARGER_FACTOR = 2.0
 LABEL_MAX_CHARS = 60
+# Types a footprint size alone never offers or accepts: they need the drawn shape the core found (docs/milestone10.md
+# §1.1: the corner sofa is an L; ``candidate["shape"]``). Their size range is the bounding box of the shape.
+SHAPED_TYPES: dict[str, str] = {"sofa_corner": "L"}
 
 
 # --------------------------------------------------------------------------
@@ -148,15 +155,28 @@ def oriented_size(size, rotation_deg: float, ftype: str, table: Optional[dict] =
 # Question facts (prep pod finding P5)
 # --------------------------------------------------------------------------
 
-def choices_for(size, table: Optional[dict] = None) -> list[str]:
+def shape_of(candidate: dict) -> Optional[str]:
+    """The drawn shape of a candidate (``"L"``): its own ``shape`` or its footprint's (the core puts it there, so it
+    travels with the footprint into the question and the two-pass rule)."""
+    return candidate.get("shape") or (candidate.get("footprint") or {}).get("shape")
+
+
+def shape_allows(ftype: str, shape: Optional[str]) -> bool:
+    """A shaped type (``SHAPED_TYPES``) only for its drawn shape; every other type for any outline."""
+    return ftype not in SHAPED_TYPES or SHAPED_TYPES[ftype] == shape
+
+
+def choices_for(size, table: Optional[dict] = None, shape: Optional[str] = None) -> list[str]:
     """The types offered for a footprint: every schema type whose size range fits it (+15 %, either orientation, in
-    the schema's order) plus ``unknown`` and ``not_furniture``; without a size the full list. Sides are rounded to
-    1 mm first, so sub-millimetre noise never changes the list (it is hashed)."""
+    the schema's order; a shaped type only for its drawn ``shape``) plus ``unknown`` and ``not_furniture``; without
+    a size the full list. Sides are rounded to 1 mm first, so sub-millimetre noise never changes the list (it is
+    hashed)."""
     if size is None or len(size) < 2:
         return list(schemas.SYMBOL_TYPE_CHOICES)
     table = normalise_table(table if table is not None else load_size_table())
     sides = sides_mm(size)
-    fitting = [t for t in schemas.FURNITURE_TYPES if t != "unknown" and fits(table, t, sides)]
+    fitting = [t for t in schemas.FURNITURE_TYPES if t != "unknown" and fits(table, t, sides) and
+               shape_allows(t, shape)]
     return fitting + ["unknown", schemas.NOT_FURNITURE]
 
 
@@ -185,9 +205,12 @@ def question_facts(candidate: dict, kind: str = "vector", table: Optional[dict] 
     if kind not in QUESTION_KINDS:
         raise ValueError(f"symbol question: unknown crop kind {kind!r}")
     size = (candidate.get("footprint") or {}).get("size")
-    facts = {"kind": kind, "choices": choices_for(size, table),
+    shape = shape_of(candidate)
+    facts = {"kind": kind, "choices": choices_for(size, table, shape),
              "size_m": _cm(size[:2]) if size is not None and len(size) >= 2 else None, "room": None,
              "neighbours": None}
+    if shape == "L":
+        facts["shape"] = "L"                   # only when drawn: the facts (and hashes) of other items stay as they were
     if kind == "raster":
         return facts
     label = _clean_label(candidate.get("room_label"))
@@ -468,6 +491,11 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
         result["conflict"] = conflict(f"{key}: both passes say {agreed}, but the drawn footprint {w:.2f} x {d:.2f} m "
                                       f"is outside the {agreed} size range")
         warnings.append(f"{key}: size veto: {agreed} does not fit {w:.2f} x {d:.2f} m")
+        return result
+    if not shape_allows(agreed, shape_of(candidate)):
+        result["conflict"] = conflict(f"{key}: both passes say {agreed}, but the drawn outline is not "
+                                      f"{SHAPED_TYPES[agreed]}-shaped")
+        warnings.append(f"{key}: shape veto: {agreed} needs an {SHAPED_TYPES[agreed]}-shaped outline")
         return result
     result.update(type=agreed, status="verified", type_method="ai_two_pass",
                   confidence=round(min(min(float(p["answer"]["confidence"]) for p in passes), CONFIDENCE_CAP), 4))

@@ -125,7 +125,45 @@ FALLBACK_SIZE_TABLE: dict[str, tuple[tuple[float, float], tuple[float, float]]] 
     "side_table": ((0.3, 0.7), (0.3, 0.7)),
     "floor_lamp": ((0.25, 0.6), (0.25, 0.6)),
     "potted_plant": ((0.2, 1.0), (0.2, 1.0)),
+    # Milestone 10 (docs/milestone10.md §1.1; size_table.yaml has the sources).
+    "sofa_corner": ((1.8, 3.6), (1.4, 3.0)),
+    "chaise": ((0.55, 0.95), (1.3, 2.0)),
+    "ottoman": ((0.35, 1.0), (0.35, 1.0)),
+    "bench": ((0.8, 2.0), (0.3, 0.55)),
+    "bar_stool": ((0.3, 0.5), (0.3, 0.5)),
+    "office_chair": ((0.5, 0.75), (0.5, 0.75)),
+    "console_table": ((0.7, 1.6), (0.25, 0.45)),
+    "crib": ((0.6, 0.85), (1.15, 1.5)),
+    "bunk_bed": ((0.85, 1.2), (1.9, 2.2)),
+    "sideboard": ((1.0, 2.4), (0.35, 0.55)),
+    "shoe_cabinet": ((0.5, 1.4), (0.2, 0.4)),
+    "display_cabinet": ((0.5, 1.6), (0.3, 0.55)),
+    "tall_cabinet": ((0.3, 1.2), (0.3, 0.7)),
+    "wall_cabinet": ((0.3, 1.2), (0.25, 0.4)),
 }
+
+# Milestone 10 block-name words (docs/milestone10.md §1.1), tried before BLOCK_KEYWORDS: only words that name the
+# type in English or Turkish (Turkish letters folded to ASCII, spaces and hyphens read as "_"); words of up to four
+# letters must be a whole word of the name (BANK is a bench, BANKO a counter). The generic words YATAK (bed) and
+# MASA (table) are tried after BLOCK_KEYWORDS (YATAK_TEK, YEMEK_MASASI say more), and BLOCK_KEYWORDS' KOLTUK
+# (armchair in M7) is read as a seat: armchair or sofa by the size table, the corner sofa for an L outline.
+BLOCK_KEYWORDS_M10: tuple[tuple[str, str], ...] = (
+    ("KOSE_KOLTUK", "sofa_corner"), ("KOSEKOLTUK", "sofa_corner"), ("CORNER_SOFA", "sofa_corner"),
+    ("SECTIONAL", "sofa_corner"), ("CHAISE", "chaise"), ("SEZLONG", "chaise"), ("OTTOMAN", "ottoman"),
+    ("PUF", "ottoman"), ("POUF", "ottoman"), ("BENCH", "bench"), ("BANK", "bench"), ("BAR_STOOL", "bar_stool"),
+    ("BARSTOOL", "bar_stool"), ("BAR_TABURE", "bar_stool"), ("OFFICE_CHAIR", "office_chair"),
+    ("CALISMA_SANDALYE", "office_chair"), ("OFIS_KOLTU", "office_chair"), ("OFIS_SANDALYE", "office_chair"),
+    ("CONSOLE", "console_table"), ("KONSOL", "console_table"), ("CRIB", "crib"), ("BESIK", "crib"),
+    ("BUNK", "bunk_bed"), ("RANZA", "bunk_bed"), ("SIDEBOARD", "sideboard"), ("BUFE", "sideboard"),
+    ("SHOE", "shoe_cabinet"), ("AYAKKABI", "shoe_cabinet"), ("VITRIN", "display_cabinet"),
+    ("DISPLAY_CABINET", "display_cabinet"), ("TALL_CABINET", "tall_cabinet"), ("BOY_DOLAB", "tall_cabinet"),
+    ("WALL_CABINET", "wall_cabinet"), ("UST_DOLAP", "wall_cabinet"), ("USTDOLAP", "wall_cabinet"),
+)
+BLOCK_GENERIC_M10: tuple[tuple[str, str], ...] = (("YATAK", "bed"), ("MASA", "table"))
+SEAT_KEYWORDS = ("KOLTUK",)
+WHOLE_WORD_MAX = 4
+_FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "ğ": "g", "Ü": "U", "ü": "u", "Ö": "O",
+                       "ö": "o", "Ç": "C", "ç": "c", " ": "_", "-": "_"})
 
 # DXF block-name keywords (§2.8), English then Turkish (wenart/synthetic/blocks.py); first match wins, so the more
 # specific words come first (ARMCHAIR before CHAIR, CHAIR before DINING, BEDSIDE before BED).
@@ -187,8 +225,11 @@ def fits(table: dict, ftype: str, size) -> bool:
     return (inside(a, w0, w1) and inside(b, d0, d1)) or (inside(a, d0, d1) and inside(b, w0, w1))
 
 
-def fitting_types(table: dict, size) -> list[str]:
-    return [t for t in table if t != "stair" and fits(table, t, size)]
+def fitting_types(table: dict, size, shape: Optional[str] = None) -> list[str]:
+    """Types whose size range fits (``stair`` never: the stair rule decides); a shaped type (the corner sofa) only
+    for its drawn shape (``recognition.symbols.SHAPED_TYPES``)."""
+    from wenart.recognition.symbols import shape_allows
+    return [t for t in table if t != "stair" and fits(table, t, size) and shape_allows(t, shape)]
 
 
 # --------------------------------------------------------------------------
@@ -651,8 +692,30 @@ def top_contours(cl: Cluster) -> list[tuple[Polygon, list[int]]]:
 
 
 def _block_keyword(name: str) -> Optional[str]:
-    upper = name.upper()
-    return next((ftype for key, ftype in BLOCK_KEYWORDS if key in upper), None)
+    return keyword_type(name)
+
+
+def keyword_type(name: str) -> Optional[str]:
+    """The type word of a block name: the Milestone 10 words first (folded name, whole words for short ones), then
+    the M7 keywords (substring of the upper-case name); None when no word matches. Generic words (``bed``,
+    ``table``, ``seat``) are resolved by ``block_type``."""
+    folded = (name or "").translate(_FOLD).upper()
+    words = set(folded.replace(".", "_").split("_"))
+
+    def match(table):
+        for key, ftype in table:
+            if (key in words) if len(key) <= WHOLE_WORD_MAX else (key in folded):
+                return key, ftype
+        return None, None
+
+    key, ftype = match(BLOCK_KEYWORDS_M10)
+    if ftype is not None:
+        return ftype
+    upper = (name or "").upper()
+    hit = next(((key, ftype) for key, ftype in BLOCK_KEYWORDS if key in upper), None)
+    if hit is not None:
+        return "seat" if hit[0] in SEAT_KEYWORDS else hit[1]
+    return match(BLOCK_GENERIC_M10)[1]
 
 
 def block_instance(st: Stroke) -> tuple[str, bool]:
@@ -1667,21 +1730,30 @@ def _counter_item(leg: dict, walls: list, ctx: _Ctx, raster: bool) -> FurnitureI
                                                   abs(leg["front_f"][1]) > 0 else y1 - y0, 4)}})
 
 
-def block_type(names: list[str], size, table: dict) -> Optional[str]:
-    """Furniture type from DXF block names (innermost first) by the keyword table, resolved by the size table for
-    the generic words BED and TABLE; None when no keyword matches."""
+def block_type(names: list[str], size, table: dict, shape: Optional[str] = None) -> Optional[str]:
+    """Furniture type from DXF block names (innermost first) by the keyword tables (``keyword_type``), resolved by
+    the size table for the generic words BED / YATAK, TABLE / MASA and KOLTUK (armchair, sofa; an L-shaped outline:
+    the corner sofa); None when no keyword matches."""
     for name in names:
-        upper = name.upper()
-        for key, ftype in BLOCK_KEYWORDS:
-            if key in upper:
-                if ftype == "bed":
-                    return "bed_double" if fits(table, "bed_double", size) else "bed_single"
-                if ftype == "table":
-                    for t in ("table_dining", "table_coffee", "desk"):
-                        if fits(table, t, size):
-                            return t
-                    return "table_dining"
-                return ftype
+        ftype = keyword_type(name)
+        if ftype is None:
+            continue
+        if ftype == "bed":
+            return "bed_double" if fits(table, "bed_double", size) else "bed_single"
+        if ftype == "table":
+            for t in ("table_dining", "table_coffee", "desk"):
+                if fits(table, t, size):
+                    return t
+            return "table_dining"
+        if ftype == "seat":
+            # KOLTUK: an armchair (M7) or, when the drawn piece is longer, a sofa; an L outline is a corner sofa.
+            if shape == "L":
+                return "sofa_corner"
+            for t in ("armchair", "sofa"):
+                if fits(table, t, size):
+                    return t
+            return "armchair"
+        return ftype
     return None
 
 
