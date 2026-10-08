@@ -129,14 +129,21 @@ FURNITURE_WORDS: dict[str, str] = {
     "toilet": "toilet", "shower": "shower", "bathtub": "bathtub", "tv_unit": "tv stand", "bookshelf": "bookshelf",
     "nightstand": "nightstand", "dresser": "chest of drawers", "washing_machine": "washing machine",
     "stair": "staircase", "side_table": "side table", "floor_lamp": "floor lamp", "potted_plant": "potted plant",
+    # Milestone 10 (docs/milestone10.md §1.1)
+    "sofa_corner": "corner sofa", "chaise": "chaise longue", "ottoman": "ottoman", "bench": "bench",
+    "bar_stool": "bar stool", "office_chair": "office chair", "console_table": "console table", "crib": "crib",
+    "bunk_bed": "bunk bed", "sideboard": "sideboard", "shoe_cabinet": "shoe cabinet", "display_cabinet": "display cabinet",
+    "tall_cabinet": "tall cabinet", "wall_cabinet": "wall cabinet",
 }
 # Types whose element families a box of that type may lie on without being "added" (§8.1 "compatible type").
 FAMILIES: tuple[tuple[str, ...], ...] = (
-    ("bed_single", "bed_double"),
-    ("sofa", "armchair", "chair"),
-    ("table_dining", "table_coffee", "desk", "side_table", "nightstand", "kitchen_island"),
-    ("wardrobe", "dresser", "bookshelf", "tv_unit", "nightstand"),
-    ("kitchen_counter", "kitchen_island", "stove", "sink_kitchen", "fridge", "washing_machine"),
+    ("bed_single", "bed_double", "bunk_bed", "crib"),
+    ("sofa", "armchair", "chair", "sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair"),
+    ("table_dining", "table_coffee", "desk", "side_table", "nightstand", "kitchen_island", "console_table"),
+    ("wardrobe", "dresser", "bookshelf", "tv_unit", "nightstand", "sideboard", "shoe_cabinet", "display_cabinet",
+     "tall_cabinet"),
+    ("kitchen_counter", "kitchen_island", "stove", "sink_kitchen", "fridge", "washing_machine", "wall_cabinet",
+     "tall_cabinet"),
     ("washbasin", "toilet", "shower", "bathtub", "washing_machine"),
     ("floor_lamp",),
     ("potted_plant", "plant"),
