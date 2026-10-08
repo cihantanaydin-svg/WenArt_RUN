@@ -74,31 +74,41 @@ def ch(pid, ftype, size, style="modern", colour="light grey", reason="test"):
 
 SALON, KITCHEN, HALL, HALL_ALT, BEDROOM, BATH = ("r_L-1_salon", "r_L-1_mutfak", "r_L-1_hol", "r_L-1b_hol",
                                                  "r_L0_yatak_odasi", "r_L0_banyo")
+HALL_L0 = "r_L0_hol"
 EXAMPLE_ANSWERS = {
     # The drawn sofa becomes a corner sofa (both passes; sizes 2.6 / 3.0: the smaller is kept; colours differ:
     # the project's); pass 1 adds a coffee table and a TV unit, pass 2 only the coffee table (agreed: 0.9).
     (SALON, 1): {"changes": [ch("f_L-1_002", "sofa_corner", (2.6, 1.6), colour="light grey", reason="fills the wall")],
-                 "added": [pc("table_coffee", (2.6, 5.9), 0, (1.0, 0.6), False, "in front of the sofa"),
-                           pc("tv_unit", (4.5, 0.375), 180, (1.6, 0.45), True, "facing the sofa")]},
+                 "added": [pc("table_coffee", (2.725, 6.025), 0, (1.0, 0.6), False, "in front of the sofa"),
+                           pc("tv_unit", (4.625, 0.5), 180, (1.6, 0.45), True, "facing the sofa")]},
     (SALON, 2): {"changes": [ch("f_L-1_002", "sofa_corner", (3.0, 1.7), colour="beige", reason="corner sofa")],
-                 "added": [pc("table_coffee", (2.7, 5.8), 0, (1.0, 0.6), False, "coffee table")]},
+                 "added": [pc("table_coffee", (2.825, 5.925), 0, (1.0, 0.6), False, "coffee table")]},
     # The bedroom misses its nightstands and a wardrobe; pass 2 also proposes a bed (never a second one).
-    (BEDROOM, 1): {"changes": [], "added": [pc("nightstand", (1.9, 7.65), 0, (0.5, 0.4)),
-                                            pc("nightstand", (4.1, 7.65), 0, (0.5, 0.4)),
-                                            pc("wardrobe", (0.45, 2.5), 90, (1.8, 0.6))]},
+    (BEDROOM, 1): {"changes": [], "added": [pc("nightstand", (2.025, 7.775), 0, (0.5, 0.4)),
+                                            pc("nightstand", (4.225, 7.775), 0, (0.5, 0.4)),
+                                            pc("wardrobe", (0.571, 2.625), 90, (1.8, 0.6))]},
     (BEDROOM, 2): {"changes": [ch("f_L0_002", "bed_double", (1.8, 2.0))],
-                   "added": [pc("nightstand", (1.9, 7.6), 0, (0.5, 0.4)), pc("wardrobe", (0.45, 2.6), 90, (1.8, 0.6))]},
+                   "added": [pc("nightstand", (2.025, 7.725), 0, (0.5, 0.4)),
+                             pc("wardrobe", (0.571, 2.725), 90, (1.8, 0.6))]},
     # The base hall gets a console table; the alternative level's hall (same_as) is never asked.
-    (HALL, 1): {"changes": [], "added": [pc("console_table", (6.4, 6.0), 90, (1.2, 0.35), True, "slim console")]},
-    (HALL, 2): {"changes": [], "added": [pc("console_table", (6.4, 6.1), 90, (1.2, 0.35), True, "console")]},
+    (HALL, 1): {"changes": [], "added": [pc("console_table", (6.525, 6.125), 90, (1.2, 0.35), True, "slim console")]},
+    (HALL, 2): {"changes": [], "added": [pc("console_table", (6.525, 6.225), 90, (1.2, 0.35), True, "console")]},
+    # The ground-floor hall's unverified drawn piece (unknown): both passes propose a console table (§1.6b row 15).
+    (HALL_L0, 1): {"changes": [ch("f_L0_009", "console_table", (1.2, 0.35), reason="a narrow table: console")],
+                   "added": []},
+    (HALL_L0, 2): {"changes": [ch("f_L0_009", "console_table", (0.9, 0.3), reason="console table")], "added": []},
 }
+# style.json slots the looks are read from (track C adds them; absent slots give no design keys).
+STYLE = {"family": "modern", "cabinets": {"front_style": "shaker", "colour": "sage", "handle": "brass", "worktop": "stone"},
+         "furniture": {"by_type": {"table_coffee": {"material_tags": ["glass", "chrome"]},
+                                   "sofa_corner": {"material_tags": ["fabric"]}}}}
 
 
 @pytest.fixture(scope="module")
 def completed():
     source = drawn_building(example())
     client = FakeClient(EXAMPLE_ANSWERS)
-    out, records = C.complete_building(source, "Modern natural", client, C.Settings(), family="modern")
+    out, records = C.complete_building(source, "Modern natural", client, C.Settings(), style=STYLE)
     return source, out, {r.room_id: r for r in records}, client
 
 
@@ -274,7 +284,8 @@ def test_prompt_lists_the_room_the_drawn_pieces_and_what_is_missing(completed):
     drawn = json.loads(p1.split("of a piece against a wall):\n", 1)[1].split("\n\n", 1)[0])
     assert [d["id"] for d in drawn] == ["f_L-1_002"]
     sofa = drawn[0]
-    assert sofa["kind"] == "changeable" and sofa["anchor"] == {"kind": "back_edge", "point": [3.0, 7.85]}
+    assert sofa["kind"] == "changeable" and sofa["anchor"]["kind"] == "back_edge"
+    assert sofa["anchor"]["point"] == pytest.approx([3.125, 7.975], abs=0.006)                # 2 decimals
     assert sofa["against_wall"] == "w_L-1_003" and sofa["front_deg"] == 270.0
     assert "expected for this room type and missing: table_coffee (1), tv_unit (1)" in p1
     assert "- sofa_corner: height 0.85 m, size options [2.2, 1.5], [2.6, 1.6], [3.0, 1.7]" in p1
@@ -308,15 +319,16 @@ def test_a_changed_drawn_piece_keeps_its_anchor_and_label(completed):
     assert sofa["source"] == "from_documents" and sofa["modified_by_ai"] is True and sofa["status"] == "verified"
     assert sofa["type"] == "sofa_corner" and sofa["drawn_type"] == "sofa" and sofa["drawn_height"] == drawn["height"]
     assert sofa["drawn_footprint"] == drawn["footprint"]
-    assert sofa["footprint"]["size"] == [2.6, 1.6] and sofa["footprint"]["center"] == [3.0, 7.05]   # as the example
+    assert sofa["footprint"]["size"] == [2.6, 1.6] and sofa["footprint"]["center"] == [3.125, 7.175]  # the example's
+    assert sofa["seat_depth"] == 0.9 and sofa["chaise_width"] == 0.9
     assert sofa["shape"] == "L" and sofa["chaise_side"] == "right" and sofa["chaise_depth"] == 1.6
     assert sofa["front_deg"] == drawn["front_deg"] and sofa["height"] == schemas.HEIGHTS["sofa_corner"]
-    assert sofa["anchor"] == {"kind": "back_edge", "point": [3.0, 7.85], "wall_id": "w_L-1_003"}
+    assert sofa["anchor"] == {"kind": "back_edge", "point": [3.125, 7.975], "wall_id": "w_L-1_003"}
     ai = [e for e in sofa["evidence"] if e["method"] == "ai"]
     assert [e["pass"] for e in ai] == [1, 2] and all(e["model"] == MODEL and e["confidence"] == 0.9 for e in ai)
     assert [e["text"] for e in ai] == ["fills the wall", "corner sofa"]
     assert sofa["evidence"][:len(drawn["evidence"])] == drawn["evidence"]
-    assert sofa["design"]["style_family"] == "modern" and "fabric_colour" not in sofa["design"]   # colours differed
+    assert sofa["design"] == {"style_family": "modern", "material_tags": ["fabric"]}   # colours differed: none
     change = next(c for c in records[SALON].changes if c["id"] == "f_L-1_002")
     assert change["status"] == "applied" and change["drawn_size"] == [2.2, 0.9] and change["size"] == [2.6, 1.6]
 
@@ -367,11 +379,12 @@ def test_wall_cabinets_follow_the_counter_run(completed):
     cab = kitchen[0]
     assert cab["source"] == "added_by_ai" and cab["method"] == "rule" and cab["completes_room"] is True
     assert cab["evidence"][0]["method"] == "derived" and "f_L-1_004" in cab["evidence"][0]["text"]
-    assert cab["rule"]["z"] == [1.45, 2.15] and cab["height"] == pytest.approx(0.7)
-    # Counter x 6.5..9.5 along the wall w_L-1_006; the door d_L-1_003 (x 6.6..7.4) keeps 0.15 m free.
-    assert cab["footprint"]["size"] == [1.95, 0.35] and cab["footprint"]["center"] == pytest.approx([8.525, 3.775])
-    assert cab["design"] == {"front_style": "shaker", "colour": "sage", "handle": "brass"}
-    assert "door d_L-1_003" in cab["rule"]["excluded"]
+    assert cab["rule"]["z"] == [1.45, 2.15] and cab["mount_bottom_m"] == 1.45 and cab["height"] == pytest.approx(0.7)
+    # Counter y 0.625..3.625 on the east wall w_L-1_002 (back edge x 9.98, wall face x 10.0): no window, door or
+    # stove along it: one 3.0 m run, its back on the wall face, facing west like the counter.
+    assert cab["footprint"]["size"] == [3.0, 0.35] and cab["footprint"]["center"] == pytest.approx([9.825, 2.125])
+    assert cab["footprint"]["rotation_deg"] == 270.0 and cab["front_deg"] == 180.0 and cab["rule"]["excluded"] == []
+    assert cab["design"] == {"front_style": "shaker", "colour": "sage", "handle": "brass"}     # style.json cabinets
     open_kitchen = [f for f in cabinets if f["room_id"] == "r_L-1b_salon_acik_mutfak"]
     assert len(open_kitchen) == 1                                        # an open kitchen of a living room too
 
@@ -391,12 +404,14 @@ def test_outputs_summary_report_and_debug(completed, tmp_path):
     _s, out, records, _c = completed
     recs = list(records.values())
     summary = C.summary(recs, out, C.Settings(), "http://x/v1", MODEL, [])
-    assert summary["kind"] == "completion" and summary["changes_applied"] == 1
+    assert summary["kind"] == "completion" and summary["changes_applied"] == 2          # the sofa, the proposal
     assert summary["pieces_added"] == 7 and summary["wall_cabinets"] == 2 and summary["rooms_copied"] == 1
     json.dumps(summary)
     report = C.report(recs, out, C.Settings(), [])
     assert "| r_L-1_salon | f_L-1_002 | sofa / 2.20 x 0.90 | sofa_corner / 2.60 x 1.60 | applied |" in report
-    assert "## Locked check: pass" in report and "f_L-1_004 fails doors_free" in report
+    assert "## Locked check: pass" in report and "f_L0_009 fails doors_free as drawn" in report
+    assert "| r_L0_hol | f_L0_009 | unknown / 0.90 x 0.35 | console_table / 0.90 x 0.35 | applied (type_proposal) |" \
+        in report
     assert "pass 2 bed_double" not in report or "never a second" in report
     for rec in recs:
         C.write_room_debug(rec, out, tmp_path)
@@ -427,7 +442,9 @@ def test_keep_mode_is_unchanged_from_m9():
     client = FakeClient(EXAMPLE_ANSWERS)
     out, records = C.complete_building(source, "x", client, C.Settings(mode="keep"))
     assert client.calls == [] and all(r.state == "kept" for r in records)
-    assert json.dumps(out["furniture"], sort_keys=True) == json.dumps(source["furniture"], sort_keys=True)
+    no_look = [{k: v for k, v in f.items() if k != "design"} for f in out["furniture"]]
+    assert json.dumps(no_look, sort_keys=True) == json.dumps(source["furniture"], sort_keys=True)
+    assert piece(out, "f_L0_007")["design"] == {"vanity": True}            # kept rooms get their looks (row 15)
     assert LK.check(source, out, "keep") == []
 
 
@@ -466,7 +483,23 @@ def test_settings_from_the_brief(tmp_path):
 # Unverified drawn pieces: type proposals
 # --------------------------------------------------------------------------
 
-def test_an_unverified_piece_gets_a_type_proposal_and_keeps_its_footprint():
+def test_an_unverified_piece_gets_a_type_proposal_as_the_example(completed):
+    """§1.6b row 15: the example's f_L0_009 (drawn unknown, unverified): the agreed type, type_proposal, drawn_type,
+    its drawn footprint, front and status, no modified_by_ai; listed with the unverified items."""
+    source, out, records, _c = completed
+    after, drawn, want = piece(out, "f_L0_009"), piece(source, "f_L0_009"), piece(example(), "f_L0_009")
+    for key in ("type", "type_proposal", "drawn_type", "status", "footprint", "front_deg", "height", "source"):
+        assert after.get(key) == want.get(key), key
+    assert "modified_by_ai" not in after and "drawn_footprint" not in after
+    ai = [e for e in after["evidence"] if e["method"] == "ai"]
+    assert [e["pass"] for e in ai] == [1, 2] and all(e["confidence"] == 0.6 for e in ai)
+    assert after["evidence"][:len(drawn["evidence"])] == drawn["evidence"]
+    assert "f_L0_009" in out["unverified"] and any("AI type proposal console_table" in w for w in out["warnings"])
+    change = next(c for c in records[HALL_L0].changes if c["id"] == "f_L0_009")
+    assert change["type_proposal"] is True and change["status"] == "applied"
+
+
+def test_unverified_bed_proposal_never_adds_a_second_bed():
     source = drawn_building(example())
     bed = piece(source, "f_L0_002")
     bed.update(type="unknown", status="unverified", type_raw="BLOK_A")
@@ -476,11 +509,58 @@ def test_an_unverified_piece_gets_a_type_proposal_and_keeps_its_footprint():
     after = piece(out, "f_L0_002")
     assert after["type"] == "bed_double" and after["type_proposal"] is True and after["status"] == "unverified"
     assert after["footprint"] == bed["footprint"] and after["drawn_type"] == "unknown"
-    assert out["unverified"] == ["f_L0_002"]
-    assert any("AI type proposal bed_double" in w for w in out["warnings"])
+    assert "modified_by_ai" not in after and out["unverified"] == ["f_L0_002"]
     assert LK.check(source, out, "complete") == []
-    change = next(c for c in records[[r.room_id for r in records].index(BEDROOM)].changes)
-    assert change["type_proposal"] is True
+
+
+# --------------------------------------------------------------------------
+# Looks (furniture.design, §1.6b row 15)
+# --------------------------------------------------------------------------
+
+def test_looks_of_completed_rooms(completed):
+    _s, out, _r, _c = completed
+    counter = piece(out, "f_L-1_004")
+    assert counter["design"] == STYLE["cabinets"]                                     # style.json cabinets
+    assert piece(out, "f_L-1b_002")["design"] == STYLE["cabinets"]                    # the open kitchen's run too
+    assert piece(out, "f_L0_007")["design"] == {"vanity": True}                       # washbasin 0.5 m deep
+    coffee = next(f for f in added_in(out, SALON) if f["type"] == "table_coffee")
+    assert coffee["design"] == {"material_tags": ["glass"]}                           # chrome is no schema tag
+    assert "design" not in piece(out, "f_L0_008")                                     # a shower: nothing to say
+
+
+def test_looks_without_style_slots_and_by_rule():
+    source = drawn_building(example())
+    out, _r = C.complete_building(source, "x", FakeClient(), C.Settings(), style={"family": "modern"})
+    assert "design" not in piece(out, "f_L-1_004")                                    # no cabinets slot: no keys
+    style = {"cabinets": {"front": "slatted", "colour": 7, "handle": "gold", "worktop": "wood"}}
+    out, _r = C.complete_building(source, "x", FakeClient(), C.Settings(), style=style)
+    assert piece(out, "f_L-1_004")["design"] == {"front_style": "slatted", "worktop": "wood"}   # bad values left out
+    cab = next(f for f in out["furniture"] if f["type"] == "wall_cabinet")
+    assert cab["design"] == {"front_style": "slatted"}                                # no worktop on a wall cabinet
+
+
+def test_agreed_colour_is_the_fabric_colour_of_upholstered_types():
+    answers = {(HALL_L0, k): {"changes": [ch("f_L0_009", "bench", (1.0, 0.4), colour="mustard")], "added": []}
+               for k in (1, 2)}
+    out, _r = C.complete_building(drawn_building(example()), "x", FakeClient(answers), C.Settings())
+    assert piece(out, "f_L0_009")["design"] == {"style_family": "modern", "fabric_colour": "mustard"}
+    answers = {(HALL_L0, k): {"changes": [ch("f_L0_009", "console_table", (0.9, 0.3), colour="mustard")],
+                              "added": []} for k in (1, 2)}
+    out, _r = C.complete_building(drawn_building(example()), "x", FakeClient(answers), C.Settings())
+    assert piece(out, "f_L0_009")["design"]["colour"] == "mustard"
+
+
+@pytest.mark.parametrize("x0, x1, built_in", [(0.1, 4.0, True), (0.1, 3.0, False)])
+def test_a_wardrobe_from_wall_to_wall_is_built_in(x0, x1, built_in):
+    source = twin_building()
+    w = round(x1 - x0, 3)
+    source["furniture"].append({"id": "f_L0_003", "level_id": "L0", "room_id": TWIN_A, "type": "wardrobe",
+                                "type_raw": None, "source": "from_documents", "status": "verified",
+                                "evidence": [B.evidence("p.dxf", "vector", 1.0)],
+                                "footprint": {"center": [(x0 + x1) / 2, 0.4], "size": [w, 0.6], "rotation_deg": 180.0},
+                                "front_deg": 90.0, "height": 2.1})
+    out, _r = C.complete_building(source, "x", FakeClient(), C.Settings(twin_rooms="all"))
+    assert piece(out, "f_L0_003").get("design", {}).get("built_in", False) is built_in
 
 
 # --------------------------------------------------------------------------
@@ -574,6 +654,35 @@ def test_a_mirrored_corner_sofa_takes_the_other_side():
     assert LK.check(source, out, "complete") == []
 
 
+def test_the_pipelines_twin_transform_is_used():
+    """§1.6b row 18: ``rooms[].twin_transform`` (first twin -> this room) wins over the derived mirror."""
+    source = twin_building()
+    room_b = next(r for r in source["rooms"] if r["id"] == TWIN_B)
+    room_b["twin_transform"] = [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]                  # x' = 8.2 - x
+    client = FakeClient(TWIN_ANSWERS)
+    out, records = C.complete_building(source, "x", client, C.Settings())
+    rec = {r.room_id: r for r in records}
+    assert rec[TWIN_B].state == "mirrored" and rec[TWIN_B].partner["transform"]["kind"] == "given"
+    assert rec[TWIN_B].partner["transform"]["affine"] == [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]
+    b = sorted(added_in(out, TWIN_B), key=lambda f: f["type"])
+    a = sorted(added_in(out, TWIN_A), key=lambda f: f["type"])
+    assert [f["footprint"]["center"][0] for f in b] == pytest.approx([8.2 - f["footprint"]["center"][0] for f in a])
+    room_b["twin_transform"] = [1.0, 0.0, 4.1, 0.0, 1.0, 0.0]                   # a shift: does not map the bed
+    out, records = C.complete_building(source, "x", FakeClient(TWIN_ANSWERS), C.Settings())
+    rec = {r.room_id: r for r in records}
+    assert rec[TWIN_B].state == "completed" and "does not map" in rec[TWIN_B].reason
+
+
+def test_mirror_transform_maps_points_fronts_and_sides():
+    t = C.Transform.mirror((4.1, 0.0), 90.0)
+    assert t.point((3.0, 1.0)) == pytest.approx((5.2, 1.0)) and t.flips
+    assert t.direction(0.0) == pytest.approx(180.0) and t.direction(270.0) == pytest.approx(270.0)
+    assert t.rotation(90.0) == pytest.approx(270.0) and t.side("right") == "left"
+    given = C.given_transform({"twin_transform": [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]})
+    assert given.point((3.0, 1.0)) == pytest.approx((5.2, 1.0)) and given.side("left") == "right"
+    assert C.given_transform({"twin_transform": None}) is None and C.given_transform({}) is None
+
+
 def test_twin_rooms_all_asks_both():
     client = FakeClient(TWIN_ANSWERS)
     C.complete_building(twin_building(), "x", client, C.Settings(twin_rooms="all"))
@@ -665,7 +774,10 @@ def test_wall_cabinets_keep_off_windows_and_the_stove():
 
 def test_wall_cabinets_never_over_a_door_nor_in_keep_mode():
     cabinets, _ = _cabinets(kitchen_building(door=True))
-    assert spans(cabinets) == []                                         # 0.5..1.15 blocked by the door: 0.15 left
+    assert spans(cabinets) == []                              # door x 0.2..1.0 + 0.3 m, then the window: nothing
+    cabinets, _ = _cabinets(kitchen_building(window=False, door=True))
+    assert spans(cabinets) == [(1.3, 2.7)]                    # 0.3 m from the door (§1.6b row 15), not over the stove
+    assert all(f["mount_bottom_m"] == 1.45 for f in cabinets)
     assert _cabinets(kitchen_building(), mode="keep")[0] == []
 
 
@@ -695,7 +807,7 @@ def test_cli_furnishes_empty_rooms_and_completes_furnished_ones(tmp_path):
     assert piece(final, "f_L-1_002")["type"] == "sofa_corner"
     assert [f["type"] for f in added_in(final, "r_L1_oyun_odasi")] == ["armchair"]   # the M4 empty room
     completion = json.loads((out.parent / "completion.json").read_text())
-    assert completion["locked_violations"] == [] and completion["changes_applied"] == 1
+    assert completion["locked_violations"] == [] and completion["changes_applied"] == 2
     assert completion["settings"]["furnished_rooms"] == "complete" and completion["model"] == MODEL
     assert LK.mode_of(completion) == "complete" and LK.keep_rooms_of(completion) == []   # what refit passes on
     assert LK.check(source, final, LK.mode_of(completion), LK.keep_rooms_of(completion)) == []

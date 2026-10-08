@@ -29,10 +29,12 @@ def drawn_building(final: dict) -> dict:
             continue
         if f.get("modified_by_ai"):
             f["type"], f["footprint"], f["height"] = f["drawn_type"], f["drawn_footprint"], f["drawn_height"]
-            for key in ("modified_by_ai", "drawn_type", "drawn_footprint", "drawn_height", "shape", "chaise_side",
-                        "chaise_depth", "design", "type_proposal", "mirrored_from"):
-                f.pop(key, None)
-            f["evidence"] = [e for e in f["evidence"] if e["method"] != "ai"]
+        elif f.get("type_proposal"):                    # an unverified piece: the AI's type proposal undone
+            f["type"], f["height"] = f["drawn_type"], None
+        for key in ("modified_by_ai", "drawn_type", "drawn_footprint", "drawn_height", "shape", "chaise_side",
+                    "chaise_depth", "seat_depth", "chaise_width", "design", "type_proposal", "mirrored_from"):
+            f.pop(key, None)
+        f["evidence"] = [e for e in f["evidence"] if e["method"] != "ai"]
         f.pop("anchor", None)
         keep.append(f)
     b["furniture"] = keep
@@ -57,37 +59,40 @@ def piece(b: dict, pid: str) -> dict:
 def test_anchor_of_a_piece_against_a_wall_is_its_back_edge_midpoint(pair):
     source, final = pair
     sofa = piece(source, "f_L-1_002")
-    assert LK.anchor_of(sofa, source) == {"kind": "back_edge", "point": [3.0, 7.85], "wall_id": "w_L-1_003"}
+    assert LK.anchor_of(sofa, source) == {"kind": "back_edge", "point": [3.125, 7.975], "wall_id": "w_L-1_003"}
     assert LK.anchor_of(sofa, source) == piece(final, "f_L-1_002")["anchor"]      # the example's own anchor
     bed = piece(source, "f_L0_002")
-    assert LK.anchor_of(bed, source) == {"kind": "back_edge", "point": [3.0, 7.85], "wall_id": "w_L0_003"}
+    assert LK.anchor_of(bed, source) == {"kind": "back_edge", "point": [3.125, 7.975], "wall_id": "w_L0_003"}
+    assert LK.anchor_of(bed, source) == piece(final, "f_L0_002")["anchor"]
 
 
 def test_anchor_of_a_free_piece_and_of_a_piece_without_a_front_is_the_centre(pair):
     source, _final = pair
     sofa = copy.deepcopy(piece(source, "f_L-1_002"))
-    sofa["footprint"]["center"] = [3.0, 6.0]                                        # 1.4 m off the wall
-    assert LK.anchor_of(sofa, source) == {"kind": "centre", "point": [3.0, 6.0], "wall_id": None}
+    sofa["footprint"]["center"] = [3.125, 6.0]                                      # 1.5 m off the wall
+    assert LK.anchor_of(sofa, source) == {"kind": "centre", "point": [3.125, 6.0], "wall_id": None}
     shower = piece(source, "f_L0_008")                                              # front_deg null
     assert shower["front_deg"] is None
     assert LK.anchor_of(shower, source)["kind"] == "centre"
-    sofa["footprint"]["center"] = [3.0, 7.37]                                       # back edge 5.5 cm off the face
+    sofa["footprint"]["center"] = [3.125, 7.495]                                    # back edge 5.5 cm off the face
     assert LK.anchor_of(sofa, source)["kind"] == "centre"
-    sofa["footprint"]["center"] = [3.0, 7.38]                                       # 4.5 cm: touches
+    sofa["footprint"]["center"] = [3.125, 7.505]                                    # 4.5 cm: touches
     assert LK.anchor_of(sofa, source)["kind"] == "back_edge"
 
 
 def test_anchor_follows_the_front_not_the_footprint_rotation(pair):
     """A footprint drawn with a rotation a quarter turn off its front: the back edge is the side opposite the front."""
     source, _final = pair
-    basin = piece(source, "f_L0_007")             # size [0.6, 0.5], rotation 90, front 180: back on the east wall
+    basin = piece(source, "f_L0_007")             # size [0.6, 0.5], rotation 270, front 180: back on the east wall
     a = LK.anchor_of(basin, source)
-    assert a == {"kind": "back_edge", "point": [9.85, 1.2], "wall_id": "w_L0_002"}
-    turned = copy.deepcopy(basin)
-    turned["footprint"].update(size=[0.5, 0.6], rotation_deg=0.0)                   # the same rectangle
-    assert LK.anchor_of(turned, source) == a
-    toilet = piece(source, "f_L0_006")            # 12.5 cm off the east wall: a free piece
-    assert LK.anchor_of(toilet, source) == {"kind": "centre", "point": [9.4, 2.5], "wall_id": None}
+    assert a == {"kind": "back_edge", "point": [9.975, 1.325], "wall_id": "w_L0_002"}
+    for size, rotation in (([0.5, 0.6], 0.0), ([0.6, 0.5], 90.0), ([0.5, 0.6], 180.0)):   # the same rectangle
+        turned = copy.deepcopy(basin)
+        turned["footprint"].update(size=size, rotation_deg=rotation)
+        assert LK.anchor_of(turned, source) == a, (size, rotation)
+    pulled = copy.deepcopy(basin)
+    pulled["footprint"]["center"] = [9.6, 1.325]  # 15 cm off the east wall: a free piece
+    assert LK.anchor_of(pulled, source) == {"kind": "centre", "point": [9.6, 1.325], "wall_id": None}
 
 
 # --------------------------------------------------------------------------
@@ -194,19 +199,23 @@ def test_a_new_piece_labelled_from_documents_fails(pair):
     assert "f_L-1_099: labelled from_documents but not in the source building" in LK.check(source, final, "complete")
 
 
-def test_unverified_pieces_keep_status_and_footprint(pair):
+def test_a_type_proposal_keeps_footprint_and_status_without_modified_by_ai(pair):
+    """§1.6b row 15: the example's unverified piece f_L0_009 (drawn unknown) carries the agreed type proposal."""
     source, final = pair
-    for b in (source, final):
-        piece(b, "f_L0_002")["status"] = "unverified"
-    piece(final, "f_L0_002").update(type="bed_single", type_proposal=True, modified_by_ai=True, drawn_type="bed_double",
-                                    drawn_footprint=copy.deepcopy(piece(source, "f_L0_002")["footprint"]),
-                                    drawn_height=0.5, height=0.5)
-    assert LK.check(source, final, "complete") == []                    # a type proposal, footprint kept
-    piece(final, "f_L0_002")["status"] = "verified"
+    drawn, proposal = piece(source, "f_L0_009"), piece(final, "f_L0_009")
+    assert drawn["type"] == "unknown" and drawn["status"] == "unverified"
+    assert proposal["type"] == "console_table" and "modified_by_ai" not in proposal
+    assert LK.check(source, final, "complete") == []
+    proposal["drawn_type"] = "bench"
+    assert any("f_L0_009: type proposal without the drawn type" in p for p in LK.check(source, final, "complete"))
+    proposal["drawn_type"] = "unknown"
+    proposal["status"] = "verified"
     assert any("unverified drawn piece became verified" in p for p in LK.check(source, final, "complete"))
-    piece(final, "f_L0_002")["status"] = "unverified"
-    piece(final, "f_L0_002")["footprint"]["size"] = [0.9, 2.0]
-    assert any("unverified drawn piece changed its footprint" in p for p in LK.check(source, final, "complete"))
+    proposal["status"] = "unverified"
+    proposal["footprint"]["size"] = [1.2, 0.35]
+    problems = LK.check(source, final, "complete")
+    assert any("unverified drawn piece changed its footprint" in p for p in problems)
+    assert any("f_L0_009: type, footprint or height changed without modified_by_ai" in p for p in problems)
 
 
 # --------------------------------------------------------------------------

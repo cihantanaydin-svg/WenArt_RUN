@@ -25,8 +25,9 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
 3. Agreement (§2.4): a change is kept only when both passes change the same piece to the same type (the
    smaller of the two size options; the style and colour both name, else the project's); then the main
    piece rule (a bed stays a bed type, nothing becomes a second one) and the type counts. An unverified
-   drawn piece keeps its footprint and status: an agreed type becomes its ``type`` with
-   ``type_proposal: true``. With ``furnished_rooms_keep_size`` no change is asked.
+   drawn piece keeps its footprint, front and status: an agreed type becomes its ``type`` with
+   ``type_proposal: true`` and ``drawn_type``, never ``modified_by_ai`` (§1.6b row 15; its AI evidence at
+   confidence 0.6, as the example). With ``furnished_rooms_keep_size`` no change is asked.
 4. ``placer.place_changes`` places the changes at their anchors (shrink, then revert); the added pieces of
    each pass are filtered (types the room may still get, one main piece, the counts), placed with the
    full M4 repairs around the drawn pieces (``placer.place(..., obstacles=...)``) and checked for their
@@ -34,15 +35,22 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
    with the fewest dropped pieces wins (ties: pass 1); a piece the other pass also proposed (same type,
    centre within 0.5 m) gets confidence 0.9 and both passes' evidence, the rest 0.6.
 5. Kitchens (and open kitchens of a living room): ``wall_cabinets_for`` hangs ``wall_cabinet`` pieces
-   (``method: rule``) along every drawn counter run against a wall, 1.45-2.15 m, never over or within 0.3 m
-   of a window (measured along the wall), never over or within 0.15 m of a door (assumed: the frame), never
-   over the stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs shorter than 0.3 m are
-   left out.
+   (``method: rule``, ``mount_bottom_m`` 1.45, ``rule: {run, z, excluded}``) along every drawn counter run
+   against a wall, 1.45-2.15 m, never over or within 0.3 m of a window or a door opening (measured along the
+   wall, §1.6b row 15), never over the stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs
+   shorter than 0.3 m are left out. Their backs are on the wall face behind the counter.
+6. Looks (§1.6b row 15, ``apply_designs``): every piece of a completed or kept room gets ``design`` keys by
+   rule under what it already holds: cabinet fronts, colour, handle and worktop from ``style.json``
+   ``cabinets`` (absent: none), ``vanity`` for a washbasin at least 0.45 m deep, ``built_in`` for a wardrobe
+   touching walls at both ends, ``material_tags`` from ``style.json`` ``furniture.by_type``; an agreed change
+   adds ``style_family`` and its colour (``fabric_colour`` for upholstered types). A corner sofa always
+   carries ``seat_depth`` and ``chaise_width`` (0.9 m unless drawn).
 
 Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's room equal to a base room) takes
 its partner's decisions as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them
-mirrored about the party-wall axis (``partner_transform``: the perpendicular bisector of the two room
-centroids, verified on the polygons and the drawn pieces within ``PARTNER_TOL_M``). Copied pieces carry
+mirrored (``partner_transform``: the pipeline's ``rooms[].twin_transform`` when present, else the mirror about
+the perpendicular bisector of the two room centroids; verified on the polygons and the drawn pieces within
+``PARTNER_TOL_M``). Copied pieces carry
 ``mirrored_from``; a copy that fails a check here is dropped and listed; a partner that cannot be verified
 is reported and the room is asked itself. ``copy_empty_layout`` does the same for the Milestone 4 layout of
 empty rooms (user decision 7: the AI furniture of the first twin mirrored onto the second).
@@ -668,7 +676,11 @@ def _design(item: dict, ftype: str, style: Optional[str], colour: Optional[str],
 def _apply_change(item: dict, anchor: dict, final: placer.Piece, record: dict, evidence: list[dict],
                   design: dict, unverified: bool, mirrored_from: Optional[str] = None) -> dict:
     """The changed drawn piece (§2.6): ``from_documents``, ``modified_by_ai``, the drawn values, the anchor and
-    the AI evidence. The footprint changes only with the type or size (an unverified piece keeps it)."""
+    the AI evidence. The footprint changes only with the type or size. An unverified piece (§1.6b row 15) gets
+    a type proposal instead: the agreed type, ``type_proposal: true``, ``drawn_type``, its drawn footprint,
+    front and status, no ``modified_by_ai``."""
+    if unverified:
+        return _type_proposal(item, final, record, evidence, design, mirrored_from)
     new = copy.deepcopy(item)
     new["modified_by_ai"] = True
     new["drawn_type"] = item["type"]
@@ -691,6 +703,20 @@ def _apply_change(item: dict, anchor: dict, final: placer.Piece, record: dict, e
                 new.pop(key, None)
     new["design"] = design
     new["evidence"] = list(item["evidence"]) + evidence
+    if mirrored_from:
+        new["mirrored_from"] = mirrored_from
+    return new
+
+
+def _type_proposal(item: dict, final: placer.Piece, record: dict, evidence: list[dict], design: dict,
+                   mirrored_from: Optional[str]) -> dict:
+    new = copy.deepcopy(item)
+    if record["status"] == "applied" and final.type != item["type"]:
+        new.update(type=final.type, type_proposal=True, drawn_type=item["type"],
+                   height=schemas.HEIGHTS.get(final.type))
+        new["evidence"] = list(item["evidence"]) + [dict(e, confidence=CONFIDENCE_SINGLE) for e in evidence]
+    if design:
+        new["design"] = design
     if mirrored_from:
         new["mirrored_from"] = mirrored_from
     return new
