@@ -2071,7 +2071,7 @@ _BUILDERS = {
     "table_dining": _table_m10, "table_coffee": _table_m10,
     "desk": lambda w, d, h, piece=None: _table_m10(w, d, h, piece, desk=True),
     "chair": _chair, "wardrobe": _wardrobe_m10, "dresser": _drawers, "nightstand": _drawers, "tv_unit": _tv_unit,
-    "bookshelf": _bookshelf, "kitchen_counter": _counter_m10,
+    "bookshelf": _bookshelf, "kitchen_counter": lambda w, d, h, piece=None: _counter_m10(w, d, h, False, piece),
     "kitchen_island": lambda w, d, h, piece=None: _counter_m10(w, d, h, True, piece),
     "fridge": _fridge, "stove": _stove, "sink_kitchen": _sink, "washbasin": _washbasin_m10, "toilet": _toilet,
     "shower": _shower, "bathtub": _bathtub, "washing_machine": _washing_machine,

@@ -499,3 +499,24 @@ def test_write_preview_stays_under_the_byte_limit(tmp_path):
     from PIL import Image
     with Image.open(small) as img:
         assert img.size == (300, 200)
+
+
+def test_milestone_10_prompt_words_for_decor_colours_and_a_child_room():
+    """Track F (docs/milestone10.md §4): decor words for every decor type of the schema, the slot's colour phrase
+    before the wall / floor words, a child's bedroom; without the new arguments the Milestone 9 prompt."""
+    schema = json.loads((ROOT / "wenart" / "schema" / "building.schema.json").read_text(encoding="utf-8"))
+    decor = schema["$defs"]["decor"]["properties"]["type"]["enum"]
+    assert set(decor) == set(PR.DECOR_WORDS)
+    rooms = schema["$defs"]["room"]["properties"]["room_subtype"]["enum"]
+    assert set(r for r in rooms if r) <= set(PR.SUBTYPE_WORDS)
+    profile = json.loads((ROOT / "docs" / "examples" / "style_m10.example.json").read_text(encoding="utf-8"))
+    out = PR.build_prompt(profile, "living", ["sofa_corner", "table_coffee"], 18.0,
+                          decor=["curtain", "plant_large", "curtain", "cushion", "throw", "candle"])
+    assert ("Warm greige smooth painted walls, light oak wood floor, corner sofa, coffee table, linen curtains, large "
+            "indoor plant, cushions, throw blanket.") in out["prompt"]
+    assert out["decor"] == ["curtain", "plant_large", "cushion", "throw"] and out["warnings"] == []
+    child = PR.build_prompt(profile, "bedroom", ["crib", "bunk_bed"], 16.0, room_subtype="child")
+    assert child["prompt"].startswith("Photorealistic interior photograph of a child's bedroom in modern style.")
+    assert PR.build_prompt(profile, "living", [], 18.0, room_subtype="child")["room_words"] == "living room"
+    plain = PR.build_prompt(committed_profile(), "living", ["sofa"], 18.0)
+    assert plain["decor"] == [] and "White plaster walls" in plain["prompt"]

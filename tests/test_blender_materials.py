@@ -232,3 +232,89 @@ def test_default_style_build_refuses_non_cc0_assets(built_default):
     assert tiles and all(r["textured"] is False and "CC BY 4.0" in r["reason"] and "refused" in r["reason"]
                          for r in tiles)
     assert m["lighting"]["world"]["kind"] == "sky"
+
+
+# --------------------------------------------------------------------------
+# Milestone 10 (track F): every slug resolves to a material; colours, procedural looks, the outside
+# --------------------------------------------------------------------------
+
+def test_every_milestone_10_slug_has_a_look():
+    """Every vocabulary slug is a texture set, a procedural node group or a plain flat material, and a colour phrase
+    reaches the slugs that take one (flat albedo mode and the procedural looks, not the wood tones or frame metals)."""
+    from wenart.style import finishes as FIN
+    from wenart.style.profile import is_colourable
+
+    for slug, entry in list(V.MATERIALS.items()) + list(V.FURNITURE_MATERIALS.items()):
+        proc = materials.procedural_for(slug, False, True)
+        if entry.get("source") == "procedural":
+            assert proc == entry.get("procedural"), slug              # a group, or None: a plain Principled
+            assert proc is None or proc in materials.PROCEDURAL_GROUPS
+        elif slug.startswith("tiles_"):
+            assert proc == "glazed_tiles", slug                        # Milestone 6: an image set that is missing
+        else:
+            assert proc is None, slug
+        assert materials.procedural_for(slug, False, False) is None and materials.procedural_for(slug, True, True) is None
+        assert materials.colourable(slug) == is_colourable(slug), slug
+    for slug in FIN.TILE_PATTERNS:
+        assert materials.procedural_params(slug)["tile_size_m"] == FIN.TILE_PATTERNS[slug]["tile_size_m"]
+    over = materials.procedural_params("tiles_subway", {"tile_size_m": [0.2, 0.1], "pattern": None})
+    assert over["tile_size_m"] == [0.2, 0.1] and over["pattern"] == "running_bond"
+    assert materials.procedural_group_name("wenart_tiles", {"pattern": "hexagon"}) == "wenart_tiles_hexagon"
+    assert materials.procedural_group_name("wenart_wallpaper", {"pattern": "nonsense"}) == "wenart_wallpaper_stripe"
+    assert "0.200 x 0.100 m" in materials.procedural_note_for("wenart_tiles", "tiles_subway", over)
+    assert materials.colour_linear("warm greige") is not None and materials.colour_linear("nope") is None
+    assert materials.takes_colour("ceramic_white", False) and not materials.takes_colour("wood_veneer_oak", True)
+    assert not materials.takes_colour("dark_bronze", False) and materials.takes_colour("paint", True)
+    for mood in ("bright noon", "blue hour", "cloudy soft", "interior evening"):
+        assert materials._MOOD_HDRI_STRENGTH[mood] == V.LIGHTING[mood]["hdri_strength"]
+
+
+BUILD_EVERY_SLUG = """
+import json, sys
+sys.path.insert(0, %r)
+from wenart.blender import materials as M
+from wenart.style import vocabulary as V
+lib = M.MaterialLibrary({}, None, use_textures=True)
+out = {}
+for slug in list(V.MATERIALS) + list(V.FURNITURE_MATERIALS):
+    for colour in (None, "sage"):
+        mat = lib.get(slug, None, colour=colour)
+        rec = lib.records[mat.name]
+        out[mat.name] = {"slug": slug, "procedural": rec["procedural"], "colour_applied": rec.get("colour_applied"),
+                         "groups": [n.node_tree.name for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeGroup"],
+                         "base": list(mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value)[:3]}
+ext = M.exterior_material(lib, "render", "warm greige")
+out["_ext"] = {"name": ext.name, "colour": lib.records[ext.name].get("colour")}
+wet = lib.get("tiles_hexagon", None, colour="white", params={"tile_size_m": [0.2, 0.231], "grout_colour": "charcoal"})
+out["_wet"] = lib.records[wet.name]
+lit = M.light_material("lamp_light")
+out["_light"] = {"name": lit.name, "strength": lit["wenart_light"]}
+print("RESULT " + json.dumps(out))
+"""
+
+
+@pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
+def test_blender_builds_every_slug_with_its_colour_and_node_group():
+    proc = subprocess.run([BLENDER, "-b", "--factory-startup", "--python-exit-code", "1", "--python-expr",
+                           BUILD_EVERY_SLUG % str(ROOT)], capture_output=True, text=True, timeout=600, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
+    out = json.loads(next(ln for ln in proc.stdout.splitlines() if ln.startswith("RESULT "))[7:])
+    sage = [round(min(v, materials.MAX_ALBEDO), 4) for v in materials.colour_linear("sage")]
+    slugs = set()
+    for name, rec in out.items():
+        if name.startswith("_"):
+            continue
+        slugs.add(rec["slug"])
+        entry = V.MATERIALS.get(rec["slug"]) or V.FURNITURE_MATERIALS.get(rec["slug"])
+        if rec["procedural"] in materials.PROCEDURAL_GROUPS:
+            assert rec["groups"] == [materials.procedural_group_name(rec["procedural"], entry.get("params") or {})]
+        if name.endswith("__sage"):                    # no texture in use here: every slug but the fixed ones takes it
+            assert rec["colour_applied"] and entry.get("colourable") is not False, name
+            if not rec["groups"]:
+                assert rec["base"] == pytest.approx(sage, abs=1e-3), name
+        elif rec["colour_applied"] is False:
+            assert entry.get("colourable") is False, name
+    assert slugs == set(V.MATERIALS) | set(V.FURNITURE_MATERIALS)              # every slug resolves to a material
+    assert out["_ext"]["name"] == "render__warm_greige" and out["_ext"]["colour"] == "warm greige"
+    assert out["_wet"]["group"] == "wenart_tiles_hexagon" and out["_wet"]["params"]["grout_colour"] == "charcoal"
+    assert out["_light"]["strength"] > 0
