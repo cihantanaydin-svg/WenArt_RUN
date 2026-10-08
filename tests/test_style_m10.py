@@ -14,6 +14,7 @@ import yaml
 
 from wenart.style import colours as C
 from wenart.style import finishes as FIN
+from wenart.style import objects as O_TABLES
 from wenart.style import profile as P
 from wenart.style import vocabulary as V
 from wenart.style.__main__ import main as style_main
@@ -25,9 +26,11 @@ EXAMPLE = ROOT / "docs" / "examples" / "style_m10.example.json"
 REAL02 = (PROJECTS / "real02" / "brief.yaml")
 
 
+VALIDATOR = jsonschema.Draft202012Validator(SCHEMA)
+
+
 def errors(profile) -> list[str]:
-    validator = jsonschema.Draft202012Validator(SCHEMA)
-    return [f"{'/'.join(map(str, e.absolute_path))}: {e.message}" for e in validator.iter_errors(profile)]
+    return [f"{'/'.join(map(str, e.absolute_path))}: {e.message}" for e in VALIDATOR.iter_errors(profile)]
 
 
 def prof(text, **kw):
@@ -479,3 +482,32 @@ def test_exterior_look_from_words_is_public_and_strict():
 def test_the_default_profile_block_of_defaults_yaml_is_current():
     block = yaml.safe_load(P.default_block_yaml())
     assert block == P.load_defaults()["style"]["profile"]
+
+
+def test_empty_brackets_and_odd_input_never_crash():
+    for text in ("sofa (), grey", "walls []", "plants (palms,), ()", "( ) ( )", "(", ")", "grey ((nested)) walls", "ünïcode façade, béton brut walls", "   ",
+                 None, ""):
+        p = P.profile_from_text(text)
+        assert errors(p) == [], text
+    assert P.profile_from_text("grey ((nested)) walls")["walls"]["colour"] == "grey"
+    assert P.profile_from_text("ünïcode façade, béton brut walls")["walls"]["material"] == "concrete_exposed"
+
+
+def test_random_briefs_validate_and_are_deterministic():
+    """A seeded fuzz: 150 random phrases made of the words of every table never crash, always validate against the schema and
+    give the same profile twice."""
+    import random
+
+    rng = random.Random(20261008)
+    words = (list(C.colour_words()) + [w for w, _ in O_TABLES.OBJECT_WORDS] + [w for w, _ in V.FLOOR_WORDS] + [w for w, _ in V.WALL_WORDS]
+             + [w for w, _ in V.LIGHT_WORDS] + [k for k, _ in V.STYLE_FAMILIES] + list(C.MODIFIERS) + sorted(O_TABLES.DESCRIPTORS)
+             + [w for t in O_TABLES.EXTERIOR_WORDS.values() for w, _ in t] + [w for w, _ in O_TABLES.WET_WALL_WORDS]
+             + [w for w, _ in O_TABLES.HANDLE_WORDS] + [w for w, _ in O_TABLES.DOOR_STYLE_WORDS]
+             + ["60x120", "7.5 x 15 cm", "grout", "natural", "(palms, ferns)", "[x]", "zorple", "123", "é", "()", "-", ","])
+    for _ in range(150):
+        phrases = [" ".join(rng.choice(words) for _ in range(rng.randint(1, 7))) for _ in range(rng.randint(1, 5))]
+        text = rng.choice([", ", "; ", "\n"]).join(phrases)
+        p = P.profile_from_text(text)
+        assert errors(p) == [], text
+        assert P.profile_from_text(text) == p, text
+        assert set(p["matched_terms"]) | set(p["unmatched_terms"]) == set(P.split_phrases(text)), text

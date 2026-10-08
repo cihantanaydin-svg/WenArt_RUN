@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Iterable, Optional
 
 # --------------------------------------------------------------------------
@@ -35,12 +36,20 @@ class Span:
     value: object
 
 
+@lru_cache(maxsize=None)
+def _keyword_pattern(keyword: str) -> "re.Pattern[str]":
+    """The compiled whole-word pattern of a keyword (the tables hold about 700 keywords: more than ``re``'s own cache)."""
+    return re.compile(r"(?<![^\W_])" + re.escape(keyword) + r"(?![^\W_])")
+
+
 def find_spans(text: str, table: Iterable[tuple[str, object]], taken: Iterable[tuple[int, int]] = ()) -> list[Span]:
     """Non-overlapping whole-word keyword hits of ``text`` (lower case): earliest start first, the longest keyword at
     one start, none overlapping ``taken`` (character ranges already claimed)."""
     hits: list[Span] = []
     for keyword, value in table:
-        for m in re.finditer(r"(?<![^\W_])" + re.escape(keyword) + r"(?![^\W_])", text):
+        if keyword not in text:                                    # cheap reject before the regex
+            continue
+        for m in _keyword_pattern(keyword).finditer(text):
             hits.append(Span(m.start(), m.end(), keyword, value))
     hits.sort(key=lambda s: (s.start, -(s.end - s.start)))
     chosen: list[Span] = []

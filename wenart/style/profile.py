@@ -775,7 +775,7 @@ def _bare(ph: _Phrase, core: str, claimed) -> tuple[int, list[str]]:
 def _scan_phrase(phrase: str, d: dict, notes: list[str]) -> tuple[bool, str]:
     """Read one phrase into the draft ``d``; ``(matched, reason when not)``."""
     lc = _normalise(phrase)
-    extras = [m.group(1) or m.group(2) for m in _BRACKETS.finditer(lc)]
+    extras = [(m.group(1) if m.group(1) is not None else m.group(2)) for m in _BRACKETS.finditer(lc)]
     core = _BRACKETS.sub(" ", lc)
     claimed: list[tuple[int, int]] = []
     effects = 0
@@ -1039,6 +1039,7 @@ def profile_from_text(text: str, defaults: Optional[dict] = None, photo_terms=No
                       photo_over_text: bool = False, exterior_words: Optional[dict] = None) -> dict:
     """The style profile of one brief text (see module docstring); ``photo_terms``: see ``apply_photo_terms``;
     ``exterior_words``: the brief's ``exterior:`` block (``{facade, roof, window_frame, door, paving, garden}``)."""
+    text = "" if text is None else str(text)
     defaults = defaults or _defaults_or_builtin()
     family_defaults = dict(defaults["style"]["fallback"])
     fallback = copy.deepcopy(defaults["style"].get("exterior_fallback") or BUILTIN_DEFAULTS["style"]["exterior_fallback"])
