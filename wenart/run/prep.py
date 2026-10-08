@@ -32,8 +32,9 @@ source's sheets),
   catalogue of every source. Every download happens before ``thumbnails``: the steps from there run with
   ``HF_HUB_OFFLINE=1``.
 
-Milestone 10 (docs/milestone10.md §3.1 item 2, §4.5, §4.11, §7 pods L1 and L2): the library carries the material slots of its
-models, and the prep pod answers the sheet AI questions of the M10 projects (the full runs reuse the answers as seeds).
+Milestone 10 (docs/milestone10.md §3.1 item 2, §4.5, §4.11, §7 pods L1 and L2): the library carries the material slots
+of its models, and the prep pod answers the sheet AI questions of the M10 projects (the full runs reuse the answers as
+seeds).
 
 - ``recolour_slots`` (new, after ``judge_requests``; heavy: Blender on the GPU, exit 3 = ``deadline``): ``python -m
   wenart.assets.recolour slots --out <library> --scope ready --workers N --work <prep-root>/library-work/recolour
@@ -182,8 +183,9 @@ HEAVY = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "rec
          "timings", "session_qwen", "session_glm")
 # Milestone 10: survey 300 -> 900 s. The survey now reads 44 groups of types (M9: 18) and tries up to 48 GLB
 # downloads per group (80 for the flat-colour groups), so about three times the M9 downloads; the metadata shards
-# were already nearly all 160 in M9 (1498 objects). recolour_slots: 600 s is the least worth starting (the step
-# resumes where a cut left it); the Blender run itself is not measured yet.
+# were probably nearly all read in M9 already (1498 objects over the dataset's 160 shards; not measured).
+# recolour_slots: 600 s is the least worth starting (the step resumes where a cut left it); the Blender run itself
+# is not measured yet.
 EST_S = {"abo_survey": 300.0, "survey": 900.0, "trellis_setup": 900.0, "generate": 600.0, "thumbnails": 300.0,
          "recolour_slots": 600.0, "detect_calibrate": 240.0, "timings": 420.0}
 LAST_DOWNLOAD_STEP = "generate"            # HF_HUB_OFFLINE=1 for every step after it (M7: after the survey)
@@ -196,7 +198,7 @@ SESSION_KEYS = {"session_qwen": "qwen", "session_glm": "glm"}     # pass 1, then
 STATUSES = ("ok", "warning", "skipped", "deadline", "failed")
 GOOD = ("ok", "warning", "skipped")
 
-# Milestone 10: real02 and synthetic-07 are prep projects for their sheet_region AI passes (the sheets stage, §3.1 item 2).
+# Milestone 10: real02 and synthetic-07 are prep projects for their sheet_region AI passes (sheets stage, §3.1 item 2).
 PREP_PROJECTS = ("real01", "synthetic-02", "synthetic-06", "real01-scan", "real01-photo", "real02", "synthetic-07")
 # Where a prep project lives: the committed projects, the real01 raster fixtures (area S, §4.4), the test projects.
 PROJECT_ROOTS = (Path("projects"), Path("tests") / "fixtures" / "real01_raster",
@@ -426,9 +428,11 @@ class Project:
         return self.out_dir / qdir / "requests.json"
 
     @property
-    def needs_review(self) -> bool:
-        """The sheets stage said ``needs review``: the project stops there, as in the orchestrator."""
-        return self.sheets_rc == 1
+    def stopped(self) -> bool:
+        """The sheets stage or the first pipeline of this job ended with something other than done (0) or questions
+        written (4): needs review, or failed. The orchestrator stops such a project, so no question is asked for it."""
+        return (self.sheets_rc not in (None, 0, S.EXIT_QUESTIONS)
+                or self.pipeline_rc not in (None, 0, S.EXIT_QUESTIONS))
 
     def ref(self, results: Path) -> ProjectRef:
         return ProjectRef(name=self.name, private=False, project_dir=self.project_dir or self.out_dir,
@@ -550,9 +554,10 @@ class Prep:
         """Projects with AI questions, in either folder (``recognition`` and, Milestone 10, ``sheets``): the first
         pipeline (or the sheets stage) of this run exited 4 (or its stored ``pending`` record was reused), or (the
         stage not run in this job: ``--skip``/``--only``) a requests.json with items from an earlier job in
-        ``--outputs``. A project whose sheets stage said ``needs review`` has none: it stopped there."""
+        ``--outputs``. A project that stopped (``Project.stopped``: its sheets stage or pipeline needs review or
+        failed) has none."""
         return [p for p in self.projects
-                if not p.needs_review and (
+                if not p.stopped and (
                     S.EXIT_QUESTIONS in (p.pipeline_rc, p.sheets_rc)
                     or (p.pipeline_rc is None and items_in(p.requests) > 0)
                     or (p.sheets_rc is None and items_in(p.sheet_requests) > 0))]
@@ -1632,8 +1637,9 @@ class Prep:
         left_out = self.library_left_out() + self.sheets_too_big
         if left_out:                                  # never silently: a file over the 8 MB copy limit is not in $RESULTS
             entry["left_out_for_size"] = left_out
-            return "warning", f"{note}; left out for their size (over 8 MB): {', '.join(left_out[:6])}" \
-                              + (f" and {len(left_out) - 6} more" if len(left_out) > 6 else "")
+            more = f" and {len(left_out) - 6} more" if len(left_out) > 6 else ""
+            return "warning", (f"{note}; left out for their size (text over 8 MB, debug images over 3 MB): "
+                               f"{', '.join(left_out[:6])}{more}")
         return "ok", note
 
     def test_env(self, group: str) -> dict:

@@ -484,15 +484,16 @@ class World:
             P.write_json(lib / "recolour" / "slots.json", {"counts": {"models": 3, "ok": 2, "sheets": 2},
                                                            "models": [{"uid": "u1"}, {"uid": "u2"}]})
         elif label == "recolour requests":
-            P.write_json(lib / "recolour" / "requests.json", {"kind": "recolour_requests", "task": "library_material", "items": [
-                {"key": f"mat_u{i}", "task": "library_material", "images": [f"sheets/u{i}.jpg"],
-                 "input_sha256": f"{i + 30:064x}", "context": {"uid": f"u{i}", "slots": [0]}} for i in (1, 2)]})
+            items = [{"key": f"mat_u{i}", "task": "library_material", "images": [f"sheets/u{i}.jpg"],
+                      "input_sha256": f"{i + 30:064x}", "context": {"uid": f"u{i}", "slots": [0]}} for i in (1, 2)]
+            P.write_json(lib / "recolour" / "requests.json", {"kind": "recolour_requests", "task": "library_material",
+                                                              "items": items})
         elif label.startswith("recolour judge "):
             P.write_json(lib / "recolour" / f"answers_{label.split()[-1]}.json", {"answers": {}})
         elif label == "recolour tags":
-            P.write_json(lib / "recolour" / "tags.json", {"counts": {"models": 1, "unjudged": 0, "recolourable_fabric": 1,
-                                                                     "recolourable_wood": 0},
-                                                          "unjudged": [], "models": {"u1": {"material_tags": ["fabric"]}}})
+            counts = {"models": 1, "unjudged": 0, "recolourable_fabric": 1, "recolourable_wood": 0}
+            P.write_json(lib / "recolour" / "tags.json", {"counts": counts, "unjudged": [],
+                                                          "models": {"u1": {"material_tags": ["fabric"]}}})
         elif label.startswith("objaverse judge "):
             key = label.split()[-1]
             if key in self.judge_answers:                 # schema-valid answers of every item (the real store)
@@ -1616,6 +1617,14 @@ def test_recolour_slots_then_requests_after_the_judge_requests(tmp_path, monkeyp
     w2 = World(tmp_path / "b")
     w2.prep().run_all()
     assert "--assets" not in w2.call("recolour slots")["cmd"]
+    # The flags are the ones the real parser of wenart.assets.recolour takes (the fakes would accept anything).
+    from wenart.assets import recolour as RC
+    parsed = {label: RC.parse_args(w.call(label)["cmd"][3:]) for label in (
+        "recolour slots", "recolour requests", "recolour judge qwen", "recolour judge glm", "recolour tags")}
+    assert (parsed["recolour slots"].scope, parsed["recolour slots"].workers) == ("ready", 4)
+    assert parsed["recolour slots"].work == work and parsed["recolour slots"].assets == str(w.assets)
+    assert (parsed["recolour judge glm"].model_key, parsed["recolour judge glm"].server,
+            parsed["recolour judge glm"].workers) == ("glm", url, 8)
 
 
 def test_recolour_workers_follow_the_cpu_budget(tmp_path, monkeypatch):
@@ -1872,7 +1881,8 @@ def test_the_sheets_stage_needing_review_stops_the_project(tmp_path):
     assert _sheet_prep(w).run_all() == 0, w.lines
     labels = w.labels()
     assert "sheets real02" in labels and "pipeline real02" not in labels
-    assert not [x for x in labels if x.startswith(("ask ", "status ", "pipeline_final ", "sheets_final ")) and "real02" in x]
+    stopped_calls = ("ask ", "status ", "pipeline_final ", "sheets_final ")
+    assert not [x for x in labels if x.startswith(stopped_calls) and "real02" in x]
     step = w.steps()["pipelines"]
     assert step["status"] == "warning" and step["sheets_need_review"] == ["real02"]
     assert step["projects"]["real02"] == "needs_review" and "sheets need review" in step["note"]
@@ -1886,6 +1896,13 @@ def test_the_sheets_stage_needing_review_stops_the_project(tmp_path):
     assert w2.steps()["pipelines"]["status"] == "failed"
     assert w2.steps()["pipelines"]["note"] == "sheets failed: real02 (exit 2)"
     assert "pipeline real02" not in w2.labels() and "ask qwen real02 sheets" not in w2.labels()
+    # Sheet questions pending but the pipeline then needs review (exit 1): the orchestrator stops the project, so
+    # nothing is asked for it (the sheet questions of the other projects are).
+    w3 = _sheet_world(tmp_path / "c")
+    w3.pipeline_rc["real02"] = 1
+    assert _sheet_prep(w3).run_all() == 0, w3.lines
+    assert w3.steps()["pipelines"]["projects"]["real02"] == "needs_review"
+    assert "ask qwen real02 sheets" not in w3.labels() and "ask qwen synthetic-07 sheets" in w3.labels()
 
 
 def test_both_sessions_ask_the_sheet_questions_before_the_recognition_ones(tmp_path):
@@ -1913,7 +1930,8 @@ def test_both_sessions_ask_the_sheet_questions_before_the_recognition_ones(tmp_p
     assert set(asks) == {("real01", "recognition"), ("real02", "sheets"), ("real02", "recognition"),
                          ("synthetic-07", "sheets")}
     assert asks[("real02", "sheets")]["items"] == 2 and asks[("real02", "sheets")]["seeded_from"]
-    assert w.steps()["session_qwen"]["status"] == "ok" and "4 question folder(s) asked" in w.steps()["session_qwen"]["note"]
+    session = w.steps()["session_qwen"]
+    assert session["status"] == "ok" and "4 question folder(s) asked" in session["note"]
     assert (w.outputs / "real02" / "sheets" / "answers_qwen.json").is_file()
 
 
@@ -1961,7 +1979,8 @@ def test_pipeline_final_applies_the_sheet_answers_first(tmp_path):
     pipe = w.call("pipeline real02")["cmd"]
     assert w.call("pipeline_final real02")["cmd"] == pipe + ["--answers", str(out / "recognition")]
     # Only sheet questions: the recognition folder has nothing to wait for, but the pipeline still gets its folder.
-    assert w.call("pipeline_final synthetic-07")["cmd"][-2:] == ["--answers", str(w.outputs / "synthetic-07" / "recognition")]
+    assert w.call("pipeline_final synthetic-07")["cmd"][-2:] == [
+        "--answers", str(w.outputs / "synthetic-07" / "recognition")]
     assert json.loads((out / "sheets.json").read_text())["final"] is True and not json.loads(
         (out / "sheets.json").read_text())["no_ai"]
     step = w.steps()["pipeline_final"]
@@ -2047,3 +2066,23 @@ def test_the_library_copy_takes_the_recolour_folder_and_names_what_it_leaves_out
     assert prep.library_left_out() == ["recolour/slots.json"]
     (lib / "model.glb").write_bytes(b"x" * (8 * 1024 * 1024))                     # a model file is meant to stay
     assert prep.library_left_out() == ["recolour/slots.json"]
+
+
+def test_the_documented_m10_pod_commands_name_real_steps(tmp_path):
+    """prep.sh's header holds the L1 and L2 commands the lead copies: every PREP_ONLY / PREP_SKIP list in it names
+    steps of ``STEPS`` (a typo would fail the job at the pod's start), L1 asks the sheets of the M10 projects and L2
+    generates."""
+    text = " ".join(ln.lstrip("#").strip() for ln in _text().splitlines() if ln.startswith("#"))
+    lists = re.findall(r"PREP_(?:ONLY|SKIP)=([a-z_,]+)", text)
+    assert lists
+    for names in lists:
+        assert {n for n in names.split(",") if n} <= set(P.STEPS), names      # a wrapped list ends with a comma
+    m10 = [ln for ln in text.split("scripts/gpu_run.py run") if "M10 L1" in ln or "M10 L2" in ln]
+    assert len(m10) == 2
+    l1, l2 = m10
+    assert "PREP_PROJECTS=real02,synthetic-07" in l1 and "pipelines" in re.search(r"PREP_ONLY=([a-z_,]+)", l1).group(1)
+    assert "WENART_GENERATE_TARGET=20" in l2 and "generate" in re.search(r"PREP_ONLY=([a-z_,]+)", l2).group(1)
+    for part in (l1, l2):
+        only = re.search(r"PREP_ONLY=([a-z_,]+)", part).group(1).split(",")
+        assert "recolour_slots" in only and only.index("recolour_slots") > only.index("judge_requests")
+        assert P.options_from_args(P.parse_args(["--results", str(tmp_path), "--only", ",".join(only)])).only
