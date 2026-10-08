@@ -107,7 +107,8 @@ def test_track_f_look_wrappers_give_the_m9_looks():
     assert shell.window_frame_look(style, {"id": "w"})["material"] == "painted_metal_white"
     looks = E.resolve_looks(EXAMPLE, style)
     assert shell.facade_look(looks, EXAMPLE["walls"][0]) is looks["facade"]
-    assert shell.colour_rgb("greige") == pytest.approx((0.4793, 0.4287, 0.3663), abs=1e-3)
+    from wenart.style import colours                                    # track C's cited table (Milestone 10)
+    assert shell.colour_rgb("greige") == pytest.approx(colours.linear_rgb("greige"), abs=1e-3)   # shell rounds to 4
     assert shell.colour_rgb("not a colour") is None
 
 

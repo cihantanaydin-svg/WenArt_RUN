@@ -239,6 +239,13 @@ def test_bedding_details_and_rest_height():
     assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0, 0.7]}, host, True)[0] == 0.7
 
 
+# Milestone 10 (track C, docs/milestone10.md §4.5): the furniture veneers of the new woods (Poly Haven, 1 m tiles).
+M10_VENEERS = [("polyhaven", "oak_veneer_02", "wood_veneer_oak_light"), ("polyhaven", "ash_veneer", "wood_veneer_ash"),
+               ("polyhaven", "white_maple_veneer", "wood_veneer_maple"), ("polyhaven", "teak_veneer", "wood_veneer_teak"),
+               ("polyhaven", "black_oak_veneer", "wood_veneer_black_oak"),
+               ("polyhaven", "cherry_veneer", "wood_veneer_cherry")]
+
+
 def test_veneer_and_fabric_materials_in_the_vocabulary():
     from wenart.style import vocabulary as V
 
@@ -254,10 +261,12 @@ def test_veneer_and_fabric_materials_in_the_vocabulary():
     assert V.FURNITURE_MATERIALS["fabric_linen"]["size_m"] == [0.2707, 0.2713]
     assert V.albedo_mode("fabric_linen") == ("flat", 0.5) and V.albedo_mode("fabric_white") == ("flat", 0.35)
     assert V.albedo_mode("wood_veneer_oak") == ("texture", None)
-    assert V.METALLIC == {"steel_brushed": 1.0, "mirror": 1.0}           # Milestone 9: the mirror glass
+    # Milestone 9: the mirror glass; Milestone 10 (track C): metal frames, handles and roofs.
+    assert V.METALLIC == {"steel_brushed": 1.0, "mirror": 1.0, "metal_black": 0.8, "metal_brass": 1.0,
+                          "aluminium_anthracite": 0.6, "steel_black": 0.8, "dark_bronze": 0.8, "standing_seam": 0.8}
     assert V.furniture_textures() == [("polyhaven", "rough_linen", "fabric_linen"),
                                       ("polyhaven", "oak_veneer_01", "wood_veneer_oak"),
-                                      ("polyhaven", "walnut_veneer", "wood_veneer_walnut")]
+                                      ("polyhaven", "walnut_veneer", "wood_veneer_walnut")] + M10_VENEERS
     for slug in V.FURNITURE_MATERIALS:
         assert slug in V.FLAT_COLOURS and slug in V.ROUGHNESS
     from wenart.blender import materials as M
@@ -292,10 +301,12 @@ def test_verify_lists_the_furniture_textures_with_their_sizes(monkeypatch):
     listing = {"oak_veneer_01": {"dimensions": [1830.0000429, 1830.0000429]},
                "walnut_veneer": {"dimensions": [1799.9999523, 1799.9999523]},
                "rough_linen": {"dimensions": [270.708, 271.3]}}
+    listing.update({tid: {"dimensions": [1000.0, 1000.0]} for _, tid, _ in M10_VENEERS})     # Milestone 10
     monkeypatch.setattr(polyhaven, "list_assets", lambda kind="textures": listing if kind == "textures" else {})
     monkeypatch.setattr(ambientcg, "infos", lambda ids: {})
     rows = [r for r in fetch.verify_vocabulary() if r["kind"] == "furniture_texture"]
-    assert {r["id"] for r in rows} == {"oak_veneer_01", "walnut_veneer", "rough_linen"}
+    assert {r["id"] for r in rows} == ({"oak_veneer_01", "walnut_veneer", "rough_linen"}
+                                       | {t for _, t, _ in M10_VENEERS})
     assert all(r["exists"] and r["size_ok"] for r in rows), rows
     listing["rough_linen"]["dimensions"] = [500.0, 500.0]
     rows = [r for r in fetch.verify_vocabulary() if r["id"] == "rough_linen"]
