@@ -217,11 +217,11 @@ def _grid_step(polygon: Sequence[Sequence[float]]) -> float:
     return max(GRID_M, max(x1 - x0, y1 - y0) / GRID_MAX_CELLS)
 
 
-def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[float] = None
-                 ) -> tuple[list, list]:
+def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[float] = None,
+                 step: Optional[float] = None) -> tuple[list, list]:
     """``(verts, faces)`` of a region (``outer`` minus ``holes``) on the ground (``ground_z`` + ``lift``),
     or flat at ``z`` + ``lift`` when ``z`` is given. Flat regions keep the convex pieces; on a slope every
-    piece is cut on the ``_grid_step`` grid and fanned into triangles."""
+    piece is cut on a grid (``step``, default ``_grid_step``) and fanned into triangles."""
     pieces = geom2d.convex_pieces(geom2d.ccw(outer), [geom2d.ccw(h) for h in holes if len(h) >= 3])
     verts: list = []
     faces: list = []
@@ -251,7 +251,7 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
         for piece in pieces:
             add(piece, False)
         return verts, faces
-    step = _grid_step(outer)
+    step = float(step) if step else _grid_step(outer)
     for piece in pieces:
         bx0, by0, bx1, by1 = G.bbox(piece)
         i0, i1 = math.floor(bx0 / step), math.ceil(bx1 / step)

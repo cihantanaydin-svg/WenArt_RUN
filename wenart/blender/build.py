@@ -83,6 +83,34 @@ number) gives every searched camera that lens; without it each room gets
 the fingerprint and recorded as ``lens_mm`` (null = the automatic rule);
 every camera plan carries its own ``lens_mm`` and ``lens_rule``. The ``m5``
 policy refuses it (its cameras keep the M5 24 mm lens).
+
+Milestone 10 (docs/milestone10.md §1.6, §3.2, §3.3): the whole building.
+
+- ``--variant <id>`` (default ``base``, part of the fingerprint): only the
+  variant's levels are built (``views.variant_building``: an alternative
+  level replaces its base level; slabs, roof and facade faces follow);
+  cameras only for the rooms ``views.views_for`` renders (the base: every
+  room but a second twin with ``render.twin_rooms: one``; an alternative:
+  its ``rooms_changed``), the others listed in ``rooms_without_view`` with
+  the reason; the manifest's ``variant`` holds ``rooms_changed`` /
+  ``exterior_changed`` (the building's, else computed) and ``variants`` the
+  same for every variant.
+- A building with ``slabs``, ``roof`` or ``variants`` (``is_whole_building``)
+  is built whole: slab objects (``shell.slab_plan`` / ``build_slabs``:
+  outline minus the stair openings, the brief's ``slab_thickness`` where
+  none is given, assumed), walls running to the next floor, the floors above
+  a stair cut so the stair arrives (no capped shaft), the roof
+  (``roof.roof_model`` / ``build_roof``: the drawn planes, else
+  ``roof.planes_for``; terraces cut out), the walls under it cut by its
+  underside (knee walls, gable ends) and the ceilings there sloped, the
+  facade looks (``shell.exterior_looks``: building, style, defaults), sills
+  and balcony railings (``shell.build_outside_details``), the site
+  (``site.site_plan`` / ``build_site``, brief ``site: full`` / ``ground``),
+  the sun turned by the building's north and the exterior cameras
+  ``ext_<n>`` (``exterior.plan_exterior``; kind ``exterior`` in the
+  manifest's camera list) when ``views_for`` says so. Every value no
+  drawing gives is in ``assumed``. The top-down previews hide the roof, the
+  site and the exterior cameras. Other buildings keep the M3-M9 scene.
 """
 from __future__ import annotations
 
@@ -150,6 +178,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--lens-mm", type=float, default=None,
                         help="lens of every searched camera (the brief's render.lens_mm, 14-35 mm); default: 18 mm, "
                              "16 mm in rooms narrower than 2.2 m")
+    parser.add_argument("--variant", default="base",
+                        help="the building variant to build (Milestone 10; base = the M9 scene)")
     return parser.parse_args(argv)
 
 
@@ -160,16 +190,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def fingerprint_args(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                      no_textures: bool = False, preview_samples: int | None = None, no_preview: bool = False,
                      no_glb: bool = False, proxies: bool = False, camera_policy: str = DEFAULT_CAMERA_POLICY,
-                     lens_mm: float | None = None) -> dict:
+                     lens_mm: float | None = None, variant: str = "base") -> dict:
     """The build arguments that enter the fingerprint, in one canonical form
     (``--out`` is left out: where the scene is written does not change it).
-    ``lens_mm`` None = the automatic lens rule (Milestone 8)."""
+    ``lens_mm`` None = the automatic lens rule (Milestone 8); ``variant``
+    (Milestone 10) the building variant."""
     return {"building": str(building), "style": str(style) if style else None,
             "assets": str(assets) if assets else None, "level": level, "no_textures": bool(no_textures),
             "preview_samples": DEFAULT_PREVIEW_SAMPLES if preview_samples is None else int(preview_samples),
             "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies),
             "camera_policy": str(camera_policy or DEFAULT_CAMERA_POLICY),
-            "lens_mm": None if lens_mm is None else float(lens_mm)}
+            "lens_mm": None if lens_mm is None else float(lens_mm), "variant": str(variant or "base")}
 
 
 def _sha256_file(path: Path) -> str | None:
@@ -434,11 +465,92 @@ def hdri_file(hdris: dict, assets_dir: str | None, style: dict) -> str | None:
     return str(path) if path.exists() else None
 
 
+def is_whole_building(building: dict) -> bool:
+    """Milestone 10: a building with slabs, a roof or variants is built whole (slabs, roof, facade, site,
+    exterior views); any other keeps the M3-M9 scene."""
+    return bool(building.get("slabs") or isinstance(building.get("roof"), dict) or building.get("variants"))
+
+
+def ground_outline(building: dict, outlines: dict[str, list]) -> list:
+    """The outline the ground is cut around: the largest outline of the levels at or below the highest
+    drawn ground level (else the lowest level's)."""
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    zs = [((g.get("z") or {}).get("value")) for g in ((site.get("ground") or {}).get("levels") or [])
+          if isinstance(g, dict)]
+    top = max([float(z) for z in zs if z is not None] or [0.0])
+    levels = sorted(building["levels"], key=lambda lv: float(lv["elevation"]))
+    touching = [lv for lv in levels if float(lv["elevation"]) <= top + 0.5 and len(outlines.get(lv["id"]) or []) >= 3]
+    if not touching:
+        touching = [lv for lv in levels if len(outlines.get(lv["id"]) or []) >= 3][:1]
+    if not touching:
+        return []
+    from wenart import geometry as G
+
+    return max((outlines[lv["id"]] for lv in touching), key=G.polygon_area)
+
+
+def prepare(building_all: dict, variant: str = "base") -> dict:
+    """What the build decides before Blender (pure; Milestone 10): the variant's building
+    (``views.variant_building``), its ``views_for`` and ``variant_changes``, and for a whole building the
+    slab plan, the roof model (the level under it gets ``ceiling_planes``), the roof terraces, the level
+    outlines, the site plan and the facade faces per wall. Raises KeyError for an unknown variant."""
+    from wenart import views as V
+    from wenart.blender import geom2d, shell
+    from wenart.blender import roof as R
+    from wenart.blender import site as S
+
+    whole = is_whole_building(building_all)
+    vb = V.variant_building(building_all, variant)
+    out = {"whole": whole, "variant": variant, "building": vb if whole else building_all,
+           "views": V.views_for(building_all, variant), "changes": V.variant_changes(building_all, variant),
+           "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
+           "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {}, "brief": {}}
+    if not whole:
+        return out
+    slab_t, slab_assumed = V.brief_setting(building_all, "slab_thickness")
+    site_mode, site_assumed = V.brief_setting(building_all, "site")
+    out["brief"] = {"slab_thickness": {"value": slab_t, "assumed": slab_assumed},
+                    "site": {"value": site_mode, "assumed": site_assumed}}
+    if site_assumed:          # (slab_thickness: slab_plan lists it on every slab that uses it)
+        out["assumed"].append({"object": "brief", "field": "site", "value": site_mode,
+                               "reason": "not in the building's brief: the default of wenart/defaults.yaml"})
+    if building_all.get("slabs"):
+        out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
+        out["warnings"] += out["slabs"]["warnings"]
+        out["assumed"] += out["slabs"]["assumed"]
+    if isinstance(vb.get("roof"), dict):
+        roof = R.roof_model(vb["roof"], vb)
+        out["roof"] = roof
+        out["warnings"] += roof["warnings"]
+        for lv in vb["levels"]:
+            if roof["convex"] and roof["equations"] and lv["id"] == roof["over_level_id"]:
+                lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
+        out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
+    else:
+        out["warnings"].append("no roof in the building JSON: none built")
+    for lv in vb["levels"]:
+        out["outlines"][lv["id"]] = geom2d.wall_outline([w for w in vb["walls"] if w["level_id"] == lv["id"]])[0]
+    out["ground_outline"] = ground_outline(vb, out["outlines"])
+    if out["ground_outline"]:
+        mode = site_mode if site_mode in ("full", "ground") else "full"
+        if mode != site_mode:
+            out["warnings"].append(f"brief site {site_mode!r} unknown: full used")
+        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode)
+        out["warnings"] += out["site"]["warnings"]
+    for face in (vb.get("facade") or {}).get("faces") or []:
+        if face.get("wall_id") and face.get("material"):
+            out["faces"].setdefault(face["wall_id"], []).append(face)
+    return out
+
+
 def main(argv: list[str]) -> int:
     import bpy
 
     from wenart.blender import cameras as cams
     from wenart.blender import common, furniture, lighting, materials, shell
+    from wenart.blender import exterior as E
+    from wenart.blender import roof as R
+    from wenart.blender import site as S
     from wenart.blender.materials import MaterialLibrary
     from wenart.blender.render import configure_device
 
@@ -457,17 +569,25 @@ def main(argv: list[str]) -> int:
             return 2
     fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
                                args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy,
-                               args.lens_mm)
+                               args.lens_mm, args.variant)
     fingerprint = build_fingerprint(fp_args)
-    building = json.loads(Path(args.building).read_text(encoding="utf-8"))
-    if building.get("status") != "ok":
-        print(f"building status is {building.get('status')!r}: nothing to build (needs review first)")
+    building_all = json.loads(Path(args.building).read_text(encoding="utf-8"))
+    if building_all.get("status") != "ok":
+        print(f"building status is {building_all.get('status')!r}: nothing to build (needs review first)")
         return 2
+    try:
+        prep = prepare(building_all, args.variant)
+    except KeyError as exc:
+        print(f"--variant {args.variant}: {exc}")
+        return 2
+    building = prep["building"]
+    whole = prep["whole"]
+    views = prep["views"]
     # A build killed half-way must never look finished to `cli build --reuse`:
     # the manifest of the previous build goes first and is written last.
     (out / "scene_manifest.json").unlink(missing_ok=True)
-    warnings: list[str] = list(building.get("warnings", []))
-    assumed: list[dict] = []
+    warnings: list[str] = list(building_all.get("warnings", [])) + prep["warnings"] + list(views["warnings"])
+    assumed: list[dict] = list(prep["assumed"])
     if materials.VOCABULARY_IMPORT_ERROR:
         _loud(f"style vocabulary not importable ({materials.VOCABULARY_IMPORT_ERROR}): "
               "flat colours from the local table of materials.py", warnings)
@@ -498,22 +618,56 @@ def main(argv: list[str]) -> int:
                          "proxies_forced": bool(args.proxies), "not_built": [], "stairs": [], "decor_skipped": []}
     loose_furniture = furniture_building(building)            # stairs are built with the shell
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
+    looks = shell.exterior_looks(building, style) if whole else None
+    slabs = prep["slabs"]
+    roof = prep["roof"]
+    render_rooms = set(views["rooms"])
+    room_levels = {r["id"]: r["level_id"] for r in building["rooms"]}
+    for skip in views["skipped"]:
+        if room_levels.get(skip["room_id"]) in {lv["id"] for lv in levels}:
+            rooms_without_view.append({"room_id": skip["room_id"], "level_id": room_levels[skip["room_id"]],
+                                       "reason": skip["reason"],
+                                       **({"same_as": skip["same_as"]} if skip.get("same_as") else {}),
+                                       **({"twin_of": skip["twin_of"]} if skip.get("twin_of") else {})})
+    outside = {"sills": 0, "railings": 0}
 
     for level in levels:
         col = common.get_or_make_collection(f"level_{level['id']}")
         level_collections[level["id"]] = col
-        stairs = shell.plan_stairs(building, level)
-        shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
+        under = slabs["by_level"][level["id"]]["under"] if slabs else None
+        above = slabs["by_level"][level["id"]]["above"] if slabs else None
+        arrives = bool(above and above["voids"])
+        stairs = shell.plan_stairs(building, level, slab_void=arrives)
+        wall_whole = None
+        if whole:
+            wall_whole = {"slab_above": above, "looks": looks, "outline": prep["outlines"].get(level["id"]),
+                          "faces": prep["faces"],
+                          "roof": roof if roof and roof["over_level_id"] == level["id"] else None}
+        shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
-        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs)
+        floor_whole = None
+        if whole:
+            floor_whole = {"floor_voids": under["voids"] if under else [],
+                           "ceiling_voids": above["voids"] if above else None,
+                           "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"]}
+        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
+                                    whole=floor_whole)
+        if whole and prep["outlines"].get(level["id"]):
+            counts = shell.build_outside_details(building, level, col, library, looks, prep["outlines"][level["id"]],
+                                                 pass_indices, manifest_objects, assumed)
+            for k, v in counts.items():
+                outside[k] += v
         summary = furniture.create_furniture(loose_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
-                                                                    manifest_objects, assumed, warnings, plans=stairs))
-        plans = cams.plan_cameras(building, level["id"], policy=args.camera_policy, lens_mm=args.lens_mm)
-        no_view = cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
+                                                                    manifest_objects, assumed, warnings, plans=stairs,
+                                                                    shaft=not arrives))
+        plans = [p for p in cams.plan_cameras(building, level["id"], policy=args.camera_policy, lens_mm=args.lens_mm)
+                 if p.get("room_id") in render_rooms]
+        no_view = [r for r in cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
+                   if r.get("room_id") in render_rooms]
         rooms_without_view.extend(no_view)
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
         for plan in plans:
@@ -535,8 +689,80 @@ def main(argv: list[str]) -> int:
                             "value": level["ceiling_height"], "reason": "building JSON: assumed_default"})
         add_room_ids(manifest_objects, cams.opening_rooms(building, level["id"]), level["id"])
 
+    whole_info = None
+    extra_collections = []
+    if whole:
+        whole_info = {"slabs": [], "roof": None, "site": None, "outside": outside, "exterior_cameras": None,
+                      "looks": looks}
+        built_ids = {lv["id"] for lv in levels}
+        if slabs:
+            plan = dict(slabs, slabs=[s for s in slabs["slabs"] if s["above_level_id"] in built_ids])
+            shell.build_slabs(plan, level_collections, library, style, manifest_objects, assumed)
+            whole_info["slabs"] = [{"id": s["id"], "z_top": s["z_top"], "thickness": s["thickness"],
+                                    "source": s["source"], "openings": len(s["voids"]), "stairs": s["stairs"],
+                                    "assumed": s["assumed"]} for s in plan["slabs"]]
+        if roof is not None and roof["equations"] and roof["over_level_id"] in built_ids:
+            roof_col = common.get_or_make_collection("roof")
+            extra_collections.append(roof_col)
+            ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
+            mats = [shell.look_material(library, looks["roof"]),
+                    library.get(ceiling_style["material"], ceiling_style.get("asset")),
+                    shell.look_material(library, looks["roof"])]
+            R.build_roof(roof, roof_col, mats, manifest_objects, assumed)
+            over = next(lv for lv in levels if lv["id"] == roof["over_level_id"])
+            parapets = R.parapet_check(roof, over, [w for w in building["walls"] if w["level_id"] == over["id"]])
+            for p in parapets:
+                if p["needs_parapet"]:
+                    warnings.append(f"roof opening {p['opening_id']}: edge {p['edge']} has {p['open']} open sample(s) "
+                                    f"and a roof edge {p['min_height']} m over the terrace floor; no parapet built "
+                                    f"(parapet {p['parapet_height']} m)")
+            whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
+                                  "planes": roof["planes"], "derived_check": roof["derived_check"],
+                                  "eaves_z": roof["eaves_z"], "ridge_z": roof["ridge_z"], "thickness": roof["thickness"],
+                                  "openings": [o["id"] for o in roof["openings"]], "parapets": parapets,
+                                  "notes": roof["notes"], "assumed": roof["assumed"]}
+        if prep["site"] is not None:
+            site_col = common.get_or_make_collection("site")
+            extra_collections.append(site_col)
+            names = ("ground", "grass", "paving", "parking", "plot_wall", "light_well", "bark", "foliage")
+            site_mats = {}
+            for name in names:
+                look = {"ground": looks["ground"], "grass": looks["garden"], "parking": looks["paving"],
+                        "paving": looks["paving"]}.get(name) or looks[name]
+                site_mats[name] = shell.look_material(library, look)
+            whole_info["site"] = S.build_site(prep["site"], site_col, site_mats, manifest_objects, assumed)
+        if views["exterior"]:
+            ext_col = common.get_or_make_collection("exterior")
+            extra_collections.append(ext_col)
+            model = E.build_model(building, levels, roof, prep["site"])
+            ext_plans, dropped = E.plan_exterior(model, building, levels, (prep["site"] or {}).get("plot") or [])
+            E.create_cameras(ext_plans, ext_col, manifest_objects)
+            camera_plans.extend(ext_plans)
+            for d in dropped:
+                warnings.append(f"{d['name']}: exterior view dropped ({d['reason']})")
+            for p in ext_plans:
+                if p.get("warning"):
+                    warnings.append(f"{p['name']}: {p['warning']}")
+            whole_info["exterior_cameras"] = {"planned": [p["name"] for p in ext_plans], "dropped": dropped,
+                                              "reason": views["exterior_reason"]}
+        else:
+            whole_info["exterior_cameras"] = {"planned": [], "dropped": [], "reason": views["exterior_reason"]}
+
     light_col = common.get_or_make_collection("lighting")
-    light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed)
+    if whole:
+        north, north_source = S.north_deg(building)
+
+        def ceiling_at(level, x, y):
+            planes = level.get("ceiling_planes")
+            flat = float(level["elevation"]) + float(level["ceiling_height"])
+            return min([flat] + [a * x + b * y + c for a, b, c in planes or []])
+
+        light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed,
+                                             north_deg=north, north_source=north_source, ceiling_at=ceiling_at)
+        if north_source.startswith("assumed"):
+            assumed.append({"object": "sun", "field": "north_deg", "value": north, "reason": north_source})
+    else:
+        light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed)
     bpy.context.view_layer.update()
     add_box3d(manifest_objects, warnings)
     mood = (style.get("lighting") or {}).get("mood")
@@ -549,7 +775,8 @@ def main(argv: list[str]) -> int:
         configure_device(scene, "cpu" if os.environ.get("WENART_PREVIEW_CPU") else "auto")
         for level in levels:
             png = out / f"level_{level['id']}_top.png"
-            mapping = render_top_down(scene, building, level, level_collections, png, args.preview_samples)
+            mapping = render_top_down(scene, building, level, level_collections, png, args.preview_samples,
+                                      hide_collections=extra_collections)
             if mapping is not None:
                 previews[level["id"]] = png.name
                 preview_maps[level["id"]] = mapping
@@ -603,7 +830,10 @@ def main(argv: list[str]) -> int:
         "build_args": fp_args,
         "files": files,
         "furniture": furniture_summary,
-        "site": site_summary(building),
+        "site": (whole_info or {}).get("site") or site_summary(building),
+        "variant": variant_summary(building_all, prep),
+        "variants": variants_summary(building_all),
+        "whole_building": whole_info,
         "seconds": round(time.time() - t0, 1),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
@@ -613,6 +843,34 @@ def main(argv: list[str]) -> int:
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+def variant_summary(building_all: dict, prep: dict) -> dict:
+    """The scene manifest's ``variant`` (pure): the built variant with its ``rooms_changed`` /
+    ``exterior_changed`` (filled by the build: the building's, else computed; their source) and what it
+    renders (``views_for``)."""
+    from wenart import views as V
+
+    rec = V.variant_record(building_all, prep["variant"])
+    changes = prep["changes"]
+    return {"id": rec["id"], "label": rec.get("label"), "base": V.is_base_variant(rec),
+            "levels": list(rec.get("levels") or []), "changes": rec.get("changes") or [],
+            "rooms_changed": changes["rooms_changed"], "exterior_changed": changes["exterior_changed"],
+            "source": changes["source"], "computed": changes["computed"], "same_as": changes["same_as"],
+            "views": prep["views"]}
+
+
+def variants_summary(building_all: dict) -> list[dict]:
+    """Every variant of the building with its ``rooms_changed`` / ``exterior_changed`` (pure)."""
+    from wenart import views as V
+
+    out = []
+    for rec in V.building_variants(building_all):
+        ch = V.variant_changes(building_all, rec["id"])
+        out.append({"id": rec["id"], "label": rec.get("label"), "base": V.is_base_variant(rec),
+                    "levels": list(rec.get("levels") or []), "rooms_changed": ch["rooms_changed"],
+                    "exterior_changed": ch["exterior_changed"], "source": ch["source"]})
+    return out
 
 
 def add_room_ids(manifest_objects: list[dict], rooms_by_opening: dict[str, list[str]], level_id: str) -> None:
@@ -661,11 +919,12 @@ def preview_mapping(x0: float, y0: float, x1: float, y1: float, px_per_m: float 
 
 
 def render_top_down(scene, building: dict, level: dict, level_collections: dict, png: Path,
-                    samples: int) -> dict | None:
+                    samples: int, hide_collections=()) -> dict | None:
     """Orthographic top view of one level at 100 px/m: ceilings and other
     levels hidden for the shot, then restored. Returns the ``preview_maps``
     entry ``{png, bbox_m, m_per_px, resolution}`` (None when the level has
-    no geometry)."""
+    no geometry). ``hide_collections`` (Milestone 10: roof, site, exterior)
+    are hidden for the shot as well."""
     import bpy
 
     from wenart import geometry as G
@@ -703,6 +962,11 @@ def render_top_down(scene, building: dict, level: dict, level_collections: dict,
                 if not o.hide_render:
                     o.hide_render = True
                     hidden.append(o)
+    for col in hide_collections:
+        for o in col.objects:
+            if not o.hide_render:
+                o.hide_render = True
+                hidden.append(o)
     old = (scene.camera, scene.render.resolution_x, scene.render.resolution_y, scene.render.filepath,
            scene.cycles.samples, scene.render.image_settings.file_format, scene.render.image_settings.color_mode)
     scene.camera = ob

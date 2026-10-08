@@ -670,6 +670,33 @@ def _axis_tidy(u: tuple[float, float]) -> tuple[float, float]:
     return (x / n, y / n)
 
 
+def offset_polygon(polygon: Sequence[Sequence[float]], inset: float) -> list[tuple[float, float]]:
+    """The polygon moved ``inset`` metres inwards (negative: outwards): every edge line moved square to
+    itself, consecutive lines intersected (collinear neighbours keep the moved corner). For the small
+    insets of the scene (1-2 cm) on building outlines; a corner where the moved lines are parallel keeps the
+    moved point."""
+    pts = ccw(polygon)
+    n = len(pts)
+    if n < 3:
+        return pts
+    lines = []
+    for i in range(n):
+        p, q = pts[i], pts[(i + 1) % n]
+        nx, ny = G.unit_normal_left(p, q)                 # counter-clockwise: left is inside
+        lines.append(((p[0] + nx * inset, p[1] + ny * inset), (q[0] + nx * inset, q[1] + ny * inset)))
+    out = []
+    for i in range(n):
+        (a, b), (c, d) = lines[i - 1], lines[i]
+        rx, ry, sx, sy = b[0] - a[0], b[1] - a[1], d[0] - c[0], d[1] - c[1]
+        den = rx * sy - ry * sx
+        if abs(den) < 1e-12:
+            out.append(c)
+            continue
+        t = ((c[0] - a[0]) * sy - (c[1] - a[1]) * sx) / den
+        out.append((a[0] + t * rx, a[1] + t * ry))
+    return out
+
+
 def rectangle_corners(rect: dict, grow: float = 0.0) -> list[tuple[float, float]]:
     """The counter-clockwise corners of an ``oriented_rectangle`` grown by ``grow`` on every side."""
     (cx, cy), (ux, uy), (vx, vy) = rect["center"], rect["u"], rect["v"]

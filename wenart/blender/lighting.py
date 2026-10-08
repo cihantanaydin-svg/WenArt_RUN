@@ -237,9 +237,21 @@ def sun_direction(elevation_deg: float, azimuth_deg: float) -> tuple[float, floa
     return (math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el))
 
 
+def building_azimuth(compass_azimuth_deg: float, north_deg: float = 0.0) -> float:
+    """The sun's azimuth in the building frame (clockwise from the building's +Y) of a compass azimuth
+    (clockwise from north), when the building's +Y axis points to the compass bearing ``north_deg``
+    (``site.north_deg``, Milestone 10; 0 = +Y is north, the M3-M9 convention)."""
+    return (float(compass_azimuth_deg) - float(north_deg)) % 360.0
+
+
 def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: str | None, collection,
-                   manifest_objects: list, assumed: list) -> dict:
-    """World + sun + area lights for the windowless rooms of ``levels``."""
+                   manifest_objects: list, assumed: list, north_deg: float | None = None,
+                   north_source: str | None = None, ceiling_at=None) -> dict:
+    """World + sun + area lights for the windowless rooms of ``levels``.
+
+    Milestone 10: ``north_deg`` (the compass bearing of the building's +Y axis, ``site.north_deg``) turns
+    the style's compass sun azimuth into the building frame (``building_azimuth``); ``ceiling_at(level,
+    x, y)`` gives the ceiling height of a room under the roof (sloped), so its ceiling light hangs under it."""
     import bpy
     from mathutils import Vector
 
@@ -252,6 +264,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     azimuth = float(lighting.get("sun_azimuth_deg", 210.0))
     strength = float(lighting.get("sun_strength", 3.0))
     temperature = float(lighting.get("colour_temperature_k", 5200))
+    in_building = building_azimuth(azimuth, north_deg or 0.0)
 
     world = world_nodes(scene, lighting, hdri_path)
 
@@ -264,7 +277,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     except AttributeError:  # older API: fall back to a plain colour
         sun.color = _blackbody_rgb(temperature)
     ob = bpy.data.objects.new("sun", sun)
-    d = Vector(sun_direction(elevation, azimuth))
+    d = Vector(sun_direction(elevation, in_building))
     ob.location = d * 30.0
     ob.rotation_euler = (-d).to_track_quat("-Z", "Y").to_euler()
     collection.objects.link(ob)
@@ -275,6 +288,9 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
         "assumed": {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength,
                     "temperature_k": temperature},
     })
+    if north_deg is not None:
+        manifest_objects[-1]["assumed"].update(azimuth_building_deg=round(in_building, 3), north_deg=north_deg,
+                                               north_source=north_source)
 
     portals = build_portals(building, levels, collection, manifest_objects)
 
@@ -313,6 +329,8 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             except AttributeError:
                 light.color = _blackbody_rgb(temperature)
             lob = bpy.data.objects.new(f"light_{room['id']}", light)
+            if ceiling_at is not None:
+                ceil_z = min(ceil_z, ceiling_at(level, plan["center"][0], plan["center"][1]))
             lob.location = (plan["center"][0], plan["center"][1], ceil_z - AREA_LIGHT_CEILING_GAP)
             lob.visible_camera = False      # lighting mood only: no lamp in the picture
             collection.objects.link(lob)
@@ -334,8 +352,10 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                                       f"to the camera)",
                             "parent": room["id"], "kind": kind})
             area_lights.append(lob)
-    return {"world": world, "sun": {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength,
-                                    "temperature_k": temperature},
+    sun_info = {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength, "temperature_k": temperature}
+    if north_deg is not None:
+        sun_info.update(azimuth_building_deg=round(in_building, 3), north_deg=north_deg, north_source=north_source)
+    return {"world": world, "sun": sun_info,
             "area_lights": [o.name for o in area_lights], "portals": [o.name for o in portals]}
 
 

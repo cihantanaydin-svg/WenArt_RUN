@@ -15,7 +15,8 @@ from typing import Sequence
 from wenart.blender import geom2d
 
 KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "furniture", "decor",
-         "camera", "light")
+         "camera", "light",
+         "slab", "roof", "site")          # Milestone 10: the whole building (slabs, the roof, the site)
 STATUSES = ("verified", "unverified", "assumed")
 
 

@@ -505,6 +505,9 @@ class RoomModel:
         self.level = level or next(lv for lv in building["levels"] if lv["id"] == room["level_id"])
         self.floor_z = float(self.level["elevation"])
         self.ceil_z = self.floor_z + float(self.level["ceiling_height"])
+        # Milestone 10: a room under the roof has a sloped ceiling, the lowest of these planes (z = a x + b y
+        # + c; roof.ceiling_planes, set on the level by the builder).
+        self.ceiling_planes = [tuple(float(v) for v in p) for p in self.level.get("ceiling_planes") or []]
         levels_above = any(float(lv["elevation"]) > self.floor_z for lv in building["levels"])
         self.polygon = room_polygon(room)
         self.pieces = shown_pieces(room, building)
@@ -594,6 +597,10 @@ class RoomModel:
         with np.errstate(divide="ignore", invalid="ignore"):
             tf = np.where(dz < 0, (self.floor_z - oz) / dz, np.inf)
             tc = np.where(dz > 0, (self.ceil_z - oz) / dz, np.inf)
+            for a, b, c in self.ceiling_planes:            # a sloped ceiling: the first plane the ray crosses
+                den = dz - a * dx - b * dy
+                tp = np.where(den > 1e-12, (a * ox + b * oy + c - oz) / den, np.inf)
+                tc = np.minimum(tc, np.where(tp > _EPS_T, tp, np.inf))
         tf = np.where(tf > _EPS_T, tf, np.inf)
         tc = np.where(tc > _EPS_T, tc, np.inf)
         depth = np.minimum(tf, tc)
@@ -726,11 +733,27 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     grid = geom2d.free_points(polygon, obstacles, step=GRID_STEP, wall_clearance=WALL_CLEARANCE,
                               obstacle_clearance=OBSTACLE_CLEARANCE)
     points = sorted({(round(p[0], 9), round(p[1], 9)) for p in corners + grid})
+    level = next((lv for lv in building.get("levels") or [] if lv["id"] == room.get("level_id")), None)
+    if level is not None and level.get("ceiling_planes"):
+        points = [p for p in points if headroom_ok(level, p)]
     if points:
         return points, None
     tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT]
     p, warning = fallback_position(polygon, obstacles, tall)
     return [(round(float(p[0]), 9), round(float(p[1]), 9))], warning
+
+
+HEADROOM_M = 0.30                    # Milestone 10: a camera stays this far under a sloped ceiling
+
+
+def headroom_ok(level: dict, p) -> bool:
+    """True when the sloped ceiling of a room under the roof (``level["ceiling_planes"]``) is at least
+    ``HEADROOM_M`` above a camera at ``CAMERA_HEIGHT`` at ``p``."""
+    planes = level.get("ceiling_planes") or []
+    if not planes:
+        return True
+    z = min(float(a) * p[0] + float(b) * p[1] + float(c) for a, b, c in planes)
+    return z >= float(level["elevation"]) + CAMERA_HEIGHT + HEADROOM_M
 
 
 def fallback_position(polygon, obstacles, tall) -> tuple[tuple[float, float], str]:
