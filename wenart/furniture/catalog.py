@@ -105,7 +105,8 @@ Milestone 10 (docs/milestone10.md §1.1, §4.5, §4.6; track F): the 14 new furn
 each in ``catalog.json`` until the library pod's ``catalog_library.json`` adds models) and the 12 new decor
 types; library entries may carry track D's judged fields ``material_slots``, ``material_tags``,
 ``recolourable_fabric``, ``recolourable_wood`` (``wenart/assets/recolour.py``) and, for plants, ``species`` and
-``pot`` (checked by ``_validate_m10_fields`` when present; the fit reads them, ``fit.GLB_ASSET_FIELDS``).
+``pot`` (checked by ``_validate_m10_fields`` when present; the fit reads them, ``fit.GLB_ASSET_FIELDS``), a corner
+sofa's ``chaise_side``. The wall cabinet stays parametric whatever the library file holds (``PARAMETRIC_ONLY_TYPES``).
 """
 from __future__ import annotations
 
@@ -168,6 +169,13 @@ FURNITURE_TYPES = (
     "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet",
     "unknown",
 )
+
+# Types built parametrically only (docs/milestone10.md §4.4: the wall cabinet is placed by rule along a drawn
+# counter run and built with the counter's fronts): ``merge`` never lets a library model replace their parametric
+# entry. = ``wenart.furniture.schemas.RULE_ONLY_TYPES`` (repeated: that module needs jsonschema and the synthetic
+# blocks; tests/test_furniture_fit_v2.py keeps them equal).
+PARAMETRIC_ONLY_TYPES: tuple[str, ...] = ("wall_cabinet",)
+CHAISE_SIDES: tuple[str, ...] = ("left", "right")
 
 # Heights of the parametric fallback (the Milestone 3 proxy table, docs/milestone3.md, conventions; the
 # Milestone 7 types as in wenart/furniture/schemas.py HEIGHTS).
@@ -294,11 +302,15 @@ def load(path: Optional[Path] = None, objaverse: Optional[Path] | bool = True,
 def merge(base: dict, extra: dict, source: str = "catalog_library.json") -> dict:
     """``base`` with the models of ``extra`` appended (docs/milestone7.md §6.6) and its decor models appended to the
     ``decor`` section (docs/milestone8.md §2). Both are validated first (``extra`` with ``complete=False``); a type
-    that is parametric in ``base`` but has models in ``extra`` loses its parametric entry; ids stay unique across
-    both. ``merged`` records the source, the number of models (and decor models) added and the replaced types."""
+    that is parametric in ``base`` but has models in ``extra`` loses its parametric entry, except the types of
+    ``PARAMETRIC_ONLY_TYPES`` (Milestone 10: their models are left out and listed as ``parametric_only_dropped``);
+    ids stay unique across both. ``merged`` records the source, the number of models (and decor models) added and
+    the replaced types."""
     validate(base)
     validate(extra, complete=False)
-    added = [e for e in extra.get("entries", []) if not e.get("parametric")]
+    models = [e for e in extra.get("entries", []) if not e.get("parametric")]
+    added = [e for e in models if e["type"] not in PARAMETRIC_ONLY_TYPES]
+    dropped = sorted(str(e.get("id")) for e in models if e["type"] in PARAMETRIC_ONLY_TYPES)
     decor = list(extra.get("decor", []))
     library_types = {e["type"] for e in added}
     replaced = sorted(e["type"] for e in base.get("entries", []) if e.get("parametric") and e["type"] in library_types)
@@ -308,6 +320,8 @@ def merge(base: dict, extra: dict, source: str = "catalog_library.json") -> dict
     if decor:
         out["decor"] = list(base.get("decor", [])) + decor
     out["merged"] = {"source": source, "models_added": len(added), "parametric_replaced": replaced}
+    if dropped:
+        out["merged"]["parametric_only_dropped"] = dropped
     if decor:
         out["merged"]["decor_added"] = len(decor)
     validate(out)
@@ -418,7 +432,7 @@ PLANT_SPECIES = ("palm", "monstera", "fiddle_leaf_fig", "olive", "fern", "other"
 def _validate_m10_fields(e: dict) -> None:
     """Milestone 10 fields of a library entry, when present: ``material_tags`` from ``MATERIAL_TAGS``,
     ``recolourable_fabric`` / ``recolourable_wood`` booleans, ``material_slots`` a list of slots with an integer
-    ``index``, ``species`` one of ``PLANT_SPECIES``."""
+    ``index``, ``species`` one of ``PLANT_SPECIES``, ``chaise_side`` left / right / null."""
     tags = e.get("material_tags")
     if tags is not None and (not isinstance(tags, list) or any(t not in MATERIAL_TAGS for t in tags)):
         raise CatalogError(f"{e['id']}: material_tags {tags!r} must be a list of {', '.join(MATERIAL_TAGS)}")
@@ -432,6 +446,8 @@ def _validate_m10_fields(e: dict) -> None:
         raise CatalogError(f"{e['id']}: material_slots must be a list of slots with an integer index")
     if e.get("species") is not None and e["species"] not in PLANT_SPECIES:
         raise CatalogError(f"{e['id']}: species {e['species']!r} is not one of {', '.join(PLANT_SPECIES)}")
+    if e.get("chaise_side") is not None and e["chaise_side"] not in CHAISE_SIDES:
+        raise CatalogError(f"{e['id']}: chaise_side {e['chaise_side']!r} is not left, right or null")
 
 
 def _validate_licence(e: dict, source: str) -> None:

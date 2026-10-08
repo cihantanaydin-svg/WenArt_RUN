@@ -134,7 +134,10 @@ OBJAVERSE_ASSET_FIELDS = ("glb", "sha256_glb", "uid", "title", "author", "source
 GLB_ASSET_FIELDS = OBJAVERSE_ASSET_FIELDS + ("licence_flag", "generated", "style_hint", "name",
                                              # Milestone 10 (track D's judged fields, docs/milestone10.md §4.5, §4.6)
                                              "material_slots", "material_tags", "recolourable_fabric",
-                                             "recolourable_wood", "species", "pot")
+                                             "recolourable_wood", "species", "pot",
+                                             # Milestone 10 review (track D): the corner sofa's chaise side as the
+                                             # viewer facing the front sees it, and a generated plant's attributes
+                                             "chaise_side", "chaise_note", "attributes_status")
 # Milestone 10: a judged fabric slot whose colour is within this CIELAB distance (Delta E 1976) of the brief's colour
 # counts as that colour (designer value, assumed; about the difference between two named greys).
 COLOUR_MATCH_DE = 15.0
@@ -361,6 +364,25 @@ def look_of(entry: dict, ftype: str, design: dict) -> tuple[Optional[dict], Opti
     return look, None
 
 
+def chaise_side_candidates(candidates: list[dict], side: Optional[str]) -> tuple[list[dict], list[dict], str]:
+    """``(kept, excluded, side)`` for an L-shaped piece (``shape: L``; review finding 40): only models whose
+    ``chaise_side`` (track D: left / right as a viewer facing the front sees it, measured from the footprint) is the
+    piece's ``chaise_side`` (``right`` when the piece has none, as the scene builder assumes); a model without a
+    side is excluded as "chaise side unknown", one with the other side too. Library models are never mirrored."""
+    want = side if side in C.CHAISE_SIDES else "right"
+    kept, excluded = [], []
+    for e in candidates:
+        has = e.get("chaise_side")
+        if has is None:
+            excluded.append({"id": e["id"], "reason": "chaise side unknown"})
+        elif has != want:
+            excluded.append({"id": e["id"], "reason": f"chaise on the {has}, the piece's on the {want} "
+                                                      "(no mirroring)"})
+        else:
+            kept.append(e)
+    return kept, excluded, want
+
+
 def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
               uniform_range: tuple[float, float] = UNIFORM_RANGE, style_family: Optional[str] = None,
               design: Optional[dict] = None) -> dict:
@@ -372,7 +394,8 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     parametric fallback. Beds without a mattress (unless bed frames with a deck)
     and, with ``style_family``, models of another style are no candidates
     (``usable_candidates``). Milestone 10: ``design`` (the piece's look) keeps only the models that can show it
-    (``look_of``); none left -> parametric with the reason."""
+    (``look_of``); none left -> parametric with the reason. An L-shaped piece keeps only the models with its
+    chaise side (``chaise_side_candidates``); none left -> the parametric L, which builds the drawn side."""
     ftype = piece["type"]
     width, depth = piece["footprint"]["size"]
     if not (width > 0 and depth > 0):
@@ -388,6 +411,13 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     candidates, excluded, reason = usable_candidates(ftype, candidates, style_family)
     if not candidates:
         return parametric_fit(piece, reason, excluded=excluded, style_family=style_family)
+    if piece.get("shape") == "L":
+        candidates, side_excluded, side = chaise_side_candidates(candidates, piece.get("chaise_side"))
+        excluded += side_excluded
+        if not candidates:
+            return parametric_fit(piece, f"no {ftype} model with its chaise on the {side} (library models are not "
+                                         "mirrored); the parametric L takes the drawn side",
+                                  excluded=excluded, style_family=style_family)
     looks: dict[str, dict] = {}
     if design:
         kept = []
