@@ -2723,11 +2723,11 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     9.805,
+     9.825,
      2.125
     ],
     "size": [
-     2.4,
+     3.0,
      0.35
     ],
     "rotation_deg": 270.0
