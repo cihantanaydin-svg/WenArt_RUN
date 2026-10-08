@@ -3,7 +3,6 @@ the ground per side (the example's south side at the basement floor), north, lig
 plot walls, trees, ``site: full`` / ``ground`` and the sun turned by the building's north."""
 import copy
 import json
-import math
 from pathlib import Path
 
 import pytest

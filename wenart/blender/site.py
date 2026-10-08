@@ -84,7 +84,7 @@ def compass_to_building(azimuth_deg: float, north: float) -> tuple[float, float]
     return (math.sin(a), math.cos(a))
 
 
-def _nearest_axis(d: Sequence[float]) -> str:
+def nearest_axis(d: Sequence[float]) -> str:
     return max(AXES, key=lambda k: AXES[k][0] * d[0] + AXES[k][1] * d[1])
 
 
@@ -123,11 +123,11 @@ def terrain_model(building: dict, outline: Sequence[Sequence[float]], default_z:
             continue
         az = entry.get("azimuth_deg")
         if az is not None:
-            axis = _nearest_axis(compass_to_building(float(az), north))
+            axis = nearest_axis(compass_to_building(float(az), north))
         elif name in SIDE_DIRECTIONS:
             axis = SIDE_DIRECTIONS[name]
             if name in COMPASS and north:
-                axis = _nearest_axis(compass_to_building(COMPASS[name], north))
+                axis = nearest_axis(compass_to_building(COMPASS[name], north))
         else:
             warnings.append(f"ground side {name!r} without an azimuth: not used")
             continue
@@ -213,7 +213,7 @@ def ground_extent(outline: Sequence[Sequence[float]], plot: Sequence[Sequence[fl
     return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
 
 
-def _grid_step(polygon: Sequence[Sequence[float]]) -> float:
+def grid_step(polygon: Sequence[Sequence[float]]) -> float:
     x0, y0, x1, y1 = G.bbox([tuple(p[:2]) for p in polygon])
     return max(GRID_M, max(x1 - x0, y1 - y0) / GRID_MAX_CELLS)
 
@@ -222,7 +222,7 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
                  step: Optional[float] = None) -> tuple[list, list]:
     """``(verts, faces)`` of a region (``outer`` minus ``holes``) on the ground (``ground_z`` + ``lift``),
     or flat at ``z`` + ``lift`` when ``z`` is given. Flat regions keep the convex pieces; on a slope every
-    piece is cut on a grid (``step``, default ``_grid_step``) and fanned into triangles."""
+    piece is cut on a grid (``step``, default ``grid_step``) and fanned into triangles."""
     pieces = geom2d.convex_pieces(geom2d.ccw(outer), [geom2d.ccw(h) for h in holes if len(h) >= 3])
     verts: list = []
     faces: list = []
@@ -252,7 +252,7 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
         for piece in pieces:
             add(piece, False)
         return verts, faces
-    step = float(step) if step else _grid_step(outer)
+    step = float(step) if step else grid_step(outer)
     for piece in pieces:
         bx0, by0, bx1, by1 = G.bbox(piece)
         i0, i1 = math.floor(bx0 / step), math.ceil(bx1 / step)

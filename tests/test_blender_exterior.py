@@ -2,7 +2,6 @@
 model of the outside, the inside tests, the framing (level cameras, lens shift), the line-of-sight checks on a
 fake scene with a tree and a plot wall, the camera plan of the example building and the facade metering of
 render.py."""
-import copy
 import json
 import math
 from pathlib import Path

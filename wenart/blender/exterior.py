@@ -197,7 +197,7 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
     if site_plan is not None:
         m.terrain = site_plan["terrain"]
         ext = site_plan["extent"]
-        v, f = S.draped_faces(ext, [site_plan["outline"]], m.terrain, step=max(4.0, S._grid_step(ext)))
+        v, f = S.draped_faces(ext, [site_plan["outline"]], m.terrain, step=max(4.0, S.grid_step(ext)))
         m.add_mesh(v, f, "ground")
         for wall in site_plan["plot_walls"]:
             v, f, info = S.plot_wall_parts(wall, m.terrain)
@@ -408,7 +408,7 @@ def _opening_counts(building: dict, levels: Sequence[dict], outline) -> dict[str
         cx, cy, _ = opening_centre_on_wall(o, wall)
         out = S.outward_side(wall, outline, (cx, cy))
         if out is not None:
-            counts[S._nearest_axis(out)] += 1
+            counts[S.nearest_axis(out)] += 1
     return counts
 
 
@@ -470,7 +470,7 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
         keep(_try(model, building, levels, f"ext_{k + 1}", "corner", cands, aim, extra={"corner": k + 1}))
 
     counts = _opening_counts(building, levels, model.outline)
-    best = max(range(4), key=lambda k: (sum(counts[S._nearest_axis(v)] for v in _corner_axes(corners[k], rect)), -k))
+    best = max(range(4), key=lambda k: (sum(counts[S.nearest_axis(v)] for v in _corner_axes(corners[k], rect)), -k))
     corner = corners[best]
     d = (corner[0] - cx, corner[1] - cy)
     n = math.hypot(*d)
@@ -495,7 +495,7 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
     for i, side in enumerate(sides):
         name = f"ext_{6 + i}"
         if side in S.COMPASS:
-            axis = S._nearest_axis(S.compass_to_building(S.COMPASS[side], north))
+            axis = S.nearest_axis(S.compass_to_building(S.COMPASS[side], north))
         elif side in S.SIDE_DIRECTIONS:
             axis = S.SIDE_DIRECTIONS[side]
         else:
