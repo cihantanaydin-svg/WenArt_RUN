@@ -153,9 +153,10 @@ def test_golden_plan_of_the_committed_projects(golden):
         assert pod_of_real01["server_starts"] == (3 if seeded else 4)
     assert all(pod["fits"] for pod in plan["pods"])
     if PRESENT == GOLDEN and by["synthetic-06"]["status"] == "ok":
-        # At the measured RTX PRO 6000 speed (1.634) five synthetic projects fit one pod (first fit).
+        # At the measured RTX PRO 6000 speed (1.634) four synthetic projects fit one pod (first fit; Milestone 10:
+        # the 5 exterior views of every project push synthetic-06 into the second pod, with real01).
         assert [pod["projects"] for pod in plan["pods"]] == [["synthetic-01", "synthetic-03", "synthetic-04",
-                                                              "synthetic-05", "synthetic-06"], ["real01"]]
+                                                              "synthetic-05"], ["synthetic-06", "real01"]]
 
 
 def test_plan_reuses_stage_1_and_writes_records(golden):

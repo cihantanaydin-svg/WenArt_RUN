@@ -43,6 +43,7 @@ import pytest
 
 from fakes.fake_vlm import FakeVLM
 from wenart.blender import cli as blender_cli
+from wenart.run import stages as S
 from wenart.run import state as ST
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -159,7 +160,9 @@ def test_stage_records_of_the_ok_project(smoke):
     _check_ok_project(out, records)
     assert records["intake"]["note"] == "private only"
     # A project folder inside the repo stays repo-relative (§1.1); the LibreDWG version is a pipeline input (M7).
-    assert list(records["pipeline"]["inputs"]) == ["projects/synthetic-04", "<LibreDWG VERSION>"]
+    # Milestone 10: the sheets stage's sheets.json is a pipeline input too.
+    assert list(records["pipeline"]["inputs"]) == ["projects/synthetic-04", S.t(out / "sheets.json"),
+                                                   "<LibreDWG VERSION>"]
     # The A/B project's render saved the alt previews (look None, M7 §8.2).
     render = json.loads((out / "renders" / "render_manifest.json").read_text(encoding="utf-8"))
     assert render["renders"] and all(r.get("alt_preview") for r in render["renders"])
@@ -176,7 +179,7 @@ def test_private_project_runs_through_build_render_and_report(smoke):
     assert records["intake"]["status"] == "ok"
     # The staged copy is the project folder: absolute, under the private outputs (§7.1).
     staged = out / "input" / REAL
-    assert list(records["pipeline"]["inputs"]) == [str(staged), "<LibreDWG VERSION>"]
+    assert list(records["pipeline"]["inputs"]) == [str(staged), S.t(out / "sheets.json"), "<LibreDWG VERSION>"]
     assert (staged / "3_kat_plani.dxf").is_file()
     assert not (staged / "truth").exists()
     intake = json.loads((out / "intake_manifest.json").read_text(encoding="utf-8"))
@@ -272,6 +275,22 @@ def test_copy_layout_and_count_only_output(smoke):
     assert len(list((results / "recognition" / "real01" / "crops").glob("*.png"))) == 2 * 17
 
 
+def _seeds_cover(rec_dir: Path, seed_dir: Path) -> bool:
+    """The committed answers of both models answer every question of ``rec_dir`` (same key and input hash).
+    Milestone 10's new furniture types changed the choices of most real01 questions, so the seeds of earlier pods
+    stay stale until a pod has answered them again and its answers are committed."""
+    items = json.loads((rec_dir / "requests.json").read_text(encoding="utf-8"))["items"]
+    for slug in ("qwen3-vl-8b", "glm-4.6v-flash"):
+        path = seed_dir / f"answers_{slug}.json"
+        if not path.is_file():
+            return False
+        calls = json.loads(path.read_text(encoding="utf-8")).get("calls") or {}
+        if any((calls.get(i["key"]) or {}).get("input_sha256") != i["input_sha256"]
+               or (calls.get(i["key"]) or {}).get("data") is None for i in items):
+            return False
+    return True
+
+
 def test_real01_questions_answered_and_built(smoke):
     """M7 §9.1: real01's pipeline writes 17 recognition questions (exit 4); both passes are answered (by the prep
     pod's committed seeds, results/recognition/real01, without a server: ``reused``; without the seeds by the fake
@@ -283,7 +302,7 @@ def test_real01_questions_answered_and_built(smoke):
     _check_ok_project(out, records, questions=True)
     assert records["pipeline"]["status"] == "pending" and records["pipeline"]["rc"] == 4
     assert records["pipeline"]["note"].startswith("17 recognition question(s)")
-    seeded = (ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
+    seeded = _seeds_cover(out / "recognition", ROOT / "results" / "recognition" / "real01")
     assert records["recognize"]["status"] == ("reused" if seeded else "ok")
     verb = "stored answers" if seeded else "ask"
     assert sorted(s["name"] for s in records["recognize"]["steps"]) == [f"{verb} glm", f"{verb} qwen"]

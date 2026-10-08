@@ -159,6 +159,13 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -172,7 +179,7 @@
     },
     "neighbours": null
    },
-   "input_sha256": "3ae83dc9cfc624dcd44ec2098e79f43cea282e9df826d47d7a8f02155adda944"
+   "input_sha256": "7f2fb571d27976b6bd50aaf5d8b2413cdce5e7fba23160ddf0b2b2e5ea31e884"
   },
   {
    "key": "sym_T0_3",
@@ -236,6 +243,12 @@
      "tv_unit",
      "bookshelf",
      "potted_plant",
+     "bench",
+     "console_table",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -249,7 +262,7 @@
     },
     "neighbours": null
    },
-   "input_sha256": "5d2432bbf8916f021e6b114a55b6ae2d4ecb231cd41f3a267bd763e9038396c8"
+   "input_sha256": "1d1c533e13c5183402ac96760a5ddc8d94a3212f774937efc618f610516d4acf"
   }
  ]
 }
