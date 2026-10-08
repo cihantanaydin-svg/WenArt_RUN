@@ -13,7 +13,7 @@ source's sheets),
 ``copy``, ``tests``:
 
 - ``abo_survey``: ``wenart.assets.abo survey --cache <abo-cache> --out <prep-root>/library`` (the ABO metadata and
-  candidate GLBs into the container-disk cache, ``/opt/wenart/abo``) -> ``survey_abo.json``.
+  candidate GLBs into the cache, Milestone 10: ``<prep-root>/cache/abo`` on the volume) -> ``survey_abo.json``.
 - ``trellis_setup``: ``bash scripts/pod_setup_trellis.sh`` (venv-trellis on the container disk, TRELLIS.2 into
   ``HF_HOME``; it writes ``$WENART_RESULTS/setup_trellis.json`` and exits non-zero on failure: ``failed`` with the
   reason; the library is then built from the real sources only).
@@ -68,11 +68,27 @@ seeds).
 - ``copy``: ``<out>/sheets/requests.json`` and ``answers_*.json`` -> ``recognition/<p>/sheets/``, ``sheets_debug/*.png``
   -> ``furniture/<p>/sheets_debug/`` (``copy_sheets``: ``wenart.run.copy`` has no rule for them), ``sheets.json`` and
   ``sheets_report.md`` -> ``furniture/<p>/`` (``copy_project``'s ``*.json`` / ``*.md`` rule).
-- Pods (docs/milestone10.md §7): L1 = ``PREP_PROJECTS="real02 synthetic-07"
-  PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,pipelines,session_qwen,session_glm,pipeline_final,
-  library,copy,tests``; L2 = ``PREP_PROJECTS="real02 synthetic-07" WENART_GENERATE_TARGET=20
+- Pods (docs/milestone10.md §7): L1 did not fit one pod (8 Oct 2026, RTX 5090: ABO survey 55 min, Objaverse survey
+  24 min, thumbnails cut at the deadline) and is split in two on the same volume state. L1b =
+  ``PREP_SURVEY_TYPES=new PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,copy``; L1c =
+  ``PREP_ONLY=pipelines,session_qwen,session_glm,pipeline_final,library,copy,tests`` (no survey: the candidate GLBs are
+  in ``<prep-root>/cache/``); L2 = ``WENART_GENERATE_TARGET=20
   PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests``
-  (the real GLBs of L2 come from the assets copy of L1's write-catalog, ``--assets``).
+  (the real GLBs of L2 come from the assets copy of write-catalog, ``--assets``). All with ``PREP_PROJECTS``.
+
+Milestone 10, after pod L1 of 8 Oct 2026 (deadline cut, 3 result files collected, the container-disk downloads lost):
+
+- The surveys' caches are on the Network Volume: ``--abo-cache`` / ``$WENART_ABO_CACHE`` (default ``<prep-root>/cache/abo``)
+  and ``--objaverse-cache`` / ``$WENART_OBJAVERSE_CACHE`` (default ``<prep-root>/cache/objaverse``; the survey's own
+  dataset cache, ``<cache>/hub``: metadata shards and GLBs). The model weights stay in ``HF_HOME`` on the container disk
+  (CLAUDE.md). The steps that read GLBs (thumbnails, recolour slots, write-catalog) take the absolute paths recorded in
+  the survey files, so they find the downloads of an earlier pod; a pod cut by the deadline leaves them for the next.
+- ``PREP_SURVEY_TYPES`` / ``--survey-types`` (default ``all``): passed to both surveys as ``--types`` (``new``: the new
+  types only, the records of the other types are kept by the surveys).
+- A heavy command that ends at the deadline is ``deadline``, not ``failed``: its own exit 3 or the runner's timeout (exit
+  124; the timeout of a heavy command is the time left to the deadline). Without a deadline a timeout stays a failure.
+- Once the deadline has passed, the prep projects' files and the library folder are copied to ``$RESULTS`` after every
+  step (``save_partial``), so the pod's stop at its maximum runtime cannot leave the results empty.
 
 The M7 text below holds for the other steps (its ``survey`` now follows ``abo_survey``):
 
@@ -80,7 +96,8 @@ What, in this fixed order (``STEPS``; every command runs with cwd = the repo roo
 ``<logs>/prep-<job>/<step>.log``):
 
 1. ``survey``: ``wenart.assets.objaverse survey --cache $HF_HOME`` (the Objaverse metadata and candidate GLBs
-   into the container-disk cache) -> ``<prep-root>/library/survey.json``. It runs with ``HF_HUB_OFFLINE=0``; every
+   into its cache, Milestone 10: ``<prep-root>/cache/objaverse`` on the volume) -> ``<prep-root>/library/survey.json``.
+   It runs with ``HF_HUB_OFFLINE=0``; every
    later step runs with ``HF_HUB_OFFLINE=1`` (the setup downloaded the VLMs, the polish/gate models and OWLv2
    before).
 2. ``thumbnails``: ``objaverse thumbnails --work <prep-root>/library-work`` (Blender, Cycles on the GPU; no vLLM
@@ -110,8 +127,8 @@ What, in this fixed order (``STEPS``; every command runs with cwd = the repo roo
    once more with ``--no-ai`` (the new items stay unknown/unverified): ``warning``, never ``failed``.
 10. ``library``: ``objaverse accept``, ``write-catalog --assets``, ``report`` and ``ATTRIBUTION.md``
     (``wenart.run.copy.library_attribution``) in ``<prep-root>/library``. The accepted GLBs are read from the
-    survey's container-disk cache (``$HF_HOME``): a failed write-catalog names the ones this pod does not have
-    (a targeted re-run on a new pod must include ``survey``, which downloads them again).
+    survey's cache (M7 to M9: the container disk; Milestone 10: the volume, see below): a failed write-catalog
+    names the ones this pod does not have (a re-run must then include ``survey``, which downloads them again).
 11. ``copy``: the library folder -> ``$RESULTS/library/`` and the prep projects' small files
     (``wenart.run.copy.copy_project``) -> ``recognition/<p>/`` (requests, both answer files, crops),
     ``furniture/<p>/`` (building.json, report.md, debug images) and ``run/<p>/`` (the stage records).
@@ -124,7 +141,7 @@ A selected step whose inputs are missing (thumbnails without ``survey.json``, ju
 ``thumbnails.json``, library without ``judge/requests.json``, a session without ``judge/requests.json`` while the
 library step runs) is ``failed``, never
 silently skipped: a targeted re-run (``--only survey,session_qwen,session_glm,library``) needs the library of an
-earlier job in ``<prep-root>`` and, on a new pod, ``survey`` for the candidate GLBs (container disk).
+earlier job in ``<prep-root>`` (Milestone 10: the candidate GLBs are in ``<prep-root>/cache/`` too).
 
 Deadline (``WENART_DEADLINE``, epoch seconds; ``scripts/pod_entry.sh`` sets start + max - 15 min): a download or
 GPU step (``HEAVY``) starts only when now + its estimate (``EST_S``) < deadline, else it ends ``deadline``; the CPU
@@ -197,6 +214,8 @@ EST_CALLS_MIN_S = 120.0                    # a session starts only with room for
 SESSION_KEYS = {"session_qwen": "qwen", "session_glm": "glm"}     # pass 1, then pass 2 (§3.3, §9.2)
 STATUSES = ("ok", "warning", "skipped", "deadline", "failed")
 GOOD = ("ok", "warning", "skipped")
+DEADLINE_RC = 3                            # the exit code of a step that stopped itself at WENART_DEADLINE
+TIMEOUT_RC = 124                           # the runner's code for a command it stopped at its timeout (scheduler.TIMEOUT_RC)
 
 # Milestone 10: real02 and synthetic-07 are prep projects for their sheet_region AI passes (sheets stage, §3.1 item 2).
 PREP_PROJECTS = ("real01", "synthetic-02", "synthetic-06", "real01-scan", "real01-photo", "real02", "synthetic-07")
@@ -239,6 +258,12 @@ GPU_SPEED_JSON = "gpu_speed.json"
 RECOLOUR_MODULE = "wenart.assets.recolour"
 RECOLOUR_DIR = "recolour"                  # <library>/recolour: slots.json, requests.json, answers_<slug>.json, tags.json
 RECOLOUR_WORKERS_MAX = 4                   # Blender processes that share the GPU (``WENART_RECOLOUR_WORKERS`` overrides)
+# Pod L1 of 8 Oct 2026: the surveys' downloads (ABO 55 min, Objaverse 24 min) were on the container disk and were lost
+# when the deadline cut the job. The GLB caches of both surveys now live on the Network Volume under
+# ``<prep-root>/cache/``; the model weights (HF_HOME) stay on the container disk.
+CACHE_DIR = "cache"
+SURVEY_TYPES_ALL = "all"                   # PREP_SURVEY_TYPES: every type (the default) | new | a list of types
+SURVEY_TYPES_RE = re.compile(r"^[A-Za-z0-9_.()\-]+$")
 
 
 def utc_now() -> str:
@@ -361,8 +386,10 @@ class PrepOptions:
     timing_project: str = TIMING_PROJECT
     prep_root: Path = Path("/workspace/prep")              # persistent work: library-work, caches, timing renders
     assets: Path = Path("/workspace/assets")
-    hf_cache: Path = Path("/opt/wenart/hf")
-    abo_cache: Path = Path("/opt/wenart/abo")                # ABO metadata and GLBs (container disk)
+    hf_cache: Path = Path("/opt/wenart/hf")                  # model weights (container disk); not the surveys' GLBs
+    abo_cache: Optional[Path] = None                         # ABO metadata and GLBs; default <prep-root>/cache/abo
+    objaverse_cache: Optional[Path] = None                   # Objaverse metadata and GLBs; <prep-root>/cache/objaverse
+    survey_types: Optional[str] = None                       # both surveys' --types (None / "all": every type)
     fast: Path = Path("/opt/wenart")                         # WENART_FAST: the container-disk tools
     trellis_py: Optional[str] = None                         # default <fast>/venv-trellis/bin/python
     logs_dir: Path = Path("/workspace/logs")
@@ -377,6 +404,13 @@ class PrepOptions:
     tests: bool = True
     repo_root: Path = REPO_ROOT
     generate_target: Optional[int] = None                    # Milestone 9: plan --target N (None: the M8 gap plan)
+
+    def __post_init__(self) -> None:
+        root = Path(self.prep_root)
+        if self.abo_cache is None:
+            self.abo_cache = root / CACHE_DIR / "abo"
+        if self.objaverse_cache is None:
+            self.objaverse_cache = root / CACHE_DIR / "objaverse"
 
     @property
     def library(self) -> Path:
@@ -487,6 +521,17 @@ class Prep:
 
     def now(self) -> float:
         return float(self.clock())
+
+    def cut_by_deadline(self, rc: int) -> bool:
+        """A heavy command that ended at the job deadline: its own exit 3, or the runner's timeout (``TIMEOUT_RC``; the
+        timeout of a heavy command is the time left to the deadline, so Blender or a download that does not stop in
+        time is killed there). Without a deadline a timeout is a hang (the runner waits 4 h): that is a failure."""
+        return rc == DEADLINE_RC or (rc == TIMEOUT_RC and self.opts.deadline is not None)
+
+    def survey_types_args(self) -> list:
+        """``--types <list>`` of both surveys (``PREP_SURVEY_TYPES``): nothing for every type."""
+        types = split_names(self.opts.survey_types or "")
+        return [] if not types or types == [SURVEY_TYPES_ALL] else ["--types", ",".join(types)]
 
     def can_start(self, estimate_s: float) -> bool:
         return self.opts.deadline is None or self.now() + float(estimate_s) < float(self.opts.deadline)
@@ -734,7 +779,21 @@ class Prep:
         if name == LAST_DOWNLOAD_STEP:
             self.offline = True               # the HF downloads are over: nothing is fetched behind our back
         self.write_manifest()
+        if entry["status"] != "skipped":
+            self.save_partial(name)
         return entry
+
+    def save_partial(self, name: str) -> None:
+        """Once the job deadline has passed, copy the prep projects' files and the library folder into ``$RESULTS``
+        after every step: the late CPU steps may run into the pod's stop at its maximum runtime before the ``copy``
+        step (pod L1 of 8 Oct 2026: only 3 result files were collected). Idempotent, a few seconds."""
+        if name in ("copy", "tests") or self.opts.deadline is None or self.now() < float(self.opts.deadline):
+            return
+        try:
+            self.copy_projects()
+            self.sync_library()
+        except Exception as exc:  # noqa: BLE001 - best effort: the copy step (and the EXIT trap) copy again
+            self.out(f"prep: partial copy after {name} failed: {type(exc).__name__}: {exc}")
 
     def estimate(self, name: str) -> float:
         if name in SESSION_KEYS:
@@ -753,22 +812,38 @@ class Prep:
     def generate_cmd(self, *args) -> list:
         return [self.opts.trellis_python, "-m", "wenart.assets.generate", *[str(a) for a in args]]
 
+    def survey_cut(self, cache: Path) -> tuple:
+        """A survey cut by the deadline: what it downloaded stays in its cache on the volume, the same command
+        resumes (a cached file is not downloaded again)."""
+        return "deadline", f"cut by the deadline: the downloads so far stay in {cache} (the next job reuses them)"
+
     def do_survey(self, entry: dict) -> tuple:
-        rc = self.run(self.objaverse("survey", "--cache", self.opts.hf_cache, "--out", self.opts.library))
+        """The Objaverse survey; ``--cache`` is the survey's own dataset cache on the volume (``<cache>/hub``: the
+        metadata shards and the candidate GLBs, whose absolute paths the later steps read from ``survey.json``), never
+        ``HF_HOME`` (the model weights stay on the container disk). ``PREP_SURVEY_TYPES`` -> ``--types``."""
+        entry["cache"] = str(self.opts.objaverse_cache)
+        rc = self.run(self.objaverse("survey", "--cache", self.opts.objaverse_cache, "--out", self.opts.library,
+                                     *self.survey_types_args()))
         survey = read_json(self.opts.library / "survey.json")
         n = len(survey.get("candidates") or []) if isinstance(survey, dict) else 0
         entry["candidates"] = n
+        if self.cut_by_deadline(rc):
+            return self.survey_cut(self.opts.objaverse_cache)
         if rc != 0:
             return "failed", f"exit {rc}" + ("" if rc != 1 else ": no candidate")
         return "ok", f"{n} candidate(s)"
 
     def do_abo_survey(self, entry: dict) -> tuple:
-        """The ABO survey (docs/milestone8.md §2): metadata and candidate GLBs into ``--abo-cache``."""
+        """The ABO survey (docs/milestone8.md §2): metadata and candidate GLBs into ``--abo-cache`` (on the volume);
+        ``PREP_SURVEY_TYPES`` -> ``--types``."""
+        entry["cache"] = str(self.opts.abo_cache)
         rc = self.run([self.opts.py, "-m", "wenart.assets.abo", "survey", "--cache", self.opts.abo_cache, "--out",
-                       self.opts.library])
+                       self.opts.library, *self.survey_types_args()])
         survey = read_json(self.opts.library / "survey_abo.json")
         n = len(survey.get("candidates") or []) if isinstance(survey, dict) else 0
         entry["candidates"] = n
+        if self.cut_by_deadline(rc):
+            return self.survey_cut(self.opts.abo_cache)
         if rc != 0:
             return "failed", f"exit {rc}" + {1: ": no candidate", 2: ": metadata missing or a usage error"}.get(rc, "")
         return "ok", f"{n} candidate(s)"
@@ -892,7 +967,8 @@ class Prep:
                                        what=f"run shard {k}/{workers}") for k in range(workers)]
                 rcs = [f.result() for f in futures]
             entry["workers"] = workers
-            rc_run = 3 if 3 in rcs else next((rc for rc in rcs if rc != 0), 0)
+            rc_run = DEADLINE_RC if any(self.cut_by_deadline(rc) for rc in rcs) else next(
+                (rc for rc in rcs if rc != 0), 0)
             rc_survey = self.run(self.generate_cmd("survey", "--out", lib, "--plan", plan_path), what="survey")
             if rc_survey != 0 and rc_run == 0:
                 rc_run = rc_survey
@@ -901,7 +977,7 @@ class Prep:
         surv = read_json(lib / "survey_generated.json")
         n = len(surv.get("candidates") or []) if isinstance(surv, dict) else 0
         entry["candidates"] = n
-        if rc_run == 3:
+        if self.cut_by_deadline(rc_run):
             return "deadline", f"cut by the deadline: {n} generated candidate(s) so far (the library takes them)"
         if rc_run != 0:
             return "failed", (f"generate run exit {rc_run}: {n} generated candidate(s); the library is built from "
@@ -956,7 +1032,7 @@ class Prep:
         thumbs = read_json(self.opts.library / "thumbnails.json")
         entry["counts"] = thumbs.get("counts") if isinstance(thumbs, dict) else None
         entry["device"] = thumbs.get("device") if isinstance(thumbs, dict) else None
-        if rc == 3:
+        if self.cut_by_deadline(rc):       # exit 3, or exit 124: Blender did not stop before the runner's timeout
             return "deadline", "cut by the deadline (a resumed job reuses the measured objects)"
         return ("ok", None) if rc == 0 else ("failed", f"exit {rc}")
 
@@ -1001,7 +1077,7 @@ class Prep:
         slots = read_json(lib / RECOLOUR_DIR / "slots.json")
         entry["workers"] = workers
         entry["counts"] = slots.get("counts") if isinstance(slots, dict) else None
-        if rc == 3:
+        if self.cut_by_deadline(rc):
             if isinstance(slots, dict):        # what is rendered so far is judged by this job's sessions
                 self.run(self.recolour("requests", "--out", lib), late=True, what="requests")
             return "deadline", "cut by the deadline (a resumed job reuses the rendered models)"
@@ -1090,9 +1166,10 @@ class Prep:
             absent = self.accepted_glbs_missing() if rc_catalog not in (0, None) else []
             if absent:
                 entry["glbs_missing"] = len(absent)
-                note += (f"; {len(absent)} accepted GLB(s) not on this pod's disk (e.g. {absent[0]}): the surveys' "
-                         f"caches are on the container disk, a targeted re-run on a new pod must include survey and "
-                         f"abo_survey (they download them again)")
+                note += (f"; {len(absent)} accepted GLB(s) not on this pod's disk (e.g. {absent[0]}): the surveys' GLB "
+                         f"caches are on the volume ({self.opts.objaverse_cache}, {self.opts.abo_cache}) and a re-run "
+                         f"finds them there; when they are gone the re-run must include survey and abo_survey (they "
+                         f"download them again)")
             return "failed", note
         note = f"{entry['accepted_models']} model(s) and {entry['decor_models']} decor model(s) in {LIBRARY_CATALOG}"
         if recolour_warning:
@@ -1101,9 +1178,10 @@ class Prep:
 
     def accepted_glbs_missing(self) -> list[str]:
         """The survey GLB paths of the accepted objects (``accepted.json``) that are not files on this pod: the
-        surveys download them into their container-disk caches (``$HF_HOME``, the ABO cache), so a new pod has none
-        of them until its own surveys ran; a copy an earlier ``write-catalog`` put into ``<assets>/models/<source>/``
-        counts (write-catalog takes it). Without either, write-catalog refuses the object as ``glb_changed``."""
+        surveys download them into their caches on the volume (``<prep-root>/cache/``; before Milestone 10 the
+        container disk, which a new pod did not have), so the paths recorded in the survey files hold on a later pod;
+        a copy an earlier ``write-catalog`` put into ``<assets>/models/<source>/`` counts too (write-catalog takes
+        it). Without either, write-catalog refuses the object as ``glb_changed``."""
         from wenart.assets.objaverse import SURVEY_FILES
         lib = self.opts.library
         acc = read_json(lib / "accepted.json")
@@ -1141,6 +1219,8 @@ class Prep:
         if isinstance(cal, dict):
             entry["calibration"] = {k: cal.get(k) for k in ("usable", "t_det", "t_strong")}
         missing = [str(o) for o in outs if not o.is_dir()]
+        if self.cut_by_deadline(rc):
+            return "deadline", "cut by the deadline"
         if rc != 0:
             return "failed", f"exit {rc}"
         return ("warning", f"missing M6 outputs: {', '.join(missing)}") if missing else ("ok", None)
@@ -1447,12 +1527,12 @@ class Prep:
                 return "deadline", "server not started before the deadline"
             return "failed", f"server did not come up ({', '.join(str(t.get('reason')) for t in info['tried'])})"
         rcs = [a["rc"] for a in info["asks"]] + [info[k]["rc"] for k in ("judge", "recolour") if info[k]]
-        if any(rc not in (0, 3) for rc in rcs):
+        if any(rc != 0 and not self.cut_by_deadline(rc) for rc in rcs):
             return "failed", "exit codes " + ", ".join(str(rc) for rc in rcs) + (f"; {no_library}" if no_library
                                                                                  else "")
         if no_library:
             return "failed", f"{len(info['asks'])} question folder(s) asked; library not judged: {no_library}"
-        if 3 in rcs:
+        if any(self.cut_by_deadline(rc) for rc in rcs):
             return "deadline", "cut by the deadline (answers are kept and reused by the next job)"
         return "ok", (f"{up[-1]['seqs']} sequences; {len(info['asks'])} question folder(s) asked"
                       + (", library judged" if info["judge"] else "")
@@ -1783,8 +1863,12 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--prep-root", default=None, help="persistent work (default $WENART_PREP_ROOT or /workspace/prep)")
     p.add_argument("--assets", default=None, help="default $WENART_ASSETS or /workspace/assets")
     p.add_argument("--hf-cache", default=None, help="default $HF_HOME or /opt/wenart/hf")
-    p.add_argument("--abo-cache", default=None, help="ABO metadata and GLBs (default $WENART_ABO_CACHE or "
-                                                      "$WENART_FAST/abo, /opt/wenart/abo)")
+    p.add_argument("--abo-cache", default=None, help="ABO metadata and GLBs, on the volume (default "
+                                                      "$WENART_ABO_CACHE or <prep-root>/cache/abo)")
+    p.add_argument("--objaverse-cache", default=None, help="Objaverse metadata and GLBs, on the volume (default "
+                                                            "$WENART_OBJAVERSE_CACHE or <prep-root>/cache/objaverse)")
+    p.add_argument("--survey-types", default=None, help="both surveys' --types: all (default), new, or a list of types "
+                                                         "(default $PREP_SURVEY_TYPES)")
     p.add_argument("--fast", default=None, help="container-disk tools (default $WENART_FAST or /opt/wenart)")
     p.add_argument("--trellis-py", default=None, help="venv-trellis python (default $WENART_TRELLIS_PY or "
                                                        "<fast>/venv-trellis/bin/python)")
@@ -1821,15 +1905,18 @@ def options_from_args(args) -> PrepOptions:
             samples = 128
     job_dir = args.job_dir or os.environ.get("WENART_JOB_DIR") or None
     fast = Path(args.fast) if args.fast else _env_path("WENART_FAST", "/opt/wenart")
+    prep_root = Path(args.prep_root) if args.prep_root else _env_path("WENART_PREP_ROOT", "/workspace/prep")
     return PrepOptions(
         results=Path(args.results), outputs=Path(args.outputs) if args.outputs else
         _env_path("WENART_PREP_OUTPUTS", "/workspace/outputs-prep"), projects=projects,
         m6_outputs=Path(args.m6_outputs) if args.m6_outputs else _env_path("WENART_OUTPUTS", REPO_ROOT / "outputs"),
         detect_projects=split_names(args.detect_projects), timing_project=args.timing_project,
-        prep_root=Path(args.prep_root) if args.prep_root else _env_path("WENART_PREP_ROOT", "/workspace/prep"),
-        assets=Path(args.assets) if args.assets else _env_path("WENART_ASSETS", "/workspace/assets"),
+        prep_root=prep_root, assets=Path(args.assets) if args.assets else _env_path("WENART_ASSETS", "/workspace/assets"),
         hf_cache=Path(args.hf_cache) if args.hf_cache else _env_path("HF_HOME", "/opt/wenart/hf"),
-        abo_cache=Path(args.abo_cache) if args.abo_cache else _env_path("WENART_ABO_CACHE", fast / "abo"), fast=fast,
+        abo_cache=Path(args.abo_cache) if args.abo_cache else _env_path("WENART_ABO_CACHE", prep_root / CACHE_DIR / "abo"),
+        objaverse_cache=Path(args.objaverse_cache) if args.objaverse_cache else _env_path(
+            "WENART_OBJAVERSE_CACHE", prep_root / CACHE_DIR / "objaverse"),
+        survey_types=_survey_types(args.survey_types), fast=fast,
         trellis_py=args.trellis_py or os.environ.get("WENART_TRELLIS_PY") or None,
         logs_dir=Path(args.logs) if args.logs else _env_path("WENART_LOGS", "/workspace/logs"),
         job_dir=Path(job_dir) if job_dir else None, job_id=os.environ.get("JOB_ID") or "prep",
@@ -1837,6 +1924,19 @@ def options_from_args(args) -> PrepOptions:
         polish_py=args.polish_py or os.environ.get("WENART_POLISH_PY") or "/opt/wenart/venv-polish/bin/python",
         render_samples=samples, skip=skip, only=only, tests=not args.no_tests,
         generate_target=_generate_target(args.generate_target))
+
+
+def _survey_types(value: Optional[str]) -> Optional[str]:
+    """``--survey-types`` or ``$PREP_SURVEY_TYPES``: ``all`` / empty -> None (every type), else the comma-joined list
+    (``new`` or type names); a name that is not a plain type name is refused before the pod spends anything."""
+    text = value if value is not None else os.environ.get("PREP_SURVEY_TYPES", "")
+    names = split_names(text)
+    if not names or names == [SURVEY_TYPES_ALL]:
+        return None
+    bad = [n for n in names if not SURVEY_TYPES_RE.match(n) or n == SURVEY_TYPES_ALL]
+    if bad:
+        raise ValueError(f"survey types {', '.join(bad)}: use new, or type names (all stands alone)")
+    return ",".join(names)
 
 
 def _generate_target(value: Optional[int]) -> Optional[int]:
