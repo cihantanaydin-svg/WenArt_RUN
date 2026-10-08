@@ -230,4 +230,5 @@ def test_a_generated_large_plant_keeps_its_species_and_pot_down_to_the_catalogue
            "quality": [5, 4], "licence_flag": None}
     entry = OV.catalog_entry(cand, obj, dec, cand["glb_sha256"], OV.load_config())
     assert entry["species"] == cand["attributes"]["species"] and entry["pot"] == cand["attributes"]["pot"]
+    assert entry["attributes_status"] == "assumed"            # the words of the prompt, not looked at by a judge
     assert entry["type"] == "decor_plant_large" and entry["generated"]["prompt"] == cand["generated"]["prompt"]

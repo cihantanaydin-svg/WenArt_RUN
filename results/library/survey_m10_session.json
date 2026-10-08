@@ -6,8 +6,8 @@
  "source": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html",
  "per_type_limit": 40,
  "config_sha256": {
-  "abo.yaml": "0ff575e2f63d34acd2eb25d6e8f0dbadc4163f68534efb5e985f139b8af6993b",
-  "objaverse.yaml": "456f0c9db6d4612d89e98e2238379f472124215bc48510f9bd48a40abf147a2b"
+  "abo.yaml": "0caca1fbe2c4964e8d8c3808580994e82064c711f03ad0f7924d4aa0a2909f4a",
+  "objaverse.yaml": "005e0e7004e1eceb4798637ae90bfbd0ee8a714e2e487310b0243b7866f760fc"
  },
  "metadata_files": {
   "3dmodels.csv.gz": {
@@ -403,7 +403,8 @@
    "in_size_range": 80,
    "candidates": 40,
    "rules": {
-    "pendant_light": 81
+    "pendant_light": 80,
+    "pendant_light_candle_typed": 1
    },
    "note": ""
   },

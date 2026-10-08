@@ -108,6 +108,14 @@ rules:
   # planter): those types get no ABO rule; Objaverse and the generated models fill them.
   - {name: bunk_bed, since: m10, product_types: [BED, BED_FRAME, FURNITURE, HOME_FURNITURE_AND_DECOR], words: [bunk, bunk bed],
      types: [bunk_bed]}
+  # The chaise lounge comes before the sofa rules: a SOFA-typed listing named a chaise lounge (no "sofa", "sectional",
+  # "couch" or "corner" in the name) would otherwise be taken by the plain `sofa` rule. None of the 7,960 listings of
+  # 8 Oct 2026 is one (the six chaise lounges are CHAIR listings); the order keeps the rule's SOFA entry reachable.
+  - {name: chaise, since: m10, product_types: [CHAIR, SOFA, HOME_FURNITURE_AND_DECOR, FURNITURE],
+     words: [chaise lounge, chaise lounger, chaise longue, daybed chaise, chaise],
+     not_words: [sofa, sectional, couch, corner, l-shaped, reversible, outdoor, patio, pool, wicker, zero gravity,
+                 folding, ottoman],
+     types: [chaise]}
   - {name: sofa_corner, since: m10, product_types: [SOFA],
      words: [sectional, corner, l-shaped, l shaped, l-shape, l shape, chaise],
      not_words: [slipcover, cover, outdoor, patio, aluminum, wicker, rattan, ottoman, pillow, module, component],
@@ -120,11 +128,6 @@ rules:
   - {name: sofa, product_types: [SOFA], types: [sofa]}
   - {name: sofa_named, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
      words: [sofa, couch, loveseat, settee], not_words: [slipcover, cover, ottoman, table, bed, pillow], types: [sofa]}
-  - {name: chaise, since: m10, product_types: [CHAIR, SOFA, HOME_FURNITURE_AND_DECOR, FURNITURE],
-     words: [chaise lounge, chaise lounger, chaise longue, daybed chaise, chaise],
-     not_words: [sofa, sectional, couch, corner, l-shaped, reversible, outdoor, patio, pool, wicker, zero gravity,
-                 folding, ottoman],
-     types: [chaise]}
   - {name: office_chair, since: m10, product_types: [CHAIR],
      words: [office, gaming, task, computer, executive, ergonomic, desk chair],
      not_words: [outdoor, patio, folding, stool, kids, kid, children, toy], types: [office_chair]}
@@ -208,8 +211,12 @@ rules:
   # Milestone 10 decor (docs/milestone10.md §4.6): candles and holders, baskets, trays, wall clocks, figurines,
   # tall planters with a plant, pendant and ceiling lights. A candle-holder listing that is a hanging light
   # ("Raffia Ceiling Hanging Pendant Chandelier") is a pendant light.
-  - {name: pendant_light, since: m10, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS, CANDLE_HOLDER],
+  - {name: pendant_light, since: m10, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS],
      words: [pendant, chandelier, hanging, cage],
+     not_words: [wall, sconce, vanity, outdoor, fan, flush, semi flush, semi-flush, recessed], types: [pendant_light]}
+  # One pendant (the Stone & Beam raffia chandelier) is typed CANDLE_HOLDER. A candle holder is a light only when its
+  # name says pendant or chandelier; "hanging" alone is a hanging tealight holder, which the candle rule takes.
+  - {name: pendant_light_candle_typed, since: m10, product_types: [CANDLE_HOLDER], words: [pendant, chandelier],
      not_words: [wall, sconce, vanity, outdoor, fan, flush, semi flush, semi-flush, recessed], types: [pendant_light]}
   - {name: ceiling_light, since: m10, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS],
      words: [ceiling, flush, semi flush, semi-flush, close to ceiling],

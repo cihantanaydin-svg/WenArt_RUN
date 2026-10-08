@@ -339,6 +339,7 @@ def test_generated_large_plants_keep_their_species_and_pot():
     for e in plants:
         assert e["species"] in species and words[e["species"]] in e["generated"]["prompt"], e["id"]
         assert isinstance(e["pot"], dict) and e["pot"].get("material"), e["id"]          # the schema's decor.pot
+        assert e["attributes_status"] == "assumed", e["id"]          # the prompt's words; no judge looked at them
     assert {e["species"] for e in plants} >= {"palm", "monstera", "fern"} or len(plants) < 5, (
         "the brief's palms, monsteras and ferns need models of those species")
 

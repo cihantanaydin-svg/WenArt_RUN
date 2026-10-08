@@ -580,6 +580,7 @@ def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
               "recolourable_fabric": False, "recolourable_wood": False, "glb_sha256": "x"}
     entry = ov.catalog_entry(cand, obj, dec, "f" * 64, ov.load_config(), None, fields)
     assert entry["type"] == "decor_plant_large" and entry["species"] == "palm" and entry["pot"] == {"material": "rattan", "colour": None}
+    assert entry["attributes_status"] == "assumed"                              # species and pot are the prompt's words
     assert entry["material_tags"] == ["rattan"] and entry["recolourable_fabric"] is False
     assert "glb_sha256" not in entry or entry["sha256_glb"] == "f" * 64          # only the four fields are copied
     assert set(ov.MATERIAL_FIELDS) <= set(entry)

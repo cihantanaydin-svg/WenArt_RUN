@@ -2658,7 +2658,8 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
     the fit (``fit_scale`` maps metres to the footprint). Decor models get the type ``decor_<decor_type>`` (they go
     to the catalogue's ``decor`` section). Milestone 10: ``material`` (one model of ``recolour/tags.json``) adds
     ``material_slots``, ``material_tags``, ``recolourable_fabric``, ``recolourable_wood``; a generated plant has the
-    ``species`` and ``pot`` of its prompt (``generate.yaml variants``)."""
+    ``species`` and ``pot`` of its prompt (``generate.yaml variants``), marked ``attributes_status: assumed`` (nobody
+    checked that the model shows them)."""
     from wenart.furniture import catalog as C
     u = float(obj["unit"]["scale"])
     m = obj["measure"]
@@ -2692,6 +2693,9 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
         for key in ("species", "pot"):
             if (cand.get("attributes") or {}).get(key):
                 entry[key] = cand["attributes"][key]
+        if "species" in entry or "pot" in entry:
+            # the words of the generation prompt; no judge looks at the species or the pot (review finding, low)
+            entry["attributes_status"] = "assumed"
     else:
         entry["has_mattress"] = dec.get("has_mattress")
         if dec["type"] in FOOTPRINT_TYPES:
