@@ -10,6 +10,7 @@ Why: the report is what the user reads; every assumed value must be listed, noth
 the AI may read as a document conflict, and a failed exterior validation must show as Cycles with its reason.
 """
 import json
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -17,6 +18,7 @@ from PIL import Image
 
 from test_report import W, H, check_entry, element, links, make_project, render_entry, write_json
 from test_report_m10 import region, sheets_doc
+from wenart.furniture import complete as CP
 from wenart import views as VW
 from wenart.report import final as F
 from wenart.report import m10 as M
@@ -77,7 +79,8 @@ def whole_building(b: dict) -> dict:
 
 def completion_doc() -> dict:
     return {"kind": "completion", "project": "toy", "server": "http://x", "model": "Qwen/Qwen3-VL-8B-Instruct",
-            "settings": {"mode": "complete", "keep_size": False, "twin_rooms": "both", "assumed": ["furnished_rooms"]},
+            "settings": CP.Settings(mode="complete", keep_size=False, twin_rooms="one",
+                                    assumed=("furnished_rooms",)).to_dict(),
             "rooms": [{"room_id": "r_L0_salon", "label": "Salon", "room_type": "living", "state": "completed",
                        "reason": "", "drawn": [{"id": "f_1", "type": "armchair"}, {"id": "f_9", "type": "unknown"}],
                        "changes": [{"id": "f_1", "drawn_type": "armchair", "drawn_size": [0.8, 0.8], "type": "sofa",
@@ -400,8 +403,17 @@ def test_completion_block_separates_applied_from_refused_and_reverted():
     assert room["dropped"][0]["type"] == "side_table" and room["unplaceable_drawn"] == ["f_9"]
     assert block["mode"] == "complete" and block["assumed"] == ["furnished_rooms"]
     keep = completion_doc()
-    keep["settings"]["mode"] = "keep"
-    assert "only restyled" in "\n".join(M.completion_lines(M.completion_block(keep)))
+    keep["settings"] = CP.Settings(mode="keep", keep_size=True, keep=("r_L1_yatak",)).to_dict()
+    text = "\n".join(M.completion_lines(M.completion_block(keep)))
+    assert "only restyled" in text and "Mode `furnished_rooms: keep`, sizes kept" in text
+    assert "Rooms kept as drawn in complete mode" not in text            # keep mode: every room is kept
+    assert M.completion_block(keep)["mode"] == "keep" and M.completion_block(keep)["keep_size"] is True
+    # complete mode with a room kept as drawn (furnished_rooms_keep) and sizes kept.
+    some = completion_doc()
+    some["settings"] = CP.Settings(mode="complete", keep_size=True, keep=("r_L1_yatak",)).to_dict()
+    text = "\n".join(M.completion_lines(M.completion_block(some)))
+    assert "Mode `furnished_rooms: complete`, sizes kept" in text and "Rooms kept as drawn in complete mode: " \
+        "r_L1_yatak." in text
     assert M.completion_block(None) is None and M.completion_block({"rooms": None}) is None
 
 
@@ -421,3 +433,121 @@ def test_variants_block_lists_the_base_views_for_an_unchanged_outside():
     text = "\n".join(M.variants_lines(block))
     assert "No `variants/<id>/final/final_manifest.json` yet for: alt" in text
     assert M.variants_block({"variants": [{"id": "base"}]}, {}, [], "base") is None
+
+
+# --------------------------------------------------------------------------
+# Review follow-up (findings #42-#45 and the low ones)
+# --------------------------------------------------------------------------
+
+def sub_output(out: Path, name: str = "alt") -> Path:
+    """An alternative's sub-output with its own copy of the scene, renders, polish and check folders."""
+    sub = out / "variants" / name
+    for folder in ("scene", "renders", "polish", "check"):
+        shutil.copytree(out / folder, sub / folder)
+    return sub
+
+
+def test_a_variant_report_lists_this_runs_base_exterior_views_not_an_old_manifest(tmp_path, monkeypatch):
+    """#42: the base report runs after the alternatives' reports, so its final manifest is missing or old."""
+    out = whole_project(tmp_path, monkeypatch)
+    write_json(out / "final" / "final_manifest.json", {"kind": "final", "status": "ok", "views": [
+        {"camera": "ext_old_1", "view_kind": "exterior"}]})
+    sub = sub_output(out)
+    m = F.write_final(sub)
+    assert m["base_exterior_views"] == ["ext_1", "ext_2"]
+    md = (sub / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "The base exterior views of this run: ext_1, ext_2." in md and "ext_old_1" not in md
+    # No base renders (yet): the report says it does not know, not "none".
+    shutil.rmtree(out / "renders")
+    m2 = F.write_final(sub)
+    assert m2["base_exterior_views"] is None and F.validate_final_manifest(m2) == []
+    assert "not known yet (see the base report)" in (sub / "final" / "final_report.md").read_text(encoding="utf-8")
+    # A base that rendered no exterior view: none rendered.
+    (out / "renders").mkdir()
+    write_json(out / "renders" / "render_manifest.json", {"renders": []})
+    assert F.write_final(sub)["base_exterior_views"] == []
+
+
+def test_the_feature_1_header_reads_the_keys_completion_json_writes():
+    """#43: ``Settings.to_dict`` writes furnished_rooms / furnished_rooms_keep_size, not mode / keep_size."""
+    real = CP.Settings(mode="keep", keep_size=True).to_dict()
+    assert "mode" not in real and real["furnished_rooms"] == "keep"
+    block = M.completion_block({"settings": real, "rooms": []})
+    assert (block["mode"], block["keep_size"]) == ("keep", True)
+    assert "Drawn pieces are only restyled; nothing is added." in "\n".join(M.completion_lines(block))
+    # Hand-made completions with the old short keys still read.
+    old = M.completion_block({"settings": {"mode": "keep", "keep_size": False}, "rooms": []})
+    assert (old["mode"], old["keep_size"]) == ("keep", False)
+
+
+def test_a_reverted_change_shows_the_proposal_that_was_refused():
+    """#44: a reverted change records the drawn piece as ``type`` / ``size`` and the proposal as ``agreed_*``."""
+    doc = completion_doc()
+    doc["rooms"][0]["changes"] = [{
+        "id": "f3", "drawn_type": "sofa", "drawn_size": [2.0, 0.9], "type": "sofa", "size": [2.0, 0.9],
+        "status": "reverted", "agreed_type": "sofa_corner", "agreed_size": [2.6, 1.6],
+        "reason": "no size fits at the anchor (door_strip): drawn type and size kept"}]
+    block = M.completion_block(doc)
+    row = block["rooms"][0]["refused"][0]
+    assert (row["id"], row["type"], row["size"]) == ("f3", "sofa_corner", [2.6, 1.6])
+    text = "\n".join(M.completion_lines(block))
+    assert "refused f3 sofa -> sofa_corner: no size fits at the anchor (door_strip)" in text
+    assert "(proposed size 2.60 x 1.60)" in text
+    # The record itself stays the final (drawn) piece.
+    assert doc["rooms"][0]["changes"][0]["type"] == "sofa"
+
+
+def test_rooms_skipped_on_purpose_are_not_rooms_without_a_rendered_view(tmp_path):
+    """#45: second twins, rooms of other variants and rooms an alternative leaves out have a recorded reason."""
+    out = make_project(tmp_path)
+    bpath = out / "building_final.json"
+    b = json.loads(bpath.read_text(encoding="utf-8"))
+    b["rooms"] += [{"id": "r_L0_twin", "level_id": "L0", "room_type": "living", "status": "verified"},
+                   {"id": "r_L0_small", "level_id": "L0", "room_type": "storage", "status": "verified"},
+                   {"id": "r_L0_lost", "level_id": "L0", "room_type": "hall", "status": "verified"},
+                   {"id": "r_L9_other", "level_id": "L9", "room_type": "bedroom", "status": "verified"}]
+    bpath.write_text(json.dumps(b), encoding="utf-8")
+    sp = out / "scene" / "scene_manifest.json"
+    sc = json.loads(sp.read_text(encoding="utf-8"))
+    sc["variant"] = {"id": "base", "levels": ["L0", "L1"]}
+    sc["rooms_without_view"] = [
+        {"room_id": "r_L0_twin", "level_id": "L0", "reason": "twin of r_L0_salon", "twin_of": "r_L0_salon"},
+        {"room_id": "r_L0_small", "level_id": "L0", "reason": "area 2.1 m2 is below the camera minimum"}]
+    sp.write_text(json.dumps(sc), encoding="utf-8")
+    m = F.write_final(out)
+    rooms = m["rooms"]
+    assert "r_L9_other" not in rooms                         # a level this variant does not build
+    assert rooms["r_L0_twin"]["not_rendered"] == "twin of r_L0_salon" and rooms["r_L0_twin"]["on_purpose"] is True
+    assert rooms["r_L0_small"]["not_rendered"].startswith("area 2.1 m2") and rooms["r_L0_small"]["on_purpose"] is False
+    assert rooms["r_L0_lost"]["not_rendered"] is None and rooms["r_L0_lost"]["on_purpose"] is False
+    assert m["summary"]["views_per_room"] == {"0": 2, "1": 1, "2": 2}      # the twin is skipped; small and lost have no view
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Rooms not rendered on purpose: r_L0_twin (twin of r_L0_salon)." in md
+    assert "Rooms without a rendered view: r_L0_lost, r_L0_small (area 2.1 m2 is below the camera minimum)." in md
+    assert "r_L9_other" not in md
+
+
+def test_a_private_sheets_section_names_no_document_in_its_free_text(tmp_path, monkeypatch):
+    """Low finding: conflicts, warnings and stop reasons carry the file name; a private project numbers it."""
+    doc = sheets_doc(needs_review=("review01.dxf r2: plan without a level title",))
+    doc["conflicts"] = [{"id": "sc_1", "kind": "unit_mismatch", "regions": ["r2"],
+                         "description": "review01.dxf: $INSUNITS = 4 (mm) but the labels agree on cm",
+                         "resolution": "cm used"}]
+    block = M.sheets_block(doc, True, {"review01.dxf": "document 1"})
+    assert block["conflicts"][0]["description"] == "document 1: $INSUNITS = 4 (mm) but the labels agree on cm"
+    assert block["warnings"] == ["document 1: 2 plans without a level title"]
+    assert block["needs_review"][0]["reason"] == "document 1 r2: plan without a level title"
+    public = M.sheets_block(doc, False)
+    assert "review01.dxf" in public["conflicts"][0]["description"]
+    # The needs-review reasons of a private project do not name the file either.
+    out = tmp_path / "outputs" / "real-05"
+    write_json(out / "sheets.json", doc)
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-05", "status": "ok"})
+    m = F.write_final(out)
+    assert m["private"] is True and not [r for r in m["reasons"] if "review01" in r], m["reasons"]
+    assert "document 1" in " ".join(m["reasons"])
+    b = {"levels": [{"id": "L0", "kind": "floor", "elevation_source": "section"}],
+         "facade": {"faces": [], "elevations": [{"region_id": "r8", "title": "GÜNEY", "side": "S", "windows": 1,
+                                                 "doors": 0}]}}
+    assert M.building_block(b, private=True)["facade"]["elevations"][0]["title"] is None
+    assert M.building_block(b)["facade"]["elevations"][0]["title"] == "GÜNEY"

@@ -117,6 +117,20 @@ def test_calibration_compares_the_exterior_view_and_keeps_its_rates_apart(projec
     assert off["views"] == [] and off["exterior"]["cameras_rendered"] == 1 and off["exterior"]["views"] == []
 
 
+def test_a_deadline_that_cuts_the_exterior_comparisons_leaves_the_rooms_calibration_complete(project):
+    """The exterior views are the last CPU phase: a cut there sets only ``exterior_incomplete``."""
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
+    cal = CAL.run_calibration(project, gate=gate, deadline=1.0, log=lambda *_: None)    # long past
+    assert cal["incomplete"] is False and cal["exterior_incomplete"] is True
+    assert cal["benign"] == [] and any("exterior comparisons were not started" in w for w in cal["warnings"])
+    decision = CAL.exterior_validation(cal, VAL.load_validation_config(), START_THRESHOLDS)
+    assert decision["decision"] == "not_validated" and decision["polish_allowed"] is False
+    assert "## Exterior views" in (project / "gate" / "gate_calibration.md").read_text(encoding="utf-8")
+    full = CAL.run_calibration(project, gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"),
+                               out_dir=project / "gate_full", log=lambda *_: None)
+    assert full["incomplete"] is False and full["exterior_incomplete"] is False and full["benign"]
+
+
 def test_a_calibration_that_ran_gives_an_exterior_decision_from_its_exterior_comparisons(project):
     CAL.run_calibration(project, gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"),
                         log=lambda *_: None)

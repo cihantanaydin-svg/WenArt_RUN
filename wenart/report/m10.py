@@ -36,6 +36,18 @@ ASSUMED_SOURCES = ("assumed", "assumed_default")
 MAX_STRAYS = 8
 
 
+def scrub(text: Any, names: Optional[dict]) -> Any:
+    """``text`` with every document file name of ``names`` (``{file: shown name}``) replaced by its shown name: a
+    private project's free text (conflicts, warnings, stop reasons) names its documents by number only. A name
+    that is shown as itself changes nothing."""
+    if not isinstance(text, str) or not names:
+        return text
+    for file in sorted((f for f, shown in names.items() if isinstance(f, str) and f and shown != f),
+                       key=len, reverse=True):
+        text = text.replace(file, str(names[file]))
+    return text
+
+
 def metres(v: Any) -> str:
     """Default length text: ``3.65 m`` (None -> ``-``)."""
     return "-" if not isinstance(v, (int, float)) or isinstance(v, bool) else f"{float(v):.2f} m"
@@ -77,6 +89,10 @@ def sheets_block(sheets: Optional[dict], private: bool, names: Optional[dict] = 
         return None
     docs = [d for d in sheets.get("documents") or [] if isinstance(d, dict)]
     names = names or {d.get("file"): d.get("file") for d in docs}
+
+    def clean(text: Any) -> Any:
+        return scrub(text, names) if private else text
+
     regions = []
     for r in sheets.get("regions") or []:
         if not isinstance(r, dict):
@@ -89,16 +105,17 @@ def sheets_block(sheets: Optional[dict], private: bool, names: Optional[dict] = 
                         "status": r.get("status"), "title": None if private else title.get("text"),
                         "level": level.get("id"), "level_method": level.get("method"), "variant": r.get("variant"),
                         "variant_group": r.get("variant_group"), "use": r.get("use"),
-                        "ignored_reason": r.get("ignored_reason"), "registration_residual_m": reg.get("residual_m"),
+                        "ignored_reason": clean(r.get("ignored_reason")),
+                        "registration_residual_m": reg.get("residual_m"),
                         "conflicts": len(r.get("conflicts") or [])})
     units = []
     for d in docs:
         u = d.get("units") if isinstance(d.get("units"), dict) else {}
         units.append({"file": names.get(d.get("file"), d.get("file")), "format": d.get("format"),
                       "insunits": u.get("insunits"), "metres_per_unit": u.get("metres_per_unit"),
-                      "method": u.get("method"), "conflict": u.get("conflict"),
+                      "method": u.get("method"), "conflict": clean(u.get("conflict")),
                       "checks": [{"check": c.get("check"), "unit": c.get("unit"), "score": c.get("score"),
-                                  "samples": c.get("samples"), "note": c.get("note")}
+                                  "samples": c.get("samples"), "note": clean(c.get("note"))}
                                  for c in u.get("checks") or [] if isinstance(c, dict)]})
     strays = [s for s in sheets.get("stray") or [] if isinstance(s, dict)]
     levels = []
@@ -120,14 +137,15 @@ def sheets_block(sheets: Optional[dict], private: bool, names: Optional[dict] = 
     return {"regions": regions, "regions_by_use": dict(sorted(use.items())), "levels": levels, "variants": variants,
             "sections": list(heights.get("section_regions") or []), "strays": len(strays),
             "stray_list": [{"entity": s.get("entity"), "type": s.get("type"), "layer": s.get("layer"),
-                            "distance_m": s.get("distance_m"), "reason": s.get("reason")} for s in strays[:MAX_STRAYS]],
+                            "distance_m": s.get("distance_m"), "reason": clean(s.get("reason"))}
+                           for s in strays[:MAX_STRAYS]],
             "units": units,
-            "needs_review": [{"region": n.get("region"), "reason": n.get("reason")}
+            "needs_review": [{"region": n.get("region"), "reason": clean(n.get("reason"))}
                              for n in sheets.get("needs_review") or [] if isinstance(n, dict)],
-            "conflicts": [{"id": c.get("id"), "kind": c.get("kind"), "description": c.get("description"),
-                           "resolution": c.get("resolution")} for c in sheets.get("conflicts") or []
+            "conflicts": [{"id": c.get("id"), "kind": c.get("kind"), "description": clean(c.get("description")),
+                           "resolution": clean(c.get("resolution"))} for c in sheets.get("conflicts") or []
                           if isinstance(c, dict)],
-            "warnings": [str(x) for x in sheets.get("warnings") or []],
+            "warnings": [clean(str(x)) for x in sheets.get("warnings") or []],
             "debug_images": [{"source": src, "preview": prev} for src, prev in previews.items()],
             "report": None, "report_kept_on_volume": None}
 
@@ -220,9 +238,10 @@ def _height_row(item: str, rec: Any, source: Any = None, note: Any = None) -> Op
     return {"item": item, "value": value, "state": st, "from": src, "note": note}
 
 
-def building_block(b: Optional[dict]) -> Optional[dict]:
+def building_block(b: Optional[dict], private: bool = False) -> Optional[dict]:
     """The Building block: levels, variants, heights (each drawn or assumed), slabs, roof, facade, site and the
-    levels left out. None for a building without levels."""
+    levels left out. None for a building without levels. A private project's elevation titles (text from its
+    drawings) are left out, as the region titles of the Sheets block are."""
     if not isinstance(b, dict) or not b.get("levels"):
         return None
     if not (any(b.get(k) for k in ("slabs", "roof", "facade", "variants", "levels_left_out"))
@@ -279,7 +298,8 @@ def building_block(b: Optional[dict]) -> Optional[dict]:
         facade_out = {"faces": [{"side": f.get("side"), "wall_id": f.get("wall_id"), "level_id": f.get("level_id"),
                                  "material": f.get("material"), "colour": f.get("colour"), "source": f.get("source")}
                                 for f in facade.get("faces") or [] if isinstance(f, dict)],
-                      "elevations": [{"region_id": e.get("region_id"), "title": e.get("title"), "side": e.get("side"),
+                      "elevations": [{"region_id": e.get("region_id"), "title": None if private else e.get("title"),
+                                      "side": e.get("side"),
                                       "windows": e.get("windows"), "doors": e.get("doors"),
                                       "plan_check": e.get("plan_check")}
                                      for e in facade.get("elevations") or [] if isinstance(e, dict)]}
@@ -432,12 +452,17 @@ def completion_block(completion: Optional[dict]) -> Optional[dict]:
         for c in r.get("changes") or []:
             if not isinstance(c, dict):
                 continue
+            applied = c.get("status") == "applied"
+            # A reverted change records the drawn piece as ``type`` / ``size`` (what stands in the building) and
+            # the AI's proposal as ``agreed_type`` / ``agreed_size``: a refused proposal shows the proposal.
             row = {"id": c.get("id"), "drawn_type": c.get("drawn_type"), "drawn_size": c.get("drawn_size"),
-                   "type": c.get("type"), "size": c.get("size"), "status": c.get("status"),
+                   "type": c.get("type") if applied else c.get("agreed_type") or c.get("type"),
+                   "size": c.get("size") if applied else c.get("agreed_size") or c.get("size"),
+                   "status": c.get("status"),
                    "look_only": bool(c.get("look_only")), "shrunk": bool(c.get("shrunk")),
                    "type_proposal": bool(c.get("type_proposal")), "style": c.get("style"),
                    "colour": c.get("colour"), "reason": c.get("reason") or None}
-            if c.get("status") == "applied":
+            if applied:
                 changes.append(row)
             else:
                 refused.append(dict(row, why=c.get("reason") or "reverted by the placer"))
@@ -459,7 +484,11 @@ def completion_block(completion: Optional[dict]) -> Optional[dict]:
                       "refused": refused, "dropped": dropped,
                       "wall_cabinets": len(r.get("wall_cabinets") or []),
                       "unplaceable_drawn": sorted((r.get("drawn_layout") or {}).get("pieces") or {})})
-    return {"mode": settings.get("mode"), "keep_size": settings.get("keep_size"), "assumed": list(settings.get("assumed") or []),
+    # ``Settings.to_dict`` writes the brief keys; the short names are read for a completion made by hand.
+    return {"mode": settings.get("furnished_rooms", settings.get("mode")),
+            "keep_size": settings.get("furnished_rooms_keep_size", settings.get("keep_size")),
+            "keep_rooms": [str(x) for x in settings.get("furnished_rooms_keep") or []],
+            "assumed": list(settings.get("assumed") or []),
             "model": completion.get("model"), "rooms": rooms,
             "changes_applied": completion.get("changes_applied"), "pieces_added": completion.get("pieces_added"),
             "wall_cabinets": completion.get("wall_cabinets"),
@@ -473,6 +502,8 @@ def completion_lines(block: dict, fmt: Fmt = metres) -> list[str]:
              f"Mode `furnished_rooms: {block.get('mode') or '-'}`"
              + (", sizes kept" if block.get("keep_size") else "")
              + (f" (assumed: {', '.join(block['assumed'])})" if block.get("assumed") else "") + ". "
+             + (f"Rooms kept as drawn in complete mode: {', '.join(block['keep_rooms'])}. "
+                if block.get("keep_rooms") and not keep else "")
              + ("Drawn pieces are only restyled; nothing is added." if keep else
                 "Drawn pieces keep their anchor (+-5 cm) and front (+-1 deg); the AI may change a piece's type "
                 "(within the room type's types), size, height and look (it stays `from_documents`, "
@@ -498,9 +529,10 @@ def completion_lines(block: dict, fmt: Fmt = metres) -> list[str]:
         if r["wall_cabinets"]:
             body.append(f"{r['wall_cabinets']} wall cabinet run(s) over the drawn counter")
         for x in r["refused"]:
+            size = f" (proposed size {_size_text(x['size'])})" if _size_text(x.get("size")) != "-" else ""
             if x.get("id"):
                 drawn = f" {x['drawn_type']}" if x.get("drawn_type") else ""
-                body.append(f"refused {x['id']}{drawn} -> {x.get('type')}: {x['why']}")
+                body.append(f"refused {x['id']}{drawn} -> {x.get('type')}: {x['why']}{size}")
             else:
                 body.append(f"refused to add {x.get('type')}: {x['why']}")
         for d in r["dropped"]:

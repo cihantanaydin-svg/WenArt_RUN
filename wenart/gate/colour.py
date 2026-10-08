@@ -346,24 +346,25 @@ def _mode_of(materials: dict, slug: Optional[str], name: Optional[str] = None,
 
 
 def _accent_record(scene: dict, profile: dict, room_id: Optional[str], materials: dict) -> Optional[dict]:
-    """The profile's accent wall and whether this room has it: a wall object of the scene built from the accent
-    material that is flagged ``accent`` or lists the room in ``room_ids``. None without an accent wall."""
+    """The profile's accent wall and whether this room has it. The scene manifest marks an accent wall object
+    ``accent: true`` with the rooms that carry the accent face in ``room_ids`` and the material slot it uses in
+    ``accent_material`` (track F's contract, ``wenart/blender/schemas.py``): the room has the accent when it is
+    in such an object's ``room_ids``. The mode of the accent comes from the material record of that slot, else
+    of the profile's material. None without an accent wall."""
     acc = profile.get("wall_accent")
     if not isinstance(acc, dict) or not acc.get("material"):
         return None
     slug = acc["material"]
     colour = expected_colour(acc.get("colour"))
-    mode, source = _mode_of(materials, slug, None, colour)
-    in_room = False
+    in_room, slot_name = False, None
     for obj in scene.get("objects") or []:
-        if obj.get("kind") != "wall":
-            continue
-        built = str(obj.get("material") or "").split("__")[0]
-        if obj.get("accent") or (built == slug and room_id is not None and room_id in (obj.get("room_ids") or [])):
-            in_room = True
+        if obj.get("kind") == "wall" and obj.get("accent") and room_id is not None \
+                and room_id in (obj.get("room_ids") or []):
+            in_room, slot_name = True, obj.get("accent_material")
             break
+    mode, source = _mode_of(materials, slug, slot_name, colour)
     return {"material": slug, "colour": acc.get("colour"), "albedo_mode": mode, "source": source,
-            "in_room": in_room}
+            "in_room": in_room, "slot": slot_name}
 
 
 def _record_mode(materials: dict, slug: Optional[str], name: Optional[str]) -> tuple[Optional[str], Optional[str]]:

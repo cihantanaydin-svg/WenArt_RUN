@@ -116,11 +116,13 @@ def drawn_check(final: dict, source: Optional[dict] = None, completion: Optional
     notes: list[str] = []
     violations: list[str] = []
     if source is not None:
+        violations.extend(locked.check(source, final, mode, locked.keep_rooms_of(completion)))
         gone = sorted(set(f["id"] for f in source.get("furniture") or [] if f.get("source") == "from_documents")
                       - {r["id"] for r in rows})
         for pid in gone:
-            violations.append(f"{pid}: drawn piece missing from the final building")
-        violations.extend(locked.check(source, final, mode, locked.keep_rooms_of(completion)))
+            # The locked check reports a removed piece already ("<id>: drawn <type> removed"): one violation each.
+            if not any(str(v).startswith(f"{pid}:") for v in violations):
+                violations.append(f"{pid}: drawn piece missing from the final building")
     else:
         notes.append("no source building.json: the anchor is compared with the anchor recorded in the final "
                      "building, the front and the locked rules are not checked")
