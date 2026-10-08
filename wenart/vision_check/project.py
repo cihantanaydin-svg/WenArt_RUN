@@ -164,6 +164,49 @@ class Project:
     def room(self, room_id: Optional[str]) -> dict:
         return next((r for r in self.building.get("rooms") or [] if r.get("id") == room_id), {})
 
+    # ---- Milestone 10: Feature 1 and the exterior ---------------------------
+
+    def variant(self) -> str:
+        """The variant this output renders (``base`` for a project output)."""
+        return str((self.scene.get("variant") or {}).get("id") or "base")
+
+    def exterior_cameras(self) -> list[str]:
+        """The rendered cameras of kind ``exterior``."""
+        from wenart.vision_check import exterior as EXT
+        cams = {c.get("name"): c for c in self.scene.get("cameras") or []}
+        return [cam for cam in self.views() if EXT.is_exterior(cams.get(cam), self.views()[cam])]
+
+    def completion(self) -> Optional[dict]:
+        """``completion.json`` of the layout stage (next to ``building_final.json``, else in the project output)."""
+        for folder in (Path(self.paths["building_path"]).parent, self.out, self.out.parent.parent):
+            data = read_json(Path(folder) / "completion.json")
+            if data is not None:
+                return data
+        return None
+
+    def drawn_check(self) -> Optional[dict]:
+        """``wenart.vision_check.drawn.drawn_check`` of this output (cached); None without a building."""
+        def make():
+            from wenart.vision_check import drawn
+            if not self.building:
+                return None
+            try:
+                return drawn.drawn_check(self.building, drawn.load_source(self.out), self.completion(), self.cfg)
+            except ImportError as exc:                       # shapely missing: the check cannot run here
+                self.warn(f"drawn-piece check not run ({exc})")
+                return None
+        return self.cached("drawn_check", make)
+
+    def elevation_check(self) -> Optional[dict]:
+        """``wenart.vision_check.elevation.elevation_check`` of this output's variant (cached)."""
+        def make():
+            from wenart.vision_check import elevation
+            if not self.building:
+                return None
+            return elevation.elevation_check(self.building, self.scene, elevation.load_sheets(self.out), self.cfg,
+                                             self.variant())
+        return self.cached("elevation_check", make)
+
     # ---- polish outputs -------------------------------------------------
 
     def polished(self) -> dict[str, dict]:

@@ -9,6 +9,12 @@ left out (their type cannot be swapped and their striped proxy is not a
 real piece). Windows are plugged when hidden, doors are not (an empty
 doorway is not a door).
 
+Milestone 10 (docs/milestone10.md §2.8): the expected lists come from ``building_final.json`` (through the
+scene manifest), so the controls are chosen among the pieces as they stand after Feature 1 (changed drawn
+pieces keep ``source: from_documents``; the "at least one from_documents" rule counts them); a furniture control
+carries ``modified_by_ai``, ``drawn_type`` and ``completes_room``. Exterior views have no own-room element, so
+they are never a control camera.
+
 Type swaps: up to ``controls.swaps`` required furniture pieces whose type has a
 partner in ``controls.swap_pairs`` (sofa <-> bed_double, armchair <-> desk),
 same filters; the list asks for the partner type on the normal render.
@@ -37,6 +43,8 @@ def _candidates(expected_views: dict, kind: str, min_area: float) -> list[dict]:
     best: dict[str, dict] = {}
     for cam in sorted(expected_views):
         exp = expected_views[cam]
+        if exp.get("view_kind") == "exterior":
+            continue                      # the controls hide and plug pieces of a room; an exterior view has none
         for e in exp.get("elements") or []:
             if e.get("kind") != kind or e.get("role") != "required" or not e.get("own_room"):
                 continue
@@ -47,6 +55,12 @@ def _candidates(expected_views: dict, kind: str, min_area: float) -> list[dict]:
             cand = {"id": e["wenart_id"], "index": int(e["index"]), "kind": kind, "type": e.get("type"),
                     "camera": cam, "room_id": exp.get("room_id"), "area_frac": float(e["area_frac"]),
                     "source": e.get("source")}
+            if kind == "furniture":
+                # Milestone 10, Feature 1: the expected lists read building_final.json, so a drawn piece the AI
+                # changed (its new type and size are the expected ones) or a piece it added is a control like
+                # any other; the record says which, for the report.
+                cand.update(modified_by_ai=bool(e.get("modified_by_ai")), drawn_type=e.get("drawn_type"),
+                            completes_room=bool(e.get("completes_room")))
             old = best.get(cand["id"])
             if old is None or cand["area_frac"] > old["area_frac"]:
                 best[cand["id"]] = cand

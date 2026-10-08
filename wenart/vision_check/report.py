@@ -84,6 +84,101 @@ def detector_lines(manifest: dict) -> list[str]:
     return lines
 
 
+def drawn_lines(check: Optional[dict]) -> list[str]:
+    """Milestone 10: the drawn pieces against the source plan (anchor 5 cm, front 1 degree, same wall)."""
+    if not check:
+        return ["Not computed (no building JSON, or shapely is missing here)."]
+    lines = [f"Reference: {check['reference']}; mode `furnished_rooms: {check['mode']}`. {check['ok']} of "
+             f"{check['checked']} checked drawn pieces keep their anchor (within {check['tolerance_m']} m), front "
+             f"(within {check['tolerance_deg']} deg) and wall; {len(check['modified'])} changed by the AI, "
+             f"{len(check.get('proposals') or [])} type proposal(s) for unverified pieces."]
+    lines += [f"- {n}" for n in check.get("notes") or []]
+    bad = [r for r in check["pieces"] if r["ok"] is False]
+    if check["violations"] or bad:
+        lines.append("")
+        lines += [f"- {x}" for x in drawn_failures(check)]
+    changed = [r for r in check["pieces"] if r["modified_by_ai"] or r["type_proposal"]]
+    if changed:
+        lines += ["", "| piece | room | drawn type / size | now | anchor moved (m) | front turned (deg) | ok |",
+                  "|---|---|---|---|---|---|---|"]
+        for r in changed:
+            drawn = f"{r['drawn_type']} / {' x '.join(str(v) for v in r['drawn_size'] or [])}"
+            now = f"{r['type']} / {' x '.join(str(v) for v in r['size'] or [])}"
+            lines.append(f"| {r['id']} | {r['room_id']} | {drawn} | {now}{' (proposal)' if r['type_proposal'] else ''} | "
+                         f"{_fmt(r['anchor_distance_m'])} | {_fmt(r['front_turn_deg'])} | {_fmt(r['ok'])} |")
+    return lines
+
+
+def drawn_failures(check: dict) -> list[str]:
+    from wenart.vision_check import drawn
+    return drawn.lines(check)
+
+
+def exterior_lines(manifest: dict) -> list[str]:
+    """Milestone 10: per exterior view the roof check, the openings the camera plan expected, and the advisory
+    window and door count of every visible facade."""
+    rows, fac_rows = [], []
+    for cam, v in sorted((manifest.get("views") or {}).items()):
+        if v.get("view_kind") != "exterior":
+            continue
+        ex = v.get("exterior") or {}
+        roof = ex.get("roof") or {}
+        cyc = v.get("cycles") or {}
+        rows.append(f"| {cam} | {ex.get('view') or '-'} | {', '.join(ex.get('sides') or []) or '-'} | "
+                    f"{cyc.get('verdict', '-')} | {roof.get('result', '-')} "
+                    f"({_fmt(roof.get('present_share'))}) | {len(ex.get('planned_not_seen') or [])} | "
+                    f"{len(ex.get('seen_not_planned') or [])} |")
+        for side, f in sorted((v.get("facades") or {}).items()):
+            e = f["expected"]
+            counts = ", ".join(f"{k}: {n['window_count']} windows, {n['door_count']} doors"
+                               for k, n in f["passes"].items() if n) or "-"
+            fac_rows.append(f"| {cam} | {side} | {e['windows'][0]}-{e['windows'][1]} / {e['doors'][0]}-{e['doors'][1]} | "
+                            f"{counts} | {f['result']} |")
+    if not rows:
+        return ["No exterior view in this project."]
+    lines = ["| camera | view | sides | Cycles | roof (present share) | planned, not seen | seen, not planned |",
+             "|---|---|---|---|---|---|---|"] + rows
+    if fac_rows:
+        lines += ["", "Advisory window and door count per visible facade (the crop of the render; the expected "
+                      "range is the openings seen in full to the openings seen in part; never a mismatch of the "
+                      "view and never a polish reason):", "",
+                  "| camera | facade | expected windows / doors | counted | result |", "|---|---|---|---|---|"]
+        lines += fac_rows
+    return lines
+
+
+def elevation_lines(check: Optional[dict]) -> list[str]:
+    """Milestone 10: the elevation check (counts, positions, built ridge and eaves against the section)."""
+    if not check:
+        return ["Not computed."]
+    lines = [f"Variant `{check['variant']}`; elevations from {check['source']}; north {check['north']:.0f} deg "
+             f"({check['north_source']})."]
+    if not check["facades"]:
+        lines.append("No drawn elevation: nothing to compare the facades with.")
+    else:
+        lines += ["", "| elevation | side | drawn windows / doors | building windows / doors | positions | result |",
+                  "|---|---|---|---|---|---|"]
+        for f in check["facades"]:
+            b = f.get("building") or {}
+            pos = f.get("positions")
+            ptxt = "counts only" if pos is None else (f"{pos['matched']} matched, offset {pos['offset_x_m']:+.2f} m"
+                                                       + (", mirrored" if pos["mirrored"] else ""))
+            lines.append(f"| {f.get('region_id') or '-'} | {f.get('side') or '-'} | "
+                         f"{f['drawn']['windows']} / {f['drawn']['doors']} | "
+                         f"{b.get('windows', '-')} / {b.get('doors', '-')} | {ptxt} | {f['result']} |")
+        notes = [f"- {f.get('side')}: {n}" for f in check["facades"] for n in f["notes"]]
+        lines += [""] + notes if notes else []
+    roof = check.get("roof") or {}
+    built = roof.get("built") or {}
+    drawn = roof.get("drawn") or {}
+    lines += ["", f"Roof heights (building z, the top surface): built eaves {_fmt(built.get('eaves'))}, ridge "
+                  f"{_fmt(built.get('ridge'))}; section eaves {_fmt((drawn.get('eaves') or {}).get('value'))}, ridge "
+                  f"{_fmt((drawn.get('ridge') or {}).get('value'))}: **{roof.get('result', 'not_checked')}**"
+              + (f" (differences {roof['deltas']})" if roof.get("deltas") else "") + "."]
+    lines += [f"- {n}" for n in roof.get("notes") or []]
+    return lines
+
+
 def check_report(manifest: dict, calibration: Optional[dict] = None, expected: Optional[dict] = None) -> str:
     """Markdown report from ``check_manifest.json`` (+ ``check_calibration.json`` when it exists)."""
     project = manifest.get("project") or "?"
@@ -186,6 +281,11 @@ def check_report(manifest: dict, calibration: Optional[dict] = None, expected: O
             lines.append(f"- {cam}: rendered, not in JSON: {item['id']} (index {item['index']})")
     if not found:
         lines.append("None.")
+
+    lines += ["", "## Drawn pieces against the source plan", ""] + drawn_lines(manifest.get("drawn_check"))
+    lines += ["", "## Exterior views", ""] + exterior_lines(manifest)
+    lines += ["", "## Elevation check (building JSON against the drawn elevations and the section)", ""]
+    lines += elevation_lines(manifest.get("elevation_check"))
 
     lines += ["", "## Polished images rejected", ""]
     rej = [(cam, v) for cam, v in sorted(views_out.items()) if v.get("polished_rejected")]

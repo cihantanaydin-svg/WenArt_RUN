@@ -178,6 +178,12 @@ NEEDS_REVIEW_HINTS = (
                              "not be told), or upload a scan or the CAD file"),
     ("text drawn as geometry", "export the PDF with real text (or upload the DWG/DXF): the texts of this page are "
                                "drawn as lines"),
+    # The sheets stage (docs/milestone10.md §3.1).
+    ("no readable plan region", "add a floor plan the sheets stage can read: a DXF/DWG or vector PDF with closed "
+                                "walls and room labels, or a sharp scan"),
+    ("missing scale", "set the drawing unit of the CAD file (or add a scale note such as ÖLÇEK 1/50 to the plan)"),
+    ("unit check", "check the drawing unit of the CAD file ($INSUNITS) against the room-area labels, the level "
+                   "marks and the door widths"),
 )
 MISMATCH_RESULTS = ("missing", "changed", "missing_or_changed")
 NON_DECOR_CLASSES = ("door", "window", "furniture", "fixture")
@@ -382,7 +388,12 @@ def is_private(project_out: Path, explicit: bool = False) -> bool:
         return True
     except ValueError:
         pass
-    return bool(ALIAS_RE.match(out.name)) or out.name in RESERVED_ALIASES
+    if bool(ALIAS_RE.match(out.name)) or out.name in RESERVED_ALIASES:
+        return True
+    # Milestone 10: an alternative's sub-output ``outputs/<p>/variants/<id>`` is as private as its project.
+    if out.parent.name == "variants" and out.parent.parent != out:
+        return is_private(out.parent.parent)
+    return False
 
 
 def load_stage_records(project_out: Path, warnings: Optional[list] = None) -> list[dict]:
@@ -2549,24 +2560,34 @@ class ReviewInputs:
     warnings: list
     earlier: list = field(default_factory=list)
     run_id: Optional[str] = None
+    sheets: Optional[dict] = None            # sheets.json of a project that stopped at the sheets stage (M10)
 
 
 def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[ReviewInputs]:
     """The inputs of the needs-review report, or None when the project does not need review.
 
     Sources, in order: ``intake_manifest.json`` (status ``needs_review``: its reasons; the pipeline did not
-    run, so an older ``building.json`` is ignored), ``building.json`` (status ``needs_review``: its
-    ``needs review: ...`` warnings, plus a failed schema validation), then this run's stage records with status
-    ``needs_review`` of stages no manifest covers (their note). Records of earlier runs (``split_runs``) are
-    only listed.
+    run, so an older ``building.json`` is ignored), ``sheets.json`` (Milestone 10: the sheets stage stopped the
+    project, ``wenart.sheets`` exit 1: its ``needs_review[]`` reasons; no ``building.json`` was written, an
+    older one is ignored), ``building.json`` (status ``needs_review``: its ``needs review: ...`` warnings, plus
+    a failed schema validation), then this run's stage records with status ``needs_review`` of stages no
+    manifest covers (their note). Records of earlier runs (``split_runs``) are only listed.
+
+    The sheets stage stopped the project when this run's ``sheets`` record says ``needs_review``, or, without
+    stage records (a hand run), when there is no ``building.json`` and ``sheets.json`` lists reasons. A
+    ``sheets.json`` with reasons next to a ``building.json`` of this run (a level left out with
+    ``failed_levels: leave_out``) is not a stop.
     """
     out = Path(project_out).resolve()
     w: list = []
     records, earlier, run_id = split_runs(load_stage_records(out, w))
     intake = C.read_json(out / "intake_manifest.json", w)
     building = C.read_json(out / "building.json", w)
+    sheets = C.read_json(out / "sheets.json", w)
+    sheets = sheets if isinstance(sheets, dict) and sheets.get("kind") in (None, "sheets") else None
     reasons: list[str] = []
     covered = set()
+    sheets_stopped = False
     if isinstance(intake, dict):
         covered.add("intake")
         if intake.get("status") == "needs_review":
@@ -2575,7 +2596,23 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
                 w.append("building.json is from an earlier run (the pipeline did not run after the intake); "
                          "ignored")
             building = None
+            sheets = None
             covered.update(r["stage"] for r in records)
+    if sheets is not None:
+        listed = [n for n in sheets.get("needs_review") or [] if isinstance(n, dict) and n.get("reason")]
+        record = next((r for r in records if r["stage"] == "sheets"), None)
+        stopped = (record is not None and record["status"] == "needs_review") or \
+            (record is None and building is None and bool(listed))
+        if stopped:
+            sheets_stopped = True
+            covered.add("sheets")
+            reasons += [f"sheets: {n['reason']}" for n in listed] or \
+                [f"sheets: {(record or {}).get('note') or 'the sheets stage needs review'}"]
+            if building is not None:
+                w.append("building.json is from an earlier run (the sheets stage stopped the project); ignored")
+            building = None
+    if not sheets_stopped:
+        sheets = None
     if isinstance(building, dict):
         covered.add("pipeline")
         if building.get("status") == "needs_review":
@@ -2595,9 +2632,10 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
     project = (building or {}).get("project")
     name = project.get("id") if isinstance(project, dict) else None
     return ReviewInputs(project_out=out, out_dir=Path(out_dir).resolve() if out_dir else out / FINAL_DIR,
-                        project=str(name or out.name), private=is_private(out, private), reasons=reasons,
+                        project=str(name or (sheets or {}).get("project") or out.name),
+                        private=is_private(out, private), reasons=reasons,
                         building=building, report_md=report_md, intake=intake if isinstance(intake, dict) else None,
-                        records=records, warnings=w, earlier=earlier, run_id=run_id)
+                        records=records, warnings=w, earlier=earlier, run_id=run_id, sheets=sheets)
 
 
 def review_hints(reasons: list[str]) -> list[str]:
@@ -2690,7 +2728,60 @@ def building_summary(building: Optional[dict]) -> Optional[dict]:
             "warnings": [w for w in building.get("warnings") or [] if isinstance(w, str)]}
 
 
-def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]) -> dict:
+SHEETS_REPORT = "sheets_report.md"
+
+
+def sheet_image_rows(sheets: Optional[dict], private: bool) -> list[dict]:
+    """One row per sheet of ``sheets.json`` that has a debug image (``sheets_debug/<file>_<sheet>.png``, relative
+    to the project output), shaped like ``document_rows`` so ``write_review_images`` handles both."""
+    rows = []
+    docs = [d for d in (sheets or {}).get("documents") or [] if isinstance(d, dict)]
+    for i, d in enumerate(docs, start=1):
+        for s in d.get("sheets") or []:
+            if isinstance(s, dict) and s.get("debug_image"):
+                rows.append({"file": _doc_name(d.get("file"), i, private), "page": s.get("id"), "class": "sheet",
+                             "debug_image": s["debug_image"], "debug_preview": None})
+    return rows
+
+
+def sheets_summary(ri: ReviewInputs, sheet_rows: list[dict]) -> Optional[dict]:
+    """The Sheets block of a needs-review report (None when the project did not stop at the sheets stage):
+    regions with class, how it was decided, level, variant and use; strays; unit checks; the stop reasons;
+    conflicts and warnings; the debug images. A private project's documents are numbered, never named."""
+    sh = ri.sheets
+    if not isinstance(sh, dict):
+        return None
+    names = {d.get("file"): _doc_name(d.get("file"), i, ri.private)
+             for i, d in enumerate((d for d in sh.get("documents") or [] if isinstance(d, dict)), start=1)}
+    regions = []
+    for r in sh.get("regions") or []:
+        if not isinstance(r, dict):
+            continue
+        level = r.get("level") if isinstance(r.get("level"), dict) else {}
+        title = r.get("title") if isinstance(r.get("title"), dict) else {}
+        regions.append({"id": r.get("id"), "file": names.get(r.get("file"), r.get("file")), "class": r.get("class"),
+                        "class_method": r.get("class_method"), "class_confidence": r.get("class_confidence"),
+                        "status": r.get("status"), "title": None if ri.private else title.get("text"),
+                        "level": level.get("id"), "level_method": level.get("method"), "variant": r.get("variant"),
+                        "use": r.get("use"), "ignored_reason": r.get("ignored_reason")})
+    units = [{"file": names.get(d.get("file"), d.get("file")), "format": d.get("format"),
+              "metres_per_unit": (d.get("units") or {}).get("metres_per_unit"),
+              "method": (d.get("units") or {}).get("method"), "conflict": (d.get("units") or {}).get("conflict")}
+             for d in sh.get("documents") or [] if isinstance(d, dict)]
+    previews = {r["debug_image"]: r.get("debug_preview") for r in sheet_rows}
+    return {"regions": regions, "strays": len(sh.get("stray") or []), "units": units,
+            "needs_review": [{"region": n.get("region"), "reason": n.get("reason")}
+                             for n in sh.get("needs_review") or [] if isinstance(n, dict)],
+            "conflicts": [{"id": c.get("id"), "kind": c.get("kind"), "description": c.get("description"),
+                           "resolution": c.get("resolution")} for c in sh.get("conflicts") or []
+                          if isinstance(c, dict)],
+            "warnings": [str(x) for x in sh.get("warnings") or []],
+            "debug_images": [{"source": src, "preview": prev} for src, prev in previews.items()],
+            "report": None, "report_kept_on_volume": None}
+
+
+def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict],
+                          sheets: Optional[dict] = None) -> dict:
     stale = ri.project_out / "renders" / "render_manifest.json"
     if stale.is_file():
         ri.warnings.append("renders/ holds an earlier run's renders: ignored (the project needs review)")
@@ -2705,6 +2796,7 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
         "hints": review_hints(ri.reasons),
         "documents": docs,
         "debug_images": images,
+        "sheets": sheets,
         "building": building_summary(ri.building),
         "intake": intake,
         "run_id": ri.run_id,
@@ -2717,6 +2809,49 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
     }
 
 
+def sheets_lines(sheets: dict, private: bool) -> list[str]:
+    """The "Sheets" section of a needs-review report (a project the sheets stage stopped)."""
+    lines = ["", "## Sheets", "",
+             "The sheets stage split every sheet into drawing regions and classified them before any wall was read; "
+             "it stopped the project for the reasons above. Nothing was guessed or filled in."]
+    if sheets.get("report"):
+        lines += ["", f"Full analysis: [{sheets['report']}]({sheets['report']})."]
+    elif sheets.get("report_kept_on_volume"):
+        lines += ["", f"Full analysis: `{sheets['report_kept_on_volume']}` (a private project: it stays on the "
+                      f"volume, not copied)."]
+    if sheets["regions"]:
+        lines += ["", "Regions:", ""]
+        lines += C.table(["region", "file", "class", "decided by", "status", "level", "variant", "use"],
+                         [[r["id"], r["file"], r["class"], f"{r['class_method']} ({C.cell(r['class_confidence'])})",
+                           r["status"], (r["level"] or "-") + (f" ({r['level_method']})" if r.get("level_method")
+                                                              and r["level_method"] != "title" else ""),
+                           r["variant"], r["use"] + (f" ({r['ignored_reason']})" if r.get("ignored_reason") else "")]
+                          for r in sheets["regions"]])
+    lines += ["", f"Strays (entities far from every drawing, ignored): {sheets['strays']}."]
+    if sheets["units"]:
+        lines += ["", "Units:", ""]
+        lines += C.table(["file", "format", "metres per unit", "method", "conflict"],
+                         [[u["file"], u["format"], u["metres_per_unit"], u["method"], u["conflict"]]
+                          for u in sheets["units"]])
+    if sheets["conflicts"]:
+        lines += ["", "Conflicts:", ""]
+        lines += C.table(["id", "kind", "description", "resolution"],
+                         [[c["id"], c["kind"], c["description"], c["resolution"]] for c in sheets["conflicts"]])
+    shown = [i for i in sheets["debug_images"]]
+    if shown:
+        lines += ["", "Debug images (every region boxed and labelled with class, level and variant):", ""]
+        for i in shown:
+            if i["preview"]:
+                lines.append(f"- [{i['preview']}]({i['preview']})")
+            elif private:
+                lines.append(f"- {i['source']} (on the volume, not copied)")
+            else:
+                lines.append(f"- {i['source']}")
+    if sheets["warnings"]:
+        lines += ["", "Sheet warnings:", ""] + C.bullets(sheets["warnings"])
+    return lines
+
+
 def review_markdown(manifest: dict, report_md_table: list[str]) -> str:
     """``final_report.md`` of a needs-review project (links only to files in ``final/``)."""
     lines = [f"# Final report: {manifest['project']} (needs review)", ""]
@@ -2726,9 +2861,15 @@ def review_markdown(manifest: dict, report_md_table: list[str]) -> str:
     lines += ["", "## Reasons", ""] + C.bullets(manifest["reasons"])
     if manifest["hints"]:
         lines += ["", "## What to do", ""] + C.bullets(manifest["hints"])
+    sheets = manifest.get("sheets")
+    if sheets:
+        lines += sheets_lines(sheets, manifest["private"])
     lines += ["", "## Documents and pages", ""]
     docs = manifest["documents"]
-    if docs:
+    if sheets and not docs:
+        lines.append("The project stopped at the sheets stage: no document page was read as a plan yet "
+                     "(see Sheets above).")
+    elif docs:
         rows = []
         for d in docs:
             if d["debug_preview"]:
@@ -2773,8 +2914,19 @@ def write_needs_review(ri: ReviewInputs) -> dict:
     """Write the needs-review ``final_report.md``, then ``final_manifest.json`` (last); returns the manifest."""
     ri.out_dir.mkdir(parents=True, exist_ok=True)
     docs = document_rows(ri.building)
-    images = write_review_images(ri, docs)
-    manifest = build_review_manifest(ri, docs, images)
+    sheet_rows = sheet_image_rows(ri.sheets, ri.private)
+    images = write_review_images(ri, docs + sheet_rows)
+    sheets = sheets_summary(ri, sheet_rows)
+    if sheets is not None:
+        report = ri.project_out / SHEETS_REPORT
+        if not report.is_file():
+            ri.warnings.append(f"{SHEETS_REPORT} not found next to sheets.json")
+        elif ri.private:
+            sheets["report_kept_on_volume"] = SHEETS_REPORT
+        else:
+            shutil.copyfile(report, ri.out_dir / SHEETS_REPORT)
+            sheets["report"] = SHEETS_REPORT
+    manifest = build_review_manifest(ri, docs, images, sheets)
     errors = validate_final_manifest(manifest)
     if errors:
         manifest["warnings"].extend(f"final manifest schema: {e}" for e in errors[:20])

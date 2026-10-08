@@ -23,6 +23,10 @@ What:
   raw_text, data, latency_s, error, input_sha256, labels, images, ...}}}``,
   rewritten after every call. A call is reused when its key, input hash
   and answer are there; a failed or stale one is asked again.
+- Milestone 10: ``facade:<side>`` (prompt kind ``facade``, asked with the ``cycles`` kind): the render of an
+  exterior view cut to one visible facade (``check/<cam>_facade_<side>.png``), asked for its window and door
+  count only (advisory: ``combine`` judges it against the openings expected in that facade and lists the result;
+  it never rejects anything).
 - ``run_specs``: the loop with ``--deadline``. ``workers`` calls run at once
   (``check.yaml: calls.workers``, 2: vLLM serves ``--max-num-seqs 2`` below
   40 GB), each in a daemon thread; only the calling thread writes the
@@ -57,7 +61,7 @@ from wenart.vision_check import prompts as P
 from wenart.vision_check import schemas as S
 from wenart.vision_check.project import Project, read_json, rel, write_json
 
-PROMPT_KINDS = ("check", "plan_ab", "preference")
+PROMPT_KINDS = ("check", "plan_ab", "preference", "facade")
 RUN_KINDS = ("cycles", "polished", "controls", "plan_ab")
 PREFERENCE_KINDS = ("polished", "sweep")
 ORDERS = R.ORDERS
@@ -144,11 +148,62 @@ def _finish(project: Project, spec: CallSpec, model: str) -> CallSpec:
     return spec
 
 
+def facade_crop(project: Project, view: "views.View", fac: dict, camera: str) -> Optional[Path]:
+    """``check/<camera>_facade_<side>.png``: the render cut to the facade's box (+ margin, <= ``facade_crop_max_side``
+    px on the long side), the image of the advisory facade count. None when the box is empty."""
+    from PIL import Image
+
+    ecfg = project.cfg.get("exterior") or {}
+    rgb = view.read_rgb()
+    H, W = rgb.shape[:2]
+    x0, y0, x1, y1 = (int(v) for v in fac["box_px"])
+    m = int(round(float(ecfg.get("facade_crop_margin_frac", 0.03)) * max(x1 - x0, y1 - y0)))
+    x0, y0, x1, y1 = max(0, x0 - m), max(0, y0 - m), min(W, x1 + m), min(H, y1 + m)
+    if x1 - x0 < 8 or y1 - y0 < 8:
+        return None
+    img = Image.fromarray(rgb[y0:y1, x0:x1])
+    longest = max(img.size)
+    limit = int(ecfg.get("facade_crop_max_side", 1600))
+    if longest > limit:
+        img = img.resize((max(1, round(img.width * limit / longest)), max(1, round(img.height * limit / longest))),
+                         Image.LANCZOS)
+    path = project.check_dir / f"{camera}_facade_{fac['side']}.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path, format="PNG")
+    return path
+
+
+def facade_spec(project: Project, camera: str, image_kind: str, model: str) -> Optional[CallSpec]:
+    """The advisory count of one visible facade of an exterior view (``facade:<side>``): the crop of the render
+    to that facade, asked for its windows and doors without naming how many are expected."""
+    view = project.views().get(camera)
+    if view is None:
+        return None
+    side = image_kind.split(":", 1)[1]
+    exp = project.expected(camera)
+    fac = next((f for f in (exp.get("exterior") or {}).get("facades") or [] if f["side"] == side), None)
+    if fac is None:
+        return None
+    path = facade_crop(project, view, fac, camera)
+    if path is None:
+        return None
+    from PIL import Image
+    with Image.open(path) as im:
+        size = tuple(im.size)
+    spec = CallSpec(key=call_key("facade", camera, image_kind), camera=camera, image_kind=image_kind,
+                    prompt_kind="facade", prompt=P.facade_prompt(side), schema=S.facade_schema(), images=[path],
+                    image_labels=[P.FACADE_IMAGE_LABEL], size=size, items=[], expected={"facade": fac},
+                    base_view=view)
+    return _finish(project, spec, model)
+
+
 def check_spec(project: Project, camera: str, image_kind: str, model: str = "") -> Optional[CallSpec]:
     """The element-check call of one image kind of one camera, or None when its inputs are missing."""
     vs = project.views()
     if camera not in vs:
         return None
+    if image_kind.startswith("facade:"):
+        return facade_spec(project, camera, image_kind, model)
     view = vs[camera]
     exp = project.expected(camera)
     base_view, image, swap, target, target_box = view, view.png, None, None, None
@@ -208,7 +263,7 @@ def check_spec(project: Project, camera: str, image_kind: str, model: str = "") 
     room = project.room(exp.get("room_id"))
     size = tuple(view.size)
     text = P.check_prompt(items, room.get("label") or exp.get("room_id"), exp.get("room_type"), size,
-                          plan_ab=plan is not None)
+                          plan_ab=plan is not None, view_kind=exp.get("view_kind") or "interior")
     images = [image] + ([plan] if plan is not None else [])
     labels = [P.IMAGE_LABEL] + ([P.PLAN_LABEL] if plan is not None else [])
     spec = CallSpec(key=call_key(prompt_kind, camera, image_kind), camera=camera, image_kind=image_kind,
@@ -252,6 +307,11 @@ def check_kinds(project: Project, kinds, warn: bool = True) -> list[tuple[str, s
     cams = list(project.views())
     if "cycles" in kinds:
         out += [(c, "cycles") for c in cams]
+        # Milestone 10: the advisory window count of every visible facade of an exterior view rides with the
+        # Cycles kind (one more call per facade; no new --kinds word for the stages to pass).
+        for c in cams:
+            exp = project.expected(c)
+            out += [(c, f"facade:{f['side']}") for f in (exp.get("exterior") or {}).get("facades") or []]
     if "polished" in kinds:
         pol = project.polished()
         out += [(c, "polished") for c in cams if c in pol]

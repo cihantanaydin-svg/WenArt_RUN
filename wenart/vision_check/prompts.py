@@ -194,7 +194,10 @@ def check_items(expected: dict, decoy: Optional[dict] = None, swap: Optional[dic
                       "category": S.element_category(e["kind"], etype, unverified),
                       "type_unverified": unverified, "role": e["role"], "source": e.get("source"),
                       "box_1000": list(e["box_1000"]), "touches_border": bool(e.get("touches_border")),
-                      "swapped_from": swapped_from})
+                      "swapped_from": swapped_from,
+                      # Milestone 10, Feature 1: what the AI did to a drawn piece (the type asked is the new one).
+                      "modified_by_ai": bool(e.get("modified_by_ai")), "drawn_type": e.get("drawn_type"),
+                      "completes_room": bool(e.get("completes_room"))})
     if decoy is not None:
         pos = camera_hash(expected.get("camera") or "") % (len(items) + 1)
         items.insert(pos, {"wenart_id": None, "decoy": True, "kind": "furniture", "type": decoy["type"],
