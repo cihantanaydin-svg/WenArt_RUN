@@ -3,9 +3,12 @@
 What: ``plan_exterior(model, building, ...)`` places the exterior views of a variant: four eye-level corner
 views (1.6 m above the ground, from the plot corners, else 10-15 m from each building corner along its
 diagonal, aimed so both facades show), one 3/4 aerial view (30 degrees down) from the corner whose two
-facades carry the most openings, and one view per drawn elevation (``facade.openings_seen[].side``, square
-to that facade). Camera ids ``ext_<n>`` (corners 1-4, aerial 5, elevations from 6 on), kind ``exterior``.
-``create_cameras`` (bpy) makes the camera objects.
+facades carry the most openings, and one view per drawn elevation (``facade.elevations[]``: looking along its
+``view_bearing_deg``, counter-clockwise from +X, else square to its side; its ``region_id``). Camera ids
+``ext_<n>`` (corners 1-4, aerial 5, elevations from 6 on), kind ``exterior``, with the scene manifest's camera
+fields (``variant``, ``view``, ``sides``, ``region_id``, ``dropped_reason``; docs/milestone10.md §1.6b row 11).
+``create_cameras`` (bpy) makes the camera objects. ``resolve_looks`` (pure, §1.6b row 12) decides the outside
+looks: documents > the brief's ``exterior:`` words > the style's ``exterior`` slots > ``style.exterior_fallback``.
 
 Why: Feature 2 of Milestone 10: renders of the building from outside per variant (acceptance: >= 5 exterior
 views per variant).
@@ -52,6 +55,164 @@ CLEARANCE = 0.3
 CLIP_END = 500.0
 KIND = "exterior"
 LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4}
+
+
+# --------------------------------------------------------------------------
+# The outside looks (docs/milestone10.md §1.6b rows 12, 14; §4.8)
+# --------------------------------------------------------------------------
+
+EXTERIOR_SLOTS = ("facade", "roof", "window_frame", "door", "paving", "garden")
+# wenart/defaults.yaml ``style.exterior_fallback`` (Blender's Python has no PyYAML; tests/test_blender_exterior.py
+# keeps this copy equal to the file). Colour "walls" = the interior wall colour of the style; "interior" = the
+# interior slot's look, seen from outside.
+EXTERIOR_FALLBACK = {"facade": {"material": "render", "colour": "walls"},
+                     "roof": {"material": "concrete_tiles", "colour": "anthracite"},
+                     "window_frame": "interior", "door": "interior",
+                     "paving": {"material": "paving", "colour": "grey"},
+                     "garden": {"material": "grass", "colour": None}}
+# The brief's exterior words -> material, per slot (first match in the lower-cased phrase; §4.8). A phrase that
+# matches nothing is a warning and the next source decides.
+EXTERIOR_WORDS = {
+    "facade": (("fibre cement", "fibre_cement"), ("fiber cement", "fibre_cement"), ("brick", "brick_red"),
+               ("stone", "stone_cladding"), ("timber", "wood_cladding"), ("wood", "wood_cladding"),
+               ("render", "render"), ("plaster", "render"), ("stucco", "render")),
+    "roof": (("clay", "clay_tiles"), ("terracotta", "clay_tiles"), ("concrete tile", "concrete_tiles"),
+             ("slate", "slate"), ("standing seam", "standing_seam"), ("metal", "standing_seam"),
+             ("zinc", "standing_seam"), ("green roof", "green_roof"), ("sedum", "green_roof")),
+    "window_frame": (("pvc", "pvc"), ("upvc", "pvc"), ("alumin", "aluminium"), ("steel", "steel"),
+                     ("bronze", "dark_bronze"), ("oak", "oak"), ("wood", "oak"), ("timber", "oak")),
+    "door": (("oak", "wood_oak_light"), ("walnut", "wood_walnut"), ("wood", "wood_oak_light"),
+             ("steel", "steel"), ("alumin", "aluminium"), ("glass", "glass")),
+    "paving": (("gravel", "gravel"), ("decking", "decking"), ("deck", "decking"), ("stone", "stone"),
+               ("paving", "paving"), ("pavers", "paving"), ("concrete", "paving")),
+    "garden": (("grass", "grass"), ("lawn", "grass"), ("gravel", "gravel"), ("decking", "decking")),
+}
+# Looks of the details the build adds (no drawing, brief or style names them): slug, colour, reason.
+BUILD_LOOKS = {"sill": ("stone", None, "exterior sill not drawn"),
+               "light_well": ("concrete", None, "light well: concrete (not drawn)"),
+               "railing": ("steel_brushed", None, "railing not drawn: steel rail and glass panel"),
+               "soffit": ("soffit", None, "roof soffit: painted (not drawn)"),
+               "bark": ("bark", None, "parametric tree"), "foliage": ("foliage", None, "parametric tree"),
+               "ground": ("soil", None, "neutral ground (brief site: ground)")}
+
+
+def _colour_words() -> list[str]:
+    """Known colour names, longest first (``wenart/style/colours.py`` once track C fills it, else the local
+    table of shell.py)."""
+    from wenart.blender import shell
+    try:
+        from wenart.style import colours as C
+        names = list(getattr(C, "NAMES", ()) or ())
+    except ImportError:
+        names = []
+    return sorted(set(names) | set(shell._SRGB), key=len, reverse=True)
+
+
+def look_from_words(slot: str, phrase: str) -> Optional[dict]:
+    """``{"material", "colour"}`` of a brief phrase for an exterior slot (``EXTERIOR_WORDS`` and the colour
+    names), None when no material word matches."""
+    text = " " + str(phrase or "").strip().lower().replace("_", " ") + " "
+    material = next((slug for word, slug in EXTERIOR_WORDS.get(slot, ()) if word in text), None)
+    if material is None:
+        return None
+    colour = next((c for c in _colour_words() if f" {c} " in text), None)
+    return {"material": material, "colour": colour}
+
+
+def _wall_colour(style: dict) -> tuple[Optional[str], Optional[list], str]:
+    """``(colour name, linear rgb, how)`` of the style's interior walls: the slot's ``colour`` name, else the
+    flat colour of its material (``vocabulary.MATERIALS``)."""
+    walls = style.get("walls") if isinstance(style.get("walls"), dict) else {}
+    if walls.get("colour"):
+        return str(walls["colour"]), None, f"the style's wall colour {walls['colour']!r}"
+    slug = walls.get("material") or "plaster_white"
+    try:
+        from wenart.style.vocabulary import MATERIALS
+        flat = (MATERIALS.get(slug) or {}).get("flat")
+    except ImportError:
+        flat = None
+    if flat:
+        return None, [round(float(v), 4) for v in flat], f"the flat colour of the style's wall material {slug!r}"
+    return "white", None, f"the style's wall material {slug!r} has no flat colour: white"
+
+
+def _look(material, colour, source: str, reason: str, rgb=None, asset=None, evidence=None) -> dict:
+    return {"material": material, "colour": colour, "rgb": rgb, "asset": asset, "source": source,
+            "assumed": source in ("fallback", "build"), "reason": reason, "evidence": list(evidence or [])}
+
+
+def resolve_looks(building: dict, style: dict, brief=None) -> dict:
+    """The outside looks of the whole building (pure; §1.6b row 12): per slot of ``EXTERIOR_SLOTS`` the first
+    of the documents (``facade.faces`` with side ``all`` and no wall or z band: the whole facade;
+    ``roof.covering``), the brief's ``exterior:`` words (``look_from_words``; ``brief`` a ``load_brief`` result
+    or a values dict, None = the building's stored brief), the style profile's ``exterior`` slot (track C:
+    ``{material|slug, colour, source, assumed}``; an assumed entry counts as the fallback) and
+    ``style.exterior_fallback`` (the style's copy, else ``EXTERIOR_FALLBACK``; colour ``walls`` = the interior
+    wall colour, ``interior`` = the inside slot); then the looks the build adds (``BUILD_LOOKS``, the plot wall
+    = the facade's). Each look: ``{"material", "colour", "rgb", "asset", "source": documents | brief | style |
+    fallback | build, "assumed", "reason", "evidence"}``; a brief phrase that names no material adds
+    ``warnings``. Recorded in the scene manifest (``exterior_looks``), never written back."""
+    from wenart import views as V
+
+    facade = building.get("facade") if isinstance(building.get("facade"), dict) else {}
+    roof = building.get("roof") if isinstance(building.get("roof"), dict) else {}
+    style = style or {}
+    ext = style.get("exterior") if isinstance(style.get("exterior"), dict) else {}
+    fallback = style.get("exterior_fallback") if isinstance(style.get("exterior_fallback"), dict) else EXTERIOR_FALLBACK
+    words, _ = V.brief_value(building, brief, "exterior")
+    words = words if isinstance(words, dict) else {}
+    out: dict = {}
+    for slot in EXTERIOR_SLOTS:
+        look, warnings = None, []
+        if slot == "facade":
+            whole = [f for f in facade.get("faces") or [] if isinstance(f, dict) and f.get("material")
+                     and (f.get("side") or "all") == "all" and not f.get("wall_id") and not f.get("z_range")]
+            if whole:
+                f = whole[0]
+                look = _look(f["material"], f.get("colour"), "documents", f"facade.faces: the whole facade "
+                             f"({f.get('source') or 'drawn'})", evidence=f.get("evidence"))
+        elif slot == "roof" and roof.get("covering"):
+            look = _look(roof["covering"], roof.get("covering_colour"), "documents",
+                         f"roof.covering ({roof.get('covering_source') or 'drawn'})")
+        phrase = str(words.get(slot) or "").strip()
+        if look is None and phrase:
+            found = look_from_words(slot, phrase)
+            if found:
+                look = _look(found["material"], found["colour"], "brief", f"brief exterior.{slot}: {phrase!r}")
+            else:
+                warnings.append(f"brief exterior.{slot} {phrase!r}: no known material word; the next source decides")
+        e = ext.get(slot)
+        if look is None and isinstance(e, dict) and (e.get("material") or e.get("slug")) and not e.get("assumed"):
+            src = "brief" if e.get("source") == "brief" else "style"
+            look = _look(e.get("material") or e.get("slug"), e.get("colour"), src, f"style profile exterior.{slot}",
+                         asset=e.get("asset"))
+        if look is None and isinstance(e, dict) and (e.get("material") or e.get("slug")):
+            look = _look(e.get("material") or e.get("slug"), e.get("colour"), "fallback",
+                         f"style profile exterior.{slot} (assumed)", asset=e.get("asset"))
+        if look is None:
+            fb = fallback.get(slot, EXTERIOR_FALLBACK.get(slot))
+            if fb == "interior":
+                inside = style.get(slot) if isinstance(style.get(slot), dict) else {}
+                default = "painted_metal_white" if slot == "window_frame" else "wood_oak_light"
+                look = _look(inside.get("material") or default, inside.get("colour"), "fallback",
+                             f"style.exterior_fallback: the interior {slot} seen from outside",
+                             asset=inside.get("asset"))
+            else:
+                fb = fb if isinstance(fb, dict) else {}
+                colour, rgb, how = fb.get("colour"), None, None
+                if colour == "walls":
+                    colour, rgb, how = _wall_colour(style)
+                reason = f"style.exterior_fallback: {fb.get('material')}" + (f" in {colour}" if colour else "") + \
+                         (f" ({how})" if how else "")
+                look = _look(fb.get("material") or "render", colour, "fallback", reason, rgb=rgb)
+        if warnings:
+            look["warnings"] = warnings
+        out[slot] = look
+    for name, (slug, colour, reason) in BUILD_LOOKS.items():
+        out[name] = _look(slug, colour, "build", reason)
+    out["plot_wall"] = dict(out["facade"], source="build", assumed=True, evidence=[],
+                            reason="plot wall finish not drawn: the facade's look")
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -413,7 +574,9 @@ def _opening_counts(building: dict, levels: Sequence[dict], outline) -> dict[str
 
 
 def _try(model, building, levels, name, view, candidates, aim, level_cam=True, extra=None) -> dict:
-    """The first candidate position that is free and sees the building; the plan or the drop record."""
+    """The first candidate position that is free and sees the building; the plan or the drop record (the
+    camera record with ``dropped: true`` and ``dropped_reason``)."""
+    extra = dict({"sides": [], "region_id": None, "variant": None}, **(extra or {}))
     pts = building_points(model)
     reasons = []
     for k, (pos, how) in enumerate(candidates):
@@ -433,26 +596,62 @@ def _try(model, building, levels, name, view, candidates, aim, level_cam=True, e
                 "lens_mm": lens, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION), "shift_x": 0.0,
                 "shift_y": shift_y, "pitch_deg": round(pitch, 2), "placement": how, "warning": warning,
                 "visible_openings": visible_openings(model, building, levels, pos, target, lens, shift_y),
-                "visible_furniture": [], "score": {**check, "tried": k + 1}, "status": "assumed"}
-        plan.update(extra or {})
+                "visible_furniture": [], "score": {**check, "tried": k + 1}, "status": "assumed",
+                "dropped_reason": None}
+        plan.update(extra)
         return plan
-    return {"name": name, "view": view, "dropped": True, "reason": "; ".join(reasons) or "no candidate",
-            **(extra or {})}
+    return {"name": name, "kind": KIND, "view": view, "room_id": None, "level_id": None,
+            "index": int(name.split("_")[1]), "dropped": True, "dropped_reason": "; ".join(reasons) or "no candidate",
+            **extra}
 
 
-def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], plot: Sequence = ()
-                  ) -> tuple[list[dict], list[dict]]:
-    """``(plans, dropped)`` of the exterior cameras of a variant (pure; module docstring)."""
+def elevation_views(building: dict) -> tuple[list[dict], list[str]]:
+    """``([{"region_id", "side", "view", "outward"}], warnings)`` of the drawn elevations (``facade.elevations``,
+    pure): ``view`` the direction the camera looks (building frame, unit; ``view_bearing_deg``: counter-clockwise
+    from +X, else the opposite of the side's outward direction), ``outward`` its opposite. An elevation with
+    neither a known side nor a bearing is a warning."""
+    north, _ = S.north_deg(building)
+    out, warnings = [], []
+    for e in (building.get("facade") or {}).get("elevations") or []:
+        if not isinstance(e, dict):
+            continue
+        side = e.get("side")
+        bearing = e.get("view_bearing_deg")
+        if bearing is not None:
+            a = math.radians(float(bearing))
+            view = (math.cos(a), math.sin(a))
+        else:
+            d = S.side_direction(side, north)
+            if d is None:
+                warnings.append(f"elevation {e.get('region_id')}: side {side!r} without a view bearing: no view")
+                continue
+            view = (-d[0], -d[1])
+        out.append({"region_id": e.get("region_id"), "side": side, "view": view, "outward": (-view[0], -view[1])})
+    return out, warnings
+
+
+def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], plot: Sequence = (),
+                  variant: Optional[str] = None) -> tuple[list[dict], list[dict]]:
+    """``(plans, dropped)`` of the exterior cameras of a variant (pure; module docstring). Every record has
+    the scene manifest's camera fields (§1.6b row 11): ``kind`` exterior, ``room_id`` / ``level_id`` null,
+    ``index``, ``variant``, ``view`` (corner / aerial / elevation), ``sides`` (the ``$defs/side`` names of the
+    facades it looks at), ``region_id`` (the drawn elevation's) and ``dropped_reason`` (null for a plan)."""
     if len(model.outline) < 3:
-        return [], [{"name": "ext_*", "view": "all", "dropped": True, "reason": "no building outline"}]
+        return [], [{"name": "ext_*", "kind": KIND, "view": None, "room_id": None, "level_id": None, "sides": [],
+                     "region_id": None, "variant": variant, "dropped": True, "dropped_reason": "no building outline"}]
     rect = _rect(model)
     corners = geom2d.rectangle_corners(rect)
     cx, cy = rect["center"]
     zmid = (model.z_range[0] + model.z_range[1]) / 2.0
+    north, north_src = S.north_deg(building)
+    north_known = not north_src.startswith("assumed")
     plans, dropped = [], []
 
     def keep(plan):
         (dropped if plan.get("dropped") else plans).append(plan)
+
+    def sides_at(corner):
+        return [S.side_of(v, north, north_known) for v in _corner_axes(corner, rect)]
 
     for k, corner in enumerate(corners):
         d = (corner[0] - cx, corner[1] - cy)
@@ -467,7 +666,8 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
             p = (corner[0] + d[0] * dist, corner[1] + d[1] * dist)
             cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:g} m from the building corner along its diagonal"))
         aim = (corner[0], corner[1], zmid)
-        keep(_try(model, building, levels, f"ext_{k + 1}", "corner", cands, aim, extra={"corner": k + 1}))
+        keep(_try(model, building, levels, f"ext_{k + 1}", "corner", cands, aim,
+                  extra={"corner": k + 1, "sides": sides_at(corner), "variant": variant}))
 
     counts = _opening_counts(building, levels, model.outline)
     best = max(range(4), key=lambda k: (sum(counts[S.nearest_axis(v)] for v in _corner_axes(corners[k], rect)), -k))
@@ -484,41 +684,29 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
         horiz = dist * math.cos(math.radians(AERIAL_PITCH_DEG))
         cands.append(((cx + d[0] * horiz, cy + d[1] * horiz, zmid + h), f"aerial {dist:.1f} m from the centre"))
     keep(_try(model, building, levels, "ext_5", "aerial", cands, (cx, cy, zmid), level_cam=False,
-              extra={"corner": best + 1}))
+              extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant}))
 
-    sides = []
-    for seen in (building.get("facade") or {}).get("openings_seen") or []:
-        side = seen.get("side") if isinstance(seen, dict) else None
-        if side and side not in sides:
-            sides.append(side)
-    north, _ = S.north_deg(building)
-    for i, side in enumerate(sides):
+    views, _warnings = elevation_views(building)
+    height = model.z_range[1] - model.z_range[0]
+    tan_h = SENSOR_MM / 2.0 / 28.0
+    for i, ev in enumerate(views):
         name = f"ext_{6 + i}"
-        if side in S.COMPASS:
-            axis = S.nearest_axis(S.compass_to_building(S.COMPASS[side], north))
-        elif side in S.SIDE_DIRECTIONS:
-            axis = S.SIDE_DIRECTIONS[side]
-        else:
-            dropped.append({"name": name, "view": "elevation", "side": side, "dropped": True,
-                            "reason": f"unknown facade side {side!r}"})
-            continue
-        ax = S.AXES[axis]
-        xs = [p[0] for p in model.outline]
-        ys = [p[1] for p in model.outline]
-        x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
-        face = ((x1 if ax[0] > 0 else x0) if ax[0] else (x0 + x1) / 2.0,
-                (y1 if ax[1] > 0 else y0) if ax[1] else (y0 + y1) / 2.0)
-        width = (y1 - y0) if ax[0] else (x1 - x0)
-        height = model.z_range[1] - model.z_range[0]
-        fit = max(width / 2.0 / (SENSOR_MM / 2.0 / 28.0) / FRAME_FILL,
-                  height / 2.0 / (SENSOR_MM / 2.0 / 28.0 * RESOLUTION[1] / RESOLUTION[0]) / FRAME_FILL)
+        u = ev["outward"]
+        w = (-u[1], u[0])
+        along = [p[0] * u[0] + p[1] * u[1] for p in model.outline]
+        across = [p[0] * w[0] + p[1] * w[1] for p in model.outline]
+        a, b = max(along), (min(across) + max(across)) / 2.0
+        face = (u[0] * a + w[0] * b, u[1] * a + w[1] * b)
+        width = max(across) - min(across)
+        fit = max(width / 2.0 / tan_h / FRAME_FILL, height / 2.0 / (tan_h * RESOLUTION[1] / RESOLUTION[0]) / FRAME_FILL)
+        side = ev["side"] or S.side_of(u, north, north_known)
         cands = []
         for frac in ELEVATION_STEPS:
             dist = max(4.0, fit * frac)
-            p = (face[0] + ax[0] * dist, face[1] + ax[1] * dist)
+            p = (face[0] + u[0] * dist, face[1] + u[1] * dist)
             cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m in front of the {side} facade"))
-        aim = (face[0], face[1], zmid)
-        keep(_try(model, building, levels, name, "elevation", cands, aim, extra={"side": side}))
+        keep(_try(model, building, levels, name, "elevation", cands, (face[0], face[1], zmid),
+                  extra={"side": side, "sides": [side], "region_id": ev["region_id"], "variant": variant}))
     return plans, dropped
 
 
@@ -564,7 +752,7 @@ def create_cameras(plans: Sequence[dict], collection, manifest_objects: list) ->
             "name": plan["name"], "wenart_id": plan["name"], "kind": "camera", "status": "assumed",
             "level_id": None, "element_id": None, "evidence": [], "material": None, "textured": False,
             "pass_index": None, "assumed": {"view": plan["view"], "placement": plan["placement"]},
-            "camera_kind": KIND,
+            "camera_kind": KIND, "sides": list(plan.get("sides") or []), "region_id": plan.get("region_id"),
         })
         created.append(ob)
     return created

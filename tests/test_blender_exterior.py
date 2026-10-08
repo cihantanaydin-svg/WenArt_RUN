@@ -1,13 +1,17 @@
-"""CPU tests of the exterior cameras (wenart/blender/exterior.py, docs/milestone10.md §3.3 item 1): the triangle
-model of the outside, the inside tests, the framing (level cameras, lens shift), the line-of-sight checks on a
-fake scene with a tree and a plot wall, the camera plan of the example building and the facade metering of
+"""CPU tests of the exterior cameras and looks (wenart/blender/exterior.py, docs/milestone10.md §3.3 item 1,
+§1.6b rows 11, 12): the triangle model of the outside, the inside tests, the framing (level cameras, lens shift),
+the line-of-sight checks on a fake scene with a tree and a plot wall, the camera plan of the example building
+(the corners, the aerial view, one view per drawn elevation along its view bearing, the camera fields), the
+outside looks (documents > brief > style > the fallback of wenart/defaults.yaml) and the facade metering of
 render.py."""
+import copy
 import json
 import math
 from pathlib import Path
 
 import numpy as np
 import pytest
+import yaml
 
 from wenart import views as V
 from wenart.blender import exterior as E
@@ -46,20 +50,20 @@ def _box_model(b):
 
 
 def test_the_model_of_the_example():
-    b, m, _ = _example_model()
+    _b, m, _ = _example_model()
     assert len(m.prisms) == 3 and m.roof is not None
     assert m.z_range == pytest.approx((-3.2, 6.888), abs=1e-3)
     assert m.inside((5.0, 4.0, 1.0)) == "building"
     assert m.inside((5.0, 4.0, 6.5)) == "building"                     # in the attic under the ridge
-    assert m.inside((5.0, -0.5, 3.8)) == "roof"                        # in the eaves overhang
-    assert m.inside((-3.0, -4.0, 2.0)) == "tree"
-    assert m.inside((5.0, -8.0, -2.5)) == "plot_wall"
-    assert m.inside((5.0, -5.0, -2.8)) == "ground"
+    assert m.inside((5.0, -0.4, 3.6)) == "roof"                        # in the eaves overhang
+    assert m.inside((-2.875, -3.875, 2.0)) == "tree"
+    assert m.inside((5.0, -7.9, -2.5)) == "plot_wall"
+    assert m.inside((5.0, -5.0, -2.8)) == "ground"                     # the south side at the basement floor
     assert m.inside((5.0, -5.0, -1.4)) is None
     # the rays see the building, the roof and the ground
     labels, t = m.cast((5.0, -20.0, -1.4), np.array([[0.0, 1.0, 0.0], [0.0, 1.0, 0.3], [0.0, 1.0, -0.2]]))
     assert labels.tolist() == [E.LABELS["building"], E.LABELS["building"], E.LABELS["ground"]]
-    assert t[0] == pytest.approx(20.0 - 0.125, abs=1e-6)
+    assert t[0] == pytest.approx(20.0, abs=1e-6)                        # the south facade at y = 0
 
 
 def test_framing_keeps_the_camera_level_and_the_building_in_the_frame():
@@ -99,18 +103,21 @@ def test_a_blocked_camera_moves_along_its_diagonal_and_a_wall_all_around_drops_i
     m, _ = _box_model(b)
     plans, dropped = E.plan_exterior(m, b, b["levels"])
     corners = [d for d in dropped if d["view"] == "corner"]
-    assert len(corners) == 4 and all("100% of the view of the building is blocked" in d["reason"] for d in corners)
+    assert len(corners) == 4 and all("100% of the view of the building is blocked" in d["dropped_reason"]
+                                     for d in corners)
+    assert all(d["kind"] == "exterior" and d["room_id"] is None and len(d["sides"]) == 2 for d in corners)
     assert any(p["name"] == "ext_5" for p in plans)                     # the aerial view looks over it
 
 
 def test_the_exterior_views_of_the_example():
     b, m, plan = _example_model()
-    plans, dropped = E.plan_exterior(m, b, b["levels"], plan["plot"])
+    plans, dropped = E.plan_exterior(m, b, b["levels"], plan["plot"], variant="base")
     names = [p["name"] for p in plans] + [d["name"] for d in dropped]
-    assert sorted(names) == ["ext_1", "ext_2", "ext_3", "ext_4", "ext_5", "ext_6"]
+    assert sorted(names) == ["ext_1", "ext_2", "ext_3", "ext_4", "ext_5", "ext_6", "ext_7"]   # 2 drawn elevations
     assert len(plans) >= 5                                              # acceptance: >= 5 exterior views
     for p in plans:
         assert p["kind"] == "exterior" and p["room_id"] is None and p["level_id"] is None
+        assert p["variant"] == "base" and p["dropped_reason"] is None and p["index"] == int(p["name"][4:])
         assert m.inside(p["position"]) is None
         assert p["score"]["aim_visible"] and p["score"]["building_share"] >= E.MIN_BUILDING_SHARE
         if p["view"] != "aerial":
@@ -119,14 +126,94 @@ def test_the_exterior_views_of_the_example():
             assert p["pitch_deg"] == pytest.approx(0.0, abs=1e-6) and abs(p["shift_y"]) <= E.MAX_SHIFT_Y
         else:
             assert p["pitch_deg"] == pytest.approx(-E.AERIAL_PITCH_DEG, abs=0.5)
-    # the south elevation (facade.openings_seen) looks square at the south facade and sees its openings
-    south = next(p for p in plans if p["view"] == "elevation")
-    assert south["side"] == "south" and south["position"][0] == pytest.approx(5.0)
+        if p["view"] == "corner":
+            assert len(p["sides"]) == 2 and p["region_id"] is None
+    # the south elevation (facade.elevations r7, view bearing 90: looking +Y) looks square at the south facade
+    south = next(p for p in plans if p.get("region_id") == "r7")
+    assert south["view"] == "elevation" and south["side"] == "south" and south["sides"] == ["south"]
+    assert south["position"][0] == pytest.approx(5.125) and south["position"][1] < 0.0
+    assert south["target"][0] == pytest.approx(5.125) and south["target"][1] == pytest.approx(0.0)
     assert {"win_L0_001", "win_L-1_001", "d_L-1_001"} <= set(south["visible_openings"])
     assert not set(south["visible_openings"]) & {"d_L0_001", "win_L0_002"}   # the north door, the west window
+    # the east elevation (r8, bearing 180: looking -X): no openings drawn, none seen
+    east = next(p for p in plans if p.get("region_id") == "r8")
+    assert east["sides"] == ["east"] and east["position"][0] > 10.25 and east["position"][1] == pytest.approx(4.125)
+    assert east["visible_openings"] == []
     # the south-west corner sees the building only through the tree: dropped with the reason
     sw = next(d for d in dropped if d["name"] == "ext_1")
-    assert "blocked" in sw["reason"]
+    assert "blocked" in sw["dropped_reason"] and sw["sides"] == ["west", "south"] and sw["variant"] == "base"
+
+
+def test_elevation_views_from_the_bearing_else_the_side():
+    b = copy.deepcopy(EXAMPLE)
+    views, warnings = E.elevation_views(b)
+    assert [(v["region_id"], v["side"]) for v in views] == [("r7", "south"), ("r8", "east")] and not warnings
+    assert views[0]["view"] == pytest.approx((0.0, 1.0)) and views[1]["outward"] == pytest.approx((1.0, 0.0))
+    b["facade"]["elevations"][0]["view_bearing_deg"] = None            # no bearing: square to the side
+    b["facade"]["elevations"].append({"region_id": "r99", "side": "all", "windows": 0, "doors": 0})
+    views, warnings = E.elevation_views(b)
+    assert views[0]["view"] == pytest.approx((0.0, 1.0)) and len(views) == 2
+    assert any("r99" in w for w in warnings)
+
+
+def _style(**extra):
+    style = {"walls": {"material": "plaster_white"}, "window_frame": {"material": "painted_metal_white"},
+             "door": {"material": "wood_oak_light"}}
+    style.update(extra)
+    return style
+
+
+def test_exterior_fallback_equals_the_defaults_file():
+    defaults = yaml.safe_load((ROOT / "wenart" / "defaults.yaml").read_text(encoding="utf-8"))
+    assert E.EXTERIOR_FALLBACK == defaults["style"]["exterior_fallback"]
+    assert set(E.EXTERIOR_SLOTS) == set(defaults["brief"]["exterior"]) == set(V.BRIEF_DEFAULTS["exterior"])
+
+
+def test_resolve_looks_documents_brief_style_fallback():
+    looks = E.resolve_looks(EXAMPLE, _style())
+    # the example draws only a stone plinth (a z band of the south side): the facade itself is the fallback
+    assert looks["facade"]["source"] == "fallback" and looks["facade"]["material"] == "render"
+    assert looks["facade"]["rgb"] is not None and looks["facade"]["assumed"]           # colour "walls"
+    assert (looks["roof"]["material"], looks["roof"]["colour"]) == ("concrete_tiles", "anthracite")
+    assert looks["window_frame"]["material"] == "painted_metal_white"                    # "interior"
+    assert looks["door"]["material"] == "wood_oak_light"
+    assert (looks["paving"]["material"], looks["paving"]["colour"]) == ("paving", "grey")
+    assert looks["garden"]["material"] == "grass"
+    assert {"sill", "plot_wall", "light_well", "railing", "soffit", "bark", "foliage", "ground"} <= set(looks)
+    assert looks["plot_wall"]["material"] == looks["facade"]["material"] and looks["plot_wall"]["source"] == "build"
+    # the style profile's exterior slots (track C) win over the fallback; an assumed one counts as the fallback
+    style = _style(exterior={"facade": {"material": "brick_red", "colour": None, "source": "style"},
+                             "roof": {"material": "slate", "colour": None, "assumed": True}})
+    looks = E.resolve_looks(EXAMPLE, style)
+    assert (looks["facade"]["material"], looks["facade"]["source"]) == ("brick_red", "style")
+    assert (looks["roof"]["material"], looks["roof"]["source"]) == ("slate", "fallback")
+    # the brief's exterior words win over the style; a phrase without a material word is a warning
+    brief = {"values": {"exterior": {"facade": "white render", "roof": "red clay tiles", "paving": "nice"}},
+             "assumed": []}
+    looks = E.resolve_looks(EXAMPLE, style, brief)
+    assert (looks["facade"]["material"], looks["facade"]["colour"], looks["facade"]["source"]) == \
+        ("render", "white", "brief")
+    assert (looks["roof"]["material"], looks["roof"]["colour"]) == ("clay_tiles", "red")
+    assert looks["paving"]["source"] == "fallback" and "nice" in looks["paving"]["warnings"][0]
+    # the documents win over everything: a drawn whole facade and a drawn roof covering
+    b = copy.deepcopy(EXAMPLE)
+    b["facade"]["faces"].append({"side": "all", "wall_id": None, "level_id": None, "z_range": None,
+                                 "material": "wood_cladding", "colour": "walnut brown", "source": "elevation",
+                                 "evidence": [{"file": "x.dxf", "method": "vector", "confidence": 1.0}]})
+    b["roof"]["covering"], b["roof"]["covering_colour"] = "standing_seam", "anthracite"
+    looks = E.resolve_looks(b, style, brief)
+    assert (looks["facade"]["material"], looks["facade"]["source"]) == ("wood_cladding", "documents")
+    assert looks["facade"]["evidence"] and not looks["facade"]["assumed"]
+    assert (looks["roof"]["material"], looks["roof"]["source"]) == ("standing_seam", "documents")
+    assert EXAMPLE["facade"]["faces"][0]["material"] == "stone_cladding"                 # nothing written back
+
+
+def test_look_words():
+    assert E.look_from_words("facade", "Light grey fibre cement panels") == {"material": "fibre_cement",
+                                                                             "colour": "light grey"}
+    assert E.look_from_words("window_frame", "anthracite aluminium") == {"material": "aluminium",
+                                                                         "colour": "anthracite"}
+    assert E.look_from_words("roof", "something else") is None
 
 
 def test_meter_stats_meter_the_facade_of_an_exterior_view():
