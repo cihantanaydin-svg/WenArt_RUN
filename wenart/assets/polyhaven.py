@@ -15,6 +15,8 @@ Verified with real calls on 2026-10-01 (``docs/milestone3.md`` section 2):
 - ``dimensions`` is in millimetres (``wood_floor_deck`` -> 1800 = 1.8 m).
 - The listing has no per-asset licence field: every Poly Haven asset is CC0
   (https://polyhaven.com/license), which ``fetch.LICENCES`` records.
+- ``type`` of a record: 0 HDRI, 1 texture, 2 model (checked 2026-10-08 on ``aarfontein_dawn_2``, ``oak_veneer_02`` and
+  ``ArmChair_01``): a texture id of the vocabulary must have type 1 (``is_texture``; ``fetch.check_assets``).
 """
 from __future__ import annotations
 
@@ -24,6 +26,8 @@ from wenart.assets import web
 
 API = "https://api.polyhaven.com"
 SOURCE = "polyhaven"
+
+TYPE_HDRI, TYPE_TEXTURE, TYPE_MODEL = 0, 1, 2          # ``type`` of an /info or listing record (see the docstring)
 
 # Our map name -> Poly Haven map key (OpenGL normal convention).
 TEXTURE_MAPS = {"albedo": "Diffuse", "normal": "nor_gl", "roughness": "Rough"}
@@ -43,6 +47,11 @@ def info(asset_id: str) -> dict:
 def files(asset_id: str) -> dict:
     """The file table of one asset (see module docstring)."""
     return web.get_json(f"{API}/files/{asset_id}")
+
+
+def is_texture(record: dict) -> bool:
+    """True when the record is a texture (``type`` 1), not an HDRI or a model."""
+    return record.get("type") == TYPE_TEXTURE
 
 
 def size_m(record: dict) -> Optional[list[float]]:

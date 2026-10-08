@@ -1,0 +1,4383 @@
+{
+  "apis": {
+    "ambientcg": "https://ambientcg.com/api/v2/full_json?id=<ids>&include=dimensionsData,downloadData,tagData,displayData",
+    "polyhaven": "https://api.polyhaven.com/assets?type=textures, /info/<id>, /files/<id>"
+  },
+  "checked": "2026-10-08",
+  "hdris": {
+    "aarfontein_dusk": {
+      "asset": "aarfontein_dusk",
+      "attributes": {
+        "contrast": "low",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "dusk",
+        "weather": "overcast"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "blue hour"
+      ],
+      "name": "Aarfontein Dusk",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5303
+    },
+    "dikhololo_night": {
+      "asset": "dikhololo_night",
+      "attributes": {
+        "contrast": "low",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "night",
+        "weather": "clear"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "night"
+      ],
+      "name": "Dikhololo Night",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 3776
+    },
+    "kloofendal_43d_clear_puresky": {
+      "asset": "kloofendal_43d_clear_puresky",
+      "attributes": {
+        "contrast": "high",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "midday",
+        "weather": "clear"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "cool daylight"
+      ],
+      "name": "Kloofendal 43d Clear (Pure Sky)",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5313
+    },
+    "kloofendal_overcast_puresky": {
+      "asset": "kloofendal_overcast_puresky",
+      "attributes": {
+        "contrast": "low",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "afternoon",
+        "weather": "overcast"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "cloudy soft"
+      ],
+      "name": "Kloofendal Overcast (Pure Sky)",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5303
+    },
+    "kloppenheim_06": {
+      "asset": "kloppenheim_06",
+      "attributes": {
+        "contrast": "low",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "sunset",
+        "weather": "partly_cloudy"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "warm daylight"
+      ],
+      "name": "Kloppenheim 06",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5319
+    },
+    "overcast_soil_puresky": {
+      "asset": "overcast_soil_puresky",
+      "attributes": {
+        "contrast": "low",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "afternoon",
+        "weather": "overcast"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        16384,
+        8192
+      ],
+      "moods": [
+        "overcast"
+      ],
+      "name": "Overcast Soil (Pure Sky)",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 6900
+    },
+    "qwantani_noon_puresky": {
+      "asset": "qwantani_noon_puresky",
+      "attributes": {
+        "contrast": "high",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "midday",
+        "weather": "clear"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "bright noon"
+      ],
+      "name": "Qwantani Noon (Pure Sky)",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5313
+    },
+    "sunset_jhbcentral": {
+      "asset": "sunset_jhbcentral",
+      "attributes": {
+        "contrast": "low",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "dusk",
+        "weather": "partly_cloudy"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        24576,
+        12288
+      ],
+      "moods": [
+        "interior evening"
+      ],
+      "name": "Joburg Central Sunset",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k",
+        "24k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5319
+    },
+    "venice_sunset": {
+      "asset": "venice_sunset",
+      "attributes": {
+        "contrast": "medium",
+        "environment": "outdoor",
+        "light_type": "natural",
+        "sky_view": "open",
+        "time_of_day": "sunset",
+        "weather": "clear"
+      },
+      "exists": true,
+      "hdr_1k_2k": true,
+      "licence": "CC0",
+      "max_resolution": [
+        16384,
+        8192
+      ],
+      "moods": [
+        "golden evening"
+      ],
+      "name": "Venice Sunset",
+      "sizes": [
+        "1k",
+        "2k",
+        "4k",
+        "8k",
+        "16k"
+      ],
+      "source": "polyhaven",
+      "whitebalance_k": 5400
+    }
+  },
+  "problems": [],
+  "schema": "wenart-asset-checks-m10/1",
+  "textures": {
+    "ambientcg:Carpet016": {
+      "asset": "Carpet016",
+      "category": "Carpet",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "ambient-occlusion",
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Carpet 016",
+      "size_m": [
+        1.7,
+        1.7
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "carpet",
+        "carpet_wool"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Concrete046": {
+      "asset": "Concrete046",
+      "category": "Concrete",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Concrete 046",
+      "size_m": [
+        2.4,
+        2.4
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "concrete_polished"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Cork002": {
+      "asset": "Cork002",
+      "category": "Cork",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Cork 002",
+      "size_m": null,
+      "size_note": "the API gives 0 x 0: the fetcher assumes 1 x 1 m and flags the entry size_assumed",
+      "slugs": [
+        "cork"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Grass004": {
+      "asset": "Grass004",
+      "category": "Grass",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "ambient-occlusion",
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Grass 004",
+      "size_m": [
+        1.4,
+        1.4
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "grass"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Marble012": {
+      "asset": "Marble012",
+      "category": "Marble",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Marble 012",
+      "size_m": null,
+      "size_note": "the API gives 0 x 0: the fetcher assumes 1 x 1 m and flags the entry size_assumed",
+      "slugs": [
+        "marble_slab"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Metal032": {
+      "asset": "Metal032",
+      "category": "Metal",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "color",
+        "displacement",
+        "metalness",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Metal 032",
+      "size_m": null,
+      "size_note": "the API gives 0 x 0: the fetcher assumes 1 x 1 m and flags the entry size_assumed",
+      "slugs": [
+        "painted_metal_white"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:PaintedBricks004": {
+      "asset": "PaintedBricks004",
+      "category": "Painted Bricks",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "ambient-occlusion",
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Painted Bricks 004",
+      "size_m": [
+        1.55,
+        1.55
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "brick_white"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Tiles074": {
+      "asset": "Tiles074",
+      "category": "Tiles",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Tiles 074",
+      "size_m": [
+        2.1,
+        2.1
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "tiles_light"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:Wicker005": {
+      "asset": "Wicker005",
+      "category": "Wicker",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "ambient-occlusion",
+        "color",
+        "displacement",
+        "normal",
+        "opacity",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Wicker 005",
+      "size_m": [
+        0.2,
+        0.2
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "rattan"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:WoodFloor034": {
+      "asset": "WoodFloor034",
+      "category": "Wood Floor",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "ambient-occlusion",
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Wood Floor 034",
+      "size_m": [
+        1.9,
+        1.9
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "wood_herringbone_light",
+        "wood_herringbone_mid",
+        "wood_herringbone_dark"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:WoodFloor046": {
+      "asset": "WoodFloor046",
+      "category": "Wood Floor",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Wood Floor 046",
+      "size_m": [
+        1.3,
+        1.3
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "wood_walnut"
+      ],
+      "source": "ambientcg"
+    },
+    "ambientcg:WoodFloor051": {
+      "asset": "WoodFloor051",
+      "category": "Wood Floor",
+      "downloads": [
+        "1K-JPG",
+        "2K-JPG",
+        "4K-JPG",
+        "8K-JPG",
+        "1K-PNG",
+        "2K-PNG",
+        "4K-PNG",
+        "8K-PNG"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": [
+        "ambient-occlusion",
+        "color",
+        "displacement",
+        "normal",
+        "roughness"
+      ],
+      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
+      "measured_flat_linear": null,
+      "name": "Wood Floor 051",
+      "size_m": [
+        1.8,
+        1.8
+      ],
+      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
+      "slugs": [
+        "wood_oak_light"
+      ],
+      "source": "ambientcg"
+    },
+    "polyhaven:ash_veneer": {
+      "api_type": 1,
+      "asset": "ash_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.413,
+        0.297,
+        0.205
+      ],
+      "name": "Ash Veneer",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_ash",
+        "wood_veneer_ash"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:bamboo_veneer": {
+      "api_type": 1,
+      "asset": "bamboo_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.646,
+        0.42,
+        0.217
+      ],
+      "name": "Bamboo Veneer",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_bamboo"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:beige_wall_001": {
+      "api_type": 1,
+      "asset": "beige_wall_001",
+      "categories": [
+        "man made",
+        "wall",
+        "plaster",
+        "outdoor",
+        "indoor",
+        "plaster-concrete"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.341,
+        0.262,
+        0.188
+      ],
+      "name": "Beige Wall 001",
+      "size_m": [
+        3.0,
+        3.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "plaster_cream"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:black_oak_veneer": {
+      "api_type": 1,
+      "asset": "black_oak_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.147,
+        0.121,
+        0.096
+      ],
+      "name": "Black Oak Veneer",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_veneer_black_oak"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:brick_wall_001": {
+      "api_type": 1,
+      "asset": "brick_wall_001",
+      "categories": [
+        "brick",
+        "man made",
+        "outdoor",
+        "indoor",
+        "clean",
+        "wall"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.136,
+        0.074,
+        0.048
+      ],
+      "name": "Brick Wall 001",
+      "size_m": [
+        3.0,
+        3.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "brick_reclaimed"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:brick_wall_13": {
+      "api_type": 1,
+      "asset": "brick_wall_13",
+      "categories": [
+        "wall",
+        "brick",
+        "indoor"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.214,
+        0.184,
+        0.15
+      ],
+      "name": "Brick Wall 13",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "brick_grey"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:castle_wall_slates": {
+      "api_type": 1,
+      "asset": "castle_wall_slates",
+      "categories": [
+        "rock",
+        "outdoor",
+        "wall",
+        "clean",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.265,
+        0.218,
+        0.141
+      ],
+      "name": "Castle Wall Slates",
+      "size_m": [
+        2.5,
+        2.5
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "stone_wall_slate"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:cherry_veneer": {
+      "api_type": 1,
+      "asset": "cherry_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.747,
+        0.433,
+        0.23
+      ],
+      "name": "Cherry Veneer",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_veneer_cherry"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:clay_roof_tiles_03": {
+      "api_type": 1,
+      "asset": "clay_roof_tiles_03",
+      "categories": [
+        "man made",
+        "outdoor",
+        "roofing"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.272,
+        0.093,
+        0.039
+      ],
+      "name": "Clay Roof Tiles 03",
+      "size_m": [
+        2.6,
+        2.6
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "clay_tiles"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:concrete_moss": {
+      "api_type": 1,
+      "asset": "concrete_moss",
+      "categories": [
+        "floor",
+        "concrete",
+        "plaster-concrete"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.098,
+        0.097,
+        0.013
+      ],
+      "name": "Concrete Moss",
+      "size_m": [
+        3.0,
+        3.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "green_roof"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:concrete_wall_001": {
+      "api_type": 1,
+      "asset": "concrete_wall_001",
+      "categories": [
+        "outdoor",
+        "man made",
+        "wall",
+        "plaster",
+        "concrete",
+        "plaster-concrete",
+        "collection: the_shed"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.29,
+        0.273,
+        0.242
+      ],
+      "name": "Concrete Wall 001",
+      "size_m": [
+        1.5,
+        1.5
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "concrete_exposed"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:dark_wooden_planks": {
+      "api_type": 1,
+      "asset": "dark_wooden_planks",
+      "categories": [
+        "floor",
+        "man made",
+        "indoor",
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.087,
+        0.069,
+        0.05
+      ],
+      "name": "Dark Wooden Planks",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_oak_smoked"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:exterior_wall_cladding": {
+      "api_type": 1,
+      "asset": "exterior_wall_cladding",
+      "categories": [
+        "outdoor",
+        "man made",
+        "brick"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.198,
+        0.175,
+        0.146
+      ],
+      "name": "Exterior Wall Cladding",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fibre_cement"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:floor_tiles_02": {
+      "api_type": 1,
+      "asset": "floor_tiles_02",
+      "categories": [
+        "floor",
+        "wall",
+        "outdoor",
+        "indoor",
+        "clean",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.346,
+        0.282,
+        0.21
+      ],
+      "name": "Floor Tiles 02",
+      "size_m": [
+        4.0,
+        4.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "limestone",
+        "paving_stone"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:floor_tiles_04": {
+      "api_type": 1,
+      "asset": "floor_tiles_04",
+      "categories": [
+        "floor",
+        "wall",
+        "outdoor",
+        "indoor",
+        "clean",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.572,
+        0.382,
+        0.192
+      ],
+      "name": "Floor Tiles 04",
+      "size_m": [
+        4.0,
+        4.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "travertine"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:granite_tile": {
+      "api_type": 1,
+      "asset": "granite_tile",
+      "categories": [
+        "floor",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.076,
+        0.077,
+        0.077
+      ],
+      "name": "Granite Tile",
+      "size_m": [
+        2.3,
+        2.3
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "slate_floor"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:gravel_floor_02": {
+      "api_type": 1,
+      "asset": "gravel_floor_02",
+      "categories": [
+        "floor",
+        "gravel"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.405,
+        0.384,
+        0.33
+      ],
+      "name": "Gravel Floor 02",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "gravel"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:grey_plaster": {
+      "api_type": 1,
+      "asset": "grey_plaster",
+      "categories": [
+        "plaster",
+        "outdoor",
+        "indoor",
+        "man made",
+        "wall",
+        "floor",
+        "plaster-concrete"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.264,
+        0.241,
+        0.179
+      ],
+      "name": "Grey Plaster",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "plaster_exterior",
+        "render"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:grey_plaster_03": {
+      "api_type": 1,
+      "asset": "grey_plaster_03",
+      "categories": [
+        "plaster",
+        "outdoor",
+        "indoor",
+        "man made",
+        "dirty",
+        "wall",
+        "floor",
+        "plaster-concrete"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.322,
+        0.247,
+        0.163
+      ],
+      "name": "Grey Plaster 03",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "lime_plaster"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:grey_roof_01": {
+      "api_type": 1,
+      "asset": "grey_roof_01",
+      "categories": [
+        "roofing",
+        "outdoor",
+        "man made",
+        "clean"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.1,
+        0.097,
+        0.089
+      ],
+      "name": "Grey Roof 01",
+      "size_m": [
+        8.0,
+        8.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "concrete_tiles"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:herringbone_parquet": {
+      "api_type": 1,
+      "asset": "herringbone_parquet",
+      "categories": [
+        "man made",
+        "floor",
+        "wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.293,
+        0.163,
+        0.075
+      ],
+      "name": "Herringbone Parquet",
+      "size_m": [
+        3.4,
+        3.4
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_parquet",
+        "wood_chevron_light",
+        "wood_chevron_mid",
+        "wood_chevron_dark"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:hessian_230": {
+      "api_type": 1,
+      "asset": "hessian_230",
+      "categories": [
+        "fabric",
+        "hessian"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8129,
+        8082
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.264,
+        0.189,
+        0.101
+      ],
+      "name": "Hessian 230",
+      "size_m": [
+        0.2688,
+        0.2672
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "sisal"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:laminate_floor_02": {
+      "api_type": 1,
+      "asset": "laminate_floor_02",
+      "categories": [
+        "floor",
+        "man made",
+        "indoor",
+        "clean",
+        "wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.33,
+        0.218,
+        0.126
+      ],
+      "name": "Laminate Floor 02",
+      "size_m": [
+        1.7,
+        1.7
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_oak_whitewashed",
+        "wood_oak_grey"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:large_red_bricks": {
+      "api_type": 1,
+      "asset": "large_red_bricks",
+      "categories": [
+        "brick",
+        "wall",
+        "man made",
+        "outdoor",
+        "indoor",
+        "clean"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.403,
+        0.185,
+        0.096
+      ],
+      "name": "Large Red Bricks",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "brick_red"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:large_square_pattern_01": {
+      "api_type": 1,
+      "asset": "large_square_pattern_01",
+      "categories": [
+        "floor",
+        "man made",
+        "outdoor",
+        "clean"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.204,
+        0.189,
+        0.154
+      ],
+      "name": "Large Square Pattern 01",
+      "size_m": [
+        3.0,
+        3.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "paving"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:linoleum_brown": {
+      "api_type": 1,
+      "asset": "linoleum_brown",
+      "categories": [
+        "floor",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.32,
+        0.196,
+        0.099
+      ],
+      "name": "Linoleum Brown",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "vinyl"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:marble_01": {
+      "api_type": 1,
+      "asset": "marble_01",
+      "categories": [
+        "floor",
+        "man made",
+        "indoor",
+        "clean",
+        "wall"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.443,
+        0.337,
+        0.194
+      ],
+      "name": "Marble 01",
+      "size_m": [
+        1.5,
+        1.5
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "marble"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:oak_veneer_01": {
+      "api_type": 1,
+      "asset": "oak_veneer_01",
+      "categories": [
+        "wood",
+        "raw wood",
+        "natural"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.358,
+        0.21,
+        0.097
+      ],
+      "name": "Oak Veneer 01",
+      "size_m": [
+        1.83,
+        1.83
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "oak",
+        "wood_veneer_oak"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:oak_veneer_02": {
+      "api_type": 1,
+      "asset": "oak_veneer_02",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.715,
+        0.485,
+        0.3
+      ],
+      "name": "Oak Veneer 02",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_veneer_oak_light"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:oak_wood_planks": {
+      "api_type": 1,
+      "asset": "oak_wood_planks",
+      "categories": [
+        "wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.363,
+        0.18,
+        0.088
+      ],
+      "name": "Oak Wood Planks",
+      "size_m": [
+        1.2,
+        1.2
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_oak_natural"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:painted_concrete_02": {
+      "api_type": 1,
+      "asset": "painted_concrete_02",
+      "categories": [
+        "floor",
+        "man made",
+        "concrete",
+        "plaster-concrete"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.093,
+        0.087,
+        0.073
+      ],
+      "name": "Painted Concrete 02",
+      "size_m": [
+        4.0,
+        4.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "microcement"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:patio_tiles": {
+      "api_type": 1,
+      "asset": "patio_tiles",
+      "categories": [
+        "man made",
+        "floor",
+        "clean",
+        "indoor",
+        "outdoor"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.443,
+        0.222,
+        0.094
+      ],
+      "name": "Patio Tiles",
+      "size_m": [
+        2.15,
+        2.15
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "terracotta"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:plastered_wall": {
+      "api_type": 1,
+      "asset": "plastered_wall",
+      "categories": [
+        "wall",
+        "plaster"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.436,
+        0.392,
+        0.335
+      ],
+      "name": "Plastered Wall",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "paint"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:red_brick_03": {
+      "api_type": 1,
+      "asset": "red_brick_03",
+      "categories": [
+        "outdoor",
+        "wall",
+        "clean",
+        "man made",
+        "brick"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.148,
+        0.092,
+        0.076
+      ],
+      "name": "Red Brick 03",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "brick"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:roof_slates_03": {
+      "api_type": 1,
+      "asset": "roof_slates_03",
+      "categories": [
+        "roofing",
+        "man made",
+        "outdoor",
+        "clean"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.167,
+        0.16,
+        0.14
+      ],
+      "name": "Roof Slates 03",
+      "size_m": [
+        3.0,
+        3.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "slate"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:rough_linen": {
+      "api_type": 1,
+      "asset": "rough_linen",
+      "categories": [
+        "fabric",
+        "cotton",
+        "hessian"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8233,
+        8251
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.285,
+        0.408,
+        0.613
+      ],
+      "name": "Rough Linen",
+      "size_m": [
+        0.2707,
+        0.2713
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "fabric_linen",
+        "fabric_white"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:rustic_stone_wall": {
+      "api_type": 1,
+      "asset": "rustic_stone_wall",
+      "categories": [
+        "outdoor",
+        "wall",
+        "rock",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.186,
+        0.136,
+        0.075
+      ],
+      "name": "Rustic Stone Wall",
+      "size_m": [
+        1.52,
+        1.52
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "stone_cladding"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:rustic_stone_wall_02": {
+      "api_type": 1,
+      "asset": "rustic_stone_wall_02",
+      "categories": [
+        "man made",
+        "outdoor",
+        "wall",
+        "rock"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.248,
+        0.178,
+        0.109
+      ],
+      "name": "Rustic Stone Wall 02",
+      "size_m": [
+        1.5,
+        1.5
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "stone_wall_ledgestone"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:seaworn_sandstone_brick": {
+      "api_type": 1,
+      "asset": "seaworn_sandstone_brick",
+      "categories": [
+        "brick",
+        "sandstone",
+        "outdoor",
+        "wall",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.261,
+        0.191,
+        0.122
+      ],
+      "name": "Seaworn Sandstone Brick",
+      "size_m": [
+        1.69,
+        1.69
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "stone_wall_ashlar"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:stone_wall": {
+      "api_type": 1,
+      "asset": "stone_wall",
+      "categories": [
+        "outdoor",
+        "rock",
+        "wall"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.368,
+        0.292,
+        0.2
+      ],
+      "name": "Stone Wall",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "stone_wall_rubble"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:synthetic_wood": {
+      "api_type": 1,
+      "asset": "synthetic_wood",
+      "categories": [
+        "man made",
+        "wall",
+        "wood",
+        "outdoor"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.17,
+        0.078,
+        0.04
+      ],
+      "name": "Synthetic Wood",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "decking"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:teak_veneer": {
+      "api_type": 1,
+      "asset": "teak_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.432,
+        0.223,
+        0.095
+      ],
+      "name": "Teak Veneer",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_veneer_teak"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:terrazzo_tiles": {
+      "api_type": 1,
+      "asset": "terrazzo_tiles",
+      "categories": [
+        "tiles"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.251,
+        0.152,
+        0.095
+      ],
+      "name": "Terrazzo Tiles",
+      "size_m": [
+        2.0,
+        2.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "terrazzo"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:walnut_veneer": {
+      "api_type": 1,
+      "asset": "walnut_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k",
+          "16k"
+        ]
+      },
+      "max_resolution": [
+        16384,
+        16384
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.255,
+        0.143,
+        0.082
+      ],
+      "name": "Walnut Veneer",
+      "size_m": [
+        1.8,
+        1.8
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_veneer_walnut"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:weathered_plank_siding": {
+      "api_type": 1,
+      "asset": "weathered_plank_siding",
+      "categories": [
+        "outdoor",
+        "wall",
+        "wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.073,
+        0.047,
+        0.032
+      ],
+      "name": "Weathered Plank Siding",
+      "size_m": [
+        1.57,
+        1.57
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_cladding"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:white_maple_veneer": {
+      "api_type": 1,
+      "asset": "white_maple_veneer",
+      "categories": [
+        "wood",
+        "raw wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.769,
+        0.659,
+        0.484
+      ],
+      "name": "White Maple Veneer",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_veneer_maple"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:white_planks_clean": {
+      "api_type": 1,
+      "asset": "white_planks_clean",
+      "categories": [
+        "wall",
+        "wood"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.46,
+        0.384,
+        0.339
+      ],
+      "name": "White Planks Clean",
+      "size_m": [
+        1.8,
+        1.8
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "painted_wood_white"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:white_plaster_02": {
+      "api_type": 1,
+      "asset": "white_plaster_02",
+      "categories": [
+        "plaster-concrete",
+        "wall",
+        "man made",
+        "outdoor",
+        "indoor",
+        "clean",
+        "floor"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.27,
+        0.245,
+        0.197
+      ],
+      "name": "White Plaster 02",
+      "size_m": [
+        1.0,
+        1.0
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "plaster_white",
+        "plaster_charcoal",
+        "venetian_plaster"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:wood_floor": {
+      "api_type": 1,
+      "asset": "wood_floor",
+      "categories": [
+        "floor",
+        "wood",
+        "man made",
+        "clean"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.216,
+        0.117,
+        0.055
+      ],
+      "name": "Wood Floor",
+      "size_m": [
+        1.7,
+        1.7
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_wide_plank"
+      ],
+      "source": "polyhaven"
+    },
+    "polyhaven:wooden_panels": {
+      "api_type": 1,
+      "asset": "wooden_panels",
+      "categories": [
+        "wood",
+        "man made"
+      ],
+      "exists": true,
+      "has_required_maps": true,
+      "jpg_1k_2k": true,
+      "licence": "CC0",
+      "maps": {
+        "AO": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Diffuse": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Displacement": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "Rough": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "arm": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ],
+        "nor_gl": [
+          "1k",
+          "2k",
+          "4k",
+          "8k"
+        ]
+      },
+      "max_resolution": [
+        8192,
+        8192
+      ],
+      "measure_note": "mean of the linear values of the 1k Diffuse jpg, box-filtered to 64 x 64",
+      "measured_flat_linear": [
+        0.078,
+        0.017,
+        0.007
+      ],
+      "name": "Wooden Panels",
+      "size_m": [
+        2.1,
+        2.1
+      ],
+      "size_note": "dimensions of /info (millimetres) / 1000",
+      "slugs": [
+        "wood_panel"
+      ],
+      "source": "polyhaven"
+    }
+  }
+}

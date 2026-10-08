@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "wenart/schema/style.schema.json",
+  "title": "WenArt style profile (style.json)",
+  "description": "Milestone 10 (docs/milestone10.md §1.6a, §4.1; track C). What `python -m wenart.style <project>` writes: the brief's words turned into looks. Every slot keeps the Milestone 3 meaning and its `material` / `asset` keys; the Milestone 10 slots add fields. A material is a slug of wenart/style/vocabulary.py (`asset` is its Poly Haven / ambientCG id, null for procedural looks and flat metals); a colour is a phrase of wenart/style/colours.py (optional modifiers light, dark, pale, deep, warm, cool, muted + a colour name) and never part of a slug. The profile never holds geometry.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_text", "family", "style_tags", "floor", "walls", "wall_accent", "ceiling", "wet_floor", "wet_walls", "trim", "door",
+               "window_frame", "cabinets", "furniture", "decor", "exterior", "exterior_fallback", "lighting", "colours",
+               "matched_terms", "unmatched_terms", "warnings"],
+  "properties": {
+    "source_text": {"type": "string", "description": "The style text of the brief this profile was made from"},
+    "family": {"type": ["string", "null"], "description": "The style family keyword of vocabulary.STYLE_FAMILIES, null when none matched (Milestone 7)"},
+    "style_tags": {"type": "array", "uniqueItems": true, "items": {"enum": ["natural"]},
+                   "description": "Style words beyond the families (wenart/style/objects.py STYLE_TAGS): natural = light wood, linen, rattan accents; its only effect is the furniture wood when the brief names none (assumed, listed)"},
+    "floor": {"$ref": "#/$defs/surface"},
+    "walls": {"$ref": "#/$defs/surface"},
+    "wall_accent": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["material", "asset", "colour", "room_types", "rule"],
+          "properties": {
+            "material": {"$ref": "#/$defs/slug"},
+            "asset": {"$ref": "#/$defs/asset"},
+            "colour": {"$ref": "#/$defs/colour"},
+            "room_types": {"type": "array", "items": {"enum": ["living", "bedroom"]}, "minItems": 1, "uniqueItems": true},
+            "rule": {"type": "string", "description": "Which wall: the wall behind the sofa or the bed head, else the longest wall without a window"}
+          }
+        }
+      ],
+      "description": "One accent wall per living room and bedroom, listed in the warnings; null when the brief names none"
+    },
+    "ceiling": {
+      "type": "object", "additionalProperties": false, "required": ["material", "colour"],
+      "properties": {"material": {"$ref": "#/$defs/slug"}, "colour": {"$ref": "#/$defs/colour"}}
+    },
+    "wet_floor": {"$ref": "#/$defs/surface"},
+    "wet_walls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material", "asset", "tile_size_m", "pattern", "colour", "grout_colour"],
+      "properties": {
+        "material": {"$ref": "#/$defs/slug"},
+        "asset": {"$ref": "#/$defs/asset"},
+        "tile_size_m": {"oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 2, "maxItems": 2}],
+                        "description": "[width, height] in metres: the brief's size, else the tile kind's own; null for the default wet-wall tile"},
+        "pattern": {"enum": ["running_bond", "grid", "hexagon", null]},
+        "colour": {"$ref": "#/$defs/colour"},
+        "grout_colour": {"$ref": "#/$defs/colour"}
+      }
+    },
+    "trim": {
+      "type": "object", "additionalProperties": false, "required": ["material", "colour"],
+      "properties": {"material": {"$ref": "#/$defs/slug"}, "colour": {"$ref": "#/$defs/colour"}}
+    },
+    "door": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material", "asset", "style", "colour", "handle"],
+      "properties": {
+        "material": {"$ref": "#/$defs/slug"},
+        "asset": {"$ref": "#/$defs/asset"},
+        "style": {"enum": ["flush", "shaker_panel", "glazed", "pocket", "sliding", "barn", "double", "entrance", null],
+                  "description": "The drawn opening type (swing, sliding, double) always wins"},
+        "colour": {"$ref": "#/$defs/colour"},
+        "handle": {"$ref": "#/$defs/handle"}
+      }
+    },
+    "window_frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material", "asset", "colour", "outside"],
+      "properties": {
+        "material": {"$ref": "#/$defs/slug"},
+        "asset": {"$ref": "#/$defs/asset"},
+        "colour": {"$ref": "#/$defs/colour"},
+        "outside": {
+          "type": "object", "additionalProperties": false, "required": ["material", "colour"],
+          "properties": {"material": {"$ref": "#/$defs/slug"}, "colour": {"$ref": "#/$defs/colour"}}
+        }
+      }
+    },
+    "cabinets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["front_style", "colour", "handle", "worktop", "wood"],
+      "properties": {
+        "front_style": {"enum": ["flat", "shaker", "slatted", "glass", null]},
+        "colour": {"$ref": "#/$defs/colour"},
+        "handle": {"$ref": "#/$defs/handle"},
+        "worktop": {"enum": ["stone", "wood", "terrazzo", "steel", null]},
+        "wood": {"type": ["string", "null"], "pattern": "^wood_veneer_[a-z_]+$", "description": "A FURNITURE_MATERIALS wood_veneer_* slug"}
+      }
+    },
+    "furniture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wood", "fabric_colour", "by_type", "accents"],
+      "properties": {
+        "wood": {"type": ["string", "null"], "pattern": "^wood_veneer_[a-z_]+$"},
+        "fabric_colour": {"$ref": "#/$defs/colour"},
+        "by_type": {
+          "type": "object",
+          "description": "Per furniture type of the building schema",
+          "propertyNames": {"pattern": "^[a-z][a-z_]*$"},
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fabric_colour", "colour", "material_tags"],
+            "properties": {
+              "fabric_colour": {"$ref": "#/$defs/colour"},
+              "colour": {"$ref": "#/$defs/colour", "description": "A colour for a piece that is not upholstered"},
+              "material_tags": {"type": "array", "uniqueItems": true, "items": {"enum": ["glass", "wood", "metal", "fabric", "rattan", "marble"]}}
+            }
+          }
+        },
+        "accents": {"type": "array", "items": {"$ref": "#/$defs/colourName"}, "description": "Accent colours (brass details, mustard and teal accents)"}
+      }
+    },
+    "decor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plant_species", "plant_amount", "pots", "cushion_colours", "throw_colours", "curtain_colour", "rug_colours"],
+      "properties": {
+        "plant_species": {"type": "array", "uniqueItems": true, "items": {"enum": ["palm", "monstera", "fiddle_leaf_fig", "olive", "fern", "other"]}},
+        "plant_amount": {"enum": ["many", "some", "few", null]},
+        "pots": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["material", "colour"],
+            "properties": {"material": {"enum": ["rattan", "ceramic", "terracotta", "concrete", "metal", null]}, "colour": {"$ref": "#/$defs/colour"}}
+          }
+        },
+        "cushion_colours": {"type": "array", "items": {"$ref": "#/$defs/colourName"}, "description": "Cushions alternate these colours"},
+        "throw_colours": {"type": "array", "items": {"$ref": "#/$defs/colourName"}},
+        "curtain_colour": {"$ref": "#/$defs/colour"},
+        "rug_colours": {"type": "array", "items": {"$ref": "#/$defs/colourName"}}
+      }
+    },
+    "exterior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["facade", "roof", "window_frame", "door", "paving", "garden"],
+      "description": "The outside looks (wenart.blender.exterior.resolve_looks reads them): the brief's exterior: words, else the style's own exterior words, else the interior window frames and doors the style names, else style.exterior_fallback (assumed: true, listed in the warnings)",
+      "properties": {
+        "facade": {"$ref": "#/$defs/exteriorLook"},
+        "roof": {"$ref": "#/$defs/exteriorLook"},
+        "window_frame": {"$ref": "#/$defs/exteriorLook"},
+        "door": {"$ref": "#/$defs/exteriorLook"},
+        "paving": {"$ref": "#/$defs/exteriorLook"},
+        "garden": {"$ref": "#/$defs/exteriorLook"}
+      }
+    },
+    "exterior_fallback": {
+      "type": "object",
+      "required": ["facade", "roof", "window_frame", "door", "paving", "garden"],
+      "description": "Copy of defaults.yaml style.exterior_fallback: {material, colour} pairs; colour 'walls' = the interior wall colour, 'interior' = the inside slot's look seen from outside",
+      "properties": {
+        "facade": {"$ref": "#/$defs/fallbackLook"},
+        "roof": {"$ref": "#/$defs/fallbackLook"},
+        "window_frame": {"$ref": "#/$defs/fallbackLook"},
+        "door": {"$ref": "#/$defs/fallbackLook"},
+        "paving": {"$ref": "#/$defs/fallbackLook"},
+        "garden": {"$ref": "#/$defs/fallbackLook"}
+      }
+    },
+    "lighting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hdri", "sun_elevation_deg", "sun_azimuth_deg", "sun_strength", "colour_temperature_k", "mood"],
+      "properties": {
+        "hdri": {"type": "string"},
+        "sun_elevation_deg": {"type": "number"},
+        "sun_azimuth_deg": {"type": "number", "description": "Compass bearing, 0 = north, clockwise"},
+        "sun_strength": {"type": "number", "minimum": 0},
+        "colour_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "mood": {"enum": ["warm daylight", "cool daylight", "golden evening", "overcast", "night", "bright noon", "blue hour", "cloudy soft", "interior evening"]}
+      }
+    },
+    "colours": {
+      "type": "object",
+      "description": "The colour phrases the brief gave per object (audit: which words coloured what)",
+      "propertyNames": {"pattern": "^[a-z][a-z_]*$"},
+      "additionalProperties": {"type": "array", "items": {"$ref": "#/$defs/colourName"}}
+    },
+    "matched_terms": {"type": "array", "items": {"type": "string"}},
+    "unmatched_terms": {"type": "array", "items": {"type": "string"}, "description": "Phrases with no known word; the reason of each is in the warnings (note: unmatched ...)"},
+    "warnings": {"type": "array", "items": {"type": "string"}, "description": "assumed: ... (a slot filled from the family or the defaults), note: ... and ignored / unknown words, never silent"}
+  },
+  "$defs": {
+    "slug": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "A material slug of wenart/style/vocabulary.py"},
+    "asset": {"type": ["string", "null"], "description": "Poly Haven or ambientCG asset id; null for procedural looks and flat metals"},
+    "colourName": {"type": "string", "pattern": "^[a-z][a-z -]*[a-z]$", "description": "A colour phrase of wenart/style/colours.py: light | dark | pale | deep | warm | cool | muted, then a colour name"},
+    "colour": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/colourName"}]},
+    "handle": {"enum": ["brushed_steel", "black", "brass", null]},
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material", "asset", "colour"],
+      "properties": {"material": {"$ref": "#/$defs/slug"}, "asset": {"$ref": "#/$defs/asset"}, "colour": {"$ref": "#/$defs/colour"}}
+    },
+    "exteriorLook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material", "asset", "colour", "source", "assumed"],
+      "properties": {
+        "material": {"$ref": "#/$defs/slug"},
+        "asset": {"$ref": "#/$defs/asset"},
+        "colour": {"$ref": "#/$defs/colour"},
+        "source": {"enum": ["brief", "style", "fallback"], "description": "brief = the exterior: words or the style text's own exterior words; style = the interior window frames / doors the style names; fallback = style.exterior_fallback"},
+        "assumed": {"type": "boolean", "description": "true for the fallback (listed in the warnings)"}
+      },
+      "if": {"properties": {"source": {"const": "fallback"}}},
+      "then": {"properties": {"assumed": {"const": true}}},
+      "else": {"properties": {"assumed": {"const": false}}}
+    },
+    "fallbackLook": {
+      "oneOf": [
+        {"const": "interior"},
+        {
+          "type": "object", "additionalProperties": false, "required": ["material", "colour"],
+          "properties": {"material": {"$ref": "#/$defs/slug"}, "colour": {"type": ["string", "null"]}}
+        }
+      ]
+    }
+  }
+}

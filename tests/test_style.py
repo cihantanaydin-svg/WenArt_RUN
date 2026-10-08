@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from wenart.style import finishes as FIN
 from wenart.style import profile as P
 from wenart.style import vocabulary as V
 from wenart.style.__main__ import main as style_main
@@ -19,8 +20,9 @@ FIXTURE = ROOT / "tests" / "fixtures" / "style_synthetic-01.json"
 TABLE = [
     ("Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
      "wood_oak_light", "plaster_white", "warm daylight", ["linen textiles"]),
+    # Milestone 10: "brass details" is the accents object (furniture.accents), no longer unmatched
     ("Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
-     "concrete_polished", "plaster_charcoal", "cool daylight", ["brass details"]),
+     "concrete_polished", "plaster_charcoal", "cool daylight", []),
     ("Warm Mediterranean, terracotta floor, cream plaster walls, rattan and linen, golden evening light",
      "terracotta", "plaster_cream", "golden evening", ["rattan and linen"]),
     ("walnut floor, brick walls, overcast", "wood_walnut", "brick", "overcast", []),
@@ -42,11 +44,16 @@ def test_keyword_table(text, floor, walls, mood, unmatched):
     assert profile["lighting"]["hdri"] == V.LIGHTING[mood]["hdri"]
     assert profile["unmatched_terms"] == unmatched
     assert set(profile["matched_terms"]) | set(unmatched) == set(P.split_phrases(text))
-    # every slug in the profile is a known material with an asset and a flat colour
+    # every slug in the profile is a known material (of either table) with a flat colour
     for slug in P.material_slugs(profile):
-        assert slug in V.MATERIALS and slug in V.FLAT_COLOURS
+        assert (slug in V.MATERIALS or slug in V.FURNITURE_MATERIALS) and slug in V.FLAT_COLOURS
     assert profile["floor"]["asset"] == V.MATERIALS[floor]["asset"]
     assert profile["walls"]["asset"] == V.MATERIALS[walls]["asset"]
+
+
+def _assumed_slots(profile) -> list[str]:
+    """The ``assumed:`` warnings of the old slots (floor, walls, light); the exterior line is checked on its own."""
+    return [w for w in profile["warnings"] if w.startswith("assumed:") and not w.startswith("assumed: exterior")]
 
 
 def test_profile_shape_and_order():
@@ -55,18 +62,27 @@ def test_profile_shape_and_order():
     assert set(profile["lighting"]) == {"hdri", "sun_elevation_deg", "sun_azimuth_deg", "sun_strength",
                                         "colour_temperature_k", "mood"}
     # Milestone 5 §2.2: no walls.tint (flat albedo mode takes the colour from the vocabulary).
-    assert set(profile["walls"]) == {"material", "asset"}
-    assert set(profile["floor"]) == {"material", "asset"}
-    assert set(profile["wet_floor"]) == {"material", "asset"}
-    for slot in ("ceiling", "wet_walls", "trim", "door", "window_frame"):
-        assert set(profile[slot]) == {"material"}
+    # Milestone 10 keeps the old keys of every slot and adds fields (a slug never carries a colour: ``colour``).
+    for slot in ("walls", "floor", "wet_floor"):
+        assert set(profile[slot]) == {"material", "asset", "colour"}
+    for slot in ("ceiling", "trim"):
+        assert set(profile[slot]) == {"material", "colour"}
+    assert set(profile["wet_walls"]) == {"material", "asset", "tile_size_m", "pattern", "colour", "grout_colour"}
+    assert set(profile["door"]) == {"material", "asset", "style", "colour", "handle"}
+    assert set(profile["window_frame"]) == {"material", "asset", "colour", "outside"}
+    assert set(profile["cabinets"]) == {"front_style", "colour", "handle", "worktop", "wood"}
+    assert set(profile["furniture"]) == {"wood", "fabric_colour", "by_type", "accents"}
+    assert set(profile["decor"]) == {"plant_species", "plant_amount", "pots", "cushion_colours", "throw_colours",
+                                     "curtain_colour", "rug_colours"}
+    assert set(profile["exterior"]) == set(FIN.EXTERIOR_SLOTS) == {"facade", "roof", "window_frame", "door", "paving", "garden"}
+    assert profile["wall_accent"] is None and profile["exterior_fallback"] == P.BUILTIN_DEFAULTS["style"]["exterior_fallback"]
 
 
 def test_family_fills_are_recorded_as_assumed():
     profile = P.profile_from_text("Scandinavian, warm daylight")
     assert profile["floor"]["material"] == "wood_oak_light"
     assert profile["walls"]["material"] == "plaster_white"
-    assumed = [w for w in profile["warnings"] if w.startswith("assumed:")]
+    assumed = _assumed_slots(profile)
     assert len(assumed) == 2 and all("Scandinavian" in w or "scandinavian" in w for w in assumed)
 
 
@@ -100,8 +116,9 @@ def test_no_words_at_all_uses_defaults_and_says_so():
     profile = P.profile_from_text("something nobody understands")
     assert profile["unmatched_terms"] == ["something nobody understands"]
     assert profile["matched_terms"] == []
-    assumed = [w for w in profile["warnings"] if w.startswith("assumed:")]
+    assumed = _assumed_slots(profile)
     assert len(assumed) == 3 and all("defaults.yaml" in w for w in assumed)
+    assert any(w.startswith("unmatched 'something nobody understands':") for w in profile["warnings"])   # the reason
     defaults = P.load_defaults()["style"]["fallback"]
     assert profile["floor"]["material"] == defaults["floor"]
     assert profile["walls"]["material"] == defaults["walls"]
@@ -112,9 +129,11 @@ def test_second_floor_word_is_ignored_and_noted():
     profile = P.profile_from_text("oak floor, marble, warm daylight")
     assert profile["floor"]["material"] == "wood_oak_light"
     assert any("ignored floor 'marble'" in w for w in profile["warnings"])
+    # Milestone 10 (§4.1): two colours with "and" are the main wall colour and one accent wall per living room and bedroom
     profile = P.profile_from_text("charcoal and white, warm daylight")
-    assert profile["walls"]["material"] == "plaster_charcoal"
-    assert any("ignored wall word 'white'" in w for w in profile["warnings"])
+    assert profile["walls"]["material"] == "plaster_charcoal" and profile["walls"]["colour"] is None      # the slug is charcoal already
+    assert profile["wall_accent"]["colour"] == "white" and profile["wall_accent"]["room_types"] == ["living", "bedroom"]
+    assert any(w.startswith("accent wall colour white") for w in profile["warnings"])
     # a word inside the winning keyword is not reported as ignored
     profile = P.profile_from_text("cream plaster walls")
     assert not any("ignored" in w for w in profile["warnings"])
@@ -175,6 +194,11 @@ def test_wet_room_helpers():
     assert assets["hdris"] == [("polyhaven", "kloppenheim_06")]
 
 
+LEGACY_MATERIALS = ("wood_oak_light", "wood_walnut", "wood_parquet", "concrete_polished", "terracotta", "marble",
+                    "tiles_light", "carpet", "plaster_white", "plaster_cream", "plaster_charcoal", "plaster_exterior",
+                    "brick", "wood_panel", "painted_wood_white", "painted_metal_white")
+
+
 def test_vocabulary_tables_are_consistent():
     for keyword, slug in V.FLOOR_WORDS + V.WALL_WORDS:
         assert slug in V.MATERIALS, (keyword, slug)
@@ -185,7 +209,8 @@ def test_vocabulary_tables_are_consistent():
         assert set(table) == {"floor", "walls", "light"}
         assert table["floor"] in V.MATERIALS and table["walls"] in V.MATERIALS and table["light"] in V.LIGHTING
     for slug, entry in V.MATERIALS.items():
-        assert entry["source"] in ("polyhaven", "ambientcg")
+        assert entry["source"] in ("polyhaven", "ambientcg", "procedural"), slug
+        assert (entry["asset"] is None) == (entry["source"] == "procedural"), slug       # no asset id, no file
         assert len(entry["flat"]) == 3 and all(0.0 <= c <= 1.0 for c in entry["flat"])
     for slug in V.WALL_TINTS:
         assert slug in V.MATERIALS
@@ -195,13 +220,21 @@ def test_vocabulary_tables_are_consistent():
             "painted_wood_white": 0.5, "painted_metal_white": 0.15}
     for slug, entry in V.MATERIALS.items():
         assert entry["albedo_mode"] in V.ALBEDO_MODES, slug
-        if slug in flat:
-            assert entry["albedo_mode"] == "flat" and entry["detail"] == flat[slug], slug
-            assert V.albedo_mode(slug) == ("flat", flat[slug])
+        if slug in LEGACY_MATERIALS:
+            if slug in flat:
+                assert entry["albedo_mode"] == "flat" and entry["detail"] == flat[slug], slug
+                assert V.albedo_mode(slug) == ("flat", flat[slug])
+            else:
+                assert entry["albedo_mode"] == "texture" and "detail" not in entry, slug
+                assert V.albedo_mode(slug) == ("texture", None)
+        elif entry["albedo_mode"] == "flat":                       # Milestone 10 entries: flat needs a detail share
+            assert 0.0 <= entry["detail"] <= 1.0 and V.albedo_mode(slug) == ("flat", entry["detail"]), slug
         else:
-            assert entry["albedo_mode"] == "texture" and "detail" not in entry, slug
-            assert V.albedo_mode(slug) == ("texture", None)
+            assert "detail" not in entry and V.albedo_mode(slug) == ("texture", None), slug
     assert V.albedo_mode("fabric_linen") == ("flat", 0.5)  # Milestone 6: the linen weave in flat albedo mode
+    # The old slugs are untouched by Milestone 10 (their assets and flat colours are pinned elsewhere too).
+    assert V.MATERIALS["wood_oak_light"]["asset"] == "WoodFloor051" and V.MATERIALS["plaster_white"]["asset"] == "white_plaster_02"
+    assert V.asset_for("brick") == ("polyhaven", "red_brick_03")
 
 
 def test_cli_on_synthetic_projects(tmp_path):
@@ -266,5 +299,7 @@ def test_builtin_defaults_match_defaults_yaml():
     defaults = P.load_defaults()
     assert P.BUILTIN_DEFAULTS["style"]["text"] == defaults["style"]["text"]
     assert P.BUILTIN_DEFAULTS["style"]["fallback"] == defaults["style"]["fallback"]
+    # Milestone 10: the exterior fallback ({material, colour} pairs) is carried for Blender too
+    assert P.BUILTIN_DEFAULTS["style"]["exterior_fallback"] == defaults["style"]["exterior_fallback"]
     assert P.default_profile() == defaults["style"]["profile"]
     assert P.default_profile()["walls"]["asset"] == V.MATERIALS["plaster_white"]["asset"]

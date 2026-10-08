@@ -66,9 +66,16 @@ def test_schema_enums_come_from_the_vocabulary():
     assert schema["required"] == ["floor", "walls", "light", "family"] and schema["additionalProperties"] is False
     assert {k: len(v["enum"]) - 1 for k, v in props.items()} == {"floor": 8, "walls": 5, "light": 5, "family": 9}
     assert all(v["enum"][-1] == "unclear" for v in props.values())
-    assert set(props["floor"]["enum"][:-1]) == {s for _, s in V.FLOOR_WORDS}
-    assert set(props["walls"]["enum"][:-1]) == {s for _, s in V.WALL_WORDS}
-    assert props["light"]["enum"][:-1] == list(V.LIGHTING)
+    # Milestone 10: the vocabulary grew (30+ floors, 20+ wall finishes, 9 moods) but the photo question keeps the
+    # Milestone 5 option lists, in the order of the vocabulary's first appearance.
+    assert props["floor"]["enum"][:-1] == list(SP.PHOTO_FLOORS) == [
+        "wood_oak_light", "wood_walnut", "wood_parquet", "concrete_polished", "terracotta", "marble", "tiles_light", "carpet"]
+    assert props["walls"]["enum"][:-1] == list(SP.PHOTO_WALLS) == [
+        "plaster_white", "plaster_cream", "plaster_charcoal", "wood_panel", "brick"]
+    assert props["light"]["enum"][:-1] == list(SP.PHOTO_LIGHTS) == [
+        "warm daylight", "cool daylight", "golden evening", "overcast", "night"]
+    assert set(SP.PHOTO_FLOORS) <= {s for _, s in V.FLOOR_WORDS} and set(SP.PHOTO_WALLS) <= {s for _, s in V.WALL_WORDS}
+    assert set(SP.PHOTO_LIGHTS) <= set(V.LIGHTING) and len(V.LIGHTING) == 9
     assert props["family"]["enum"][:-1] == [n for n, _ in V.STYLE_FAMILIES]
     for slug in props["floor"]["enum"][:-1] + props["walls"]["enum"][:-1]:
         assert slug in V.MATERIALS

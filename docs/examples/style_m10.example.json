@@ -1,16 +1,18 @@
 {
-  "source_text": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
-  "family": "scandinavian",
-  "style_tags": [],
+  "source_text": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
+  "family": "modern",
+  "style_tags": [
+    "natural"
+  ],
   "floor": {
     "material": "wood_oak_light",
     "asset": "WoodFloor051",
     "colour": null
   },
   "walls": {
-    "material": "plaster_white",
-    "asset": "white_plaster_02",
-    "colour": null
+    "material": "paint",
+    "asset": "plastered_wall",
+    "colour": "warm greige"
   },
   "wall_accent": null,
   "ceiling": {
@@ -42,11 +44,11 @@
     "handle": null
   },
   "window_frame": {
-    "material": "painted_metal_white",
-    "asset": "Metal032",
+    "material": "dark_bronze",
+    "asset": null,
     "colour": null,
     "outside": {
-      "material": "painted_metal_white",
+      "material": "dark_bronze",
       "colour": null
     }
   },
@@ -58,16 +60,54 @@
     "wood": null
   },
   "furniture": {
-    "wood": null,
+    "wood": "wood_veneer_oak_light",
     "fabric_colour": null,
-    "by_type": {},
+    "by_type": {
+      "sofa": {
+        "fabric_colour": "light grey",
+        "colour": null,
+        "material_tags": [
+          "fabric"
+        ]
+      },
+      "sofa_corner": {
+        "fabric_colour": "light grey",
+        "colour": null,
+        "material_tags": [
+          "fabric"
+        ]
+      },
+      "table_coffee": {
+        "fabric_colour": null,
+        "colour": null,
+        "material_tags": [
+          "glass"
+        ]
+      }
+    },
     "accents": []
   },
   "decor": {
-    "plant_species": [],
-    "plant_amount": null,
-    "pots": [],
-    "cushion_colours": [],
+    "plant_species": [
+      "palm",
+      "monstera",
+      "fern"
+    ],
+    "plant_amount": "many",
+    "pots": [
+      {
+        "material": "rattan",
+        "colour": null
+      },
+      {
+        "material": null,
+        "colour": "cream"
+      }
+    ],
+    "cushion_colours": [
+      "cream",
+      "mustard"
+    ],
     "throw_colours": [],
     "curtain_colour": null,
     "rug_colours": []
@@ -76,7 +116,7 @@
     "facade": {
       "material": "render",
       "asset": "grey_plaster",
-      "colour": "white",
+      "colour": "warm greige",
       "source": "fallback",
       "assumed": true
     },
@@ -88,11 +128,11 @@
       "assumed": true
     },
     "window_frame": {
-      "material": "painted_metal_white",
-      "asset": "Metal032",
+      "material": "dark_bronze",
+      "asset": null,
       "colour": null,
-      "source": "fallback",
-      "assumed": true
+      "source": "style",
+      "assumed": false
     },
     "door": {
       "material": "wood_oak_light",
@@ -146,20 +186,36 @@
   },
   "colours": {
     "walls": [
-      "white"
+      "warm greige"
+    ],
+    "sofa": [
+      "light grey"
+    ],
+    "pots": [
+      "cream"
+    ],
+    "cushions": [
+      "cream",
+      "mustard"
+    ],
+    "window_frames": [
+      "dark bronze"
     ]
   },
   "matched_terms": [
-    "Scandinavian",
-    "light oak floor",
-    "white walls",
+    "Modern natural",
+    "warm greige walls",
+    "light oak plank floor",
+    "light grey fabric sofa",
+    "natural light wood furniture",
+    "glass coffee table",
+    "many large indoor plants (palms, monstera, ferns) in rattan and cream pots",
+    "cream and mustard cushions",
+    "dark bronze window frames",
     "warm daylight"
   ],
-  "unmatched_terms": [
-    "linen textiles"
-  ],
+  "unmatched_terms": [],
   "warnings": [
-    "unmatched 'linen textiles': textile materials name no slot (fabric_linen is the default fabric)",
-    "assumed: exterior facade render in white, roof concrete_tiles in anthracite, window_frame as inside (painted_metal_white), door as inside (wood_oak_light), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml (no word for them in the brief)"
+    "assumed: exterior facade render in warm greige, roof concrete_tiles in anthracite, door as inside (wood_oak_light), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml (no word for them in the brief)"
   ]
 }
