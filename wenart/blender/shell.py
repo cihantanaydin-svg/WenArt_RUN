@@ -1827,12 +1827,35 @@ def railing_parts(p, q, floor_z: float, cfg: dict | None = None) -> tuple[tuple,
     return rail, panel
 
 
+def recolour_outside(name: str, outward, material) -> bool:
+    """Give the faces of object ``name`` that face ``outward`` (a window frame seen from outside) a second
+    material slot. True when the object exists and has such faces."""
+    import bpy
+
+    ob = bpy.data.objects.get(name)
+    if ob is None or ob.type != "MESH":
+        return False
+    mesh = ob.data
+    if material.name not in [m.name for m in mesh.materials if m]:
+        mesh.materials.append(material)
+    slot = [m.name if m else None for m in mesh.materials].index(material.name)
+    hit = False
+    for poly in mesh.polygons:
+        if poly.normal.x * outward[0] + poly.normal.y * outward[1] > 0.5:
+            poly.material_index = slot
+            hit = True
+    return hit
+
+
 def build_outside_details(building: dict, level: dict, collection, library, looks: dict, outline,
-                          pass_indices: dict, manifest_objects: list, assumed: list) -> dict:
+                          pass_indices: dict, manifest_objects: list, assumed: list,
+                          inside_frame: str | None = None) -> dict:
     """The outside details of a level (Milestone 10, §3.2 item 4): a sill under every window on an outer
-    wall (``sill_box``; its window's id and pass index, status assumed) and a railing (steel rail and glass
+    wall (``sill_box``; its window's id and pass index, status assumed), a railing (steel rail and glass
     panel) along the edges of every balcony that no wall carries (``railing_edges``; kind wall, the room as
-    parent, status assumed). Returns ``{"sills": n, "railings": n}``."""
+    parent, status assumed), and, when the documents or the style give the window frames another look
+    outside than ``inside_frame`` (the style's window frame slug), that look on the frame faces turned
+    outwards (``recolour_outside``). Returns ``{"sills": n, "railings": n, "frames_outside": n}``."""
     from wenart.blender import common
 
     floor_z = float(level["elevation"])
@@ -1845,7 +1868,11 @@ def build_outside_details(building: dict, level: dict, collection, library, look
     for key in ("depth", "projection"):
         if isinstance(sills_cfg.get(key), (int, float)):
             cfg[key] = float(sills_cfg[key])
-    counts = {"sills": 0, "railings": 0}
+    counts = {"sills": 0, "railings": 0, "frames_outside": 0}
+    frame_look = looks.get("window_frame") or {}
+    outside_frame = look_material(library, frame_look) \
+        if frame_look.get("slug") and frame_look.get("slug") != (inside_frame or "") and not frame_look.get("assumed") \
+        else None
     for o in building["openings"]:
         wall = walls.get(o.get("wall_id"))
         if o["level_id"] != level["id"] or o.get("type") != "window" or wall is None:
@@ -1854,6 +1881,12 @@ def build_outside_details(building: dict, level: dict, collection, library, look
         out = outward_side(wall, outline, (cx, cy))
         if out is None:
             continue
+        if outside_frame is not None and recolour_outside(f"{o['id']}_frame", out, outside_frame):
+            counts["frames_outside"] += 1
+            for entry in manifest_objects:
+                if entry.get("name") == f"{o['id']}_frame":
+                    entry["material_outside"] = outside_frame.name
+                    entry["outside_source"] = frame_look.get("reason")
         verts, faces, info = sill_box(o, wall, level, above, out, cfg)
         name = f"{o['id']}_sill"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=o["id"], kind="window",

@@ -311,6 +311,11 @@ def test_example_attic_ceiling_slopes_and_the_plinth_is_stone(example_builds):
     low = {f["m"].split(".")[0] for f in south if f["c"][2] < -2.0}
     high = {f["m"].split(".")[0] for f in south if f["c"][2] > -2.0}
     assert low == {"stone_cladding"} and high == {"render"}
+    # window frames: dark bronze outside (facade.window_frame), the style's frame inside
+    frame = objs["win_L0_001_frame"]["faces"]
+    out = {f["m"].split(".")[0] for f in frame if f["n"][1] < -0.5}
+    inside = {f["m"].split(".")[0] for f in frame if f["n"][1] > 0.5}
+    assert out == {"dark_bronze"} and "dark_bronze" not in inside
 
 
 @needs_blender

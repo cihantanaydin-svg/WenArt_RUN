@@ -140,7 +140,8 @@ DEFAULT_PREVIEW_SAMPLES = 16
 REPO_ROOT = _repo_root()
 # Files whose content shapes scene.blend besides the inputs (docs/milestone5.md §2.7).
 FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/vocabulary.py", "wenart/geometry.py",
-                    "wenart/furniture/catalog.json")
+                    "wenart/furniture/catalog.json",
+                    "wenart/views.py")           # Milestone 10: the variants and the views to render
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
@@ -629,7 +630,7 @@ def main(argv: list[str]) -> int:
                                        "reason": skip["reason"],
                                        **({"same_as": skip["same_as"]} if skip.get("same_as") else {}),
                                        **({"twin_of": skip["twin_of"]} if skip.get("twin_of") else {})})
-    outside = {"sills": 0, "railings": 0}
+    outside = {"sills": 0, "railings": 0, "frames_outside": 0}
 
     for level in levels:
         col = common.get_or_make_collection(f"level_{level['id']}")
@@ -657,7 +658,8 @@ def main(argv: list[str]) -> int:
                                     whole=floor_whole)
         if whole and prep["outlines"].get(level["id"]):
             counts = shell.build_outside_details(building, level, col, library, looks, prep["outlines"][level["id"]],
-                                                 pass_indices, manifest_objects, assumed)
+                                                 pass_indices, manifest_objects, assumed,
+                                                 inside_frame=(style.get("window_frame") or {}).get("material"))
             for k, v in counts.items():
                 outside[k] += v
         summary = furniture.create_furniture(loose_furniture, level, col, library, style, args.assets, pass_indices,
