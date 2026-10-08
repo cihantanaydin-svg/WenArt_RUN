@@ -592,12 +592,81 @@ def convex_pieces(outer: Sequence[Sequence[float]], holes: Sequence[Sequence[Seq
     return [[(verts[i][0], verts[i][1]) for i in f] for f in faces]
 
 
+def _segment_cut_params(p, q, a, b, tol: float = 1e-9) -> list[float]:
+    """Parameters on ``p``-``q`` (0..1) where the segment ``a``-``b`` crosses or touches it (collinear
+    overlaps give the projected ends of ``a``-``b``)."""
+    rx, ry = q[0] - p[0], q[1] - p[1]
+    sx, sy = b[0] - a[0], b[1] - a[1]
+    den = rx * sy - ry * sx
+    rr = rx * rx + ry * ry
+    if rr < tol:
+        return []
+    if abs(den) < tol * math.sqrt(rr * (sx * sx + sy * sy) + 1e-30):
+        if abs((a[0] - p[0]) * ry - (a[1] - p[1]) * rx) > 1e-7 * math.sqrt(rr):
+            return []                                       # parallel, apart
+        return [t for t in (((a[0] - p[0]) * rx + (a[1] - p[1]) * ry) / rr, ((b[0] - p[0]) * rx + (b[1] - p[1]) * ry) / rr)
+                if 0.0 < t < 1.0]
+    t = ((a[0] - p[0]) * sy - (a[1] - p[1]) * sx) / den
+    u = ((a[0] - p[0]) * ry - (a[1] - p[1]) * rx) / den
+    return [t] if 0.0 < t < 1.0 and -1e-9 <= u <= 1.0 + 1e-9 else []
+
+
+def polygon_union_outline(polys: Sequence[Sequence[Sequence[float]]], eps: float = 1e-5
+                          ) -> list[list[tuple[float, float]]]:
+    """The boundary loops of the union of convex polygons at any angle (pure; review #24): every edge cut where
+    another polygon's edge meets it, the pieces kept that have a polygon on their left and none on their right,
+    joined into loops (counter-clockwise outer loops, clockwise holes)."""
+    rings = [ccw(p) for p in polys if len(p) >= 3]
+    edges = [(r[i], r[(i + 1) % len(r)]) for r in rings for i in range(len(r))]
+
+    def inside_any(pt) -> bool:
+        return any(G.point_in_polygon(pt, r) and distance_to_polygon_edges(pt, r) > eps / 10.0 for r in rings)
+
+    pieces: dict = {}
+    for k, (p, q) in enumerate(edges):
+        ts = sorted({0.0, 1.0, *(t for j, (a, b) in enumerate(edges) if j != k for t in _segment_cut_params(p, q, a, b))})
+        length = G.distance(p, q)
+        if length < 1e-9:
+            continue
+        nx, ny = G.unit_normal_left(p, q)
+        for t0, t1 in zip(ts, ts[1:]):
+            if (t1 - t0) * length < 1e-7:
+                continue
+            a = (p[0] + (q[0] - p[0]) * t0, p[1] + (q[1] - p[1]) * t0)
+            b = (p[0] + (q[0] - p[0]) * t1, p[1] + (q[1] - p[1]) * t1)
+            m = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+            if inside_any((m[0] - nx * eps, m[1] - ny * eps)):
+                continue                                   # something on its outside: not a boundary piece
+            ka = (round(a[0], 6), round(a[1], 6))
+            pieces.setdefault(ka, []).append((round(b[0], 6), round(b[1], 6)))
+    loops = []
+    while pieces:
+        start = next(iter(pieces))
+        loop, cur = [start], start
+        while True:
+            nxt = pieces.get(cur)
+            if not nxt:
+                break
+            cur2 = nxt.pop()
+            if not nxt:
+                del pieces[cur]
+            if cur2 == start:
+                break
+            loop.append(cur2)
+            cur = cur2
+        if len(loop) >= 3:
+            loops.append(_drop_collinear(loop, 1e-7) if len(loop) > 3 else loop)
+    return loops
+
+
 def wall_outline(walls: Sequence[dict], tol_deg: float = 0.5) -> tuple[list[tuple[float, float]], str]:
     """``(outline, method)``: the outer outline of the union of the wall rectangles (centre line,
     thickness), counter-clockwise: the outer face of the outer walls. Axis-parallel walls (within
-    ``tol_deg``) give the exact union (``rect_union_outline``, method ``wall_union``); otherwise the convex
-    hull of every wall corner (method ``convex_hull``, an approximation the callers record as assumed)."""
-    rects, corners, axis = [], [], True
+    ``tol_deg``) give the exact union (``rect_union_outline``, method ``wall_union``); walls at other angles the
+    exact union of their quads (``polygon_union_outline``, method ``wall_union``; review #24); the convex hull of
+    every wall corner (method ``convex_hull``, an approximation the callers record as assumed) only when that
+    fails."""
+    rects, corners, axis, quads = [], [], True, []
     for w in walls:
         length = G.distance(w["start"], w["end"])
         if length < 1e-9:
@@ -609,6 +678,7 @@ def wall_outline(walls: Sequence[dict], tol_deg: float = 0.5) -> tuple[list[tupl
         e = G.point_at_distance(w["start"], w["end"], length + half)
         quad = G.centerline_to_rectangle(s, e, float(w["thickness"]))
         corners.extend(quad)
+        quads.append(quad)
         ang = G.segment_angle_deg(w["start"], w["end"]) % 90.0
         if min(ang, 90.0 - ang) > tol_deg:
             axis = False
@@ -616,11 +686,10 @@ def wall_outline(walls: Sequence[dict], tol_deg: float = 0.5) -> tuple[list[tupl
         rects.append((min(xs), min(ys), max(xs), max(ys)))
     if not rects:
         return [], "none"
-    if axis:
-        loops = rect_union_outline(rects)
-        outer = [lp for lp in loops if G.polygon_signed_area(lp) > 0]
-        if outer:
-            return max(outer, key=G.polygon_area), "wall_union"
+    loops = rect_union_outline(rects) if axis else polygon_union_outline(quads)
+    outer = [lp for lp in loops if G.polygon_signed_area(lp) > 0]
+    if outer:
+        return max(outer, key=G.polygon_area), "wall_union"
     return convex_hull(corners), "convex_hull"
 
 
