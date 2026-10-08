@@ -571,7 +571,8 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     furnished, layouts = furnish_building(building, style_text, client, args.passes, debug, partners=partners)
     profile = style[0] if isinstance(style, list) and style else style
     family = profile.get("family") if isinstance(profile, dict) else None
-    completed, records = C.complete_building(furnished, style_text, client, settings, args.passes, debug, family)
+    completed, records = C.complete_building(furnished, style_text, client, settings, args.passes, debug, family,
+                                             profile if isinstance(profile, dict) else None)
     failed = [(l.room_id, p.pass_no, p.error) for l in layouts for p in l.proposals if p.transport_error]
     failed += [(r.room_id, k, e) for r in records for k, e in r.transport_errors]
     if failed:
