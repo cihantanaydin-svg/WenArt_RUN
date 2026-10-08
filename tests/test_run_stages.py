@@ -235,10 +235,10 @@ def test_golden_commands_gpu_stages():
     assert S.build(TOOLS, REF) == [
         "PY", "-m", "wenart.blender.cli", "build", "--building", f"{O}/building_final.json", "--style",
         f"{O}/style.json", "--assets", "/workspace/assets", "--out", f"{O}/scene", "--preview-samples", "32",
-        "--camera-policy", "search", "--reuse"]
+        "--camera-policy", "search", "--brief", S.t(REF.project_dir), "--reuse"]
     assert "--reuse" not in S.build(TOOLS, REF, force=True)
     # Milestone 8 (§5): the brief's render.lens_mm goes to the build (none for auto: the 18 / 16 mm rule).
-    assert S.build(TOOLS, REF, lens_mm=20.0)[-4:] == ["search", "--lens-mm", "20", "--reuse"]
+    assert S.build(TOOLS, REF, lens_mm=20.0)[-4:] == [S.t(REF.project_dir), "--lens-mm", "20", "--reuse"]
     assert S.build(TOOLS, REF, force=True, lens_mm=22.5)[-2:] == ["--lens-mm", "22.5"]
     assert S.build(TOOLS, REF, lens_mm=None) == S.build(TOOLS, REF)
     # Smoke profile (§2.5): the top-down previews of the builds with 4 samples on the CPU.

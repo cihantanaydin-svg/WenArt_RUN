@@ -3710,7 +3710,7 @@
      ]
     ],
     "slope_deg": 35.0,
-    "aspect_deg": 0.0,
+    "aspect_deg": 270.0,
     "source": "derived"
    },
    {
@@ -3738,7 +3738,7 @@
      ]
     ],
     "slope_deg": 35.0,
-    "aspect_deg": 180.0,
+    "aspect_deg": 90.0,
     "source": "derived"
    }
   ],

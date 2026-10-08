@@ -89,7 +89,10 @@ LOWSPP_SAMPLES = 4
 # fingerprint (and the gate calibration) the list covers the whole wenart import closure of the stage's CLI,
 # function-level imports included (tests/test_run_stages.py computes it with ast), plus the data files it
 # reads; the package __init__.py files of every listed module count too (state.code_hash).
-BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py")
+# Milestone 10: build --brief reads the brief (wenart/brief.py, defaults.yaml) and the exterior looks
+# (wenart/style/**); the site and roof use wenart/geometry.py.
+BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/brief.py",
+                "wenart/defaults.yaml", "wenart/style/**", "wenart/geometry.py", "wenart/__init__.py")
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
@@ -357,7 +360,7 @@ def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[
     18 / 16 mm rule of the camera search."""
     cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", _out(ref, "building_final.json"),
            "--style", _out(ref, "style.json"), "--assets", t(tools.assets), "--out", _out(ref, "scene"),
-           "--preview-samples", preview_samples(tools), "--camera-policy", "search"]
+           "--preview-samples", preview_samples(tools), "--camera-policy", "search", "--brief", t(ref.project_dir)]
     if lens_mm is not None:
         cmd += ["--lens-mm", f"{float(lens_mm):g}"]
     return cmd if force else cmd + ["--reuse"]

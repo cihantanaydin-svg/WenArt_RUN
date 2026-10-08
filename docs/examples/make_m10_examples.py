@@ -234,9 +234,9 @@ roof = {
     "break_line": None, "ridge_lines": [[[-0.625, 4.0], [10.625, 4.0]]],
     "planes": [
         {"id": "rp_south", "points": [[-0.625, -0.625, r3(eaves)], [10.625, -0.625, r3(eaves)], [10.625, 4.0, r3(ridge)], [-0.625, 4.0, r3(ridge)]],
-         "slope_deg": pitch, "aspect_deg": 0.0, "source": "derived"},
+         "slope_deg": pitch, "aspect_deg": 270.0, "source": "derived"},
         {"id": "rp_north", "points": [[10.625, 8.625, r3(eaves)], [-0.625, 8.625, r3(eaves)], [-0.625, 4.0, r3(ridge)], [10.625, 4.0, r3(ridge)]],
-         "slope_deg": pitch, "aspect_deg": 180.0, "source": "derived"},
+         "slope_deg": pitch, "aspect_deg": 90.0, "source": "derived"},
     ],
     "openings": [{"id": "ro_001", "kind": "terrace", "room_id": teras,
                   "polygon": [[6.0, -0.625], [10.625, -0.625], [10.625, 4.0], [6.0, 4.0]],
