@@ -10,6 +10,7 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -186,22 +187,33 @@ def decor_answer(front=0, quality=5, **kw):
                  "styles": ["modern", "neutral"], "front_view": front}, **kw)
 
 
-def test_a_crib_or_bunk_bed_front_is_documented_by_abo_or_agreed_by_the_judges_of_a_generated_model():
+def test_a_crib_or_bunk_bed_front_is_documented_by_abo_or_agreed_by_the_judges():
     # ABO documents the front: the documented front stays unless both judges name another view
     dec = OV.decide(abo_obj("crib"), {"qwen": answer(front=0), "glm": answer(front=0)}, CFG)
-    assert dec["accepted"] and dec["front_axis"] == "-Y"
+    assert dec["accepted"] and dec["front_axis"] == "-Y" and dec["front_axis_confidence"] == "high"
     dec = OV.decide(abo_obj("crib"), {"qwen": answer(front=1), "glm": answer(front=1)}, CFG)
     assert not dec["accepted"] and dec["code"] == "front_not_agreed"
-    # Objaverse: the geometry cannot tell the open side of a crib: refused (never guessed)
+    # Objaverse: the geometry cannot tell the open side of a crib and no source documents it: both judges naming the
+    # same view decide (front_by_judges), with the confidence medium; judges that differ or abstain refuse it
     o = obj("crib", geo=None)
     o.update(source="objaverse", geometric_note="documented: only the source's front decides")
-    dec = OV.decide(o, {"qwen": answer(front=0), "glm": answer(front=0)}, CFG)
+    dec = OV.decide(o, {"qwen": answer(front=3), "glm": answer(front=3)}, CFG)
+    assert dec["accepted"] and dec["front_axis"] == "-X" and dec["front_axis_confidence"] == "medium"
+    assert "judges' agreement decides" in dec["front_axis_note"]
+    for a, b in ((0, 2), (1, None), (None, None)):
+        dec = OV.decide(o, {"qwen": answer(front=a), "glm": answer(front=b)}, CFG)
+        assert not dec["accepted"] and dec["code"] == "front_not_agreed", (a, b)
+    # wall art and mirrors keep the M8 / M9 rule: only a documented front decides
+    art = obj("wall_art", geo=None)
+    art.update(source="objaverse", kind="decor", decor_type="wall_art")
+    dec = OV.decide(art, {"qwen": decor_answer(front=0), "glm": decor_answer(front=0)}, CFG)
     assert not dec["accepted"] and dec["code"] == "front_not_agreed"
-    # a generated model: both judges agreeing decide
+    # a generated model: both judges agreeing decide, as before
     g = obj("bunk_bed", geo=None)
     g.update(source="generated")
     dec = OV.decide(g, {"qwen": answer(front=2), "glm": answer(front=2)}, CFG)
-    assert dec["accepted"] and dec["front_axis"] == OV.VIEW_SIDES[2]
+    assert dec["accepted"] and dec["front_axis"] == OV.VIEW_SIDES[2] and dec["front_axis_confidence"] == "high"
+    assert {t for t, spec in CFG["types"].items() if spec.get("front_by_judges")} == {"crib", "bunk_bed", "clock"}
 
 
 def test_decor_without_a_front_and_a_wall_clock_with_one():
@@ -351,3 +363,63 @@ def test_the_library_judging_spec_is_the_default_and_a_spec_of_another_task_does
         OV.write_json(tmp_path / "judge" / "requests.json", {"kind": "recolour_requests", "items": []})
         OV.read_requests(tmp_path)
     assert OV.read_requests(tmp_path / "nowhere") is None
+
+
+# --------------------------------------------------------------------------
+# End to end: survey, thumbnails, judging, accept, catalogue for new types (Objaverse, fake Blender and judges)
+# --------------------------------------------------------------------------
+
+def test_new_types_go_from_the_survey_to_the_catalogue(tmp_path, monkeypatch):
+    """An ottoman (no front), a crib and a wall clock (a front the judges agree on: confidence medium), a large plant and a
+    candle (decor). The catalogue module still lacks the
+    new types (track F adds them), so the test gives it the schema's types for the run; write-catalog then sorts,
+    validates and merges them."""
+    from test_objaverse import box, fake_runner
+    from wenart.furniture import catalog as C
+    m = Mirror(tmp_path / "mirror")
+    uids = {"ottoman": m.add("ottoman", likes=5, name="Velvet Pouf"),
+            "crib": m.add("crib", likes=4, name="White Crib", textured=False),
+            "clock": m.add("wall_clock", likes=3, name="Round wall clock", textured=False, faces=900),
+            "plant": m.add("flowerpot", likes=2, name="Areca palm in a pot"),
+            "candle": m.add("candle", likes=1, name="Pillar candle", textured=False, faces=700)}
+    out = tmp_path / "lib"
+    OV.survey(m.write(), out, CFG, log=quiet)
+    shapes = {uids["ottoman"]: (box(-0.4, -0.3, 0, 0.4, 0.3, 0.45), []),
+              uids["crib"]: (box(-0.35, -0.65, 0, 0.35, 0.65, 0.95), []),
+              uids["clock"]: (box(-0.2, -0.015, 0, 0.2, 0.015, 0.4), []),
+              uids["plant"]: (box(-0.3, -0.3, 0, 0.3, 0.3, 1.5), []),
+              uids["candle"]: (box(-0.05, -0.05, 0, 0.05, 0.05, 0.2), [])}
+    doc, rc = OV.thumbnails(out, tmp_path / "work", CFG, runner=fake_runner(shapes, []), log=quiet)
+    assert rc == 0 and all(o["status"] == "ready" for o in doc["objects"].values()), doc["objects"]
+    objs = doc["objects"]
+    assert (objs[uids["ottoman"]]["type"], objs[uids["ottoman"]]["kind"]) == ("ottoman", "furniture")
+    assert (objs[uids["clock"]]["type"], objs[uids["clock"]]["kind"]) == ("clock", "decor")
+    assert objs[uids["plant"]]["decor_type"] == "plant_large" and objs[uids["crib"]]["type"] == "crib"
+    assert all(o["unit"]["scale"] == 1.0 for o in objs.values())                    # metres fit: no unit factor guessed
+    lib = SimpleNamespace(out=out, doc=doc)
+    answers = {uids["ottoman"]: answer(front=None), uids["crib"]: answer(front=0),
+               uids["clock"]: decor_answer(front=0), uids["plant"]: decor_answer(front=None),
+               uids["candle"]: decor_answer(front=None)}
+    from test_objaverse import run_judges
+    clients = {k: (lambda images, _p: answers[Path(images[0]).stem]) for k in OV.MODEL_KEYS}
+    assert run_judges(lib, clients=clients)["qwen"] == 0
+    acc = OV.accept(out, CFG)
+    assert {d["uid"] for d in acc["accepted"]} == set(uids.values()) and not acc["refused"]
+    by_uid = {d["uid"]: d for d in acc["accepted"]}
+    assert by_uid[uids["crib"]]["front_axis_confidence"] == by_uid[uids["clock"]]["front_axis_confidence"] == "medium"
+    assert by_uid[uids["ottoman"]]["front_axis_confidence"] == "low"
+    monkeypatch.setattr(C, "FURNITURE_TYPES", OV.furniture_types())
+    monkeypatch.setattr(C, "DECOR_TYPES", OV.DECOR_TYPES)
+    base = json.loads(C.CATALOG_PATH.read_text(encoding="utf-8"))
+    base["entries"] += [{"type": t, "parametric": True, "reason": "test"} for t in NEW_FURNITURE]
+    base_path = tmp_path / "catalog.json"
+    base_path.write_text(json.dumps(base), encoding="utf-8")
+    cat = OV.write_catalog(out, tmp_path / "assets", CFG, base_catalog=base_path, log=quiet)
+    assert [e["type"] for e in cat["entries"]] == ["ottoman", "crib"]               # catalogue type order
+    assert [e["decor_type"] for e in cat["decor"]] == ["candle", "clock", "plant_large"]    # OV.DECOR_TYPES order
+    plant = cat["decor"][2]
+    assert next(e for e in cat["entries"] if e["type"] == "crib")["front_axis_confidence"] == "medium"
+    assert plant["type"] == "decor_plant_large" and plant["kind"] == "decor" and plant["front_axis_confidence"] == "low"
+    assert cat["entries"][0]["front_axis_confidence"] == "low" and cat["entries"][0]["bbox_model_m"] == [0.8, 0.6, 0.45]
+    assert cat["counts"]["entries"] == 2 and cat["counts"]["decor"] == 3 and cat["counts"]["material_tagged"] == 0
+    assert (tmp_path / "assets" / plant["glb"]).is_file()

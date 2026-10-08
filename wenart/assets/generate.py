@@ -32,6 +32,13 @@ stored dtype (``dtype="auto"``), so the fp16 BiRefNet is cast to float32, the dt
 background remover is the MIT BiRefNet instead of the gated, non-commercial RMBG-2.0 named in ``pipeline.json``
 (``generate.yaml``); every model is read from its pinned local snapshot (no hub lookups).
 
+Milestone 10 (docs/milestone10.md §4.5, §4.6, §7 pod L2): ``generate.yaml`` has words and prompts for the 14 new furniture
+and 12 new decor types (``plan --target 20`` for furniture, ``--target 15`` for decor: the deficit only). Every
+type x style family has a prompt; textiles, plants, lights and accessories take their own hint groups (``hint_groups``);
+the large floor plant fills its species and pot from ``variants`` (image n of a pair takes the next ones, spread over
+the families), and the survey record, the catalogue entry and the decor item keep ``species`` and ``pot``;
+``trellis_decor_full`` lists the decor types that keep the 1024 cascade (thin leaves, cloth folds).
+
 The module imports only the standard library and stdlib-only wenart modules at the top: ``plan``, ``survey`` and the
 record helpers run on the CPU (tests/test_generate.py); torch, diffusers and trellis2 are imported by the GPU
 backends only.

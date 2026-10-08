@@ -30,6 +30,19 @@ Milestone 8 (docs/milestone8.md §1, §2; user decisions 3 and 4 of 4 Oct 2026):
   ``catalog_objaverse.json`` is only a fallback there) with the GLBs in ``<assets>/models/<source>/<uid>.glb``; the
   report and ``ATTRIBUTION.md`` list every source, credit line and licence flag.
 
+Milestone 10 (docs/milestone10.md §4.5, §4.6, §7 pods L1 and L2): 14 new furniture types and 12 new decor types.
+``objaverse.yaml`` gets their heights and fronts (``types``), footprints (``furniture_sizes``, ``decor_sizes``; the
+library's own ranges, they win over ``size_table.yaml``) and LVIS categories; ``TYPE_WORDS`` / ``DECOR_WORDS`` /
+``FRONT_WORDS_BY_TYPE`` hold what each one is and where its front is (the Milestone 8 / 9 questions are byte-identical,
+so their stored answers stay current). The survey reads two new things per ``categories`` entry: ``lvis`` (the LVIS
+name it reads, so several entries may split one broad category: ``cabinet`` into sideboards, shoe, display, tall and
+wall cabinets) and ``require_words`` (the title or a tag must hold one of them; an entry with words wins over the
+plain entries of its LVIS category, two matching entries of different types refuse the object ``several_types``);
+Objaverse objects of a decor type are ``kind: decor``. ``JudgeSpec`` lets the same judging (store, workers, deadline,
+exit codes) ask another task: ``wenart/assets/recolour.py`` asks the material of every slot of an accepted model and
+``write-catalog`` copies its four fields (``MATERIAL_FIELDS``) into the entry; a generated plant keeps its ``species``
+and ``pot``. ``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
+
 The steps as Milestone 7 built them (the Milestone 8 changes above apply on top of this text):
 
 1. ``survey``: downloads ``lvis-annotations.json.gz``, ``object-paths.json.gz`` and the metadata shards into the
@@ -2330,6 +2343,12 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
             # generator's mesh, not a product's back (M8 pod L2: fridges and bathtubs "+Y" against both judges'
             # -Y). Both judges agreeing decide; the geometry is recorded.
             front, view = VIEW_SIDES[va], va
+        elif geo is None and rule == DOCUMENTED_RULE and cfg["types"][ftype].get("front_by_judges"):
+            # Milestone 10 (crib, bunk bed, wall clock): the geometry cannot tell the open side or the clock face,
+            # no source documents it (Objaverse), but the face of a clock and the ladder side of a bunk bed are
+            # plain in the render: both judges naming the same view decide, with the confidence `medium`. Types
+            # without the flag (wall art, mirror: M8, M9) stay refused.
+            front, view, confidence = VIEW_SIDES[va], va, "medium"
         elif geo is None:
             fail.append(("front_not_agreed", f"judges: view {va} ({VIEW_SIDES[va]}); geometry undecided "
                                              f"({obj.get('geometric_note', '')})"))
@@ -2341,6 +2360,9 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
                       f"{obj.get('geometric_note', '')}" if front else "")
         if front and generated and geo != front:
             front_note += " (generated model: the judges decide; the geometry rule is for scanned products)"
+        if front and confidence == "medium":
+            front_note += (f" (no documented front and no geometric rule for a {ftype}: the judges' agreement decides, "
+                           "front_axis_confidence medium)")
 
     order = list(style_values())
     styles = [s for s in order if s in (a.get("styles") or []) and s in (b.get("styles") or [])]
@@ -2642,7 +2664,8 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
             path.unlink()
         log(f"library write-catalog: no accepted model: {CATALOG_NAME} not written")
         return None
-    entries.sort(key=lambda e: (C.FURNITURE_TYPES.index(e["type"]), e["id"]))
+    order = furniture_types()
+    entries.sort(key=lambda e: (order.index(e["type"]) if e["type"] in order else len(order), e["id"]))
     decor.sort(key=lambda e: (DECOR_TYPES.index(e["decor_type"]), e["id"]))
     sources = sorted({e["source"] for e in entries + decor}, key=SOURCE_ORDER.index)
     notices = source_notices(sources, cfg)
@@ -2724,7 +2747,7 @@ def _by_source(items) -> str:
 
 def library_types(cfg: dict) -> list[str]:
     """The furniture types a library source can fill: the Objaverse categories' and the ABO rules' (beds both)."""
-    from wenart.furniture import catalog as C
+    order = furniture_types()
     types = {t for spec in cfg["categories"].values() for t in spec["types"]}
     try:
         from wenart.assets import abo
@@ -2733,7 +2756,7 @@ def library_types(cfg: dict) -> list[str]:
                 types.update(BED_TYPES if t == "bed" else [t])
     except (OSError, ImportError, KeyError):
         pass
-    return sorted((t for t in types if t in C.FURNITURE_TYPES), key=C.FURNITURE_TYPES.index)
+    return sorted((t for t in types if t in order), key=order.index)
 
 
 def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
@@ -2921,6 +2944,28 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
         lines += _table(["Id", "Type", "Source", "Mattress", "Bed frame", "Deck (m)"],
                         [[f"`{e['id']}`", e["type"], e["source"], e.get("has_mattress"), e.get("bed_frame", False),
                           e.get("deck_height_m") or "–"] for e in beds])
+        lines += [""]
+
+    tags_doc = read_json(out / RECOLOUR_TAGS)
+    if tags_doc is not None:
+        counts_t = tags_doc.get("counts") or {}
+        lines += ["## Material tags and recolour (wenart/assets/recolour.py)", "",
+                  f"{counts_t.get('models', 0)} model(s) judged by both models, {counts_t.get('unjudged', 0)} not; "
+                  f"slots without agreement: {counts_t.get('slots_not_agreed', 0)}. Models with a separable fabric slot "
+                  f"(`recolourable_fabric`): {counts_t.get('recolourable_fabric', 0)}; with a separable wood slot "
+                  f"(`recolourable_wood`): {counts_t.get('recolourable_wood', 0)}.", ""]
+        by_type: dict = {}
+        for e in entries:
+            if "material_tags" in e:
+                row = by_type.setdefault(e.get("decor_type") or e["type"], {"n": 0, "fabric": 0, "wood": 0, "tags": {}})
+                row["n"] += 1
+                row["fabric"] += bool(e.get("recolourable_fabric"))
+                row["wood"] += bool(e.get("recolourable_wood"))
+                for t in e["material_tags"]:
+                    row["tags"][t] = row["tags"].get(t, 0) + 1
+        lines += _table(["Type", "Judged", "Fabric recolourable", "Wood recolourable", "Tags"],
+                        [[t, r["n"], r["fabric"], r["wood"], ", ".join(f"{k} {v}" for k, v in sorted(r["tags"].items()))
+                          or "–"] for t, r in sorted(by_type.items())] or [["–", 0, 0, 0, "–"]])
         lines += [""]
 
     lines += ["## Catalogue", ""]

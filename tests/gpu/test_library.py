@@ -217,7 +217,8 @@ def test_catalog_validates_merges_and_matches_the_cache(cfg):
         flat = e["source"] == "objaverse" and own in flat_ok and info["materials"] > 0
         assert info["textured"] or info["vertex_colours"] or flat, e["id"]
         assert e.get("licence_flag") == C.licence_flag_of(e["licence"]), e["id"]
-        assert e["front_axis_confidence"] == ("low" if own in frontless else "high"), e["id"]
+        judged_front = e["source"] == "objaverse" and cfg["types"][own].get("front_by_judges")   # Milestone 10
+        assert e["front_axis_confidence"] == ("low" if own in frontless else "medium" if judged_front else "high"), e["id"]
         assert e["styles"] and isinstance(e["unit_scale"], (int, float)), e["id"]
         assert math.isfinite(e["unit_scale"]) and e["unit_scale"] > 0, e["id"]
         if e["source"] == "abo":

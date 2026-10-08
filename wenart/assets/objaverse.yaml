@@ -290,8 +290,9 @@ types:
   # Milestone 10 furniture types (docs/milestone10.md §1.1, §4.5). Heights are the product ranges of the ABO listings
   # read on 8 Oct 2026 (results/library/survey_m10_session.json), widened a little. Fronts: seating by its back
   # (back_taller; a backless piece is refused for Objaverse, ABO documents its front), cabinets by their doors
-  # (detail_side), tables and ottomans have none; the crib and the bunk bed have a front only the source documents or
-  # both judges agree on (documented: their geometry cannot tell the open side from the closed ones).
+  # (detail_side), tables and ottomans have none; the crib, the bunk bed and the wall clock have a front only the
+  # source documents (ABO) or both judges agree on (front_by_judges: the geometry cannot tell the open side or the
+  # clock face, the render can; confidence medium; wall art and mirrors keep the M8 rule: the source only).
   sofa_corner:  {height: [0.55, 1.20], front: back_taller}
   chaise:       {height: [0.55, 1.20], front: back_taller}
   ottoman:      {height: [0.25, 0.65], front: none}
@@ -299,8 +300,8 @@ types:
   bar_stool:    {height: [0.55, 1.25], front: back_taller}
   office_chair: {height: [0.70, 1.40], front: back_taller}
   console_table: {height: [0.55, 1.10], front: none}
-  crib:         {height: [0.70, 1.30], front: documented}
-  bunk_bed:     {height: [1.00, 2.10], front: documented}   # a floor bunk bed for children is 1.2 m high
+  crib:         {height: [0.70, 1.30], front: documented, front_by_judges: true}
+  bunk_bed:     {height: [1.00, 2.10], front: documented, front_by_judges: true}   # a floor bunk bed is 1.2 m high
   sideboard:    {height: [0.60, 1.20], front: detail_side}
   shoe_cabinet: {height: [0.30, 1.80], front: detail_side}
   display_cabinet: {height: [1.20, 2.40], front: detail_side}
@@ -317,7 +318,7 @@ types:
   candle:       {height: [0.04, 0.80], front: none}
   basket:       {height: [0.10, 0.80], front: none}
   tray:         {height: [0.01, 0.15], front: none}
-  clock:        {height: [0.12, 1.30], front: documented}
+  clock:        {height: [0.12, 1.30], front: documented, front_by_judges: true}
   sculpture:    {height: [0.08, 1.30], front: none}
   plant_large:  {height: [0.90, 2.60], front: none}
   pendant_light: {height: [0.10, 2.20], front: none}
@@ -406,16 +407,19 @@ recolour:
   version: m10.1                # part of every request's input hash: bump when the question or the renders change
   tile_px: 256                  # one tile of the judging sheet: the model in its own colours, then one tile per slot
   columns: 3
-  samples: 16                   # the model in its own colours (Cycles); the slot masks use mask_samples
-  mask_samples: 4
+  samples: 16                   # the model in its own colours (Cycles)
+  mask_samples: 4               # the slot masks (white emission on black)
+  albedo_samples: 8             # the flat-lit render (white world, no sun) whose slot colours the catalogue keeps
   elevation_deg: 30
-  azimuth_deg: 35               # turned from the model's -Y side (a three-quarter view), the same for every tile
+  azimuth_deg: 35               # turned from the model's -Y side (a three-quarter view)
+  back_azimuth_offset_deg: 180  # the second model tile: the opposite side
   highlight_rgb: [255, 0, 255]  # the tint of the slot under judgement
   highlight_alpha: 0.65
   mask_threshold: 0.5           # a mask pixel counts above this share of white
   min_mask_pixels: 24           # a slot seen in fewer pixels is not asked (hidden or tiny): material `other`, not asked
   max_slots_per_sheet: 6
   max_sheets_per_model: 2       # the largest slots by area come first; the rest stay `other`, not asked
+  whole_model_share: 0.9        # one asked slot with at least this share is the whole model: no slot tile
   min_slot_share: 0.02          # a slot below this share of the model's surface area is not asked
   min_tag_share: 0.10           # material tag: the agreed slots of one material cover at least this share
   min_recolour_share: 0.05      # recolourable: an agreed, single-material slot of fabric (wood) of at least this share

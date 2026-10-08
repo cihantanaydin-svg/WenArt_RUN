@@ -4,9 +4,10 @@ docs/milestone10.md §4.5).
 No GPU, no model server: a tiny GLB made in the test (two boxes, three materials, one with a texture) stands for a
 library model; a fake runner writes the renders the Blender job would write (a Blender test with the real job runs
 when Blender is installed: ``WENART_BLENDER``); fake judges answer per slot. Covered: the material table of a GLB, the
-renamed copy, the question and its xgrammar-safe schema, the sheet, the requests, the judging through the shared
-answer store, the agreement of both judges (disagreement, missing answers, mixed slots), the four catalogue fields
-(thresholds, tag order, ``other`` never a tag), stale tags, and the catalogue entry.
+renamed copy, the question and its xgrammar-safe schema, the sheet (a model of one slot gets the two model tiles
+only), the slot colours, the requests, the judging through the shared answer store, the agreement of both judges
+(disagreement, missing answers, mixed slots), the four catalogue fields (thresholds, tag order, ``other`` never a
+tag), stale tags, and the catalogue entry.
 """
 import json
 import struct
@@ -144,16 +145,17 @@ def test_schema_is_strict_and_xgrammar_safe():
     schema = R.answer_schema([0, 2])
     assert schema["required"] == ["slot_0", "slot_2"] and set(schema["properties"]) == {"slot_0", "slot_2"}
     assert schema["additionalProperties"] is False
-    assert schema["properties"]["slot_0"]["properties"]["material"]["enum"] == list(R.MATERIALS)
+    items = schema["properties"]["slot_0"]["properties"]["materials"]
+    assert items["items"]["enum"] == list(R.MATERIALS) and (items["minItems"], items["maxItems"]) == (1, 3)
     assert grammar_problems(schema) == []
-    good = {"slot_0": {"material": "fabric", "single_material": True},
-            "slot_2": {"material": "glass", "single_material": False}}
+    good = {"slot_0": {"materials": ["fabric"]}, "slot_2": {"materials": ["glass", "metal"]}}
     assert R.answer_errors(good, [0, 2]) == []
     assert R.answer_errors({"slot_0": good["slot_0"]}, [0, 2])                        # a slot missing
     assert R.answer_errors(dict(good, slot_3=good["slot_0"]), [0, 2])                 # a slot nobody asked
-    assert R.answer_errors({"slot_0": {"material": "plastic", "single_material": True}, "slot_2": good["slot_2"]},
-                           [0, 2])                                                    # not in the enum
-    assert R.answer_errors({"slot_0": {"material": "wood"}, "slot_2": good["slot_2"]}, [0, 2])
+    assert R.answer_errors({"slot_0": {"materials": ["plastic"]}, "slot_2": good["slot_2"]}, [0, 2])   # not in the enum
+    assert R.answer_errors({"slot_0": {"materials": []}, "slot_2": good["slot_2"]}, [0, 2])            # at least one
+    assert R.answer_errors({"slot_0": {"materials": ["wood"] * 4}, "slot_2": good["slot_2"]}, [0, 2])  # at most three
+    assert R.answer_errors({"slot_0": {"material": "wood"}, "slot_2": good["slot_2"]}, [0, 2])         # the old shape
     assert list(R.MATERIALS) == ["fabric", "wood", "metal", "glass", "rattan", "marble", "other"]
     assert {t for t in R.TAG_ORDER} == set(R.MATERIALS) - {"other"}
     assert R.TAG_ORDER == ("glass", "wood", "metal", "fabric", "rattan", "marble")    # design.material_tags enum order
@@ -161,10 +163,14 @@ def test_schema_is_strict_and_xgrammar_safe():
 
 def test_prompt_names_every_slot_and_every_material():
     text = R.prompt_for([{"index": 0, "name": "Grey cloth"}, {"index": 4, "name": "Oak legs"}])
-    for word in ("slot_0", 'slot 4', '"Grey cloth"', '"Oak legs"', "magenta", "single_material", "Answer only with JSON"):
+    for word in ("slot_0", 'slot 4', '"Grey cloth"', '"Oak legs"', "magenta", "materials", "Answer only with JSON",
+                 '"model back"'):
         assert word in text, word
     for material in R.MATERIALS:
         assert material in text, material
+    whole = R.prompt_for([{"index": 0, "name": "Material_0"}], whole=True)
+    assert "one material slot for the whole model" in whole and "slot_0" in whole and "magenta" not in whole
+    assert "Slots:" not in whole
 
 
 # --------------------------------------------------------------------------
@@ -186,8 +192,9 @@ def make_library(tmp_path, glb, uid="abo_SOFA1", accepted=True):
 
 
 def fake_runner(boxes=(SEAT, LEGS, PLATE), hidden=(), calls=None):
-    """What the Blender job writes: ``true.png``, ``mask_<index>.png`` (a white rectangle per slot, none for a hidden
-    slot), ``result.json`` with the surface area per material index."""
+    """What the Blender job writes: ``true_a.png``, ``true_b.png``, ``albedo.png`` (a coloured band under every slot's
+    mask), ``mask_<index>.png`` (a white rectangle per slot, none for a hidden slot), ``result.json`` with the surface
+    area per material index."""
     def run(_blender, jobs_path, _log, _timeout):
         jobs = json.loads(Path(jobs_path).read_text(encoding="utf-8"))
         if calls is not None:
@@ -199,13 +206,20 @@ def fake_runner(boxes=(SEAT, LEGS, PLATE), hidden=(), calls=None):
                 "wenart_mat_0"
             img = np.full((px, px, 3), 150, dtype=np.uint8)
             img[60:200, 40:220] = (90, 120, 200)
-            Image.fromarray(img).save(base / "true.png")
+            Image.fromarray(img).save(base / "true_a.png")
+            Image.fromarray(img[:, ::-1].copy()).save(base / "true_b.png")
+            flat = np.full((px, px, 3), 255, dtype=np.uint8)
             for k, i in enumerate(job["slots"]):
                 mask = np.zeros((px, px), dtype=np.uint8)
                 if i not in hidden:
                     mask[10 + 28 * k:28 + 28 * k, 40:220] = 255
+                    flat[10 + 28 * k:28 + 28 * k, 40:220] = (30 * (i + 1), 90, 160)      # the slot's colour
                 Image.fromarray(mask).convert("RGB").save(base / f"mask_{i}.png")
-            areas = {str(b[2]): box_area(b) for b in boxes if b[2] is not None}
+            Image.fromarray(flat).save(base / "albedo.png")
+            areas = {}
+            for b in boxes:
+                if b[2] is not None:
+                    areas[str(b[2])] = areas.get(str(b[2]), 0.0) + box_area(b)
             OV.write_json(Path(job["result"]), {"uid": job["uid"], "glb_sha256": job["glb_sha256"], "key": job["key"],
                                                 "ok": True, "area_m2": areas, "seconds": 0.1})
         return 0
@@ -225,14 +239,16 @@ def test_slots_step_selects_renders_and_composes_the_sheet(tmp_path, glb):
     assert by[0]["share"] == pytest.approx(box_area(SEAT) / total, abs=1e-3)
     assert by[0]["name"] == "Grey cloth" and by[2]["textured"] and by[0]["pixels"] > 0
     assert all(m["asked"] for m in by.values())
+    assert [by[i]["colour_rgb"] for i in (0, 1, 2)] == [[30, 90, 160], [60, 90, 160], [90, 90, 160]]    # median under the mask
     sheet = rec["sheets"][0]
     assert sheet["key"] == f"mat_{uid}" and sheet["slots"] == [0, 1, 2] and sheet["image"] == f"sheets/{uid}.jpg"
+    assert sheet["whole"] is False and doc["counts"]["whole_model_slots"] == 0
     img = Image.open(out / "recolour" / sheet["image"])
-    assert img.size == (3 * 256, 2 * 256)                                  # the model + 3 slots on a 3-column grid
+    assert img.size == (3 * 256, 2 * 256)                          # two model tiles + 3 slot tiles on a 3-column grid
     assert len(sheet["pixels"]["sha256"]) == 64
-    # The tint: the slot tile differs from the true tile exactly where the mask is white.
+    # The tint: the slot tile (third tile, top right) differs from the first tile exactly where the mask is white.
     arr = np.asarray(img.convert("RGB"), dtype=np.int32)
-    true_tile, slot0 = arr[0:256, 0:256], arr[0:256, 256:512]
+    true_tile, slot0 = arr[0:256, 0:256], arr[0:256, 512:768]
     assert np.abs(true_tile - slot0)[15, 100].sum() > 100 and np.abs(true_tile - slot0)[180, 100].sum() < 30
     # Run again: the renders are current (same GLB hash and settings), Blender is not called.
     calls.clear()
@@ -274,6 +290,8 @@ def test_scope_ready_takes_the_thumbnail_objects(tmp_path, glb):
     assert R.select_models(out, scope="accepted") == []
     models = R.select_models(out, scope="ready")
     assert [m["uid"] for m in models] == [uid] and models[0]["glb"] == str(glb) and models[0]["type"] == "sofa"
+    assert [m["uid"] for m in R.select_models(out, scope="ready", types={"sofa"})] == [uid]
+    assert R.select_models(out, scope="ready", types={"armchair", "rug"}) == []          # --types keeps only those
     with pytest.raises(R.UsageError, match="scope"):
         R.select_models(out, scope="all")
 
@@ -288,6 +306,35 @@ def test_more_than_six_slots_make_a_second_sheet(tmp_path):
     sheets = doc["models"][0]["sheets"]
     assert [s["key"] for s in sheets] == [f"mat_{uid}", f"mat_{uid}_p1"] and [len(s["slots"]) for s in sheets] == [6, 2]
     assert sheets[1]["image"] == f"sheets/{uid}_p1.jpg"
+    assert Image.open(out / "recolour" / sheets[0]["image"]).size == (3 * 256, 3 * 256)    # 2 model tiles + 6 slots
+    assert Image.open(out / "recolour" / sheets[1]["image"]).size == (3 * 256, 2 * 256)    # 2 model tiles + 2 slots
+
+
+def test_workers_share_the_models_between_blender_processes(tmp_path, glb):
+    out = tmp_path / "lib"
+    sha = OV.sha256_file(glb)
+    uids = [f"abo_M{i}" for i in range(5)]
+    cands = [{"uid": u, "group": "sofa", "types": ["sofa"], "source": "abo", "glb": str(glb), "glb_sha256": sha}
+             for u in uids]
+    OV.write_json(out / "survey_abo.json", {"kind": "abo_survey", "source": "abo", "candidates": cands})
+    OV.write_json(out / OV.ACCEPTED_NAME, {"accepted": [{"uid": u, "type": "sofa", "kind": "furniture",
+                                                        "source": "abo", "accepted": True} for u in uids]})
+    calls = []
+    run = fake_runner(calls=calls)
+    paths = []
+
+    def runner(blender, jobs_path, log_path, timeout):
+        paths.append((Path(jobs_path).name, Path(log_path).name))
+        return run(blender, jobs_path, log_path, timeout)
+    doc, rc = R.slots(out, work=tmp_path / "w", runner=runner, blender="blender", log=quiet, workers=2)
+    assert rc == R.EXIT_OK and doc["counts"]["ok"] == 5 and doc["counts"]["sheets"] == 5
+    assert sorted(len(c) for c in calls) == [2, 3] and sorted(u for c in calls for u in c) == uids      # shared, once each
+    assert sorted(paths) == [("blender_jobs_0.json", "blender_0.log"), ("blender_jobs_1.json", "blender_1.log")]
+    jobs = json.loads((tmp_path / "w" / "blender_jobs_1.json").read_text())
+    assert jobs["status"].endswith("blender_status_1.json")
+    calls.clear()
+    R.slots(out, work=tmp_path / "w", runner=runner, blender="blender", log=quiet, workers=2)           # all current
+    assert calls == []
 
 
 # --------------------------------------------------------------------------
@@ -295,7 +342,7 @@ def test_more_than_six_slots_make_a_second_sheet(tmp_path):
 # --------------------------------------------------------------------------
 
 class FakeJudge:
-    """Answers per slot from a table ``{model key: {slot index: (material, single)}}``."""
+    """Answers per slot from a table ``{slot key: [materials]}`` (the same for every call of the model)."""
 
     def __init__(self, model: str, table: dict, seen: list):
         self.model, self.table, self.seen, self.deadline = model, table, seen, None
@@ -303,8 +350,7 @@ class FakeJudge:
     def run_schema(self, images, prompt, schema, **kw):
         assert kw["task"] == R.TASK and kw["system_prompt"] == R.SYSTEM_PROMPT and Path(images[0]).is_file()
         self.seen.append((self.model, list(schema["required"])))
-        data = {key: {"material": self.table[key][0], "single_material": self.table[key][1]}
-                for key in schema["required"]}
+        data = {key: {"materials": list(self.table[key])} for key in schema["required"]}
         return SimpleNamespace(data=data, raw_text=json.dumps(data), error=None, attempts=1, latency_s=0.01)
 
 
@@ -317,7 +363,7 @@ def judge_both(out, tables, seen=None):
     return rcs, seen
 
 
-AGREE = {"slot_0": ("fabric", True), "slot_1": ("wood", True), "slot_2": ("glass", True)}
+AGREE = {"slot_0": ["fabric"], "slot_1": ["wood"], "slot_2": ["glass"]}
 
 
 def prepared(tmp_path, glb):
@@ -338,6 +384,33 @@ def test_requests_hold_one_item_per_sheet_with_its_own_schema(tmp_path, glb):
     assert (out / "recolour" / "requests.json").is_file()
 
 
+def test_a_model_of_one_slot_gets_the_two_model_tiles_and_a_question_about_its_materials(tmp_path):
+    """Every ABO and every generated model has ONE material slot (the texture atlas): the sheet shows the model from two
+    sides, the question asks which materials it holds, and a list of exactly one material makes it recolourable."""
+    path = box_glb(tmp_path / "one.glb", [(SEAT[0], SEAT[1], 0), (LEGS[0], LEGS[1], 0)], MATERIALS[:1], texture=False)
+    out, uid, _sha = make_library(tmp_path, path)
+    doc, _rc = R.slots(out, work=tmp_path / "w", runner=fake_runner(boxes=[(SEAT[0], SEAT[1], 0), (LEGS[0], LEGS[1], 0)]),
+                       blender="blender", log=quiet)
+    sheet = doc["models"][0]["sheets"][0]
+    assert sheet["whole"] is True and sheet["slots"] == [0] and doc["counts"]["whole_model_slots"] == 1
+    assert Image.open(out / "recolour" / sheet["image"]).size == (2 * 256, 256)
+    item = R.write_requests(out)["items"][0]
+    assert item["context"]["whole"] is True and "one material slot for the whole model" in item["prompt"]
+    judge_both(out, {"qwen": {"slot_0": ["fabric", "wood"]}, "glm": {"slot_0": ["wood", "fabric"]}})
+    fields = R.write_tags(out)["models"][uid]
+    row = fields["material_slots"][0]
+    assert row["materials"] == ["fabric", "wood"] and row["material"] == "mixed" and row["agreed"] is True
+    assert row["separable"] is False and row["share"] == pytest.approx(1.0)
+    assert fields["material_tags"] == ["wood", "fabric"]                         # TAG_ORDER; the mixed atlas is no fabric part
+    assert fields["recolourable_fabric"] is False and fields["recolourable_wood"] is False
+    for f in (out / "recolour").glob("answers_*.json"):                          # asked again: other answers
+        f.unlink()
+    judge_both(out, {"qwen": {"slot_0": ["fabric"]}, "glm": {"slot_0": ["fabric"]}})
+    again = R.write_tags(out)["models"][uid]
+    assert again["material_tags"] == ["fabric"] and again["recolourable_fabric"] is True
+    assert again["material_slots"][0]["colour_rgb"] == [30, 90, 160]
+
+
 def test_both_judges_agree_and_the_tags_follow(tmp_path, glb):
     out, uid, sha, _req = prepared(tmp_path, glb)
     rcs, seen = judge_both(out, {"qwen": AGREE, "glm": AGREE})
@@ -351,7 +424,8 @@ def test_both_judges_agree_and_the_tags_follow(tmp_path, glb):
     assert fields["material_tags"] == ["glass", "wood", "fabric"]               # TAG_ORDER, every share >= 10 %
     assert fields["recolourable_fabric"] is True and fields["recolourable_wood"] is True
     rows = {r["index"]: r for r in fields["material_slots"]}
-    assert rows[0]["material"] == "fabric" and rows[0]["agreed"] and rows[0]["separable"]
+    assert rows[0]["material"] == "fabric" and rows[0]["materials"] == ["fabric"]
+    assert rows[0]["agreed"] and rows[0]["separable"] and rows[0]["colour_rgb"] == [30, 90, 160]
     assert rows[0]["share"] == pytest.approx(box_area(SEAT) / total, abs=1e-3) and rows[2]["textured"] is True
     assert rows[1]["name"] == "Oak legs" and rows[1]["base_colour"] == [0.55, 0.38, 0.2, 1.0]
     assert doc["counts"]["models"] == 1 and doc["counts"]["tags"]["glass"] == 1 and doc["unjudged"] == []
@@ -362,37 +436,42 @@ def test_both_judges_agree_and_the_tags_follow(tmp_path, glb):
     assert seen == []
 
 
-def test_disagreement_mixed_slots_and_small_shares_decide_nothing(tmp_path, glb):
+def test_disagreement_decides_only_what_both_name(tmp_path, glb):
     out, uid, _sha, _req = prepared(tmp_path, glb)
-    qwen = {"slot_0": ("fabric", True), "slot_1": ("wood", False), "slot_2": ("glass", True)}
-    glm = {"slot_0": ("fabric", True), "slot_1": ("wood", True), "slot_2": ("marble", True)}
+    qwen = {"slot_0": ["fabric"], "slot_1": ["wood", "metal"], "slot_2": ["glass"]}
+    glm = {"slot_0": ["fabric"], "slot_1": ["wood"], "slot_2": ["marble"]}
     judge_both(out, {"qwen": qwen, "glm": glm})
     fields = R.write_tags(out)["models"][uid]
     rows = {r["index"]: r for r in fields["material_slots"]}
-    assert rows[1]["material"] == "wood" and rows[1]["agreed"] and not rows[1]["separable"]    # one judge: mixed
-    assert rows[2]["material"] == "other" and not rows[2]["agreed"]                             # glass vs marble
+    assert rows[1]["materials"] == ["wood"] and rows[1]["material"] == "wood"       # what both name ...
+    assert rows[1]["agreed"] is False and rows[1]["separable"] is False             # ... but the lists differ
+    assert rows[2]["materials"] == [] and rows[2]["material"] == "other" and not rows[2]["agreed"]   # glass vs marble
     assert fields["material_tags"] == ["wood", "fabric"] and fields["recolourable_wood"] is False
     assert fields["recolourable_fabric"] is True
 
 
 def test_decide_slot_and_model_tags_rules():
-    both = lambda a, b: {"qwen": {"slot_0": {"material": a[0], "single_material": a[1]}},        # noqa: E731
-                         "glm": {"slot_0": {"material": b[0], "single_material": b[1]}}}
-    assert R.decide_slot(both(("metal", True), ("metal", True)), 0) == {
-        "material": "metal", "agreed": True, "separable": True, "judges": {"qwen": "metal", "glm": "metal"}}
-    assert R.decide_slot(both(("metal", True), ("metal", False)), 0)["separable"] is False
-    assert R.decide_slot(both(("other", True), ("other", True)), 0)["separable"] is False       # other: nothing to recolour
-    miss = R.decide_slot({"qwen": {"slot_0": {"material": "wood", "single_material": True}}, "glm": None}, 0)
-    assert miss["material"] == "other" and not miss["agreed"] and "missing" in miss["note"]
+    both = lambda a, b: {"qwen": {"slot_0": {"materials": a}}, "glm": {"slot_0": {"materials": b}}}   # noqa: E731
+    assert R.decide_slot(both(["metal"], ["metal"]), 0) == {
+        "materials": ["metal"], "agreed": True, "separable": True, "judges": {"qwen": ["metal"], "glm": ["metal"]}}
+    assert R.decide_slot(both(["wood", "fabric"], ["fabric", "wood"]), 0)["materials"] == ["fabric", "wood"]
+    assert R.decide_slot(both(["wood", "fabric"], ["fabric", "wood"]), 0)["separable"] is False   # a mix is no part
+    assert R.decide_slot(both(["metal", "metal"], ["metal"]), 0)["separable"] is True      # a repeat is removed
+    assert R.decide_slot(both(["metal"], ["metal", "glass"]), 0) == {
+        "materials": ["metal"], "agreed": False, "separable": False,
+        "judges": {"qwen": ["metal"], "glm": ["metal", "glass"]}}
+    assert R.decide_slot(both(["other"], ["other"]), 0)["separable"] is False       # other: nothing to recolour
+    miss = R.decide_slot({"qwen": {"slot_0": {"materials": ["wood"]}}, "glm": None}, 0)
+    assert miss["materials"] == [] and not miss["agreed"] and "missing" in miss["note"]
+    assert [R.slot_material(m) for m in (["wood"], ["fabric", "wood"], [], ["other"], ["other", "wood"])] == [
+        "wood", "mixed", "other", "other", "mixed"]
     model = {"sheets": [{"key": "k", "slots": [0, 1]}],
              "materials": [{"index": 0, "name": "a", "share": 0.93, "textured": False, "base_colour": None,
                             "asked": True},
                            {"index": 1, "name": "b", "share": 0.07, "textured": True, "base_colour": None,
                             "asked": True}]}
-    ans = {"k": {"qwen": {"slot_0": {"material": "fabric", "single_material": True},
-                          "slot_1": {"material": "wood", "single_material": True}},
-                 "glm": {"slot_0": {"material": "fabric", "single_material": True},
-                         "slot_1": {"material": "wood", "single_material": True}}}}
+    ans = {"k": {"qwen": {"slot_0": {"materials": ["fabric"]}, "slot_1": {"materials": ["wood"]}},
+                 "glm": {"slot_0": {"materials": ["fabric"]}, "slot_1": {"materials": ["wood"]}}}}
     got = R.model_tags(model, ans, CFG)
     assert got["material_tags"] == ["fabric"]                                    # wood covers 7 % < min_tag_share 10 %
     assert got["recolourable_fabric"] is True and got["recolourable_wood"] is True   # 7 % >= min_recolour_share 5 %
@@ -465,6 +544,8 @@ def test_the_gpu_library_checks_pass_on_a_library_of_the_cpu_pipeline(tmp_path, 
         gpu.test_new_types_have_models_in_three_style_families_and_credits()
     gpu.test_material_tags_of_the_catalogue_follow_both_judges(OV.load_config())
     assert entry["material_tags"] == ["glass", "wood", "fabric"] and entry["recolourable_fabric"] is True
+    text = OV.report(out)                                           # the library report has a section for the tags
+    assert "## Material tags and recolour" in text and "| sofa | 1 | 1 | 1 | fabric 1, glass 1, wood 1 |" in text
 
 
 def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
@@ -513,12 +594,18 @@ def test_real_blender_job_renders_masks_and_measures_areas(tmp_path, glb):
         assert m["share"] == pytest.approx(box_area(box) / total, abs=0.01)
     assert by[0]["pixels"] > by[1]["pixels"] > 0                                 # the seat shows more than the legs
     base = tmp_path / "work" / uid
-    true = np.asarray(Image.open(base / "true.png").convert("RGB"))
+    true = np.asarray(Image.open(base / "true_a.png").convert("RGB"))
+    back = np.asarray(Image.open(base / "true_b.png").convert("RGB"))
     assert true.shape == (256, 256, 3) and true.std() > 5                       # not an empty image
+    assert np.abs(true.astype(int) - back.astype(int)).mean() > 1               # the other side is another picture
+    colours = {i: by[i]["colour_rgb"] for i in (0, 1, 2)}
+    assert all(c is not None and 0 <= min(c) and max(c) <= 255 for c in colours.values())
+    assert abs(colours[0][0] - colours[0][2]) < 40                              # the grey cloth is grey
+    assert colours[1][0] > colours[1][2]                                        # the oak legs are warm: red above blue
     masks = [np.asarray(Image.open(base / f"mask_{i}.png").convert("L")) > 127 for i in (0, 1, 2)]
     assert all(m.any() for m in masks)
     for a, b in ((0, 1), (0, 2), (1, 2)):                                        # a pixel belongs to one slot
         assert (masks[a] & masks[b]).sum() <= 0.05 * min(masks[a].sum(), masks[b].sum()), (a, b)
-    assert Image.open(out / "recolour" / rec["sheets"][0]["image"]).size == (768, 512)
+    assert Image.open(out / "recolour" / rec["sheets"][0]["image"]).size == (768, 512)       # 2 model + 3 slot tiles
     # The renders are the same on a second run (reused), and the work folder holds a status file.
     assert json.loads((tmp_path / "work" / "blender_status.json").read_text())["done"] == [uid]

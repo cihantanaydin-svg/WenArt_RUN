@@ -7,7 +7,7 @@ furniture and decor types and downloads their GLBs; the shared library steps of 
 files. Nothing here runs in the session except on canned metadata (tests) or with ``--no-download``.
 
     python -m wenart.assets.abo survey --out DIR [--cache /opt/wenart/abo] [--metadata DIR] [--no-download]
-        [--workers N] [--config abo.yaml]
+        [--workers N] [--config abo.yaml] [--summary FILE]
 
 1. Metadata: ``3dmodels/metadata/3dmodels.csv.gz``, the 16 listings shards ``listings/metadata/listings_<s>.json.gz``
    and ``3dmodels/README.md``, read from ``--metadata DIR`` (the files side by side) or from ``<cache>/metadata/``,
@@ -30,6 +30,13 @@ files. Nothing here runs in the session except on canned metadata (tests) or wit
    extents in the importer's Z-up frame: x, z, y of the csv), ``front_documented`` -Y (README convention 2: glTF +Z
    is the product's natural front) and the credit line ``attribution`` (docs/milestone8.md §2), the counts per type
    and every refusal with its reason.
+
+5. Milestone 10 (docs/milestone10.md §4.5, §4.6): the rules of ``abo.yaml`` marked ``since: m10`` map the new
+   furniture and decor types (read from the listings of 8 Oct 2026: STOOL_SEATING, OTTOMAN, BENCH, CLOCK,
+   CANDLE_HOLDER, LIGHT_FIXTURE ... and words of the item names); ``no_listing`` names the types the listings hold no
+   model of (crib, curtain, blind, throw, books). ``--summary FILE`` also writes ``session_summary``: per new type the
+   listings mapped, in the size range and picked, and the rules that took them (``results/library/
+   survey_m10_session.json``, the ABO column of the coverage table of docs/milestone10.md §4.11).
 
 Exit codes: 0 candidates found, 1 none, 2 usage error or metadata missing.
 """
