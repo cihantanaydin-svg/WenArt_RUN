@@ -58,7 +58,8 @@ def profile(**changes) -> dict:
 def test_the_wall_colour_is_in_the_prompt_in_front_of_the_finish(colours):
     out = PR.build_prompt(profile(), "living", ["sofa"], 18.0)
     assert out["walls_colour"] == "warm greige" and out["warnings"] == [], out["warnings"]
-    assert "Warm greige painted walls, light oak wood floor, sofa." in out["prompt"]
+    # Track C's words for `paint` ("smooth painted") follow the colour.
+    assert f"Warm greige {PR.MATERIAL_WORDS['paint']} walls, light oak wood floor, sofa." in out["prompt"]
     # A colour phrase the table knows only as an alias is said in its canonical form; an unknown one as written.
     assert PR.colour_phrase("Warm Greige") == "warm greige" and PR.colour_phrase("Dusty_Mauve") == "dusty mauve"
     assert PR.colour_phrase(None) is None and PR.colour_phrase("  ") is None
@@ -85,7 +86,7 @@ def test_the_accent_wall_is_named_only_in_the_room_types_the_profile_lists(colou
     accent = {"material": "paint", "asset": None, "colour": "terracotta", "room_types": ["living", "bedroom"],
               "rule": "the wall behind the sofa"}
     living = PR.build_prompt(profile(wall_accent=accent), "living", ["sofa"])
-    assert "one terracotta painted accent wall" in living["prompt"] and living["accent"]
+    assert f"one terracotta {PR.MATERIAL_WORDS['paint']} accent wall" in living["prompt"] and living["accent"]
     assert living["prompt"].index("painted walls") < living["prompt"].index("accent wall") < \
         living["prompt"].index("floor")
     hall = PR.build_prompt(profile(wall_accent=accent), "hall", [])
@@ -130,7 +131,7 @@ def test_the_expected_colour_has_lab_and_chroma(colours):
 
 def test_a_paint_colour_is_a_flat_wall_with_its_expected_colour_recorded(colours):
     walls = GC.structure_albedo(scene(profile()), "r1")[GC.WALL_REGION]
-    assert walls["albedo_mode"] == "flat" and walls["source"] == "gate.colour.COLOUR_FLAT"
+    assert walls["albedo_mode"] == "flat" and walls["source"] == "vocabulary.MATERIALS"    # track C: paint is flat
     assert walls["colour"] == "warm greige" and walls["colour_chroma"] > 3 and len(walls["colour_lab"]) == 3
     assert walls["colour_linear_rgb"] == [0.48, 0.42, 0.35] and "colour_unknown" not in walls
     # The neutral check measures it (a flat wall), as the change of chroma, not as a distance from zero.
@@ -145,7 +146,8 @@ def test_an_unknown_colour_phrase_is_listed_and_the_mode_is_not_guessed(colours)
     prof = profile(walls={"material": "paint", "asset": None, "colour": "dusty mauve"})
     walls = GC.structure_albedo(scene(prof), "r1")[GC.WALL_REGION]
     assert walls["colour"] == "dusty mauve" and walls["colour_unknown"] is True and "colour_chroma" not in walls
-    assert walls["albedo_mode"] is None                      # `paint` is in no table here: albedo_unknown, never flat
+    # Track C's vocabulary says `paint` is flat; the unknown colour is listed, never guessed.
+    assert walls["albedo_mode"] == "flat" and walls["source"] == "vocabulary.MATERIALS"
     plain = GC.structure_albedo(scene(profile(walls={"material": "plaster_white", "asset": None, "colour": None})),
                                 "r1")[GC.WALL_REGION]
     assert plain["albedo_mode"] == "flat" and "colour" not in plain and "accent" not in plain

@@ -120,7 +120,9 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
-             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/shell.py")
+             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/shell.py",
+             # Milestone 10 (track H): the exterior scope of the expected views reads the roof and the site.
+             "wenart/vision_check/exterior.py", "wenart/blender/roof.py", "wenart/blender/site.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
