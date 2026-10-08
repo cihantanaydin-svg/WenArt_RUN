@@ -2768,7 +2768,8 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
     """``catalog_library.json`` from ``accepted.json`` (None and no file when nothing is accepted; a stale file in
     ``out`` is removed). Every GLB is copied to ``<assets>/models/<source>/<uid>.glb`` with its sha256 checked
     against the survey (``glb_source``); furniture goes to ``entries``, decor to ``decor``; the result must pass
-    ``catalog.validate(complete=False)`` and merge with ``catalog.json``."""
+    ``catalog.validate(complete=False)`` and merge with ``catalog.json``. A model of a ``parametric_only`` type (an
+    ``accepted.json`` made before the type was taken out of the sources) is listed under ``refused_at_write``."""
     from wenart.furniture import catalog as C
     cfg = cfg or load_config()
     out = Path(out)
@@ -2781,8 +2782,14 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
     material = tags_doc.get("models") or {}
     material_stale = []
     entries, decor, problems = [], [], []
+    parametric_only = set(cfg.get("parametric_only") or ())
     for dec in acc["accepted"]:
         uid = dec["uid"]
+        if dec["type"] in parametric_only:
+            # an accepted.json of an older run: the catalogue merge would drop the parametric entry of such a type
+            problems.append({"uid": uid, "code": "parametric_only", "detail": f"{dec['type']} is built parametrically "
+                             "(docs/milestone10.md §4.4); the model is not written to the catalogue"})
+            continue
         cand, obj = cands[uid], thumbs["objects"][uid]
         src = glb_source(cand, assets)
         if src is None:

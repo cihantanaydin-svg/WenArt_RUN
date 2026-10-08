@@ -469,4 +469,10 @@ def test_new_types_go_from_the_survey_to_the_catalogue(tmp_path, monkeypatch):
     assert plant["type"] == "decor_plant_large" and plant["kind"] == "decor" and plant["front_axis_confidence"] == "low"
     assert cat["entries"][0]["front_axis_confidence"] == "low" and cat["entries"][0]["bbox_model_m"] == [0.8, 0.6, 0.45]
     assert cat["counts"]["entries"] == 2 and cat["counts"]["decor"] == 3 and cat["counts"]["material_tagged"] == 0
+    # review finding 41: a model of a parametric-only type (an older accepted.json) is not written to the catalogue
+    both = copy.deepcopy(CFG)
+    both["parametric_only"] = ["crib"]
+    cat2 = OV.write_catalog(out, tmp_path / "assets", both, base_catalog=base_path, log=quiet)
+    assert [e["type"] for e in cat2["entries"]] == ["ottoman"] and cat2["counts"]["entries"] == 1
+    assert [(p["uid"], p["code"]) for p in cat2["refused_at_write"]] == [(uids["crib"], "parametric_only")]
     assert (tmp_path / "assets" / plant["glb"]).is_file()
