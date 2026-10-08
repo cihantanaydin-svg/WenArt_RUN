@@ -39,6 +39,10 @@ prints answered / stale / failed / missing per model and exits 0 when complete, 
 
 Model keys and passes: ``qwen`` = pass 1 (Qwen3-VL-8B), ``glm`` = pass 2 (GLM-4.6V-Flash), ids, revisions and
 slugs from ``wenart/vision_check/check.yaml`` (read here, never edited).
+
+Milestone 10 (docs/milestone10.md §1.5, §1.6a): the task ``sheet_region`` (one crop per drawing region of the sheets
+stage, ``<out>/sheets/requests.json``) has its schema, prompt and input hash in ``wenart.sheets.question``;
+``ask`` and ``status`` work on the ``<out>/sheets`` folder exactly as on ``<out>/recognition``.
 """
 from __future__ import annotations
 
@@ -116,6 +120,35 @@ def write_json(path: Path, data) -> Path:
 
 
 # --------------------------------------------------------------------------
+# Tasks of other stages (Milestone 10)
+# --------------------------------------------------------------------------
+
+SHEET_TASK = "sheet_region"
+
+
+def tasks() -> tuple[str, ...]:
+    """Every per-item task: the M7 recognition tasks and the M10 ``sheet_region`` question."""
+    return tuple(schemas.M7_TASKS) + (SHEET_TASK,)
+
+
+def task_schema(task: str) -> dict:
+    """The JSON schema of a task's answer."""
+    if task == SHEET_TASK:
+        from wenart.sheets import question
+        return question.SCHEMA
+    return schemas.M7_SCHEMAS[task]
+
+
+def task_errors(task: str, data) -> list[str]:
+    """Schema violations of an answer (empty = valid)."""
+    if task != SHEET_TASK:
+        return schemas.validation_errors(task, data)
+    import jsonschema
+    validator = jsonschema.Draft202012Validator(task_schema(task))
+    return [f"{'/'.join(map(str, e.absolute_path)) or '<root>'}: {e.message}" for e in validator.iter_errors(data)]
+
+
+# --------------------------------------------------------------------------
 # Requests
 # --------------------------------------------------------------------------
 
@@ -124,7 +157,7 @@ def check_item(item: dict) -> None:
     for name in ("key", "task", "images", "input_sha256"):
         if name not in item:
             raise ValueError(f"request item without {name!r}: {item.get('key')!r}")
-    if item["task"] not in schemas.M7_TASKS:
+    if item["task"] not in tasks():
         raise ValueError(f"request {item['key']!r}: unknown task {item['task']!r}")
     if not item["images"] or not all(isinstance(p, str) for p in item["images"]):
         raise ValueError(f"request {item['key']!r}: images must be a non-empty list of paths")
@@ -143,9 +176,11 @@ def check_item(item: dict) -> None:
                              f"choices from the symbol types (got {facts!r})")
 
 
-def write_requests(out_dir: Path, project: str, items: list[dict]) -> Path:
-    """Write ``<out_dir>/requests.json`` (``out_dir`` = ``<out>/recognition``); items keep the caller's order."""
-    from wenart.recognition.crops import CROP_VERSION
+def write_requests(out_dir: Path, project: str, items: list[dict], crop_version: Optional[str] = None) -> Path:
+    """Write ``<out_dir>/requests.json`` (``out_dir`` = ``<out>/recognition``, or ``<out>/sheets`` with the sheets
+    stage's ``crop_version``); items keep the caller's order."""
+    from wenart.recognition.crops import CROP_VERSION as RECOGNITION_CROP_VERSION
+    CROP_VERSION = crop_version or RECOGNITION_CROP_VERSION
     keys = set()
     for item in items:
         check_item(item)
@@ -179,7 +214,7 @@ def read_requests(out_dir: Path) -> Optional[dict]:
 
 def valid_answer(task: str, data) -> bool:
     """True when ``data`` is a schema-valid answer of ``task`` (a JSON null or a broken answer is not)."""
-    return data is not None and task in schemas.M7_SCHEMAS and not schemas.validation_errors(task, data)
+    return data is not None and task in tasks() and not task_errors(task, data)
 
 
 class AnswerStore:
@@ -329,9 +364,12 @@ def call_args(item: dict, rec_dir: Path) -> dict:
     """The ``VLMClient.run_schema`` arguments of one request item: the question that was hashed into its
     ``input_sha256`` (``crops.question_digest`` of the item's facts: prompt and, for ``symbol_type``, the type enum
     narrowed to the item's choices)."""
-    from wenart.recognition.crops import question_digest
     task = item["task"]
     images = [Path(rec_dir) / p for p in item["images"]]
+    if task == SHEET_TASK:
+        from wenart.sheets import question
+        return {"images": images, "prompt": question.PROMPT, "schema": question.SCHEMA, "labels": None, "task": task}
+    from wenart.recognition.crops import question_digest
     digest = question_digest(task, item.get("question") if task == "symbol_type" else None)
     labels = list(digest["image_labels"]) if "image_labels" in digest else None
     if labels is not None and len(labels) != len(images):

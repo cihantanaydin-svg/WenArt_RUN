@@ -1,0 +1,284 @@
+"""The pipeline on a multi-region sheet (docs/milestone10.md §1.6a): one page record per region, the unit of the unit
+check, every level in the registered frame with its heights from the section, alternatives as their own levels with
+``same_as`` rooms, variants, slabs with stair voids, the roof, the site ground, the levels left out
+(``failed_levels``), and a stale ``sheets.json`` analysed again."""
+from __future__ import annotations
+
+import json
+
+import pytest
+
+import wenart.sheets as SH
+from _sheets_fixture import write_sheet
+from wenart import building as B
+from wenart.ingest import pipeline as P
+
+
+def _build(tmp_path, name="p", brief=None, **opts):
+    project = tmp_path / name
+    project.mkdir()
+    write_sheet(project / "sheet.dxf", **opts)
+    if brief is not None:
+        (project / "brief.yaml").write_text(brief, encoding="utf-8")
+    building, build = P.run_project(project, tmp_path / f"{name}_out", no_ai=True)
+    return building, build, tmp_path / f"{name}_out"
+
+
+@pytest.fixture(scope="module")
+def built(tmp_path_factory):
+    return _build(tmp_path_factory.mktemp("pipe"))
+
+
+def test_status_and_schema(built):
+    building, build, out = built
+    assert building["status"] == "ok", building["warnings"]
+    assert B.validation_errors(building) == []
+    assert (out / "sheets.json").is_file() and (out / "report.md").is_file()
+    assert "## Building (sheets)" in (out / "report.md").read_text(encoding="utf-8")
+
+
+def test_one_page_record_per_region(built):
+    # §1.6b rows 2, 3: records for regions with use read / heights / exterior only (the title block stays in
+    # sheets.json); the unit check overrode the header ($INSUNITS 4 = mm, the drawing is in cm): method unit_check.
+    building, _, out = built
+    pages = building["documents"][0]["pages"]
+    assert [p["region_id"] for p in pages] == ["r2", "r3", "r4", "r5", "r6"]
+    assert [p["class"] for p in pages] == ["floor_plan", "floor_plan", "floor_plan", "floor_plan", "section"]
+    assert pages[2]["region_class"] == "alternative_floor_plan" and pages[2]["variant"] == "Açık mutfak"
+    assert pages[4]["skip_reason"].startswith("section")
+    for p in pages[:4]:
+        scale = p["scale"]
+        assert scale["metres_per_unit"] == 0.01 and scale["method"] == "unit_check"
+        assert scale["evidence"]["rule"] == "unit_check" and scale["evidence"]["entity"] == "$INSUNITS=4"
+        assert scale["evidence"]["text"].startswith("header mm; ") and "agree on cm" in scale["evidence"]["text"]
+        assert p["debug_image"] == f"debug/sheet_dxf_p1_{p['region_id']}.png" and (out / p["debug_image"]).is_file()
+        assert p["region_box"] and p["transform_to_building"]
+
+
+def test_levels_with_heights_from_the_section(built):
+    building, _, _ = built
+    levels = {lv["id"]: lv for lv in building["levels"]}
+    assert list(levels) == ["L-1", "L-1b", "L0", "L1"]
+    assert {k: lv["kind"] for k, lv in levels.items()} == {"L-1": "basement", "L-1b": "basement", "L0": "floor",
+                                                           "L1": "attic"}
+    assert {k: lv["elevation"] for k, lv in levels.items()} == pytest.approx({"L-1": -3.0, "L-1b": -3.0, "L0": 0.0,
+                                                                              "L1": 3.15}, abs=0.001)
+    assert all(lv["elevation_source"] == "section" and lv["ceiling_height_source"] == "section"
+               for lv in levels.values())
+    assert levels["L0"]["ceiling_height"] == pytest.approx(3.0, abs=0.001)
+    assert levels["L0"]["floor_to_floor"]["value"] == pytest.approx(3.15, abs=0.001)
+    assert levels["L-1b"]["variant"] == "Açık mutfak" and levels["L-1b"]["base_level_id"] == "L-1"
+    assert levels["L-1b"]["variant_group"] == "vg_L-1" and levels["L-1"]["variant"] == "base"
+    assert {lv["region_id"] for lv in levels.values()} == {"r2", "r3", "r4", "r5"}
+    walls = [w for w in building["walls"] if w["level_id"] == "L0"]
+    assert all(w["height"] == pytest.approx(3.0, abs=0.001) for w in walls)
+
+
+def test_every_level_in_one_frame(built):
+    building, _, _ = built
+    for level_id in ("L-1", "L-1b", "L0", "L1"):
+        walls = [w for w in building["walls"] if w["level_id"] == level_id]
+        xs = [p[0] for w in walls for p in (w["start"], w["end"])]
+        ys = [p[1] for w in walls for p in (w["start"], w["end"])]
+        # 20 cm outer walls around a 10 x 8 m outline whose outer corner is the frame's origin, on every level.
+        assert (min(xs), min(ys), max(xs), max(ys)) == pytest.approx((0.0, 0.1, 10.0, 7.9), abs=0.02), level_id
+
+
+def test_rooms_alternatives_and_variants(built):
+    building, _, _ = built
+    rooms = {r["id"]: r for r in building["rooms"]}
+    assert rooms["r_L-1b_salon"]["same_as"] == "r_L-1_salon"
+    assert rooms["r_L-1b_acik_mutfak"]["same_as"] is None
+    assert rooms["r_L1_cocuk_odasi"]["room_subtype"] == "child"
+    assert all("twin_of" in r for r in rooms.values())
+    assert all(r["twin_transform"] is None and r["twin_residual_m"] is None for r in rooms.values())
+    variants = {v["id"]: v for v in building["variants"]}
+    assert variants["base"]["levels"] == ["L-1", "L0", "L1"]
+    assert variants["base"]["rooms_changed"] == [] and variants["base"]["exterior_changed"] is False
+    alt = variants["l-1b-acik-mutfak"]
+    assert alt["levels"] == ["L-1b", "L0", "L1"] and alt["rooms_changed"] == ["r_L-1b_acik_mutfak"]
+    assert alt["changes"] == [{"variant_group": "vg_L-1", "level_id": "L-1b", "replaces": "L-1"}]
+    # The alternative's outer walls and openings match the base's: its exterior views are the base's.
+    assert alt["exterior_changed"] is False and alt["evidence"][0]["region_id"] == "r4"
+    levels = {lv["id"]: lv for lv in building["levels"]}
+    assert levels["L-1"]["variant_slug"] == "base" and levels["L-1b"]["variant_slug"] == "acik-mutfak"
+
+
+def test_evidence_names_the_region(built):
+    building, _, _ = built
+    region = {lv["id"]: lv["region_id"] for lv in building["levels"]}
+    for key in ("walls", "rooms"):
+        for x in building[key]:
+            assert all(ev.get("region_id") == region[x["level_id"]] for ev in x["evidence"]
+                       if ev.get("file") == "sheet.dxf"), x["id"]
+    assert building["project"]["datum"]["value"] == 43.0
+
+
+def test_slabs_roof_and_site(built):
+    building, _, _ = built
+    slabs = {s["id"]: s for s in building["slabs"]}
+    # §1.6b row 8: the alternative's slabs equal the base's (same outline, its stair where the base's is): no
+    # sl_L-1b and no sl_<above>__<variant>.
+    assert set(slabs) == {"sl_L-1", "sl_L0", "sl_L1"}
+    assert slabs["sl_L0"]["below_level_id"] == "L-1" and slabs["sl_L0"]["z_top"] == pytest.approx(0.0)
+    assert all(s["thickness"] == pytest.approx(0.15) and s["thickness_source"] == "section" for s in slabs.values())
+    assert [o["kind"] for o in slabs["sl_L0"]["openings"]] == ["stair_void"]
+    stair = next(f for f in building["furniture"] if f["id"] == slabs["sl_L0"]["openings"][0]["furniture_id"])
+    assert stair["type"] == "stair" and stair["level_id"] == "L-1"
+    assert all(s["variants"] == [] for s in slabs.values())
+    roof = building["roof"]
+    assert roof["type"] == "mansard" and roof["type_source"] == "plan_roof_lines" and roof["planes"] == []
+    assert roof["over_level_id"] == "L1" and roof["eaves_height"]["value"] == pytest.approx(3.65, abs=0.01)
+    assert roof["profile"]["region_id"] == "r6" and roof["profile"]["cut_axis"] == "x"
+    assert roof["profile"]["points"][0] == pytest.approx([-0.5, 3.65], abs=0.01) and roof["covering"] is None
+    assert roof["covering_source"] is None and roof["knee_wall"]["value"] == pytest.approx(0.773, abs=0.01)
+    assert building["facade"]["faces"] == [] and building["facade"]["elevations"] == []
+    assert "default" not in building["facade"]
+    site = building["site"]
+    assert site["north_deg"] is None
+    assert [g["side"] for g in site["ground"]["levels"]] == ["left", "right"] and site["ground"]["terrain"] == "flat"
+    kinds = {c["kind"] for c in building["conflicts"]}
+    assert {"unit_mismatch", "level_mark_mismatch"} <= kinds
+
+
+def test_failed_level_is_left_out_with_the_levels_above(tmp_path):
+    building, build, _ = _build(tmp_path, walls={"ground": False})
+    left = {x["region_id"]: x["reason"] for x in building["levels_left_out"]}
+    assert set(left) == {"r2", "r5"}
+    assert "no building walls" in left["r2"] and "above the left-out level L0" in left["r5"]
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L-1b"]
+    assert building["status"] == "ok"
+    assert [v["levels"] for v in building["variants"]] == [["L-1"], ["L-1b"]]
+
+
+def test_a_failed_alternative_drops_only_its_variant(tmp_path):
+    building, build, _ = _build(tmp_path, walls={"alternative": False})
+    assert [x["region_id"] for x in building["levels_left_out"]] == ["r4"]
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L0", "L1"]
+    assert [v["id"] for v in building["variants"]] == ["base"] and building["status"] == "ok"
+
+
+def test_only_alternative_levels_left_still_ok(tmp_path):
+    # §1.6b row 7: the status stays ok while at least one level remains.
+    building, build, _ = _build(tmp_path, walls={"ground": False, "basement": False})
+    assert [lv["id"] for lv in building["levels"]] == ["L-1b"]
+    assert building["status"] == "ok" and [v["id"] for v in building["variants"]] == ["l-1b-acik-mutfak"]
+    assert any("only alternative levels remain" in w for w in building["warnings"])
+
+
+def test_brief_variants_base_leaves_the_alternative_unbuilt(tmp_path):
+    building, build, _ = _build(tmp_path, brief="variants: base\n")
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L0", "L1"]
+    assert [v["id"] for v in building["variants"]] == ["base"]
+    left = building["levels_left_out"]
+    assert [x["region_id"] for x in left] == ["r4"] and "not built" in left[0]["reason"]
+    assert building["status"] == "ok"
+
+
+def test_site_plan_elevation_and_facade(tmp_path):
+    # §1.6b row 12: drawn faces only (side, z range in building z, source elevation), one elevations entry with its
+    # plan_check; the site plan's plot, parking, tree and labels; ground sides by compass once the north is known.
+    building, build, _ = _build(tmp_path, exterior=True)
+    assert building["status"] == "ok", build.review_reasons
+    assert B.validation_errors(building) == []
+    pages = {p["region_id"]: p for p in building["documents"][0]["pages"]}
+    site_page = next(p for p in pages.values() if p["class"] == "site_plan")
+    assert site_page["skip_reason"].startswith("site_plan") and site_page["transform_to_building"]
+    faces = {f["material"]: f for f in building["facade"]["faces"]}
+    assert faces["stone_cladding"]["side"] == "south" and faces["stone_cladding"]["z_range"] == pytest.approx([0, 1])
+    assert faces["stone_cladding"]["level_id"] == "L0" and faces["stone_cladding"]["source"] == "elevation"
+    assert faces["render"]["z_range"] is None and all(f["evidence"] for f in faces.values())
+    (elev,) = building["facade"]["elevations"]
+    assert (elev["side"], elev["windows"], elev["doors"], elev["title"]) == ("south", 3, 1, "GÜNEY GÖRÜNÜŞÜ")
+    # The fixture's plans draw no window or door on the outer walls: the elevation's four are extra.
+    assert elev["plan_check"]["matched"] == 0 and elev["plan_check"]["extra"] == 4
+    assert elev["positions_m"][0]["sill"] == pytest.approx(1.0) and elev["positions_m"][0]["head"] == pytest.approx(2.5)
+    site = building["site"]
+    assert site["plot"]["source"] == "site_plan" and site["plot"]["polygon"][0] == pytest.approx([-7.0, -6.0])
+    (parking,) = site["parking"]
+    area = next(a for a in site["areas"] if a["id"] == parking["area_id"])
+    assert area["kind"] == "parking" and area["build"] is False and area["label_raw"] == "OTOPARK"
+    assert all(a["build"] is False for a in site["areas"])
+    tree = next(d for d in site["decor"] if d["kind"] == "tree")
+    assert tree["center"] == pytest.approx([-4.0, 11.0]) and tree["size"] == pytest.approx([2.0, 2.0])
+    assert site["north_deg"]["value"] == pytest.approx(330.0, abs=3.0)
+    # The section's left/right are -X/+X; with +Y ~30 deg west of north they face ~west and ~east.
+    sides = [(g["side"], g["azimuth_deg"]) for g in site["ground"]["levels"]]
+    assert [s for s, _ in sides] == ["west", "east"]
+    assert sides[0][1] == pytest.approx(240.0, abs=3.0)
+
+
+def test_failed_levels_stop(tmp_path):
+    building, build, _ = _build(tmp_path, brief="failed_levels: stop\n", walls={"ground": False})
+    assert building["status"] == "needs_review"
+    assert any("r2 (L0)" in r for r in build.review_reasons)
+
+
+def test_a_stale_sheets_json_is_analysed_again(tmp_path, built):
+    project = tmp_path / "p"
+    project.mkdir()
+    write_sheet(project / "sheet.dxf")
+    out = tmp_path / "out"
+    SH.run(project, out, no_ai=True)
+    doc = json.loads((out / "sheets.json").read_text(encoding="utf-8"))
+    doc["inputs"][0]["sha256"] = "0" * 64
+    doc["multi_region"] = False
+    (out / "sheets.json").write_text(json.dumps(doc), encoding="utf-8")
+    building, build = P.run_project(project, out, no_ai=True)
+    assert any("ran again" in w for w in building["warnings"])
+    assert len(building["levels"]) == 4
+
+
+def test_a_crashing_analysis_falls_back_to_pages(tmp_path, monkeypatch):
+    project = tmp_path / "p"
+    project.mkdir()
+    write_sheet(project / "sheet.dxf")
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("broken")
+
+    monkeypatch.setattr(SH, "run", boom)
+    building, build = P.run_project(project, tmp_path / "out", no_ai=True)
+    assert any(w.startswith("sheet analysis failed (RuntimeError: broken)") for w in building["warnings"])
+    assert all("region_id" not in p for p in building["documents"][0]["pages"])
+
+
+def test_debug_raster_of_a_region_renders_only_its_box(tmp_path):
+    # §1.6b row 2: debug_image.raster_from_dxf(..., clip_box=) (plan crops of a region page).
+    from wenart.ingest import debug_image as DI
+
+    path = write_sheet(tmp_path / "sheet.dxf")
+    box = (500.0, 2368.75, 1500.0, 3300.0)                # the ground-floor plan's region
+    raster = DI.raster_from_dxf(path, width_px=400, clip_box=box)
+    w, h = raster.image.size
+    assert w == 400 and h == pytest.approx(400 * (box[3] - box[1]) / (box[2] - box[0]), abs=2)
+    x0, y0 = raster.to_pixels((box[0], box[3]))
+    x1, y1 = raster.to_pixels((box[2], box[1]))
+    assert 0 < x0 < 20 and 0 < y0 < 20 and w - 20 < x1 < w and h - 20 < y1 < h
+    assert raster.image.convert("L").getextrema()[0] < 128                # something is drawn
+
+
+def test_the_building_origin_is_the_reference_walls_not_the_sheets_outline(tmp_path):
+    # §1.6b row 1: the reference's outer wall faces (the core's step 8) fix the origin; the sheets outline starts at
+    # an entrance step 0.3 m further out: every level, the roof outline and the profile move with the walls.
+    building, build, _ = _build(tmp_path, step=True)
+    assert build.frame_shift == pytest.approx((0.3, 0.0), abs=0.01)
+    assert any(w.startswith("building frame:") for w in building["warnings"])
+    for level_id in ("L-1", "L-1b", "L0", "L1"):
+        walls = [w for w in building["walls"] if w["level_id"] == level_id]
+        xs = [p[0] for w in walls for p in (w["start"], w["end"])]
+        ys = [p[1] for w in walls for p in (w["start"], w["end"])]
+        assert (min(xs), min(ys), max(xs), max(ys)) == pytest.approx((0.0, 0.1, 10.0, 7.9), abs=0.02), level_id
+    xs = [p[0] for p in building["roof"]["outline"]]
+    assert (min(xs), max(xs)) == pytest.approx((-0.5, 10.5), abs=0.02)
+    assert building["roof"]["profile"]["points"][0][0] == pytest.approx(-0.5, abs=0.02)
+
+
+def test_a_copy_of_a_level_is_cross_checked_not_an_alternative(tmp_path):
+    # §1.6b row 4: the same level drawn twice with the same title is one level (the M7 master / secondary check).
+    building, build, _ = _build(tmp_path, alternative_title="BODRUM KAT PLANI")
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L0", "L1"]
+    assert [v["id"] for v in building["variants"]] == ["base"]
+    pages = [p for p in building["documents"][0]["pages"] if p.get("level_id") == "L-1"]
+    assert [p["region_id"] for p in pages] == ["r3", "r4"]
+    assert building["status"] == "ok"

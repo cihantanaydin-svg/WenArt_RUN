@@ -164,6 +164,34 @@ def convert(path: str | Path, out_dir: Optional[str | Path]) -> Conversion:
     if out_dir is None:
         raise ConversionError(f"{dwg_path.name}: no output folder given (a DWG is never converted into the project "
                               "folder)")
+    key = _cache_key(dwg_path, Path(out_dir))
+    cached = _CONVERTED.get(key)
+    if cached is not None:
+        conversion, stamp = cached
+        if conversion.dxf_path.is_file() and _stamp(conversion.dxf_path) == stamp:
+            # Milestone 10: the sheets stage and the pipeline convert the same DWG in one process (real02: 45 s);
+            # the DXF this process wrote, unchanged since, is reused.
+            return conversion
+    conversion = _convert(dwg_path, Path(out_dir))
+    _CONVERTED[key] = (conversion, _stamp(conversion.dxf_path))
+    return conversion
+
+
+# Conversions done by this process: (DWG path, size, mtime, output folder) -> (Conversion, DXF size and mtime).
+_CONVERTED: dict[tuple, tuple] = {}
+
+
+def _stamp(path: Path) -> tuple[int, int]:
+    st = path.stat()
+    return (st.st_size, st.st_mtime_ns)
+
+
+def _cache_key(dwg_path: Path, out_dir: Path) -> tuple:
+    st = dwg_path.stat()
+    return (str(dwg_path.resolve()), st.st_size, st.st_mtime_ns, str(out_dir.resolve()))
+
+
+def _convert(dwg_path: Path, out_dir: Path) -> Conversion:
     tool = find_tool("dwg2dxf") if available_converters() else None
     if tool is None:
         raise ConverterNotFound(_not_found_message(dwg_path))

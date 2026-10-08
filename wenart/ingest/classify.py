@@ -135,18 +135,40 @@ class PageRecord:
     raster_page: Optional[object] = None       # raster pages: raster.RasterPage read while classifying (pipeline)
     level_note: Optional[str] = None           # how an untitled raster page got its level (a pipeline warning)
     extractor_note: Optional[str] = None       # DXF/DWG: why the generic adapter reads a file with synthetic layers
+    # Milestone 10 (docs/milestone10.md §1.6a): one record per sheets.json region (multi-region projects only).
+    region_id: Optional[str] = None            # serialised (with region_box, region_class, variant) when set
+    region_box: Optional[list] = None
+    region_class: Optional[str] = None
+    variant: Optional[str] = None
+    variant_group: Optional[str] = None
+    variant_slug: Optional[str] = None
+    base_level_id: Optional[str] = None        # alternative levels: the base level they replace
+    level_kind: Optional[str] = None           # basement | floor | attic
+    region_transform: Optional[list] = None    # the registered transform_to_building of the region
+    units_override: Optional[float] = None     # metres per unit of the unit check (DXF/DWG)
+
+    @property
+    def key(self) -> tuple:
+        """(file, page, region) of the record: one record per region of a page in multi-region projects."""
+        return (self.file, self.page, self.region_id)
 
     def is_extractable(self) -> bool:
         readable = self.kind == "vector" or (self.kind in ("scan", "photo") and self.extractor == "raster")
         return readable and self.page_class in ("floor_plan", "furniture_plan") and self.skip_reason is None
 
     def to_json(self) -> dict:
-        return {
+        out = {
             "page": self.page, "class": self.page_class, "skip_reason": self.skip_reason, "kind": self.kind,
             "level_id": self.level_id, "level_label_raw": self.level_label_raw, "classifier": self.classifier,
             "scale": self.scale, "transform_to_building": None, "confidence": self.confidence,
             "evidence": list(self.evidence), "debug_image": None,
         }
+        if self.region_id is not None:
+            out.update({"region_id": self.region_id, "region_box": self.region_box,
+                        "region_class": self.region_class, "variant": self.variant})
+            if self.skip_reason is not None and self.region_transform is not None:
+                out["transform_to_building"] = list(self.region_transform)      # a registered site plan
+        return out
 
 
 def document_format(file: str) -> Optional[str]:
@@ -645,12 +667,14 @@ def assign_untitled_levels(records: list[PageRecord]) -> None:
 
 
 def classify_pages(project_dir: str | Path, work_dir: Optional[str | Path] = None,
-                   ocr: Optional[Callable] = None) -> list[PageRecord]:
+                   ocr: Optional[Callable] = None, sheets: Optional[dict] = None) -> list[PageRecord]:
     """Classify every page of every document in ``project_dir``.
 
     ``work_dir`` receives DWG conversions (required for a DWG: a converted DXF is never written into the
     project folder; without it the DWG is recorded as not convertible).
     ``ocr`` is an optional callable ``(image_path) -> [{"text", "box", "confidence"}]``.
+    ``sheets`` (Milestone 10): the ``sheets.json`` of the project; in a multi-region project the vector pages with
+    drawing regions become one record per region (``region_records``).
     """
     project_dir = Path(project_dir)
     work = Path(work_dir) if work_dir else None
@@ -666,5 +690,105 @@ def classify_pages(project_dir: str | Path, work_dir: Optional[str | Path] = Non
             records.extend(_classify_pdf(file_rel, path, ocr))
         else:
             records.append(_classify_image(file_rel, path, ocr))
+    records = region_records(records, sheets)
     assign_untitled_levels(records)
     return records
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: one record per drawing region (docs/milestone10.md §1.6a)
+# --------------------------------------------------------------------------
+
+REGION_PAGE_CLASS = {"alternative_floor_plan": "floor_plan"}
+REGION_SKIP = {"heights": "{cls}: read for the heights by the sheets stage (sheets.json {rid})",
+               "exterior": "{cls}: read for the exterior by the sheets stage (sheets.json {rid})"}
+
+
+UNIT_NAMES = {0.001: "mm", 0.01: "cm", 0.1: "dm", 1.0: "m", 0.0254: "in", 0.3048: "ft"}
+INSUNITS_NAMES = {1: "in", 2: "ft", 4: "mm", 5: "cm", 6: "m", 14: "dm"}
+
+
+def region_records(records: list[PageRecord], sheets: Optional[dict]) -> list[PageRecord]:
+    """In a multi-region project (``sheets["multi_region"]``: a sheet with >= 2 plans, or a section, elevation, roof
+    or site plan), every vector page (DXF/DWG model space, vector PDF page) with a plan region to read is replaced by
+    one record per region of that page with use ``read``, ``heights`` or ``exterior`` (ignored regions live in
+    ``sheets.json`` only, docs/milestone10.md §1.6b row 2): the region's class, level (alternatives ``L-1b``),
+    variant, box, registered transform and, for a CAD document, the drawing unit of the unit check (scale method
+    ``unit_check`` when the check overrode the header). Other pages, and every page of a project that is one drawing
+    per page, keep their M2-M9 record unchanged."""
+    if not sheets or not sheets.get("multi_region"):
+        return records
+    by_page: dict[tuple, list[dict]] = {}
+    for r in sheets.get("regions") or []:
+        if (r.get("features") or {}).get("raster"):
+            continue
+        by_page.setdefault((r["file"], r.get("page") or 1), []).append(r)
+    units = {d["file"]: d.get("units") or {} for d in sheets.get("documents") or []}
+    base_of = {}
+    for lv in sheets.get("levels") or []:
+        for alt in lv.get("alternatives") or []:
+            base_of[alt["level_id"]] = lv["id"]
+    out: list[PageRecord] = []
+    for rec in records:
+        regions = by_page.get((rec.file, rec.page))
+        if rec.kind != "vector" or not regions or not any(r["use"] == "read" for r in regions) \
+                or rec.skip_reason == SAME_STEM_REASON:
+            out.append(rec)
+            continue
+        for r in sorted(regions, key=lambda r: int(r["id"][1:]) if r["id"][1:].isdigit() else 0):
+            if r["use"] in ("read", "heights", "exterior"):
+                out.append(_region_record(rec, r, units.get(rec.file) or {}, base_of))
+    return out
+
+
+def unit_scale(file: str, units: dict, region_id: Optional[str] = None) -> Optional[dict]:
+    """The page ``scale`` of a CAD region from the sheets unit check: ``dxf_insunits`` when the header unit holds,
+    ``unit_check`` (evidence naming the agreeing checks) when the checks overrode it."""
+    mpu = units.get("metres_per_unit")
+    if not mpu:
+        return None
+    unit = UNIT_NAMES.get(round(float(mpu), 6), f"{mpu:g} m")
+    header = INSUNITS_NAMES.get(units.get("insunits"), f"code {units.get('insunits')}")
+    agree = [c["check"].replace("_", " ") for c in units.get("checks") or [] if c.get("unit") == unit]
+    if units.get("method") == "unit_check":
+        text = f"header {header}; {', '.join(agree) or 'the checks'} agree on {unit}"
+        return {"metres_per_unit": float(mpu), "method": "unit_check", "confidence": 0.95,
+                "evidence": B.evidence(file, "vector", 1.0, entity=f"$INSUNITS={units.get('insunits')}", text=text,
+                                       region_id=region_id, rule="unit_check")}
+    text = f"$INSUNITS {units.get('insunits')} ({header}): {mpu:g} m per unit" + \
+        (f"; {', '.join(agree)} agree" if agree else "")
+    return {"metres_per_unit": float(mpu), "method": "dxf_insunits", "confidence": 1.0,
+            "evidence": B.evidence(file, "vector", 1.0, entity=f"$INSUNITS={units.get('insunits')}", text=text,
+                                   region_id=region_id, rule="dxf_insunits")}
+
+
+def _region_record(rec: PageRecord, r: dict, units: dict, base_of: dict) -> PageRecord:
+    level = r.get("level") or {}
+    cls = REGION_PAGE_CLASS.get(r["class"], r["class"])
+    new = PageRecord(file=rec.file, page=rec.page, format=rec.format, kind="vector", page_class=cls,
+                     confidence=float(r.get("class_confidence") or 0.0), converter=rec.converter,
+                     source_path=rec.source_path, conversion=rec.conversion)
+    new.level_label_raw = (r.get("title") or {}).get("text")
+    if level:
+        new.level_id, new.level_label, new.level_order = level["id"], level["label"], level["order"]
+        new.label_source = {"title": "title", "assumed": "assumed", "section_order": "section_order"}.get(
+            level.get("method"), "title")
+        new.level_kind = level.get("kind")
+    new.classifier = r.get("class_method")
+    new.extractor = "generic"
+    new.evidence = [dict(e) for e in r.get("evidence") or []]
+    if r["use"] != "read":
+        template = REGION_SKIP.get(r["use"])
+        new.skip_reason = (template.format(cls=r["class"], rid=r["id"]) if template else
+                           f"{r['class']}: {r.get('ignored_reason') or 'not read'} (sheets.json {r['id']})")
+    new.region_id, new.region_box, new.region_class = r["id"], list(r["box"]), r["class"]
+    new.variant, new.variant_group, new.variant_slug = r.get("variant"), r.get("variant_group"), r.get("variant_slug")
+    new.base_level_id = base_of.get(new.level_id)
+    new.region_transform = r.get("transform_to_building")
+    mpu = units.get("metres_per_unit")
+    if rec.format in ("dxf", "dwg") and mpu:
+        new.units_override = float(mpu)
+        new.scale = unit_scale(rec.file, units, r["id"])
+    elif rec.format == "pdf":
+        new.scale = rec.scale
+    return new

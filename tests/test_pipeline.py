@@ -202,6 +202,20 @@ def test_furniture_plan_is_the_furniture_source_synthetic_05(built):
     assert building["project"]["brief"]["polish"] is False
 
 
+@pytest.mark.parametrize("name", NAMES)
+def test_one_drawing_per_page_keeps_the_m2_m9_building(built, name):
+    """Milestone 10 (docs/milestone10.md §1.6a): a project whose sheets are one drawing per page reads its pages as
+    before; its building.json gains none of the M10 blocks (byte-identical to M9 apart from the timestamps)."""
+    building, out = built[name]
+    assert (out / "sheets.json").is_file()
+    assert B.validation_errors(building) == []
+    for key in ("variants", "slabs", "roof", "facade", "levels_left_out"):
+        assert key not in building
+    assert all("region_id" not in p for d in building["documents"] for p in d["pages"])
+    assert all("kind" not in lv and "variant" not in lv for lv in building["levels"])
+    assert all("room_subtype" not in r and "twin_of" not in r for r in building["rooms"])
+
+
 def test_documents_and_outputs(built):
     building, out_dir = built["synthetic-01"]
     docs = {d["file"]: d for d in building["documents"]}
