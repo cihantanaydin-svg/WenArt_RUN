@@ -68,6 +68,8 @@ def test_every_empty_room_was_laid_out(project):
         if entry["room_type"] in schemas.NOT_FURNISHED_ROOM_TYPES:
             assert entry["passes"] == [] and "never furnished by AI" in (entry["skipped"] or ""), entry
             continue
+        if entry.get("copied_from"):
+            continue            # Milestone 10: a twin or same_as room takes its partner's layout (asked once)
         assert len(entry["passes"]) == 2, entry["room_id"]
     prayer = [r["id"] for r in building["rooms"] if not r["has_documented_furniture"]
               and r["room_type"] in schemas.NOT_FURNISHED_ROOM_TYPES]
@@ -96,7 +98,11 @@ def test_added_pieces_pass_every_check(project):
     assert rooms, f"{name}: no AI furniture at all"
     for rid, pieces in rooms.items():
         room = next(r for r in building["rooms"] if r["id"] == rid)
-        assert not room["has_documented_furniture"], f"{name}: AI furniture in a documented room {rid}"
+        # Milestone 10: a room with drawn furniture gets AI pieces only through the completion (completes_room);
+        # tests/gpu/test_m10_completion.py checks those.
+        if room["has_documented_furniture"]:
+            assert all(f.get("completes_room") for f in pieces), f"{name}: AI furniture in a documented room {rid}"
+            continue
         ctx = P.room_context(building, room)
         placed = [P.piece_from_furniture(f, i) for i, f in enumerate(pieces)]
         for f, p, checks in zip(pieces, placed, P.check_all(placed, ctx)):
@@ -117,9 +123,13 @@ def test_real_model_and_latency_logged(project):
     for entry in summary["rooms"]:
         for p in entry["passes"]:
             assert p["model"] == EXPECTED_MODEL and p["latency_s"] > 0, (entry["room_id"], p)
+        if entry.get("copied_from"):
+            continue            # Milestone 10: copied from its twin or same_as partner: never asked, no latency
         if entry["room_type"] not in schemas.NOT_FURNISHED_ROOM_TYPES:      # never asked: no latency
             assert entry["latency_s"] > 0
-    models = {f["evidence"][0]["model"] for f in building["furniture"] if f["source"] == "added_by_ai"}
+    # Milestone 10: wall cabinets placed by rule carry derived evidence (no model).
+    models = {e.get("model") for f in building["furniture"] if f["source"] == "added_by_ai"
+              for e in f["evidence"][:1] if e["method"] == "ai"}
     assert models <= {EXPECTED_MODEL}, models
     report = (OUTPUTS / name / "layout_report.md").read_text(encoding="utf-8")
     assert " s)" in report, "latency per pass missing from the report"

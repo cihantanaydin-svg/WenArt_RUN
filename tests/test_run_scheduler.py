@@ -333,9 +333,16 @@ class FakeCLI:
     def h_layout(self, cmd, project, log):
         b = json.loads(Path(cmd[3]).read_text())
         empty = [r for r in b["rooms"] if not r["has_documented_furniture"]]
-        b["furniture"] = b["furniture"] + [{"id": "f_ai", "room_id": empty[0]["id"], "source": "added_by_ai"}]
+        if empty:
+            b["furniture"] = b["furniture"] + [{"id": "f_ai", "room_id": empty[0]["id"], "source": "added_by_ai"}]
+        else:           # Milestone 10: only furnished rooms: the completion adds a piece (furnished_rooms: complete)
+            b["furniture"] = b["furniture"] + [{"id": "f_ai", "room_id": b["rooms"][0]["id"], "source": "added_by_ai",
+                                                "completes_room": True}]
         write(opt(cmd, "--out"), b)
         write(Path(opt(cmd, "--out")).parent / "layout.json", {"rooms": []})
+        # Milestone 10: the completion of furnished rooms runs in the same CLI (docs/milestone10.md §1.6a).
+        write(Path(opt(cmd, "--out")).parent / "completion.json", {"kind": "completion", "rooms": []})
+        write(Path(opt(cmd, "--out")).parent / "completion_report.md", "# completion\n")
 
     def h_build(self, cmd, project, log):
         out = Path(opt(cmd, "--out"))
@@ -616,13 +623,22 @@ def test_four_starts_with_uncached_photos_and_two_without_empty_rooms(tmp_path):
 
     tmp2 = tmp_path / "second"
     tmp2.mkdir()
-    r2 = Run(tmp2, {"p1": {}}, buildings={"p1": {"rooms": rooms_full}}, projects=["p1"])
+    # furnished_rooms: keep (M9 behaviour): a fully furnished project needs no layout session.
+    r2 = Run(tmp2, {"p1": {"brief": {"furnished_rooms": "keep"}}}, buildings={"p1": {"rooms": rooms_full}},
+             projects=["p1"])
     assert r2.run() == 0
     assert r2.servers.starts == ["qwen", "glm"]
-    assert r2.record("p1", "layout")["status"] == "skipped" and r2.record("p1", "layout")["note"] == "no empty room"
+    assert r2.record("p1", "layout")["status"] == "skipped"
+    assert r2.record("p1", "layout")["note"] == "no empty or completable room"
     assert r2.record("p1", "photos")["note"] == "no style photos"
     assert opt(r2.cli.find("decor")[0]["cmd"], "--out").endswith("building_decor.json")
     assert r2.cli.find("decor")[0]["cmd"][4].endswith("building_fitted.json")       # decor_ai apply <building>
+    # Milestone 10 default (furnished_rooms: complete): the same project's furnished rooms are completed in a session.
+    tmp3 = tmp_path / "third"
+    tmp3.mkdir()
+    r3 = Run(tmp3, {"p1": {}}, buildings={"p1": {"rooms": rooms_full}}, projects=["p1"])
+    assert r3.run() == 0
+    assert r3.servers.starts == ["qwen", "qwen", "glm"] and r3.record("p1", "layout")["status"] == "ok"
 
 
 def test_m9_decor_questions_in_the_qwen_session_and_the_3d_export(tmp_path, monkeypatch):
@@ -651,8 +667,8 @@ def test_m9_decor_questions_in_the_qwen_session_and_the_3d_export(tmp_path, monk
     # A failed Qwen start: the layout fails as before; the decor questions are a warning (rule decor).
     tmp3 = tmp_path / "third"
     tmp3.mkdir()
-    r3 = Run(tmp3, {"p1": {}}, buildings={"p1": {"rooms": [room("r1", "living", 20.0, True)]}}, projects=["p1"],
-             fail={"qwen": "early_exit"})
+    r3 = Run(tmp3, {"p1": {"brief": {"furnished_rooms": "keep"}}},
+             buildings={"p1": {"rooms": [room("r1", "living", 20.0, True)]}}, projects=["p1"], fail={"qwen": "early_exit"})
     r3.run()
     rec = r3.record("p1", "decor_ask")
     assert rec["status"] == "warning" and "rule decor" in rec["note"]
@@ -874,10 +890,13 @@ def test_records_hold_the_contract_fields(tmp_path):
     for key in ("schema_version", "kind", "project", "stage", "rc", "status", "seconds", "fingerprint", "inputs",
                 "outputs", "started_utc", "git_commit", "log", "note"):
         assert key in rec, key
-    assert rec["kind"] == "stage_record" and rec["outputs"] == ["building_furnished.json", "layout.json"]
+    assert rec["kind"] == "stage_record" and rec["outputs"] == ["building_furnished.json", "layout.json",
+                                                                 "completion.json", "completion_report.md"]
     assert rec["log"] == "logs/layout.log" and len(rec["fingerprint"]) == 64
     assert set(rec["inputs"]) == {ST.file_hashes([tmp_path / "outputs/p1/building_fitted.json"]).popitem()[0],
-                                  ST.file_hashes([tmp_path / "outputs/p1/style.json"]).popitem()[0]}
+                                  ST.file_hashes([tmp_path / "outputs/p1/style.json"]).popitem()[0],
+                                  # Milestone 10: the brief's furnished_rooms keys drive the layout too
+                                  ST.file_hashes([tmp_path / "repo/projects/p1/brief.yaml"]).popitem()[0]}
     assert rec["seconds"] == SECONDS["layout"]
     log = tmp_path / "outputs" / "p1" / "run" / "logs" / "layout.log"
     assert log.is_file() and "wenart.furniture.layout" in log.read_text()
