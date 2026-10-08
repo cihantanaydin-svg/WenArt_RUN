@@ -96,7 +96,8 @@ Milestone 10 (docs/milestone10.md §4.4-§4.7, §1.6b rows 15, 18; track F):
   and left as it is.
 - Decor: the 12 new types (curtains and blinds at their window, throws, books, candles, baskets, trays, wall
   clocks, sculptures, large plants of their species in their pot, pendant and ceiling lights reaching the
-  ceiling); ``colour_*`` part keys take the item's colour name, ``pot`` the plant's pot.
+  ceiling: under a roof the lowest point of the sloped attic ceiling over them, ``ceiling_above``);
+  ``colour_*`` part keys take the item's colour name, ``pot`` the plant's pot.
 - Lights (§4.9): in a mood with ``lamps_on`` (interior evening) and for decor with ``light_on``, lamp bulbs and
   shades glow and a warm point light (``LAMP_LIGHTS``, assumed wattage) sits in each lamp; recorded as ``light``
   on the entry and in ``assumed``.
@@ -1311,6 +1312,23 @@ def decor_lit(item: dict, lamps_on_mood: bool) -> bool:
     return lamps_on_mood
 
 
+def ceiling_above(level: dict, center, size, rotation_deg: float = 0.0) -> tuple[float, str]:
+    """``(ceiling height above the floor, how)`` over a footprint (pure): the level's ``ceiling_height``; under a
+    roof (``level["ceiling_planes"]``, the sloped attic ceiling the shell builds) the lowest ceiling plane over the
+    footprint's corners and centre, so a ceiling light or a pendant meets the slope without passing through it."""
+    flat = float(level.get("ceiling_height") or 2.7)
+    planes = level.get("ceiling_planes")
+    if not planes:
+        return flat, "the level's ceiling"
+    from wenart.blender import geom2d
+
+    floor_z = float(level.get("elevation") or 0.0)
+    points = list(G.rotated_rectangle((float(center[0]), float(center[1])), (float(size[0]), float(size[1])),
+                                      float(rotation_deg))) + [(float(center[0]), float(center[1]))]
+    z = min(geom2d.surface_z(planes, x, y) for x, y in points) - floor_z
+    return round(z, 4), "the sloped ceiling under the roof (its lowest point over the item)"
+
+
 def _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices, host_entry,
                   warnings, geo_cache, skipped: list | None = None, assumed: list | None = None) -> dict | None:
     dtype = item.get("type")
@@ -1345,11 +1363,14 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         center = [hit[1][0], hit[1][1]]
         z_how = f"on the built top of {host['type']} {host['id']} (ray" + (", moved towards its centre)" if moved
                                                                              else ")")
-    ceiling = float(level.get("ceiling_height") or 2.7)
+    ceiling, ceiling_how = ceiling_above(level, center, (w, d), rot)    # Milestone 10: sloped under a roof
     if dtype == "ceiling_light" and z_how != "center[2]":
-        z_above, z_how = round(ceiling - h, 4), "ceiling (flush)"       # Milestone 10: at the level's ceiling
+        z_above, z_how = round(ceiling - h, 4), f"ceiling (flush, {ceiling_how})"
     if dtype == "pendant_light" and ceiling - z_above > h:
         h = round(ceiling - z_above, 4)                 # Milestone 10: the cord reaches the ceiling
+    elif dtype == "pendant_light" and z_above + h > ceiling + 1e-6:
+        z_above = round(max(0.0, ceiling - h), 4)       # a low (sloped) ceiling: the shade hangs lower
+        z_how = f"hung from {ceiling_how}, lowered to fit"
     if host is not None:
         owner_id, room_id = host["id"], host.get("room_id")
         name = f"decor_{host['id']}_{n}"

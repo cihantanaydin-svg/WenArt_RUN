@@ -394,3 +394,16 @@ def test_scene_builds_the_designs_mounts_lights_and_accent_wall(looks_scene):
     tiles = next(v for k, v in walls.items() if k.startswith("tiles_subway"))
     assert tiles["procedural"] == "wenart_tiles" and tiles["group"] == "wenart_tiles_running_bond"
     assert tiles["params"]["tile_size_m"] == [0.2, 0.1] and tiles["params"]["grout_colour"] == "charcoal"
+
+
+def test_ceiling_lights_meet_a_sloped_attic_ceiling():
+    """A ceiling light or a pendant under a roof hangs from the lowest point of the sloped ceiling over it
+    (``level["ceiling_planes"]``, the planes the shell builds the attic ceiling on), else from the level's ceiling."""
+    flat = {"id": "L1", "elevation": 3.0, "ceiling_height": 2.6}
+    assert F.ceiling_above(flat, (1.0, 1.0), (0.4, 0.4)) == (2.6, "the level's ceiling")
+    # the roof underside rises 0.5 m per metre along +x from z 4.0 at x = 0; a flat ceiling at 5.6
+    attic = dict(flat, ceiling_planes=[[0.5, 0.0, 4.0], [0.0, 0.0, 5.6]])
+    z, how = F.ceiling_above(attic, (2.0, 1.0), (0.4, 0.4))
+    assert z == pytest.approx(4.0 + 0.5 * 1.8 - 3.0) and "sloped" in how             # the low edge of the item
+    z, _ = F.ceiling_above(attic, (6.0, 1.0), (0.4, 0.4))
+    assert z == pytest.approx(2.6)                                                     # the flat part

@@ -143,6 +143,11 @@ SCENE_OBJECT = {
         "recolour": {"type": "object"},
         "mount_bottom_m": {"type": "number", "minimum": 0},
         "light": {"type": "object", "required": ["name", "energy_w"]},
+        # Milestone 10 (track F): the door and window records of the M10 opening geometry (shell.build_door_m10 /
+        # build_window_m10: parametric.door_parts / window_parts).
+        "door": {"type": "object", "required": ["door_style", "surface_mounted", "handles", "operation"]},
+        "window": {"type": "object", "required": ["material", "frame_width", "frame_depth", "mullions", "transoms",
+                                                  "inside_sill", "inside_side"]},
         "stair": {"type": "object", "required": ["risers", "riser_m", "riser_source", "flights"],
                   "properties": {"risers": {"type": "integer", "minimum": 2},
                                  "riser_m": {"type": "number", "exclusiveMinimum": 0},

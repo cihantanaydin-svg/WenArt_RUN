@@ -1768,7 +1768,8 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     (``wenart.blender.looks.door_look``: ``door_style`` decided with the drawn operation first). Swing styles
     (flush, shaker panel, glazed, entrance) and double / folding doors sit in a frame as deep as the wall;
     pocket doors are a flush leaf with a recessed pull; sliding and barn doors hang on the room face of the wall
-    (``look["side"]``: +1 / -1, the y side of the room; default -1) from a rail and overlap the opening."""
+    (``look["side"]``: +1 / -1, the y side of the room; default -1) from a rail and overlap the opening. A drawn
+    ``fixed`` door (``look["operation"]``) has no handles."""
     style = door_style_of(look)
     side = -1.0 if float((look or {}).get("side") or -1.0) < 0 else 1.0
     w, h, t = float(width), float(height), float(thickness)
@@ -1840,8 +1841,11 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         parts.append(_box(w / 2.0 - 0.05, rail_y, sh + 0.02, 2.0 * sw, 0.02, RAIL_H, "rail", "rail"))
         parts.append(_box(-sw / 2.0 + 0.08, y + side * (DOOR_LEAF_T / 2.0 + 0.01), lever_z - 0.15, 0.03, 0.02, 0.3,
                           "handle", "handle"))
+    fixed = (look or {}).get("operation") == "fixed"
+    if fixed:                                                            # a drawn fixed leaf: nothing to open it
+        parts = [p for p in parts if p["key"] != "handle"]
     record = {"door_style": style, "leaf_thickness": leaf_t, "frame_width": None if surface else frame_w,
-              "surface_mounted": surface, "side": side if surface else None,
+              "surface_mounted": surface, "side": side if surface else None, "handles": not fixed,
               "parts": sorted({p["role"] for p in parts})}
     return parts, record
 
@@ -1856,7 +1860,7 @@ def window_parts(look: dict | None, width: float, height: float, wall_thickness:
     """``(parts, record)`` of a window in the opening's frame: the frame (the material's profile), ``mullions``
     vertical and ``transoms`` horizontal bars when the building gives them (none otherwise), the glass pane(s)
     and an inside sill on the room side (``inside``: -1 / +1, the y side of the room; the outside sill is the
-    shell's). Profiles: ``window_profile``."""
+    shell's), lying on the reveal from the frame to past the wall face. Profiles: ``window_profile``."""
     fw, depth = window_profile((look or {}).get("material"))
     w, h = float(width), float(height)
     depth = min(depth, float(wall_thickness))
@@ -1876,7 +1880,7 @@ def window_parts(look: dict | None, width: float, height: float, wall_thickness:
     t = float(wall_thickness)
     proud = INSIDE_SILL["depth_proud"]
     sill_d = t / 2.0 - depth / 2.0 + proud
-    parts.append(_box(0.0, s * (depth / 2.0 + sill_d / 2.0), -INSIDE_SILL["thickness"], w + 2 * INSIDE_SILL["ears"],
+    parts.append(_box(0.0, s * (depth / 2.0 + sill_d / 2.0), 0.0, w + 2 * INSIDE_SILL["ears"],     # on the reveal
                       sill_d, INSIDE_SILL["thickness"], "sill", "sill"))
     record = {"material": (look or {}).get("material"), "frame_width": fw, "frame_depth": depth, "mullions": m,
               "transoms": tr, "inside_sill": {"depth": round(sill_d, 4), "proud": proud,
