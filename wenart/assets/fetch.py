@@ -36,6 +36,15 @@ model may carry any licence of ``wenart.furniture.catalog.LICENCE_FLAGS``
 non-CC0 model of Objaverse or ABO needs its credit fields. Textures and
 HDRIs stay CC0 only.
 
+Milestone 10 (docs/milestone10.md §4.3, §4.8, §4.9; track C): the vocabulary also holds ``procedural`` entries
+(``source: "procedural"``, ``asset: None``: tiles, wallpaper patterns, slats, a standing-seam roof, flat window-frame
+metals). They have nothing to download: every function below skips an entry whose ``asset`` is empty.
+``check_assets`` / ``python -m wenart.assets.fetch check`` verify every textured slug of the vocabulary and every HDRI
+against the live APIs (id exists, map names, real-world size, download sizes) and may measure the mean colour of the
+Poly Haven Diffuse maps; ``wenart/style/asset_checks_m10.json`` is the committed result and ``tests/test_assets.py``
+keeps it equal to the vocabulary. Fetching the new ids needs no new code: ``fetch_texture`` already reads any Poly
+Haven or ambientCG id (ambientCG downloads need ``acg-download.struffelproductions.com`` on the proxy list).
+
 Idempotent: an asset whose manifest entry and files are present with the
 recorded sha256 is returned without any network call.
 """
@@ -381,11 +390,13 @@ def verify_vocabulary() -> list[dict]:
     ambientCG query with all ids). Rows: ``{"slug", "source", "id", "kind",
     "exists", "size_m"}``; kind ``texture`` (style materials), ``furniture_texture``
     (``vocabulary.FURNITURE_MATERIALS`` with an asset; ``size_m`` must equal the
-    vocabulary's ``size_m``, ``size_ok``) or ``hdri``.
+    vocabulary's ``size_m``, ``size_ok``) or ``hdri``. Procedural entries (no asset id)
+    have nothing to check and are left out; a style material with a recorded ``size_m``
+    (Milestone 10) is size-checked like a furniture texture.
     """
     ph_textures = polyhaven.list_assets("textures")
     ph_hdris = polyhaven.list_assets("hdris")
-    entries = [(slug, e, "texture") for slug, e in V.MATERIALS.items()]
+    entries = [(slug, e, "texture") for slug, e in V.MATERIALS.items() if e.get("asset")]
     entries += [(slug, e, "furniture_texture") for slug, e in V.FURNITURE_MATERIALS.items() if e.get("asset")]
     acg_ids = sorted({e["asset"] for _, e, _ in entries if e["source"] == ambientcg.SOURCE})
     acg = ambientcg.infos(acg_ids)
@@ -400,11 +411,204 @@ def verify_vocabulary() -> list[dict]:
             size = ambientcg.size_m(record)[0] if record else None
         row = {"slug": slug, "source": source, "id": asset_id, "kind": kind, "exists": record is not None,
                "size_m": size}
-        if kind == "furniture_texture":
-            row["size_ok"] = size is not None and [round(v, 4) for v in size] == list(entry.get("size_m") or [])
+        if entry.get("size_m"):
+            row["size_ok"] = size is not None and [round(v, 4) for v in size] == [round(v, 4) for v in entry["size_m"]]
         rows.append(row)
     for hdri_id, entry in V.HDRIS.items():
         record = ph_hdris.get(hdri_id)
         rows.append({"slug": entry["mood"], "source": entry["source"], "id": hdri_id, "kind": "hdri",
                      "exists": record is not None, "size_m": None})
     return rows
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: the committed record of what was checked (wenart/style/asset_checks_m10.json)
+# --------------------------------------------------------------------------
+
+CHECKS_PATH = Path(__file__).resolve().parents[1] / "style" / "asset_checks_m10.json"
+CHECKS_SCHEMA = "wenart-asset-checks-m10/1"
+PH_MAPS = ("Diffuse", "nor_gl", "Rough", "Displacement", "AO", "arm")
+REQUIRED_PH_MAPS = ("Diffuse", "nor_gl", "Rough")
+REQUIRED_ACG_MAPS = ("color", "normal", "roughness")
+MEASURE_SIDE = 64
+
+
+def texture_rows() -> list[dict]:
+    """One row per (source, asset id) the vocabulary references: ``{"source", "asset", "slugs": [...], "size_m"}``
+    (``size_m``: the vocabulary's own value or None). Procedural entries (no ``asset``) are left out."""
+    rows: dict[tuple, dict] = {}
+    for table in (V.MATERIALS, V.FURNITURE_MATERIALS):
+        for slug, entry in table.items():
+            if not entry.get("asset"):
+                continue
+            row = rows.setdefault((entry["source"], entry["asset"]),
+                                  {"source": entry["source"], "asset": entry["asset"], "slugs": [],
+                                   "size_m": entry.get("size_m")})
+            row["slugs"].append(slug)
+            row["size_m"] = row["size_m"] or entry.get("size_m")
+    return sorted(rows.values(), key=lambda r: (r["source"], r["asset"]))
+
+
+def mean_linear_rgb(path: Path, side: int = MEASURE_SIDE) -> list[float]:
+    """Mean linear RGB of an sRGB image (box-filtered to ``side`` x ``side`` first; 3 decimals)."""
+    import numpy as np
+    from PIL import Image
+
+    with Image.open(path) as img:
+        small = np.asarray(img.convert("RGB").resize((side, side), Image.BOX), dtype=np.float64) / 255.0
+    lin = np.where(small <= 0.04045, small / 12.92, ((small + 0.055) / 1.055) ** 2.4)
+    return [round(float(v), 3) for v in lin.reshape(-1, 3).mean(axis=0)]
+
+
+def _check_polyhaven_texture(asset_id: str, measure: bool, cache: Optional[Path]) -> dict:
+    out: dict = {"source": polyhaven.SOURCE, "asset": asset_id, "licence": LICENCE}
+    try:
+        record = polyhaven.info(asset_id)
+        table = polyhaven.files(asset_id)
+    except web.HTTPStatusError as exc:
+        if exc.status == 404:
+            return {**out, "exists": False}
+        raise
+    maps = {key: sorted(table[key], key=lambda k: int(k.rstrip("k"))) for key in PH_MAPS if key in table}
+    size = polyhaven.size_m(record)
+    out.update({"exists": True, "name": record.get("name"), "api_type": record.get("type"),
+                "categories": record.get("categories"), "size_m": size,
+                "size_note": "dimensions of /info (millimetres) / 1000" if size else "the API gives no size",
+                "maps": maps,
+                "has_required_maps": all(k in table and "1k" in table[k] and "2k" in table[k] for k in REQUIRED_PH_MAPS),
+                "jpg_1k_2k": all("jpg" in table[k].get("1k", {}) and "jpg" in table[k].get("2k", {})
+                                 for k in REQUIRED_PH_MAPS if k in table),
+                "max_resolution": record.get("max_resolution"), "measured_flat_linear": None})
+    if measure and "Diffuse" in table:
+        item = table["Diffuse"]["1k"]["jpg"]
+        target = Path(cache or Path.cwd()) / f"{asset_id}_diff_1k.jpg"
+        if not (target.is_file() and _md5_matches(target, item.get("md5"))):
+            web.download(item["url"], target, expected_md5=item.get("md5"))
+        out["measured_flat_linear"] = mean_linear_rgb(target)
+        out["measure_note"] = (f"mean of the linear values of the 1k Diffuse jpg, box-filtered to "
+                               f"{MEASURE_SIDE} x {MEASURE_SIDE}")
+    return out
+
+
+def _check_ambientcg_textures(asset_ids: list[str]) -> dict:
+    records = ambientcg.infos(asset_ids) if asset_ids else {}
+    out = {}
+    for asset_id in asset_ids:
+        record = records.get(asset_id)
+        if record is None:
+            out[asset_id] = {"source": ambientcg.SOURCE, "asset": asset_id, "licence": LICENCE, "exists": False}
+            continue
+        size, assumed = ambientcg.size_m(record)
+        try:
+            downloads = [d.get("attribute") for d in
+                         record["downloadFolders"]["default"]["downloadFiletypeCategories"]["zip"]["downloads"]]
+        except KeyError:
+            downloads = []
+        maps = sorted(record.get("maps") or [])
+        out[asset_id] = {
+            "source": ambientcg.SOURCE, "asset": asset_id, "licence": LICENCE, "exists": True,
+            "name": record.get("displayName"), "category": record.get("displayCategory"),
+            "size_m": None if assumed else size,
+            "size_note": ("dimensionX / dimensionY of the API (centimetres) / 100" if not assumed else
+                          "the API gives 0 x 0: the fetcher assumes 1 x 1 m and flags the entry size_assumed"),
+            "maps": maps, "has_required_maps": all(m in maps for m in REQUIRED_ACG_MAPS),
+            "downloads": downloads, "jpg_1k_2k": all(a in downloads for a in ("1K-JPG", "2K-JPG")),
+            "measured_flat_linear": None,
+            "measure_note": f"not measured: the download host {ambientcg.DOWNLOAD_HOST} is not reachable from the "
+                            f"cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)"}
+    return out
+
+
+def check_assets(rows: Optional[list[dict]] = None, measure: bool = False, cache: Optional[Path] = None,
+                 log=print) -> dict:
+    """Verify every textured slug and every HDRI of the vocabulary against the live APIs (no texture download unless
+    ``measure``: the Poly Haven 1k Diffuse maps are fetched into ``cache`` and their mean linear colour recorded).
+
+    Returns the document of ``wenart/style/asset_checks_m10.json``: ``{"schema", "checked", "textures":
+    {"<source>:<id>": record}, "hdris": {id: record}, "problems": [...]}``; ``problems`` lists every id that does
+    not exist or lacks a required map or whose size differs from the vocabulary's ``size_m``."""
+    rows = rows if rows is not None else texture_rows()
+    by_key = {f"{r['source']}:{r['asset']}": r for r in rows}
+    textures: dict[str, dict] = {}
+    for row in rows:
+        if row["source"] == polyhaven.SOURCE:
+            record = _check_polyhaven_texture(row["asset"], measure, cache)
+            textures[f"{row['source']}:{row['asset']}"] = record
+            log(f"polyhaven {row['asset']:<32} {'ok' if record.get('exists') else 'MISSING'}")
+    acg_ids = [r["asset"] for r in rows if r["source"] == ambientcg.SOURCE]
+    for asset_id, record in _check_ambientcg_textures(acg_ids).items():
+        textures[f"{ambientcg.SOURCE}:{asset_id}"] = record
+        log(f"ambientcg {asset_id:<32} {'ok' if record.get('exists') else 'MISSING'}")
+    for key, record in textures.items():
+        record["slugs"] = by_key[key]["slugs"]
+    hdris: dict[str, dict] = {}
+    for hdri_id, entry in V.HDRIS.items():
+        try:
+            record, table = polyhaven.info(hdri_id), polyhaven.files(hdri_id)
+        except web.HTTPStatusError as exc:
+            if exc.status != 404:
+                raise
+            hdris[hdri_id] = {"source": polyhaven.SOURCE, "asset": hdri_id, "exists": False, "moods": [entry["mood"]]}
+            continue
+        sizes = sorted(table.get("hdri", {}), key=lambda k: int(k.rstrip("k")))
+        hdris[hdri_id] = {"source": polyhaven.SOURCE, "asset": hdri_id, "licence": LICENCE, "exists": True,
+                          "name": record.get("name"), "moods": [entry["mood"]], "sizes": sizes,
+                          "hdr_1k_2k": all("hdr" in table["hdri"].get(s, {}) for s in ("1k", "2k")),
+                          "whitebalance_k": record.get("whitebalance"), "attributes": record.get("attributes"),
+                          "max_resolution": record.get("max_resolution")}
+    problems = []
+    for key, record in textures.items():
+        want = by_key[key].get("size_m")
+        if not record.get("exists"):
+            problems.append(f"{key}: not found")
+        elif not (record.get("has_required_maps") and record.get("jpg_1k_2k")):
+            problems.append(f"{key}: missing map or jpg size")
+        elif want and (record.get("size_m") is None or
+                       [round(v, 4) for v in record["size_m"]] != [round(v, 4) for v in want]):
+            problems.append(f"{key}: API size {record.get('size_m')} differs from the vocabulary's {want}")
+    for hdri_id, record in hdris.items():
+        if not record.get("exists") or not record.get("hdr_1k_2k"):
+            problems.append(f"polyhaven:{hdri_id} (hdri): not found or no 1k/2k hdr")
+    return {"schema": CHECKS_SCHEMA, "checked": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "apis": {"polyhaven": "https://api.polyhaven.com/assets?type=textures, /info/<id>, /files/<id>",
+                     "ambientcg": f"{ambientcg.API}?id=<ids>&include={ambientcg.INCLUDE}"},
+            "textures": textures, "hdris": hdris, "problems": problems}
+
+
+def write_checks(checks: dict, path: Path = CHECKS_PATH) -> Path:
+    """Write the check record (sorted keys, 2-space indent, trailing newline)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(checks, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+    return path
+
+
+def load_checks(path: Path = CHECKS_PATH) -> dict:
+    """The committed check record (``{}`` when the file is missing)."""
+    path = Path(path)
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+
+
+def main(argv=None) -> int:
+    """``python -m wenart.assets.fetch check [--out PATH] [--measure] [--cache DIR]``: write the check record."""
+    import argparse
+    import tempfile
+
+    parser = argparse.ArgumentParser(description="verify the vocabulary's texture and HDRI ids against the live APIs")
+    parser.add_argument("action", choices=["check"])
+    parser.add_argument("--out", default=str(CHECKS_PATH), help="where to write the record")
+    parser.add_argument("--measure", action="store_true", help="also measure the mean colour of the Poly Haven maps")
+    parser.add_argument("--cache", default=None, help="folder for the measured 1k Diffuse maps (default: a temp folder)")
+    args = parser.parse_args(argv)
+    cache = Path(args.cache) if args.cache else Path(tempfile.mkdtemp(prefix="wenart_checks_"))
+    checks = check_assets(measure=args.measure, cache=cache)
+    path = write_checks(checks, Path(args.out))
+    print(f"{len(checks['textures'])} textures, {len(checks['hdris'])} HDRIs checked, "
+          f"{len(checks['problems'])} problems -> {path}")
+    for problem in checks["problems"]:
+        print(f"  problem: {problem}")
+    return 1 if checks["problems"] else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
