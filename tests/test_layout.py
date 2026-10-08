@@ -55,6 +55,14 @@ class FakeClient:
     def __init__(self, table=None):
         self.table = FIXED if table is None else table
         self.calls = []
+        self.completion_calls = []
+
+    def complete(self, prompt, schema, pass_no):
+        """Milestone 10: the furnished rooms' completion question; this fake changes and adds nothing."""
+        room_id = json.loads(prompt.split("Room (metres, X right, Y up):\n", 1)[1].split("\n\n", 1)[0])["room_id"]
+        self.completion_calls.append((room_id, pass_no))
+        answer = {"changes": [], "added": []}
+        return L.Proposal(pass_no, answer, raw_text=json.dumps(answer), latency_s=1.0, prompt=prompt, model=self.model)
 
     def propose(self, prompt, pass_no):
         room_id = json.loads(prompt.split("Room (metres, X right, Y up):\n", 1)[1].split("\n\n", 1)[0])["room_id"]
@@ -201,9 +209,13 @@ def test_default_sizes_are_the_drawing_block_sizes():
     assert {t for t, _w, _d in BLOCKS.values()} <= set(schemas.SIZE_OPTIONS)
     schema_types = set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"]) - {"unknown"}
     assert set(schemas.SIZE_OPTIONS) == schema_types                    # the fit and the placer know every type
-    # docs/milestone7.md §6.5: every schema type except the documented-only ones can be proposed by the layout.
+    # docs/milestone7.md §6.5: every schema type except the documented-only ones can be proposed by the layout;
+    # Milestone 10: nor the rule-only wall cabinet, the change-only corner sofa or the island-only bar stool.
     assert schemas.DOCUMENTED_ONLY_TYPES == ("stair", "side_table", "floor_lamp", "potted_plant")
-    assert set(schemas.LAYOUT_TYPES) == schema_types - set(schemas.DOCUMENTED_ONLY_TYPES)
+    never = (schemas.DOCUMENTED_ONLY_TYPES + schemas.RULE_ONLY_TYPES + schemas.CHANGE_ONLY_TYPES
+             + schemas.ISLAND_ONLY_TYPES)
+    assert set(schemas.LAYOUT_TYPES) == schema_types - set(never)
+    assert set(never) - set(schemas.DOCUMENTED_ONLY_TYPES) == {"wall_cabinet", "sofa_corner", "bar_stool"}
     assert set(schemas.LAYOUT["properties"]["pieces"]["items"]["properties"]["type"]["enum"]) == set(schemas.LAYOUT_TYPES)
     assert not set(schemas.DOCUMENTED_ONLY_TYPES) & {t for types in schemas.ALLOWED_TYPES.values() for t in types}
     assert schemas.smaller_size("wardrobe", (1.8, 0.6)) == (1.2, 0.6)
@@ -231,7 +243,9 @@ def test_dining_rooms_are_furnished_and_prayer_rooms_never():
     rooms = {r["id"]: r for r in building["rooms"]}
     rooms["r_L1_yatak_odasi"]["room_type"] = "dining"
     rooms["r_L1_banyo"]["room_type"] = "prayer"
-    assert schemas.ALLOWED_TYPES["dining"] == ("table_dining", "chair", "dresser", "bookshelf")
+    assert schemas.ALLOWED_TYPES["dining"][:4] == ("table_dining", "chair", "dresser", "bookshelf")
+    assert schemas.layout_types("dining") == ("table_dining", "chair", "dresser", "bookshelf", "sideboard",
+                                              "display_cabinet", "bench")             # Milestone 10
     assert schemas.ANCHOR_TYPES["dining"] == ("table_dining",) and "dining" in schemas.FURNISHABLE_ROOM_TYPES
     assert "prayer" not in schemas.FURNISHABLE_ROOM_TYPES and schemas.NOT_FURNISHED_ROOM_TYPES == ("prayer",)
     assert [r["id"] for r in L.not_furnished_rooms(building)] == ["r_L1_banyo"]
@@ -274,10 +288,14 @@ def test_prompt_lists_types_sizes_room_and_differs_per_pass():
     p2 = prompts.layout_prompt(room, doors, windows, "Scandinavian", 2)
     assert p1 != p2 and p1.endswith("Answer only with JSON.") and p2.endswith("Answer only with JSON.")
     assert "Ebeveyn Yatak Odası" in p1 and "Scandinavian" in p1 and "YATAK ODASI" in p1
-    for ftype in schemas.ALLOWED_TYPES["bedroom"]:
+    for ftype in schemas.layout_types("bedroom"):
         assert f"- {ftype}: height {schemas.HEIGHTS[ftype]} m" in p1
         for w, d in schemas.SIZE_OPTIONS[ftype]:
             assert f"[{w}, {d}]" in p1
+    # Milestone 10: cribs and bunk beds only in a child's room (room_subtype: child), no double bed there.
+    assert "- crib:" not in p1 and "- bunk_bed:" not in p1 and "- bench:" in p1
+    child = prompts.layout_prompt(dict(room, room_subtype="child"), doors, windows, "Scandinavian", 1)
+    assert "- crib:" in child and "- bunk_bed:" in child and "- bed_double:" not in child
     assert "sofa" not in p1.split("Fields of the answer")[0].split("Allowed types")[1].split("\n\n")[0]
     block = json.loads(p1.split("Room (metres, X right, Y up):\n", 1)[1].split("\n\n", 1)[0])
     assert block["room_id"] == room["id"] and len(block["doors"]) == 1 and len(block["windows"]) == 2

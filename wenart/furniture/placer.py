@@ -51,9 +51,33 @@ needed), the anchor is placed alone, locked, and the rest of the proposal is
 placed around it; a piece that still conflicts with the locked anchor gives
 way (dropped, ``gives way to the anchor``). The retry is logged as an
 ``anchor_first`` step and ``PlacementResult.anchor_first`` is set.
+
+Milestone 10 (docs/milestone10.md §2.5), rooms with drawn furniture:
+
+- the corner sofa (``shape: L``) is its L polygon in every check, its front
+  clearance the zone in front of the main seat (``schemas.l_parts``): the
+  inner corner is no obstacle; a desk's front clearance may hold its office
+  chair (``schemas.CLEARANCE_EXEMPT``);
+- ``place_changes``: drawn pieces the AI changed are placed at their anchor
+  and front (``anchored_center``: a free piece around its centre, an
+  against-wall piece from the wall line); the only repairs are ``shrink`` to
+  the next smaller size option and ``revert`` to the drawn type and size,
+  never snap, slide or relocate. The baseline rule decides: a changed piece
+  may not fail a check its drawn version passes and may not make another
+  piece fail or break a walkway; what the drawn layout already fails is
+  returned as the ``drawn_layout`` baseline, not counted against the AI;
+- ``place(..., obstacles=...)``: the added pieces get the full M4 repairs
+  around the drawn pieces, which are locked obstacles (never moved or
+  dropped; their own drawn-layout failures excused, a walkway the drawn
+  layout already breaks no longer required); an added piece also fails
+  ``clearance_ok`` when it stands in a drawn piece's front clearance, so it
+  gives way to every drawn piece.
+
+Without ``obstacles`` the Milestone 4 behaviour is unchanged.
 """
 from __future__ import annotations
 
+import dataclasses
 import math
 from dataclasses import dataclass, field
 from typing import Optional
@@ -98,6 +122,12 @@ def _rect(center, size, rotation_deg: float, y0: float, y1: float) -> Polygon:
     return Polygon(pts)
 
 
+def _local_box(center, rotation_deg: float, x0: float, x1: float, y0: float, y1: float) -> Polygon:
+    """Local box x in [x0, x1], y in [y0, y1], rotated and moved to ``center``."""
+    local = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+    return Polygon([G.rotate_point((center[0] + x, center[1] + y), rotation_deg, center) for x, y in local])
+
+
 @dataclass
 class Piece:
     type: str
@@ -112,6 +142,11 @@ class Piece:
     stage: int = 0            # next repair step: 0 snap, 1 slide, 2 shrink, 3 drop
     locked: bool = False      # placed alone first (anchor first): never repaired or dropped
     proposal_index: int = 0   # position in the model's proposal (the "#n" of the reports)
+    # Milestone 10: the corner sofa's L (schemas.l_parts) and the drawn-layout failures of a locked obstacle.
+    shape: Optional[str] = None
+    chaise_side: Optional[str] = None
+    chaise_depth: Optional[float] = None
+    excused: frozenset = frozenset()
 
     @classmethod
     def from_proposal(cls, item: dict, index: int, log: Optional[list] = None) -> "Piece":
@@ -141,9 +176,16 @@ class Piece:
                    proposed={"center": list(center), "rotation_deg": rotation, "size": list(size)})
 
     def polygon(self) -> Polygon:
+        if self.shape == "L":
+            parts = [_local_box(self.center, self.rotation_deg, *box)
+                     for box in schemas.l_parts(self.size, self.chaise_side, self.chaise_depth)]
+            return orient(unary_union(parts).buffer(0), 1.0)
         return _rect(self.center, self.size, self.rotation_deg, -self.size[1] / 2.0, self.size[1] / 2.0)
 
     def front_zone(self, depth: float = CLEARANCE_FRONT_M) -> Polygon:
+        if self.shape == "L":
+            x0, x1, y_front = schemas.l_seat_front(self.size, self.chaise_side, self.chaise_depth)
+            return _local_box(self.center, self.rotation_deg, x0, x1, y_front - depth, y_front)
         d = self.size[1] / 2.0
         return _rect(self.center, self.size, self.rotation_deg, -d - depth, -d)
 
@@ -167,11 +209,59 @@ class Piece:
 
 
 def piece_from_furniture(item: dict, index: int = 0) -> Piece:
-    """A building furniture dict (``footprint`` with center/size/rotation_deg) as a placer piece."""
+    """A building furniture dict (``footprint`` with center/size/rotation_deg) as a placer piece
+    (Milestone 10: a corner sofa with ``shape: L`` keeps its L)."""
     fp = item["footprint"]
     return Piece(type=item["type"], center=(float(fp["center"][0]), float(fp["center"][1])),
                  rotation_deg=G.normalise_angle(float(fp["rotation_deg"])),
-                 size=(float(fp["size"][0]), float(fp["size"][1])), against_wall=False, index=index)
+                 size=(float(fp["size"][0]), float(fp["size"][1])), against_wall=False, index=index,
+                 **_shape_fields(item))
+
+
+def _shape_fields(item: dict) -> dict:
+    if item.get("shape") != "L":
+        return {}
+    depth = item.get("chaise_depth")
+    return {"shape": "L", "chaise_side": item.get("chaise_side") or "right",
+            "chaise_depth": float(depth) if depth is not None else None}
+
+
+def front_frame(footprint: dict, front_deg: Optional[float]) -> tuple[float, tuple[float, float]]:
+    """``(rotation, size)`` of a footprint in the block frame of its front (Milestone 10): the same rectangle,
+    turned by whole quarter turns so that its local -Y side faces ``front_deg`` (within 45 degrees) and the
+    size swapped when the turn is odd. A footprint without a front keeps its rotation and size."""
+    rot = G.normalise_angle(float(footprint["rotation_deg"]))
+    size = (float(footprint["size"][0]), float(footprint["size"][1]))
+    if front_deg is None:
+        return rot, size
+    k = int(round(G.normalise_angle(float(front_deg) - 270.0 - rot) / 90.0)) % 4
+    return G.normalise_angle(rot + 90.0 * k), (size[1], size[0]) if k % 2 else size
+
+
+def drawn_piece(item: dict, index: int = 0, against_wall: bool = False) -> Piece:
+    """A drawn furniture dict as a placer piece in the frame of its front (``front_frame``), so the front
+    clearance and the back edge are where the drawing puts them."""
+    rot, size = front_frame(item["footprint"], item.get("front_deg"))
+    fp = item["footprint"]
+    return Piece(type=item["type"], center=(float(fp["center"][0]), float(fp["center"][1])), rotation_deg=rot,
+                 size=size, against_wall=against_wall, index=index, **_shape_fields(item))
+
+
+def back_edge_midpoint(center, rotation_deg: float, size) -> tuple[float, float]:
+    """Midpoint of the back edge (local +Y) of a footprint in the block frame."""
+    return G.rotate_point((center[0], center[1] + size[1] / 2.0), rotation_deg, center)
+
+
+def anchored_center(anchor: dict, rotation_deg: float, size) -> tuple[float, float]:
+    """The centre of a footprint of ``size`` whose anchor stays at ``anchor["point"]`` (Milestone 10, §2.2): a
+    ``centre`` anchor is the centre; a ``back_edge`` anchor is the back-edge midpoint, so the centre lies half
+    the depth in front of it (the footprint grows or shrinks from the wall line)."""
+    px, py = float(anchor["point"][0]), float(anchor["point"][1])
+    if anchor.get("kind") != "back_edge":
+        return round(px, 4), round(py, 4)
+    a = math.radians(G.front_direction_deg(rotation_deg))
+    half = float(size[1]) / 2.0
+    return round(px + math.cos(a) * half, 4), round(py + math.sin(a) * half, 4)
 
 
 # --------------------------------------------------------------------------
@@ -429,8 +519,10 @@ def check_piece(piece: Piece, others: list[Piece], ctx: RoomContext, walkway_bla
     clearance = True
     if piece.type in schemas.CLEARANCE_TYPES:
         zone = piece.front_zone()
+        exempt = schemas.CLEARANCE_EXEMPT.get(piece.type, ())
         clearance = (zone.difference(ctx.polygon.buffer(0.01, join_style="mitre")).area < AREA_EPS
-                     and all(zone.intersection(op).area < AREA_EPS for op in other_polys))
+                     and all(zone.intersection(op).area < AREA_EPS
+                             for o, op in zip(others, other_polys) if o.type not in exempt))
     doors = True
     for door in ctx.doors:
         if poly.intersection(door.zone).area > AREA_EPS:
@@ -458,6 +550,42 @@ def check_all(pieces: list[Piece], ctx: RoomContext) -> list[dict]:
         p.index = i
     blamed, _failures = walkway_blame(pieces, ctx)
     return [check_piece(p, [o for o in pieces if o is not p], ctx, blamed) for p in pieces]
+
+
+_check_all = check_all   # the module function, for code that shadows the name
+
+
+def obstacle_checks(pieces: list[Piece], ctx: RoomContext) -> list[dict]:
+    """``check_all`` with locked obstacles (Milestone 10): a locked piece's drawn-layout failures
+    (``Piece.excused``) count as passed; a free piece that stands in a locked piece's front clearance fails
+    ``clearance_ok`` (it gives way to the drawn piece)."""
+    checks = check_all(pieces, ctx)
+    out = []
+    for p, c in zip(pieces, checks):
+        c = dict(c)
+        if p.locked:
+            for name in p.excused:
+                c[name] = True
+        elif _invades(p, [o for o in pieces if o.locked and o is not p]):
+            c["clearance_ok"] = False
+        out.append(c)
+    return out
+
+
+def drawn_context(ctx: RoomContext, pieces: list[Piece]) -> RoomContext:
+    """The room context with only the walkways the drawn ``pieces`` leave intact (a walkway the drawn layout
+    already breaks is recorded as ``drawn_layout``, not required of the added pieces)."""
+    region = walkable_region(pieces, ctx)
+    return dataclasses.replace(ctx, baseline_pairs=[pair for pair in ctx.baseline_pairs
+                                                    if _pair_ok(pair, region, pieces, ctx)])
+
+
+def obstacles_for(pieces: list[Piece], ctx: RoomContext) -> list[Piece]:
+    """Copies of the drawn ``pieces`` as locked obstacles whose drawn-layout failures are excused."""
+    out = [dataclasses.replace(p, locked=True, repairs=[]) for p in pieces]
+    for p, c in zip(out, check_all(out, ctx)):
+        p.excused = frozenset(failed_checks(c))
+    return out
 
 
 def failed_checks(checks: dict) -> list[str]:
@@ -514,11 +642,19 @@ def _candidate_ok(piece: Piece, pieces: list[Piece], ctx: RoomContext, base_fail
     others = [o for o in pieces if o is not piece]
     if failed_checks(check_piece(piece, others, ctx)):
         return False
+    if _invades(piece, others):
+        return False
+    return set(walkway_failures(pieces, ctx)) <= base_failures
+
+
+def _invades(piece: Piece, others: list[Piece]) -> bool:
+    """The piece stands in the front clearance of another piece (a desk's office chair excepted)."""
     poly = piece.polygon()
     for o in others:
-        if o.type in schemas.CLEARANCE_TYPES and poly.intersection(o.front_zone()).area > AREA_EPS:
-            return False
-    return set(walkway_failures(pieces, ctx)) <= base_failures
+        if (o.type in schemas.CLEARANCE_TYPES and piece.type not in schemas.CLEARANCE_EXEMPT.get(o.type, ())
+                and poly.intersection(o.front_zone()).area > AREA_EPS):
+            return True
+    return False
 
 
 def _try_candidates(piece: Piece, pieces: list[Piece], ctx: RoomContext, candidates: list[tuple]) -> Optional[tuple]:
@@ -622,28 +758,39 @@ def _log(log: list, iteration: int, piece: Piece, step: str, before: dict, faile
     return entry
 
 
-def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITERATIONS) -> PlacementResult:
+def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITERATIONS,
+          obstacles: Optional[list[Piece]] = None) -> PlacementResult:
     """Check and repair a proposal (list of schema-shaped piece dicts) in ``ctx``.
     If the proposal names the room's anchor piece and the first attempt dropped
-    it, the anchor is placed alone and locked and the rest is placed around it."""
-    result = _place(proposal, ctx, max_iterations)
+    it, the anchor is placed alone and locked and the rest is placed around it.
+
+    Milestone 10: ``obstacles`` (the drawn pieces of a room being completed) are
+    locked around the proposal (see the module docstring); the result lists only
+    the proposal's pieces."""
+    strict = obstacles is not None
+    fixed: list[Piece] = []
+    if strict:
+        fixed = obstacles_for(obstacles, ctx)
+        ctx = drawn_context(ctx, fixed)
+    result = _place(proposal, ctx, max_iterations, locked=list(fixed), strict=strict)
     anchors = set(schemas.ANCHOR_TYPES.get(ctx.room.get("room_type", ""), ()))
     first = next((i for i, item in enumerate(proposal) if item["type"] in anchors), None)
     if first is None or any(p.type in anchors for p in result.pieces):
-        return result
-    alone = _place([proposal[first]], ctx, max_iterations)
-    if not alone.pieces:
-        return result                                          # the anchor does not fit the room on its own
-    anchor = alone.pieces[0]
+        return _without(result, fixed)
+    alone = _place([proposal[first]], ctx, max_iterations, locked=list(fixed), strict=strict)
+    placed = [p for p in alone.pieces if not any(p is f for f in fixed)]
+    if not placed:
+        return _without(result, fixed)                         # the anchor does not fit the room on its own
+    anchor = placed[0]
     anchor.locked = True
     anchor.proposal_index = first
     for entry in alone.log:
         entry["piece"] = first
     rest = [item for i, item in enumerate(proposal) if i != first]
-    retry = _place(rest, ctx, max_iterations, locked=[anchor],
-                   proposal_indices=[i for i in range(len(proposal)) if i != first])
+    retry = _place(rest, ctx, max_iterations, locked=list(fixed) + [anchor],
+                   proposal_indices=[i for i in range(len(proposal)) if i != first], strict=strict)
     if not any(p.type in anchors for p in retry.pieces):      # cannot happen (locked), kept as a guard
-        return result
+        return _without(result, fixed)
     marker = {"iteration": alone.iterations, "piece": first, "type": anchor.type, "step": "anchor_first",
               "before": dict(anchor.proposed), "after": anchor.state(), "failed": [], "ok": True,
               "note": "the anchor was dropped in the first attempt; placed alone first, the other pieces give way"}
@@ -651,18 +798,33 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
     retry.log = alone.log + [marker] + retry.log
     retry.iterations += alone.iterations
     retry.anchor_first = True
-    return retry
+    return _without(retry, fixed)
+
+
+def _without(result: PlacementResult, fixed: list[Piece]) -> PlacementResult:
+    """The result without the locked obstacles (Milestone 10)."""
+    if not fixed:
+        return result
+    keep = [i for i, p in enumerate(result.pieces) if not any(p is f for f in fixed)]
+    result.pieces = [result.pieces[i] for i in keep]
+    result.checks = [result.checks[i] for i in keep]
+    return result
 
 
 def _place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITERATIONS,
-           locked: Optional[list[Piece]] = None, proposal_indices: Optional[list[int]] = None) -> PlacementResult:
+           locked: Optional[list[Piece]] = None, proposal_indices: Optional[list[int]] = None,
+           strict: bool = False) -> PlacementResult:
     """One placement attempt; ``locked`` pieces are already placed and never repaired or
-    dropped; ``proposal_indices`` are the items' positions in the original proposal."""
+    dropped; ``proposal_indices`` are the items' positions in the original proposal;
+    ``strict`` (Milestone 10, obstacles): the checks of ``obstacle_checks``."""
     log: list[dict] = []
     indices = proposal_indices or list(range(len(proposal)))
     pieces = list(locked or []) + [Piece.from_proposal(item, i, log) for i, item in zip(indices, proposal)]
     dropped: list[dict] = []
     iterations = 0
+
+    def check_all(items: list[Piece], room: RoomContext) -> list[dict]:   # shadows the module function here
+        return obstacle_checks(items, room) if strict else _check_all(items, room)
 
     def drop(piece: Piece, failed: list[str], reason: str, count: bool) -> None:
         nonlocal iterations
@@ -773,3 +935,108 @@ def _place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITE
             drop(piece, failed, "no repair left", True)
     checks = check_all(pieces, ctx)
     return PlacementResult(pieces=pieces, checks=checks, dropped=dropped, log=log, iterations=iterations)
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: drawn pieces changed by AI (anchored; shrink, then revert)
+# --------------------------------------------------------------------------
+
+@dataclass
+class ChangeRequest:
+    """An agreed change of drawn piece ``index``: the new type and size, placed at ``anchor``."""
+    index: int
+    type: str
+    size: tuple[float, float]
+    anchor: dict                                   # {"kind": "centre" | "back_edge", "point": [x, y], ...}
+    chaise_sides: tuple = ("right", "left")        # sofa_corner: the sides tried in this order
+    footprint_only: bool = False                   # an unverified drawn piece: only the type changes
+    transposed: bool = False                       # a piece without a front drawn along its other axis
+
+
+@dataclass
+class ChangeResult:
+    index: int
+    applied: bool
+    piece: Piece                                   # the final piece (the drawn one when reverted)
+    steps: list[dict] = field(default_factory=list)
+    reason: str = ""
+
+    def to_dict(self) -> dict:
+        return {"index": self.index, "applied": self.applied, "final": self.piece.state(),
+                "type": self.piece.type, "chaise_side": self.piece.chaise_side, "steps": list(self.steps),
+                "reason": self.reason}
+
+
+def _changed_piece(drawn: Piece, req: ChangeRequest, size, side: Optional[str]) -> Piece:
+    if req.footprint_only:
+        center, size = drawn.center, drawn.size
+    else:
+        center = anchored_center(req.anchor, drawn.rotation_deg, size)
+    shape = {"shape": "L", "chaise_side": side, "chaise_depth": float(size[1])} if req.type == "sofa_corner" else {}
+    return Piece(type=req.type, center=center, rotation_deg=drawn.rotation_deg, size=(float(size[0]), float(size[1])),
+                 against_wall=drawn.against_wall, index=drawn.index, **shape)
+
+
+def _change_candidates(drawn: Piece, req: ChangeRequest) -> list[tuple[str, tuple, Optional[str]]]:
+    """(step, size, chaise side) in the order tried: the agreed size, then each next smaller option."""
+    sides = tuple(req.chaise_sides) if req.type == "sofa_corner" else (None,)
+    if req.footprint_only:
+        return [("place", drawn.size, s) for s in sides]
+    out, size, step = [], tuple(req.size), "place"
+    while size is not None:
+        out += [(step, (size[1], size[0]) if req.transposed else size, s) for s in sides]
+        size, step = schemas.smaller_size(req.type, size), "shrink"
+    return out
+
+
+def place_changes(drawn: list[Piece], requests: list[ChangeRequest],
+                  ctx: RoomContext) -> tuple[list[Piece], list[ChangeResult], dict]:
+    """Place the changed drawn pieces at their anchors (§2.5), in the order of ``requests``.
+
+    ``drawn`` are all drawn floor pieces of the room in their drawn footprints (``drawn_piece``, against-wall
+    pieces flagged). Each request tries its size, then each next smaller option (``shrink``), every chaise side
+    of a corner sofa; a candidate is taken when it fails no check its drawn version passes, makes no other piece
+    fail a check it passed before and breaks no walkway; else the piece stays as drawn (``revert``).
+    Returns the final pieces (drawn order), one result per request and the drawn-layout baseline
+    ``{"pieces": [failed checks per drawn piece], "walkways": [broken pairs]}``.
+    """
+    current = list(drawn)
+    base = [set(failed_checks(c)) for c in check_all(current, ctx)]
+    baseline = {"pieces": [sorted(b) for b in base], "walkways": [list(p) for p in walkway_failures(current, ctx)]}
+    results: list[ChangeResult] = []
+    for req in requests:
+        i = req.index
+        original = current[i]
+        before = [set(failed_checks(c)) for c in check_all(current, ctx)]
+        before_walk = set(walkway_failures(current, ctx))
+        result = ChangeResult(i, False, original)
+        for step, size, side in _change_candidates(original, req):
+            cand = _changed_piece(original, req, size, side)
+            trial = list(current)
+            trial[i] = cand
+            checks = [set(failed_checks(c)) for c in check_all(trial, ctx)]
+            own = sorted(checks[i] - base[i])
+            others = sorted({f"{trial[j].type} #{j}: {name}" for j in range(len(trial)) if j != i
+                             for name in checks[j] - before[j]})
+            walks = sorted(f"{p[1]} - {p[3]}" for p in set(walkway_failures(trial, ctx)) - before_walk)
+            ok = not own and not others and not walks
+            entry = {"step": step, "type": req.type, "size": [cand.size[0], cand.size[1]],
+                     "center": [round(cand.center[0], 3), round(cand.center[1], 3)], "ok": ok,
+                     "failed": own, "others": others, "walkways": walks}
+            if side:
+                entry["chaise_side"] = side
+            result.steps.append(entry)
+            if ok:
+                current[i] = cand
+                result.applied, result.piece = True, cand
+                break
+        if not result.applied:
+            last = result.steps[-1] if result.steps else {}
+            why = ", ".join(last.get("failed", []) + last.get("others", []) + last.get("walkways", []))
+            result.reason = f"no size fits at the anchor ({why or 'no candidate'}): drawn type and size kept"
+            result.steps.append({"step": "revert", "type": original.type,
+                                 "size": [original.size[0], original.size[1]],
+                                 "center": [round(original.center[0], 3), round(original.center[1], 3)], "ok": True,
+                                 "failed": [], "others": [], "walkways": []})
+        results.append(result)
+    return current, results, baseline
