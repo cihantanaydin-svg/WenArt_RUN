@@ -78,7 +78,8 @@ OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", 
 LIBRARY_META = OBJAVERSE_META + ("licence_flag",)
 # ... and, copied only when the catalogue entry has them (Milestone 10, wenart/assets/recolour.py): the material fields
 # of the two judges and the species / pot of a generated large plant.
-LIBRARY_OPTIONAL = ("material_slots", "material_tags", "recolourable_fabric", "recolourable_wood", "species", "pot")
+LIBRARY_OPTIONAL = ("material_slots", "material_tags", "recolourable_fabric", "recolourable_wood", "species", "pot",
+                    "attributes_status")
 
 # glTF component types -> struct format and byte size.
 _COMPONENT = {5120: ("b", 1), 5121: ("B", 1), 5122: ("h", 2), 5123: ("H", 2), 5125: ("I", 4), 5126: ("f", 4)}

@@ -107,7 +107,9 @@ trellis_decor:
 trellis_decor_full: [plant_large, curtain, blind]
 
 # Fixed equipment never generated (docs/milestone8.md §3): stays parametric (or library) as drawn.
-exclude_types: [stair, kitchen_counter, kitchen_island, unknown]
+exclude_types: [stair, kitchen_counter, kitchen_island, unknown, wall_cabinet]
+# wall_cabinet (Milestone 10, review finding 41): built parametrically with the counter run's fronts, colour and handle
+# (docs/milestone10.md §4.4); a library or generated model would replace the parametric unit in the catalogue merge.
 
 # Types whose look comes from ceramics, enamel and metal, not from furniture woods and fabrics: they take the
 # family's "fixtures" hint.
@@ -129,22 +131,24 @@ hint_groups:
 
 # Milestone 10: types whose words have slots; image n of a pair takes variant (n - 1 + 2 * family number) of each list
 # (species and pots cycle with different lengths, so the combinations spread over the families and images). The
-# species and the pot go into the survey record, the catalogue (`species`, `pot`) and the decor item's fields.
+# species and the pot go into the survey record, the catalogue (`species`, `pot`) and the decor item's fields, in the
+# form of the building schema (decor.species: an enum slug, e.g. `fiddle_leaf_fig`; decor.pot: {material, colour}, the
+# material a key of finishes.POT_MATERIALS), so a brief asking for "fiddle-leaf figs in rattan pots" finds them.
 variants:
   plant_large:
     plant:
       - {species: palm, words: "areca palm with many arching fronds"}
       - {species: monstera, words: "monstera deliciosa with large split leaves"}
-      - {species: fiddle-leaf fig, words: "fiddle-leaf fig tree with large violin-shaped leaves"}
+      - {species: fiddle_leaf_fig, words: "fiddle-leaf fig tree with large violin-shaped leaves"}
       - {species: olive, words: "olive tree with a slim trunk and narrow silvery leaves"}
       - {species: fern, words: "large boston fern with arching fronds"}
     pot:
-      - {pot: rattan, words: "woven rattan basket"}
-      - {pot: cream, words: "cream ceramic"}
-      - {pot: terracotta, words: "terracotta"}
-      - {pot: white, words: "matte white ceramic"}
-      - {pot: black, words: "black ceramic"}
-      - {pot: concrete, words: "grey concrete"}
+      - {pot: {material: rattan, colour: null}, words: "woven rattan basket"}
+      - {pot: {material: ceramic, colour: cream}, words: "cream ceramic"}
+      - {pot: {material: terracotta, colour: null}, words: "terracotta"}
+      - {pot: {material: ceramic, colour: white}, words: "matte white ceramic"}
+      - {pot: {material: ceramic, colour: black}, words: "black ceramic"}
+      - {pot: {material: concrete, colour: grey}, words: "grey concrete"}
 
 prompt_template: >-
   a single {family} style {type_words}, {hints}, studio product photo, three-quarter front view from the left,
@@ -194,7 +198,6 @@ type_words:
   shoe_cabinet: slim shoe cabinet with flap doors
   display_cabinet: tall display cabinet with glass doors and shelves
   tall_cabinet: tall narrow storage cabinet with two doors
-  wall_cabinet: wall-mounted cabinet with two doors
   # Milestone 10 decor types (docs/milestone10.md §1.1, §4.6)
   curtain: pair of floor-length curtains hanging in soft folds from a curtain rod
   blind: window roller blind, half lowered, on its mounting bracket

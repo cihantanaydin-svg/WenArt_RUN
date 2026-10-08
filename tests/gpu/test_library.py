@@ -32,6 +32,7 @@ from pathlib import Path
 import pytest
 
 from wenart.assets import abo as ABO
+from wenart.assets import generate as G
 from wenart.assets import objaverse as OV
 from wenart.furniture import catalog as C
 from wenart.run import copy as CP
@@ -333,11 +334,33 @@ def test_generated_large_plants_keep_their_species_and_pot():
     plants = [e for e in models_of(cat, "plant_large") if e["source"] == "generated"]
     if not plants:
         pytest.skip("no generated plant_large model in the catalogue")
-    species = {"palm", "monstera", "fiddle-leaf fig", "olive", "fern"}
+    species = {"palm", "monstera", "fiddle_leaf_fig", "olive", "fern"}                  # the schema's decor.species slugs
+    words = {v["species"]: v["words"] for v in G.load_config()["variants"]["plant_large"]["plant"]}
     for e in plants:
-        assert e["species"] in species and e["pot"] and e["species"] in e["generated"]["prompt"], e["id"]
+        assert e["species"] in species and words[e["species"]] in e["generated"]["prompt"], e["id"]
+        assert isinstance(e["pot"], dict) and e["pot"].get("material"), e["id"]          # the schema's decor.pot
+        assert e["attributes_status"] == "assumed", e["id"]          # the prompt's words; no judge looked at them
     assert {e["species"] for e in plants} >= {"palm", "monstera", "fern"} or len(plants) < 5, (
         "the brief's palms, monsteras and ferns need models of those species")
+
+
+def test_corner_sofas_record_their_chaise_side_or_why_not():
+    """Review finding 40: a placed L-shaped sofa has a chaise side, so a library corner sofa must say which side its
+    chaise is on (measured from the footprint and the model's front, ``objaverse.chaise_side``), or why it cannot:
+    the fit uses only models whose side matches the piece's, and none of those with no side."""
+    cat = need(OV.CATALOG_NAME)
+    corner = models_of(cat, "sofa_corner")
+    if not corner:
+        pytest.skip("no sofa_corner model in the catalogue")
+    for e in corner:
+        assert "chaise_side" in e and e["chaise_side"] in ("left", "right", None), e["id"]
+        assert e.get("chaise_note"), f"{e['id']}: the chaise side has no note"
+    known = [e for e in corner if e["chaise_side"]]
+    if len(known) < 0.5 * len(corner):
+        warnings.warn(f"only {len(known)} of {len(corner)} corner sofas have a chaise side "
+                      f"({sorted({e['chaise_note'][:40] for e in corner if not e['chaise_side']})})")
+    if len(known) >= 6:
+        assert {e["chaise_side"] for e in known} == {"left", "right"}, "all chaises on one side: check the front axes"
 
 
 def test_material_tags_of_the_catalogue_follow_both_judges(cfg):

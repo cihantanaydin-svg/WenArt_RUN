@@ -122,9 +122,12 @@ def load_config(path: Optional[Path] = None) -> dict:
 # --------------------------------------------------------------------------
 
 def glb_materials(path: Path) -> dict:
-    """The materials of a GLB and their use: ``{"materials": [{index, name, base_colour, textured, alpha_mode,
-    triangles}], "unmaterialed_triangles": n, "triangles": n}``. ``base_colour`` is the ``baseColorFactor`` (rgba, linear)
-    or None; ``textured`` a base colour texture; ``triangles`` counts the triangles of the primitives that use it."""
+    """The materials of a GLB and their use: ``{"materials": [{index, name, named, base_colour, textured, alpha_mode,
+    triangles}], "unmaterialed_triangles": n, "triangles": n}``. ``name`` is the name the glTF importer of Blender gives
+    the material (the file's name, or ``Material_<index>`` when the file has none: the scene builder matches slots to
+    imported materials by that name); ``named`` says whether the file named it. ``base_colour`` is the
+    ``baseColorFactor`` (rgba, linear) or None; ``textured`` a base colour texture; ``triangles`` counts the triangles
+    of the primitives that use it."""
     doc = _objaverse().glb_json(path)
     accessors = doc.get("accessors") or []
     counts: dict[Optional[int], int] = {}
@@ -143,7 +146,7 @@ def glb_materials(path: Path) -> dict:
     for i, mat in enumerate(doc.get("materials") or []):
         pbr = mat.get("pbrMetallicRoughness") or {}
         factor = pbr.get("baseColorFactor")
-        materials.append({"index": i, "name": str(mat.get("name") or f"material {i}"),
+        materials.append({"index": i, "name": str(mat.get("name") or f"Material_{i}"), "named": bool(mat.get("name")),
                           "base_colour": [round(float(v), 4) for v in factor] if factor else None,
                           "textured": isinstance(pbr.get("baseColorTexture"), dict),
                           "alpha_mode": mat.get("alphaMode") or "OPAQUE", "triangles": counts.get(i, 0)})
@@ -203,6 +206,14 @@ def answer_errors(data, slots: list[int]) -> list[str]:
             for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))]
 
 
+def _file_name(slot: dict, before: str, after: str = "") -> str:
+    """What the question says of a slot's name: ``before`` + the quoted name + ``after`` when the file named the
+    material, nothing when it did not (the importer's ``Material_<index>`` is no name the judges should read as one)."""
+    if slot.get("named", True) is False:
+        return ""
+    return f'{before}"{slot["name"]}"{after}'
+
+
 def prompt_for(slots: list[dict], whole: bool = False) -> str:
     """The question for one sheet; ``slots`` are the asked slots (``index``, ``name``). ``whole``: one slot covers the
     whole model, the sheet shows the model from two sides only."""
@@ -210,8 +221,8 @@ def prompt_for(slots: list[dict], whole: bool = False) -> str:
         s = slots[0]
         head = ("The image is a sheet of two renders of one 3D model from an online model library, on a plain grey "
                 "background: the model in its real colours from two sides. The file has one material slot for the "
-                f'whole model ({slot_key(s["index"])}, file material name "{s["name"]}"): say which materials the '
-                "model is made of.")
+                f'whole model ({slot_key(s["index"])}{_file_name(s, ", file material name ")}): say which materials '
+                "the model is made of.")
         listing = ""
     else:
         head = ("The image is a sheet of renders of one 3D model from an online model library, on a plain grey "
@@ -219,8 +230,9 @@ def prompt_for(slots: list[dict], whole: bool = False) -> str:
                 "colours from two sides. Every other tile repeats the first view with ONE material slot tinted bright "
                 "magenta: the magenta marks where that slot is on the model. Look at the surface under the tint in "
                 "the first tile and say what it is made of.")
-        listing = "Slots:\n" + "\n".join(f'- {slot_key(s["index"])}: the tile labelled "slot {s["index"]}" (file '
-                                          f'material name: "{s["name"]}")' for s in slots)
+        listing = "Slots:\n" + "\n".join(
+            f'- {slot_key(s["index"])}: the tile labelled "slot {s["index"]}"' + _file_name(s, " (file material name: ", ")")
+            for s in slots)
     return "\n\n".join(part for part in [
         head, listing,
         "Fields of the answer, for every slot:\n"
@@ -456,8 +468,8 @@ def build_slots_doc(models: list[dict], parsed: dict, work: Path, out: Path, cfg
             share = (area / total) if total > 0 and area is not None else x["triangles"] / tri_total
             mask = base / f"mask_{x['index']}.png"
             npx = mask_coverage(mask, cfg["mask_threshold"])[0] if mask.is_file() else 0
-            rec["materials"].append({**{k: x[k] for k in ("index", "name", "base_colour", "textured", "alpha_mode",
-                                                          "triangles")},
+            rec["materials"].append({**{k: x[k] for k in ("index", "name", "named", "base_colour", "textured",
+                                                          "alpha_mode", "triangles")},
                                      "area_m2": round(area, 5) if area is not None else None,
                                      "share": round(share, 4), "pixels": npx,
                                      "colour_rgb": slot_colour(base / "albedo.png", mask, cfg["mask_threshold"],
@@ -568,8 +580,9 @@ def _run_blender(blender: str, jobs_path: Path, log_path: Path, timeout: float) 
 
 def request_item(model: dict, sheet: dict, out: Path) -> dict:
     OV = _objaverse()
-    names = {x["index"]: x["name"] for x in model["materials"]}
-    slot_list = [{"index": i, "name": names.get(i, f"material {i}")} for i in sheet["slots"]]
+    by_index = {x["index"]: x for x in model["materials"]}
+    slot_list = [{"index": i, "name": by_index.get(i, {}).get("name", f"Material_{i}"),
+                  "named": by_index.get(i, {}).get("named", True)} for i in sheet["slots"]]
     whole = bool(sheet.get("whole"))
     prompt = prompt_for(slot_list, whole)
     schema = answer_schema(sheet["slots"])

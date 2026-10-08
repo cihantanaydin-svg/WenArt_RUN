@@ -6,8 +6,8 @@
  "source": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html",
  "per_type_limit": 40,
  "config_sha256": {
-  "abo.yaml": "9cfc2affb0db355e29944a3433372166ac32ed69c276a80bd83b9c5fbfeaaae5",
-  "objaverse.yaml": "37056113c3e78388953a8d316bcd0cc56eb81c93b775715bee1dd8e034002fd6"
+  "abo.yaml": "0caca1fbe2c4964e8d8c3808580994e82064c711f03ad0f7924d4aa0a2909f4a",
+  "objaverse.yaml": "005e0e7004e1eceb4798637ae90bfbd0ee8a714e2e487310b0243b7866f760fc"
  },
  "metadata_files": {
   "3dmodels.csv.gz": {
@@ -324,13 +324,11 @@
   },
   "wall_cabinet": {
    "kind": "furniture",
-   "mapped": 3,
-   "in_size_range": 2,
-   "candidates": 2,
-   "rules": {
-    "wall_cabinet": 3
-   },
-   "note": "two wall cabinets in range; the Movian bathroom wall cabinets are 1.4 m tall or have no English name"
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no library source: wall cabinets are built parametrically along the counter run with its fronts, colour and handle (docs/milestone10.md §4.4); the ABO holds three wall-hung cabinets (a Stone & Beam wall organizer and the Movian bathroom cabinets), which no rule takes"
   },
   "basket": {
    "kind": "decor",
@@ -405,7 +403,8 @@
    "in_size_range": 80,
    "candidates": 40,
    "rules": {
-    "pendant_light": 81
+    "pendant_light": 80,
+    "pendant_light_candle_typed": 1
    },
    "note": ""
   },
@@ -682,8 +681,8 @@
    "note": "16 models in range: Objaverse and generated models fill the rest"
   }
  },
- "candidates_total": 1222,
- "refused_size_range": 374,
+ "candidates_total": 1220,
+ "refused_size_range": 373,
  "unmapped_product_types": {
   "HOME_FURNITURE_AND_DECOR": 314,
   "HEADBOARD": 206,
@@ -692,7 +691,7 @@
   "PILLOW": 88,
   "HOME": 76,
   "SHELF": 57,
-  "CABINET": 47,
+  "CABINET": 50,
   "FURNITURE_COVER": 34,
   "CHAIR": 29,
   "ELECTRIC_FAN": 29,

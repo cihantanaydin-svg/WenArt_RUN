@@ -112,6 +112,23 @@ def test_glb_materials_lists_names_colours_textures_and_triangles(glb):
     assert by[3]["name"] == "unused"
 
 
+def test_an_unnamed_material_is_called_what_the_blender_importer_calls_it(tmp_path):
+    """The scene builder matches a catalogue slot to the imported material by name; Blender 5.2.2 names a material the
+    glTF does not name ``Material_<index>`` (checked in the session by importing a GLB with unnamed materials). The
+    question shows a name only when the file gave one."""
+    path = box_glb(tmp_path / "m.glb", [(SEAT[0], SEAT[1], 0), (LEGS[0], LEGS[1], 1)],
+                   [{"pbrMetallicRoughness": {"baseColorFactor": [0.5, 0.5, 0.5, 1.0]}}, {"name": "Oak"}], texture=False)
+    first, second = R.glb_materials(path)["materials"]
+    assert (first["name"], first["named"]) == ("Material_0", False) and (second["name"], second["named"]) == ("Oak", True)
+    slots = [{"index": 0, "name": first["name"], "named": False}, {"index": 1, "name": "Oak", "named": True}]
+    text = R.prompt_for(slots)
+    assert 'the tile labelled "slot 1" (file material name: "Oak")' in text and "Material_0" not in text
+    assert '- slot_0: the tile labelled "slot 0"\n' in text
+    whole = R.prompt_for(slots[:1], whole=True)
+    assert "(slot_0): say which materials" in whole and "file material name" not in whole
+    assert 'file material name "Oak"' in R.prompt_for(slots[1:], whole=True)          # a named slot: the old words
+
+
 def test_a_primitive_without_a_material_is_counted_apart(tmp_path):
     path = box_glb(tmp_path / "m.glb", [SEAT, (LEGS[0], LEGS[1], None)], MATERIALS[:1], texture=False)
     info = R.glb_materials(path)
@@ -552,7 +569,7 @@ def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
     cand = {"uid": "gen_plant_large_modern_1_abcd1234", "source": "generated", "licence": "generated (TRELLIS.2-4B, MIT)",
             "title": "Generated modern plant large (1)", "glb_info": {"textured": True},
             "generated": {"prompt": "p", "image_sha256": "0" * 64, "model": "m", "revision": "r", "seed": 1},
-            "attributes": {"species": "palm", "pot": "rattan"}, "style_hint": "modern", "units_known": False}
+            "attributes": {"species": "palm", "pot": {"material": "rattan", "colour": None}}, "style_hint": "modern", "units_known": False}
     obj = {"unit": {"scale": 1.0, "note": "n", "ok": True}, "measure": {"bbox_min_raw": [0, 0, 0],
                                                                        "bbox_max_raw": [0.5, 0.5, 1.6]}}
     dec = {"type": "plant_large", "kind": "decor", "decor_type": "plant_large", "front_axis": "-Y",
@@ -562,7 +579,8 @@ def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
     fields = {"material_slots": [{"index": 0, "material": "other"}], "material_tags": ["rattan"],
               "recolourable_fabric": False, "recolourable_wood": False, "glb_sha256": "x"}
     entry = ov.catalog_entry(cand, obj, dec, "f" * 64, ov.load_config(), None, fields)
-    assert entry["type"] == "decor_plant_large" and entry["species"] == "palm" and entry["pot"] == "rattan"
+    assert entry["type"] == "decor_plant_large" and entry["species"] == "palm" and entry["pot"] == {"material": "rattan", "colour": None}
+    assert entry["attributes_status"] == "assumed"                              # species and pot are the prompt's words
     assert entry["material_tags"] == ["rattan"] and entry["recolourable_fabric"] is False
     assert "glb_sha256" not in entry or entry["sha256_glb"] == "f" * 64          # only the four fields are copied
     assert set(ov.MATERIAL_FIELDS) <= set(entry)

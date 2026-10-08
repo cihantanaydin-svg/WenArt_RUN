@@ -37,11 +37,15 @@ library's own ranges, they win over ``size_table.yaml``) and LVIS categories; ``
 so their stored answers stay current). The survey reads two new things per ``categories`` entry: ``lvis`` (the LVIS
 name it reads, so several entries may split one broad category: ``cabinet`` into sideboards, shoe, display, tall and
 wall cabinets) and ``require_words`` (the title or a tag must hold one of them; an entry with words wins over the
-plain entries of its LVIS category, two matching entries of different types refuse the object ``several_types``);
+plain entries of its LVIS category, two matching entries of different types refuse the object ``several_types``;
+``not_words`` next to it drops the entry when the title or a tag holds one of those: wall-hung cabinets are not
+sideboards, display or tall cabinets, review finding 41);
 Objaverse objects of a decor type are ``kind: decor``. ``JudgeSpec`` lets the same judging (store, workers, deadline,
 exit codes) ask another task: ``wenart/assets/recolour.py`` asks the material of every slot of an accepted model and
 ``write-catalog`` copies its four fields (``MATERIAL_FIELDS``) into the entry; a generated plant keeps its ``species``
-and ``pot``. ``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
+and ``pot``; the thumbnail job measures the footprint of a corner sofa (``FOOTPRINT_TYPES``) and its entry gets
+``chaise_side`` (left / right as the viewer facing the front sees it, or null with ``chaise_note``: review finding 40).
+``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
 
 The steps as Milestone 7 built them (the Milestone 8 changes above apply on top of this text):
 
@@ -601,13 +605,15 @@ def new_counts() -> dict:
 
 def resolve_categories(cats: list[str], meta: dict, categories: dict, fields: dict) -> list[str]:
     """The categories of an object whose entries have ``require_words`` (Milestone 10), on its metadata:
-    - an entry with ``require_words`` stays only when its title or a tag holds one of the words (``prefer_hit``);
+    - an entry with ``require_words`` stays only when its title or a tag holds one of the words (``prefer_hit``)
+      and none of its ``not_words``;
     - a matching entry takes precedence over the plain entries of the same LVIS category (a "sectional" in LVIS
       ``sofa`` is a corner sofa, not a sofa).
     Two matching entries of different types leave two type sets: the survey refuses the object ``several_types``
     (never guessed). The words select the candidates; both judges still decide ``matches_type``."""
     kept = [c for c in cats if not categories[c].get("require_words")
-            or prefer_hit(meta, fields, categories[c]["require_words"])]
+            or (prefer_hit(meta, fields, categories[c]["require_words"])
+                and not prefer_hit(meta, fields, categories[c].get("not_words")))]
     specific = {lvis_name(c, categories) for c in kept if categories[c].get("require_words")}
     return [c for c in kept if categories[c].get("require_words") or lvis_name(c, categories) not in specific]
 
@@ -1361,6 +1367,116 @@ def _measure_done(measure_path: Path, sha: str, views: list[Path]) -> bool:
     return bool(rec and rec.get("glb_sha256") == sha and rec.get("ok") and all(v.is_file() for v in views))
 
 
+# --------------------------------------------------------------------------
+# The chaise side of a corner sofa (docs/milestone10.md §1.6b, review finding 40)
+# --------------------------------------------------------------------------
+
+# Types whose footprint the thumbnail step measures (an L-shaped piece has a chaise on its left or right).
+FOOTPRINT_TYPES = ("sofa_corner",)
+# front axis of the model (importer frame, Z up) -> (axis of the viewer's right and its sign, axis of the front and its
+# sign). A viewer who faces the sofa's front sees its chaise on the right when it is on +X for the front -Y
+# (building.schema.json `shape.chaise_side`): right = front x up.
+FRONT_FRAMES: dict[str, tuple[tuple[int, int], tuple[int, int]]] = {
+    "-Y": ((0, 1), (1, -1)), "+Y": ((0, -1), (1, 1)), "-X": ((1, -1), (0, -1)), "+X": ((1, 1), (0, 1))}
+
+
+def footprint_occupancy(polygons, mins, maxs, grid: int = 24, samples: int = 60000, min_fraction: float = 0.05,
+                        seed: int = 0) -> dict:
+    """Where the model stands, seen from above, in the model's own frame (Z up): ``samples`` points spread over the
+    surface of ``polygons`` (lists of world vertices, fanned into triangles; the number of points of a triangle follows
+    its area, the generator is seeded, so the same model gives the same grid) are counted in a ``grid`` x ``grid``
+    raster of the box x, y. A cell is filled when it holds at least two points and ``min_fraction`` of the median
+    count of the cells that hold any (a few stray points of a leg or a cable do not fill it).
+    ``{"grid", "rows": [str] (row j = y from the box minimum up, character i = x from the box minimum up; "1" filled),
+    "filled": fraction of all cells, "samples"}``."""
+    import numpy as np
+    tris = []
+    for poly in polygons:
+        for k in range(1, len(poly) - 1):
+            tris.append((poly[0], poly[k], poly[k + 1]))
+    if not tris:
+        raise ValueError("no polygons")
+    t = np.asarray(tris, dtype=float)
+    area = 0.5 * np.linalg.norm(np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0]), axis=1)
+    total = float(area.sum())
+    if not total > 0.0:
+        raise ValueError("no surface")
+    rng = np.random.default_rng(int(seed))
+    pick = rng.choice(len(t), size=int(samples), p=area / total)
+    r1, r2 = rng.random(int(samples)), rng.random(int(samples))
+    fold = r1 + r2 > 1.0
+    r1, r2 = np.where(fold, 1.0 - r1, r1), np.where(fold, 1.0 - r2, r2)
+    pts = t[pick, 0] + r1[:, None] * (t[pick, 1] - t[pick, 0]) + r2[:, None] * (t[pick, 2] - t[pick, 0])
+    sx, sy = max(float(maxs[0]) - float(mins[0]), 1e-9), max(float(maxs[1]) - float(mins[1]), 1e-9)
+    ix = np.clip(((pts[:, 0] - float(mins[0])) / sx * grid).astype(int), 0, grid - 1)
+    iy = np.clip(((pts[:, 1] - float(mins[1])) / sy * grid).astype(int), 0, grid - 1)
+    counts = np.bincount(iy * grid + ix, minlength=grid * grid).reshape(grid, grid)
+    seen = counts[counts > 0]
+    floor = max(2.0, float(min_fraction) * float(np.median(seen))) if seen.size else 2.0
+    filled = counts >= floor
+    return {"grid": int(grid), "rows": ["".join("1" if filled[j, i] else "0" for i in range(grid)) for j in range(grid)],
+            "filled": round(float(filled.mean()), 4), "samples": int(samples)}
+
+
+def strip_fill(footprint: dict, front_axis: str, front: bool, side_right: bool, depth: float) -> float:
+    """The filled fraction of the cells in the front (or back) strip of ``depth`` (a fraction of the box depth) on the
+    viewer's right (or left) half, with the model facing ``front_axis``."""
+    (r_axis, r_sign), (f_axis, f_sign) = FRONT_FRAMES[front_axis]
+    grid = int(footprint["grid"])
+    rows = footprint["rows"]
+    strip = max(1, int(round(float(depth) * grid)))
+    cells = filled = 0
+    for j in range(grid):
+        for i in range(grid):
+            idx = (i, j)
+            u = (idx[r_axis] + 0.5) / grid - 0.5              # along the axis of the viewer's right (centre 0)
+            if (u * r_sign > 0) != side_right:
+                continue
+            front_pos = grid - 1 - idx[f_axis] if f_sign > 0 else idx[f_axis]       # 0 at the front edge
+            if front and front_pos >= strip:
+                continue
+            if not front and front_pos < grid - strip:
+                continue
+            cells += 1
+            filled += rows[j][i] == "1"
+    return filled / cells if cells else 0.0
+
+
+def chaise_side(footprint: Optional[dict], front_axis: Optional[str], cfg: Optional[dict] = None
+                ) -> tuple[Optional[str], str]:
+    """``("left" | "right" | None, note)``: the side of the chaise of a corner sofa, from the measured footprint and the
+    model's front (the viewer facing the front sees the chaise on that side; ``shape.chaise_side`` of the building
+    schema). An L has a full back strip across the width, and in the front strip one half filled (the chaise) and the
+    other nearly empty (the notch): the chaise is the filled half. A straight or U-shaped sofa, a sofa whose front is
+    unknown or whose footprint was not measured gives None with the reason (never a guess). The strip depths and
+    fractions are ``objaverse.yaml footprint`` (designer values, assumed)."""
+    if not footprint or not footprint.get("rows"):
+        return None, "footprint not measured"
+    if front_axis not in FRONT_FRAMES:
+        return None, f"front axis {front_axis!r} unknown"
+    s = {**(((cfg or {}).get("footprint")) or {})}
+    depth = float(s.get("front_strip", 0.25))
+    back_depth = float(s.get("back_strip", 0.25))
+    left = strip_fill(footprint, front_axis, True, False, depth)
+    right = strip_fill(footprint, front_axis, True, True, depth)
+    back = min(strip_fill(footprint, front_axis, False, False, back_depth),
+               strip_fill(footprint, front_axis, False, True, back_depth))
+    shown = f"front strip left {left:.2f}, right {right:.2f}, back strip {back:.2f}"
+    if back < float(s.get("min_back", 0.6)):
+        return None, f"no full back strip ({shown}): not an L with this front"
+    big, small = max(left, right), min(left, right)
+    if big < float(s.get("min_chaise", 0.3)):
+        return None, f"front strip empty ({shown}): no chaise, or a front that does not fit"
+    if small > float(s.get("max_notch_ratio", 0.5)) * big:
+        return None, f"both front halves filled ({shown}): a straight sofa, a U-shape or a chaise on both sides"
+    return ("right" if right > left else "left"), shown
+
+
+def needs_footprint(cand: dict) -> bool:
+    """A corner sofa candidate: the thumbnail step measures its footprint (the chaise side)."""
+    return any(t in FOOTPRINT_TYPES for t in cand.get("types") or [])
+
+
 def needs_deck(cand: dict) -> bool:
     """A bed candidate: the thumbnail step measures its deck (docs/milestone8.md §2)."""
     return any(t in BED_TYPES for t in cand.get("types") or [])
@@ -1460,6 +1576,8 @@ def _thumb_settings(cfg: dict, device: str) -> dict:
     s["side_fraction"] = float(rules["side_fraction"])
     s["normal_dot"] = float(rules["open_side"]["normal_dot"])
     s["deck_ray_offset"] = float((cfg.get("bed_frame") or {}).get("ray_offset", 0.2))
+    s["footprint"] = {k: cfg.get("footprint", {}).get(k) for k in ("grid", "samples", "min_fraction", "seed")
+                      if cfg.get("footprint", {}).get(k) is not None}
     return s
 
 
@@ -1486,12 +1604,14 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
     for cand in cands:
         measure, views = _measure_paths(work, cand["uid"])
         deck = needs_deck(cand)
+        footprint = needs_footprint(cand)
         job = {"uid": cand["uid"], "glb": cand["glb"], "glb_sha256": cand["glb_sha256"], "measure": str(measure),
-               "views": [str(v) for v in views], "deck": deck, "render": True}
+               "views": [str(v) for v in views], "deck": deck, "footprint": footprint, "render": True}
         if _measure_done(measure, cand["glb_sha256"], views):
-            if not deck or "deck" in (read_json(measure) or {}):
+            done = read_json(measure) or {}
+            if (not deck or "deck" in done) and (not footprint or "footprint" in done):
                 continue
-            job["render"] = False                       # measured before M8: the deck only, the views stay
+            job["render"] = False                       # measured before M8 / M10: the missing numbers only
         jobs.append(job)
     rc = EXIT_OK
     if jobs:
@@ -1508,7 +1628,7 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
             runner = run_blender
         timeout = (deadline - time.time() + 120.0) if deadline else 3.0 * 3600.0
         log(f"library thumbnails: rendering {sum(j['render'] for j in jobs)} object(s), measuring "
-            f"{sum(not j['render'] for j in jobs)} deck(s) only, in one Blender process")
+            f"{sum(not j['render'] for j in jobs)} deck(s) / footprint(s) only, in one Blender process")
         rc = runner(blender, jobs_path, work / "blender.log", timeout)
         log(f"library thumbnails: Blender exited {rc}")
     status = read_json(work / "blender_status.json") or {}
@@ -1562,6 +1682,8 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
         if cand.get("front_documented") and rule != FRONTLESS_RULE:
             rec["front_documented"] = cand["front_documented"]
             rec["front_documented_note"] = cand.get("front_note") or f"{cand['source']} documents the front"
+        if ftype in FOOTPRINT_TYPES and m.get("footprint"):
+            rec["footprint"] = m["footprint"]
         if ftype in BED_TYPES:
             deck = m.get("deck") or {}
             rec["deck"] = deck
@@ -1753,6 +1875,14 @@ DECOR_WORDS: dict[str, tuple[str, str, str]] = {
 # The side a front-facing decor type shows (the M8 wall art question keeps its words, so its answers stay current).
 DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side",
                                      "clock": "the clock face"}
+# What "exactly one item" means for a decor type that is a group by definition (review finding 39: a stack of books is
+# three items, a pair of curtains is two panels; the shared question made both judges answer false and refuse them).
+# Only these types change the words; every other type keeps the M8 / M9 line, so its stored answers stay current.
+DECOR_SINGLE_WORDS: dict[str, str] = {
+    "books": "exactly one stack or one short row of books (the stack or the row counts as one item)",
+    "curtain": "exactly one curtain panel, or one pair of curtains on one rod (the pair counts as one item)",
+}
+DECOR_SINGLE_DEFAULT = "exactly one item"
 TYPE_WORDS.update({
     "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
     "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
@@ -1918,8 +2048,8 @@ def decor_prompt(decor_type: str, dims_m, has_front: bool, normalised: bool = Fa
         f"{tiles}. {size}",
         f"It is offered as {name} decor ({what}) for photoreal renders of furnished rooms.",
         "Fields of the answer:\n"
-        "- is_single_object: true when the tiles show exactly one item and nothing else (no second item, room, "
-        "floor, wall, person or text).\n"
+        f"- is_single_object: true when the tiles show {DECOR_SINGLE_WORDS.get(decor_type, DECOR_SINGLE_DEFAULT)} "
+        "and nothing else (no second item, room, floor, wall, person or text).\n"
         f"- is_decor_type: true when it is {counts}.\n"
         "- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and "
         "realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n"
@@ -2528,7 +2658,8 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
     the fit (``fit_scale`` maps metres to the footprint). Decor models get the type ``decor_<decor_type>`` (they go
     to the catalogue's ``decor`` section). Milestone 10: ``material`` (one model of ``recolour/tags.json``) adds
     ``material_slots``, ``material_tags``, ``recolourable_fabric``, ``recolourable_wood``; a generated plant has the
-    ``species`` and ``pot`` of its prompt (``generate.yaml variants``)."""
+    ``species`` and ``pot`` of its prompt (``generate.yaml variants``), marked ``attributes_status: assumed`` (nobody
+    checked that the model shows them)."""
     from wenart.furniture import catalog as C
     u = float(obj["unit"]["scale"])
     m = obj["measure"]
@@ -2562,8 +2693,14 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
         for key in ("species", "pot"):
             if (cand.get("attributes") or {}).get(key):
                 entry[key] = cand["attributes"][key]
+        if "species" in entry or "pot" in entry:
+            # the words of the generation prompt; no judge looks at the species or the pot (review finding, low)
+            entry["attributes_status"] = "assumed"
     else:
         entry["has_mattress"] = dec.get("has_mattress")
+        if dec["type"] in FOOTPRINT_TYPES:
+            # the side of the chaise as a viewer facing the sofa's front sees it (null: not measurable, with the reason)
+            entry["chaise_side"], entry["chaise_note"] = chaise_side(obj.get("footprint"), front, cfg)
         if dec["type"] in BED_TYPES:
             entry["bed_frame"] = bool(dec.get("bed_frame"))
             if dec.get("bed_frame"):
@@ -2631,7 +2768,8 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
     """``catalog_library.json`` from ``accepted.json`` (None and no file when nothing is accepted; a stale file in
     ``out`` is removed). Every GLB is copied to ``<assets>/models/<source>/<uid>.glb`` with its sha256 checked
     against the survey (``glb_source``); furniture goes to ``entries``, decor to ``decor``; the result must pass
-    ``catalog.validate(complete=False)`` and merge with ``catalog.json``."""
+    ``catalog.validate(complete=False)`` and merge with ``catalog.json``. A model of a ``parametric_only`` type (an
+    ``accepted.json`` made before the type was taken out of the sources) is listed under ``refused_at_write``."""
     from wenart.furniture import catalog as C
     cfg = cfg or load_config()
     out = Path(out)
@@ -2644,8 +2782,14 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
     material = tags_doc.get("models") or {}
     material_stale = []
     entries, decor, problems = [], [], []
+    parametric_only = set(cfg.get("parametric_only") or ())
     for dec in acc["accepted"]:
         uid = dec["uid"]
+        if dec["type"] in parametric_only:
+            # an accepted.json of an older run: the catalogue merge would drop the parametric entry of such a type
+            problems.append({"uid": uid, "code": "parametric_only", "detail": f"{dec['type']} is built parametrically "
+                             "(docs/milestone10.md §4.4); the model is not written to the catalogue"})
+            continue
         cand, obj = cands[uid], thumbs["objects"][uid]
         src = glb_source(cand, assets)
         if src is None:
@@ -2946,6 +3090,17 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
                           e.get("deck_height_m") or "–"] for e in beds])
         lines += [""]
 
+    corner = [e for e in furniture if e["type"] in FOOTPRINT_TYPES]
+    if corner:
+        lines += ["## Corner sofas (chaise side)", "",
+                  "The side of the chaise, as a viewer facing the sofa's front sees it (`chaise_side`), measured from the "
+                  "footprint of the model and its front; `–` = not measurable (the fit must not use such a model for a "
+                  "placed L-shaped sofa).", ""]
+        lines += _table(["Id", "Source", "Front", "Chaise side", "Note"],
+                        [[f"`{e['id']}`", e["source"], e["front_axis"], e.get("chaise_side") or "–",
+                          e.get("chaise_note") or "–"] for e in corner])
+        lines += [""]
+
     tags_doc = read_json(out / RECOLOUR_TAGS)
     if tags_doc is not None:
         counts_t = tags_doc.get("counts") or {}
@@ -3207,15 +3362,17 @@ def _bl_one(bpy, Vector, scene, cam, sun, job: dict, s: dict) -> dict:
         if ob.type == "LIGHT":                 # a light shipped in the GLB would change the judged look
             ob.hide_render = True
     bpy.context.view_layer.update()
-    raw = [] if job.get("deck") else None
+    raw = [] if job.get("deck") or job.get("footprint") else None
     points, polys, counts = _bl_measure(bpy, meshes, raw)
     if not points:
         raise RuntimeError("no vertices in the GLB")
     stats = front_stats(points, polys, s["top_fraction"], s["side_fraction"], s["normal_dot"])
     result = {"stats": stats, "vertices": len(points), "triangles": counts["triangles"], "mesh_objects": len(meshes),
               "images": len(counts["images"]), "colour_attributes": counts["colour_attributes"]}
-    if raw is not None:
+    if raw is not None and job.get("deck"):
         result["deck"] = deck_height(raw, stats["bbox_min"], stats["bbox_max"], float(s.get("deck_ray_offset", 0.2)))
+    if raw is not None and job.get("footprint"):
+        result["footprint"] = footprint_occupancy(raw, stats["bbox_min"], stats["bbox_max"], **(s.get("footprint") or {}))
     if job.get("render", True) is False:
         return result                          # measured before M8: the views on disk stay
     centre = [(a + b) / 2.0 for a, b in zip(stats["bbox_min"], stats["bbox_max"])]

@@ -426,7 +426,8 @@ def test_material_fields_and_plant_variant_reach_the_manifest_only_when_the_cata
     rows = [{"index": 0, "name": "Material_0", "material": "fabric", "materials": ["fabric"], "agreed": True,
              "separable": True, "share": 1.0, "textured": True, "base_colour": None, "colour_rgb": [120, 110, 90]}]
     extra = {"material_slots": rows, "material_tags": ["fabric"], "recolourable_fabric": True,
-             "recolourable_wood": False, "species": "olive tree", "pot": "terracotta pot"}
+             "recolourable_wood": False, "species": "olive", "pot": {"material": "terracotta", "colour": None},
+             "attributes_status": "assumed"}
     rich = models.fetch_model(uid, assets, source="abo", licence="CC-BY-4.0",
                               meta=_library_meta("abo", uid, sha, **extra))
     assert {k: rich[k] for k in extra} == extra                            # False is kept: it is an answer

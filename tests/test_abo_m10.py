@@ -21,8 +21,9 @@ NEW_FURNITURE = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "offi
                  "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
 NEW_DECOR = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
              "pendant_light", "ceiling_light")
-# Types the 8 Oct 2026 listings hold no model of: no ABO rule (Objaverse and the generated models fill them).
-NO_ABO_LISTING = ("crib", "curtain", "blind", "throw", "books")
+# Types without an ABO rule: the 8 Oct 2026 listings hold no model of them (Objaverse and the generated models fill
+# them), or the type is parametric by design (wall_cabinet, docs/milestone10.md §4.4; review finding 41).
+NO_ABO_LISTING = ("crib", "curtain", "blind", "throw", "books", "wall_cabinet")
 
 
 def mapped(ptype, name, dims):
@@ -51,6 +52,9 @@ def mapped(ptype, name, dims):
      [0.6752, 1.3795, 0.7868], "chaise"),
     ("CHAIR", 'Amazon Brand – Stone & Beam Varon Modern Lounge Daybed Chaise, 34.2"W, Dark Grey',
      [0.8943, 1.7793, 0.8589], "chaise"),
+    ("SOFA", 'Amazon Brand – Ravenna Home Classic Tufted Chaise Lounge, 58.3" Length, Slate Grey',
+     [0.6752, 1.3795, 0.7868], "chaise"),                       # SOFA-typed (none in the listings): not the plain sofa rule
+    ("SOFA", "Amazon Brand – Stone & Beam Dalton Sofa Couch with Chaise, Sand", [2.0, 1.55, 0.9], "sofa_corner"),
     ("CHAIR", "AmazonBasics Outdoor Zero Gravity Lounge Folding Chair, Black", [0.70, 0.88, 1.16], None),
     # office chairs
     ("CHAIR", "AmazonBasics Mesh, Mid-Back, Adjustable, Swivel Office Desk Chair with Armrests, Black",
@@ -101,7 +105,7 @@ def mapped(ptype, name, dims):
      [0.66, 0.42, 1.98], "display_cabinet"),
     ("HOME", "AmazonBasics Flag Display Case, White", [0.64, 0.10, 0.34], None),
     ("CABINET", "Amazon Brand – Stone & Beam Farmhouse Wall Mounted Cabinet Storage Organzier - 23 x19 x 6 Inch, "
-                "Natural Wood", [0.489, 0.1838, 0.5903], "wall_cabinet"),
+                "Natural Wood", [0.489, 0.1838, 0.5903], None),          # wall cabinets are parametric (§4.4): no rule
     ("CABINET", "Amazon Brand - Movian Argenton - Wall-mounted Bathroom Cabinet, 2-Doors 4-Shelves, 30 x 27 x 140 cm",
      [0.30, 0.27, 1.40], None),                                            # taller than a wall cabinet: size refused
     ("CABINET", "Express Furniture", [1.2499, 0.4798, 2.1598], "tall_cabinet"),   # no rule words: height >= 1.4 m
@@ -112,6 +116,7 @@ def mapped(ptype, name, dims):
                       "White and Clay", [0.1096, 0.1096, 0.2389], "candle"),
     ("HOME", "Amazon Brand – Rivet Modern Cylindrical Stoneware Candle Holder Lantern Home Decor Set - Set of 2, "
              "Gray and Cream", [0.35, 0.18, 0.26], "candle"),
+    ("CANDLE_HOLDER", "Hanging Tealight Candle Holder Lantern for Patio, Set of 2", [0.12, 0.12, 0.3], None),   # no light, no standing candle
     ("CANDLE_HOLDER", "Amazon Brand – Stone & Beam Modern Coastal Raffia Ceiling Hanging Pendant Chandelier Fixture "
                       "With Built-In LED", [0.45, 0.45, 0.72], "pendant_light"),          # a light, not a candle
     ("HOME", "Amazon Brand – Rivet Modern Geometric Handwoven Round Basket Set - Set of 3, White / Black",
@@ -159,7 +164,7 @@ def test_the_new_rules_leave_the_old_types_alone():
     typed CHAIR, 6 chaise sofas, 2 console tables typed DESK, 1 ergonomic chair. The first 24 ABO candidates of the
     other types stay the M8 ones."""
     first = {r["name"]: i for i, r in enumerate(CFG["rules"])}
-    for old, new in (("bed", "bunk_bed"), ("sofa_corner", "sofa"), ("sofa_named", "chaise"), ("chaise", "armchair"),
+    for old, new in (("bed", "bunk_bed"), ("sofa_corner", "sofa"), ("chaise", "sofa_corner"), ("chaise", "armchair"),
                      ("office_chair", "armchair"), ("bar_stool", "chair"), ("ottoman_named", "armchair"),
                      ("tv_unit", "console_table"), ("console_table", "side_table"), ("dresser_named", "sideboard"),
                      ("shoe_cabinet", "bench"), ("bench", "ottoman"), ("vase_named", "candle_named"),
@@ -240,4 +245,4 @@ def test_session_summary_from_a_survey(tmp_path):
     assert doc["old_types"]["sofa"]["rules"] == {"sofa": 1, "sofa_named": 1} and doc["listings"]["models"] == 37
     assert doc["listings"]["product_types"]["SOFA"] == 2 and doc["candidates_total"] == 31
     assert "sofa_corner" not in doc["old_types"] and "sofa" not in new
-    assert A.new_types(CFG)[:2] == ["bunk_bed", "sofa_corner"]      # the first type of a since-m10 rule
+    assert A.new_types(CFG)[:3] == ["bunk_bed", "chaise", "sofa_corner"]      # the types of the since-m10 rules, in order
