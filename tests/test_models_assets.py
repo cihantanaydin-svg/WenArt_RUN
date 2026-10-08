@@ -409,3 +409,25 @@ def test_abo_generated_and_flagged_objaverse_models_come_from_the_cache_only(tmp
                             meta=_objaverse_meta(uid=uid, sha=osha, licence_flag="non_commercial"))
     assert nc["licence"] == "CC-BY-NC-4.0" and nc["licence_flag"] == "non_commercial"
     assert set(fetch.load_manifest(assets)["models"]) == {"abo_B071777YN3", gen_uid, f"objaverse_{uid}"}
+
+
+def test_material_fields_and_plant_variant_reach_the_manifest_only_when_the_catalogue_has_them(tmp_path):
+    """Milestone 10: ``material_slots``, ``material_tags``, ``recolourable_fabric/wood`` and a large plant's
+    ``species`` / ``pot`` are copied to the manifest entry when the catalogue entry has them, and are absent otherwise
+    (an M8/M9 entry stays byte-identical)."""
+    assets = tmp_path / "assets"
+    uid = "abo_B071777YN3"
+    path = assets / models.library_relpath("abo", uid)
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"glTF abo m10")
+    sha = web.sha256_file(path)
+    plain = models.fetch_model(uid, assets, source="abo", licence="CC-BY-4.0", meta=_library_meta("abo", uid, sha))
+    assert not set(models.LIBRARY_OPTIONAL) & set(plain)
+    rows = [{"index": 0, "name": "Material_0", "material": "fabric", "materials": ["fabric"], "agreed": True,
+             "separable": True, "share": 1.0, "textured": True, "base_colour": None, "colour_rgb": [120, 110, 90]}]
+    extra = {"material_slots": rows, "material_tags": ["fabric"], "recolourable_fabric": True,
+             "recolourable_wood": False, "species": "olive tree", "pot": "terracotta pot"}
+    rich = models.fetch_model(uid, assets, source="abo", licence="CC-BY-4.0",
+                              meta=_library_meta("abo", uid, sha, **extra))
+    assert {k: rich[k] for k in extra} == extra                            # False is kept: it is an answer
+    assert fetch.load_manifest(assets)["models"][uid] == rich

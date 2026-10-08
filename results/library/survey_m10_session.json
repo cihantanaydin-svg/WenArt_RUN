@@ -7,7 +7,7 @@
  "per_type_limit": 40,
  "config_sha256": {
   "abo.yaml": "9cfc2affb0db355e29944a3433372166ac32ed69c276a80bd83b9c5fbfeaaae5",
-  "objaverse.yaml": "acdd502b8c0e2fb40cffdd48a4764924f163c0c1ae4d5845ef3dd12b7eddfc42"
+  "objaverse.yaml": "37056113c3e78388953a8d316bcd0cc56eb81c93b775715bee1dd8e034002fd6"
  },
  "metadata_files": {
   "3dmodels.csv.gz": {
