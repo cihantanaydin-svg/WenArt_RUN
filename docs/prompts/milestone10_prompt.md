@@ -20,36 +20,65 @@ the open questions at the end of this prompt, and wait for my answers before you
 | Only interiors are built and rendered. Plot, garden and parking are "recorded, not built". There is no roof and no exterior view. | `site` block in `wenart/schema/building.schema.json` |
 | The material and colour vocabulary is small: about 13 floor/wall materials, 3 wall colour words, one window frame material, one door look, no cabinet types besides the parametric kitchen counter. 7 of 12 terms of the real02 brief are unmatched: `warm greige walls`, `light grey fabric sofa`, `natural light wood furniture`, `glass coffee table`, `palms`, `monstera`, `dark bronze window frames`. | `wenart/style/vocabulary.py`; `python -m wenart.style projects/real02` |
 
-## Feature 1 – AI completes rooms that already have drawn furniture
+## Feature 1 – AI generates furniture in rooms that already have drawn furniture
 
-Goal: in a room with furniture in the documents, AI may **add** the pieces that are missing for the room type
-(for example nightstands next to a drawn bed, chairs around a drawn dining table, a wardrobe in a bedroom with
-only a bed drawn, a TV unit opposite a drawn sofa). The drawn pieces stay exactly as they are.
+Goal: in a room with furniture in the documents, AI may **redesign the drawn pieces** and **add** the pieces
+that are missing for the room type (for example nightstands next to a drawn bed, chairs around a drawn dining
+table, a wardrobe in a bedroom with only a bed drawn, a TV unit opposite a drawn sofa). For drawn pieces only the
+**location and position** are locked; everything else may change.
 
 Rules:
-1. Drawn pieces are locked: type, position, rotation, footprint, status and evidence never change
-   (`wenart/furniture/fit.py` `FROZEN_KEYS` + byte comparison, as today). They are fixed obstacles for the placer,
-   with their own clearances (0.6 m in front of beds, sofas, desks, wardrobes).
+1. Drawn pieces: what is locked and what may change.
+
+| Locked (never changes) | May change by AI |
+|---|---|
+| location: the piece's centre point on the plan (level, room, x/y of the drawn footprint centre, ± 5 cm) | type (within the types the room type allows, for example a drawn double bed may become a different bed type, a drawn 3-seat sofa a corner sofa) |
+| position: the orientation (front direction, `front_deg`, ± 1°) and the wall it stands against, if any | footprint size (width, depth), height, model, design, materials, colours |
+
+   - Today `wenart/furniture/fit.py` `FROZEN_KEYS` freezes `type`, `footprint`, `front_deg`, `height`, ... with a
+     byte comparison. In `complete` mode, replace that with a check of the locked items above (centre ± 5 cm,
+     front ± 1°, same against-wall side); the check fails the stage if a drawn piece moved or turned.
+   - A changed drawn piece keeps `from_documents` (its location and position come from the documents), gets
+     `modified_by_ai: true` and records the drawn values (`drawn_type`, `drawn_footprint`, `drawn_height`) and the
+     model answers as evidence. The report lists every change, per room: drawn type/size → new type/size.
+   - A new footprint grows or shrinks around the locked centre (against-wall pieces: from the wall line) and must
+     pass every placer check below; if it cannot, the next smaller option is tried, and at the end the drawn
+     size is kept. Never a change that blocks a door, a window or a walkway.
+   - Drawn pieces whose type was `unverified` keep that status for the drawn values; the AI type is a proposal
+     and is shown in the debug image.
+   - Fixed equipment stays as drawn (stairs, kitchen counter runs, sanitary ware: toilet, washbasin, shower,
+     bathtub), because it hangs on plumbing and structure; ask me if any of these may change too.
+   - Brief key `furnished_rooms_keep_size: true` keeps the drawn type and size and lets AI change only the look
+     (today's behaviour for drawn pieces).
 2. New brief key `furnished_rooms: keep | complete` in `wenart/defaults.yaml` (`keep` = today's behaviour).
    Ask me which one is the default. Rooms the brief lists under `furnished_rooms_keep: [room ids or labels]`
    always stay `keep`. Rooms that are never furnished stay so (for example Pooja, store rooms by rule).
 3. Same method as empty rooms (Milestone 4): Qwen3-VL-8B, two passes, temperature 0, strict JSON schema. The
-   question gives the room polygon, doors, windows, the drawn pieces (type, box, front) and the list of types
-   the room type allows. Only types the room type allows and that are not already covered may be proposed.
+   question gives the room polygon, doors, windows, the drawn pieces (type, box, front, locked centre and
+   front) and the list of types the room type allows. The answer has two parts: changes to drawn pieces (new
+   type, size, style) and added pieces. Only types the room type allows may be proposed; added pieces only for
+   types not already covered.
    No second anchor (no second bed in a single bedroom, no second sofa, no second toilet) unless the room type
    rule says so. Pairs are allowed (2 nightstands, 4–8 dining chairs by table size).
 4. Every proposal goes through `wenart/furniture/placer.py`: inside the room, no overlap with drawn or added
    pieces, door approach and swing arcs free, 0.9 m walkway between doors and windows, window band rule,
-   against-wall rule. A piece that cannot be placed without touching a drawn piece is dropped, never forced.
-   Keep only pieces both passes agree on (or a placed piece of one pass with confidence 0.6, as in M4).
-5. Labels: added pieces are `added_by_ai` with `completes_room: true` and the model answers as evidence. The
-   debug image and the report show drawn pieces and added pieces in different colours, per room.
+   against-wall rule. Changed drawn pieces are placed first (at their locked centre and front), then added
+   pieces. An added piece that cannot be placed is dropped, never forced; a changed drawn piece that cannot be
+   placed falls back to its drawn type and size. Keep only changes and pieces both passes agree on (or a placed
+   piece of one pass with confidence 0.6, as in M4).
+5. Labels: added pieces are `added_by_ai` with `completes_room: true` and the model answers as evidence;
+   changed drawn pieces are `from_documents` with `modified_by_ai: true` (rule 1). The debug image and the
+   report show three colours per room: drawn as drawn, drawn but changed by AI (with the drawn outline dashed
+   under the new one), added by AI.
 6. AI decor (Milestone 9) runs after the completion, so the new pieces get decor too.
-7. The vision check and the added-object detector must treat `added_by_ai` pieces as expected elements (they
-   are in the building JSON), so they are not flagged as insertions.
-8. This changes a `CLAUDE.md` rule ("Rooms that have furniture in the documents: never add, remove or move
-   furniture"). Propose the new wording (drawn pieces: never removed or moved; additions only with
-   `furnished_rooms: complete`, labelled `added_by_ai`) and edit `CLAUDE.md` only after I say OK.
+7. The vision check, the plan cross-check and the added-object detector must use the final building JSON
+   (changed and added pieces), so a changed type or size and an added piece are not flagged as mismatches or
+   insertions; the cross-check against the source plan checks the locked centre and front of every drawn piece.
+8. This changes two `CLAUDE.md` furniture rules ("same type, position, orientation and footprint size as
+   drawn" and "Rooms that have furniture in the documents: never add, remove or move furniture"). Propose the
+   new wording (drawn pieces: location and position locked, never removed; type, size and look may change with
+   `furnished_rooms: complete`, labelled `modified_by_ai`; additions labelled `added_by_ai`) and edit
+   `CLAUDE.md` only after I say OK.
 
 ## Feature 2 – sheet analysis first, then the whole building, then exterior renders
 
@@ -220,7 +249,7 @@ work to cheaper models. I can turn this off with "parallel: off"; then you work 
 | 3 | real02 build | 3 levels stacked, stairs connect, attic roof from the section, heights with evidence or `assumed` |
 | 4 | real02 renders | interiors per variant (only changed rooms twice) + ≥ 5 exterior views per variant |
 | 5 | synthetic-07 | every region class, level, variant and height equals the ground truth |
-| 6 | Feature 1 | in `complete` mode, ≥ 1 added piece in each furnished bedroom and living room of real01/real02 where the room type misses one; 0 drawn pieces changed (byte check); 0 placer violations |
+| 6 | Feature 1 | in `complete` mode, ≥ 1 added piece in each furnished bedroom and living room of real01/real02 where the room type misses one; every drawn piece keeps its centre (± 5 cm) and front (± 1°), checked against the source plan; every type or size change listed with the drawn values; 0 placer violations |
 | 7 | Feature 3 | real02 brief fully matched (or reasons listed); coverage table meets the targets above or says why not |
 | 8 | No regressions | synthetic-03 and real01 results as in M9 or better; `pytest -m "not gpu"` and `pytest -m gpu` green |
 
