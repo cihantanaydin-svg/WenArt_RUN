@@ -46,6 +46,10 @@ exit codes) ask another task: ``wenart/assets/recolour.py`` asks the material of
 and ``pot``; the thumbnail job measures the footprint of a corner sofa (``FOOTPRINT_TYPES``) and its entry gets
 ``chaise_side`` (left / right as the viewer facing the front sees it, or null with ``chaise_note``: review finding 40).
 ``furniture_types()`` = the catalogue's types plus the schema's not yet in it (track F adds them).
+``survey --types new|T1,T2`` (pod L1 follow-up) lists and downloads only those types (``new`` = ``new_types`` of
+``objaverse.yaml``) and keeps the survey records of every other type from the earlier ``survey.json``; ``thumbnails``
+then keeps the earlier object of a record whose GLB is not on the pod (``carried``), and ``write-catalog`` takes such a
+GLB from ``--assets``.
 
 The steps as Milestone 7 built them (the Milestone 8 changes above apply on top of this text):
 
@@ -218,6 +222,8 @@ REASONS: dict[str, str] = {
     "over_type_limit": "over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1)",
     "over_style_limit": "every style family it fits already has its share of models of its type (no fill pass)",
     "glb_changed": "GLB sha256 differs from the survey (and no copy in the assets cache)",
+    "glb_missing": "the GLB is not in the survey cache and no earlier thumbnail of it is kept (survey again, or "
+                   "restore the cache)",
 }
 
 
@@ -349,6 +355,59 @@ def lvis_near_names(category: str, lvis: dict, limit: int = 20) -> list[str]:
 def group_key(types) -> str:
     """The candidate group of a category: its type, or ``bed_double|bed_single`` for a category that maps to two."""
     return "|".join(types)
+
+
+def new_types(cfg: Optional[dict] = None) -> list[str]:
+    """The 14 furniture and 12 decor types of Milestone 10 (``objaverse.yaml new_types``)."""
+    return [str(t) for t in (cfg or load_config()).get("new_types") or ()]
+
+
+def parse_type_filter(value, cfg: Optional[dict] = None) -> Optional[list[str]]:
+    """The ``--types`` filter of the surveys: ``new`` (the Milestone 10 types), a list of types (comma separated, or
+    a list; ``new`` may be one of them), or nothing / ``all`` = every type (None). ``UsageError`` for a name that is
+    no furniture or decor type."""
+    if value is None:
+        return None
+    tokens = value if isinstance(value, (list, tuple)) else str(value).replace(",", " ").split()
+    tokens = [str(t).strip() for t in tokens if str(t).strip()]
+    if not tokens or "all" in tokens:
+        return None
+    known = (set(furniture_types()) | set(DECOR_TYPES)) - {"unknown"}
+    out: list[str] = []
+    for token in tokens:
+        for name in (new_types(cfg) if token == "new" else [token]):
+            if name not in known:
+                raise UsageError(f"--types: {name!r} is no furniture or decor type (use new, all or names of: "
+                                 f"{', '.join(sorted(known))})")
+            if name not in out:
+                out.append(name)
+    return out
+
+
+def record_types(rec: dict) -> list[str]:
+    """The types of a survey record (``types``, else the M7 ``type``)."""
+    return [str(t) for t in (rec.get("types") or ([rec["type"]] if rec.get("type") else []))]
+
+
+def group_types(group) -> set:
+    """The types of a group key (``bed_double|bed_single``)."""
+    return {t for t in str(group or "").split("|") if t}
+
+
+def carry_over(previous: Optional[dict], types) -> dict:
+    """What a survey of only ``types`` keeps of the earlier survey document ``previous`` (None: there was none): the
+    candidates of every other type as they are (their GLB may be missing here), their counts and their refusals.
+    ``{"candidates", "counts", "refused", "generated_utc"}``."""
+    wanted = set(types)
+    prev = previous or {}
+    return {
+        "candidates": [c for c in prev.get("candidates") or []
+                       if isinstance(c, dict) and c.get("uid") and not (set(record_types(c)) & wanted)],
+        "counts": {g: v for g, v in (prev.get("counts") or {}).items() if not (group_types(g) & wanted)},
+        "refused": [r for r in prev.get("refused") or []
+                    if isinstance(r, dict) and r.get("group") and not (group_types(r["group"]) & wanted)],
+        "generated_utc": prev.get("generated_utc"),
+    }
 
 
 def style_values() -> tuple[str, ...]:
@@ -619,9 +678,14 @@ def resolve_categories(cats: list[str], meta: dict, categories: dict, fields: di
 
 
 def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, workers: int = 8,
-           log: Callable = print) -> dict:
+           log: Callable = print, types=None) -> dict:
     """§7.1: LVIS categories -> types, licence (any, flagged: docs/milestone8.md §2), credit, prefilter, rank,
     <= ``per_type_limit`` (24) candidates per type -> ``survey.json``.
+
+    ``types`` (``--types``; Milestone 10 pod L1): only these types are listed and downloaded. The candidates, counts
+    and refusals of every other type stay as the earlier ``survey.json`` of ``out`` has them (their GLBs may be missing
+    here: the thumbnails and the catalogue take the stored thumbnails, answers and the assets copy), and a uid kept that
+    way is never picked again for a listed type. Only the LVIS objects of the categories of the listed types are read.
 
     ``hub.path(filename)`` returns a local file of the dataset (``HFHub`` on the pod, ``LocalHub`` in tests).
     With ``download`` the candidates' GLBs are fetched in rank order (at most ``max_downloads_per_type`` per type)
@@ -632,6 +696,12 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     out = Path(out)
     ds, fields, pre = cfg["dataset"], cfg["metadata_fields"], cfg["prefilter"]
     categories = cfg["categories"]
+    wanted_types = set(types) if types else None
+    carry = None
+    if wanted_types:
+        earlier = read_json(out / SURVEY_NAME) if (out / SURVEY_NAME).is_file() else None
+        carry = carry_over(earlier, wanted_types)
+    carried_uids = {str(c["uid"]) for c in carry["candidates"]} if carry else set()
     lvis = read_json_gz(hub.path(ds["lvis_file"]))
     paths = read_json_gz(hub.path(ds["paths_file"]))
     if not isinstance(lvis, dict) or not isinstance(paths, dict):
@@ -649,6 +719,13 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             if cat not in uid_cats.setdefault(str(uid), []):
                 uid_cats[str(uid)].append(cat)
 
+    if wanted_types:
+        wanted_cats = {c for c in categories if set(categories[c]["types"]) & wanted_types}
+        before = len(uid_cats)
+        uid_cats = {u: cs for u, cs in uid_cats.items() if u not in carried_uids and any(c in wanted_cats for c in cs)}
+        log(f"objaverse survey: types {', '.join(sorted(wanted_types))}: {len(uid_cats)} of {before} LVIS objects; "
+            f"{len(carry['candidates'])} candidates of other types stay as the earlier survey has them")
+
     refused: list[dict] = []
     counts: dict[str, dict] = {}
     pools: dict[str, list[dict]] = {}
@@ -664,6 +741,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
                 refused.append(_refusal(uid, "several_types", ", ".join(cats), categories=cats))
                 continue
             types = list(next(iter(type_sets)))
+            if wanted_types and not (set(types) & wanted_types):
+                continue
             group = group_key(types)
             c = counts.setdefault(group, new_counts())
             c["lvis"] += 1
@@ -706,6 +785,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
                 refused.append(_refusal(uid, "several_types", ", ".join(kept), categories=kept))
                 continue
             cats, types = kept, list(next(iter(type_sets)))
+            if wanted_types and not (set(types) & wanted_types):
+                continue                                # resolved to an older type: the earlier survey has it
             counts.setdefault(group_key(types), new_counts())["lvis"] += 1
         group = group_key(types)
         c = counts[group]
@@ -800,6 +881,11 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             f"{c.get('flagged', 0)} flagged licences, {c['prefilter_ok']} past the prefilter, "
             f"{c['candidates']} candidates")
 
+    new_candidates = len(candidates)
+    if carry:
+        counts = {**carry["counts"], **counts}
+        refused = refused + carry["refused"]
+        candidates = carry["candidates"] + candidates
     refused_counts: dict[str, int] = {}
     for r in refused:
         refused_counts[r["code"]] = refused_counts.get(r["code"], 0) + 1
@@ -815,6 +901,10 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
         "counts": counts, "refused_counts": dict(sorted(refused_counts.items())),
         "candidates": candidates, "refused": refused,
     }
+    if carry:
+        doc["types"] = sorted(wanted_types)
+        doc["candidates_new"] = new_candidates
+        doc["carried"] = {"candidates": len(carry["candidates"]), "generated_utc": carry["generated_utc"]}
     write_json(out / SURVEY_NAME, doc)
     return doc
 
@@ -1581,6 +1671,27 @@ def _thumb_settings(cfg: dict, device: str) -> dict:
     return s
 
 
+# Refusals that say a step did not finish, not something about the model: a kept object must not carry them.
+TRANSIENT_CODES = ("not_rendered", "blender_error", "glb_missing")
+
+
+def carried_object(prev: Optional[dict], cand: dict, out: Path) -> Optional[dict]:
+    """The object of an earlier ``thumbnails.json`` for a candidate whose GLB is not here (None: nothing to keep).
+    Kept: a ``ready`` object whose judge sheet and thumbnail are still in ``out`` (the stored judge answers hash the
+    sheet's pixels), and a refusal that is a fact about the model; not: a refusal of a step that did not finish. An
+    object that records its GLB sha256 must have the candidate's."""
+    if not isinstance(prev, dict):
+        return None
+    if prev.get("glb_sha256") not in (None, cand.get("glb_sha256")):
+        return None
+    if prev.get("status") == "ready":
+        if not all(prev.get(k) and (Path(out) / prev[k]).is_file() for k in ("sheet", "thumb")):
+            return None
+    elif prev.get("status") != "refused" or prev.get("code") in TRANSIENT_CODES:
+        return None
+    return dict(prev, glb_sha256=cand.get("glb_sha256"), carried=True)
+
+
 def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = None, blender: Optional[str] = None,
                runner: Optional[Callable] = None, deadline: Optional[float] = None, device: str = "auto",
                log: Callable = print) -> tuple[dict, int]:
@@ -1590,10 +1701,16 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
     Objects measured and rendered earlier (same GLB sha256, four views on disk) are not rendered again; a bed
     measured before Milestone 8 (no deck) is measured once more without rendering. A record with ``units_known``
     keeps its type and scale 1 (``known_unit``: refused when outside the type's range); the others go through the
-    unit guess. ``runner(blender, jobs_path, log_path, timeout) -> exit code`` replaces ``run_blender`` (tests)."""
+    unit guess. ``runner(blender, jobs_path, log_path, timeout) -> exit code`` replaces ``run_blender`` (tests).
+
+    A candidate whose GLB is not on this pod (a record kept by a filtered survey, ``survey --types``; the survey
+    cache is on the container disk) needs no GLB when its measurements and views are in the work folder. Else its
+    object of the earlier ``thumbnails.json`` (same GLB sha256 when that has one, judge sheet and thumbnail still
+    there) is kept as it is (``carried``); with neither it is refused ``glb_missing``, which is no failure of the step."""
     cfg = cfg or load_config()
     out = Path(out)
     work = Path(work) if work else out / WORK_DIR
+    prev_objects = (read_json(out / THUMBS_JSON) or {}).get("objects") or {}
     cands = [c for c in load_candidates(out) if c.get("glb")]
     # A uid that is not a plain id (the cache path models/<source>/<uid>.glb and the fetch need one, e.g. a
     # generated uid with a space) is refused here, visibly, instead of failing at the full run's fetch.
@@ -1601,17 +1718,23 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
     cands = [c for c in cands if _UID_RE.fullmatch(str(c["uid"]))]
     settings = _thumb_settings(cfg, device)
     jobs = []
+    absent: dict[str, Optional[dict]] = {}          # GLB not here, measurement incomplete: uid -> kept object or None
     for cand in cands:
         measure, views = _measure_paths(work, cand["uid"])
         deck = needs_deck(cand)
         footprint = needs_footprint(cand)
         job = {"uid": cand["uid"], "glb": cand["glb"], "glb_sha256": cand["glb_sha256"], "measure": str(measure),
                "views": [str(v) for v in views], "deck": deck, "footprint": footprint, "render": True}
+        complete = False
         if _measure_done(measure, cand["glb_sha256"], views):
             done = read_json(measure) or {}
-            if (not deck or "deck" in done) and (not footprint or "footprint" in done):
+            complete = (not deck or "deck" in done) and (not footprint or "footprint" in done)
+            if complete:
                 continue
             job["render"] = False                       # measured before M8 / M10: the missing numbers only
+        if not Path(cand["glb"]).is_file():
+            absent[cand["uid"]] = carried_object(prev_objects.get(cand["uid"]), cand, out)
+            continue
         jobs.append(job)
     rc = EXIT_OK
     if jobs:
@@ -1644,10 +1767,21 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
         rec = {"uid": uid, "group": cand["group"], "types": cand["types"], "title": cand.get("title"),
                "author": cand.get("author"), "source_url": cand.get("source_url"), "licence": cand.get("licence"),
                "source": cand["source"], "licence_flag": cand.get("licence_flag"), "kind": cand["kind"],
-               "decor_type": cand.get("decor_type"), "units_known": bool(cand.get("units_known"))}
+               "decor_type": cand.get("decor_type"), "units_known": bool(cand.get("units_known")),
+               "glb_sha256": cand.get("glb_sha256")}
         objects[uid] = rec
+        if uid in absent:
+            if absent[uid] is not None:
+                objects[uid] = absent[uid]
+            else:
+                rec.update(status="refused", code="glb_missing", detail=str(cand.get("glb")))
+            continue
         m = read_json(measure_path)
         if not m or m.get("glb_sha256") != cand["glb_sha256"]:
+            kept = carried_object(prev_objects.get(uid), cand, out)
+            if kept is not None:                    # a run cut before it keeps what the earlier run made of it
+                objects[uid] = kept
+                continue
             rec.update(status="refused", code="not_rendered",
                        detail=f"Blender exit {rc}" if rc else "no measurement written")
             continue
@@ -1707,6 +1841,9 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
         if rec["status"] != "ready":
             continue
         cand = by_uid[uid]
+        if rec.get("carried"):                      # its sheet and thumbnail are on disk (carried_object)
+            notices.append((rec["thumb"], credit_line(cand, cfg), cand["source"]))
+            continue
         sheet_rel = f"{JUDGE_DIR}/{SHEETS_DIR}/{uid}.jpg"
         thumb_rel = f"{THUMBS_DIR}/{rec['type']}/{uid}.jpg"
         line = credit_line(cand, cfg)
@@ -1728,6 +1865,7 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
            "sources": sorted({c["source"] for c in cands}),
            "device": status.get("device"), "blender": status.get("blender"), "blender_exit": rc,
            "rendered_now": sum(1 for j in jobs if j["render"]), "decks_now": sum(1 for j in jobs if j["deck"]),
+           "carried": sum(1 for o in objects.values() if o.get("carried")),
            "settings": settings, "counts": dict(sorted(counts.items())), "objects": objects}
     write_json(out / THUMBS_JSON, doc)
     _write_thumb_notice(out, notices, cfg)
@@ -2794,6 +2932,8 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
         src = glb_source(cand, assets)
         if src is None:
             problems.append({"uid": uid, "code": "glb_changed", "detail": str(cand.get("glb"))})
+            log(f"library write-catalog: {uid}: no GLB with the survey's sha256 in the survey cache or in "
+                f"{Path(assets) / cache_rel(cand['source'], uid)}; left out of the catalogue")
             continue
         copy_glb(src, assets, uid, cand["glb_sha256"], cand["source"])
         tags = material.get(uid)
@@ -3176,6 +3316,10 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--mirror", default=None, help="read the dataset files from this folder instead of the hub")
     p.add_argument("--no-download", action="store_true", help="rank only; download no GLB")
     p.add_argument("--workers", type=int, default=8, help="parallel metadata downloads (default 8)")
+    p.add_argument("--types", default=None,
+                   help="only these types are listed and downloaded: new (the 14 furniture and 12 decor types of "
+                        "Milestone 10) or T1,T2 (default: every type); the other types' records stay as the earlier "
+                        "survey.json of --out has them")
     p = add("thumbnails", "measure and render the candidates in Blender; unit guess; 2 x 2 sheets")
     p.add_argument("--work", default=None, help="views and measurements (default <out>/work)")
     p.add_argument("--blender", default=None, help="Blender binary (default WENART_BLENDER, /workspace/tools/...)")
@@ -3216,9 +3360,13 @@ def main(argv=None, client_factory=None) -> int:
             else:
                 hub = HFHub(ds["repo"], ds["revision"], Path(args.cache) if args.cache else None,
                             ds.get("repo_type", "dataset"))
-            doc = survey(hub, out, cfg, download=not args.no_download, workers=args.workers)
-            print(f"objaverse survey: {len(doc['candidates'])} candidate(s) -> {out / SURVEY_NAME}")
-            return EXIT_OK if doc["candidates"] else EXIT_FAIL
+            types = parse_type_filter(args.types, cfg)
+            doc = survey(hub, out, cfg, download=not args.no_download, workers=args.workers, types=types)
+            fresh = doc.get("candidates_new", len(doc["candidates"]))
+            print(f"objaverse survey: {len(doc['candidates'])} candidate(s)"
+                  + (f" ({fresh} of the listed types, {len(doc['candidates']) - fresh} kept from the earlier survey)"
+                     if types else "") + f" -> {out / SURVEY_NAME}")
+            return EXIT_OK if fresh else EXIT_FAIL
         if args.command == "thumbnails":
             doc, rc = thumbnails(out, Path(args.work) if args.work else None, cfg, blender=args.blender,
                                  deadline=deadline_of(args.deadline), device=args.device)
