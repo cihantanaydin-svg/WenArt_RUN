@@ -370,10 +370,6 @@ def _named(planes: Sequence[Plane], names: Sequence[str]) -> list[str]:
     return [f"rp_{side_name(slope_aspect(p)[1])}" + (f"_{n}" if n else "") for p, n in zip(planes, names)]
 
 
-def _offset_outline(rect: dict, grow: float) -> list[tuple[float, float]]:
-    return geom2d.rectangle_corners(rect, grow)
-
-
 def derive(roof: dict, building: dict) -> dict:
     """The derivation behind ``planes_for``: ``{"planes": [...], "equations": [(a, b, c)], "outline",
     "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes"}``."""
@@ -400,8 +396,9 @@ def derive(roof: dict, building: dict) -> dict:
             return {"planes": [], "equations": [], "outline": [], "eaves_z": None, "ridge_z": None, "pitches": [],
                     "assumed": assumed, "warnings": ["no roof outline and no walls under the roof: no roof"],
                     "notes": notes}
-        rect = geom2d.oriented_rectangle(wall_line)
-        outline = _offset_outline(rect, overhang) if rtype != "flat" or overhang > 0 else geom2d.ccw(wall_line)
+        # The walls' own outline grown by the overhang (review #26: an L-shaped level keeps its notch open; the
+        # planes are derived on the enclosing rectangle and cut to it, listed as outline_rectangle below).
+        outline = geom2d.ccw(geom2d.offset_polygon(wall_line, -overhang) if overhang > 0 else wall_line)
         assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
                         "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
                                   f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"})
@@ -449,7 +446,7 @@ def derive(roof: dict, building: dict) -> dict:
     t1 = math.tan(math.radians(p1))
     if eaves is None:
         if knee is not None:
-            eaves = floor_z + knee - (0.0 if overhang_used else overhang) * t1
+            eaves = floor_z + knee - overhang * t1      # the eaves edge is `overhang` outside the wall face
             notes.append(f"eaves {eaves:.3f} m from the knee wall {knee:.2f} m at the outer wall face and the "
                          f"overhang {overhang:.2f} m")
             if overhang_assumed and not overhang_used:
@@ -460,7 +457,7 @@ def derive(roof: dict, building: dict) -> dict:
             notes.append(f"eaves {eaves:.3f} m from the ridge height and the pitch")
         else:
             knee_a = DEFAULTS["knee_wall"]
-            eaves = floor_z + knee_a - (0.0 if overhang_used else overhang) * t1
+            eaves = floor_z + knee_a - overhang * t1
             assumed.append({"field": "eaves_height", "value": round(eaves, 4),
                             "reason": f"no eaves height, knee wall or ridge height drawn: an assumed knee wall of "
                                       f"{knee_a} m at the outer wall face"})

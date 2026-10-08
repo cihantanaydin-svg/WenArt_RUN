@@ -214,8 +214,32 @@ def test_missing_values_are_assumed_and_listed():
     ys = [p[1] for p in d["outline"]]
     assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((-0.5, 10.75, -0.5, 8.75))
     assert all(p["slope_deg"] == pytest.approx(R.DEFAULTS["pitch_deg"]) for p in d["planes"])
-    # eaves: an assumed 1.00 m knee wall at the outer wall face
-    assert d["eaves_z"] == pytest.approx(3.0 + 1.0)
+    # eaves: an assumed 1.00 m knee wall at the outer wall face, the eaves edge 0.50 m further out (review #25)
+    assert d["eaves_z"] == pytest.approx(3.0 + 1.0 - 0.5 * math.tan(math.radians(30.0)))
+    assert R.surface_z(d["equations"], 5.0, 0.0) == pytest.approx(3.0 + 1.0)        # at the south wall's outer face
+
+
+def test_knee_wall_without_a_drawn_outline_holds_at_the_wall_face():
+    # review #25: no roof outline (the walls + the overhang): the drawn knee wall is at the outer wall face
+    roof = dict(copy.deepcopy(EXAMPLE["roof"]), outline=None, eaves_height=None, ridge_height=None, planes=[])
+    m = R.roof_model(roof, EXAMPLE)
+    assert m["eaves_z"] == pytest.approx(3.65, abs=1e-3)
+    assert m["knee_wall_check"]["difference"] == pytest.approx(0.0, abs=1e-3)
+    assert not any("knee wall" in w for w in m["warnings"])
+
+
+def test_no_drawn_outline_follows_an_l_shaped_level():
+    # review #26: an L-shaped top level (10 x 10 m minus a 5 x 5 m notch) and no roof outline: the roof keeps the
+    # notch open and lists the rectangle it was derived on
+    pts = [(0, 0), (10, 0), (10, 5), (5, 5), (5, 10), (0, 10)]
+    walls = [{"id": f"w{i}", "level_id": "L1", "start": list(pts[i]), "end": list(pts[(i + 1) % 6]), "thickness": 0.2}
+             for i in range(6)]
+    building = {"levels": [{"id": "L1", "elevation": 3.0, "ceiling_height": 2.6}], "walls": walls}
+    m = R.roof_model({"type": "hip", "over_level_id": "L1", "outline": None, "eaves_height": _v(5.8),
+                      "pitches_deg": [_v(30.0)], "planes": []}, building)
+    assert not R.covers(m, 8.0, 8.0) and R.covers(m, 2.0, 8.0) and R.covers(m, 8.0, 2.0)
+    assert G.polygon_area(m["outline"]) == pytest.approx(11.2 * 11.2 - 5.0 * 5.0, abs=1e-6)     # faces + 0.5 m
+    assert {a["field"] for a in m["assumed"]} >= {"outline", "outline_rectangle"}
 
 
 def test_other_roof_type_builds_a_gable_and_says_so():
