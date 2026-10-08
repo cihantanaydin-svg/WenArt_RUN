@@ -656,6 +656,29 @@ def parapet_check(model: dict, level: dict, walls: Sequence[dict], step: float =
     return out
 
 
+PARAPET_THICKNESS = 0.15
+
+
+def parapet_boxes(checks: Sequence[dict], level: dict, thickness: float = PARAPET_THICKNESS) -> list[dict]:
+    """The parapets to build (pure): one box per terrace edge with an open stretch (``parapet_check``), just
+    outside the edge, ``thickness`` thick, from the terrace floor up to the parapet height (drawn or assumed).
+    An edge the roof closes, or a wall, gets none. ``[{"opening_id", "edge", "verts", "faces", "height"}]``."""
+    floor_z = float(level["elevation"])
+    out = []
+    for c in checks:
+        if not c["needs_parapet"] or not c["open"]:
+            continue
+        (px, py), (qx, qy) = c["edge"]
+        length = G.distance((px, py), (qx, qy))
+        nx, ny = G.unit_normal_left((px, py), (qx, qy))         # into the terrace (counter-clockwise polygon)
+        mid = ((px + qx) / 2.0 - nx * thickness / 2.0, (py + qy) / 2.0 - ny * thickness / 2.0)
+        h = float(c["parapet_height"])
+        verts, faces = geom2d.box((mid[0], mid[1], floor_z + h / 2.0), (length + thickness, thickness, h),
+                                  G.segment_angle_deg((px, py), (qx, qy)))
+        out.append({"opening_id": c["opening_id"], "edge": c["edge"], "verts": verts, "faces": faces, "height": h})
+    return out
+
+
 # --------------------------------------------------------------------------
 # Blender
 # --------------------------------------------------------------------------

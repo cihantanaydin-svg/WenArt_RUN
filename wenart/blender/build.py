@@ -643,6 +643,8 @@ def main(argv: list[str]) -> int:
             wall_whole = {"slab_above": above, "looks": looks, "outline": prep["outlines"].get(level["id"]),
                           "faces": prep["faces"],
                           "roof_cut": R.wall_cut(roof) if roof and roof["over_level_id"] == level["id"] else None}
+            warnings.extend(openings_through_roof(building, level, wall_whole["roof_cut"]))
+            warnings.extend(pieces_above_ceiling(building, level))
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
@@ -712,10 +714,25 @@ def main(argv: list[str]) -> int:
             over = next(lv for lv in levels if lv["id"] == roof["over_level_id"])
             parapets = R.parapet_check(roof, over, [w for w in building["walls"] if w["level_id"] == over["id"]])
             for p in parapets:
-                if p["needs_parapet"]:
-                    warnings.append(f"roof opening {p['opening_id']}: edge {p['edge']} has {p['open']} open sample(s) "
-                                    f"and a roof edge {p['min_height']} m over the terrace floor; no parapet built "
-                                    f"(parapet {p['parapet_height']} m)")
+                if p["needs_parapet"] and not p["open"]:
+                    warnings.append(f"roof opening {p['opening_id']}: the roof edge stands {p['min_height']} m over "
+                                    f"the terrace floor, lower than the parapet ({p['parapet_height']} m); not raised")
+            facade_mat = shell.look_material(library, looks["facade"])
+            rooms_by_opening = {o["id"]: o.get("room_id") for o in roof["openings"]}
+            for i, box in enumerate(R.parapet_boxes(parapets, over)):
+                name = f"parapet_{box['opening_id']}_{i + 1}"
+                room_id = rooms_by_opening.get(box["opening_id"]) or str(box["opening_id"])
+                ob = common.new_mesh_object(name, box["verts"], box["faces"], collection=level_collections[over["id"]],
+                                            wenart_id=name, kind="wall", status="assumed", materials=[facade_mat])
+                reason = (f"terrace edge open to the outside: a {box['height']} m parapet "
+                          f"({'drawn' if any(o['parapet_source'] == 'drawn' for o in roof['openings']) else 'height assumed'})")
+                manifest_objects.append({
+                    "name": ob.name, "wenart_id": name, "kind": "wall", "status": "assumed", "level_id": over["id"],
+                    "element_id": room_id, "parent": room_id, "evidence": [], "material": facade_mat.name,
+                    "textured": False, "pass_index": None,
+                    "assumed": {"detail": "parapet", "height_m": box["height"], "edge": box["edge"], "reason": reason}})
+                assumed.append({"object": ob.name, "field": "parapet", "value": box["height"], "reason": reason,
+                                "parent": room_id, "kind": "parapet"})
             whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
                                   "planes": roof["planes"], "derived_check": roof["derived_check"],
                                   "eaves_z": roof["eaves_z"], "ridge_z": roof["ridge_z"], "thickness": roof["thickness"],
@@ -843,6 +860,54 @@ def main(argv: list[str]) -> int:
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+def openings_through_roof(building: dict, level: dict, cut: dict | None) -> list[str]:
+    """Warnings for the doors and windows of the level under the roof whose top lies above the roof
+    underside at their wall (pure): the drawings disagree (a window drawn higher than the knee wall); the
+    opening is built as drawn and shows through the roof."""
+    from wenart.blender import geom2d, shell
+
+    if not cut:
+        return []
+    walls = {w["id"]: w for w in building["walls"] if w["level_id"] == level["id"]}
+    out = []
+    for o in building["openings"]:
+        wall = walls.get(o.get("wall_id"))
+        if o["level_id"] != level["id"] or wall is None or o.get("type") not in ("door", "window"):
+            continue
+        cx, cy, _ = shell.opening_centre_on_wall(o, wall)
+        _bottom, top, _ = shell.opening_vertical(o, level, False)
+        under = geom2d.surface_z(cut["planes"], cx, cy)
+        if top > under + 1e-3:
+            out.append(f"{o['id']}: its top ({top:.2f} m) is above the roof underside at its wall ({under:.2f} m); "
+                       f"built as drawn, it shows through the roof")
+    return out
+
+
+def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
+    """Warnings for the furniture of a level under the roof that is taller than its sloped ceiling at a
+    footprint corner (pure; ``level["ceiling_planes"]``): the piece is built as given and shows through the
+    ceiling; the layout and fit stages decide sizes."""
+    from wenart import geometry as G
+    from wenart.blender import geom2d
+    from wenart.blender.parametric import piece_bbox
+
+    planes = level.get("ceiling_planes")
+    if not planes:
+        return []
+    out = []
+    for piece in building.get("furniture") or []:
+        if piece.get("level_id") != level["id"] or piece.get("build", True) is False or piece.get("type") == "stair":
+            continue
+        fp = piece["footprint"]
+        top = float(level["elevation"]) + float(piece_bbox(piece)[2])
+        corners = G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))
+        low = min(geom2d.surface_z(planes, x, y) for x, y in corners)
+        if top > low + 1e-3:
+            out.append(f"{piece['id']}: {piece.get('type')} {top - float(level['elevation']):.2f} m tall stands where "
+                       f"the sloped ceiling is {low - float(level['elevation']):.2f} m high; it shows through the ceiling")
+    return out
 
 
 def variant_summary(building_all: dict, prep: dict) -> dict:

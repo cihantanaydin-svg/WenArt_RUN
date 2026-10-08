@@ -146,6 +146,26 @@ def test_prepare_the_whole_building():
         B.prepare(EXAMPLE, "nope")
 
 
+def test_an_opening_drawn_above_the_knee_wall_is_a_warning():
+    from wenart.blender import roof as R
+
+    prep = B.prepare(EXAMPLE, "base")
+    attic = prep["building"]["levels"][-1]
+    cut = R.wall_cut(prep["roof"])
+    assert B.openings_through_roof(prep["building"], attic, cut) == []        # the gable window fits
+    b = copy.deepcopy(prep["building"])
+    for o in b["openings"]:
+        if o["id"] == "win_L1_001":
+            o["wall_id"], o["center"] = "w_L1_001", [3.0, 0.0]               # moved onto the 0.87 m knee wall
+    assert any(w.startswith("win_L1_001: its top") for w in B.openings_through_roof(b, attic, cut))
+    # a 2.1 m wardrobe against the knee wall shows through the sloped ceiling: listed
+    b["furniture"].append({"id": "f_L1_w", "level_id": "L1", "room_id": "r_L1_oyun_odasi", "type": "wardrobe",
+                           "source": "added_by_ai", "height": 2.1, "status": "verified", "evidence": [],
+                           "footprint": {"center": [3.0, 0.5], "size": [1.8, 0.6], "rotation_deg": 0.0}})
+    assert B.pieces_above_ceiling(prep["building"], attic) == []
+    assert [w.split(":")[0] for w in B.pieces_above_ceiling(b, attic)] == ["f_L1_w"]
+
+
 def test_camera_headroom_under_a_sloped_ceiling():
     from wenart.blender import camsearch
 

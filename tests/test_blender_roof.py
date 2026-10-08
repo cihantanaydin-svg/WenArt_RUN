@@ -268,6 +268,12 @@ def test_parapet_check_of_the_example_terrace_and_an_open_one():
     m2 = dict(m, openings=[dict(m["openings"][0], polygon=[(6.05, -1.0), (9.875, -1.0), (9.875, 3.95), (6.05, 3.95)])])
     checks = R.parapet_check(m2, level, walls)
     assert any(c["needs_parapet"] and c["open"] > 0 for c in checks)
+    boxes = R.parapet_boxes(checks, level)
+    assert len(boxes) == sum(1 for c in checks if c["needs_parapet"] and c["open"])
+    for b in boxes:
+        zs = [v[2] for v in b["verts"]]
+        assert (min(zs), max(zs)) == pytest.approx((3.0, 4.0))          # floor to the assumed 1.00 m parapet
+    assert R.parapet_boxes(R.parapet_check(m, level, walls), level) == []
 
 
 def test_not_convex_drawn_planes_are_flagged():
