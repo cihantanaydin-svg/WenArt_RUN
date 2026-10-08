@@ -289,7 +289,8 @@ class MaterialLibrary:
             "source": tset["source"] if tset else None, "licence": tset["licence"] if tset else None,
             "size_m": tset["size_m"] if tset else None, "flat_colour": list(flat_colour(slug)),
             "tint": list(tint) if tint else None, "unverified": unverified,
-            "reason": reason if procedural is None else f"{reason}; {procedural_note_for(procedural, slug, all_params)}",
+            "reason": (reason if procedural is None
+                       else f"{reason}; {procedural_note_for(procedural, slug, all_params)}"),
             "albedo_mode": mode, "detail": detail,
             "albedo_gain": mat.get("wenart_albedo_gain"), "albedo_mean_luminance": mat.get("wenart_albedo_mean"),
             "gain_clamped": None if clamped is None else bool(clamped),
@@ -935,7 +936,8 @@ def procedural_note_for(procedural: str, slug: str, params: dict) -> str:
     if procedural == "wenart_tiles":
         size = params.get("tile_size_m") or [0.2, 0.2]
         return (f"procedural tiles {params.get('pattern') or 'grid'} {float(size[0]):.3f} x {float(size[1]):.3f} m, "
-                f"{float(params.get('grout_m') or 0.002) * 1000:.0f} mm grout in {params.get('grout_colour') or 'light grey'}"
+                f"{float(params.get('grout_m') or 0.002) * 1000:.0f} mm grout in "
+                f"{params.get('grout_colour') or 'light grey'}"
                 f" (node group {procedural_group_name(procedural, params)})")
     if procedural == "wenart_wallpaper":
         rep = params.get("repeat_m") or [0.2, 0.2]

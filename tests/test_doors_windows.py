@@ -32,7 +32,8 @@ STYLE = {"walls": {"material": "paint", "asset": "plastered_wall", "colour": "wa
 def test_wall_looks_are_the_style_slots_with_their_colour_and_tile_params():
     look = looks.wall_face_material(STYLE)
     assert look == {"material": "paint", "asset": "plastered_wall", "tint": None, "colour": "warm greige"}
-    legacy = looks.wall_face_material({"walls": {"material": "plaster_cream", "asset": "beige_wall_001", "colour": None}})
+    legacy = looks.wall_face_material({"walls": {"material": "plaster_cream", "asset": "beige_wall_001",
+                                                 "colour": None}})
     assert legacy == {"material": "plaster_cream", "asset": "beige_wall_001", "tint": None}      # the M9 look
     wet = looks.wet_wall_look(STYLE, {"room_type": "bathroom"})
     assert wet["material"] == "tiles_zellige" and wet["colour"] == "sage"
@@ -54,7 +55,8 @@ def _room_building(furniture=(), windows=()):
     openings = [{"id": wid, "type": "window", "level_id": "L0", "wall_id": wall, "center": c, "width": 1.2}
                 for wid, wall, c in windows]
     pieces = [{"id": pid, "type": ftype, "level_id": "L0", "room_id": "r",
-               "footprint": {"center": list(c), "size": list(size), "rotation_deg": rot}, "front_deg": (270 + rot) % 360}
+               "footprint": {"center": list(c), "size": list(size), "rotation_deg": rot},
+               "front_deg": (270 + rot) % 360}
               for pid, ftype, c, size, rot in furniture]
     return {"walls": walls, "rooms": rooms, "openings": openings, "furniture": pieces}
 

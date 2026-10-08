@@ -168,8 +168,8 @@ def host_decor(host: dict) -> list[dict]:
         n = max(2, int(w / CORNER_SOFA_CUSHION_PITCH_M))
         for i in range(n):
             x = -w / 2.0 + w * (i + 0.5) / n
-            items.append({"type": "cushion", "center": _local_to_building(host, x, d / 2.0 - CUSHION_SIZE[1] / 2.0 - 0.1),
-                          "rotation_deg": rot, "size": list(CUSHION_SIZE),
+            centre = _local_to_building(host, x, d / 2.0 - CUSHION_SIZE[1] / 2.0 - 0.1)
+            items.append({"type": "cushion", "center": centre, "rotation_deg": rot, "size": list(CUSHION_SIZE),
                           "reason": "cushion against the corner sofa's back"})
     elif kind == "cushion" and host["type"] == "sofa":
         for x in (-w / 4.0, w / 4.0):

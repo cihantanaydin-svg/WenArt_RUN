@@ -82,6 +82,33 @@ Milestone 8 (docs/milestone8.md §4):
   at the size the decor rule gives (rugs and wall art are exempt from the
   0.6 m decor cap: ``LARGE_DECOR_TYPES``). ``wall_art`` has no parametric
   shape (``decor_parts`` raises): without a library model it is not built.
+
+Milestone 10 (docs/milestone10.md §4.4-§4.7, §1.6b row 15; track F):
+
+- The 14 new types: the corner sofa (``l_parts``: the main seat along the back
+  and the chaise on ``chaise_side``, one arm at the far end), chaise, ottoman,
+  bench, bar stool, office chair (a five-star base inside the seat's
+  footprint), console table, crib, bunk bed (guard rail, ladder), sideboard,
+  shoe, display, tall and wall cabinets (a wall cabinet is built from z = 0 of
+  its frame; ``furniture.py`` hangs it at ``mount_bottom_m``).
+- Cabinet fronts (``cabinet_fronts``) in the design's front style: flat slab,
+  shaker (a frame on a recessed panel), slatted (vertical slats on a dark
+  backing), glass (a pane in a frame); bar handles on every front (key
+  ``handle``), the fronts on key ``front``; the kitchen counter run and island
+  keep their Milestone 6 boxes with these fronts; a washbasin with
+  ``design.vanity`` is a wall-hung vanity under a ceramic top, a wardrobe
+  with ``design.built_in`` has fronts from wall to wall; ``glass`` / ``marble``
+  material tags give a table its top, ``metal`` steel legs. Builders that read
+  the piece (its design, its L shape) are in ``_PIECE_BUILDERS``; every box of
+  the Milestone 5 types is unchanged.
+- Doors and windows (``door_parts``, ``window_parts``): pure parts in the
+  opening's frame for the shell (every door style of ``DOOR_STYLES``; frames by
+  material with mullions, transoms and an inside sill).
+- The 12 new decor types (``_new_decor_parts``): open pleated curtains under a
+  rod, a roller blind, a throw, a book stack, candles (a ``bulb`` flame each),
+  a basket, a tray, a wall clock, a sculpture, a large plant of its species in
+  its pot (key ``pot``), a pendant on its cord and a flush ceiling light; keys
+  ``colour_*`` take the item's colour name.
 """
 from __future__ import annotations
 
@@ -124,7 +151,7 @@ LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "b
                                       "sculpture", "pendant_light")
 # Decor that rests on its host's built top (Milestone 9: the builder casts a ray down onto the host mesh).
 SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp",
-                                        "candle", "tray", "books", "sculpture", "basket")      # Milestone 10, with a host
+                                        "candle", "tray", "books", "sculpture", "basket")   # M10, with a host
 # Seats decor rests on at seat height (cushions, a throw): Milestone 10 adds the corner sofa, chaise and bench.
 SEAT_HOST_TYPES: tuple[str, ...] = ("sofa", "armchair", "sofa_corner", "chaise")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
@@ -1612,7 +1639,8 @@ def _office_chair(w: float, d: float, h: float) -> list[Part]:
     parts.append(_cylinder_z(0.0, 0.0, 0.045, 0.025, 0.025, seat_h - seat_t - 0.045, "steel", "pole", n=12))
     back_t = 0.05
     parts.append(_box(0.0, -back_t / 2.0, seat_h - seat_t, w - 0.06, d - back_t, seat_t, "fabric", "cushion"))
-    parts.append(_box(0.0, d / 2.0 - back_t / 2.0, seat_h + 0.05, w * 0.85, back_t, h - seat_h - 0.05, "fabric", "back"))
+    parts.append(_box(0.0, d / 2.0 - back_t / 2.0, seat_h + 0.05, w * 0.85, back_t, h - seat_h - 0.05, "fabric",
+                      "back"))
     for sx in (-1, 1):
         parts.append(_box(sx * (w / 2.0 - 0.02), -0.02, seat_h + 0.18, 0.04, d * 0.5, 0.03, "dark", "arm"))
         parts.append(_box(sx * (w / 2.0 - 0.02), 0.0, seat_h, 0.02, 0.03, 0.18, "dark", "arm"))
@@ -1956,7 +1984,8 @@ def _plant_large(w: float, d: float, h: float, species: str | None = None) -> li
         trunk_top = top + crown_h * 0.45
         parts.append(_cylinder_z(0.0, 0.0, top - 0.01, 0.025, 0.025, trunk_top - top + 0.05, "wood", "trunk", n=10))
         blob = min(reach * 1.1, crown_h * 0.45)
-        for j, (dx, dy, dz) in enumerate(((0.0, 0.0, 0.25), (reach * 0.35, 0.0, 0.0), (-reach * 0.3, reach * 0.2, 0.1))):
+        blobs = ((0.0, 0.0, 0.25), (reach * 0.35, 0.0, 0.0), (-reach * 0.3, reach * 0.2, 0.1))
+        for dx, dy, dz in blobs:
             bw = min(blob, 2 * (reach - abs(dx)), 2 * (reach - abs(dy)))
             z0 = min(trunk_top + dz * crown_h * 0.3, h - bw * 0.8)
             parts.append(_superellipsoid(dx, dy, z0, bw, bw, bw * 0.8, 0.9, 0.9, "green", "crown", n_eta=8, n_om=16))

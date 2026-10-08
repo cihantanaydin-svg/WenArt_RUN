@@ -10,6 +10,11 @@ empty in this milestone.
 The geometry description (``proxy_geometry``) is pure Python so the CPU tests
 check sizes, rotation and the wedge without Blender; ``create_proxies`` needs
 ``bpy`` and is only called from ``build.py``.
+
+Milestone 10 (track F): the 14 new types have type heights (``PROXY_HEIGHTS``,
+the ones of ``wenart/furniture/schemas.py``); a wall-hung piece (``wall_cabinet``)
+stands ``mount_bottom_m`` above the floor (``mount_bottom``: 1.45 m by the rule,
+assumed, when the piece has none), its proxy box too.
 """
 from __future__ import annotations
 

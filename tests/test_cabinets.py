@@ -10,7 +10,6 @@ changes (``furniture.design_overrides``); the catalogue and the proxy table know
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 
 import pytest
@@ -224,8 +223,8 @@ def test_design_for_falls_back_to_the_style_and_the_rules():
 
 
 def test_design_overrides_give_the_material_keys():
-    over, notes = F.design_overrides({"front_style": "shaker", "colour": "sage", "handle": "brass", "worktop": "terrazzo"},
-                                     "kitchen_counter")
+    design = {"front_style": "shaker", "colour": "sage", "handle": "brass", "worktop": "terrazzo"}
+    over, notes = F.design_overrides(design, "kitchen_counter")
     assert over["front"]["slug"] == "painted_wood_white" and over["front"]["colour"] == "sage"
     assert over["handle"]["slug"] == "metal_brass" and over["worktop"]["slug"] == "terrazzo"
     assert "wood" not in over                                       # cabinets: only the fronts take the colour
@@ -267,8 +266,10 @@ def _scene_building() -> dict:
              {"id": "w_n", "start": [w + t / 2, d + t / 2], "end": [-t / 2, d + t / 2]},
              {"id": "w_w", "start": [-t / 2, d + t / 2], "end": [-t / 2, -t / 2]},
              {"id": "w_m", "start": [4.0, 0.0], "end": [4.0, d]}]
-    walls = [dict(x, level_id="L0", thickness=t, status="verified", evidence=ev, exterior=x["id"] != "w_m") for x in walls]
-    rooms = [{"id": "r_kit", "label": "Kitchen", "room_type": "kitchen", "polygon": [[0, 0], [3.9, 0], [3.9, d], [0, d]]},
+    walls = [dict(x, level_id="L0", thickness=t, status="verified", evidence=ev, exterior=x["id"] != "w_m")
+             for x in walls]
+    rooms = [{"id": "r_kit", "label": "Kitchen", "room_type": "kitchen",
+              "polygon": [[0, 0], [3.9, 0], [3.9, d], [0, d]]},
              {"id": "r_liv", "label": "Living", "room_type": "living", "polygon": [[4.1, 0], [w, 0], [w, d], [4.1, d]]}]
     rooms = [dict(r, level_id="L0", status="verified", evidence=ev, has_documented_furniture=True,
                   area_computed=1.0) for r in rooms]
@@ -349,9 +350,9 @@ def looks_scene(tmp_path_factory):
     (tmp / "style.json").write_text(json.dumps(SCENE_STYLE), encoding="utf-8")
     (tmp / "assets").mkdir()
     out = tmp / "scene"
-    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(tmp / "building.json"), "--style", str(tmp / "style.json"),
-                                             "--assets", str(tmp / "assets"), "--out", str(out), "--no-preview",
-                                             "--no-glb"], log_path=out / "build.log")
+    args = ["--building", str(tmp / "building.json"), "--style", str(tmp / "style.json"),
+            "--assets", str(tmp / "assets"), "--out", str(out), "--no-preview", "--no-glb"]
+    cli.run_blender(Path(cli.BUILD_SCRIPT), args, log_path=out / "build.log")
     return json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
 
 

@@ -19,7 +19,7 @@ from wenart.furniture import decor as D
 from wenart.furniture import decor_ai as DA
 
 from test_decor_ai import STYLE, FakeClient, applied, by_id, choose, slots_of
-from test_decor_m8 import EV, RID, room_building
+from test_decor_m8 import RID, room_building
 
 PROFILE = {"lighting": {"mood": "interior evening"},
            "decor": {"plant_species": ["palm", "monstera", "fern"], "plant_amount": "many",
@@ -48,7 +48,8 @@ def test_window_slots_take_curtains_and_blinds_never_over_a_door():
     assert left == pytest.approx(2.0 - 0.8 - 0.2, abs=1e-6) and right <= 3.6 - 0.45 - D.OPENING_MARGIN_M + 1e-6
     assert curtain["window_id"] == "win_big" and curtain["center"][2] == DA.CURTAIN_FLOOR_GAP_M
     assert curtain["size"][2] == pytest.approx(0.9 + 1.2 + DA.CURTAIN_ROD_ABOVE_M - DA.CURTAIN_FLOOR_GAP_M)
-    assert curtain["rotation_deg"] == pytest.approx(180.0) and curtain["center"][1] == pytest.approx(DA.CURTAIN_WALL_GAP_M)
+    assert curtain["rotation_deg"] == pytest.approx(180.0)
+    assert curtain["center"][1] == pytest.approx(DA.CURTAIN_WALL_GAP_M)
     blind = small.items["blind"]
     assert blind["size"][0] == pytest.approx(0.6 + DA.BLIND_WIDTH_EXTRA_M)
     assert blind["rotation_deg"] == pytest.approx(270.0)                           # facing -X from the east wall
@@ -225,7 +226,8 @@ def test_partners_are_not_asked_and_get_a_mirrored_copy(kind):
     targets, notes = D.copy_targets(b)
     assert list(targets) == ["r_b"] and not notes
     assert [q.room["id"] for q in DA.room_questions(b, STYLE)] == [RID]
-    out, records = applied(b, choose(("f_L0_001.cushions", "cushion", "sage green"), ("window:win_a", "curtain", "sage green"),
+    out, records = applied(b, choose(("f_L0_001.cushions", "cushion", "sage green"),
+                                     ("window:win_a", "curtain", "sage green"),
                                      ("f_L0_002.centre", "vase", "terracotta")))
     B.validate(out)
     mine = [d for d in out["decor"] if d["room_id"] == RID]

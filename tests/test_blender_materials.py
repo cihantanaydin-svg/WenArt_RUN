@@ -253,7 +253,8 @@ def test_every_milestone_10_slug_has_a_look():
             assert proc == "glazed_tiles", slug                        # Milestone 6: an image set that is missing
         else:
             assert proc is None, slug
-        assert materials.procedural_for(slug, False, False) is None and materials.procedural_for(slug, True, True) is None
+        assert materials.procedural_for(slug, False, False) is None
+        assert materials.procedural_for(slug, True, True) is None
         assert materials.colourable(slug) == is_colourable(slug), slug
     for slug in FIN.TILE_PATTERNS:
         assert materials.procedural_params(slug)["tile_size_m"] == FIN.TILE_PATTERNS[slug]["tile_size_m"]

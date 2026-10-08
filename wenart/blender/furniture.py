@@ -406,7 +406,8 @@ def design_overrides(design: dict, ftype: str) -> tuple[dict, list[str]]:
         out["front"] = {"slug": "painted_wood_white", "asset": asset("painted_wood_white"), "colour": design["colour"]}
         notes.append(f"fronts painted {design['colour']}")
         if not upholstered and ftype not in _looks().CABINET_TYPES + _looks().STORAGE_TYPES and not wood:
-            out["wood"] = {"slug": "painted_wood_white", "asset": asset("painted_wood_white"), "colour": design["colour"]}
+            out["wood"] = {"slug": "painted_wood_white", "asset": asset("painted_wood_white"),
+                           "colour": design["colour"]}
             notes.append(f"wood parts painted {design['colour']}")
     elif wood:
         out["front"] = {"slug": wood, "asset": asset(wood), "colour": None}

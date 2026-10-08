@@ -167,7 +167,8 @@ def accent_walls(building: dict, level: dict, style: dict) -> dict:
                if o.get("level_id") == level["id"] and o.get("type") == "window"}
     out: dict[str, dict] = {}
     for room in building.get("rooms") or []:
-        if room.get("level_id") != level["id"] or room.get("room_type") not in types or len(room.get("polygon") or []) < 3:
+        if (room.get("level_id") != level["id"] or room.get("room_type") not in types
+                or len(room.get("polygon") or []) < 3):
             continue
         along = dict(room_walls(room, walls))
         wall_id, why = None, ""

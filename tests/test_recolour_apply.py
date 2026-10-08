@@ -18,7 +18,6 @@ from pathlib import Path
 
 import pytest
 
-from wenart import building as B
 from wenart.blender import cli
 from wenart.blender import furniture as F
 from wenart.furniture import catalog as C
@@ -241,7 +240,8 @@ def test_scene_recolours_the_fabric_slot_of_a_library_sofa(tmp_path):
     piece = _piece(id="f_sofa")
     piece.update(room_id="r", footprint={"center": [2.5, 3.0], "size": [2.2, 0.9], "rotation_deg": 0.0},
                  asset={"library": "polyhaven", "asset_id": "sofa_test", "licence": "CC0", "method": "library",
-                        "fit_scale": [1.0, 1.0, 1.0], "bbox_m": [2.2, 0.9, 0.85], "file": "models/sofa_test/sofa_test.glb",
+                        "fit_scale": [1.0, 1.0, 1.0], "bbox_m": [2.2, 0.9, 0.85],
+                        "file": "models/sofa_test/sofa_test.glb",
                         "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0.0, 0.0, 0.0],
                         "recolour": {"fabric": {"colour": "light grey", "slots": [{"index": 0, "name": "Fabric"}]},
                                      "wood": {"colour": "wood_veneer_walnut", "rgb": [0.25, 0.14, 0.08],
