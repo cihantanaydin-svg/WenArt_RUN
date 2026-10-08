@@ -80,6 +80,15 @@ Milestone 7 (docs/milestone7.md §6.4):
   false`` are not built and listed;
 - dining and prayer rooms take the living-room slots (``slot_room_type``):
   dry floor, plain walls, skirting.
+
+Milestone 10 (docs/milestone10.md §3.2, §1.6b rows 12, 13, 20), the whole building (``whole`` arguments; None
+keeps the M3-M9 shell): slabs (``slab_plan`` / ``build_slabs``), walls to the next floor or cut by the roof
+underside and the terrace parapets, closed L-joins, the facade look and the drawn facade parts on the outward
+faces, sills and balcony railings (``build_outside_details``, kind ``railing``), floors and ceilings with the
+stair voids and the sloped attic ceilings. The inside and opening looks go through track F's functions
+(``wall_face_material``, ``wet_wall_look``, ``accent_walls``, ``door_look``, ``window_frame_look``,
+``facade_look``; thin wrappers with the M9 looks until ``wenart/blender/looks.py`` exists) and the outside
+materials through ``exterior_material`` / ``look_material``.
 """
 from __future__ import annotations
 
@@ -479,8 +488,18 @@ def _segment_intersection_t(p, q, a, b) -> float | None:
 
 
 def build_walls(building: dict, level: dict, collection, library, style: dict, manifest_objects: list,
-                assumed: list, warnings: list) -> list:
-    """Create the wall objects of a level with their openings cut."""
+                assumed: list, warnings: list, whole: dict | None = None) -> list:
+    """Create the wall objects of a level with their openings cut.
+
+    ``whole`` (Milestone 10, the whole building; None = the M3-M9 walls): ``{"slab_above": slab record or
+    None, "roof_cut": {"planes", "top", "parapets"} or None (the level under the roof: ``roof.wall_cut`` and
+    ``roof.parapet_cuts``), "looks": ``exterior.resolve_looks(...)``, "outline": the level's outline, "faces":
+    {wall id: [drawn facade face with its side "direction"]}, "open_rooms"}``. Walls then run to the next
+    floor (the slab above) instead of the ceiling + the assumed 0.30 m slab, walls under the roof are cut by
+    its underside (knee walls, gable ends) and under a roof terrace at the parapet top, L-joins are closed
+    (``corner_extensions``), the outward faces take the facade look and a drawn facade part (its side, its
+    ``z_range``) its own material; end faces on the outline count as outside. The inside looks come from
+    track F's functions (``wall_face_material``, ``wet_wall_look``, ``accent_walls``; today the style)."""
     import bpy
 
     from wenart.blender import common
@@ -491,23 +510,58 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     walls = [w for w in building["walls"] if w["level_id"] == level_id]
     openings = [o for o in building["openings"] if o["level_id"] == level_id]
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
-    wall_by_id = {w["id"]: w for w in walls}
 
     # No walls.tint since Milestone 5 (§2.2): the flat albedo mode gives the wall colour;
-    # build.load_style warns when an old style file still carries one.
-    wall_mat = library.get(style["walls"]["material"], style["walls"].get("asset"))
-    ext_mat = library.get("plaster_exterior")
-    wet = style.get("wet_walls") or style["walls"]
-    wet_mat = library.get(wet["material"], wet.get("asset"))
+    # build.load_style warns when an old style file still carries one. The looks come from track F's
+    # functions (wall_face_material, wet_wall_look, accent_walls, facade_look; today the style slots).
+    wall_mat = look_material(library, wall_face_material(style, None))
+    ext_mat = look_material(library, facade_look(whole["looks"])) if whole else library.get("plaster_exterior")
+    wet_mat = look_material(library, wet_wall_look(style, None))
     slots = [wall_mat, ext_mat, wet_mat]
 
+    def slot_of(look) -> int:
+        mat = look_material(library, look)
+        if mat not in slots:
+            slots.append(mat)
+        return slots.index(mat)
+
+    # Rooms whose inside or wet look differs from the level's: [(polygon, inside slot, wet slot)].
+    room_slots = []
+    for r in rooms:
+        if len(r["polygon"]) >= 3:
+            inside_slot, wet_slot = slot_of(wall_face_material(style, r)), slot_of(wet_wall_look(style, r))
+            if (inside_slot, wet_slot) != (0, 2):
+                room_slots.append((r["polygon"], inside_slot, wet_slot))
+    rooms_by_id = {r["id"]: r for r in rooms}
+    accents: dict[str, list] = {}
+    for wid, per_room in accent_walls(building, level, style).items():
+        for rid, look in (per_room or {}).items():
+            if rid in rooms_by_id and len(rooms_by_id[rid]["polygon"]) >= 3:
+                accents.setdefault(wid, []).append((rooms_by_id[rid]["polygon"], slot_of(look)))
+    face_slots: dict[str, list[tuple]] = {}
+    if whole:
+        # Drawn facade parts (prepared per wall by build.prepare: side direction, optional z band).
+        for wid, faces in (whole.get("faces") or {}).items():
+            for face in faces:
+                slot = slot_of({"material": face["material"], "colour": face.get("colour")})
+                zr = face.get("z_range") or [-1e9, 1e9]
+                face_slots.setdefault(wid, []).append((float(zr[0]), float(zr[1]), slot, face.get("direction")))
+    roof_cut = whole.get("roof_cut") if whole else None
+    cut_planes = roof_cut["planes"] if roof_cut else None
+    slab_above = whole.get("slab_above") if whole else None
+    open_ids = set((whole or {}).get("open_rooms") or ())
+    open_polys = [r["polygon"] for r in rooms if r["id"] in open_ids and len(r["polygon"]) >= 3]
+
     footprint_centre = _level_centre(walls)
-    trims = trim_wall_overlaps(walls)
+    extended = corner_extensions(walls) if whole else {}
+    trims = trim_wall_overlaps([dict(w, **extended.get(w["id"], {})) for w in walls])
     objects = []
     pairs = []  # (object, wall) for the face classification after the booleans
     cutters = []
     for wall in walls:
         height, wall_assumed = wall_height(wall, level, has_above)
+        if slab_above is not None:
+            height, wall_assumed = float(slab_above["z_top"]) - floor_z, {}
         start, end = trims[wall["id"]]["start"], trims[wall["id"]]["end"]
         length = G.distance(start, end)
         if length < 1e-6:
@@ -515,8 +569,21 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             continue
         mid = G.segment_midpoint(start, end)
         angle = G.segment_angle_deg(start, end)
-        verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
-                                  (length, float(wall["thickness"]), height), angle)
+        parapets = []
+        if cut_planes is not None:
+            # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end);
+            # under a roof terrace the parapet height instead (roof.parapet_cuts).
+            height, wall_assumed = float(roof_cut["top"]) + 0.5 - floor_z, {}
+            parapets = trimmed_spans(wall, start, end, (roof_cut.get("parapets") or {}).get(wall["id"]) or [])
+        if parapets:
+            verts, faces = wall_pieces(start, end, float(wall["thickness"]), floor_z, height, cut_planes, parapets)
+            height = max(v[2] for v in verts) - floor_z
+        else:
+            verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
+                                      (length, float(wall["thickness"]), height), angle)
+            if cut_planes is not None:
+                verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
+                height = max(v[2] for v in verts) - floor_z
         ob = common.new_mesh_object(wall["id"], verts, faces, collection=collection, wenart_id=wall["id"],
                                     kind="wall", status=wall.get("status", "verified"), materials=slots)
         objects.append(ob)
@@ -555,6 +622,17 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             "start": trims[wall["id"]]["start"], "end": trims[wall["id"]]["end"],
             "thickness": wall["thickness"], "height": height,
         })
+        entry = manifest_objects[-1]
+        if wall["id"] in extended:
+            entry["corner_join"] = {k: [round(c, 4) for c in v] for k, v in extended[wall["id"]].items()}
+        if slab_above is not None:
+            entry["runs_to"] = f"the next floor (slab {slab_above['id']} top {float(slab_above['z_top']):.3f} m)"
+        if cut_planes is not None:
+            entry["runs_to"] = "the roof underside (knee wall / gable end)"
+            entry["z_range"] = [round(floor_z, 4), round(floor_z + height, 4)]
+        if parapets:
+            entry["parapet"] = [{"s": [round(a, 4), round(b, 4)], "z_top": round(z, 4)} for a, b, z in parapets]
+            entry["runs_to"] += "; a parapet under the roof terrace"
         for field, value in wall_assumed.items():
             assumed.append({"object": wall["id"], "field": field, "value": value,
                             "reason": "wall height from the level ceiling height" if field == "height"
@@ -578,17 +656,61 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             for entry in manifest_objects:
                 if entry.get("kind") == "wall" and entry.get("wenart_id") == wall["id"]:
                     entry["split_at_m"] = cuts
+        if face_slots.get(wall["id"]):
+            changed = split_wall_at_heights(ob, sorted({z for z0, z1, *_ in face_slots[wall["id"]]
+                                                         for z in (z0, z1) if abs(z) < 1e8})) or changed
         if changed:
             common.assign_box_uvs(ob.data)
         outward, ambiguous = wall_outward_normal(wall, rooms, footprint_centre)
         if ambiguous and wall.get("exterior"):
             warnings.append(f"{wall['id']}: exterior wall with rooms on both sides or on neither; "
                             f"outward side taken from the level centre")
-        _assign_wall_face_materials(ob, wall, rooms, outward)
+        _assign_wall_face_materials(ob, wall, rooms, outward, outline=whole.get("outline") if whole else None,
+                                    face_slots=face_slots.get(wall["id"]), open_polys=open_polys,
+                                    room_slots=room_slots, accents=accents.get(wall["id"]))
     for cutter in cutters:
         common.delete_object(cutter)
     bpy.context.view_layer.update()
     return objects
+
+
+def trimmed_spans(wall: dict, start, end, cuts: list[dict]) -> list[tuple[float, float, float]]:
+    """``[(s0, s1, z_top)]``: parapet stretches (``roof.parapet_cuts``, parameters along the drawn centre line)
+    in metres along the built (trimmed or corner-joined) centre line ``start``-``end`` (pure)."""
+    length = G.distance(start, end)
+    if length < 1e-9:
+        return []
+    ux, uy = (end[0] - start[0]) / length, (end[1] - start[1]) / length
+    out = []
+    for c in cuts:
+        pts = [G.point_along_segment(wall["start"], wall["end"], float(c[k])) for k in ("t0", "t1")]
+        s = sorted((p[0] - start[0]) * ux + (p[1] - start[1]) * uy for p in pts)
+        # a stretch that reaches a drawn wall end runs to the built end (the joined corner)
+        s0 = 0.0 if float(c["t0"]) <= 1e-6 or s[0] <= 1e-6 else min(max(s[0], 0.0), length)
+        s1 = length if float(c["t1"]) >= 1 - 1e-6 or s[1] >= length - 1e-6 else min(max(s[1], 0.0), length)
+        if s1 - s0 > 1e-4:
+            out.append((s0, s1, float(c["z_top"])))
+    return sorted(out)
+
+
+def wall_pieces(start, end, thickness: float, floor_z: float, height: float, planes, parapets) -> tuple[list, list]:
+    """``(verts, faces)`` of a wall under the roof with parapet stretches (pure): convex boxes along the
+    centre line, each cut by the roof underside ``planes`` or, under a terrace, at its parapet top. The
+    pieces stand side by side in one mesh (their shared end faces lie inside the wall)."""
+    length = G.distance(start, end)
+    angle = G.segment_angle_deg(start, end)
+    marks = sorted({0.0, length} | {s for a, b, _ in parapets for s in (a, b)})
+    parts = []
+    for s0, s1 in zip(marks, marks[1:]):
+        if s1 - s0 < 1e-6:
+            continue
+        sm = (s0 + s1) / 2.0
+        top = next((z for a, b, z in parapets if a - 1e-9 <= sm <= b + 1e-9), None)
+        c = G.point_along_segment(start, end, sm / length)
+        verts, faces = geom2d.box((c[0], c[1], floor_z + height / 2.0), (s1 - s0, thickness, height), angle)
+        cut = [(0.0, 0.0, top)] if top is not None else planes
+        parts.append(geom2d.clip_solid_below(verts, faces, cut))
+    return geom2d.merge(parts)
 
 
 def split_wall_at_room_corners(ob, wall: dict, rooms: list[dict]) -> list[float]:
@@ -655,17 +777,94 @@ def wall_face_slot(wall: dict, centre, normal, outward, indoor_polys, wet_polys,
 OUTDOOR_ROOM_TYPES = {"balcony"}
 
 
-def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward) -> None:
+def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outline=None, face_slots=None,
+                                open_polys=(), room_slots=(), accents=None) -> None:
     """Slot 0 interior, 1 exterior (faces of exterior walls whose normal
     points ``outward``, see ``wall_outward_normal``, and that look into no
-    indoor room), 2 wet-room faces: ``wall_face_slot`` per face."""
+    indoor room), 2 wet-room faces: ``wall_face_slot`` per face.
+
+    Milestone 10 (``outline``: the building outline): a vertical face whose probe lies outside the outline
+    is outside too (the end faces of a closed L-join at the building corner), and so is one looking into a
+    room open to the sky (``open_polys``: roof terraces); ``face_slots``: drawn facade parts ``[(z0, z1,
+    slot, direction)]`` replace the exterior slot of the faces whose centre lies in their z range and whose
+    normal lies within 45 degrees of the part's side (``direction``; None = every side). The looks of track F
+    (``room_slots``: ``[(room polygon, inside slot, wet slot)]``; ``accents``: ``[(room polygon, slot)]`` of this
+    wall) replace slots 0 and 2 of the faces looking into those rooms."""
     mesh = ob.data
     polys = [r for r in rooms if len(r["polygon"]) >= 3]
     indoor = [r["polygon"] for r in polys if r.get("room_type") not in OUTDOOR_ROOM_TYPES]
     wet_polys = [r["polygon"] for r in polys if slot_room_type(r.get("room_type")) in WET_ROOM_TYPES]
+    probe = DEFAULTS["face_probe"]
     for poly in mesh.polygons:
         c = poly.center  # wall meshes are built in world coordinates (identity transform)
-        poly.material_index = wall_face_slot(wall, (c.x, c.y), tuple(poly.normal), outward, indoor, wet_polys)
+        normal = tuple(poly.normal)
+        slot = wall_face_slot(wall, (c.x, c.y), normal, outward, indoor, wet_polys)
+        if outline and slot == 0 and (outside_face(c, normal, outline) or open_face(c, normal, open_polys)):
+            slot = 1
+        if slot in (0, 2) and (room_slots or accents) and abs(normal[2]) <= 0.5:
+            p = (c.x + normal[0] * probe, c.y + normal[1] * probe)
+            accent = next((s for pg, s in accents or () if slot == 0 and G.point_in_polygon(p, pg)), None)
+            if accent is not None:
+                slot = accent
+            else:
+                slot = next((i if slot == 0 else w for pg, i, w in room_slots if G.point_in_polygon(p, pg)), slot)
+        if face_slots and slot == 1:
+            slot = facade_face_slot(c.z, face_slots, slot, normal)
+        poly.material_index = slot
+
+
+def outside_face(centre, normal, outline, probe: float = DEFAULTS["face_probe"]) -> bool:
+    """A vertical face whose probe point (``probe`` beyond its centre along the normal) lies outside the
+    building outline (pure; Milestone 10)."""
+    if abs(float(normal[2])) > 0.5:
+        return False
+    p = (float(centre[0]) + float(normal[0]) * probe, float(centre[1]) + float(normal[1]) * probe)
+    return not G.point_in_polygon(p, outline) and geom2d.distance_to_polygon_edges(p, outline) > 1e-6
+
+
+def open_face(centre, normal, open_polys, probe: float = DEFAULTS["face_probe"]) -> bool:
+    """A vertical face looking into a room open to the sky (a roof terrace; pure, Milestone 10)."""
+    if not open_polys or abs(float(normal[2])) > 0.5:
+        return False
+    p = (float(centre[0]) + float(normal[0]) * probe, float(centre[1]) + float(normal[1]) * probe)
+    return any(G.point_in_polygon(p, poly) for poly in open_polys)
+
+
+def facade_face_slot(z: float, face_slots, default: int, normal=None) -> int:
+    """The slot of a drawn facade part (``[(z0, z1, slot[, direction])]``) whose z range holds ``z`` and, when
+    the part has a side ``direction`` (a unit vector in the building frame) and ``normal`` is given, whose
+    side the face normal lies within 45 degrees of; else ``default``."""
+    for part in face_slots:
+        z0, z1, slot = part[0], part[1], part[2]
+        direction = part[3] if len(part) > 3 else None
+        if not z0 - 1e-6 <= float(z) <= z1 + 1e-6:
+            continue
+        if direction is not None and normal is not None:
+            if float(normal[0]) * direction[0] + float(normal[1]) * direction[1] < math.cos(math.radians(45.0)) - 1e-9:
+                continue
+        return slot
+    return default
+
+
+def split_wall_at_heights(ob, heights: list[float]) -> bool:
+    """Cut a wall mesh with horizontal planes at ``heights`` (the edges of drawn facade parts) so each face
+    lies in one part. True when it cut."""
+    import bmesh
+    from mathutils import Vector
+
+    zs = [v.co.z for v in ob.data.vertices]
+    cuts = [z for z in heights if zs and min(zs) + 1e-6 < z < max(zs) - 1e-6]
+    if not cuts:
+        return False
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    for z in cuts:
+        geom = list(bm.verts) + list(bm.edges) + list(bm.faces)
+        bmesh.ops.bisect_plane(bm, geom=geom, plane_co=Vector((0.0, 0.0, z)), plane_no=Vector((0.0, 0.0, 1.0)))
+    bm.to_mesh(ob.data)
+    bm.free()
+    ob.data.update()
+    return True
 
 
 # --------------------------------------------------------------------------
@@ -685,12 +884,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
     walls = {w["id"]: w for w in building["walls"] if w["level_id"] == level_id}
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
     trim = style.get("trim") or {"material": "painted_wood_white"}
-    door_style = style.get("door") or {"material": "wood_oak_light"}
-    win_style = style.get("window_frame") or {"material": "painted_metal_white"}
     frame_mat = library.get(trim["material"], trim.get("asset"), trim.get("tint"))
-    leaf_slug, leaf_asset = door_leaf_material(door_style)
-    leaf_mat = library.get(leaf_slug, leaf_asset, door_style.get("tint"))
-    win_mat = library.get(win_style["material"], win_style.get("asset"), win_style.get("tint"))
     glass_mat = library.glass()
     steel_mat = library.get("steel_brushed")
 
@@ -746,6 +940,9 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         height = top - bottom
         index = len(pass_indices) + 1
         pass_indices[opening["id"]] = index
+        # The door leaf and window frame looks (track F's door_look / window_frame_look; today the style slots).
+        leaf_mat = look_material(library, door_look(style, opening)) if opening["type"] == "door" else None
+        win_mat = look_material(library, window_frame_look(style, opening)) if opening["type"] != "door" else None
 
         if opening["type"] == "door":
             # Frame: two jambs and a head, as deep as the wall.
@@ -952,11 +1149,18 @@ def ceiling_faces(polygon, voids, ceil_z: float) -> tuple[list, list, list[int]]
 
 
 def build_floors_ceilings(building: dict, level: dict, collection, library, style: dict,
-                          manifest_objects: list, warnings: list, stairs: list | None = None) -> list:
+                          manifest_objects: list, warnings: list, stairs: list | None = None,
+                          whole: dict | None = None) -> list:
     """One floor face and one ceiling face per room, material per style and
     wet-room rule; unverified rooms get the dashed-red overlay on the floor.
     ``stairs`` (``plan_stairs``): their ceiling openings are cut out of the
-    ceilings they cross (the shaft and cap come with ``build_stairs``)."""
+    ceilings they cross (the shaft and cap come with ``build_stairs``).
+
+    ``whole`` (Milestone 10): ``{"floor_voids": [polygons] (the openings of the slab under the level: cut out
+    of its floors), "ceiling_voids": [polygons] or None (the openings of the slab above: cut out of the
+    ceilings instead of the stairs' own openings), "ceiling_planes": [(a, b, c)] or None (the rooms under the
+    roof: ceilings on the lowest of these planes, ``roof.ceiling_planes``), "open_rooms": {room ids} (roof
+    terraces: no ceiling)}``."""
     from wenart.blender import common
 
     level_id = level["id"]
@@ -964,6 +1168,11 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     ceil_z = floor_z + float(level["ceiling_height"])
     planned = [s for s in (stairs or []) if s.get("plan") is not None and s["plan"]["void"]]
     voids = [s["plan"]["void"] for s in planned]
+    whole = whole or {}
+    floor_voids = [v for v in whole.get("floor_voids") or [] if len(v) >= 3]
+    slab_voids = whole.get("ceiling_voids")
+    planes = whole.get("ceiling_planes")
+    open_rooms = set(whole.get("open_rooms") or ())
     created = []
     for room in building["rooms"]:
         if room["level_id"] != level_id:
@@ -974,7 +1183,12 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
         if len(room["polygon"]) < 3:
             warnings.append(f"{room['id']}: polygon with fewer than 3 points, no floor")
             continue
-        fv, ff = geom2d.polygon_face(room["polygon"], floor_z, facing_up=True)
+        fv, ff, fcut = ceiling_faces(room["polygon"], [[v] for v in floor_voids], floor_z)
+        fv, ff = geom2d.polygon_face(room["polygon"], floor_z, facing_up=True) if not fcut else \
+            geom2d.polygon_faces(room["polygon"], [floor_voids[i] for i in fcut], floor_z, facing_up=True)
+        if not ff:
+            warnings.append(f"{room['id']}: the stair opening covers the whole floor; no floor face")
+            continue
         ob = common.new_mesh_object(f"{room['id']}_floor", fv, ff, collection=collection, wenart_id=room["id"],
                                     kind="floor", status=room.get("status", "verified"), materials=[floor_mat])
         created.append(ob)
@@ -984,7 +1198,22 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             "material": floor_mat.name, "textured": _textured(library, floor_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
         })
-        cv, cf, cut = ceiling_faces(room["polygon"], voids, ceil_z)
+        if fcut:
+            manifest_objects[-1]["stair_void"] = f"{len(fcut)} opening(s) of the slab under the level cut out"
+        if room["id"] in open_rooms:
+            manifest_objects[-1]["open_to_sky"] = True
+            continue                          # a roof terrace: no ceiling
+        room_voids = voids if slab_voids is None else [[v] for v in slab_voids if len(v) >= 3]
+        if planes:
+            holes = []
+            for i, loops in enumerate(room_voids):
+                _rv, _rf, c = ceiling_faces(room["polygon"], [loops], ceil_z)
+                if c:
+                    holes.extend(loops)
+            cv, cf = geom2d.sloped_faces(room["polygon"], holes, planes, facing_up=False)
+            cut = [0] if holes else []
+        else:
+            cv, cf, cut = ceiling_faces(room["polygon"], room_voids, ceil_z)
         if not cf:
             warnings.append(f"{room['id']}: the stair opening covers the whole ceiling; no ceiling face")
             continue
@@ -997,10 +1226,15 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             "material": ceil_mat.name, "textured": _textured(library, ceil_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
         }
-        if cut:
+        if planes:
+            entry["sloped"] = "under the roof: the roof underside and the level's flat ceiling, the lower one"
+        if cut and slab_voids is None and not planes:
             ids = [planned[i]["piece"]["id"] for i in cut]
             entry["stair_void"] = ids
             entry["assumed"]["stair_void"] = f"ceiling opening of {', '.join(ids)} cut out (assumed)"
+        elif cut:
+            entry["stair_void"] = "the opening(s) of the slab above cut out" if slab_voids is not None \
+                else "the stairs' openings cut out"
         manifest_objects.append(entry)
     return created
 
@@ -1086,13 +1320,17 @@ def stair_rise(building: dict, level: dict) -> tuple[float, float, str, str | No
     return ceiling + P.STAIR_SLAB_M, ceiling + P.STAIR_SHAFT_CAP_M, source, None
 
 
-def plan_stairs(building: dict, level: dict) -> list[dict]:
+def plan_stairs(building: dict, level: dict, slab_void: bool = False) -> list[dict]:
     """The stairs of a level (pure): ``[{"piece", "plan", "reason"}]`` with
     ``plan = parametric.stair_plan(...)`` (rise from ``stair_rise``, the
     level's walls for the handrail sides), or ``plan: None`` and the reason
-    for a piece with ``build: false``. Site elements are never read."""
+    for a piece with ``build: false``. Site elements are never read.
+    ``slab_void`` (Milestone 10): the slab above carries the opening and the
+    floor above is cut, so the stair arrives there (no capped-shaft warning)."""
     walls = [w for w in building["walls"] if w["level_id"] == level["id"]]
     rise, cap, source, warning = stair_rise(building, level)
+    if slab_void:
+        warning = None
     out = []
     for piece in building.get("furniture") or []:
         if piece.get("level_id") != level["id"] or piece.get("type") not in P.SHELL_TYPES:
@@ -1126,14 +1364,17 @@ def stair_room(piece: dict, rooms: list[dict]) -> dict | None:
 
 
 def build_stairs(building: dict, level: dict, collection, library, style: dict, pass_indices: dict,
-                 manifest_objects: list, assumed: list, warnings: list, plans: list | None = None) -> dict:
+                 manifest_objects: list, assumed: list, warnings: list, plans: list | None = None,
+                 shaft: bool = True) -> dict:
     """Build the stairs of a level (``plan_stairs``): one ``furn_<id>``
     object (kind ``furniture``, the piece's pass index; treads in the room's
     floor finish, structure in the wall finish, steel rails) and one
     ``<id>_void`` object closing the ceiling opening (kind ``ceiling``,
     status ``assumed``, the ceiling finish). Every assumption of the plan
     becomes a scene-manifest ``assumed`` entry (parent = the piece). Returns
-    ``{"pieces", "ids", "not_built"}``."""
+    ``{"pieces", "ids", "not_built"}``. ``shaft`` False (Milestone 10: the
+    slab above has the opening and the floor above is cut): no capped shaft,
+    the stair arrives on the level above."""
     from wenart.blender import common
 
     floor_z = float(level["elevation"])
@@ -1186,6 +1427,8 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         }
         shaft_name = f"{piece['id']}_void"
         for a in plan["assumed"]:
+            if not shaft and a["kind"] == "stair_void":
+                continue                    # the opening is the slab's (building JSON), not assumed here
             owner = shaft_name if a["kind"] == "stair_void" else name
             if owner == name:
                 entry["assumed"][a["field"]] = a["value"]
@@ -1196,6 +1439,9 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         manifest_objects.append(entry)
         summary["pieces"] += 1
         summary["ids"].append(piece["id"])
+        if not shaft:
+            entry["stair"]["arrives"] = "through the opening of the slab above (no shaft)"
+            continue
         sv, sf = P.void_shaft(plan)
         if sf:
             cap_mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
@@ -1285,3 +1531,540 @@ def door_ray_checks(building: dict, level: dict, scene) -> list[dict]:
             "passed": passed,
         })
     return results
+
+
+# --------------------------------------------------------------------------
+# Milestone 10 (docs/milestone10.md §3.2 items 1, 4): slabs, corners, the outside looks, sills, railings
+# --------------------------------------------------------------------------
+
+SLAB_FACE_GAP = 0.001         # slab faces stay this far inside the floors, ceilings and wall faces around them
+SLAB_EDGE_INSET = 0.01        # ... and the slab edge this far inside the outer wall faces (no coplanar facade)
+CORNER_JOIN_TOL = 0.01        # two wall ends within this meet in a corner
+STAIR_ARRIVAL_TOL = 0.05      # a stair's top must lie within this of an opening of the slab above
+SILL = {"depth": 0.30, "projection": 0.04, "thickness": 0.05, "rise": 0.02, "ears": 0.03, "material": "stone"}
+RAILING = {"height": 1.00, "rail": 0.045, "panel": 0.012, "panel_bottom": 0.10, "wall_reach": 0.05}
+
+
+def corner_extensions(walls: list[dict], tol: float = CORNER_JOIN_TOL) -> dict[str, dict]:
+    """``{wall id: {"start" | "end": [x, y]}}``: wall ends that meet another wall's end at an angle (an
+    L-join or a corner) moved out by half the other wall's thickness, so the corner square between the two
+    centre lines is closed (``trim_wall_overlaps`` then trims the overlap). Pure; the M3-M9 walls left the
+    outer corner square open, which an exterior view shows."""
+    out: dict[str, dict] = {}
+    for w in walls:
+        length = G.distance(w["start"], w["end"])
+        if length < 1e-9:
+            continue
+        for which in ("start", "end"):
+            p = w[which]
+            reach = 0.0
+            for o in walls:
+                if o is w or G.distance(o["start"], o["end"]) < 1e-9:
+                    continue
+                if min(G.distance(p, o["start"]), G.distance(p, o["end"])) > tol:
+                    continue
+                turn = abs((G.segment_angle_deg(w["start"], w["end"]) - G.segment_angle_deg(o["start"], o["end"])
+                            + 90.0) % 180.0 - 90.0)
+                if turn > 10.0:
+                    reach = max(reach, float(o["thickness"]) / 2.0)
+            if reach > 0:
+                d = -reach if which == "start" else length + reach
+                out.setdefault(w["id"], {})[which] = list(G.point_at_distance(w["start"], w["end"], d))
+    return out
+
+
+# --- slabs ------------------------------------------------------------------
+
+def slab_plan(building: dict, levels: list[dict], brief_thickness: float = 0.20,
+              brief_assumed: bool = True) -> dict:
+    """The slabs of a whole building (pure; §3.2 item 1): ``{"slabs": [record], "by_level": {level id:
+    {"under": record | None, "above": record | None}}, "assumed", "warnings"}``.
+
+    Per level (bottom up) the slab under it: the building's ``slabs[]`` entry whose ``above_level_id`` is
+    the level (thickness null -> the brief's ``slab_thickness``, assumed), else one derived from the level's
+    wall outline at its elevation with the brief's thickness (assumed). A record: ``{"id", "z_top",
+    "thickness", "outline", "voids": [polygons], "above_level_id", "below_level_id", "source", "status",
+    "evidence", "assumed": [notes], "stairs": [the stairs of the level below that pass it]}``. Every stair of
+    the level below needs an opening of the slab: one that overlaps the stair's own opening
+    (``plan_stairs``), else the stair's opening is added (assumed, a warning); a stair whose top lies outside
+    every opening is a warning (``stair_arrivals``)."""
+    order = sorted(levels, key=lambda lv: float(lv["elevation"]))
+    given = {s.get("above_level_id"): s for s in building.get("slabs") or [] if isinstance(s, dict)}
+    records, assumed, warnings = [], [], []
+    by_level: dict[str, dict] = {lv["id"]: {"under": None, "above": None} for lv in order}
+    for i, lv in enumerate(order):
+        below = order[i - 1] if i > 0 else None
+        s = given.get(lv["id"])
+        notes = []
+        if s is not None:
+            thickness = s.get("thickness")
+            if thickness is None or float(thickness) <= 0:
+                thickness = brief_thickness
+                notes.append(f"thickness {brief_thickness} m from the brief's slab_thickness"
+                             + (" (default)" if brief_assumed else ""))
+            elif s.get("thickness_source") == "assumed_default":
+                notes.append(f"thickness {float(thickness)} m assumed in the building JSON")
+            outline = geom2d.ccw(s.get("outline") or [])
+            source = "building"
+            if len(outline) < 3:
+                outline, method = geom2d.wall_outline([w for w in building["walls"] if w["level_id"] == lv["id"]])
+                notes.append(f"no outline: the level's wall outline ({method})")
+            z_top = float(s.get("z_top", lv["elevation"]))
+            if abs(z_top - float(lv["elevation"])) > 0.01:
+                warnings.append(f"{s.get('id')}: top {z_top:.3f} m but level {lv['id']} stands at "
+                                f"{float(lv['elevation']):.3f} m; the slab is built at its top, the floors at the level")
+            voids = [geom2d.ccw(o["polygon"]) for o in s.get("openings") or []
+                     if isinstance(o, dict) and len(o.get("polygon") or []) >= 3]
+            rec = {"id": s.get("id") or f"sl_{lv['id']}", "z_top": z_top, "thickness": float(thickness),
+                   "outline": outline, "voids": voids, "above_level_id": lv["id"],
+                   "below_level_id": below["id"] if below else None, "source": source,
+                   "status": s.get("status") or "verified", "evidence": s.get("evidence") or [], "assumed": notes}
+        else:
+            outline, method = geom2d.wall_outline([w for w in building["walls"] if w["level_id"] == lv["id"]])
+            if len(outline) < 3:
+                continue
+            notes.append(f"no slab under {lv['id']} in the building: derived from the wall outline ({method}), "
+                         f"thickness {brief_thickness} m from the brief")
+            rec = {"id": f"sl_{lv['id']}", "z_top": float(lv["elevation"]), "thickness": float(brief_thickness),
+                   "outline": outline, "voids": [], "above_level_id": lv["id"],
+                   "below_level_id": below["id"] if below else None, "source": "derived", "status": "assumed",
+                   "evidence": [], "assumed": notes}
+        rec["stairs"] = []
+        if below is not None:
+            for item in plan_stairs(building, below, slab_void=True):
+                if item["plan"] is None:
+                    continue
+                pid = item["piece"]["id"]
+                rec["stairs"].append(pid)
+                own = [loop for loop in item["plan"]["void"] if len(loop) >= 3]
+                if own and not any(_overlap(loop, v) for loop in own for v in rec["voids"]):
+                    rec["voids"].extend(geom2d.ccw(loop) for loop in own)
+                    rec["assumed"].append(f"opening for stair {pid} added (the stair's own opening)")
+                    warnings.append(f"{rec['id']}: no opening over stair {pid}; the stair's opening is cut (assumed)")
+                for msg in stair_arrivals(item["plan"], rec["voids"]):
+                    warnings.append(f"{pid}: {msg} of slab {rec['id']}")
+        for note in rec["assumed"]:
+            assumed.append({"object": rec["id"], "field": "slab", "value": rec["thickness"], "reason": note})
+        records.append(rec)
+        by_level[lv["id"]]["under"] = rec
+        if below is not None:
+            by_level[below["id"]]["above"] = rec
+    return {"slabs": records, "by_level": by_level, "assumed": assumed, "warnings": warnings}
+
+
+def _overlap(a, b) -> bool:
+    """True when two polygons share area (a clipped by b's convex pieces; enough for stair openings)."""
+    area = 0.0
+    for piece in geom2d.convex_pieces(b):
+        poly = list(a)
+        n = len(piece)
+        for i in range(n):
+            p, q = piece[i], piece[(i + 1) % n]
+            nx, ny = G.unit_normal_left(p, q)          # inside of a counter-clockwise piece
+            poly = geom2d.clip_half_plane(poly, -nx, -ny, nx * p[0] + ny * p[1]) if poly else []
+        if len(poly) >= 3:
+            area += G.polygon_area(poly)
+    return area > 1e-4
+
+
+def stair_arrivals(plan: dict, voids: list, tol: float = STAIR_ARRIVAL_TOL) -> list[str]:
+    """Where a stair arrives (the end of its last flight, pure): a message when it lies outside every
+    opening of the slab above (more than ``tol`` away)."""
+    flights = plan.get("flights") or []
+    if not flights or not voids:
+        return [] if flights else ["no flight to check"]
+    last = flights[-1]
+    end = last.get("end") or last.get("start")
+    if end is None:
+        return []
+    p = (float(end[0]), float(end[1]))
+    if any(G.point_in_polygon(p, v) or geom2d.distance_to_polygon_edges(p, v) <= tol for v in voids):
+        return []
+    return [f"arrives at ({p[0]:.2f}, {p[1]:.2f}), outside the openings"]
+
+
+def slab_solid(rec: dict) -> tuple[list, list]:
+    """``(verts, faces)`` of a slab: its outline ``SLAB_EDGE_INSET`` in, minus its openings, from
+    ``SLAB_FACE_GAP`` over its bottom to ``SLAB_FACE_GAP`` under its top (the floors above and the ceilings
+    below stay in front), closed by its edges and the sides of the openings."""
+    outline = geom2d.offset_polygon(rec["outline"], SLAB_EDGE_INSET)
+    top = [(0.0, 0.0, float(rec["z_top"]) - SLAB_FACE_GAP)]
+    bottom = [(0.0, 0.0, float(rec["z_top"]) - float(rec["thickness"]) + SLAB_FACE_GAP)]
+    holes = [geom2d.ccw(v) for v in rec["voids"]]
+    faces = [(geom2d.lift(p, top[0], True), 0) for p in geom2d.convex_pieces(outline, holes)]
+    faces += [(geom2d.lift(p, bottom[0], False), 0) for p in geom2d.convex_pieces(outline, holes)]
+    for p, q in geom2d.region_boundary(outline, holes):
+        faces += [(f, 0) for f in geom2d.segment_side_faces(p, q, top, bottom)]
+    verts, fs, _ = geom2d.mesh_from_faces(faces)
+    return verts, fs
+
+
+def build_slabs(plan: dict, collections: dict, library, style: dict, manifest_objects: list, assumed: list) -> list:
+    """One object per slab of ``slab_plan`` (``<slab id>``, kind ``slab``, in the collection of the level
+    it carries; the wall finish: only its edges in the stair openings are seen)."""
+    from wenart.blender import common
+
+    walls_style = style.get("walls") or {"material": "plaster_white"}
+    mat = library.get(walls_style["material"], walls_style.get("asset"))
+    created = []
+    for rec in plan["slabs"]:
+        col = collections.get(rec["above_level_id"])
+        if col is None:
+            continue
+        verts, faces = slab_solid(rec)
+        ob = common.new_mesh_object(rec["id"], verts, faces, collection=col, wenart_id=rec["id"], kind="slab",
+                                    status="assumed" if rec["status"] == "assumed" else "verified", materials=[mat])
+        created.append(ob)
+        zs = [v[2] for v in verts] or [0.0]
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": rec["id"], "kind": "slab", "status": ob["wenart_status"],
+            "level_id": rec["above_level_id"], "element_id": rec["id"], "evidence": rec["evidence"],
+            "material": mat.name, "textured": library.textured(mat), "pass_index": None,
+            "assumed": {"notes": rec["assumed"]} if rec["assumed"] else {},
+            "z_top": round(float(rec["z_top"]), 4), "thickness": round(float(rec["thickness"]), 4),
+            "z_range": [round(min(zs), 4), round(max(zs), 4)], "openings": len(rec["voids"]),
+            "below_level_id": rec["below_level_id"], "source": rec["source"], "stairs": rec["stairs"],
+        })
+    return created
+
+
+# --- the looks: track F's functions and the outside materials ------------------
+#
+# docs/milestone10.md §1.6b row 20: track F owns ``wenart/blender/looks.py`` (pure functions this module calls:
+# ``wall_face_material``, ``accent_walls``, ``wet_wall_look``, ``door_look``, ``window_frame_look``,
+# ``facade_look``) and ``materials.exterior_material(library, slug, colour=None)``. Until they land, the
+# wrappers below give the looks of Milestone 9 (the style slots as they are); each hands over to F's function of
+# the same name and signature as soon as the module has it. A look is a dict ``{"material": slug, "asset",
+# "tint", "colour", "rgb", "source", "reason"}`` (only ``material`` required).
+
+def _f_looks(name: str):
+    """Track F's function ``name`` of ``wenart.blender.looks``, None while F's module or function is missing."""
+    try:
+        from wenart.blender import looks as F  # track F (Milestone 10)
+    except ImportError:
+        return None
+    return getattr(F, name, None)
+
+
+def _slot_look(entry, default: str) -> dict:
+    entry = entry if isinstance(entry, dict) else {}
+    return {"material": entry.get("material") or default, "asset": entry.get("asset"), "tint": entry.get("tint")}
+
+
+def wall_face_material(style: dict, room: dict | None = None) -> dict:
+    """The look of the inside wall faces of ``room`` (None = the level's default). Today: the style's
+    ``walls`` slot for every room."""
+    f = _f_looks("wall_face_material")
+    if f is not None:
+        return f(style, room)
+    return dict(_slot_look(style.get("walls"), "plaster_white"), tint=None)     # no walls.tint since M5
+
+
+def wet_wall_look(style: dict, room: dict | None = None) -> dict:
+    """The look of the wall faces of a wet room. Today: the style's ``wet_walls`` slot, else ``walls``."""
+    f = _f_looks("wet_wall_look")
+    if f is not None:
+        return f(style, room)
+    return dict(_slot_look(style.get("wet_walls") or style.get("walls"), "tiles_white"), tint=None)
+
+
+def accent_walls(building: dict, level: dict, style: dict) -> dict:
+    """``{wall id: {room id: look}}``: the inside faces of a wall towards a room that take an accent look
+    (the style's ``wall_accent``). Today: none."""
+    f = _f_looks("accent_walls")
+    if f is not None:
+        return f(building, level, style) or {}
+    return {}
+
+
+def door_look(style: dict, opening: dict | None = None) -> dict:
+    """The look of a door leaf. Today: the style's ``door`` slot (a wood door's veneer, ``door_leaf_material``)."""
+    f = _f_looks("door_look")
+    if f is not None:
+        return f(style, opening)
+    door_style = style.get("door") or {"material": "wood_oak_light"}
+    slug, asset = door_leaf_material(door_style)
+    return {"material": slug, "asset": asset, "tint": door_style.get("tint")}
+
+
+def window_frame_look(style: dict, opening: dict | None = None) -> dict:
+    """The look of a window frame (seen from inside). Today: the style's ``window_frame`` slot."""
+    f = _f_looks("window_frame_look")
+    if f is not None:
+        return f(style, opening)
+    return _slot_look(style.get("window_frame"), "painted_metal_white")
+
+
+def facade_look(looks: dict, wall: dict | None = None) -> dict:
+    """The outside look of an outer wall: the resolved facade look (``exterior.resolve_looks``). Today: the
+    same for every wall."""
+    f = _f_looks("facade_look")
+    if f is not None:
+        return f(looks, wall)
+    return looks["facade"]
+
+
+# Linear RGB of the colour words the outside looks use while wenart/style/colours.py (track C) has no values;
+# sRGB values converted with the IEC 61966-2-1 transfer function.
+_SRGB = {"white": "#F4F4F2", "off-white": "#EDEAE3", "ivory": "#FFFFF0", "cream": "#F2E8D5", "greige": "#B8AFA3",
+         "beige": "#D8C8AE", "sand": "#C9B48F", "taupe": "#8B7D6B", "light grey": "#C8C8C6", "grey": "#9A9A98",
+         "mid grey": "#808080", "dark grey": "#5A5A5A", "anthracite": "#383E42", "charcoal": "#36393B",
+         "black": "#1E1E1E", "terracotta": "#B5583A", "red": "#9B2D20", "brick red": "#8E3B2A",
+         "dark bronze": "#4A3C2F", "bronze": "#6F5233", "sage": "#9CA88E", "olive": "#6B6B3A", "green": "#4F6B3A",
+         "brown": "#6B4A31", "walnut brown": "#5C4033"}
+# Flat linear colours of the outside slugs the vocabulary does not know yet (track C / F add them).
+LOOK_RGB = {"render": (0.62, 0.60, 0.56), "stone_cladding": (0.36, 0.33, 0.29), "brick_red": (0.30, 0.11, 0.06),
+            "wood_cladding": (0.25, 0.15, 0.08), "fibre_cement": (0.40, 0.40, 0.39),
+            "concrete_tiles": (0.17, 0.17, 0.17), "clay_tiles": (0.38, 0.13, 0.07), "slate": (0.07, 0.08, 0.09),
+            "standing_seam": (0.15, 0.16, 0.17), "green_roof": (0.08, 0.15, 0.04),
+            "paving": (0.33, 0.33, 0.32), "gravel": (0.40, 0.38, 0.34),
+            "grass": (0.07, 0.17, 0.03), "decking": (0.30, 0.18, 0.10), "stone": (0.50, 0.48, 0.44),
+            "concrete": (0.38, 0.38, 0.37), "bark": (0.10, 0.07, 0.05), "foliage": (0.04, 0.12, 0.02),
+            "soil": (0.15, 0.11, 0.08), "dark_bronze": (0.065, 0.045, 0.03), "soffit": (0.75, 0.74, 0.72),
+            "pvc": (0.85, 0.85, 0.84), "aluminium": (0.45, 0.46, 0.47), "steel": (0.12, 0.12, 0.12),
+            "oak": (0.40, 0.26, 0.14), "wood_walnut": (0.20, 0.11, 0.06), "glass": (0.60, 0.65, 0.65)}
+
+
+def colour_rgb(name: str | None) -> tuple[float, float, float] | None:
+    """Linear RGB of a colour name: ``wenart.style.colours.linear_rgb`` when track C's table knows it, else
+    ``_SRGB``; None for an unknown word."""
+    if not name:
+        return None
+    word = str(name).strip().lower().replace("_", " ")
+    try:
+        from wenart.style import colours as C
+        if word in getattr(C, "NAMES", ()) and hasattr(C, "linear_rgb"):
+            return tuple(round(float(v), 4) for v in C.linear_rgb(word))
+    except Exception:  # noqa: BLE001 - the local table stands in
+        pass
+    hexv = _SRGB.get(word)
+    if hexv is None:
+        return None
+
+    def lin(c: float) -> float:
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    return tuple(round(lin(int(hexv[i:i + 2], 16) / 255.0), 4) for i in (1, 3, 5))
+
+
+def exterior_material(library, slug: str, colour=None, rgb=None):
+    """The Blender material of an outside slug in a colour (track F's ``materials.exterior_material`` once it
+    exists): a vocabulary slug as the library makes it (tinted to the colour), else a flat material of
+    ``rgb`` / the colour / ``LOOK_RGB`` (the slug keeps its name, so the manifest's material record names it)."""
+    from wenart.blender import materials as M
+
+    f = getattr(M, "exterior_material", None)
+    if f is not None and rgb is None:
+        return f(library, slug, colour)
+    rgb = tuple(rgb) if rgb else colour_rgb(colour)
+    if slug in M.FLAT_COLOURS:
+        base = M.flat_colour(slug)
+        tint = [r / max(b, 1e-4) for r, b in zip(rgb, base)] if rgb else None
+        return library.get(slug, None, tint)
+    target = rgb or LOOK_RGB.get(slug) or M.flat_colour("unknown")
+    grey = M.flat_colour("unknown")
+    return library.get(slug, None, [t / max(g, 1e-4) for t, g in zip(target, grey)])
+
+
+def look_material(library, look: dict):
+    """The Blender material of a look (``exterior.resolve_looks`` entry or a slot look): a slot look without a
+    colour (a vocabulary slug or one with an ``asset``) as the library makes it (M9), any other through
+    ``exterior_material`` in its ``colour`` / ``rgb``."""
+    from wenart.blender import materials as M
+
+    slug = str(look.get("material") or look.get("slug") or "unknown")
+    if not look.get("colour") and not look.get("rgb") and (look.get("asset") or slug in M.FLAT_COLOURS):
+        return library.get(slug, look.get("asset"), look.get("tint"))
+    return exterior_material(library, slug, look.get("colour"), look.get("rgb"))
+
+
+# --- sills and railings ------------------------------------------------------
+
+def outward_side(wall: dict, outline, centre) -> tuple[float, float] | None:
+    """The unit normal of a wall pointing out of the building ``outline`` at ``centre`` (pure; None when both
+    or neither side of the wall lie outside the outline: an inner wall)."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + 0.05
+    out = []
+    for s in (1.0, -1.0):
+        p = (centre[0] + s * nx * reach, centre[1] + s * ny * reach)
+        out.append(not G.point_in_polygon(p, outline))
+    if out[0] == out[1]:
+        return None
+    return (nx, ny) if out[0] else (-nx, -ny)
+
+
+def sill_box(opening: dict, wall: dict, level: dict, levels_above: bool, outward, cfg: dict | None = None
+             ) -> tuple[list, list, dict]:
+    """``(verts, faces, info)`` of the outside sill of a window (pure): from the frame's outer edge to
+    ``projection`` past the outer wall face, ``ears`` wider than the opening on both sides, its top
+    ``rise`` above the opening's bottom (the reveal floor) and ``thickness`` thick."""
+    c = dict(SILL, **(cfg or {}))
+    bottom, _top, _ = opening_vertical(opening, level, levels_above)
+    cx, cy, _ = opening_centre_on_wall(opening, wall)
+    half_t = float(wall["thickness"]) / 2.0
+    inner = min(float(wall["thickness"]), 0.08) / 2.0 + 0.001          # the window frame's outer edge
+    outer = half_t + float(c["projection"])
+    depth = outer - inner
+    mid = (inner + outer) / 2.0
+    ox, oy = outward
+    centre = (cx + ox * mid, cy + oy * mid, bottom + float(c["rise"]) - float(c["thickness"]) / 2.0)
+    width = float(opening["width"]) + 2.0 * float(c["ears"])
+    angle = math.degrees(math.atan2(oy, ox)) - 90.0
+    verts, faces = geom2d.box(centre, (width, depth, float(c["thickness"])), angle)
+    return verts, faces, {"width": round(width, 4), "depth": round(depth, 4), "projection": c["projection"],
+                          "top_z": round(bottom + float(c["rise"]), 4)}
+
+
+def railing_edges(room: dict, walls: list[dict], reach: float = RAILING["wall_reach"]) -> list[tuple]:
+    """Edges of a balcony polygon that no wall carries (pure): ``[(p, q)]`` sub-segments of each edge whose
+    points lie farther than half a wall thickness + ``reach`` from every wall (sampled every 5 cm)."""
+    poly = geom2d.ccw(room["polygon"])
+    out = []
+    n = len(poly)
+    for i in range(n):
+        p, q = poly[i], poly[(i + 1) % n]
+        length = G.distance(p, q)
+        if length < 1e-6:
+            continue
+        k = max(2, int(length / 0.05))
+        free = []
+        for j in range(k + 1):
+            x = G.point_along_segment(p, q, j / k)
+            free.append(not any(G.point_segment_distance(x, w["start"], w["end"]) <= float(w["thickness"]) / 2.0 + reach
+                                for w in walls))
+        j = 0
+        while j <= k:
+            if not free[j]:
+                j += 1
+                continue
+            j0 = j
+            while j <= k and free[j]:
+                j += 1
+            t0, t1 = j0 / k, (j - 1) / k
+            if (t1 - t0) * length >= 0.1:
+                out.append((G.point_along_segment(p, q, t0), G.point_along_segment(p, q, t1)))
+    return out
+
+
+def railing_parts(p, q, floor_z: float, cfg: dict | None = None) -> tuple[tuple, tuple]:
+    """``((verts, faces) rail, (verts, faces) panel)`` of a railing along ``p``-``q`` standing on ``floor_z``."""
+    c = dict(RAILING, **(cfg or {}))
+    length = G.distance(p, q)
+    mid = G.segment_midpoint(p, q)
+    angle = G.segment_angle_deg(p, q)
+    h = float(c["height"])
+    rail = geom2d.box((mid[0], mid[1], floor_z + h - c["rail"] / 2.0), (length, c["rail"], c["rail"]), angle)
+    z0, z1 = floor_z + c["panel_bottom"], floor_z + h - c["rail"]
+    panel = geom2d.box((mid[0], mid[1], (z0 + z1) / 2.0), (length, c["panel"], z1 - z0), angle)
+    return rail, panel
+
+
+def recolour_outside(name: str, outward, material) -> bool:
+    """Give the faces of object ``name`` that face ``outward`` (a window frame seen from outside) a second
+    material slot. True when the object exists and has such faces."""
+    import bpy
+
+    ob = bpy.data.objects.get(name)
+    if ob is None or ob.type != "MESH":
+        return False
+    mesh = ob.data
+    if material.name not in [m.name for m in mesh.materials if m]:
+        mesh.materials.append(material)
+    slot = [m.name if m else None for m in mesh.materials].index(material.name)
+    hit = False
+    for poly in mesh.polygons:
+        if poly.normal.x * outward[0] + poly.normal.y * outward[1] > 0.5:
+            poly.material_index = slot
+            hit = True
+    return hit
+
+
+def build_outside_details(building: dict, level: dict, collection, library, looks: dict, outline,
+                          pass_indices: dict, manifest_objects: list, assumed: list,
+                          style: dict | None = None) -> dict:
+    """The outside details of a level (Milestone 10, §3.2 item 4): a sill under every window on an outer
+    wall (``sill_box``; its window's id and pass index, status assumed), a railing (steel rail and glass
+    panel) along the edges of every balcony that no wall carries (``railing_edges``; kind ``railing``, the
+    room as parent, status assumed), and, when the documents, the brief or the style give the window frames
+    another look outside (``looks["window_frame"]`` of ``exterior.resolve_looks`` with a source other than the
+    fallback) than inside (``window_frame_look(style, window)``), that look on the frame faces turned outwards
+    (``recolour_outside``). Returns ``{"sills": n, "railings": n, "frames_outside": n}``."""
+    from wenart.blender import common
+
+    floor_z = float(level["elevation"])
+    above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
+    walls = {w["id"]: w for w in building["walls"] if w["level_id"] == level["id"]}
+    sill_mat = look_material(library, looks["sill"])
+    facade = building.get("facade") if isinstance(building.get("facade"), dict) else {}
+    cfg = {}
+    sills_cfg = facade.get("sills") if isinstance(facade.get("sills"), dict) else {}
+    for key in ("depth", "projection"):
+        if isinstance(sills_cfg.get(key), (int, float)):
+            cfg[key] = float(sills_cfg[key])
+    counts = {"sills": 0, "railings": 0, "frames_outside": 0}
+    frame_look = looks.get("window_frame") or {}
+    own_outside = bool(frame_look.get("material")) and frame_look.get("source") in ("documents", "brief", "style")
+    for o in building["openings"]:
+        wall = walls.get(o.get("wall_id"))
+        if o["level_id"] != level["id"] or o.get("type") != "window" or wall is None:
+            continue
+        cx, cy, _ = opening_centre_on_wall(o, wall)
+        out = outward_side(wall, outline, (cx, cy))
+        if out is None:
+            continue
+        inside = window_frame_look(style or {}, o)
+        outside_frame = look_material(library, frame_look) if own_outside and (
+            frame_look["material"] != inside.get("material") or frame_look.get("colour")) else None
+        if outside_frame is not None and recolour_outside(f"{o['id']}_frame", out, outside_frame):
+            counts["frames_outside"] += 1
+            for entry in manifest_objects:
+                if entry.get("name") == f"{o['id']}_frame":
+                    entry["material_outside"] = outside_frame.name
+                    entry["outside_source"] = frame_look.get("reason")
+        verts, faces, info = sill_box(o, wall, level, above, out, cfg)
+        name = f"{o['id']}_sill"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=o["id"], kind="window",
+                                    status="assumed", materials=[sill_mat])
+        ob.pass_index = pass_indices.get(o["id"], 0)
+        reason = (f"outside sill {info['width']} x {info['depth']} m, {info['projection']} m proud of the facade "
+                  f"({'facade.sills' if sills_cfg else 'not drawn'}; size assumed)")
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": o["id"], "kind": "window", "status": "assumed", "level_id": level["id"],
+            "element_id": o["id"], "parent": o["id"], "evidence": [], "material": sill_mat.name,
+            "textured": library.textured(sill_mat), "pass_index": ob.pass_index or None,
+            "assumed": {"detail": "sill", **info, "reason": reason}, "room_ids": [], "wall_id": o.get("wall_id"),
+            "has_geometry": True,
+        })
+        assumed.append({"object": ob.name, "field": "sill", "value": info["width"], "reason": reason,
+                        "parent": o["id"], "kind": "sill"})
+        counts["sills"] += 1
+    rail_mat = look_material(library, looks.get("railing") or {"material": "steel_brushed"})
+    glass = library.thin_glass()
+    for room in building["rooms"]:
+        if room["level_id"] != level["id"] or room.get("room_type") != "balcony" or len(room["polygon"]) < 3:
+            continue
+        edges = railing_edges(room, list(walls.values()))
+        if not edges:
+            continue
+        parts, slots = [], []
+        for p, q in edges:
+            rail, panel = railing_parts(p, q, floor_z)
+            parts += [rail, panel]
+            slots += [0] * len(rail[1]) + [1] * len(panel[1])
+        verts, faces = geom2d.merge(parts)
+        name = f"railing_{room['id']}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
+                                    status="assumed", materials=[rail_mat, glass], face_material_indices=slots)
+        ob.pass_index = 0
+        reason = f"balcony edge without a wall: a {RAILING['height']} m railing (height not drawn: assumed)"
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed", "level_id": level["id"],
+            "element_id": room["id"], "parent": room["id"], "evidence": [], "material": rail_mat.name,
+            "textured": False, "pass_index": 0,
+            "assumed": {"detail": "railing", "height_m": RAILING["height"], "edges": len(edges), "reason": reason},
+        })
+        assumed.append({"object": ob.name, "field": "railing", "value": RAILING["height"], "reason": reason,
+                        "parent": room["id"], "kind": "railing"})
+        counts["railings"] += 1
+    return counts

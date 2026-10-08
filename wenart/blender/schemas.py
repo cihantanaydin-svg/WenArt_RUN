@@ -32,6 +32,14 @@ Milestone 8 (docs/milestone8.md §5), optional: camera ``lens_rule`` (why the
 searched camera has its 18 / 16 mm or brief lens; ``lens_mm`` stays required),
 the scene manifest's ``lens_mm`` (the brief's lens, null = automatic) and
 render entries' ``lens_mm`` / ``sensor_mm`` (the lens as rendered).
+
+Milestone 10 (docs/milestone10.md §1.6b row 11; track E owns this module), optional as well: object kinds of
+the whole building (``WHOLE_BUILDING_KINDS``); camera ``kind`` (interior / exterior: an exterior camera has
+``room_id`` and ``level_id`` null), ``index`` any integer >= 1, ``variant``, ``view`` (corner / aerial /
+elevation / null), ``sides`` (``$defs/side`` names), ``region_id`` and ``dropped_reason`` (null for a built
+camera; the dropped exterior views are listed in ``cameras_dropped``, never in ``cameras``); the manifest's
+``variant``, ``variants``, ``whole_building``, ``exterior_looks`` (``exterior.resolve_looks``), ``brief`` (the
+brief values used) and a built ``site`` (``built: true`` with the terrain, its changes and the light wells).
 """
 from __future__ import annotations
 
@@ -83,6 +91,13 @@ WINDOW_PULL = {
                         "wall_median": {"type": ["number", "null"]}, "rule": {"type": "string"}}},
     ],
 }
+# Milestone 10 (docs/milestone10.md §1.6b row 11): object kinds of the whole building; views.KIND_MAP never maps
+# them to furniture.
+WHOLE_BUILDING_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_area", "site_decor", "light_well",
+                        "railing")
+# wenart/schema/building.schema.json $defs/side.
+SIDES = ("all", "north", "east", "south", "west", "front", "back", "left", "right")
+CAMERA_VIEWS = ("corner", "aerial", "elevation")
 ASSUMED_ENTRY = {
     "type": "object",
     "required": ["object", "field", "value", "reason"],
@@ -98,7 +113,7 @@ SCENE_OBJECT = {
         "name": {"type": "string"},
         "wenart_id": {"type": "string"},
         "kind": {"enum": ["wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "furniture",
-                          "decor", "camera", "light"]},
+                          "decor", "camera", "light"] + list(WHOLE_BUILDING_KINDS)},
         # Milestone 4 per-piece fields (furniture and decor entries only).
         "method": {"type": ["string", "null"]},
         "fit_scale": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
@@ -144,15 +159,32 @@ PREVIEW_MAP = {
     },
 }
 
+_CAMERA_M10 = {
+    # Milestone 10 (docs/milestone10.md §1.6b row 11); optional so M9 manifests stay valid.
+    "kind": {"enum": ["interior", "exterior"]},
+    "variant": {"type": ["string", "null"]},
+    "view": {"enum": list(CAMERA_VIEWS) + [None]},
+    "sides": {"type": "array", "items": {"enum": list(SIDES)}},
+    "region_id": {"type": ["string", "null"]},
+    "dropped_reason": {"type": ["string", "null"]},
+}
+# An exterior camera has no room and no level.
+_EXTERIOR_NO_ROOM = {"if": {"properties": {"kind": {"const": "exterior"}}, "required": ["kind"]},
+                     "then": {"properties": {"room_id": {"type": "null"}, "level_id": {"type": "null"}}}}
+
 SCENE_CAMERA = {
     "type": "object",
     "required": ["name", "room_id", "level_id", "index", "position", "target", "lens_mm", "sensor_mm",
                  "resolution", "visible_openings", "visible_furniture", "warning"],
+    "allOf": [_EXTERIOR_NO_ROOM,
+              {"if": {"properties": {"kind": {"const": "interior"}}, "required": ["kind"]},
+               "then": {"properties": {"room_id": {"type": "string"}, "dropped_reason": {"type": "null"}}}}],
     "properties": {
         "name": {"type": "string"},
-        "room_id": {"type": "string"},
-        "level_id": {"type": "string"},
-        "index": {"enum": [1, 2, 3]},
+        "room_id": {"type": ["string", "null"]},
+        "level_id": {"type": ["string", "null"]},
+        "index": {"type": "integer", "minimum": 1},
+        **_CAMERA_M10,
         "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
         "target": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
         "lens_mm": {"type": "number"},
@@ -170,6 +202,34 @@ SCENE_CAMERA = {
         "lens_rule": {"type": ["string", "null"]},
     },
 }
+
+# Milestone 10: an exterior view no place worked for (no camera object; the scene manifest's cameras_dropped).
+DROPPED_CAMERA = {
+    "type": "object",
+    "required": ["name", "kind", "view", "room_id", "level_id", "sides", "region_id", "variant", "dropped_reason"],
+    "properties": dict(_CAMERA_M10, name={"type": "string"}, room_id={"type": "null"}, level_id={"type": "null"},
+                       index={"type": "integer", "minimum": 1}, dropped_reason={"type": "string"}),
+}
+# Milestone 10 (§1.6b row 12): an outside look of exterior.resolve_looks.
+EXTERIOR_LOOK = {
+    "type": "object",
+    "required": ["material", "colour", "source", "assumed", "reason"],
+    "properties": {"material": {"type": "string"}, "colour": {"type": ["string", "null"]},
+                   "rgb": {"oneOf": [{"type": "null"}, _VEC3]}, "asset": {"type": ["string", "null"]},
+                   "source": {"enum": ["documents", "brief", "style", "fallback", "build"]},
+                   "assumed": {"type": "boolean"}, "reason": {"type": "string"},
+                   "warnings": {"type": "array", "items": {"type": "string"}}},
+}
+# The manifest's site: what the M3-M9 scene leaves out (built false) or the M10 site build (built true).
+SITE_LEFT_OUT = {"type": "object", "required": ["built", "reason"],
+                 "properties": {"built": {"const": False}, "reason": {"type": "string"}},
+                 "additionalProperties": {"type": "object", "required": ["count", "ids"]}}
+SITE_BUILT = {"type": "object", "required": ["built", "mode", "reason", "objects", "terrain", "light_wells"],
+              "properties": {"built": {"const": True}, "mode": {"enum": ["full", "ground"]},
+                             "reason": {"type": "string"}, "objects": {"type": "array", "items": {"type": "string"}},
+                             "terrain": {"type": "object", "required": ["kind", "z", "changes"]},
+                             "light_wells": {"type": "array", "items": {
+                                 "type": "object", "required": ["opening_id", "source", "reason"]}}}}
 
 SCENE_MANIFEST = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -221,10 +281,15 @@ SCENE_MANIFEST = {
                               "type": "object", "required": ["id", "type", "reason"]}},
                           "stairs": {"type": "array", "items": {"type": "string"}},
                       }},
-        "site": {"oneOf": [{"type": "null"}, {
-            "type": "object", "required": ["built", "reason"],
-            "properties": {"built": {"const": False}, "reason": {"type": "string"}},
-            "additionalProperties": {"type": "object", "required": ["count", "ids"]}}]},
+        "site": {"oneOf": [{"type": "null"}, SITE_LEFT_OUT, SITE_BUILT]},
+        # Milestone 10 (docs/milestone10.md §1.6, §1.6b rows 8-12), optional.
+        "variant": {"type": "object", "required": ["id", "rooms_changed", "exterior_changed", "views"]},
+        "variants": {"type": "array", "items": {"type": "object", "required": ["id", "rooms_changed",
+                                                                                "exterior_changed"]}},
+        "whole_building": {"type": ["object", "null"]},
+        "cameras_dropped": {"type": "array", "items": DROPPED_CAMERA},
+        "exterior_looks": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": EXTERIOR_LOOK}]},
+        "brief": {"type": "object", "additionalProperties": {"type": "object", "required": ["value", "assumed"]}},
     },
 }
 

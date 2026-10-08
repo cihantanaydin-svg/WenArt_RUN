@@ -384,6 +384,26 @@ def test_candidates_keep_the_obstacle_clearance():
     assert len(C.candidate_positions(big["rooms"][0], big)[0]) < len(points)
 
 
+def test_wall_hung_pieces_are_no_floor_obstacles_and_hang_in_the_model():
+    # docs/milestone10.md §1.6b row 15: a wall cabinet hangs at mount_bottom_m (1.45 m): no floor obstacle for
+    # the camera points, its box in the ray model from 1.45 m up, its centre listed at that height
+    plain = _building(4.0, 4.0)
+    cab = _building(4.0, 4.0, furniture=[("c", "wall_cabinet", (2.0, 2.0), (1.0, 1.0), 0.0, (1.0, 1.0, 0.7))])
+    cab["furniture"][0]["mount_bottom_m"] = 1.45
+    assert C.candidate_positions(cab["rooms"][0], cab)[0] == C.candidate_positions(plain["rooms"][0], plain)[0]
+    assert C.mount_bottom(cab["furniture"][0]) == 1.45 and C.mount_bottom({"mount_bottom_m": None}) == 0.0
+    model = C.RoomModel(cab["rooms"][0], cab)
+    box = model.boxes[-1]
+    assert box[3] - box[6] == pytest.approx(1.45) and box[3] + box[6] == pytest.approx(1.45 + 0.7)
+    # a ray at 1.0 m passes under it, one at 1.8 m hits it
+    labels, _ = model.cast((0.5, 2.0, 1.0), np.array([[1.0, 0.0, 0.0]]))
+    assert _model_names(model, labels) != ["c"]
+    labels, _ = model.cast((0.5, 2.0, 1.8), np.array([[1.0, 0.0, 0.0]]))
+    assert _model_names(model, labels) == ["c"]
+    # the M5 cameras: no floor obstacle either
+    assert cameras.mount_bottom(cab["furniture"][0]) == 1.45
+
+
 @pytest.mark.parametrize("clockwise", [False, True])
 def test_only_convex_corners_get_points(clockwise):
     poly = [(0, 0), (6, 0), (6, 3), (3, 3), (3, 6), (0, 6)]
