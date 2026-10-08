@@ -155,6 +155,25 @@ def test_decor_question_names_the_type_what_it_is_and_what_it_is_not(dtype):
     assert ("the clock face" in text) == (dtype == "clock")
 
 
+def test_books_and_curtains_are_one_item_as_a_stack_or_a_pair_and_the_other_decor_questions_stay_as_they_were():
+    """Review finding 39: a stack of three books or a pair of curtains is several items for the shared "exactly one
+    item" line, so both judges answered false and ``decide`` refused every such model (``not_single``). Only the two
+    group types name what counts as one; the 19 other decor questions keep the M8 / M9 line, so their stored judge
+    answers stay current (the digest is that of the questions at commit 25cbb66, before the change)."""
+    default = "- is_single_object: true when the tiles show exactly one item and nothing else (no second item, room, floor"
+    assert set(OV.DECOR_SINGLE_WORDS) == {"books", "curtain"}
+    for dtype in ("books", "curtain"):
+        text = OV.decor_prompt(dtype, [0.5, 0.3, 0.3], False)
+        line = next(x for x in text.splitlines() if x.startswith("- is_single_object"))
+        assert OV.DECOR_SINGLE_WORDS[dtype] in line and "counts as one item" in line, line
+        assert default not in text and "no second item, room, floor, wall, person or text" in line
+    lines = [OV.decor_prompt(t, [0.4, 0.3, 0.2], front, norm) for t in OV.DECOR_WORDS if t not in ("books", "curtain")
+             for front in (False, True) for norm in (False, True)]
+    assert len(OV.DECOR_WORDS) - 2 == 19
+    assert hashlib.sha256("\n=====\n".join(lines).encode()).hexdigest()[:16] == "921bfc49a115d2ca"
+    assert all(default in OV.decor_prompt(t, [0.4, 0.3, 0.2], False) for t in OV.DECOR_WORDS if t not in OV.DECOR_SINGLE_WORDS)
+
+
 def test_new_types_ask_the_right_schema_and_come_out_in_the_requests(tmp_path):
     """judge-requests asks furniture and decor with their own schema for the new types too."""
     out = tmp_path / "lib"

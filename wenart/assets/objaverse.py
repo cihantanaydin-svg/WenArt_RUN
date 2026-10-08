@@ -1753,6 +1753,14 @@ DECOR_WORDS: dict[str, tuple[str, str, str]] = {
 # The side a front-facing decor type shows (the M8 wall art question keeps its words, so its answers stay current).
 DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side",
                                      "clock": "the clock face"}
+# What "exactly one item" means for a decor type that is a group by definition (review finding 39: a stack of books is
+# three items, a pair of curtains is two panels; the shared question made both judges answer false and refuse them).
+# Only these types change the words; every other type keeps the M8 / M9 line, so its stored answers stay current.
+DECOR_SINGLE_WORDS: dict[str, str] = {
+    "books": "exactly one stack or one short row of books (the stack or the row counts as one item)",
+    "curtain": "exactly one curtain panel, or one pair of curtains on one rod (the pair counts as one item)",
+}
+DECOR_SINGLE_DEFAULT = "exactly one item"
 TYPE_WORDS.update({
     "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
     "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
@@ -1918,8 +1926,8 @@ def decor_prompt(decor_type: str, dims_m, has_front: bool, normalised: bool = Fa
         f"{tiles}. {size}",
         f"It is offered as {name} decor ({what}) for photoreal renders of furnished rooms.",
         "Fields of the answer:\n"
-        "- is_single_object: true when the tiles show exactly one item and nothing else (no second item, room, "
-        "floor, wall, person or text).\n"
+        f"- is_single_object: true when the tiles show {DECOR_SINGLE_WORDS.get(decor_type, DECOR_SINGLE_DEFAULT)} "
+        "and nothing else (no second item, room, floor, wall, person or text).\n"
         f"- is_decor_type: true when it is {counts}.\n"
         "- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and "
         "realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n"
