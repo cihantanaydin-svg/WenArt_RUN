@@ -495,6 +495,43 @@ def test_stroke_id_order_does_not_depend_on_the_input_order():
     assert sorted(ids, key=SY._id_key) == sorted(reversed(ids), key=SY._id_key) == expected
 
 
+_COUNTER_SCRIPT = """
+import _real01_page as R
+import test_generic_symbols as T
+from shapely.geometry import box as sbox
+from wenart.ingest.model import OpeningItem
+chain = [R.stroke([(0.8, 3.9), (0.8, 3.3)]), R.stroke([(0.8, 3.3), (3.3, 3.3)]),
+         R.stroke([(3.3, 3.3), (3.3, 2.0)]), R.stroke([(3.3, 2.0), (3.9, 2.0)])]
+for st, k in zip(chain, (3, 12, 1, 2)):
+    st.id = f"INSERT:2DE26/{k}"
+window = OpeningItem(kind="window", width=1.2, center=(2.0, 4.0), rotation_deg=0.0, box=[], entity="w", evidence={})
+faces = [{"polygon": sbox(0.1, 0.1, 3.9, 3.9), "room_type": "kitchen", "label": "Kitchen"}]
+pieces, _, _ = T._furn(chain, walls=T._room(0, 0, 4, 4), openings=[window], faces=faces)
+print(sorted([p.entity] + p.details["counter_run"]["strokes"] for p in pieces if p.type == "kitchen_counter"))
+"""
+
+
+def test_counter_run_strokes_do_not_depend_on_the_hash_seed():
+    # Lead item (track A1 found it on real02): the counter_run strokes of DXF ids followed Python's string hashing.
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    tests = Path(__file__).resolve().parent
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(tests.parent), str(tests)]))
+    outs = set()
+    for seed in ("1", "2", "3", "4"):
+        run = subprocess.run([sys.executable, "-c", _COUNTER_SCRIPT], cwd=tests.parent, capture_output=True,
+                             text=True, env=dict(env, PYTHONHASHSEED=seed), timeout=120)
+        assert run.returncode == 0, run.stderr
+        outs.add(run.stdout.strip())
+    assert len(outs) == 1, outs
+    import ast
+    rows = ast.literal_eval(outs.pop())
+    assert len(rows) == 2 and all(row[1:] == sorted(row[1:]) and row[0] == row[1] for row in rows)  # by id
+
+
 def test_round_pieces_record_their_shape():
     """§6.4: a side table is round when a circle fits >= 90 % of its outline; a square one is not (its 4 corners
     lie on a circle, its outline does not)."""
