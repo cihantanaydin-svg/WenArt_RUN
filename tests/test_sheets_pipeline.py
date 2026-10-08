@@ -373,6 +373,33 @@ def test_a_pdf_region_lands_in_its_registered_frame(tmp_path):
     assert not any("is not used" in w or "not a scale and shift" in w for w in building["warnings"])
 
 
+def test_a_pdf_region_whose_registered_scale_is_not_the_cores_keeps_its_own_frame(tmp_path, monkeypatch):
+    # Review finding 13: the origin of a registered transform holds only at its scale; when the core reads another
+    # scale the region is read again in its own frame (origin at its walls) and the reason is listed.
+    pytest.importorskip("reportlab")
+    from wenart.ingest import classify as C
+
+    real = C._region_record
+
+    def scaled(rec, r, units, base_of):
+        new = real(rec, r, units, base_of)
+        if new.region_id == "r2" and new.region_transform:
+            tf = list(new.region_transform)
+            tf[0] *= 1.02
+            tf[4] *= 1.02
+            new.region_transform = tf
+        return new
+
+    monkeypatch.setattr(C, "_region_record", scaled)
+    project = tmp_path / "pdf"
+    project.mkdir()
+    _two_plan_pdf(project / "plan.pdf")
+    building, _ = P.run_project(project, tmp_path / "out", no_ai=True)
+    xs = [x for w in building["walls"] if w["level_id"] == "L-1" for x in (w["start"][0], w["end"][0])]
+    assert min(xs) == pytest.approx(0.0, abs=0.01)
+    assert any("plan.pdf r2" in w and "differs from the registered scale" in w for w in building["warnings"])
+
+
 @pytest.mark.parametrize("fmt, units, tf, origin, why", [
     ("pdf", None, [0.035278, 0.0, -14.98, 0.0, 0.035278, -10.58], (14.98, 10.58), None),
     ("dxf", 0.01, [0.01, 0.0, -2.0, 0.0, 0.01, -3.0], (2.0, 3.0), None),
