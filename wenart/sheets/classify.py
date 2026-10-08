@@ -62,9 +62,9 @@ def by_title(region: Region) -> bool:
     region.title = {"text": t.text, "entity": t.id, "box": [round(v, 3) for v in t.box], "language": language,
                     "keywords": words}
     region.title_txt = t
-    ev = dict(t.evidence)
-    ev.update({"method": "vector" if ev.get("method", "vector") == "vector" else ev["method"], "confidence": 1.0,
-               "rule": "title_keyword", "text": t.text})
+    ev = {"file": region.file, "page": region.sheet.page, "layer": t.layer, "entity": t.id}
+    ev.update({k: v for k, v in t.evidence.items() if k not in ("text", "confidence")})
+    ev.update({"method": ev.get("method") or "vector", "confidence": 1.0, "rule": "title_keyword", "text": t.text})
     region.evidence.append(ev)
     if hit:
         region.cls, region.class_confidence = hit[0], TITLE_CONFIDENCE

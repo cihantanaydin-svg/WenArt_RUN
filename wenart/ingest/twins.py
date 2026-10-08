@@ -93,7 +93,8 @@ def mirror_twins(rooms: list[dict], openings: list[dict], furniture: list[dict])
         if r.get("label_raw") and len(r.get("polygon") or []) >= 3:
             by_level.setdefault(r["level_id"], []).append(r)
     for level_rooms in by_level.values():
-        cands: dict[tuple, list[tuple[dict, dict]]] = {}
+        found: list[tuple[str, float, dict, dict]] = []
+        level_rooms = sorted(level_rooms, key=lambda r: r["id"])
         for i, a in enumerate(level_rooms):
             ca = _poly(a).centroid
             for b in level_rooms[i + 1:]:
@@ -103,13 +104,22 @@ def mirror_twins(rooms: list[dict], openings: list[dict], furniture: list[dict])
                 if abs(_poly(a).area - _poly(b).area) > 0.02 * max(_poly(a).area, 1e-9):
                     continue
                 if abs(ca.y - cb.y) <= TOL and abs(ca.x - cb.x) > TOL:
-                    cands.setdefault(("x", round((ca.x + cb.x) / 2.0, 2)), []).append((a, b))
+                    found.append(("x", (ca.x + cb.x) / 2.0, a, b))
                 if abs(ca.x - cb.x) <= TOL and abs(ca.y - cb.y) > TOL:
-                    cands.setdefault(("y", round((ca.y + cb.y) / 2.0, 2)), []).append((a, b))
-        if not cands:
+                    found.append(("y", (ca.y + cb.y) / 2.0, a, b))
+        if not found:
             continue
-        axis = max(sorted(cands), key=lambda k: len(cands[k]))
-        for a, b in cands[axis]:
+        # Candidate axes within 2 cm of each other are one axis (its median); the axis of the most pairs wins.
+        groups: list[list[tuple]] = []
+        for item in sorted(found, key=lambda f: (f[0], f[1])):
+            if groups and groups[-1][0][0] == item[0] and item[1] - groups[-1][-1][1] <= TOL:
+                groups[-1].append(item)
+            else:
+                groups.append([item])
+        best = max(groups, key=lambda g: (len(g), -g[0][1]))
+        values = sorted(f[1] for f in best)
+        axis = (best[0][0], values[len(values) // 2])
+        for _, _, a, b in best:
             if a["id"] in out or b["id"] in out:
                 continue
             if not _equal(a, b, openings, furniture, lambda p: _mirror_pt(p, axis)):

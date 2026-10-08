@@ -42,6 +42,7 @@ from wenart.sheets.model import (Box, Ent, Sheet, Txt, box_distance, box_inside,
 GAP_REL = 0.015            # clustering gap: 1.5 % of the sheet diagonal (§3.1 item 1; tested 0.5-3 %)
 FRAME_MIN_REL = 0.05       # frame / title box candidates: both sides >= 5 % of the sheet's shorter side
 FRAME_HOLD_SHARE = 0.5     # the sheet frame holds >= 50 % of the entity centres
+FRAME_TOUCH_SHARE = 0.1    # a frame: < 10 % of the entities it holds lie within the gap of its edges
 TEXT_REACH = 4.0           # a text joins the nearest region within this many gaps ...
 TITLE_REACH = 0.3          # ... or within 0.3 x that region's height (a title above or below it, §3.1 item 2)
 SATELLITE_AREA = 0.05      # a small cluster (<= 5 % of a drawing's box, or thin) ...
@@ -168,6 +169,11 @@ def _cluster_boxes(items: list[tuple[int, Box]], n: int, gap: float) -> _UF:
     return uf
 
 
+def _edge_distance(b: Box, rect: Box) -> float:
+    """Distance from a box inside a rectangle to the rectangle's nearest edge."""
+    return min(b[0] - rect[0], rect[2] - b[2], b[1] - rect[1], rect[3] - b[3])
+
+
 def _overlap_or_touch(b: Box, c: Box) -> bool:
     return b[0] <= c[2] and c[0] <= b[2] and b[1] <= c[3] and c[1] <= b[3]
 
@@ -235,12 +241,17 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     first = _groups(uf, others)
     first_boxes = [box_union(ents[k].box for k in g) for g in first]
 
-    # Frames: candidates holding >= 2 first-pass clusters (largest first; nested frames allowed).
+    # Frames: candidates holding >= 2 first-pass clusters apart from their edges (largest first; nested frames
+    # allowed), with what touches their edges (an attached title block) < 10 % of what they hold: a sheet frame holds
+    # drawings with paper around them, a building outline drawn as one closed polyline holds the walls that run into
+    # it. A frame missed this way costs little: only what lies within the gap of its lines joins it.
     frames: list[int] = []
     for k in sorted(cand, key=lambda k: -_area(ents[k].rect)):
         rect = ents[k].rect
-        held = sum(1 for b in first_boxes if box_inside(b, rect, tol=gap * 0.5))
-        if held >= 2:
+        held = [(b, len(g)) for b, g in zip(first_boxes, first) if box_inside(b, rect, tol=gap * 0.5)]
+        apart = [n for b, n in held if _edge_distance(b, rect) > gap]
+        touching = sum(n for b, n in held if _edge_distance(b, rect) <= gap)
+        if len(apart) >= 2 and touching < FRAME_TOUCH_SHARE * sum(n for _, n in held):
             frames.append(k)
     frame_set = set(frames)
 
@@ -324,14 +335,17 @@ def _absorb_satellites(clusters: list[Cluster]) -> list[Cluster]:
         if c.kind != "drawing" or c not in out:
             continue
         cb = c.geometry_box
-        w, h = cb[2] - cb[0], cb[3] - cb[1]
         holders = [host for host in out if host is not c and host.kind == "drawing" and host.frame == c.frame
                    and box_inside(cb, host.geometry_box) and _area(host.geometry_box) > _area(cb)]
         if holders:
             # Furniture in the middle of a room, farther than the gap from every wall: inside the drawing's box.
             min(holders, key=lambda h_: _area(h_.geometry_box)).ents.extend(c.ents)
             out.remove(c)
+    for c in sorted(list(out), key=lambda c: c.size):
+        if c.kind != "drawing" or c not in out:
             continue
+        cb = c.geometry_box
+        w, h = cb[2] - cb[0], cb[3] - cb[1]
         best = None
         for host in out:
             if host is c or host.kind != "drawing" or host.frame != c.frame or host.size < SATELLITE_COUNT * c.size:
@@ -349,7 +363,7 @@ def _absorb_satellites(clusters: list[Cluster]) -> list[Cluster]:
 
 
 def _strays(clusters: list[Cluster], frame_boxes: list, total: int, gap: float):
-    small = [c for c in clusters if c.size < STRAY_SHARE * max(total, 1)]
+    small = [c for c in clusters if c.size < STRAY_SHARE * max(total, 1) or c.size == 1]
     if frame_boxes:
         far = [c for c in small if c.frame is None and not any(box_distance(c.box, fb) == 0.0 and
                                                                   _overlap(c.box, fb) for _, fb in frame_boxes)]
