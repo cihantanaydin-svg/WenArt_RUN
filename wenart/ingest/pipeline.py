@@ -1798,6 +1798,16 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)
+    if ground is not None:
+        # The site is drawn around the ground floor: what another level's plan region reads outside its walls (a
+        # basement's or an attic's) is not site (listed).
+        for key in ("boundary_walls", "areas", "decor", "openings"):
+            other = [x for x in site.get(key) or [] if x.get("level_id") not in (None, ground)]
+            if other:
+                site[key] = [x for x in site[key] if x.get("level_id") in (None, ground)]
+                build.warn(f"site: {len(other)} {key.replace('_', ' ')} read outside the walls of "
+                           f"{', '.join(sorted({x['level_id'] for x in other}))} not used (the site is the ground "
+                           f"floor's, {ground})")
     b["site"] = TB.site_block(site, sheets, SE.area_kind, ground, build.frame_shift)
     b["project"]["datum"] = (sheets.get("heights") or {}).get("datum")
     for c in sheets.get("conflicts") or []:
