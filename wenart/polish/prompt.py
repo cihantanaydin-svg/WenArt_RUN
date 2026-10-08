@@ -141,6 +141,21 @@ FURNITURE_WORDS: dict[str, str] = {
     "side_table": "side table",
     "floor_lamp": "floor lamp",
     "potted_plant": "potted plant",
+    # Milestone 10 (docs/milestone10.md §1.1)
+    "sofa_corner": "corner sofa",
+    "chaise": "chaise longue",
+    "ottoman": "ottoman",
+    "bench": "bench",
+    "bar_stool": "bar stool",
+    "office_chair": "office chair",
+    "console_table": "console table",
+    "crib": "crib",
+    "bunk_bed": "bunk bed",
+    "sideboard": "sideboard",
+    "shoe_cabinet": "shoe cabinet",
+    "display_cabinet": "glass display cabinet",
+    "tall_cabinet": "tall cabinet",
+    "wall_cabinet": "wall cabinets",
 }
 
 PROMPT_TAIL = "light through the windows, soft natural shadows, realistic materials and textures, sharp focus"
