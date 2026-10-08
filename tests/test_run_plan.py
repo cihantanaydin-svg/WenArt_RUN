@@ -130,11 +130,12 @@ def test_golden_plan_of_the_committed_projects(golden):
     # recognition server start (without the seeds: 34 calls, 4 starts).
     assert (r1["status"], r1["stage_status"], r1["levels"], r1["rooms"]) == ("pending", "pending", 1, 9)
     seeded = (REPO_ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
-    # Milestone 10: the 14 new furniture types change the choices (and so the input hashes) of 16 of the 17
+    # Milestone 10: the 14 new furniture types change the choices (and so the input hashes) of 15 of the 17
     # questions; their committed answers match again once a pod has answered them and its seeds are committed.
-    want = (17, 32, 4, False) if seeded else (17, 34, 4, False)
+    # real01's one region is decided by title or geometry: no sheet_region question.
+    want = (17, 30, 4, False) if seeded else (17, 34, 4, False)
     assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == want
-    calls = P.recognition_minutes({"qwen": 16, "glm": 16} if seeded else {"qwen": 17, "glm": 17},
+    calls = P.recognition_minutes({"qwen": 15, "glm": 15} if seeded else {"qwen": 17, "glm": 17},
                                   plan["gpu"]["seqs"])
     assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"], calls, speed=SPEED)
     assert r1["views"] == 25 and r1["pod"] is not None
