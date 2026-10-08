@@ -146,6 +146,31 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX) -> PageRaster:
     return PageRaster(image=image, to_pixels=to_pixels)
 
 
+def raster_from_page(page, box, width_px: int = DXF_WIDTH_PX) -> PageRaster:
+    """Milestone 10: one drawing region of a large sheet, drawn from its strokes with Pillow (dark grey lines on
+    white) inside ``box`` (page units, y up) grown by ``DXF_MARGIN``: the sheets' regions of real02 need no
+    ezdxf rendering of the whole 59 MB sheet per region."""
+    x0, y0, x1, y1 = (float(v) for v in box)
+    mx, my = (x1 - x0) * DXF_MARGIN, (y1 - y0) * DXF_MARGIN
+    x0, y0, x1, y1 = x0 - mx, y0 - my, x1 + mx, y1 + my
+    w, h = max(x1 - x0, 1e-9), max(y1 - y0, 1e-9)
+    height_px = max(200, int(round(width_px * h / w)))
+    image = Image.new("RGB", (width_px, height_px), "white")
+    draw = ImageDraw.Draw(image)
+
+    def to_pixels(p):
+        return ((p[0] - x0) / w * width_px, (y1 - p[1]) / h * height_px)
+
+    for st in page.strokes:
+        pts = [to_pixels(p) for p in st.pts]
+        if len(pts) >= 2:
+            draw.line(pts + ([pts[0]] if st.closed and len(pts) > 2 else []), fill=(90, 90, 90), width=1)
+    font = _font(11)
+    for t in page.texts:
+        draw.text(to_pixels((t.box[0], t.box[3])), t.text, fill=(60, 60, 60), font=font)
+    return PageRaster(image=image, to_pixels=to_pixels)
+
+
 def raster_from_image(path: Path, max_width: int = IMAGE_MAX_WIDTH) -> PageRaster:
     with Image.open(path) as im:
         image = im.convert("RGB")

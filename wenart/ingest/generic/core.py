@@ -800,8 +800,13 @@ def _size_label_rows(rows: list[dict]) -> list[dict]:
 # --------------------------------------------------------------------------
 
 def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai: bool = False,
-            rec_dir: Optional[str | Path] = None, raster=None, evidence_only: bool = False) -> LevelExtraction:
+            rec_dir: Optional[str | Path] = None, raster=None, evidence_only: bool = False,
+            origin: Optional[tuple[float, float]] = None) -> LevelExtraction:
     """One generic page -> ``LevelExtraction`` in the building frame (see the module docstring).
+
+    Milestone 10: ``origin`` (page metres) replaces the min corner of the building walls as the frame origin: the
+    registered frame of the sheets stage (``sheets.json`` ``transform_to_building`` of the region, rotation 0), so
+    every level of a sheet lands in one building frame.
 
     Raster pages (area S): ``raster`` is the adapter's ``raster.RasterPage`` (rectified image, OCR items, review
     reasons); the AI candidates get pixel crops of the rectified page, every room face a ``room_label`` question
@@ -1005,7 +1010,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                             f"label answers" + (" (--no-ai: Tesseract names stay unconfirmed)" if no_ai else ""))
 
     # 8. The building frame.
-    if bwalls:
+    if origin is not None:
+        ox, oy = float(origin[0]), float(origin[1])
+    elif bwalls:
         union = TP.bridged_union(bwalls)
         ox, oy = union.bounds[0], union.bounds[1]
     else:
