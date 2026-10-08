@@ -14,7 +14,10 @@ to that object only ("cream pots" colours the pots, never the walls). A phrase w
 Milestone 3: a floor word gives the floor, a wall word the walls, a bare colour word the wall colour ("charcoal and
 white": charcoal walls and one white accent wall per living room and bedroom). A phrase may be split at " in " /
 " with " ("many large indoor plants in rattan and cream pots"); a part with no object word continues the object
-before it. Brackets are read as extra words of the plants ("(palms, monstera, ferns)").
+before it. Brackets are read as extra words of the plants ("(palms, monstera, ferns)"). Object words with only a space
+between them are one compound noun ("door handles", "window blinds", "sofa cushions", "floor lamps"): the last one is
+the head noun and takes the words before the run. The Milestone 3 reading above is only for a phrase of known words: an
+unknown word beside a colour or a floor word ("black bar stools", "marble side table") lists the phrase and applies nothing.
 
 Slots the brief does not name come from the style family word ("Scandinavian") or from ``wenart/defaults.yaml``;
 every such fill is written to ``warnings`` as ``assumed: ...`` so nothing is silent. A phrase with no known word
@@ -290,6 +293,9 @@ class _Phrase:
 
     def __init__(self, phrase: str, draft: dict, notes: list[str], objects: set[str]):
         self.phrase, self.d, self.notes, self.objects = phrase, draft, notes, objects
+        self.walls_set = False          # this phrase set the wall finish (a colour after "in" / "with" then belongs to it)
+        self.continued = False          # the fragment read now is the part after "in" / "with" of the object before
+        self.not_applied: list[str] = []    # unknown words that stopped a bare colour or floor word from being applied
 
     def take(self, store: dict, key: str, value, label: str) -> bool:
         """First phrase wins a single value; a later different one is noted, not applied."""
@@ -339,6 +345,8 @@ def _h_walls(ph: _Phrase, frag: Frag, obj: str = "walls") -> int:
     accent = cols[1]["phrase"] if len(cols) > 1 and cols[1]["and"] else None
     if len(cols) > (2 if accent else 1):
         ph.notes.append(f"ignored colour '{cols[2 if accent else 1]['phrase']}' in '{ph.phrase}' (walls: a main colour and one accent colour)")
+    if ph.continued and ph.walls_set and finish is None and plaster is None and main:
+        return _wall_colour_after_finish(ph, obj, cols, main, accent)
     slug = finish.value if finish else None
     if slug is None and main:
         name, mods = C.parse(main)
@@ -355,11 +363,34 @@ def _h_walls(ph: _Phrase, frag: Frag, obj: str = "walls") -> int:
         colour = None
     if ph.take(ph.d, "walls", slug, "walls"):
         ph.d["wall_colour"] = colour
+        ph.walls_set = True
     elif colour != ph.d["wall_colour"] and colour:
         ph.notes.append(f"ignored wall colour '{colour}' from '{ph.phrase}' (walls already {ph.d['wall_colour'] or ph.d['walls']})")
     ph.record_colours(obj, [c["phrase"] for c in cols])
     if accent and ph.d["wall_accent"] is None:
         ph.d["wall_accent"] = {"material": "paint", "colour": accent}
+    return 1
+
+
+def _wall_colour_after_finish(ph: _Phrase, obj: str, cols: list, main: str, accent: Optional[str]) -> int:
+    """``painted walls in sage``, ``lime plaster walls in warm white``: the part after "in" / "with" holds a colour and no
+    finish word, so the colour belongs to the finish this phrase just named (it is no new ``paint`` finish that the
+    first one would refuse). A colour already given stays; a finish that keeps its photo colour takes none."""
+    slug = ph.d["walls"]
+    colour = _apply_colour(ph, slug, main, "the wall finish")
+    own = LEGACY_SLUG_COLOURS.get(slug) == main                         # "white" for plaster_white: the slug has it already
+    if own:
+        colour = None
+    if colour and ph.d["wall_colour"] is None:
+        ph.d["wall_colour"] = colour
+    elif colour and colour != ph.d["wall_colour"]:
+        ph.notes.append(f"ignored wall colour '{colour}' from '{ph.phrase}' (walls already {ph.d['wall_colour'] or slug})")
+    ph.record_colours(obj, [c["phrase"] for c in cols])
+    if accent and ph.d["wall_accent"] is None:
+        if colour or own or ph.d["wall_colour"] == main:                # never an accent colour whose main colour was dropped
+            ph.d["wall_accent"] = {"material": "paint", "colour": accent}
+        else:
+            ph.notes.append(f"ignored accent colour '{accent}' in '{ph.phrase}' (the main colour '{main}' was not applied)")
     return 1
 
 
@@ -394,8 +425,8 @@ def _h_floor(ph: _Phrase, frag: Frag) -> int:
             ph.notes.append(f"ignored floor word '{other.keyword}' in '{ph.phrase}' (phrase already gives {win.value})")
         frag.claim(other)
     slug = win.value
-    for _, (x, y) in O.tile_sizes(frag.sub):                       # "60x120 cm": the slug's own size is used
-        frag.claimed.append((x, y))
+    for reading in O.tile_size_readings(frag.sub):                 # "60x120 cm": the slug's own size is used
+        frag.claimed.append(reading["span"])
     for m in re.finditer(r"grout", frag.sub):                       # "... with black grout": wet walls only
         found = Frag(frag.sub, 0, m.start(), frag.claimed).colour_hits()
         if found:
@@ -690,9 +721,9 @@ def _h_exterior(ph: _Phrase, frag: Frag, slot: str, source: str = "brief") -> in
 
 def _h_wet_walls(ph: _Phrase, frag: Frag) -> int:
     spans = frag.spans(O.WET_WALL_WORDS)
-    sizes = O.tile_sizes(frag.sub)
-    for _, (x, y) in sizes:
-        frag.claimed.append((x, y))
+    readings = O.tile_size_readings(frag.sub)
+    for reading in readings:
+        frag.claimed.append(reading["span"])
     grout = None
     for m in re.finditer(r"grout", frag.sub):
         before = Frag(frag.sub, 0, m.start(), frag.claimed)
@@ -714,9 +745,17 @@ def _h_wet_walls(ph: _Phrase, frag: Frag) -> int:
     if wet:
         ph.notes.append(f"ignored wet-wall tiles in '{ph.phrase}' (already {wet.get('material')})")
         return 1
-    size = sizes[0][0] if sizes else None
+    size, used = None, None
+    for reading in readings:
+        if reading["size_m"] is None:                                  # listed, never used (a 6 m tile is a unit slip)
+            ph.notes.append(f"tile size '{reading['text']}' in '{ph.phrase}' not used: a side is not a tile side "
+                            f"({O.TILE_SIDE_M[0]:g} to {O.TILE_SIDE_M[1]:g} m)")
+        elif size is None:
+            size, used = reading["size_m"], reading
     if size and (FIN.TILE_PATTERNS.get(spans[0].value) or {}).get("pattern") == "running_bond":
         size = sorted(size, reverse=True)                              # running bond: the long side is laid horizontally
+    if used and used["assumed"]:                                       # "600x1200": the unit was chosen, so it is listed
+        ph.notes.append(f"assumed: tile size '{used['text']}' read as {used['unit']} (no unit) -> {size[0]:g} x {size[1]:g} m")
     wet.update({"material": spans[0].value, "tile_size_m": size,
                 "colour": cols[0]["phrase"] if cols else None, "grout_colour": grout})
     ph.record_colours("wet_walls", [c["phrase"] for c in cols] + ([grout] if grout else []))
@@ -754,6 +793,7 @@ _HANDLERS = {
     "pots": lambda ph, fr, ex: _h_pots(ph, fr), "plants": lambda ph, fr, ex: _h_plants(ph, fr, ex),
     "wet_walls": lambda ph, fr, ex: _h_wet_walls(ph, fr), "accents": lambda ph, fr, ex: _h_accents(ph, fr),
     "textiles": lambda ph, fr, ex: _h_textiles(ph, fr), "lighting": lambda ph, fr, ex: 0,
+    "sills": lambda ph, fr, ex: 0,                      # a known object with no slot (O.HINTS gives the reason)
 }
 for _slot_object in O.OBJECT_EXTERIOR_SLOT:
     _HANDLERS[_slot_object] = (lambda slot: lambda ph, fr, ex: _h_exterior(ph, fr, slot))(O.OBJECT_EXTERIOR_SLOT[_slot_object])
@@ -763,7 +803,11 @@ for _piece in O.OBJECT_TYPES:
 
 def _bare(ph: _Phrase, core: str, claimed) -> tuple[int, list[str]]:
     """A phrase with no object word: Milestone 3's reading (a floor word, else wall words and bare colours) plus the
-    style tags (``natural``); ``(effects, unknown words)``."""
+    style tags (``natural``); ``(effects, unknown words)``.
+
+    The reading is only for a phrase made of known words (``black``, ``warm greige``, ``light oak``). An unknown word
+    beside a colour or a floor word is most likely an object the tables do not know ("black bar stools", "marble side
+    table"): its colour or material then goes nowhere, and the unknown words are listed (docs/milestone10.md §4)."""
     frag = Frag(core, 0, len(core), claimed)
     effects = 0
     for tag in O.find_spans(core, [(t, t) for t in O.STYLE_TAGS], taken=claimed):
@@ -771,11 +815,63 @@ def _bare(ph: _Phrase, core: str, claimed) -> tuple[int, list[str]]:
         if tag.value not in ph.d["tags"]:
             ph.d["tags"].append(tag.value)
         effects += 1
-    if frag.spans(V.FLOOR_WORDS):
-        effects += _h_floor(ph, frag)
-    else:
-        effects += _h_walls(ph, frag)
+    trial_ph = _Phrase(ph.phrase, copy.deepcopy(ph.d), [], ph.objects)                  # read it first, on a copy
+    trial = Frag(core, 0, len(core), list(frag.claimed))
+    reader = _h_floor if trial.spans(V.FLOOR_WORDS) else _h_walls
+    would_apply = reader(trial_ph, trial)
+    unknown = trial.leftovers()
+    if unknown:
+        if would_apply:
+            ph.not_applied = unknown                                # the phrase's reason, and no wall or floor change
+        return effects, unknown
+    effects += reader(ph, frag)
     return effects, frag.leftovers()
+
+
+# "botanical wallpaper accent wall", "wallpaper on the accent wall": the words between the wallpaper and the accent wall
+_WALLPAPER_THEN_ACCENT = re.compile(r"\s*(?:(?:on|for|as|in)\s+)?(?:(?:the|a|an|one|our|your)\s+)?")
+# "accent wall in botanical wallpaper", "feature wall with a striped wallpaper": between the accent wall and the wallpaper
+_ACCENT_THEN_WALLPAPER = re.compile(r"\s*(?:in|with|using)\s+(?:(?:the|a|an)\s+)?(?:[\w'’\-]+\s+)?")
+# a door of these objects is that object's front ("cabinet doors"), not an interior door
+_DOOR_OF = {"cabinets": "cabinets", "kitchen": "cabinets", "wardrobe": "wardrobe"}
+
+
+def _accent_wallpaper(core: str, objs: list) -> list:
+    """The object words "wallpaper" that are the finish of an accent wall ("botanical wallpaper accent wall",
+    "accent wall in botanical wallpaper"), not the wall finish of every wall: they leave the object list, so the accent wall
+    reads the wallpaper words. "striped wallpaper and a navy accent wall" keeps its wallpaper for the walls."""
+    drop = []
+    for i, o in enumerate(objs):
+        if o.keyword != "wallpaper":
+            continue
+        after = objs[i + 1] if i + 1 < len(objs) else None
+        before = objs[i - 1] if i else None
+        if after is not None and after.value == "accent_wall" and _WALLPAPER_THEN_ACCENT.fullmatch(core[o.end:after.start]):
+            drop.append(o)
+        elif before is not None and before.value == "accent_wall" and _ACCENT_THEN_WALLPAPER.fullmatch(core[before.end:o.start]):
+            drop.append(o)
+    return [o for o in objs if o not in drop]
+
+
+def _compound_groups(core: str, objs: list) -> list[list]:
+    """Object words with only a space between them are one compound noun ("door handles", "window blinds", "sofa
+    cushions", "floor lamps"): the last one is the head noun and takes the attribute words; the earlier ones only say
+    which kind it is. Two words of one object ("wallpaper walls") stay two entries of the same object."""
+    groups: list[list] = []
+    for o in objs:
+        last = groups[-1][-1] if groups else None
+        if last is not None and last.value != o.value and not core[last.end:o.start].strip():
+            groups[-1].append(o)
+        else:
+            groups.append([o])
+    return groups
+
+
+def _unknown_bracket_words(text: str) -> list[str]:
+    """The words of a plant bracket ("palms, orchids") that are no known species, colour or filler word."""
+    frag = Frag(text, 0, len(text), [(s.start, s.end) for s in O.find_spans(text, O.PLANT_WORDS)])
+    frag.colour_hits()
+    return [w for w in frag.leftovers() if not w.isdigit()]
 
 
 def _scan_phrase(phrase: str, d: dict, notes: list[str]) -> tuple[bool, str]:
@@ -803,8 +899,10 @@ def _scan_phrase(phrase: str, d: dict, notes: list[str]) -> tuple[bool, str]:
         elif d["family"] != family.value:
             notes.append(f"ignored family '{family.value}' from '{phrase}' (family already {d['family']})")
 
-    objs = O.find_spans(core, O.OBJECT_WORDS, taken=claimed)
+    objs = _accent_wallpaper(core, O.find_spans(core, O.OBJECT_WORDS, taken=claimed))
     unused_words: list[str] = []
+    seen: dict[str, str] = {}                   # object key -> its word, for every object word of the phrase
+    got: set[str] = set()                       # object keys that read at least one colour, material or finish word
     if not objs:
         ph = _Phrase(phrase, d, notes, set())
         bare_effects, unused_words = _bare(ph, core, claimed)
@@ -820,7 +918,12 @@ def _scan_phrase(phrase: str, d: dict, notes: list[str]) -> tuple[bool, str]:
             if not in_seg:
                 frag = Frag(core, seg_start, seg_end, claimed)
                 if previous is not None:                       # "... in greige": the words belong to the object before
-                    effects += _HANDLERS[previous](ph, frag, extra)
+                    ph.continued = True
+                    done = _HANDLERS[previous](ph, frag, extra)
+                    ph.continued = False
+                    effects += done
+                    if done:
+                        got.add(previous)
                     unused_words += _unused(frag, ph)
                 else:
                     bare_effects, left = _bare(ph, frag.sub, [])
@@ -828,9 +931,15 @@ def _scan_phrase(phrase: str, d: dict, notes: list[str]) -> tuple[bool, str]:
                     unused_words += left
                 continue
             prev_range = None
-            for k, o in enumerate(in_seg):
-                a, b = (in_seg[k - 1].end if k else seg_start), o.start
-                limit = in_seg[k + 1].start if k + 1 < len(in_seg) else seg_end
+            groups = _compound_groups(core, in_seg)
+            for k, group in enumerate(groups):
+                o, qualifiers = group[-1], group[:-1]            # "door handles": the head noun reads the words before the run
+                run_start = group[0].start
+                a, b = (groups[k - 1][-1].end if k else seg_start), run_start
+                limit = groups[k + 1][0].start if k + 1 < len(groups) else seg_end
+                key = o.value
+                if o.value == "doors":
+                    key = next((_DOOR_OF[q.value] for q in qualifiers if q.value in _DOOR_OF), key)
                 if o.value in O.OBJECT_IN_KEYWORDS:
                     # the object word is part of keywords ("botanical wallpaper", "wallpaper stripe", "green roof"): the
                     # words before it and after it (up to "and") are read together with it
@@ -846,17 +955,32 @@ def _scan_phrase(phrase: str, d: dict, notes: list[str]) -> tuple[bool, str]:
                         a, b = o.end, limit
                     frag = Frag(core, a, b, claimed + [(x.start, x.end) for x in objs])
                 else:
-                    frag = Frag(core, a, b, claimed + [(x.start, x.end) for x in objs])
-                effects += _HANDLERS[o.value](ph, frag, (extra + " " + core[o.start:o.end]) if o.value == "plants" else extra)
+                    frag = Frag(core, a, o.start, claimed + [(x.start, x.end) for x in objs])
+                done = _HANDLERS[key](ph, frag, (extra + " " + core[o.start:o.end]) if o.value == "plants" else extra)
+                effects += done
+                seen.setdefault(key, o.keyword)
+                if done:
+                    got.add(key)
                 if o.value in O.OBJECT_IN_KEYWORDS:
                     frag.claimed.append((o.start - a, o.end - a))                # the object word itself is known
                 prev_range = (a, b)
                 unused_words += _unused(frag, ph)
-                previous = o.value
+                previous = key
         if extras and not any(o.value == "plants" for o in objs):
             notes.append(f"ignored bracket text '({'; '.join(extras)})' in '{phrase}'")
+        elif extras:
+            unknown = _unknown_bracket_words(extra)
+            if unknown:
+                notes.append(f"unknown plant word(s) {', '.join(repr(w) for w in unknown)} in the brackets of '{phrase}' "
+                             f"(no known species, not used)")
     if effects == 0:
-        return False, _reason(core, objs)
+        return False, _reason(core, objs, ph.not_applied)
+    if ph.not_applied:                                                  # a style word matched, but a colour word was not used
+        notes.append(f"colour or material word(s) in '{phrase}' not applied to the walls or the floor: unknown word(s) "
+                     f"{', '.join(repr(w) for w in ph.not_applied)} stand beside them (no known object)")
+    empty = [word for key, word in seen.items() if key not in got and key not in ("lighting", "sills")]
+    if empty:                                                           # an object word that found nothing is never silent
+        notes.append(f"no colour, material or finish word found for {', '.join(repr(w) for w in empty)} in '{phrase}'")
     if unused_words:
         notes.append(f"unknown word(s) {', '.join(repr(w) for w in dict.fromkeys(unused_words))} in '{phrase}' (not used)")
     return True, ""
@@ -870,10 +994,13 @@ def _unused(frag: Frag, ph: _Phrase) -> list[str]:
     return left
 
 
-def _reason(core: str, objs) -> str:
+def _reason(core: str, objs, not_applied=()) -> str:
     for word, hint in O.HINTS.items():
         if re.search(r"(?<![^\W_])" + re.escape(word) + r"(?![^\W_])", core):
             return hint
+    if not_applied:
+        return (f"unknown word(s) {', '.join(repr(w) for w in not_applied)}: no known object word, so the colour or material "
+                f"word beside them is not applied to the walls or the floor")
     if objs:
         names = ", ".join(sorted({o.value for o in objs}))
         return f"object '{names}' found, but no known material, colour or finish word for it"
@@ -1018,7 +1145,9 @@ def _exterior_slots(d: dict, profile: dict, fallback: dict, exterior_words: dict
         if look is None and slot in d["exterior"]:
             e = d["exterior"][slot]
             look = _look(e["material"], e["colour"], "brief", False)
-        if look is None and slot in ("window_frame", "door") and d[slot if slot == "door" else "window_frame"]:
+        if look is None and slot in ("window_frame", "door") and d[slot].get("material"):
+            # the style text named the material of the inside look; a handle or a door style alone names none (the
+            # inside material is then a default, so the outside is "as inside", assumed and listed)
             inside = profile[slot]
             look = _look(inside["material"], inside.get("colour"), "style", False)
         if look is None:

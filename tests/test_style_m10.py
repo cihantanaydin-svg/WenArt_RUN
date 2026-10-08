@@ -538,6 +538,151 @@ def test_a_metal_frame_word_with_a_metal_colour_takes_that_metal():
     assert look("white aluminium") == {"material": "painted_metal_white", "colour": "white"}
 
 
+# --------------------------------------------------------------------------
+# Code review follow-up of Milestone 10 (findings #30 - #33, #35, #36 and the low plant-word finding)
+# --------------------------------------------------------------------------
+
+def test_review_30_a_compound_noun_gives_its_words_to_the_head_noun():
+    """"black door handles" is black handles of the doors; the doors themselves are not black, and the handles are not
+    left empty. The earlier object words of a compound are qualifiers only."""
+    base = prof("")
+    p = prof("black door handles")
+    assert p["door"]["handle"] == "black" and p["door"]["colour"] is None and p["door"]["material"] == base["door"]["material"]
+    assert p["cabinets"]["handle"] is None
+    p = prof("brass cabinet handles")
+    assert p["cabinets"]["handle"] == "brass" and p["cabinets"]["colour"] is None and p["door"]["handle"] is None
+    p = prof("white window blinds")
+    assert p["decor"]["curtain_colour"] == "white" and p["window_frame"] == base["window_frame"]
+    p = prof("grey sofa cushions")
+    assert p["decor"]["cushion_colours"] == ["grey"] and p["furniture"]["by_type"] == {}
+    p = prof("white cabinet doors")                       # the doors of the cabinets, not the interior doors
+    assert p["cabinets"]["colour"] == "white" and p["door"] == base["door"]
+    p = prof("oak floor lamps")                           # a lamp, not a floor
+    assert p["floor"] == base["floor"] and p["unmatched_terms"] == ["oak floor lamps"]
+    p = prof("oak window sills")                          # no sill slot: listed, the window frames stay as they were
+    assert p["window_frame"] == base["window_frame"] and p["unmatched_terms"] == ["oak window sills"]
+    assert warned(p, "unmatched 'oak window sills':", "sill")
+    p = prof("black handles")                             # one object word: unchanged
+    assert p["door"]["handle"] == "black" and p["cabinets"]["handle"] == "black"
+    p = prof("oak window frames, striped wallpaper walls")                  # two objects of one value are one object
+    assert p["window_frame"]["material"] == "oak" and p["walls"]["material"] == "wallpaper_stripe"
+
+
+def test_review_31_an_unknown_noun_never_recolours_the_walls_or_replaces_the_floor():
+    """Milestone 3's bare reading (a colour is the wall colour, a floor word is the floor) is for phrases with no other
+    word: an unknown noun lists the phrase and applies nothing."""
+    base = prof("")
+    for text, unknown in (("black bar stools", "bar"), ("emerald velvet chaise", "chaise"), ("copper pendant lights", "pendant"),
+                          ("gold mirror", "mirror"), ("navy headboard", "headboard"), ("marble side table", "side"),
+                          ("walnut bar stools", "bar")):
+        p = prof(text)
+        assert p["unmatched_terms"] == [text] and p["matched_terms"] == [], text
+        for slot in ("walls", "floor", "wet_floor", "door", "wall_accent"):
+            assert p[slot] == base[slot], (text, slot)
+        assert p["exterior"]["facade"] == base["exterior"]["facade"], text
+        assert warned(p, f"unmatched '{text}':", "unknown word", f"'{unknown}'"), text
+    p = prof("sage walls, black bar stools, oak floor")           # the other phrases still apply
+    assert p["walls"]["colour"] == "sage" and p["floor"]["material"] == "wood_oak_light" and p["unmatched_terms"] == ["black bar stools"]
+    assert prof("gold mirror, black")["walls"]["colour"] == "black"
+    # the bare phrases of Milestone 3 keep working
+    assert prof("black")["walls"]["colour"] == "black" and prof("charcoal")["walls"]["material"] == "plaster_charcoal"
+    assert prof("warm greige")["walls"]["colour"] == "warm greige" and prof("charcoal and white")["wall_accent"]["colour"] == "white"
+    assert prof("light oak")["floor"]["material"] == "wood_oak_light" and prof("marble")["floor"]["material"] == "marble"
+    assert prof("natural light oak")["floor"]["material"] == "wood_oak_light"
+    p = prof("bright white, rich walnut")                                     # plain adjectives are no unknown nouns
+    assert p["matched_terms"] == ["bright white", "rich walnut"] and p["floor"]["material"] == "wood_walnut"
+    assert prof("fresh sage")["walls"]["colour"] == "sage" and prof("white and wood")["unmatched_terms"] == ["white and wood"]
+    p = prof("modern white")                                                  # a style word beside a colour is no unknown word
+    assert p["family"] == "modern" and p["walls"]["material"] == "plaster_white"
+
+
+def test_review_32_a_colour_after_in_or_with_goes_to_the_finish_named_before_it():
+    p = prof("painted walls in sage")
+    assert p["walls"] == {"material": "paint", "asset": "plastered_wall", "colour": "sage"} and not warned(p, "ignored wall colour")
+    p = prof("lime plaster walls in warm white")
+    assert p["walls"]["material"] == "lime_plaster" and p["walls"]["colour"] == "warm white" and not warned(p, "ignored")
+    p = prof("striped wallpaper in navy and white")
+    assert p["walls"]["material"] == "wallpaper_stripe" and p["walls"]["colour"] == "navy"
+    assert p["wall_accent"]["colour"] == "white" and p["wall_accent"]["material"] == "paint"
+    p = prof("plaster walls in sage")
+    assert p["walls"]["material"] == "plaster_white" and p["walls"]["colour"] == "sage"
+    assert prof("walls in sage")["walls"]["colour"] == "sage" and prof("sage painted walls")["walls"]["colour"] == "sage"
+    # a colour already given stays; a later phrase never fills the colour of an earlier phrase
+    p = prof("sage painted walls in navy")
+    assert p["walls"]["colour"] == "sage" and warned(p, "ignored wall colour 'navy'")
+    p = prof("white walls, walls in sage")
+    assert p["walls"]["colour"] is None and warned(p, "ignored")
+    # a finish that keeps its photo colour takes no colour, and its accent colour is not left alone
+    p = prof("exposed brick walls in navy and white")
+    assert p["walls"]["material"] == "brick" and p["wall_accent"] is None
+    assert warned(p, "only describes the wall finish") and warned(p, "ignored accent colour 'white'")
+
+
+def test_review_33_wallpaper_on_an_accent_wall_is_the_accent_finish_not_the_walls():
+    base = prof("")
+    for text in ("botanical wallpaper accent wall", "accent wall in botanical wallpaper", "botanical wallpaper on the accent wall",
+                 "feature wall in botanical wallpaper", "accent wall with botanical wallpaper"):
+        p = prof(text)
+        assert p["wall_accent"] and p["wall_accent"]["material"] == "wallpaper_botanical", text
+        assert p["walls"] == base["walls"], text
+    p = prof("white walls, botanical wallpaper accent wall in the bedroom")
+    assert p["walls"]["material"] == "plaster_white" and p["wall_accent"]["material"] == "wallpaper_botanical"
+    p = prof("white walls with botanical wallpaper on the accent wall")
+    assert p["walls"]["material"] == "plaster_white" and p["wall_accent"]["material"] == "wallpaper_botanical"
+    p = prof("exposed brick accent wall")                                     # the control of the review
+    assert p["wall_accent"]["material"] == "brick" and p["walls"] == base["walls"]
+    # wallpaper for the walls and a separate accent wall stay two things
+    p = prof("striped wallpaper and a navy accent wall")
+    assert p["walls"]["material"] == "wallpaper_stripe" and p["wall_accent"]["colour"] == "navy" and p["wall_accent"]["material"] == "paint"
+    p = prof("striped wallpaper walls, navy accent wall")
+    assert p["walls"]["material"] == "wallpaper_stripe" and p["wall_accent"]["colour"] == "navy"
+    p = prof("striped wallpaper walls with a navy accent wall")
+    assert p["walls"]["material"] == "wallpaper_stripe" and p["wall_accent"]["colour"] == "navy"
+    p = prof("wallpaper accent wall")                                         # no pattern word: listed
+    assert p["unmatched_terms"] == ["wallpaper accent wall"] and p["walls"] == base["walls"] and p["wall_accent"] is None
+
+
+def test_review_35_an_exterior_door_is_style_sourced_only_when_the_brief_named_its_material():
+    for text in ("black handles", "sliding doors"):
+        p = prof(text)
+        door = p["exterior"]["door"]
+        assert door["source"] == "fallback" and door["assumed"] is True, text
+        assert warned(p, "assumed: exterior", "door as inside"), text
+    for text in ("oak doors", "black doors"):
+        door = prof(text)["exterior"]["door"]
+        assert door["source"] == "style" and door["assumed"] is False, text
+    p = prof("sliding doors, black handles, anthracite window frames")
+    assert p["exterior"]["door"]["assumed"] is True and p["exterior"]["window_frame"]["source"] == "style"
+
+
+def test_review_36_a_tile_size_without_a_unit_is_read_by_what_is_plausible_and_listed():
+    assert O_TABLES.tile_sizes("600x1200")[0][0] == [0.6, 1.2] and O_TABLES.tile_sizes("60x120")[0][0] == [0.6, 1.2]
+    assert O_TABLES.tile_sizes("300x300")[0][0] == [0.3, 0.3] and O_TABLES.tile_sizes("10x10")[0][0] == [0.1, 0.1]
+    assert O_TABLES.tile_sizes("60x120 cm")[0][0] == [0.6, 1.2] and O_TABLES.tile_sizes("600x1200 mm")[0][0] == [0.6, 1.2]
+    p = prof("600x1200 porcelain bathroom tiles")
+    assert p["wet_walls"]["tile_size_m"] == [0.6, 1.2] and warned(p, "assumed: tile size '600x1200'", "mm", "no unit")
+    p = prof("60x120 porcelain bathroom tiles")
+    assert p["wet_walls"]["tile_size_m"] == [0.6, 1.2] and warned(p, "assumed: tile size '60x120'", "cm", "no unit")
+    p = prof("300x600 subway tiles")                                          # running bond: the long side is horizontal
+    assert p["wet_walls"]["tile_size_m"] == [0.6, 0.3] and warned(p, "tile size '300x600'", "mm")
+    p = prof("60x120 cm porcelain bathroom tiles")
+    assert p["wet_walls"]["tile_size_m"] == [0.6, 1.2] and not warned(p, "tile size")
+    own = prof("porcelain bathroom tiles")["wet_walls"]["tile_size_m"]       # the finish's own size
+    p = prof("9000x9000 porcelain bathroom tiles")                            # no reading is a tile: listed, not used
+    assert p["wet_walls"]["tile_size_m"] == own and warned(p, "tile size '9000x9000'", "not used")
+    p = prof("6 x 12 m porcelain bathroom tiles")                             # an explicit unit is checked too
+    assert p["wet_walls"]["tile_size_m"] == own and warned(p, "tile size '6 x 12 m'", "not used")
+
+
+def test_review_low_an_unknown_plant_word_in_brackets_is_listed():
+    p = prof("indoor plants (palms, orchids)")
+    assert p["decor"]["plant_species"] == ["palm"] and warned(p, "'orchids'", "plants")
+    p = prof("many indoor plants (palms, monstera; ferns)")
+    assert p["decor"]["plant_species"] == ["palm", "monstera", "fern"] and not warned(p, "unknown plant")
+    p = prof("large plants (fiddle leaf fig and 2 olive trees)")
+    assert not warned(p, "unknown plant")
+
+
 def test_the_lamps_claim_follows_the_lighting_table_of_record(monkeypatch):
     """Lead item (track E, #37): the profile says "the lamps are on" for exactly the moods whose
     ``finishes.LIGHTING[mood]["lamps_on"]`` is true, with or without a sun, and never for the others."""
