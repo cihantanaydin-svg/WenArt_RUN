@@ -31,6 +31,16 @@ controls the limit alone separates (``caught``) and the rest (``missed``);
 ``proposed_partial`` applies the 25 % rule to the caught small negatives
 only. It is review material, never a proposal.
 
+Milestone 10 (docs/milestone10.md §3.3 item 5): the calibration views also hold up to
+``EXTERIOR_CALIBRATION_VIEWS`` exterior views (``expected.sweep_exterior_views``: one of each view kind first). They
+get the same controls (benign edits; shift, scale, rotation and erase of their largest windows or doors; a window
+crop pasted on a wall, preferably a donor of another exterior view; three colour edits), and every record carries
+its ``view_kind``. The top-level ``rates`` and ``per_metric`` count the interior comparisons only (an exterior
+failure must not switch the polish of the rooms off); ``exterior`` holds the exterior rates, and
+``exterior_validation`` / ``exterior_polish`` turn them into the decision for the exterior views with the same limits
+as the project (``validation.yaml``): a failed or missing exterior validation keeps the exterior views Cycles
+only.
+
 Files: ``<out>/gate_calibration.json`` (rewritten after every view, so a
 stopped run keeps its numbers) and ``gate_calibration.md``.
 
@@ -54,6 +64,9 @@ from wenart.gate import controls as K
 from wenart.gate.api import GATE_CODE_VERSION, NOT_THRESHOLDS, limits_of
 
 CALIBRATION_VIEWS = 8
+EXTERIOR_CALIBRATION_VIEWS = 3
+EXTERIOR = "exterior"
+INTERIOR = "interior"
 PROPOSAL_GAP_SHARE = 0.25
 OBJECT_CONTROLS = {"shift", "scale", "rotate", "erase", "removal", "insertion"}
 COLOUR_CONTROLS = {"white_balance_strong", "wall_b", "floor_L"}
@@ -165,11 +178,13 @@ def fallback_sweep(expected: dict, n: int) -> list[str]:
 
 def calibration_targets(project_out: Path, views: dict, scene: dict, n: int, expected_api=None,
                         warnings: Optional[list] = None,
-                        cameras: Optional[list[str]] = None) -> tuple[list[str], dict]:
+                        cameras: Optional[list[str]] = None,
+                        n_exterior: int = 0) -> tuple[list[str], dict]:
     """``(cameras, {camera: [object elements]})``: the calibration views and the objects of their negatives.
 
-    Cameras = ``sweep_views(expected_views, n)`` (or the ``cameras`` asked);
-    objects = ``largest_required`` + the next required element by pixels.
+    Cameras = ``sweep_views(expected_views, n)`` (or the ``cameras`` asked) and, with ``n_exterior`` and no
+    ``cameras`` asked, up to ``n_exterior`` exterior views (``sweep_exterior_views``; none when the expected API
+    has no such function); objects = ``largest_required`` + the next required element by pixels.
     """
     from wenart import views as V
     warnings = warnings if warnings is not None else []
@@ -180,6 +195,9 @@ def calibration_targets(project_out: Path, views: dict, scene: dict, n: int, exp
         ev = api.expected_views(project_out)
         ev = {cam: e for cam, e in ev.items() if cam in views}
         cams = list(cameras) if cameras else [c for c in api.sweep_views(ev, n) if c in views]
+        pick_exterior = getattr(api, "sweep_exterior_views", None)
+        if n_exterior and not cameras and callable(pick_exterior):
+            cams += [c for c in pick_exterior(ev, n_exterior) if c in views and c not in cams]
         largest = {cam: api.largest_required(ev[cam]) if cam in ev else None for cam in cams}
     except NotImplementedError:
         warnings.append("wenart.vision_check.expected is not implemented: calibration views and objects from "
@@ -233,9 +251,16 @@ def donor_crops(views: dict, cams: list[str], table: dict) -> list[dict]:
     return donors
 
 
-def donor_for(donors: list[dict], camera: str) -> Optional[dict]:
-    """The first donor of another view (the views' order is fixed, so the choice is deterministic)."""
-    return next((d for d in donors if d["camera"] != camera), None)
+def donor_for(donors: list[dict], camera: str, kinds: Optional[dict] = None) -> Optional[dict]:
+    """The first donor of another view (the views' order is fixed, so the choice is deterministic); with ``kinds``
+    (``{camera: interior | exterior}``) a donor of another view of the same kind first (a facade window pasted on
+    a facade wall), else any other view's."""
+    others = [d for d in donors if d["camera"] != camera]
+    if kinds:
+        same = [d for d in others if kinds.get(d["camera"]) == kinds.get(camera)]
+        if same:
+            return same[0]
+    return others[0] if others else None
 
 
 # --------------------------------------------------------------------------
@@ -244,7 +269,8 @@ def donor_for(donors: list[dict], camera: str) -> Optional[dict]:
 
 def _record(camera: str, control: str, magnitude, obj, result: dict, **extra) -> dict:
     family = "polish" if control == "presumed_bad" else FAMILY.get(control, "benign")
-    rec = {"camera": camera, "control": control, "magnitude": magnitude, "object": obj, "family": family,
+    rec = {"camera": camera, "view_kind": INTERIOR, "control": control, "magnitude": magnitude, "object": obj,
+           "family": family,
            "small": K.is_small(control, magnitude), "decision": result["decision"],
            "reasons": result["reasons"], "notes": result["notes"], "metrics": result["metrics"],
            "gate_key": result.get("gate_key")}
@@ -270,7 +296,7 @@ def controls_base(data: dict, json_dir: Path, project_out: Path) -> Path:
 
 def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, n_views: int = CALIBRATION_VIEWS,
                     cameras: Optional[list[str]] = None, deadline: Optional[float] = None,
-                    log: Callable[[str], Any] = print) -> dict:
+                    log: Callable[[str], Any] = print, n_exterior: int = EXTERIOR_CALIBRATION_VIEWS) -> dict:
     """Run every control of §4.3 for one project, write the JSON + markdown, return the calibration dict."""
     from wenart import views as V
     from wenart.gate.api import Gate
@@ -308,6 +334,7 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
     def save() -> None:
         cal["seconds"] = round(time.time() - start, 1)
         cal.update(summarise(cal, gate.thresholds))
+        cal["exterior"] = exterior_block(cal, gate.thresholds, [c for c in views if kinds.get(c) == EXTERIOR])
         _dump(json_path, cal)
         md_path.write_text(report_md(cal), encoding="utf-8")
 
@@ -315,7 +342,10 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
         unknown = [c for c in cameras if c not in views]
         if unknown:
             raise KeyError(f"cameras not rendered (or stale): {', '.join(unknown)}")
-    cams, objects = calibration_targets(project_out, views, scene, n_views, expected_api, warnings, cameras)
+    cams, objects = calibration_targets(project_out, views, scene, n_views, expected_api, warnings, cameras,
+                                        n_exterior=n_exterior)
+    from wenart.gate import colour as GC
+    kinds = {c: (EXTERIOR if GC.is_exterior(scene, c, views[c].room_id) else INTERIOR) for c in views}
     cal["views"] = cams
     cal["objects"] = {c: [{"index": e["index"], "wenart_id": e["wenart_id"], "kind": e.get("kind"),
                            "pixels": e.get("pixels")} for e in objs] for c, objs in objects.items()}
@@ -335,14 +365,15 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
             if expired():
                 break
             res = gate.compare(ref, ctl["image"])
-            cal["benign"].append(_record(cam, ctl["control"], ctl["magnitude"], None, res))
+            cal["benign"].append(_record(cam, ctl["control"], ctl["magnitude"], None, res, view_kind=kinds[cam]))
         for element in objects.get(cam, []):
             for ctl in K.object_negatives(rgb, index, depth_mm, element["index"], element["wenart_id"]):
                 if expired():
                     break
                 res = gate.compare(ref, ctl["image"])
-                cal["negative"].append(_record(cam, ctl["control"], ctl["magnitude"], ctl["object"], res))
-        for ctl in K.view_negatives(rgb, ref.regions.masks, donor_for(donors, cam)):
+                cal["negative"].append(_record(cam, ctl["control"], ctl["magnitude"], ctl["object"], res,
+                                               view_kind=kinds[cam]))
+        for ctl in K.view_negatives(rgb, ref.regions.masks, donor_for(donors, cam, kinds)):
             if expired():
                 break
             if ctl["image"] is None:
@@ -350,6 +381,7 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
                 continue
             res = gate.compare(ref, ctl["image"])
             cal["negative"].append(_record(cam, ctl["control"], ctl["magnitude"], ctl["object"], res,
+                                           view_kind=kinds[cam],
                                            **({"info": ctl["info"]} if ctl.get("info") else {})))
         log(f"  {cam}: {sum(r['camera'] == cam for r in cal['benign'])} benign, "
             f"{sum(r['camera'] == cam for r in cal['negative'])} negative comparisons")
@@ -389,11 +421,13 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
             except ValueError as exc:            # e.g. the control was rendered at another size
                 cal["skipped"].append({"camera": cam, "control": f"hide:{cid}", "reason": str(exc)})
                 continue
-            cal["negative"].append(_record(cam, "removal", None, cid, res, kind=c.get("kind")))
+            cal["negative"].append(_record(cam, "removal", None, cid, res, kind=c.get("kind"),
+                                           view_kind=kinds.get(cam, INTERIOR)))
             if expired():
                 break
             res = gate.compare(gate.prepare(hidden, hidden_rgb), normal_rgb)
-            cal["negative"].append(_record(cam, "insertion", None, cid, res, kind=c.get("kind")))
+            cal["negative"].append(_record(cam, "insertion", None, cid, res, kind=c.get("kind"),
+                                           view_kind=kinds.get(cam, INTERIOR)))
         save()
     else:
         warnings.append("check/controls.json not found: no removal/insertion controls")
@@ -422,7 +456,7 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
                     continue
                 rel = Path(os.path.relpath(png.resolve(), out_dir.resolve())).as_posix()
                 cal["presumed_bad"].append(_record(cam, "presumed_bad", att.get("strength"), None, res,
-                                                   attempt=att.get("k"), png=rel))
+                                                   attempt=att.get("k"), png=rel, view_kind=kinds.get(cam, INTERIOR)))
         save()
     else:
         warnings.append("polish/sweep/polish_manifest.json not found: no presumed-bad attempts")
@@ -438,15 +472,23 @@ def _rate(n: int, k: int) -> Optional[float]:
     return None if n == 0 else round(k / n, 4)
 
 
-def summarise(cal: dict, thresholds: dict) -> dict:
-    """``{"rates", "per_metric", "smallest_detected", "explanations"}`` from the recorded comparisons."""
-    benign, negative = cal.get("benign") or [], cal.get("negative") or []
+def of_kind(records, kind: str = INTERIOR) -> list[dict]:
+    """The comparisons of one view kind (a record without ``view_kind`` is an interior one: calibrations before
+    Milestone 10)."""
+    return [r for r in records or [] if (r.get("view_kind") or INTERIOR) == kind]
+
+
+def summarise(cal: dict, thresholds: dict, kind: str = INTERIOR) -> dict:
+    """``{"rates", "per_metric", "smallest_detected", "explanations"}`` from the recorded comparisons of one
+    view kind (the interior ones by default: an exterior failure must not decide the rooms' polish)."""
+    benign, negative = of_kind(cal.get("benign"), kind), of_kind(cal.get("negative"), kind)
     small = [r for r in negative if r.get("small")]
     by_control: dict[str, dict] = {}
-    for kind, records in (("benign", benign), ("negative", negative), ("presumed_bad", cal.get("presumed_bad") or [])):
+    for kind_, records in (("benign", benign), ("negative", negative),
+                           ("presumed_bad", of_kind(cal.get("presumed_bad"), kind))):
         for r in records:
-            key = f"{kind}:{_magnitude_key(r['control'], r['magnitude'])}"
-            e = by_control.setdefault(key, {"kind": kind, "control": r["control"], "magnitude": r["magnitude"],
+            key = f"{kind_}:{_magnitude_key(r['control'], r['magnitude'])}"
+            e = by_control.setdefault(key, {"kind": kind_, "control": r["control"], "magnitude": r["magnitude"],
                                             "n": 0, "accepted": 0, "rejected": 0})
             e["n"] += 1
             e["accepted" if r["decision"] == "accept" else "rejected"] += 1
@@ -549,6 +591,74 @@ def summarise(cal: dict, thresholds: dict) -> dict:
 
 
 # --------------------------------------------------------------------------
+# Exterior views (Milestone 10)
+# --------------------------------------------------------------------------
+
+def exterior_block(cal: dict, thresholds: dict, rendered: list[str]) -> dict:
+    """The ``exterior`` record of a calibration: the exterior views rendered and used, the exterior comparisons'
+    rates and what separates them (``summarise`` over the exterior records), the numbers of comparisons."""
+    used = sorted({r["camera"] for key in ("benign", "negative") for r in of_kind(cal.get(key), EXTERIOR)})
+    summary = summarise(cal, thresholds, kind=EXTERIOR)
+    return {"cameras_rendered": len(rendered), "cameras": list(rendered), "views": used,
+            "n_benign": len(of_kind(cal.get("benign"), EXTERIOR)),
+            "n_negative": len(of_kind(cal.get("negative"), EXTERIOR)), **summary}
+
+
+def exterior_validation(cal: Optional[dict], limits: dict, thresholds: Optional[dict] = None) -> dict:
+    """The validation of the exterior views of one calibration (pure): ``wenart.gate.validate.decide_validation`` on
+    the exterior comparisons with the project's limits, plus ``polish_allowed``.
+
+    ``decision``: ``ok`` / ``flagged`` allow the exterior polish; ``polish_disabled`` (too many exterior geometry
+    changes get through) and ``not_validated`` (no calibration, or no exterior benign or negative comparison, or cut
+    by the deadline, or other thresholds) keep the exterior views Cycles only; ``not_applicable`` when the project
+    rendered no exterior view (nothing to polish or validate)."""
+    from wenart.gate import validate as VAL
+
+    if not isinstance(cal, dict):
+        out = VAL.decide_validation(None, limits, thresholds)
+        return dict(out, polish_allowed=False, exterior_cameras=None)
+    ext = cal.get("exterior") if isinstance(cal.get("exterior"), dict) else {}
+    rendered = int(ext.get("cameras_rendered") or 0)
+    if not rendered and cal.get("exterior") is not None:
+        return {"decision": "not_applicable", "polish_allowed": False, "benign_accept": None, "negative_reject": None,
+                "n_benign": 0, "n_negative": 0, "pass_benign": False, "pass_negative": False,
+                "reasons": ["the project rendered no exterior view"], "thresholds_match": None,
+                "exterior_cameras": 0}
+    sub = {"benign": of_kind(cal.get("benign"), EXTERIOR), "negative": of_kind(cal.get("negative"), EXTERIOR),
+           "rates": ext.get("rates") or {}, "incomplete": cal.get("incomplete"), "thresholds": cal.get("thresholds")}
+    out = VAL.decide_validation(sub, limits, thresholds)
+    if cal.get("exterior") is None:
+        out["reasons"].insert(0, "the calibration has no exterior block (made before Milestone 10, or the exterior "
+                                 "views were not calibrated)")
+        out["decision"] = "not_validated"
+    out["polish_allowed"] = out["decision"] in VAL.POLISH_DECISIONS
+    out["exterior_cameras"] = rendered
+    return out
+
+
+def exterior_polish(project_out, gate_dir=None, thresholds=None) -> dict:
+    """The exterior polish decision of a project output from ``gate/gate_calibration.json`` (``exterior_validation``
+    with the limits of ``validation.yaml`` and the current thresholds). The polish and the final report ask this
+    for every exterior view, next to the project's own ``gate_validation.json`` (both must allow)."""
+    from wenart.gate import validate as VAL
+    from wenart.gate.api import load_thresholds
+
+    folder = Path(gate_dir) if gate_dir else Path(project_out) / "gate"
+    path = folder / VAL.CALIBRATION_NAME
+    cal = None
+    if path.is_file():
+        try:
+            cal = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            cal = None
+    current = thresholds if isinstance(thresholds, dict) else load_thresholds(thresholds)
+    out = exterior_validation(cal, VAL.load_validation_config(), current)
+    out["limits"] = VAL.load_validation_config()
+    out["source"] = VAL.CALIBRATION_NAME if path.is_file() else None
+    return out
+
+
+# --------------------------------------------------------------------------
 # Markdown report
 # --------------------------------------------------------------------------
 
@@ -562,13 +672,36 @@ def _fmt(v) -> str:
     return str(v)
 
 
+def exterior_md(cal: dict, ext: dict) -> list[str]:
+    """The "Exterior views" section of the report: the exterior comparisons apart from the rooms' (Milestone 10)."""
+    if not ext.get("cameras_rendered"):
+        return ["", "## Exterior views", "", "The project rendered no exterior view."]
+    er = ext.get("rates") or {}
+    benign, negative = of_kind(cal.get("benign"), EXTERIOR), of_kind(cal.get("negative"), EXTERIOR)
+    lines = ["", "## Exterior views", "",
+             f"{ext['cameras_rendered']} exterior view(s) rendered, {len(ext.get('views') or [])} calibrated "
+             f"({', '.join(ext.get('views') or []) or '-'}): benign {sum(r['decision'] == 'accept' for r in benign)}"
+             f"/{len(benign)} accepted (rate {_fmt(er.get('benign_accept'))}); negatives "
+             f"{sum(r['decision'] == 'reject' for r in negative)}/{len(negative)} rejected (rate "
+             f"{_fmt(er.get('negative_reject'))}, small negatives {_fmt(er.get('small_negative_reject'))}). They "
+             "do not count in the rates above: the exterior views are validated apart, with the same limits "
+             "(`validation.yaml`), and a failed exterior validation keeps them Cycles only."]
+    lines += [f"- accepted negative: {r['camera']} {_magnitude_key(r['control'], r['magnitude'])} on "
+              f"{r.get('object') or 'view'}" for r in negative if r["decision"] == "accept"]
+    lines += [f"- rejected benign: {r['camera']} {_magnitude_key(r['control'], r['magnitude'])}: "
+              + "; ".join(f"{x['check']} {x['region']} {_fmt(x['value'])} {x['op']} {_fmt(x['threshold'])}"
+                          for x in r["reasons"][:4]) for r in benign if r["decision"] != "accept"]
+    return lines
+
+
 def report_md(cal: dict) -> str:
     """Markdown report of a calibration (summary, rates, per-metric proposals, failures, skips)."""
     rates = cal.get("rates") or {}
-    benign, negative = cal.get("benign") or [], cal.get("negative") or []
+    benign, negative = of_kind(cal.get("benign")), of_kind(cal.get("negative"))       # the rooms (interior views)
+    ext = cal.get("exterior") if isinstance(cal.get("exterior"), dict) else {}
     lines = [f"# Change-gate calibration: {cal.get('project', '?')}", ""]
     lines.append(
-        f"{len(cal.get('views') or [])} calibration views; benign {sum(r['decision'] == 'accept' for r in benign)}"
+        f"{len(cal.get('views') or []) - len(ext.get('views') or [])} calibration views (rooms); benign {sum(r['decision'] == 'accept' for r in benign)}"
         f"/{len(benign)} accepted (rate {_fmt(rates.get('benign_accept'))}); negatives "
         f"{sum(r['decision'] == 'reject' for r in negative)}/{len(negative)} rejected (rate "
         f"{_fmt(rates.get('negative_reject'))}, small negatives {_fmt(rates.get('small_negative_reject'))}); "
@@ -577,6 +710,7 @@ def report_md(cal: dict) -> str:
         f"{cal.get('seconds', 0)} s. Proposals = worst benign value + 25 % of the gap to the best small "
         f"negative; they are applied to thresholds.yaml by hand after review, and a looser one needs the "
         f"user's OK.")
+    lines += exterior_md(cal, ext)
     lines += ["", "## Rates by control", "", "| set | control | magnitude | n | accepted | rejected | rate |",
               "|---|---|---|---|---|---|---|"]
     for e in (rates.get("by_control") or {}).values():
@@ -653,6 +787,8 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--out", default=None, help="output folder (default <project-out>/gate)")
     parser.add_argument("--views", default=None,
                         help=f"number of calibration views (default {CALIBRATION_VIEWS}) or a comma list of cameras")
+    parser.add_argument("--exterior-views", type=int, default=EXTERIOR_CALIBRATION_VIEWS,
+                        help=f"exterior views to calibrate as well (default {EXTERIOR_CALIBRATION_VIEWS}; 0 = none)")
     parser.add_argument("--deadline", default=None, help="epoch seconds; default env WENART_DEADLINE")
     parser.add_argument("--device", default="cuda", help="torch device of the gate models (default cuda)")
     parser.add_argument("--thresholds", default=None, help="thresholds.yaml (default: the package one)")
@@ -670,7 +806,8 @@ def run_from_args(args, gate=None, expected_api=None) -> int:
         else:
             cameras = [c.strip() for c in args.views.split(",") if c.strip()]
     cal = run_calibration(args.project_out, gate=gate, expected_api=expected_api, out_dir=args.out,
-                          n_views=n_views, cameras=cameras, deadline=_deadline(args.deadline))
+                          n_views=n_views, cameras=cameras, deadline=_deadline(args.deadline),
+                          n_exterior=getattr(args, "exterior_views", EXTERIOR_CALIBRATION_VIEWS))
     rates = cal["rates"]
     print(f"CALIBRATION {cal['project']}: benign accept {_fmt(rates['benign_accept'])}, negative reject "
           f"{_fmt(rates['negative_reject'])}{' (incomplete)' if cal['incomplete'] else ''}")

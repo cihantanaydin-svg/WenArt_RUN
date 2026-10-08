@@ -14,6 +14,9 @@ manifest (the material records written by the build, area A adds
 ``albedo_mode``), else from ``wenart.style.vocabulary.MATERIALS``; when
 neither names it, the region is skipped as ``albedo_unknown`` (never guessed).
 
+Milestone 10 (docs/milestone10.md §3.3 items 4-5): an exterior view has no room, so the walls are the facade
+(``exterior_albedo``: the scene manifest's ``exterior_looks.facade``) and the ceiling region is skipped.
+
 Conversions are numpy only (``lab_planes`` uses ``cv2.LUT``, imported
 inside); ``lab_to_srgb`` is the exact inverse used by the colour controls
 (``controls.py``). The gate runs ``lab_planes`` / ``colour_metrics_layout``
@@ -310,7 +313,45 @@ def _record_mode(materials: dict, slug: Optional[str], name: Optional[str]) -> t
     return None, None
 
 
-def structure_albedo(scene_manifest: Optional[dict], room_id: Optional[str]) -> dict:
+#: Exterior facade slugs (docs/milestone10.md §1.4, §4.8) and whether their render is a flat colour (white must
+#: stay white) or a texture (a brick or a cladding may shift a little). A slug in neither list is not guessed.
+EXTERIOR_FLAT = ("render", "fibre_cement", "paint", "plaster_exterior", "microcement")
+EXTERIOR_TEXTURE_PREFIXES = ("brick", "stone", "wood", "slat", "cladding", "concrete_exposed")
+
+
+def is_exterior(scene_manifest: Optional[dict], camera: Optional[str] = None, room_id: Optional[str] = None) -> bool:
+    """True for a camera of kind ``exterior`` in the scene manifest (Milestone 10: no room, no level); without a
+    kind, a camera named ``ext_<n>`` that has no room."""
+    cam = next((c for c in (scene_manifest or {}).get("cameras") or [] if c.get("name") == camera), None)
+    if cam is not None and cam.get("kind"):
+        return cam["kind"] == "exterior"
+    return not (room_id or (cam or {}).get("room_id")) and str(camera or "").startswith("ext_")
+
+
+def exterior_albedo(scene_manifest: Optional[dict]) -> dict:
+    """``structure_albedo`` of an exterior view: the walls are the facade (the scene manifest's
+    ``exterior_looks.facade``: a render in a colour is flat, a brick, stone or wood cladding is a texture; a slug
+    nobody classified is ``albedo_unknown``, never guessed); there is no ceiling (the region is the soffit)."""
+    scene = scene_manifest or {}
+    look = (scene.get("exterior_looks") or {}).get("facade") or {}
+    slug = look.get("material")
+    materials = scene.get("materials") or {}
+    mode, source = _record_mode(materials, slug, None)
+    if mode is None and slug:
+        if slug in EXTERIOR_FLAT:
+            mode, source = "flat", "gate.colour.EXTERIOR_FLAT"
+        elif any(str(slug).startswith(p) for p in EXTERIOR_TEXTURE_PREFIXES):
+            mode, source = "texture", "gate.colour.EXTERIOR_TEXTURE_PREFIXES"
+        else:
+            mode = _vocabulary_mode(slug)
+            source = "vocabulary.MATERIALS" if mode else None
+    return {WALL_REGION: {"material": slug, "albedo_mode": mode, "source": source,
+                          "slot": "exterior_looks.facade", "wet": None},
+            CEILING_REGION: {"material": None, "albedo_mode": None, "source": None,
+                             "slot": "exterior view: no ceiling", "wet": None}}
+
+
+def structure_albedo(scene_manifest: Optional[dict], room_id: Optional[str], exterior: bool = False) -> dict:
     """``{"struct:walls"|"struct:ceiling": {"material", "albedo_mode", "source", "wet"}}`` for a camera's room.
 
     Walls: the profile slot ``wet_walls`` in a wet room (the room's floor or
@@ -318,7 +359,10 @@ def structure_albedo(scene_manifest: Optional[dict], room_id: Optional[str]) -> 
     profile (``scene_manifest["style_profile"]``). Ceiling: the material of
     the room's ceiling object, else the profile's ``ceiling`` slot. The mode
     comes from the material record, else the vocabulary, else None.
+    ``exterior`` (Milestone 10): the facade's look instead (``exterior_albedo``).
     """
+    if exterior:
+        return exterior_albedo(scene_manifest)
     scene = scene_manifest or {}
     profile = scene.get("style_profile") or {}
     materials = scene.get("materials") or {}

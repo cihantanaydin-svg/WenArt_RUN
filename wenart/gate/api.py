@@ -49,6 +49,11 @@ The numbers are those of the mask-based functions of the check modules
 (``edges.edge_metrics``, ``colour.colour_metrics``, ``depth.depth_metrics``,
 ``features.feature_metrics``) within 1e-4; ``tests/test_gate.py`` checks it.
 
+Milestone 10 (docs/milestone10.md §3.3 item 5): the same gate runs on the exterior views (no room, no level).
+``prepare`` takes the walls' albedo of an exterior view from the facade look (``colour.exterior_albedo``);
+nothing else depends on the room. The calibration records its comparisons per view kind and the polish decides
+per kind (``wenart.gate.calibrate.exterior_polish``).
+
 ``gate_key`` = first 16 hex of sha256 over GATE_CODE_VERSION, the gate model
 repos/revisions, the reference image sha256 and the threshold entries that
 shape the metrics (radius, Canny, minimum region sizes; not the pass/fail
@@ -341,7 +346,8 @@ class Gate:
         lab_means = colour.layout_means(lab, lay)
         valid_pixels = {rid: int(n) for rid, n in zip(ids, lay.counts())}
         edge_idx = edges.edge_index(ref_edges, regs, regs.object_ids())
-        albedo = colour.structure_albedo(scene, view.room_id) if scene else {}
+        albedo = colour.structure_albedo(scene, view.room_id, exterior=colour.is_exterior(scene, view.camera,
+                                                                                         view.room_id)) if scene else {}
 
         ref = Reference(view=view, rgb=rgb, sha256=sha,
                         gate_key=make_gate_key(sha, self.model_info(), self.thresholds),

@@ -416,6 +416,7 @@ def test_run_detect_writes_reuses_and_skips(tmp_path, capsys):
     assert det.calls == 3                                           # Cycles, polished, the hidden render
     doc = json.loads((out / "detect" / f"{CAM}.json").read_text())
     assert doc["kind"] == "detect_view" and doc["model"]["revision"] == REV
+    assert doc["view_kind"] == "interior"                           # Milestone 10: an exterior view says exterior
     assert set(doc["images"]) == {"cycles", "polished"} and set(doc["controls"]) == {"f_sofa"}
     assert doc["images"]["polished"]["k"] == 1 and doc["controls"]["f_sofa"]["target"] == "f_sofa"
     pol = doc["images"]["polished"]
@@ -690,3 +691,40 @@ def test_models_yaml_detect_block_and_the_lazy_wrapper():
     assert d.info() == {"repo": det["repo"], "revision": REV, "licence": "Apache-2.0"} and d._loaded is None
     with pytest.raises(KeyError):
         Detector(config={"models": {}})
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: the new types and Feature 1
+# --------------------------------------------------------------------------
+
+def test_the_new_furniture_and_decor_types_are_compatible_with_their_groups():
+    """A changed or added piece of a new type, or a new decor type, under a box of the group the model uses for
+    it is a drawn element (covered), never an added object (docs/milestone10.md §2.8)."""
+    def furniture(t):
+        return {"kind": "furniture", "type": t}
+
+    def decor(t):
+        return {"kind": "decor", "type": t}
+
+    for group, t in (("sofa", "sofa_corner"), ("sofa", "chaise"), ("sofa", "ottoman"), ("chair", "bar_stool"),
+                     ("chair", "office_chair"), ("bed_single", "bunk_bed"), ("bed_single", "crib"),
+                     ("table_coffee", "console_table"), ("tv_unit", "sideboard"), ("bookshelf", "display_cabinet"),
+                     ("wardrobe", "tall_cabinet"), ("kitchen_counter", "wall_cabinet")):
+        assert D.element_matches(group, furniture(t)), (group, t)
+    for group, t in (("lamp", "pendant_light"), ("lamp", "ceiling_light"), ("potted_plant", "plant_large"),
+                     ("potted_plant", "plant_small"), ("cushion", "throw")):
+        assert D.element_matches(group, decor(t)), (group, t)
+    assert not D.element_matches("rug", decor("throw")) and not D.element_matches("window", furniture("sofa_corner"))
+
+
+def test_a_polished_box_on_a_piece_the_ai_added_is_not_an_added_object():
+    """The detector reads the pass-index table of the scene (built from building_final.json): a box on a nightstand
+    the AI added to a furnished room is covered by that element."""
+    table = {7: {"wenart_id": "f_ns", "kind": "furniture", "type": "nightstand", "source": "added_by_ai",
+                 "status": "verified", "host_decor": []}}
+    index = np.zeros((100, 200), np.uint16)
+    index[40:80, 60:120] = 7
+    pol = [{"group": "nightstand", "score": 0.9, "box_px": [60, 40, 120, 80]}]
+    assert D.added_candidates(pol, [], 0.1, index, table) == []
+    other = [{"group": "chair", "score": 0.9, "box_px": [60, 40, 120, 80]}]
+    assert [c["group"] for c in D.added_candidates(other, [], 0.1, index, table)] == ["chair"]
