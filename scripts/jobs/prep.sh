@@ -24,20 +24,29 @@
 #     --grace 600 --purpose "M8 L2: TRELLIS.2 generation, judging, library catalogue of every source"
 #
 # (§10: RTX PRO 6000, 96 GB, $2.09/h -> worst case $3.14; never L4. --disk 150: the VLMs, the polish/gate/OWLv2
-# models, the Objaverse and ABO candidates, venv-vllm, venv-polish, venv-trellis and the LibreDWG build live on the
-# container disk.) --max-minutes 90 gives WENART_DEADLINE = entry + 75 min; a cut pod exits 1 and the same command
+# models, (M8, M9: the Objaverse and ABO candidates,) venv-vllm, venv-polish, venv-trellis and the LibreDWG build live
+# on the container disk.) --max-minutes 90 gives WENART_DEADLINE = entry + 75 min; a cut pod exits 1 and the same command
 # resumes (pipeline records, answers, the library work, thumbnail measurements, detector boxes and timing renders
 # are reused from the volume).
 #
 # Milestone 10 (docs/milestone10.md §7): L1 = the real models with their material slots (recolour_slots, the recolour
-# judge in both sessions, recolour tags in the library step) and the sheet_region answers of real02 and synthetic-07
-# (the sheets stage before each pipeline; both question folders, <out>/sheets and <out>/recognition, are asked in the
-# same sessions); L2 = the generation, its slots and judging, the catalogue of every source:
+# judge in both sessions, recolour tags in the library step) and the sheet_region answers of the M10 projects (the
+# sheets stage before each pipeline; both question folders, <out>/sheets and <out>/recognition, are asked in the same
+# sessions); L2 = the generation, its slots and judging, the catalogue of every source. The first L1 pod (8 Oct 2026,
+# one pod for everything) spent 55 min on the ABO survey and 24 min on the Objaverse survey and was cut in the
+# thumbnails; its downloads were on the container disk and were lost. Since then both surveys keep their caches on the
+# volume (/workspace/prep/cache/abo and /workspace/prep/cache/objaverse; the model weights stay on the container
+# disk), PREP_SURVEY_TYPES=new surveys the new types only, and L1 is two pods on the same volume state, L1b then L1c
+# (PREP_PROJECTS = the projects with sheet or recognition questions):
 #
 #   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 120 \
-#     --grace 600 --env PREP_PROJECTS=real02,synthetic-07 \
-#     --env PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,pipelines,session_qwen,session_glm,pipeline_final,library,copy,tests \
-#     --purpose "M10 L1: library with material slots, sheet_region answers"
+#     --grace 600 --env PREP_PROJECTS=real02,synthetic-07,real01,synthetic-03 --env PREP_SURVEY_TYPES=new \
+#     --env PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,copy \
+#     --purpose "M10 L1b: surveys of the new types, thumbnails, material slots"
+#   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 120 \
+#     --grace 600 --env PREP_PROJECTS=real02,synthetic-07,real01,synthetic-03 \
+#     --env PREP_ONLY=pipelines,session_qwen,session_glm,pipeline_final,library,copy,tests \
+#     --purpose "M10 L1c: sheet and recognition answers, two-model judging, catalogue"
 #   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 120 \
 #     --grace 600 --env PREP_PROJECTS=real02,synthetic-07 --env WENART_GENERATE_TARGET=20 \
 #     --env PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests \
@@ -48,10 +57,13 @@
 #                   synthetic-07"; spaces or commas)
 #   PREP_SKIP       steps to leave out, comma separated; PREP_ONLY: only these (python -m wenart.run.prep --help);
 #                   a selected step whose inputs are missing fails (e.g. PREP_ONLY=session_qwen,session_glm,library
-#                   needs the library work of an earlier job in /workspace/prep/library; on a new pod add survey:
-#                   the accepted GLBs live in its container-disk cache:
+#                   needs the library work of an earlier job in /workspace/prep/library; on a new pod add survey
+#                   only when the GLB caches of the earlier job are gone (Milestone 10: they are in
+#                   /workspace/prep/cache; before, the accepted GLBs lived in the container-disk cache):
 #                   PREP_ONLY=survey,session_qwen,session_glm,library; with ABO models add abo_survey too, unless an
 #                   earlier write-catalog put them into /workspace/assets/models/<source>/)
+#   PREP_SURVEY_TYPES  Milestone 10: passed to both surveys as --types: all (default), new (the new types only, the
+#                   records of the other types are kept) or a list of types
 #   WENART_GENERATE_TARGET  Milestone 9 (docs/milestone9.md §2.3, §6): generate up to N accepted models per type
 #                   (accept over every source, `generate plan --target N --families all`); unset: the M8 gap plan.
 #                   M9 L1 = PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,session_qwen,session_glm,library,
@@ -62,7 +74,9 @@
 #                   thumbnails or judges, so the same pod judges what it generated; else 0)
 #   WENART_RECOLOUR_WORKERS  Milestone 10: Blender processes of the recolour_slots step (default: the CPU budget set
 #                   below, at most 4); no new variable of this script: wenart.run.prep reads it
-#   WENART_ABO_CACHE  ABO metadata and GLBs (default $WENART_FAST/abo, container disk)
+#   WENART_ABO_CACHE  ABO metadata and GLBs (default $PREP_ROOT/cache/abo, on the volume; M8 and M9: container disk)
+#   WENART_OBJAVERSE_CACHE  Objaverse metadata and GLBs (default $PREP_ROOT/cache/objaverse, on the volume; the
+#                   survey's own dataset cache, never HF_HOME: the model weights stay on the container disk)
 #   WENART_TRELLIS_PY venv-trellis python (default $WENART_FAST/venv-trellis/bin/python, scripts/pod_setup_trellis.sh)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")
 #   RENDER_SAMPLES  Cycles samples of the timing renders (default 128)
@@ -117,6 +131,7 @@ PREP_ARGS=(--results "$RESULTS" --outputs "$PREP_OUTPUTS" --prep-root "$PREP_ROO
 if [ -n "${PREP_PROJECTS:-}" ]; then PREP_ARGS+=(--projects "$PREP_PROJECTS"); fi
 if [ -n "${PREP_SKIP:-}" ]; then PREP_ARGS+=(--skip "$PREP_SKIP"); fi
 if [ -n "${PREP_ONLY:-}" ]; then PREP_ARGS+=(--only "$PREP_ONLY"); fi
+if [ -n "${PREP_SURVEY_TYPES:-}" ]; then PREP_ARGS+=(--survey-types "$PREP_SURVEY_TYPES"); fi
 
 # stamp <file>: an empty file whose mtime is the volume's own time minus 2 s (full.sh).
 stamp() {
