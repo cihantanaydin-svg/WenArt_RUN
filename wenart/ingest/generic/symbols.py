@@ -86,10 +86,17 @@ STAIR_STEP_TOL = 0.10
 TREAD_LENGTH_M = (0.5, 3.0)    # an isolated tread line spans a flight 0.5-3.0 m wide (size table: stair 0.7-3.0 m)
 TREAD_ALIGN_M = 0.01           # equal tread lines: both ends within 10 mm (the stair rule's flight sides)
 TREAD_WALL_M = 0.03            # the tread area, shrunk by 30 mm, must hold no wall
+NOSING_M = 0.06                # Milestone 10 (real02): a tread drawn as a nosing strip, two lines <= 60 mm apart
+LOOSE_TREAD_M = 0.4            # ... and treads cut by the stair's break line: the loose rule takes lines >= 0.4 m
+LOOSE_OVERLAP = 0.8            # ... whose extent overlaps the flight's by >= 80 % of the shorter
 COUNTER_END_M = 0.05
 COUNTER_DEPTH_M = (0.45, 0.75)
 FRONT_WALL_M = 0.25
 ROUND_SHARE = 0.9              # §6.4: round when a circle fits >= 90 % of the outline
+L_ARM_M = (0.5, 1.3)           # Milestone 10: an L outline (the corner sofa) with both arms 0.5-1.3 m deep ...
+L_NOTCH_SHARE = 0.15           # ... the open corner >= 15 % of its box ...
+L_REST_SHARE = 0.08            # ... and <= 8 % of the box left open elsewhere (rounded or stepped corners)
+L_BOX_M = 0.05
 ROUND_TOL_M = 0.01
 ROUND_TOL_REL = 0.03
 
@@ -125,7 +132,45 @@ FALLBACK_SIZE_TABLE: dict[str, tuple[tuple[float, float], tuple[float, float]]] 
     "side_table": ((0.3, 0.7), (0.3, 0.7)),
     "floor_lamp": ((0.25, 0.6), (0.25, 0.6)),
     "potted_plant": ((0.2, 1.0), (0.2, 1.0)),
+    # Milestone 10 (docs/milestone10.md §1.1; size_table.yaml has the sources).
+    "sofa_corner": ((1.8, 4.0), (1.4, 3.0)),
+    "chaise": ((0.55, 0.95), (1.3, 2.0)),
+    "ottoman": ((0.35, 1.0), (0.35, 1.0)),
+    "bench": ((0.8, 2.0), (0.3, 0.55)),
+    "bar_stool": ((0.3, 0.5), (0.3, 0.5)),
+    "office_chair": ((0.5, 0.75), (0.5, 0.75)),
+    "console_table": ((0.7, 1.6), (0.25, 0.45)),
+    "crib": ((0.6, 0.85), (1.15, 1.5)),
+    "bunk_bed": ((0.85, 1.2), (1.9, 2.2)),
+    "sideboard": ((1.0, 2.4), (0.35, 0.55)),
+    "shoe_cabinet": ((0.5, 1.4), (0.2, 0.4)),
+    "display_cabinet": ((0.5, 1.6), (0.3, 0.55)),
+    "tall_cabinet": ((0.3, 1.2), (0.3, 0.7)),
+    "wall_cabinet": ((0.3, 1.2), (0.25, 0.4)),
 }
+
+# Milestone 10 block-name words (docs/milestone10.md §1.1), tried before BLOCK_KEYWORDS: only words that name the
+# type in English or Turkish (Turkish letters folded to ASCII, spaces and hyphens read as "_"); words of up to four
+# letters must be a whole word of the name (BANK is a bench, BANKO a counter). The generic words YATAK (bed) and
+# MASA (table) are tried after BLOCK_KEYWORDS (YATAK_TEK, YEMEK_MASASI say more), and BLOCK_KEYWORDS' KOLTUK
+# (armchair in M7) is read as a seat: armchair or sofa by the size table, the corner sofa for an L outline.
+BLOCK_KEYWORDS_M10: tuple[tuple[str, str], ...] = (
+    ("KOSE_KOLTUK", "sofa_corner"), ("KOSEKOLTUK", "sofa_corner"), ("CORNER_SOFA", "sofa_corner"),
+    ("SECTIONAL", "sofa_corner"), ("CHAISE", "chaise"), ("SEZLONG", "chaise"), ("OTTOMAN", "ottoman"),
+    ("PUF", "ottoman"), ("POUF", "ottoman"), ("BENCH", "bench"), ("BANK", "bench"), ("BAR_STOOL", "bar_stool"),
+    ("BARSTOOL", "bar_stool"), ("BAR_TABURE", "bar_stool"), ("OFFICE_CHAIR", "office_chair"),
+    ("CALISMA_SANDALYE", "office_chair"), ("OFIS_KOLTU", "office_chair"), ("OFIS_SANDALYE", "office_chair"),
+    ("CONSOLE", "console_table"), ("KONSOL", "console_table"), ("CRIB", "crib"), ("BESIK", "crib"),
+    ("BUNK", "bunk_bed"), ("RANZA", "bunk_bed"), ("SIDEBOARD", "sideboard"), ("BUFE", "sideboard"),
+    ("SHOE", "shoe_cabinet"), ("AYAKKABI", "shoe_cabinet"), ("VITRIN", "display_cabinet"),
+    ("DISPLAY_CABINET", "display_cabinet"), ("TALL_CABINET", "tall_cabinet"), ("BOY_DOLAB", "tall_cabinet"),
+    ("WALL_CABINET", "wall_cabinet"), ("UST_DOLAP", "wall_cabinet"), ("USTDOLAP", "wall_cabinet"),
+)
+BLOCK_GENERIC_M10: tuple[tuple[str, str], ...] = (("YATAK", "bed"), ("MASA", "table"))
+SEAT_KEYWORDS = ("KOLTUK",)
+WHOLE_WORD_MAX = 4
+_FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "ğ": "g", "Ü": "U", "ü": "u", "Ö": "O",
+                       "ö": "o", "Ç": "C", "ç": "c", " ": "_", "-": "_"})
 
 # DXF block-name keywords (§2.8), English then Turkish (wenart/synthetic/blocks.py); first match wins, so the more
 # specific words come first (ARMCHAIR before CHAIR, CHAIR before DINING, BEDSIDE before BED).
@@ -187,8 +232,11 @@ def fits(table: dict, ftype: str, size) -> bool:
     return (inside(a, w0, w1) and inside(b, d0, d1)) or (inside(a, d0, d1) and inside(b, w0, w1))
 
 
-def fitting_types(table: dict, size) -> list[str]:
-    return [t for t in table if t != "stair" and fits(table, t, size)]
+def fitting_types(table: dict, size, shape: Optional[str] = None) -> list[str]:
+    """Types whose size range fits (``stair`` never: the stair rule decides); a shaped type (the corner sofa) only
+    for its drawn shape (``recognition.symbols.SHAPED_TYPES``)."""
+    from wenart.recognition.symbols import shape_allows
+    return [t for t in table if t != "stair" and fits(table, t, size) and shape_allows(t, shape)]
 
 
 # --------------------------------------------------------------------------
@@ -651,8 +699,30 @@ def top_contours(cl: Cluster) -> list[tuple[Polygon, list[int]]]:
 
 
 def _block_keyword(name: str) -> Optional[str]:
-    upper = name.upper()
-    return next((ftype for key, ftype in BLOCK_KEYWORDS if key in upper), None)
+    return keyword_type(name)
+
+
+def keyword_type(name: str) -> Optional[str]:
+    """The type word of a block name: the Milestone 10 words first (folded name, whole words for short ones), then
+    the M7 keywords (substring of the upper-case or the folded name: DUŞ is DUS), then the generic M10 words; None
+    when no word matches. Generic words (``bed``, ``table``, ``seat``) are resolved by ``block_type``."""
+    folded = (name or "").translate(_FOLD).upper()
+    words = set(folded.replace(".", "_").split("_"))
+
+    def match(table):
+        for key, ftype in table:
+            if (key in words) if len(key) <= WHOLE_WORD_MAX else (key in folded):
+                return key, ftype
+        return None, None
+
+    key, ftype = match(BLOCK_KEYWORDS_M10)
+    if ftype is not None:
+        return ftype
+    upper = (name or "").upper()
+    hit = next(((key, ftype) for key, ftype in BLOCK_KEYWORDS if key in upper or key in folded), None)
+    if hit is not None:
+        return "seat" if hit[0] in SEAT_KEYWORDS else hit[1]
+    return match(BLOCK_GENERIC_M10)[1]
 
 
 def block_instance(st: Stroke) -> tuple[str, bool]:
@@ -866,6 +936,8 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
         if flights and (best is None or sum(f["lines"] for f in flights) > sum(f["lines"] for f in best[1])):
             best = (axis, flights, cuts)
     if best is None:
+        best = _loose_flights(axis_segs)
+    if best is None:
         return None
     axis, flights, cuts = best
     xs = [p[0] for s in cl.segs for p in map(to_f, s.pts)]
@@ -898,6 +970,75 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
     used = {id(s) for f in flights for s in f["segs"]}
     return {"flights": out_flights, "landing": land, "axis": axis, "bbox_f": bbox, "theta": theta,
             "tread_segs": used, "dividers": cuts}
+
+
+def _loose_flights(axis_segs) -> Optional[tuple[str, list, list]]:
+    """The stair rule's fallback for treads drawn as nosing strips and flights cut by a break line (real02's U stairs
+    with winders: every tread is two lines 50 mm apart, the treads beside the break line are shorter, the two flights
+    are not crossed by one divider line). Per axis: tread lines >= 0.4 m, nosing pairs (<= 60 mm apart, overlapping)
+    as one tread, the treads grouped by overlapping extents (>= 80 % of the shorter) into flight sides, and in each
+    side the longest run of >= 5 evenly spaced treads (0.20-0.35 m +- 10 %) is a flight. A grid (the same on the
+    other axis: floor tiles) is no stair. Returns ``(axis, flights, [])`` like the strict rule, or None."""
+    found: dict = {}
+    for axis in ("h", "v"):
+        lines = [m for m in _merge_collinear([x for x in axis_segs if x[0] == axis])
+                 if m[2] - m[1] >= LOOSE_TREAD_M]
+        treads: list[list] = []
+        for off, lo, hi, members in sorted(lines, key=lambda m: m[0]):
+            last = treads[-1] if treads else None
+            if last is not None and off - last[4] <= NOSING_M and _overlap(last[1], last[2], lo, hi) >= \
+                    LOOSE_OVERLAP * min(last[2] - last[1], hi - lo):
+                last[0] = (last[0] + off) / 2.0
+                last[1], last[2], last[4] = min(last[1], lo), max(last[2], hi), off
+                last[3] = last[3] + list(members)
+                continue
+            treads.append([off, lo, hi, list(members), off])
+        sides: list[list] = []
+        for tr in treads:
+            for side in sides:
+                ref = side[0]
+                if _overlap(ref[1], ref[2], tr[1], tr[2]) >= LOOSE_OVERLAP * min(ref[2] - ref[1], tr[2] - tr[1]):
+                    side.append(tr)
+                    break
+            else:
+                sides.append([tr])
+        flights = []
+        for side in sides:
+            run = _even_run(sorted(side, key=lambda tr: tr[0]))
+            if run:
+                los, his = sorted(tr[1] for tr in run), sorted(tr[2] for tr in run)
+                flights.append({"offsets": [tr[0] for tr in run], "u": los[len(los) // 2], "v": his[len(his) // 2],
+                                "lines": len(run), "spacing": statistics.median(
+                                    [b[0] - a[0] for a, b in zip(run, run[1:])]),
+                                "segs": [s for tr in run for s in tr[3]]})
+        found[axis] = flights
+    for axis, other in (("h", "v"), ("v", "h")):
+        if found[axis] and not found[other]:
+            return axis, found[axis], []
+    return None
+
+
+def _overlap(a0: float, a1: float, b0: float, b1: float) -> float:
+    return min(a1, b1) - max(a0, b0)
+
+
+def _even_run(treads: list) -> Optional[list]:
+    """The longest run of >= STAIR_MIN_TREADS treads with steps 0.20-0.35 m (+- 10 %) equal within 10 %."""
+    lo_step, hi_step = STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL), STAIR_STEP_M[1] * (1 + STAIR_STEP_TOL)
+    best: list = []
+    for i in range(len(treads)):
+        run = [treads[i]]
+        for tr in treads[i + 1:]:
+            step = tr[0] - run[-1][0]
+            if step < lo_step:
+                continue
+            first = run[1][0] - run[0][0] if len(run) > 1 else step
+            if step > hi_step or abs(step - first) > STAIR_STEP_TOL * first:
+                break
+            run.append(tr)
+        if len(run) > len(best):
+            best = run
+    return best if len(best) >= STAIR_MIN_TREADS else None
 
 
 def _r(p) -> tuple[float, float]:
@@ -1479,6 +1620,17 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     kept_ids = {id(s) for s in kept}
     near_wall = [s for s in segs if id(s) not in kept_ids]
     notes.append(f"{n_outline} stroke segments dropped as wall outline (>= 90 % within 20 mm of walls/openings)")
+    # Milestone 10 (real02's attic): the long sides of an outline larger than any piece in both directions (the
+    # mansard's break line runs through the bathrooms) are no furniture strokes: they would chain every fixture they
+    # touch into one cluster. A long piece drawn by separate lines (one 5 m stroke per side) stays.
+    def _area_outline(s: Seg) -> bool:
+        b = s.stroke.bbox()
+        return min(b[2] - b[0], b[3] - b[1]) > MAX_SIDE_M
+    long_lines = [s for s in kept if not s.curve and not s.dot and s.length > MAX_SIDE_M and _area_outline(s)]
+    if long_lines:
+        kept = [s for s in kept if s not in long_lines]
+        notes.append(f"{len(long_lines)} sides of outlines larger than {MAX_SIDE_M} m both ways are no furniture: "
+                     f"{_short_ids([s.id for s in long_lines])}")
 
     poly = _as_polygon(outline)
     if poly is None or poly.is_empty:
@@ -1504,6 +1656,7 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     details = 0
     line_ids: list[str] = []
     parts_all: list[tuple[Cluster, int]] = []
+    l_parts: dict[int, dict] = {}
     for cl in clusters:
         w, h = cl.size(ctx.theta)
         if max(w, h) < DETAIL_M:
@@ -1512,18 +1665,29 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         if short_side(cl.segs) < LINE_DETAIL_M:
             line_ids.extend(cl.stroke_ids())
             continue
+        lsh = l_shape(cl, ctx.theta) if max(w, h) <= MAX_SIDE_M else None
+        if lsh is not None:
+            # An L outline is one piece (its rotated minimum rectangle is no footprint): the corner sofa (§1.1).
+            l_parts[id(cl)] = lsh
+            parts_all.append((cl, 1))
+            continue
         fp = footprint([p for s in cl.segs for p in s.pts], ctx.theta)
-        if max(fp[1], fp[2]) > MAX_SIDE_M:
+        oversize = max(fp[1], fp[2]) > MAX_SIDE_M
+        # Milestone 10 (real02): a kitchen whose counter run, appliances and bar stools touch is one cluster larger
+        # than 4.5 m; its counter legs are still read, and the rest is split as usual.
+        legs = counter_rule(cl, walls, openings, ctx.theta) if oversize else None
+        if oversize and not legs:
             pieces.append(_unknown(cl, fp, ctx, raster_page, f"cluster larger than {MAX_SIDE_M} m on a side",
                                    {"oversize": True}))
             notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
                          f"{MAX_SIDE_M} m: unknown, unverified, not asked")
             continue
-        stair = stair_rule(cl, ctx.theta)
+        stair = stair_rule(cl, ctx.theta) if not oversize else None
         if stair is not None:
             pieces.append(_stair_item(cl, stair, fp, ctx, raster_page, notes))
             continue
-        legs = counter_rule(cl, walls, openings, ctx.theta)
+        if not oversize:
+            legs = counter_rule(cl, walls, openings, ctx.theta)
         if legs:
             used = set()
             for leg in legs:
@@ -1548,17 +1712,22 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             line_ids.extend(part.stroke_ids())
             continue
         pts = [p for s in part.segs for p in s.pts]
-        fp = footprint(pts, ctx.theta)
-        infos.append({"part": part, "n": n, "fp": fp, "size": (fp[1], fp[2]), "poly": Polygon(fp[4])})
+        lsh = l_parts.get(id(part))
+        fp = lsh["fp"] if lsh else footprint(pts, ctx.theta)
+        infos.append({"part": part, "n": n, "fp": fp, "size": (fp[1], fp[2]), "poly": Polygon(fp[4]), "l": lsh,
+                      "note": lsh["note"] if lsh else None})
+    infos = named_instances(infos, table, ctx.theta, notes)
     for info in infos:
-        part, n, fp = info["part"], info["n"], info["fp"]
-        shape = round_shape(part.segs) if n == 1 else {}
-        block_item = _block_item(part, fp, ctx, raster_page, table)
+        part, n, fp, lsh = info["part"], info["n"], info["fp"], info.get("l")
+        shape = l_details(lsh) if lsh else (round_shape(part.segs) if n == 1 else {})
+        block_item = None if info.get("no_name") else _block_item(part, fp, ctx, raster_page, table, lsh)
         if block_item is not None:
             block_item.details.update(shape)
+            if info.get("note"):
+                block_item.evidence["note"] = "; ".join(x for x in (block_item.evidence.get("note"), info["note"]) if x)
             pieces.append(block_item)
             continue
-        types = fitting_types(table, (fp[1], fp[2]))
+        types = fitting_types(table, (fp[1], fp[2]), "L" if lsh else None)
         if n > 1 or not types:
             reason = (f"possible group of {n} pieces" if n > 1 else "fits no size-table type")
             pieces.append(_unknown(part, fp, ctx, raster_page, reason,
@@ -1566,9 +1735,17 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             notes.append(f"unknown piece {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {reason}")
             continue
         others = [o for o in infos if o is not info]
-        fronts = front_candidates(part.segs, fp[0], fp[4], wall_polys, others, ctx.theta, table)
+        if lsh:
+            # The open inner corner of an L is its front (the drawn outline decides, before walls or pillows).
+            fronts = [{"front_deg": lsh["front_deg"], "rule": "L outline: the open inner corner is the front"}]
+        else:
+            fronts = front_candidates(part.segs, fp[0], fp[4], wall_polys, others, ctx.theta, table)
         cand = _candidate(part, fp, ctx, raster_page, faces, fronts, types, len(cands) + 1)
         cand["item"].details.update(shape)
+        if lsh:
+            cand["footprint"]["shape"] = "L"            # travels with the footprint into the question and decide
+        if info.get("note"):
+            cand["item"].evidence["note"] = "; ".join(x for x in (cand["item"].evidence.get("note"), info["note"]) if x)
         cands.append(cand)
     if details:
         notes.append(f"{details} drawn details smaller than {DETAIL_M} m ignored")
@@ -1667,44 +1844,235 @@ def _counter_item(leg: dict, walls: list, ctx: _Ctx, raster: bool) -> FurnitureI
                                                   abs(leg["front_f"][1]) > 0 else y1 - y0, 4)}})
 
 
-def block_type(names: list[str], size, table: dict) -> Optional[str]:
-    """Furniture type from DXF block names (innermost first) by the keyword table, resolved by the size table for
-    the generic words BED and TABLE; None when no keyword matches."""
+def block_type(names: list[str], size, table: dict, shape: Optional[str] = None) -> Optional[str]:
+    """Furniture type from DXF block names (innermost first) by the keyword tables (``keyword_type``), resolved by
+    the size table for the generic words BED / YATAK, TABLE / MASA and KOLTUK (armchair, sofa; an L-shaped outline:
+    the corner sofa); None when no keyword matches."""
     for name in names:
-        upper = name.upper()
-        for key, ftype in BLOCK_KEYWORDS:
-            if key in upper:
-                if ftype == "bed":
-                    return "bed_double" if fits(table, "bed_double", size) else "bed_single"
-                if ftype == "table":
-                    for t in ("table_dining", "table_coffee", "desk"):
-                        if fits(table, t, size):
-                            return t
-                    return "table_dining"
-                return ftype
+        ftype = keyword_type(name)
+        if ftype is None:
+            continue
+        if ftype == "bed":
+            return "bed_double" if fits(table, "bed_double", size) else "bed_single"
+        if ftype == "table":
+            for t in ("table_dining", "table_coffee", "desk"):
+                if fits(table, t, size):
+                    return t
+            return "table_dining"
+        if ftype == "seat":
+            # KOLTUK: an armchair (M7) or, when the drawn piece is longer, a sofa; an L outline is a corner sofa.
+            if shape == "L":
+                return "sofa_corner"
+            for t in ("armchair", "sofa"):
+                if fits(table, t, size):
+                    return t
+            return "armchair"
+        return ftype
     return None
 
 
-def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict) -> Optional[FurnitureItem]:
+def _block_chain(part: Cluster) -> Optional[str]:
+    """The block chain that draws >= 60 % of a part's segments, or None."""
     chains = [s.stroke.block for s in part.segs if s.stroke.block]
     if not chains or len(chains) < 0.6 * len(part.segs):
         return None
     chain = max(set(chains), key=chains.count)
-    if chains.count(chain) < 0.6 * len(part.segs):
+    return chain if chains.count(chain) >= 0.6 * len(part.segs) else None
+
+
+def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
+                lsh: Optional[dict] = None) -> Optional[FurnitureItem]:
+    chain = _block_chain(part)
+    if chain is None:
         return None
     names = list(reversed(chain.split("/")))
-    ftype = block_type(names, (fp[1], fp[2]), table)
+    ftype = block_type(names, (fp[1], fp[2]), table, "L" if lsh else None)
     if ftype is None:
         return None
-    size, rotation = size_rotation(fp[1], fp[2], fp[3], None)
+    front = lsh["front_deg"] if lsh and ftype == "sofa_corner" else None
+    size, rotation = size_rotation(fp[1], fp[2], fp[3], front)
     box = ctx.box(fp[4])
     ok = fits(table, ftype, (fp[1], fp[2]))
     note = None if ok else f"block name says {ftype} but {fp[1]:.2f} x {fp[2]:.2f} m does not fit its size range"
     ev = ctx.evidence(part.stroke_ids(), confidence=0.9, raster=raster, box=box, note=note)
     ev["block"] = chain
     return FurnitureItem(type=ftype, type_raw=chain, center=_r(fp[0]), size=size, rotation_deg=rotation,
-                         front_deg=None, box=box, entity=part.stroke_ids()[0], evidence=ev,
-                         status="verified" if ok else "unverified", type_method="block_name")
+                         front_deg=round(front, 3) if front is not None else None, box=box,
+                         entity=part.stroke_ids()[0], evidence=ev, status="verified" if ok else "unverified",
+                         type_method="block_name")
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: L outlines and named block instances
+# --------------------------------------------------------------------------
+
+def l_shape(cl: Cluster, theta: float) -> Optional[dict]:
+    """An L-shaped outline in the plan's aligned frame (docs/milestone10.md §1.1: the drawn corner sofas of real02's
+    basement): the largest top contour fills its box but for one open corner (>= 15 % of the box, the rest open
+    <= 8 %: rounded or stepped corners), both arms 0.5-1.3 m deep. The arm along the longer side is the main seat,
+    the other arm the chaise (it runs the full depth of the box); the open corner is the front. ``chaise_side`` is
+    seen from the front, i.e. by someone standing there and facing the piece. Returns ``{"fp", "front_deg",
+    "chaise_side", "chaise_depth", "seat_depth", "chaise_width", "note"}`` (``fp`` as ``footprint``: the box) or
+    None."""
+    tops = top_contours(cl)
+    if not tops:
+        return None
+    to_f, from_f = _frame(theta)
+    pts = [to_f(p) for s in cl.segs for p in s.pts]
+    x0, y0 = min(p[0] for p in pts), min(p[1] for p in pts)
+    x1, y1 = max(p[0] for p in pts), max(p[1] for p in pts)
+    w, h = x1 - x0, y1 - y0
+    if min(w, h) < 2 * L_ARM_M[0]:
+        return None
+    outline = max(tops, key=lambda tm: tm[0].area)[0]
+    poly = Polygon([to_f(q) for q in outline.exterior.coords])
+    if not poly.is_valid:
+        poly = poly.buffer(0)
+    b = poly.bounds
+    if max(abs(b[0] - x0), abs(b[1] - y0), abs(b[2] - x1), abs(b[3] - y1)) > L_BOX_M:
+        return None
+    box = sbox(x0, y0, x1, y1)
+    rest = sorted(getattr(box.difference(poly), "geoms", [box.difference(poly)]), key=lambda g: -g.area)
+    if not rest or rest[0].is_empty or rest[0].area < L_NOTCH_SHARE * box.area:
+        return None
+    if sum(g.area for g in rest[1:]) > L_REST_SHARE * box.area:
+        return None
+    nx0, ny0, nx1, ny1 = rest[0].bounds
+    left, right = nx0 - x0 <= L_BOX_M, x1 - nx1 <= L_BOX_M
+    bottom, top = ny0 - y0 <= L_BOX_M, y1 - ny1 <= L_BOX_M
+    if left == right or bottom == top:
+        return None                                   # the open part is not one corner
+    arm_x, arm_y = h - (ny1 - ny0), w - (nx1 - nx0)  # depth of the arm along x (full width), along y (full height)
+    if not (L_ARM_M[0] <= arm_x <= L_ARM_M[1] and L_ARM_M[0] <= arm_y <= L_ARM_M[1]):
+        return None
+    cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    if w >= h:                                        # main seat along x, the chaise is the arm along y
+        front = (0.0, -1.0) if bottom else (0.0, 1.0)
+        seat, chaise_w, chaise_d = arm_x, arm_y, h
+        chaise_c = ((x1 - arm_y / 2.0) if left else (x0 + arm_y / 2.0), cy)
+    else:
+        front = (-1.0, 0.0) if left else (1.0, 0.0)
+        seat, chaise_w, chaise_d = arm_y, arm_x, w
+        chaise_c = (cx, (y0 + arm_x / 2.0) if top else (y1 - arm_x / 2.0))
+    look = (-front[0], -front[1])                     # the viewer in front faces the piece
+    right_hand = (look[1], -look[0])
+    side = "right" if (chaise_c[0] - cx) * right_hand[0] + (chaise_c[1] - cy) * right_hand[1] > 0 else "left"
+    fx, fy = from_f(front)
+    front_deg = round(math.degrees(math.atan2(fy, fx)) % 360.0, 3)
+    corners = [from_f(q) for q in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+    fp = (from_f((cx, cy)), w, h, theta % 180.0, corners)
+    note = (f"L outline {max(w, h):.2f} x {min(w, h):.2f} m: main seat {seat:.2f} m deep, chaise {chaise_w:.2f} x "
+            f"{chaise_d:.2f} m on the {side} (seen from the front), open corner {nx1 - nx0:.2f} x {ny1 - ny0:.2f} m")
+    return {"fp": fp, "front_deg": front_deg, "chaise_side": side, "chaise_depth": round(chaise_d, 4),
+            "seat_depth": round(seat, 4), "chaise_width": round(chaise_w, 4), "note": note}
+
+
+def l_details(lsh: dict) -> dict:
+    """``FurnitureItem.details`` of an L-shaped piece: ``l_outline`` = the building fields of a corner sofa
+    (``chaise_side``, ``chaise_depth``, ``seat_depth``, ``chaise_width``; docs/milestone10.md §1.6b row 15). Not
+    ``shape`` itself: the schema allows ``shape: L`` only on a ``sofa_corner``, and a candidate's type is decided
+    later (the pipeline writes ``shape: L`` and these fields when the piece is a ``sofa_corner``)."""
+    return {"l_outline": {"chaise_side": lsh["chaise_side"], "chaise_depth": lsh["chaise_depth"],
+                          "seat_depth": lsh["seat_depth"], "chaise_width": lsh["chaise_width"]}}
+
+
+def _instance_key(part: Cluster) -> Optional[str]:
+    """The named block instance (``block_instance``) that draws every segment of a part, or None."""
+    keys = set()
+    for s in part.segs:
+        if not s.stroke.block:
+            return None
+        key, named = block_instance(s.stroke)
+        if not named:
+            return None
+        keys.add(key)
+    return keys.pop() if len(keys) == 1 else None
+
+
+def named_instances(infos: list[dict], table: dict, theta: float, notes: list) -> list[dict]:
+    """One named piece per named block instance (Milestone 10, real02): a detail part (< 0.20 m across) that the
+    20 mm clustering split off (a WC's flush plate) joins the instance's largest part; of several furniture-sized
+    parts (an armchair block with its footstool) and of an instance whose whole footprint does not fit its named type
+    (a bed block drawn with its two nightstands, split geometrically) the largest part that fits takes the name and
+    the others are asked like unnamed strokes (``no_name``). Notes for each."""
+    groups: dict[str, list[dict]] = {}
+    out: list[dict] = []
+    for info in infos:
+        key = _instance_key(info["part"]) if not info.get("l") else None
+        if key is None:
+            out.append(info)
+        else:
+            groups.setdefault(key, []).append(info)
+    for key, items in groups.items():
+        small = [it for it in items if min(it["size"]) < DETAIL_M]
+        big = [it for it in items if it not in small]
+        if small and big:
+            # A detail of the instance (a WC's flush plate) joins its largest piece.
+            host = max(big, key=lambda it: it["size"][0] * it["size"][1])
+            part = Cluster(host["part"].segs + [s for it in small for s in it["part"].segs])
+            fp = footprint([q for s in part.segs for q in s.pts], theta)
+            note = f"{len(small) + 1} drawn parts of one block instance are one piece"
+            notes.append(f"{key.split('|')[0]} at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {note}")
+            items = [it for it in big if it is not host] + [
+                {"part": part, "n": 1, "fp": fp, "size": (fp[1], fp[2]), "poly": Polygon(fp[4]), "note": note}]
+        if len(items) > 1:
+            out.extend(_pick_named(items, table, notes))
+            continue
+        for info in items:
+            out.extend(_split_named(info, table, theta, notes))
+    return out
+
+
+def _pick_named(items: list[dict], table: dict, notes: list) -> list[dict]:
+    """Several furniture-sized parts of one named instance (an armchair block with its footstool): the largest part
+    that fits the named type takes the name, the others are asked; none fits -> each keeps the name (unverified)."""
+    chain = _block_chain(items[0]["part"])
+    names = list(reversed(chain.split("/"))) if chain else []
+    named = [it for it in items if names and block_type(names, it["size"], table) is not None and
+             fits(table, block_type(names, it["size"], table), it["size"])]
+    if not named:
+        return items
+    keep = max(named, key=lambda it: it["size"][0] * it["size"][1])
+    note = f"block {chain} holds {len(items)} drawn pieces: the {keep['size'][0]:.2f} x {keep['size'][1]:.2f} m " \
+           f"piece takes the name, the others are asked"
+    notes.append(note)
+    keep["note"] = "; ".join(x for x in (keep.get("note"), note) if x)
+    for it in items:
+        if it is not keep:
+            it["no_name"] = True
+            it["note"] = f"drawn inside block {chain} next to its named piece; type asked"
+    return items
+
+
+def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dict]:
+    chain = _block_chain(info["part"])
+    if chain is None:
+        return [info]
+    names = list(reversed(chain.split("/")))
+    ftype = block_type(names, info["size"], table)
+    if ftype is None or ftype in ("stair",) or fits(table, ftype, info["size"]):
+        return [info]
+    subs = [sub for sub, n in _split_geometric(info["part"], table) if n == 1]
+    if len(subs) < 2:
+        return [info]
+    parts = []
+    for sub in subs:
+        fp = footprint([q for s in sub.segs for q in s.pts], theta)
+        parts.append({"part": sub, "n": 1, "fp": fp, "size": (fp[1], fp[2]), "poly": Polygon(fp[4])})
+    named = [pt for pt in parts if block_type(names, pt["size"], table) is not None and
+             fits(table, block_type(names, pt["size"], table), pt["size"])]
+    if not named:
+        return [info]
+    keep = max(named, key=lambda pt: pt["fp"][1] * pt["fp"][2])
+    note = (f"block {chain} ({info['size'][0]:.2f} x {info['size'][1]:.2f} m) holds {len(parts)} drawn pieces: the "
+            f"{keep['size'][0]:.2f} x {keep['size'][1]:.2f} m piece takes the name, the others are asked")
+    notes.append(note)
+    keep["note"] = note
+    for pt in parts:
+        if pt is not keep:
+            pt["no_name"] = True
+            pt["note"] = f"drawn inside block {chain} next to its named piece; type asked"
+    return parts
 
 
 def _candidate(part: Cluster, fp, ctx: _Ctx, raster: bool, faces, fronts: list, types: list, n: int) -> dict:

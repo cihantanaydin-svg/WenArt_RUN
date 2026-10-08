@@ -16,9 +16,10 @@
 
 ``separators`` closes open-plan faces only where the drawing needs it: candidates come only from free wall ends
 whose end gap was empty (*end-to-wall*: the empty end gap itself, <= 2.4 m; *end-to-end*: two free ends of parallel
-walls whose end faces lie within 0.20 m of one perpendicular line, <= 2.4 m apart). A candidate is kept only when a
-face holding >= 2 room-name blocks gets fewer per face, or when it separates a stair from a labelled face; the others
-are logged "considered, not needed".
+walls whose end faces lie within 0.20 m of one perpendicular line, <= 2.4 m apart; *end-to-face*, only while two
+names still share a face: a free end whose cast met no wall, on along its axis to the first wall or opening within
+2.4 m, real02's basement). A candidate is kept only when a face holding >= 2 room-name blocks gets fewer per face, or
+when it separates a stair from a labelled face; the others are logged "considered, not needed".
 
 All geometry is in page metres (y up). Review reasons are returned as warnings starting with ``REVIEW_PREFIX``.
 """
@@ -336,34 +337,69 @@ def separators(walls: list[WallItem], openings: list[OpeningItem], gap_log: list
     ``units_to_m`` is given) and one log dict per candidate.
     """
     names = [b for b in label_blocks if not getattr(b, "exterior", False)]
-    cands = _candidates(walls, gap_log)
     log: list[dict] = []
     kept: list[dict] = []
-    base_faces = faces(walls, openings)
-    score = _score(base_faces, names, stairs)
-    for cand in sorted(cands, key=lambda c: c["length"]):
-        entry = {k: v for k, v in cand.items() if k != "poly"}
-        if cand["length"] > SEPARATOR_MAX_M:
-            entry.update(kept=False, reason=f"longer than {SEPARATOR_MAX_M} m")
-            log.append(entry)
-            continue
-        trial = faces(walls, openings, [c["line"] for c in kept] + [cand["line"]])
-        new = _score(trial, names, stairs)
-        reasons = []
-        if new["excess"] < score["excess"]:
-            reasons.append("two room names shared one face")
-        if new["stair_mixed"] < score["stair_mixed"]:
-            reasons.append("separates the stair from a labelled face")
-        if reasons:
-            cand["reason"] = "; ".join(reasons)
-            kept.append(cand)
-            score = new
-            entry.update(kept=True, reason=cand["reason"])
-        else:
-            entry.update(kept=False, reason="considered, not needed")
-        log.append(entry)
+    score = _score(faces(walls, openings), names, stairs)
+    for cand in sorted(_candidates(walls, gap_log), key=lambda c: c["length"]):
+        score = _consider(cand, walls, openings, kept, names, stairs, log, score)
+    if score["excess"] > 0:
+        # End-to-face candidates only while two room names still share a face (a fallback: the plans the other
+        # candidates separate keep their logs).
+        for cand in sorted(_face_candidates(walls, gap_log, openings), key=lambda c: c["length"]):
+            score = _consider(cand, walls, openings, kept, names, stairs, log, score)
     items = [_separator_item(c, walls, units_to_m) for c in kept]
     return items, log
+
+
+def _consider(cand: dict, walls: list, openings: list, kept: list, names: list, stairs: list, log: list,
+              score: dict) -> dict:
+    """Keep ``cand`` (appended to ``kept``) when it lowers the score; one log entry either way. Returns the score
+    with the kept separators."""
+    entry = {k: v for k, v in cand.items() if k != "poly"}
+    if cand["length"] > SEPARATOR_MAX_M:
+        entry.update(kept=False, reason=f"longer than {SEPARATOR_MAX_M} m")
+        log.append(entry)
+        return score
+    new = _score(faces(walls, openings, [c["line"] for c in kept] + [cand["line"]]), names, stairs)
+    reasons = []
+    if new["excess"] < score["excess"]:
+        reasons.append("two room names shared one face")
+    if new["stair_mixed"] < score["stair_mixed"]:
+        reasons.append("separates the stair from a labelled face")
+    if reasons:
+        cand["reason"] = "; ".join(reasons)
+        kept.append(cand)
+        entry.update(kept=True, reason=cand["reason"])
+        log.append(entry)
+        return new
+    entry.update(kept=False, reason="considered, not needed")
+    log.append(entry)
+    return score
+
+
+def _face_candidates(walls: list[WallItem], gap_log: list[dict], openings: list) -> list[dict]:
+    """End-to-face: a free end whose cast met no wall (real02's basement: the stair's wall points across the corridor
+    at the kitchen door and the cast runs through the door gap) runs on along its axis to the first wall or opening
+    within ``SEPARATOR_MAX_M``."""
+    out = []
+    union = None
+    for e in gap_log:
+        if e.get("kind") != "free_end" or e.get("gap_class") != "none":
+            continue
+        if union is None:
+            union = bridged_union(walls, openings)
+        (px, py), (dx, dy) = e["point"], e["direction"]
+        start = (px + dx * CLOSE_M, py + dy * CLOSE_M)
+        ray = LineString([start, (px + dx * SEPARATOR_MAX_M, py + dy * SEPARATOR_MAX_M)])
+        hit = ray.intersection(union)
+        if hit.is_empty:
+            continue
+        d = min(Point(start).distance(g) for g in getattr(hit, "geoms", [hit])) + CLOSE_M
+        if d <= e["thickness"]:
+            continue
+        line = [(round(px, 4), round(py, 4)), (round(px + dx * d, 4), round(py + dy * d, 4))]
+        out.append({"kind": "end_to_face", "line": line, "length": round(d, 4), "walls": [e.get("wall")]})
+    return out
 
 
 def _candidates(walls: list[WallItem], gap_log: list[dict]) -> list[dict]:
