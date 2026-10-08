@@ -189,8 +189,10 @@ WALL_TYPES: tuple[str, ...] = (
 # main seat), bunk beds, cribs and tall cabinets).
 CLEARANCE_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "desk", "wardrobe",
                                     "sofa_corner", "bunk_bed", "crib", "tall_cabinet")
-# Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair).
-CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",)}
+# Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair; a
+# bench or ottoman at the foot of a bed, §2.3 "bench (bed foot)", code review #21).
+CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",), "bed_double": ("bench", "ottoman"),
+                                                "bed_single": ("bench", "ottoman")}
 # Allowed within 0.3 m of a window even when taller than the sill.
 UNDER_WINDOW_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "table_dining", "table_coffee",
                                        "sofa_corner", "chaise", "bench")
@@ -398,7 +400,8 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     """What a room with drawn furniture holds, misses and may get (§2.3), from its pieces ``(type, size)``
     after the agreed changes.
 
-    Returns ``anchors`` (the room's anchor types), ``has_anchor``, ``maxima`` (type -> the most the room may
+    Returns ``anchors`` (the anchor types the room may get), ``anchor_roles`` (every type that is the room's main
+    piece when drawn: all bed types of a bedroom), ``has_anchor``, ``maxima`` (type -> the most the room may
     hold; an anchor type 1 while no anchor is present, the group counting as one), ``expected`` (type -> count),
     ``missing`` (expected type -> how many are missing), ``anchor_missing``, ``addable`` (type -> how many the
     AI may add: ``maxima`` minus what is present; never a fixed, rule-only, change-only or documented-only
@@ -408,7 +411,10 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     items = [(t, tuple(float(v) for v in size)) for t, size in present]
     counts = Counter(t for t, _ in items)
     anchors = anchor_types(rtype, subtype)
-    has_anchor = any(counts[a] for a in anchors)
+    # Any bed type counts as the room's bed (code review #18: a double bed drawn in a child's room, a bunk bed in
+    # another bedroom); the subtype only narrows what may be added.
+    roles = tuple(dict.fromkeys(ANCHOR_TYPES.get(rtype, ()) + anchors))
+    has_anchor = any(counts[a] for a in roles)
     expected = dict(EXPECTED_TYPES.get(rtype, {}))
     extra = dict(EXTRA_TYPES.get(rtype, {}))
     beds = [t for t, _ in items if t in NIGHTSTANDS_PER_BED]
@@ -437,7 +443,8 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     addable = {t: n - counts[t] for t, n in maxima.items() if n > counts[t] and t not in blocked}
     if rtype in NOTHING_ADDED_ROOM_TYPES or rtype not in ALLOWED_TYPES:
         missing, addable, anchor_missing = {}, {}, False
-    return {"anchors": anchors, "has_anchor": has_anchor, "maxima": maxima, "expected": expected,
+    return {"anchors": anchors, "anchor_roles": roles, "has_anchor": has_anchor, "maxima": maxima,
+            "expected": expected,
             "missing": missing, "anchor_missing": anchor_missing, "addable": addable, "counts": dict(counts)}
 
 

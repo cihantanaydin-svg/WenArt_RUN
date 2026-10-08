@@ -154,6 +154,28 @@ def test_a_piece_pulled_off_its_wall_fails(pair):
     assert any("f_L-1_002: no longer against wall w_L-1_003" in p for p in problems), problems
 
 
+@pytest.mark.parametrize("gap, width", [((1.4, 2.1), 1.6), ((1.6, 2.05), 2.6)])
+def test_the_wall_follows_the_back_edge_midpoint(gap, width):
+    """Code review #19: the north wall w_L-1_003 split by a gap that holds one end of the sofa's back edge (the room
+    outline still runs there). A sofa resized at the same midpoint keeps its wall: no false violation."""
+    source = drawn_building(example())
+    wall = next(w for w in source["walls"] if w["id"] == "w_L-1_003")
+    rest = copy.deepcopy(wall)
+    wall["end"] = [gap[1], 8.125]
+    rest.update(id="w_L-1_009", start=[gap[0], 8.125])
+    source["walls"].append(rest)
+    sofa = piece(source, "f_L-1_002")
+    anchor = LK.anchor_of(sofa, source)
+    assert anchor == {"kind": "back_edge", "point": [3.125, 7.975], "wall_id": "w_L-1_003"}
+    final = copy.deepcopy(source)
+    changed = piece(final, "f_L-1_002")
+    changed.update(modified_by_ai=True, drawn_type="sofa", drawn_footprint=copy.deepcopy(sofa["footprint"]),
+                   drawn_height=sofa["height"], anchor=anchor)
+    changed["footprint"]["size"] = [width, 0.9]
+    assert LK.anchor_of(changed, final)["wall_id"] == "w_L-1_003"
+    assert LK.check(source, final, "complete") == []
+
+
 def test_a_removed_drawn_piece_fails(pair):
     source, final = pair
     final["furniture"] = [f for f in final["furniture"] if f["id"] != "f_L0_002"]

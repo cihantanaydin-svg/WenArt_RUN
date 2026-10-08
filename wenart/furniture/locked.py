@@ -33,10 +33,11 @@ How, mode ``complete`` (per drawn piece):
 Mode ``keep`` (and every room in ``keep_rooms``): the old byte rule, the
 fit's ``FROZEN_KEYS`` (``KEEP_KEYS``) equal for every drawn piece. Anchors: a piece whose
 back edge (the edge opposite its ``front_deg``; its three points: both ends
-and the middle) lies within ``placer.WALL_TOUCH_M`` (5 cm) of the level's
-walls has a ``back_edge`` anchor at the edge's midpoint with the id of the
-wall nearest to that midpoint (the room outline when no wall is drawn there:
-``wall_id`` null); every other piece, and any piece without a front, has a
+and the middle) each lie within ``placer.WALL_TOUCH_M`` (5 cm) of the
+level's walls or the room outline has a ``back_edge`` anchor at the edge's
+midpoint; its ``wall_id`` is the wall within 5 cm of that midpoint (null when
+no wall is drawn there), so an end over an unwalled stretch never changes it
+(code review #19); every other piece, and any piece without a front, has a
 ``centre`` anchor.
 """
 from __future__ import annotations
@@ -45,7 +46,6 @@ import json
 from typing import Iterable, Optional
 
 from shapely.geometry import Point, Polygon
-from shapely.ops import unary_union
 
 from wenart import geometry as G
 from wenart.furniture import placer, schemas
@@ -91,18 +91,21 @@ def anchor_of(piece: dict, building: dict) -> dict:
         return centre
     a, mid, b = _back_edge(piece)
     points = [Point(a), Point(mid), Point(b)]
+    tol = placer.WALL_TOUCH_M + 1e-9
     walls = _wall_shapes(building, piece.get("level_id"))
-    if walls:
-        union = unary_union([shape for _id, shape in walls])
-        if all(union.distance(p) <= placer.WALL_TOUCH_M + 1e-9 for p in points):
-            wall_id = min(walls, key=lambda ws: (round(ws[1].distance(points[1]), 6), ws[0]))[0]
-            return {"kind": "back_edge", "point": [round(mid[0], 4), round(mid[1], 4)], "wall_id": wall_id}
+    shapes = [shape for _id, shape in walls]
     room = next((r for r in building.get("rooms", []) if r["id"] == piece.get("room_id")), None)
     if room is not None and len(room.get("polygon") or []) >= 3:
-        ring = Polygon(room["polygon"]).exterior
-        if all(ring.distance(p) <= placer.WALL_TOUCH_M + 1e-9 for p in points):
-            return {"kind": "back_edge", "point": [round(mid[0], 4), round(mid[1], 4)], "wall_id": None}
-    return centre
+        shapes.append(Polygon(room["polygon"]).exterior)
+    if not shapes or not all(min(sh.distance(p) for sh in shapes) <= tol for p in points):
+        return centre
+    # Against a wall or the room outline at all three points; the wall is the one at the back edge's midpoint
+    # (code review #19: an end over an unwalled stretch does not change it while the midpoint stays put).
+    wall_id = None
+    if walls:
+        near_id, near = min(walls, key=lambda ws: (round(ws[1].distance(points[1]), 6), ws[0]))
+        wall_id = near_id if near.distance(points[1]) <= tol else None
+    return {"kind": "back_edge", "point": [round(mid[0], 4), round(mid[1], 4)], "wall_id": wall_id}
 
 
 # keep mode: the fit's own guard keys (``wenart.furniture.fit.FROZEN_KEYS``; a copy, so the layout stage does not
