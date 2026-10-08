@@ -389,3 +389,55 @@ def test_the_region_origin_says_why_it_is_not_used(fmt, units, tf, origin, why):
     got, reason = P._region_origin(record)
     assert got == (pytest.approx(origin) if origin else None)
     assert (reason is None) if why is None else (why in reason)
+
+
+def test_a_region_whose_outer_walls_do_not_close_is_left_out(tmp_path):
+    # Review finding 10: the basement's east wall is not drawn; the west room closes and was taken for the building,
+    # MUTFAK lay outside it and the level was built with one room (status ok). Now the region cannot be read: its
+    # level is left out, named with the label.
+    import ezdxf
+
+    import _sheets_fixture as FX
+
+    project = tmp_path / "open"
+    project.mkdir()
+    path = write_sheet(project / "sheet.dxf")
+    doc = ezdxf.readfile(path)
+    msp = doc.modelspace()
+    ox, oy = FX.PLANS["basement"][0]
+    east = ox + FX.W - FX.OUTER
+    for e in list(msp.query("LWPOLYLINE HATCH")):
+        pts = list(e.get_points("xy")) if e.dxftype() == "LWPOLYLINE" else list(e.paths[0].vertices)
+        if e.dxf.layer == "DUVAR" and abs(min(p[0] for p in pts) - east) < 1e-6 and min(p[1] for p in pts) > oy:
+            msp.delete_entity(e)
+    doc.saveas(path)
+    building, _ = P.run_project(project, tmp_path / "out", no_ai=True)
+    left = {x["region_id"]: x["reason"] for x in building["levels_left_out"]}
+    assert list(left) == ["r3"] and "outer walls do not close" in left["r3"] and "'MUTFAK'" in left["r3"]
+    assert [lv["id"] for lv in building["levels"]] == ["L-1b", "L0", "L1"]
+    assert not any(r["level_id"] == "L-1" for r in building["rooms"])
+
+
+def test_an_l_shaped_terrace_opening_reaches_over_its_parapets_to_the_roof_outline():
+    # Lead item (track E, real02 ro_001): the L-shaped terrace along the west wall and round the north-west corner
+    # grows over the west, south and north outer walls to the roof outline (§1.6b row 13), and to the centre line of
+    # the inner wall at its east end; the walls along its inner edges are not crossed.
+    from shapely.geometry import Point, Polygon
+
+    from wenart.sheets import to_building as TB
+
+    def wall(wid, a, b, exterior):
+        return {"id": wid, "start": list(a), "end": list(b), "thickness": 0.2, "exterior": exterior}
+
+    room = {"polygon": [[0.2, 0.2], [1.7, 0.2], [1.7, 10.3], [3.2, 10.3], [3.2, 11.8], [0.2, 11.8]]}
+    walls = [wall("south", (0.0, 0.1), (15.2, 0.1), True), wall("north", (0.0, 11.9), (15.2, 11.9), True),
+             wall("west", (0.1, 0.2), (0.1, 11.8), True), wall("inner_x", (1.8, 0.2), (1.8, 10.2), False),
+             wall("inner_y", (1.7, 10.2), (8.0, 10.2), False), wall("east_end", (3.3, 10.3), (3.3, 11.8), False)]
+    outline = [[-0.5, -0.5], [15.7, -0.5], [15.7, 12.5], [-0.5, 12.5]]
+    polygon, parapets = TB.terrace_opening(room, walls, outline)
+    assert sorted(parapets) == ["north", "south", "west"]
+    assert polygon == [[-0.5, -0.5], [1.7, -0.5], [1.7, 10.3], [3.3, 10.3], [3.3, 12.5], [-0.5, 12.5]]
+    grown = Polygon(polygon)
+    # the parapet walls' stretches by the terrace lie under the opening; the inner wall along its east edge does not
+    assert all(grown.contains(Point(p)) for p in [(0.1, 6.0), (1.0, 0.1), (2.5, 11.9)])
+    assert not grown.contains(Point(1.8, 5.0))

@@ -1766,6 +1766,31 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
         build.warn(f"no base level could be read; only alternative levels remain ({', '.join(sorted(by_level))})")
 
 
+def _labels_outside_building(ex: LevelExtraction) -> list[str]:
+    """Indoor room names of a region page that lie outside the outline of the walls read as the building (review
+    finding 10). A region page holds one plan, so such a name means its outer walls do not close and an inner block
+    of walls was taken for the building: the region cannot be read (its level is left out, §3.1 item 10)."""
+    from shapely.geometry import Point
+    from shapely.ops import unary_union
+
+    from wenart.ingest.generic import topology as TP
+
+    if not ex.walls or ex.transform_to_building is None:
+        return []
+    union = TP.bridged_union(ex.walls, [o for o in ex.openings if not o.virtual], ex.separators)
+    parts = [p for p in getattr(union, "geoms", [union]) if not p.is_empty]
+    outline = unary_union([Polygon(p.exterior) for p in parts]) if parts else Polygon()
+    out = []
+    for t in ex.labels:
+        block = getattr(t, "block", None)
+        if block is None or getattr(block, "exterior", False):
+            continue
+        points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
+        if not any(outline.contains(Point(p)) for p in points):
+            out.append(t.text)
+    return out
+
+
 def _tag_evidence(evidence, region_id: str) -> None:
     """``region_id`` into every evidence dict that has none (a dict, or a list of dicts)."""
     for ev in [evidence] if isinstance(evidence, dict) else evidence or []:
@@ -1965,6 +1990,12 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             extraction = extract_pdf_page(record.source_path, record.page, record.level_id, record.file)
         if record.region_id is not None:
             _tag_extraction(extraction, record.region_id)
+            if build.sheets is not None and extraction.source_kind is not None:
+                outside = _labels_outside_building(extraction)
+                if outside:
+                    extraction.review.append(
+                        f"{record.file} {record.region_id}: outer walls do not close: room label(s) "
+                        f"{', '.join(repr(t) for t in outside)} lie outside the walls read as the building")
         audit = (record.conversion or {}).get("audit") or {}
         if audit.get("errors"):
             _mark_unverified(extraction)

@@ -327,11 +327,15 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
 def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> tuple[list, list]:
     """A roof terrace's opening in the roof (§1.6b row 13): the room's box grown over the walls around it, to the roof
     outline across an exterior wall (its parapet) and to the centre line of an inner wall; ``(polygon,
-    parapet_wall_ids)``. A room that is not a rectangle keeps its polygon (the parapets still listed)."""
+    parapet_wall_ids)``. A room with only axis-parallel edges that is not a rectangle (real02's L-shaped terraces) moves
+    the vertices on its box sides the same way (a wall along an inner edge is not crossed); any other room keeps its
+    polygon (the parapets still listed)."""
     from shapely.geometry import LineString
     poly = Polygon(room["polygon"])
     b = list(poly.bounds)
     rect = abs(poly.area - (b[2] - b[0]) * (b[3] - b[1])) <= 0.01 * max(poly.area, 1e-9)
+    pts = [tuple(p) for p in room["polygon"]]
+    rectilinear = all(abs(p[0] - q[0]) <= 1e-6 or abs(p[1] - q[1]) <= 1e-6 for p, q in zip(pts, pts[1:] + pts[:1]))
     ob = None
     if outline:
         xs, ys = [p[0] for p in outline], [p[1] for p in outline]
@@ -346,10 +350,17 @@ def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> t
         (x0, y0), (x1, y1) = w["start"], w["end"]
         vertical = abs(x1 - x0) < abs(y1 - y0)
         c = (x0 + x1) / 2.0 if vertical else (y0 + y1) / 2.0
-        side = (0 if c < b[0] + 1e-9 or abs(c - b[0]) <= reach else 2) if vertical else \
-            (1 if c < b[1] + 1e-9 or abs(c - b[1]) <= reach else 3)
+        if rect:
+            side = (0 if c < b[0] + 1e-9 or abs(c - b[0]) <= reach else 2) if vertical else \
+                (1 if c < b[1] + 1e-9 or abs(c - b[1]) <= reach else 3)
+        else:
+            lo, hi = (0, 2) if vertical else (1, 3)
+            side = lo if abs(c - b[lo]) <= reach else hi if abs(c - b[hi]) <= reach else None
         if w.get("exterior"):
             parapets.append(w["id"])
+        if side is None:
+            continue                                     # a wall along an inner edge of the room: not crossed
+        if w.get("exterior"):
             if ob is not None:
                 grown[side] = ob[side]
             else:
@@ -357,7 +368,13 @@ def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> t
         else:
             grown[side] = c
     if not rect:
-        return [list(p) for p in room["polygon"]], parapets
+        if not rectilinear:
+            return [list(p) for p in room["polygon"]], parapets
+
+        def moved(v, lo, hi):
+            return grown[lo] if abs(v - b[lo]) <= 1e-6 else grown[hi] if abs(v - b[hi]) <= 1e-6 else v
+
+        return [[round(moved(x, 0, 2), 4) + 0.0, round(moved(y, 1, 3), 4) + 0.0] for x, y in pts], parapets
     x0, y0, x1, y1 = (round(v, 4) + 0.0 for v in grown)
     return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], parapets
 
