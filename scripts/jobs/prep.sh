@@ -39,7 +39,7 @@
 #     --env PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,pipelines,session_qwen,session_glm,pipeline_final,library,copy,tests \
 #     --purpose "M10 L1: library with material slots, sheet_region answers"
 #   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 120 \
-#     --grace 600 --env WENART_GENERATE_TARGET=20 \
+#     --grace 600 --env PREP_PROJECTS=real02,synthetic-07 --env WENART_GENERATE_TARGET=20 \
 #     --env PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests \
 #     --purpose "M10 L2: TRELLIS.2 generation, slots, judging, catalogue"
 #

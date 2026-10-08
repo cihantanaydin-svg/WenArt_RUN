@@ -70,7 +70,7 @@ seeds).
   ``sheets_report.md`` -> ``furniture/<p>/`` (``copy_project``'s ``*.json`` / ``*.md`` rule).
 - Pods (docs/milestone10.md §7): L1 = ``PREP_PROJECTS="real02 synthetic-07"
   PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,pipelines,session_qwen,session_glm,pipeline_final,
-  library,copy,tests``; L2 = ``WENART_GENERATE_TARGET=20
+  library,copy,tests``; L2 = ``PREP_PROJECTS="real02 synthetic-07" WENART_GENERATE_TARGET=20
   PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests``
   (the real GLBs of L2 come from the assets copy of L1's write-catalog, ``--assets``).
 
