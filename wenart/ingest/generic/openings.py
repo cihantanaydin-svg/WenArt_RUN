@@ -39,9 +39,10 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
 - ``operation`` (Milestone 10, §1.6b row 17; set as attributes by ``set_operation``, copied by the pipeline): a block
   name that says it (``OPERATION_WORDS``: sliding / sürme, pocket, folding / katlanır, double / çift kanat, fixed /
   sabit) wins (``block_name``); else the drawing (``geometry``): one swing arc = swing, two half arcs = double, and a
-  gap with no swing arc but one or two thin closed leaves parallel to the wall, 0.45-0.85 x the gap long, in the band
-  or within 0.10 m of a face, is a sliding door (a window's glass spans its gap). Windows get an operation only from
-  a block name (else null: swing, assumed).
+  gap with no swing arc but one or two thin closed leaves parallel to the wall, overlapping it, in the band or within
+  0.10 m of a face, either shorter than 0.85 x the gap or drawn half open (off the gap centre), is a sliding door (a
+  window's glass spans its gap, centred). Windows get an operation only from a block name (else null: swing,
+  assumed).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -107,8 +108,11 @@ OPERATION_WORDS: tuple[tuple[str, str], ...] = (
 )
 _FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "ğ": "g", "Ü": "U", "ü": "u", "Ö": "O",
                        "ö": "o", "Ç": "C", "ç": "c", " ": "_", "-": "_"})
-SLIDING_LEAF = (0.45, 0.85)     # x gap width: a sliding leaf is shorter than its gap (a window's glass spans it)
-SLIDING_REACH_M = 0.10          # ... and lies in the wall band or within 0.10 m of a face
+SLIDING_LEAF = (0.45, 1.10)     # x gap width: a sliding leaf, overlapping the gap by >= 40 % of it ...
+SLIDING_OVERLAP = 0.4
+SLIDING_SHORT = 0.85            # ... shorter than 0.85 x the gap, or drawn half open (its centre >= 0.2 x the gap
+SLIDING_SHIFT = 0.2             # off the gap centre): a window's glass is as long as its gap and centred on it
+SLIDING_REACH_M = 0.10          # ... in the wall band or within 0.10 m of a face
 CONF_RASTER = 0.7
 
 
@@ -621,8 +625,10 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
 
 
 def _sliding_leaves(g: Gap, zone: list) -> list:
-    """Thin closed shapes (<= LEAF_WIDTH_M across) parallel to the gap, 0.45-0.85 x its width long, inside the gap
-    (+- 0.10 m along) and the wall band (+- SLIDING_REACH_M across)."""
+    """Thin closed shapes (<= LEAF_WIDTH_M across) parallel to the gap, 0.45-1.10 x its width long, overlapping it by
+    >= 40 % of its width, in the wall band (+- SLIDING_REACH_M across), and either shorter than 0.85 x the gap or
+    drawn half open (centre >= 0.2 x the gap off the gap centre; synthetic-07's KAPI_SURME_90: a leaf as long as the
+    gap, half in the wall pocket). A window glass rectangle spans its gap, centred: no leaf."""
     out = []
     for it in zone:
         pts = it.pts
@@ -635,7 +641,10 @@ def _sliding_leaves(g: Gap, zone: list) -> list:
         mid = ((min(ys) + max(ys)) / 2.0 - g.c) if g.axis == "h" else ((min(xs) + max(xs)) / 2.0 - g.c)
         if across > LEAF_WIDTH_M or not SLIDING_LEAF[0] * g.width <= along <= SLIDING_LEAF[1] * g.width:
             continue
-        if lo < g.a - OWN_MARGIN_M or hi > g.b + OWN_MARGIN_M or abs(mid) > g.t / 2.0 + SLIDING_REACH_M:
+        if min(hi, g.b) - max(lo, g.a) < SLIDING_OVERLAP * g.width or abs(mid) > g.t / 2.0 + SLIDING_REACH_M:
+            continue
+        shift = abs((lo + hi) / 2.0 - (g.a + g.b) / 2.0)
+        if along > SLIDING_SHORT * g.width and shift < SLIDING_SHIFT * g.width:
             continue
         out.append(it)
     return out
