@@ -1,7 +1,9 @@
 """CPU tests of the roof of the whole building (wenart/blender/roof.py, docs/milestone10.md §3.2 items 2-3):
 ``planes_for`` for every roof type (the example's gable reproduced from its parameters, a real02-like mansard
 with two pitches 40 / 13 degrees, eaves 0.50 m above the attic floor and 0.50 m outside the wall), the model the
-scene builds, the roof solid, walls cut by the roof underside, sloped ceilings and the terrace parapet check."""
+scene builds, the roof solid, walls cut by the roof underside, sloped ceilings, the terrace parapet cuts, the
+knee-wall cross-check, the assumed flat roof of ``roof: null`` and the angle convention (docs/milestone10.md §1.6b
+rows 1 and 13: the example frame with its origin at the outer wall faces; aspect counter-clockwise from +X)."""
 import copy
 import json
 import math
@@ -62,9 +64,9 @@ def test_planes_for_reproduces_the_example_gable_from_its_parameters():
     same, why = R.equivalent_planes(planes, drawn)
     assert same, why
     south = _by_id(planes)["rp_south"]
-    assert south["slope_deg"] == pytest.approx(35.0) and south["aspect_deg"] == pytest.approx(0.0)
+    assert south["slope_deg"] == pytest.approx(35.0) and south["aspect_deg"] == pytest.approx(270.0)   # down to -Y
     assert south["source"] == "derived" and _z_range(south) == pytest.approx((3.65, 6.888), abs=1e-3)
-    assert _by_id(planes)["rp_north"]["aspect_deg"] == pytest.approx(180.0)
+    assert _by_id(planes)["rp_north"]["aspect_deg"] == pytest.approx(90.0)
     for p in planes:                        # counter-clockwise seen from above (outer surface, normal up)
         assert G.polygon_signed_area([q[:2] for q in p["points"]]) > 0
 
@@ -114,17 +116,17 @@ def test_real02_mansard_ridge_on_the_party_wall_and_the_drawn_ridge_height():
     d = R.derive(roof, _attic(floor))
     upper = [p for p in d["planes"] if p["id"].endswith("_upper")]
     # the ridge runs along the drawn line (across the pair, on the party wall): the upper slopes face east and west
-    assert sorted(p["aspect_deg"] for p in upper) == pytest.approx([90.0, 270.0])
+    assert sorted(p["aspect_deg"] for p in upper) == pytest.approx([0.0, 180.0])
     assert d["ridge_z"] == pytest.approx(floor + 0.5 + 2.2 * T40 + 5.885 * T13, abs=1e-3)
     assert any("drawn ridge height" in w for w in d["warnings"])          # 6 cm off the section: listed
     assert R.is_convex(d["planes"])
 
 
 @pytest.mark.parametrize("rtype, count, aspects", [
-    ("gable", 2, [0.0, 180.0]),
+    ("gable", 2, [90.0, 270.0]),
     ("hip", 4, [0.0, 90.0, 180.0, 270.0]),
-    ("gambrel", 4, [0.0, 0.0, 180.0, 180.0]),
-    ("shed", 1, [0.0]),
+    ("gambrel", 4, [90.0, 90.0, 270.0, 270.0]),
+    ("shed", 1, [270.0]),
     ("flat", 1, [None]),
 ])
 def test_every_roof_type(rtype, count, aspects):
@@ -157,10 +159,10 @@ def test_missing_values_are_assumed_and_listed():
     d = R.derive(roof, {"levels": [lv], "walls": [w for w in b["walls"] if w["level_id"] == "L1"]})
     fields = {a["field"] for a in d["assumed"]}
     assert {"over_level_id", "outline", "pitch", "eaves_height"} <= fields
-    # outline: the walls' outer faces (10.25 x 8.25 m) grown by the assumed 0.50 m overhang
+    # outline: the walls' outer faces (10.25 x 8.25 m from the origin) grown by the assumed 0.50 m overhang
     xs = [p[0] for p in d["outline"]]
     ys = [p[1] for p in d["outline"]]
-    assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((-0.625, 10.625, -0.625, 8.625))
+    assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((-0.5, 10.75, -0.5, 8.75))
     assert all(p["slope_deg"] == pytest.approx(R.DEFAULTS["pitch_deg"]) for p in d["planes"])
     # eaves: an assumed 1.00 m knee wall at the outer wall face
     assert d["eaves_z"] == pytest.approx(3.0 + 1.0)
@@ -219,25 +221,25 @@ def test_roof_solid_z_range_and_the_terrace_hole():
 def test_walls_under_the_roof_end_at_its_underside():
     m = R.roof_model(EXAMPLE["roof"], EXAMPLE)
     under = R.underside(m)
-    # the south wall (centre y = 0, 0.25 m thick, x 0..10): a knee wall
-    verts, faces = geom2d.box((5.0, 0.0, 5.0), (10.0, 0.25, 4.0), 0.0)
+    # the south wall (centre y = 0.125, 0.25 m thick, x 0.125..10.125): a knee wall
+    verts, faces = geom2d.box((5.125, 0.125, 5.0), (10.0, 0.25, 4.0), 0.0)
     v, f = R.clip_solid_below(verts, faces, under)
     top = max(p[2] for p in v)
-    assert top == pytest.approx(R.surface_z(under, 5.0, 0.125), abs=1e-6)   # its inner face meets the underside
+    assert top == pytest.approx(R.surface_z(under, 5.0, 0.25), abs=1e-6)    # its inner face meets the underside
     t35 = math.tan(math.radians(35.0))
     # (the drawn planes carry the ridge rounded to 1 mm)
     assert top - 3.0 == pytest.approx(3.65 + 0.75 * t35 - 0.25 / math.cos(math.radians(35.0)) - 3.0, abs=1e-3)
     assert top - 3.0 == pytest.approx(0.870, abs=1e-3)                 # the knee wall at the inner face
     assert all(p[2] <= R.surface_z(under, p[0], p[1]) + 1e-6 for p in v)
-    # the east gable wall (x = 10, y -0.125..8.125, up to 8 m): a gable end up to the ridge underside
-    verts, faces = geom2d.box((10.0, 4.0, 5.5), (0.25, 8.25, 5.0), 0.0)
+    # the east gable wall (x = 10.125, y 0..8.25, up to 8 m): a gable end up to the ridge underside
+    verts, faces = geom2d.box((10.125, 4.125, 5.5), (0.25, 8.25, 5.0), 0.0)
     v, f = R.clip_solid_below(verts, faces, under)
     assert max(p[2] for p in v) == pytest.approx(6.888 - 0.25 / math.cos(math.radians(35.0)), abs=1e-3)
     assert min(p[2] for p in v) == pytest.approx(3.0)
     for face in f:                                                     # still wound outwards
         n = geom2d.face_normal(v, face)
         c = geom2d.face_center(v, face)
-        centre = (10.0, 4.0, 4.5)
+        centre = (10.125, 4.125, 4.5)
         assert sum(n[k] * (c[k] - centre[k]) for k in range(3)) > -1e-6
 
 
@@ -249,7 +251,7 @@ def test_attic_ceilings_slope_under_the_roof_and_stay_flat_where_the_section_sho
     verts, faces = R.ceiling_faces(room["polygon"], [], planes)
     zs = [p[2] for p in verts]
     assert max(zs) == pytest.approx(3.0 + 2.4)                         # the flat ceiling of the section
-    assert min(zs) == pytest.approx(R.surface_z(R.underside(m), 0.125, 0.125) - R.CEILING_GAP, abs=1e-6)
+    assert min(zs) == pytest.approx(R.surface_z(R.underside(m), 0.25, 0.25) - R.CEILING_GAP, abs=1e-6)
     normals = [geom2d.face_normal(verts, f) for f in faces]
     assert all(n[2] < 0 for n in normals)                              # facing down
     assert any(abs(n[2]) < 0.99 for n in normals) and any(abs(n[2]) > 0.999 for n in normals)
@@ -257,23 +259,58 @@ def test_attic_ceilings_slope_under_the_roof_and_stay_flat_where_the_section_sho
     assert area == pytest.approx(room["area_computed"], abs=0.01)
 
 
-def test_parapet_check_of_the_example_terrace_and_an_open_one():
+def test_parapet_cuts_of_the_example_terrace():
+    # docs/milestone10.md §1.6b row 13: the terrace opening reaches over the outer walls to the outline; its
+    # walls (parapet_wall_ids) end at the terrace floor + the parapet (1.00 m, assumed) under it
     m = R.roof_model(EXAMPLE["roof"], EXAMPLE)
     level = next(lv for lv in EXAMPLE["levels"] if lv["id"] == "L1")
-    walls = [w for w in EXAMPLE["walls"] if w["level_id"] == "L1"]
-    checks = R.parapet_check(m, level, walls)
-    assert len(checks) == 4 and not any(c["needs_parapet"] for c in checks)
-    assert min(c["min_height"] for c in checks) >= 1.0                 # the roof edge forms the parapet
-    # a terrace reaching past the eaves: open on that side, a parapet is needed
-    m2 = dict(m, openings=[dict(m["openings"][0], polygon=[(6.05, -1.0), (9.875, -1.0), (9.875, 3.95), (6.05, 3.95)])])
-    checks = R.parapet_check(m2, level, walls)
-    assert any(c["needs_parapet"] and c["open"] > 0 for c in checks)
-    boxes = R.parapet_boxes(checks, level)
-    assert len(boxes) == sum(1 for c in checks if c["needs_parapet"] and c["open"])
-    for b in boxes:
-        zs = [v[2] for v in b["verts"]]
-        assert (min(zs), max(zs)) == pytest.approx((3.0, 4.0))          # floor to the assumed 1.00 m parapet
-    assert R.parapet_boxes(R.parapet_check(m, level, walls), level) == []
+    cuts = R.parapet_cuts(m, EXAMPLE, level)
+    assert set(cuts) == {"w_L1_001", "w_L1_002"}
+    south, east = cuts["w_L1_001"], cuts["w_L1_002"]                   # south x 0.125..10.125, east y 0.125..8.125
+    assert [(c["t0"], c["t1"]) for c in south] == pytest.approx([(0.6, 1.0)])
+    assert [(c["t0"], c["t1"]) for c in east] == pytest.approx([(0.0, 0.5)])
+    assert all(c["z_top"] == pytest.approx(3.0 + 1.0) and c["opening_id"] == "ro_001"
+               and c["source"] == "parapet_wall_ids" for c in south + east)
+    # without parapet_wall_ids: the outer walls whose centre line runs under the opening, the same stretches
+    m2 = dict(m, openings=[dict(m["openings"][0], parapet_wall_ids=[])])
+    cuts2 = R.parapet_cuts(m2, EXAMPLE, level)
+    assert {k: [(c["t0"], c["t1"]) for c in v] for k, v in cuts2.items()} == \
+        {k: [(c["t0"], c["t1"]) for c in v] for k, v in cuts.items()}
+    assert all(c["source"] == "outer walls under the opening" for v in cuts2.values() for c in v)
+    assert R.segment_inside((0, 0), (10, 0), [(2, -1), (4, -1), (4, 1), (2, 1)]) == [(0.2, 0.4)]
+
+
+def test_knee_wall_cross_check_and_the_profile():
+    m = R.roof_model(EXAMPLE["roof"], EXAMPLE)
+    # the drawn 1.00 m knee wall: the planes' top surface at the outer wall face, 1.00 m over the attic floor
+    assert m["knee_wall_check"]["drawn"] == 1.0
+    assert m["knee_wall_check"]["derived"] == pytest.approx(1.0, abs=1e-3)
+    assert not any("knee wall" in w for w in m["warnings"])
+    assert m["profile"]["cut_axis"] == "y"
+    # a knee wall drawn 30 cm off the planes: a warning, the planes are kept
+    off = R.roof_model(dict(EXAMPLE["roof"], knee_wall=_v(1.3)), EXAMPLE)
+    assert off["knee_wall_check"]["difference"] == pytest.approx(-0.3, abs=1e-3)
+    assert any("knee wall 1.30 m drawn" in w for w in off["warnings"])
+    assert off["planes"] == m["planes"]
+
+
+def test_no_roof_evidence_makes_an_assumed_flat_roof_over_the_top_level():
+    b = copy.deepcopy(EXAMPLE)
+    b["roof"] = None
+    m = R.roof_model(R.flat_roof(b), b)
+    assert m["type"] == "flat" and m["over_level_id"] == "L1" and len(m["planes"]) == 1
+    assert m["planes"][0]["aspect_deg"] is None and m["eaves_z"] == m["ridge_z"]
+    xs = [p[0] for p in m["outline"]]
+    ys = [p[1] for p in m["outline"]]
+    assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((0.0, 10.25, 0.0, 8.25))   # no overhang drawn
+    assert {"roof", "outline", "eaves_height", "thickness"} <= {a["field"] for a in m["assumed"]}
+
+
+def test_aspect_and_side_names_follow_the_front_convention():
+    # degrees counter-clockwise from +X: downhill -Y = 270 (the south slope with +Y read as north)
+    assert R.slope_aspect((0.0, 0.7, 0.0)) == (pytest.approx(35.0, abs=0.01), 270.0)
+    assert R.slope_aspect((-0.7, 0.0, 0.0))[1] == 0.0
+    assert [R.side_name(a) for a in (0.0, 90.0, 180.0, 270.0, None)] == ["east", "north", "west", "south", "flat"]
 
 
 def test_not_convex_drawn_planes_are_flagged():

@@ -94,23 +94,40 @@ Milestone 10 (docs/milestone10.md §1.6, §3.2, §3.3): the whole building.
   its ``rooms_changed``), the others listed in ``rooms_without_view`` with
   the reason; the manifest's ``variant`` holds ``rooms_changed`` /
   ``exterior_changed`` (the building's, else computed) and ``variants`` the
-  same for every variant.
+  same for every variant. ``--out`` stays explicit (the scheduler picks
+  ``outputs/<p>/variants/<id>/scene`` for an alternative, §1.6b row 9).
+- ``--brief <file>`` (a ``wenart.brief.load_brief`` result as JSON, or a
+  values dict; ``cli build --brief`` writes it from ``brief.yaml``): the
+  brief keys the build reads (``views.BUILD_BRIEF_KEYS``: ``site``,
+  ``slab_thickness``, ``exterior``, ``render.exterior_views``,
+  ``render.twin_rooms``); without it the building's stored brief and
+  ``views.BRIEF_DEFAULTS`` (assumed). Their values (``brief_args``) are part
+  of the fingerprint, and ``FINGERPRINT_CODE`` covers the build's import
+  closure (tests/test_blender_build.py checks it).
 - A building with ``slabs``, ``roof`` or ``variants`` (``is_whole_building``)
   is built whole: slab objects (``shell.slab_plan`` / ``build_slabs``:
   outline minus the stair openings, the brief's ``slab_thickness`` where
   none is given, assumed), walls running to the next floor, the floors above
   a stair cut so the stair arrives (no capped shaft), the roof
   (``roof.roof_model`` / ``build_roof``: the drawn planes, else
-  ``roof.planes_for``; terraces cut out), the walls under it cut by its
-  underside (knee walls, gable ends) and the ceilings there sloped, the
-  facade looks (``shell.exterior_looks``: building, style, defaults), sills
-  and balcony railings (``shell.build_outside_details``), the site
-  (``site.site_plan`` / ``build_site``, brief ``site: full`` / ``ground``),
-  the sun turned by the building's north and the exterior cameras
-  ``ext_<n>`` (``exterior.plan_exterior``; kind ``exterior`` in the
-  manifest's camera list) when ``views_for`` says so. Every value no
-  drawing gives is in ``assumed``. The top-down previews hide the roof, the
-  site and the exterior cameras. Other buildings keep the M3-M9 scene.
+  ``roof.planes_for``; ``roof: null`` = ``roof.flat_roof``, assumed;
+  terraces cut out, their walls ending at the parapet, ``roof.parapet_cuts``),
+  the walls under it cut by its underside (knee walls, gable ends) and the
+  ceilings there sloped, the outside looks (``exterior.resolve_looks``:
+  documents > brief ``exterior:`` words > style > ``style.exterior_fallback``;
+  the manifest's ``exterior_looks``), the drawn facade parts on the walls of
+  their side (``facade_faces``), sills and balcony railings
+  (``shell.build_outside_details``), the site (``site.site_plan`` /
+  ``build_site``, brief ``site: full`` / ``ground``; the basement-door
+  terrain and the light wells in the manifest's ``site``), the sun turned by
+  the building's north and the exterior cameras ``ext_<n>``
+  (``exterior.plan_exterior``; kind ``exterior`` in the manifest's camera
+  list, the dropped ones in ``cameras_dropped`` with their
+  ``dropped_reason``) when ``views_for`` says so. Every camera record has
+  ``kind``, ``variant``, ``view``, ``sides``, ``region_id`` and
+  ``dropped_reason`` (§1.6b row 11). Every value no drawing gives is in
+  ``assumed``. The top-down previews hide the roof, the site and the
+  exterior cameras. Other buildings keep the M3-M9 scene.
 """
 from __future__ import annotations
 
@@ -138,10 +155,13 @@ PREVIEW_MARGIN_M = 0.5
 DEFAULT_PREVIEW_SAMPLES = 16
 
 REPO_ROOT = _repo_root()
-# Files whose content shapes scene.blend besides the inputs (docs/milestone5.md §2.7).
-FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/vocabulary.py", "wenart/geometry.py",
-                    "wenart/furniture/catalog.json",
-                    "wenart/views.py")           # Milestone 10: the variants and the views to render
+# Files whose content shapes scene.blend besides the inputs (docs/milestone5.md §2.7): the build script's import
+# closure (tests/test_blender_build.py checks every wenart module it may import is covered) and the data files it
+# reads. Milestone 10: the variants and views (views.py), the brief loader and its defaults (the values enter the
+# fingerprint through brief_args too), the style package (vocabulary + track C's finishes and colours).
+FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry.py", "wenart/canonical.py",
+                    "wenart/furniture/catalog.json", "wenart/__init__.py", "wenart/views.py", "wenart/brief.py",
+                    "wenart/defaults.yaml")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
@@ -181,6 +201,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                              "16 mm in rooms narrower than 2.2 m")
     parser.add_argument("--variant", default="base",
                         help="the building variant to build (Milestone 10; base = the M9 scene)")
+    parser.add_argument("--brief", default=None,
+                        help="JSON of the project brief (a wenart.brief.load_brief result or a values dict; "
+                             "Milestone 10); default: the building's stored brief and the defaults")
     return parser.parse_args(argv)
 
 
@@ -191,17 +214,42 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def fingerprint_args(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                      no_textures: bool = False, preview_samples: int | None = None, no_preview: bool = False,
                      no_glb: bool = False, proxies: bool = False, camera_policy: str = DEFAULT_CAMERA_POLICY,
-                     lens_mm: float | None = None, variant: str = "base") -> dict:
+                     lens_mm: float | None = None, variant: str = "base", brief: dict | None = None) -> dict:
     """The build arguments that enter the fingerprint, in one canonical form
     (``--out`` is left out: where the scene is written does not change it).
     ``lens_mm`` None = the automatic lens rule (Milestone 8); ``variant``
-    (Milestone 10) the building variant."""
+    (Milestone 10) the building variant; ``brief`` the brief values the
+    build uses (``brief_args``; the file path is not part of it)."""
     return {"building": str(building), "style": str(style) if style else None,
             "assets": str(assets) if assets else None, "level": level, "no_textures": bool(no_textures),
             "preview_samples": DEFAULT_PREVIEW_SAMPLES if preview_samples is None else int(preview_samples),
             "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies),
             "camera_policy": str(camera_policy or DEFAULT_CAMERA_POLICY),
-            "lens_mm": None if lens_mm is None else float(lens_mm), "variant": str(variant or "base")}
+            "lens_mm": None if lens_mm is None else float(lens_mm), "variant": str(variant or "base"),
+            "brief": brief or {}}
+
+
+def load_brief_file(path: str | None) -> dict | None:
+    """The ``--brief`` JSON (a ``load_brief`` result or a values dict), None without one."""
+    if not path:
+        return None
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"--brief {path}: not a JSON object")
+    return data
+
+
+def brief_args(building: dict, brief: dict | None = None) -> dict:
+    """``{key: {"value", "assumed"}}`` of the brief keys the build reads (``views.BUILD_BRIEF_KEYS``; pure):
+    from ``brief`` (``load_brief_file``), else the building's stored brief, else ``views.BRIEF_DEFAULTS``. The
+    fingerprint holds them, so a changed brief rebuilds the scene."""
+    from wenart import views as V
+
+    out = {}
+    for key in V.BUILD_BRIEF_KEYS:
+        value, assumed = V.brief_value(building, brief, key)
+        out[key] = {"value": value, "assumed": bool(assumed)}
+    return out
 
 
 def _sha256_file(path: Path) -> str | None:
@@ -490,11 +538,58 @@ def ground_outline(building: dict, outlines: dict[str, list]) -> list:
     return max((outlines[lv["id"]] for lv in touching), key=G.polygon_area)
 
 
-def prepare(building_all: dict, variant: str = "base") -> dict:
+def facade_faces(building: dict, outlines: dict[str, list]) -> tuple[dict[str, list[dict]], list[str]]:
+    """``({wall id: [face]}, warnings)``: the drawn facade parts (``facade.faces``, §1.6b row 12) on the walls
+    they cover (pure). A face with a ``wall_id`` covers that wall; any other the outer walls of its level (every
+    level when it names none) whose outward side (``shell.outward_side`` against the level outline) lies within
+    45 degrees of the face's side (``site.side_direction``: compass with the building's north, or drawing-
+    relative; ``all`` = every side). Each face gets ``direction`` (its side's unit vector, None for ``all``) so
+    only the wall faces turned that way take it; its ``z_range`` (building z) bands it."""
+    from wenart import geometry as G
+    from wenart.blender import shell
+    from wenart.blender import site as S
+
+    north, _ = S.north_deg(building)
+    walls = list(building.get("walls") or [])
+    level_ids = {lv["id"] for lv in building.get("levels") or []}
+    out: dict[str, list[dict]] = {}
+    warnings = []
+    cos45 = math.cos(math.radians(45.0)) - 1e-9
+    for face in (building.get("facade") or {}).get("faces") or []:
+        if not isinstance(face, dict) or not face.get("material"):
+            continue
+        direction = S.side_direction(face.get("side"), north)
+        rec = dict(face, direction=list(direction) if direction else None)
+        if face.get("wall_id"):
+            if any(w["id"] == face["wall_id"] for w in walls):
+                out.setdefault(face["wall_id"], []).append(rec)
+            continue
+        if face.get("level_id") and face["level_id"] not in level_ids:
+            continue                                     # a level this variant does not build
+        hit = 0
+        for w in walls:
+            if face.get("level_id") and w.get("level_id") != face["level_id"]:
+                continue
+            outline = outlines.get(w.get("level_id")) or []
+            if len(outline) < 3:
+                continue
+            side = shell.outward_side(w, outline, G.segment_midpoint(w["start"], w["end"]))
+            if side is None or (direction is not None and side[0] * direction[0] + side[1] * direction[1] < cos45):
+                continue
+            out.setdefault(w["id"], []).append(rec)
+            hit += 1
+        if not hit:
+            warnings.append(f"facade face {face.get('material')} ({face.get('side')}, level {face.get('level_id')}): "
+                            f"no outer wall on that side; not used")
+    return out, warnings
+
+
+def prepare(building_all: dict, variant: str = "base", brief: dict | None = None) -> dict:
     """What the build decides before Blender (pure; Milestone 10): the variant's building
-    (``views.variant_building``), its ``views_for`` and ``variant_changes``, and for a whole building the
-    slab plan, the roof model (the level under it gets ``ceiling_planes``), the roof terraces, the level
-    outlines, the site plan and the facade faces per wall. Raises KeyError for an unknown variant."""
+    (``views.variant_building``), its ``views_for`` and ``variant_changes``, the brief values
+    (``brief_args``), and for a whole building the slab plan, the roof model (``roof: null`` = an assumed flat
+    roof; the level under it gets ``ceiling_planes``), the roof terraces, the level outlines, the site plan and
+    the drawn facade parts per wall (``facade_faces``). Raises KeyError for an unknown variant."""
     from wenart import views as V
     from wenart.blender import geom2d, shell
     from wenart.blender import roof as R
@@ -503,32 +598,31 @@ def prepare(building_all: dict, variant: str = "base") -> dict:
     whole = is_whole_building(building_all)
     vb = V.variant_building(building_all, variant)
     out = {"whole": whole, "variant": variant, "building": vb if whole else building_all,
-           "views": V.views_for(building_all, variant), "changes": V.variant_changes(building_all, variant),
+           "views": V.views_for(building_all, variant, brief=brief), "changes": V.variant_changes(building_all, variant),
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
-           "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {}, "brief": {}}
+           "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
+           "brief": brief_args(building_all, brief)}
     if not whole:
         return out
-    slab_t, slab_assumed = V.brief_setting(building_all, "slab_thickness")
-    site_mode, site_assumed = V.brief_setting(building_all, "site")
-    out["brief"] = {"slab_thickness": {"value": slab_t, "assumed": slab_assumed},
-                    "site": {"value": site_mode, "assumed": site_assumed}}
+    slab_t, slab_assumed = out["brief"]["slab_thickness"]["value"], out["brief"]["slab_thickness"]["assumed"]
+    site_mode, site_assumed = out["brief"]["site"]["value"], out["brief"]["site"]["assumed"]
     if site_assumed:          # (slab_thickness: slab_plan lists it on every slab that uses it)
         out["assumed"].append({"object": "brief", "field": "site", "value": site_mode,
-                               "reason": "not in the building's brief: the default of wenart/defaults.yaml"})
+                               "reason": "not in the brief: the default of wenart/defaults.yaml"})
     if building_all.get("slabs"):
         out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
         out["warnings"] += out["slabs"]["warnings"]
         out["assumed"] += out["slabs"]["assumed"]
-    if isinstance(vb.get("roof"), dict):
-        roof = R.roof_model(vb["roof"], vb)
-        out["roof"] = roof
-        out["warnings"] += roof["warnings"]
-        for lv in vb["levels"]:
-            if roof["convex"] and roof["equations"] and lv["id"] == roof["over_level_id"]:
-                lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
-        out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
-    else:
-        out["warnings"].append("no roof in the building JSON: none built")
+    roof_in = vb.get("roof") if isinstance(vb.get("roof"), dict) else R.flat_roof(vb)
+    if not isinstance(vb.get("roof"), dict):
+        out["warnings"].append("roof: null (no roof evidence): a flat roof over the top level, assumed")
+    roof = R.roof_model(roof_in, vb)
+    out["roof"] = roof
+    out["warnings"] += roof["warnings"]
+    for lv in vb["levels"]:
+        if roof["convex"] and roof["equations"] and lv["id"] == roof["over_level_id"]:
+            lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
+    out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
     for lv in vb["levels"]:
         out["outlines"][lv["id"]] = geom2d.wall_outline([w for w in vb["walls"] if w["level_id"] == lv["id"]])[0]
     out["ground_outline"] = ground_outline(vb, out["outlines"])
@@ -538,9 +632,8 @@ def prepare(building_all: dict, variant: str = "base") -> dict:
             out["warnings"].append(f"brief site {site_mode!r} unknown: full used")
         out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode)
         out["warnings"] += out["site"]["warnings"]
-    for face in (vb.get("facade") or {}).get("faces") or []:
-        if face.get("wall_id") and face.get("material"):
-            out["faces"].setdefault(face["wall_id"], []).append(face)
+    out["faces"], warnings = facade_faces(vb, out["outlines"])
+    out["warnings"] += warnings
     return out
 
 
@@ -568,16 +661,21 @@ def main(argv: list[str]) -> int:
         except ValueError as exc:
             print(f"--lens-mm {args.lens_mm:g}: {exc}")
             return 2
+    building_all = json.loads(Path(args.building).read_text(encoding="utf-8"))
+    try:
+        brief = load_brief_file(args.brief)
+    except (OSError, ValueError) as exc:
+        print(f"--brief {args.brief}: {exc}")
+        return 2
     fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
                                args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy,
-                               args.lens_mm, args.variant)
+                               args.lens_mm, args.variant, brief_args(building_all, brief))
     fingerprint = build_fingerprint(fp_args)
-    building_all = json.loads(Path(args.building).read_text(encoding="utf-8"))
     if building_all.get("status") != "ok":
         print(f"building status is {building_all.get('status')!r}: nothing to build (needs review first)")
         return 2
     try:
-        prep = prepare(building_all, args.variant)
+        prep = prepare(building_all, args.variant, brief)
     except KeyError as exc:
         print(f"--variant {args.variant}: {exc}")
         return 2
@@ -619,7 +717,12 @@ def main(argv: list[str]) -> int:
                          "proxies_forced": bool(args.proxies), "not_built": [], "stairs": [], "decor_skipped": []}
     loose_furniture = furniture_building(building)            # stairs are built with the shell
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
-    looks = shell.exterior_looks(building, style) if whole else None
+    cameras_dropped: list[dict] = []                          # Milestone 10: exterior views no place worked for
+    looks = E.resolve_looks(building, style, brief) if whole else None
+    for slot, look in (looks or {}).items():
+        warnings.extend(look.get("warnings") or [])
+        if look.get("assumed") and slot in E.EXTERIOR_SLOTS:
+            assumed.append({"object": "exterior", "field": slot, "value": look["material"], "reason": look["reason"]})
     slabs = prep["slabs"]
     roof = prep["roof"]
     render_rooms = set(views["rooms"])
@@ -641,9 +744,11 @@ def main(argv: list[str]) -> int:
         stairs = shell.plan_stairs(building, level, slab_void=arrives)
         wall_whole = None
         if whole:
+            roof_cut = R.wall_cut(roof) if roof and roof["over_level_id"] == level["id"] else None
+            if roof_cut is not None:          # walls under a roof terrace end at the parapet (§1.6b row 13)
+                roof_cut["parapets"] = R.parapet_cuts(roof, building, level)
             wall_whole = {"slab_above": above, "looks": looks, "outline": prep["outlines"].get(level["id"]),
-                          "faces": prep["faces"], "open_rooms": prep["open_rooms"],
-                          "roof_cut": R.wall_cut(roof) if roof and roof["over_level_id"] == level["id"] else None}
+                          "faces": prep["faces"], "open_rooms": prep["open_rooms"], "roof_cut": roof_cut}
             warnings.extend(openings_through_roof(building, level, wall_whole["roof_cut"]))
             warnings.extend(pieces_above_ceiling(building, level))
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
@@ -658,8 +763,7 @@ def main(argv: list[str]) -> int:
                                     whole=floor_whole)
         if whole and prep["outlines"].get(level["id"]):
             counts = shell.build_outside_details(building, level, col, library, looks, prep["outlines"][level["id"]],
-                                                 pass_indices, manifest_objects, assumed,
-                                                 inside_frame=(style.get("window_frame") or {}).get("material"))
+                                                 pass_indices, manifest_objects, assumed, style=style)
             for k, v in counts.items():
                 outside[k] += v
         summary = furniture.create_furniture(loose_furniture, level, col, library, style, args.assets, pass_indices,
@@ -676,6 +780,7 @@ def main(argv: list[str]) -> int:
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
         for plan in plans:
             plan.setdefault("policy", args.camera_policy)
+            interior_camera_fields(plan, prep["variant"])
         cams.create_cameras(plans, col, manifest_objects)
         camera_plans.extend(plans)
         for plan in plans:
@@ -696,8 +801,7 @@ def main(argv: list[str]) -> int:
     whole_info = None
     extra_collections = []
     if whole:
-        whole_info = {"slabs": [], "roof": None, "site": None, "outside": outside, "exterior_cameras": None,
-                      "looks": looks}
+        whole_info = {"slabs": [], "roof": None, "site": None, "outside": outside, "exterior_cameras": None}
         built_ids = {lv["id"] for lv in levels}
         if slabs:
             plan = dict(slabs, slabs=[s for s in slabs["slabs"] if s["above_level_id"] in built_ids])
@@ -714,58 +818,47 @@ def main(argv: list[str]) -> int:
                     shell.look_material(library, looks["roof"])]
             R.build_roof(roof, roof_col, mats, manifest_objects, assumed)
             over = next(lv for lv in levels if lv["id"] == roof["over_level_id"])
-            parapets = R.parapet_check(roof, over, [w for w in building["walls"] if w["level_id"] == over["id"]])
-            for p in parapets:
-                if p["needs_parapet"] and not p["open"]:
-                    warnings.append(f"roof opening {p['opening_id']}: the roof edge stands {p['min_height']} m over "
-                                    f"the terrace floor, lower than the parapet ({p['parapet_height']} m); not raised")
-            facade_mat = shell.look_material(library, looks["facade"])
-            rooms_by_opening = {o["id"]: o.get("room_id") for o in roof["openings"]}
-            for i, box in enumerate(R.parapet_boxes(parapets, over)):
-                name = f"parapet_{box['opening_id']}_{i + 1}"
-                room_id = rooms_by_opening.get(box["opening_id"]) or str(box["opening_id"])
-                ob = common.new_mesh_object(name, box["verts"], box["faces"], collection=level_collections[over["id"]],
-                                            wenart_id=name, kind="wall", status="assumed", materials=[facade_mat])
-                reason = (f"terrace edge open to the outside: a {box['height']} m parapet "
-                          f"({'drawn' if any(o['parapet_source'] == 'drawn' for o in roof['openings']) else 'height assumed'})")
-                manifest_objects.append({
-                    "name": ob.name, "wenart_id": name, "kind": "wall", "status": "assumed", "level_id": over["id"],
-                    "element_id": room_id, "parent": room_id, "evidence": [], "material": facade_mat.name,
-                    "textured": False, "pass_index": None,
-                    "assumed": {"detail": "parapet", "height_m": box["height"], "edge": box["edge"], "reason": reason}})
-                assumed.append({"object": ob.name, "field": "parapet", "value": box["height"], "reason": reason,
-                                "parent": room_id, "kind": "parapet"})
+            parapets = R.parapet_cuts(roof, building, over)
+            for o in roof["openings"]:
+                reason = (f"roof terrace {o['id']}: its walls end at a {o['parapet_height']} m parapet "
+                          f"({'drawn' if o['parapet_source'] == 'drawn' else 'height assumed'})")
+                walls = sorted(w for w, cuts in parapets.items() if any(c["opening_id"] == o["id"] for c in cuts))
+                if not walls:
+                    warnings.append(f"roof opening {o['id']}: no outer wall runs under it; no parapet")
+                elif o["parapet_source"] != "drawn":
+                    assumed.append({"object": ",".join(walls), "field": "parapet", "value": o["parapet_height"],
+                                    "reason": reason, "parent": str(o.get("room_id") or o["id"]), "kind": "parapet"})
             whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
                                   "planes": roof["planes"], "derived_check": roof["derived_check"],
+                                  "knee_wall_check": roof.get("knee_wall_check"), "profile": roof.get("profile"),
                                   "eaves_z": roof["eaves_z"], "ridge_z": roof["ridge_z"], "thickness": roof["thickness"],
                                   "openings": [o["id"] for o in roof["openings"]], "parapets": parapets,
+                                  "flat_assumed": not isinstance(building.get("roof"), dict),
                                   "notes": roof["notes"], "assumed": roof["assumed"]}
         if prep["site"] is not None:
             site_col = common.get_or_make_collection("site")
             extra_collections.append(site_col)
-            names = ("ground", "grass", "paving", "parking", "plot_wall", "light_well", "bark", "foliage")
-            site_mats = {}
-            for name in names:
-                look = {"ground": looks["ground"], "grass": looks["garden"], "parking": looks["paving"],
-                        "paving": looks["paving"]}.get(name) or looks[name]
-                site_mats[name] = shell.look_material(library, look)
-            whole_info["site"] = S.build_site(prep["site"], site_col, site_mats, manifest_objects, assumed)
+            whole_info["site"] = S.build_site(prep["site"], site_col, looks,
+                                              lambda look: shell.look_material(library, look), manifest_objects,
+                                              assumed)
+        dropped = []
         if views["exterior"]:
             ext_col = common.get_or_make_collection("exterior")
             extra_collections.append(ext_col)
             model = E.build_model(building, levels, roof, prep["site"])
-            ext_plans, dropped = E.plan_exterior(model, building, levels, (prep["site"] or {}).get("plot") or [])
+            ext_plans, dropped = E.plan_exterior(model, building, levels, (prep["site"] or {}).get("plot") or [],
+                                                 variant=prep["variant"])
             E.create_cameras(ext_plans, ext_col, manifest_objects)
             camera_plans.extend(ext_plans)
             for d in dropped:
-                warnings.append(f"{d['name']}: exterior view dropped ({d['reason']})")
+                warnings.append(f"{d['name']}: exterior view dropped ({d['dropped_reason']})")
             for p in ext_plans:
                 if p.get("warning"):
                     warnings.append(f"{p['name']}: {p['warning']}")
-            whole_info["exterior_cameras"] = {"planned": [p["name"] for p in ext_plans], "dropped": dropped,
-                                              "reason": views["exterior_reason"]}
-        else:
-            whole_info["exterior_cameras"] = {"planned": [], "dropped": [], "reason": views["exterior_reason"]}
+        cameras_dropped.extend(dropped)
+        whole_info["exterior_cameras"] = {"planned": [p["name"] for p in camera_plans if p.get("kind") == E.KIND],
+                                          "dropped": [d["name"] for d in dropped], "reason": views["exterior_reason"],
+                                          "from": views["exterior_from"]}
 
     light_col = common.get_or_make_collection("lighting")
     if whole:
@@ -853,6 +946,11 @@ def main(argv: list[str]) -> int:
         "variant": variant_summary(building_all, prep),
         "variants": variants_summary(building_all),
         "whole_building": whole_info,
+        # Milestone 10 (docs/milestone10.md §1.6b rows 9, 11, 12): the exterior cameras no place worked for, the
+        # resolved outside looks (never written back to the building) and the brief values used.
+        "cameras_dropped": cameras_dropped,
+        "exterior_looks": looks,
+        "brief": prep["brief"],
         "seconds": round(time.time() - t0, 1),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
@@ -903,13 +1001,25 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
         if piece.get("level_id") != level["id"] or piece.get("build", True) is False or piece.get("type") == "stair":
             continue
         fp = piece["footprint"]
-        top = float(level["elevation"]) + float(piece_bbox(piece)[2])
+        # a wall-hung piece (mount_bottom_m, §1.6b row 15) hangs that high above the floor
+        top = float(level["elevation"]) + float(piece.get("mount_bottom_m") or 0.0) + float(piece_bbox(piece)[2])
         corners = G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))
         low = min(geom2d.surface_z(planes, x, y) for x, y in corners)
         if top > low + 1e-3:
-            out.append(f"{piece['id']}: {piece.get('type')} {top - float(level['elevation']):.2f} m tall stands where "
-                       f"the sloped ceiling is {low - float(level['elevation']):.2f} m high; it shows through the ceiling")
+            out.append(f"{piece['id']}: {piece.get('type')} with its top {top - float(level['elevation']):.2f} m "
+                       f"above the floor stands where the sloped ceiling is {low - float(level['elevation']):.2f} m "
+                       f"high; it shows through the ceiling")
     return out
+
+
+def interior_camera_fields(plan: dict, variant: str) -> dict:
+    """The Milestone 10 camera fields of an interior camera plan (pure; §1.6b row 11): ``kind`` interior,
+    ``variant``, ``view`` null, ``sides`` [], ``region_id`` null, ``dropped_reason`` null. Returns ``plan``."""
+    plan.setdefault("kind", "interior")
+    plan["variant"] = variant
+    for key, value in (("view", None), ("sides", []), ("region_id", None), ("dropped_reason", None)):
+        plan.setdefault(key, value)
+    return plan
 
 
 def variant_summary(building_all: dict, prep: dict) -> dict:

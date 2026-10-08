@@ -11,7 +11,7 @@ CLI::
 
     python -m wenart.blender.cli build --building outputs/p/building_final.json --style outputs/p/style.json \
         --assets assets --out outputs/p/scene [--level L0] [--no-textures] [--preview-samples N] [--reuse] \
-        [--proxies] [--camera-policy m5|search] [--lens-mm L]
+        [--proxies] [--camera-policy m5|search] [--lens-mm L] [--variant ID] [--brief projects/p]
     python -m wenart.blender.cli render --scene outputs/p/scene/scene.blend --out outputs/p/renders \
         [--cameras all|cam_a,cam_b] [--samples N] [--res WxH] [--force] [--device auto|cpu] \
         [--exposure auto|off|<EV>] [--exposure-target T] [--white-balance auto|off|fixed:r,g,b] \
@@ -42,13 +42,14 @@ needs review, a bad flag, an unknown variant), 3 when the render was cut by
 ``WENART_DEADLINE`` (its manifest says ``incomplete: true``), 1 for any other
 failure.
 
-Milestone 10 (docs/milestone10.md §1.6, §1.6a): ``build|render|export ...
---variant <id>`` (default ``base``). The base writes the M9 paths; an
-alternative writes ``outputs/<p>/variants/<id>/{scene,renders,export}/``:
-the same ``--out`` / ``--scene`` / ``--renders`` as for the base are moved
-there (``variant_path``: ``outputs/<p>/scene`` -> ``outputs/<p>/variants/<id>/scene``;
-a path already under ``variants/<id>/`` stays), and the 3D files are named
-``<name>-<id>.blend`` / ``.glb``.
+Milestone 10 (docs/milestone10.md §1.6, §1.6a, §1.6b row 9): ``build|render|export ...
+--variant <id>`` (default ``base``). The paths stay explicit: the scheduler
+passes ``outputs/<p>/variants/<id>/{scene,renders,export}/`` for an
+alternative (``variant_path`` computes them); ``build`` builds that variant
+into ``--out`` and ``export`` names the 3D files ``<name>-<id>.blend`` /
+``.glb`` (``export_name``). ``build --brief <project dir | brief.yaml |
+brief JSON>`` gives the build the brief (``load_brief_arg``, written to
+``<out>/build_brief.json``; its values enter the fingerprint).
 """
 from __future__ import annotations
 
@@ -122,10 +123,12 @@ VARIANTS_DIR = "variants"
 
 
 def variant_path(path, variant: str | None = BASE_VARIANT, is_file: bool | None = None) -> Path:
-    """Where a variant's output goes (pure): the base keeps ``path``; an alternative moves the project
-    folder's subfolder into ``variants/<id>/``: ``outputs/<p>/scene`` -> ``outputs/<p>/variants/<id>/scene``,
-    ``outputs/<p>/scene/scene.blend`` -> ``outputs/<p>/variants/<id>/scene/scene.blend``. ``is_file`` None:
-    a path with a suffix is a file. A path already under ``variants/<id>/`` is returned as it is."""
+    """Where a variant's output goes by the layout of §1.6b row 9 (pure; a helper for the scheduler and the
+    tests: the CLI itself keeps the explicit ``--out`` / ``--scene``): the base keeps ``path``; an alternative
+    moves the project folder's subfolder into ``variants/<id>/``: ``outputs/<p>/scene`` ->
+    ``outputs/<p>/variants/<id>/scene``, ``outputs/<p>/scene/scene.blend`` ->
+    ``outputs/<p>/variants/<id>/scene/scene.blend``. ``is_file`` None: a path with a suffix is a file. A path
+    already under ``variants/<id>/`` is returned as it is."""
     p = Path(path)
     if not variant or variant == BASE_VARIANT:
         return p
@@ -140,38 +143,69 @@ def variant_path(path, variant: str | None = BASE_VARIANT, is_file: bool | None 
 
 
 def export_name(name: str, variant: str | None = BASE_VARIANT) -> str:
-    """The 3D file stem of a variant: ``<p>`` for the base, ``<p>-<id>`` for an alternative."""
-    return name if not variant or variant == BASE_VARIANT else f"{name}-{variant}"
+    """The 3D file stem of a variant: ``<p>`` for the base, ``<p>-<id>`` for an alternative (a name that
+    already ends in ``-<id>`` is kept)."""
+    if not variant or variant == BASE_VARIANT or str(name).endswith(f"-{variant}"):
+        return name
+    return f"{name}-{variant}"
+
+
+BRIEF_FILE = "build_brief.json"
+
+
+def load_brief_arg(value) -> dict | None:
+    """The brief of ``build --brief`` (outside Blender, where PyYAML is): a project folder or its
+    ``brief.yaml`` (``wenart.brief.load_brief``: the file over ``defaults.yaml``, the defaults listed as
+    assumed), or a JSON file (a ``load_brief`` result or a values dict). None without a value."""
+    if not value:
+        return None
+    import json
+
+    p = Path(value)
+    if p.is_dir() or p.suffix in (".yaml", ".yml"):
+        from wenart.brief import load_brief
+
+        return load_brief(p if p.is_dir() else p.parent)
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def build_fingerprint(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                       no_textures: bool = False, preview_samples: int | None = None, proxies: bool = False,
-                      camera_policy: str = "m5", lens_mm: float | None = None, variant: str = BASE_VARIANT) -> str:
-    """The fingerprint build.py writes for these arguments (computed without Blender)."""
+                      camera_policy: str = "m5", lens_mm: float | None = None, variant: str = BASE_VARIANT,
+                      brief: dict | None = None) -> str:
+    """The fingerprint build.py writes for these arguments (computed without Blender); ``brief``: the
+    ``load_brief_arg`` result (its values for the build's keys enter the fingerprint)."""
+    import json
+
     from wenart.blender import build as build_script
 
+    path = Path(building)
+    data = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
     args = build_script.fingerprint_args(building, style, assets, level, no_textures, preview_samples, False, False,
-                                         proxies, camera_policy, lens_mm, variant)
+                                         proxies, camera_policy, lens_mm, variant,
+                                         build_script.brief_args(data, brief))
     return build_script.build_fingerprint(args)
 
 
 def build(building: str, out: str, style: str | None = None, assets: str | None = None, level: str | None = None,
           no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600,
           proxies: bool = False, reuse: bool = False, camera_policy: str = "m5",
-          lens_mm: float | None = None, variant: str = BASE_VARIANT) -> Path:
+          lens_mm: float | None = None, variant: str = BASE_VARIANT, brief=None) -> Path:
     """Build the scene; returns the path of ``scene_manifest.json``.
     ``proxies`` keeps the Milestone 3 proxy boxes for every furniture piece.
     ``camera_policy``: ``m5`` (default, the fixed rules) or ``search``
     (docs/milestone6.md §4); ``lens_mm``: the brief's lens of every searched
     camera (None: 18 mm, 16 mm in narrow rooms). ``reuse`` skips Blender when the finished build
     in ``out`` has the fingerprint of these inputs (prints ``BUILD_REUSED <fp>``).
-    ``variant`` (Milestone 10): an alternative builds into ``variant_path(out, variant)``."""
-    out = variant_path(out, variant, is_file=False)
+    ``variant`` (Milestone 10): the variant to build into the explicit ``out`` (the scheduler picks
+    ``outputs/<p>/variants/<id>/scene``); ``brief``: a project folder, its ``brief.yaml`` or a brief JSON
+    (``load_brief_arg``), written to ``<out>/build_brief.json`` for the build."""
+    loaded = load_brief_arg(brief)
     if reuse:
         from wenart.blender import build as build_script
 
         fp = build_fingerprint(str(building), str(style) if style else None, str(assets) if assets else None, level,
-                               no_textures, preview_samples, proxies, camera_policy, lens_mm, variant)
+                               no_textures, preview_samples, proxies, camera_policy, lens_mm, variant, loaded)
         ok, why = build_script.reusable_build(Path(out), fp)
         if ok:
             print(f"BUILD_REUSED {fp}")
@@ -196,6 +230,12 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
     if variant and variant != BASE_VARIANT:
         args += ["--variant", str(variant)]
     Path(out).mkdir(parents=True, exist_ok=True)
+    if loaded is not None:
+        import json
+
+        brief_json = Path(out) / BRIEF_FILE
+        brief_json.write_text(json.dumps(loaded, indent=1, ensure_ascii=False), encoding="utf-8")
+        args += ["--brief", str(brief_json)]
     run_blender(BUILD_SCRIPT, args, log_path=Path(out) / "build.log", timeout=timeout)
     return Path(out) / "scene_manifest.json"
 
@@ -218,11 +258,8 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
     ``max_bounces``, ``no_denoise``, ``ev_offset`` and ``preview_quality``
     are the control flags of docs/milestone6.md §6. A render cut by
     ``WENART_DEADLINE`` raises ``BlenderFailed`` with ``returncode`` 3.
-    ``variant`` (Milestone 10): the alternative's scene and output folder (``variant_path``)."""
-    scene = variant_path(scene, variant, is_file=True)
-    out = variant_path(out, variant, is_file=False)
-    if look_from:
-        look_from = variant_path(look_from, variant, is_file=True)
+    ``variant`` (Milestone 10): accepted for the scheduler's symmetry; the explicit ``scene`` / ``out`` name
+    the variant's files (its scene manifest knows the variant)."""
     args = ["--out", str(out), "--cameras", cameras, "--device", device]
     if samples is not None:
         args += ["--samples", str(samples)]
@@ -262,12 +299,8 @@ def export(scene: str, out: str, name: str, renders: str | None = None, max_text
            no_glb: bool = False, timeout: int = 1800, variant: str = BASE_VARIANT) -> Path:
     """``<out>/<name>.blend`` (textures packed, scaled to ``max_texture`` px) and ``<out>/<name>.glb`` of a built
     scene (Milestone 9, ``wenart/blender/export.py``); returns the path of ``export_manifest.json``.
-    ``variant`` (Milestone 10): the alternative's scene, renders and output folder (``variant_path``) and the
-    file stem ``<name>-<id>`` (``export_name``)."""
-    scene = variant_path(scene, variant, is_file=True)
-    out = variant_path(out, variant, is_file=False)
-    if renders:
-        renders = variant_path(renders, variant, is_file=True)
+    ``variant`` (Milestone 10): the file stem ``<name>-<id>`` (``export_name``); the explicit ``scene``,
+    ``renders`` and ``out`` name the variant's files."""
     name = export_name(name, variant)
     args = ["--out", str(out), "--name", str(name)]
     if renders:
@@ -300,9 +333,11 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--lens-mm", type=float, default=None,
                    help="lens of every searched camera (the brief's render.lens_mm, 14-35 mm); default 18 mm, "
                         "16 mm in rooms narrower than 2.2 m")
-    variant_help = "building variant (Milestone 10): base (default, the M9 paths) or an alternative's id " \
-                   "(outputs/<p>/variants/<id>/...)"
+    variant_help = "building variant (Milestone 10): base (default) or an alternative's id; --out / --scene stay " \
+                   "explicit (outputs/<p>/variants/<id>/... for an alternative)"
     b.add_argument("--variant", default=BASE_VARIANT, help=variant_help)
+    b.add_argument("--brief", help="the project brief (Milestone 10): the project folder, its brief.yaml or a brief "
+                                   "JSON; default: the building's stored brief and the defaults")
     r = sub.add_parser("render", help="render cameras of a built scene with Cycles")
     r.add_argument("--variant", default=BASE_VARIANT, help=variant_help)
     r.add_argument("--scene", required=True)
@@ -345,7 +380,7 @@ def main(argv: list[str] | None = None) -> int:
         if ns.command == "build":
             path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
                          proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy, lens_mm=ns.lens_mm,
-                         variant=ns.variant)
+                         variant=ns.variant, brief=ns.brief)
         elif ns.command == "export":
             path = export(ns.scene, ns.out, ns.name, ns.renders, ns.max_texture, ns.no_glb, variant=ns.variant)
         else:

@@ -128,8 +128,8 @@ def readme(name: str, parts: list[str], digest: str, contents: list[str], more: 
     if more:
         lines += ["Other variants of the building (alternative plans, docs/milestone10.md §1.6), each its own set:", ""]
         for stem, vparts, vdigest, vcontents in more:
-            lines += [f"- {stem}: join {stem}_3d.zip.part* into {stem}_3d.zip (copy /b {'+'.join(vparts)} "
-                      f"{stem}_3d.zip on Windows), sha256 {vdigest}; inside: {', '.join(vcontents)}"]
+            lines += [(f"- {stem}: join {stem}_3d.zip.part* into {stem}_3d.zip (copy /b {'+'.join(vparts)} "
+                       f"{stem}_3d.zip on Windows), sha256 {vdigest}; inside: {', '.join(vcontents)}")]
         lines.append("")
     return "\n".join(lines)
 

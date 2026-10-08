@@ -431,8 +431,9 @@ def _fp_inputs(tmp_path: Path) -> dict:
     (tmp_path / "building.json").write_text(json.dumps(room_building()), encoding="utf-8")
     shutil.copy(STYLE, tmp_path / "style.json")
     _tan_texture_set(tmp_path / "assets")
+    # Milestone 10: the brief values the build uses are part of the arguments (build.brief_args).
     return B.fingerprint_args(str(tmp_path / "building.json"), str(tmp_path / "style.json"),
-                              str(tmp_path / "assets"), "L0", False, 4)
+                              str(tmp_path / "assets"), "L0", False, 4, brief=B.brief_args(room_building()))
 
 
 def test_build_fingerprint_follows_inputs_code_and_arguments(tmp_path):
@@ -443,6 +444,11 @@ def test_build_fingerprint_follows_inputs_code_and_arguments(tmp_path):
     # Arguments.
     assert B.build_fingerprint(dict(args, preview_samples=8)) != fp
     assert B.build_fingerprint(dict(args, proxies=True)) != fp
+    # The brief (Milestone 10): a value the build reads changes it; cli loads the same values.
+    ground = {"values": {"site": "ground"}, "assumed": []}
+    assert B.build_fingerprint(dict(args, brief=B.brief_args(room_building(), ground))) != fp
+    assert cli.build_fingerprint(args["building"], args["style"], args["assets"], "L0", False, 4, brief=ground) == \
+        B.build_fingerprint(dict(args, brief=B.brief_args(room_building(), ground)))
     # The style file.
     style = json.loads((tmp_path / "style.json").read_text(encoding="utf-8"))
     style["lighting"]["mood"] = "overcast"
@@ -467,7 +473,10 @@ def test_build_fingerprint_follows_inputs_code_and_arguments(tmp_path):
     # The code: every wenart/blender/*.py file and the vocabulary are hashed.
     code = B.code_hashes()
     assert {"wenart/blender/build.py", "wenart/blender/render.py", "wenart/blender/materials.py",
-            "wenart/style/vocabulary.py", "wenart/furniture/catalog.json", "wenart/geometry.py"} <= set(code)
+            "wenart/style/vocabulary.py", "wenart/furniture/catalog.json", "wenart/geometry.py",
+            # Milestone 10: the variants and views, the brief and its defaults, track C's style tables
+            "wenart/views.py", "wenart/brief.py", "wenart/defaults.yaml", "wenart/style/finishes.py",
+            "wenart/style/colours.py"} <= set(code)
     assert all(v and len(v) == 64 for v in code.values())
     fake = tmp_path / "repo"
     for rel in code:
@@ -476,6 +485,61 @@ def test_build_fingerprint_follows_inputs_code_and_arguments(tmp_path):
     before = B.build_fingerprint(args, repo_root=fake)
     (fake / "wenart" / "blender" / "lighting.py").write_text("y", encoding="utf-8")
     assert B.build_fingerprint(args, repo_root=fake) != before
+
+
+def _wenart_imports(path: Path, package: str) -> set:
+    """The ``wenart`` modules a source file may import (every import statement, inside functions too; ``from x
+    import y`` adds ``x.y`` when that is a module)."""
+    import ast
+
+    out = set()
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.Import):
+            out |= {a.name for a in node.names if a.name.split(".")[0] == "wenart"}
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            if node.level:
+                parts = package.split(".")[:len(package.split(".")) - node.level + 1]
+                base = ".".join(parts + ([node.module] if node.module else []))
+            if base.split(".")[0] == "wenart":
+                out.add(base)
+                out |= {f"{base}.{a.name}" for a in node.names}
+    return out
+
+
+def _module_file(name: str):
+    p = B.REPO_ROOT.joinpath(*name.split("."))
+    for cand in (p.with_suffix(".py"), p / "__init__.py"):
+        if cand.is_file():
+            return cand
+    return None
+
+
+def test_fingerprint_code_covers_the_build_import_closure():
+    """docs/milestone10.md lead note #85: a code change in any module the build script may import (inside
+    Blender: ``build.main`` and what it imports, imports inside functions included) changes the build
+    fingerprint, so ``cli build --reuse`` never keeps a scene made with the old code."""
+    todo = [(B.REPO_ROOT / "wenart" / "blender" / "build.py", "wenart.blender.build")]
+    seen: dict = {}
+    while todo:
+        path, mod = todo.pop()
+        if path in seen:
+            continue
+        seen[path] = mod
+        package = mod if path.name == "__init__.py" else mod.rpartition(".")[0]
+        for name in _wenart_imports(path, package):
+            parts = name.split(".")
+            for i in range(1, len(parts) + 1):            # the packages on the way are imported too
+                f = _module_file(".".join(parts[:i]))
+                if f is not None and f not in seen:
+                    todo.append((f, ".".join(parts[:i])))
+    closure = {p.relative_to(B.REPO_ROOT).as_posix() for p in seen}
+    assert {"wenart/views.py", "wenart/brief.py", "wenart/style/vocabulary.py", "wenart/style/finishes.py",
+            "wenart/blender/exterior.py", "wenart/blender/site.py", "wenart/blender/roof.py"} <= closure
+    missing = sorted(closure - set(B.code_hashes()))
+    assert not missing, missing
+    # the data files the build reads: the furniture catalogue, the brief defaults
+    assert {"wenart/furniture/catalog.json", "wenart/defaults.yaml"} <= set(B.code_hashes())
 
 
 def test_referenced_assets_come_from_the_style_and_the_building():
