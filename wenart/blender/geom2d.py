@@ -523,6 +523,161 @@ def point_in_frustum(point: Sequence[float], position: Sequence[float], target: 
     return abs(_dot(v, r) - ca * z) <= tangents[0] * z and abs(_dot(v, u) - cb * z) <= tangents[1] * z
 
 
+# --------------------------------------------------------------------------
+# Milestone 10 (docs/milestone10.md §3.2): outlines, half-plane clipping, convex pieces
+# --------------------------------------------------------------------------
+
+def clean_polygon(polygon: Sequence[Sequence[float]], tol: float = 1e-9) -> list[tuple[float, float]]:
+    """``(x, y)`` points without the closing duplicate and without repeated points."""
+    out: list[tuple[float, float]] = []
+    for p in polygon:
+        q = (float(p[0]), float(p[1]))
+        if not out or G.distance(out[-1], q) > tol:
+            out.append(q)
+    if len(out) > 1 and G.distance(out[0], out[-1]) <= tol:
+        out.pop()
+    return out
+
+
+def ccw(polygon: Sequence[Sequence[float]]) -> list[tuple[float, float]]:
+    """The polygon counter-clockwise (positive signed area)."""
+    pts = clean_polygon(polygon)
+    return pts if G.polygon_signed_area(pts) >= 0 else pts[::-1]
+
+
+def convex_hull(points: Iterable[Sequence[float]]) -> list[tuple[float, float]]:
+    """Counter-clockwise convex hull (Andrew's monotone chain), collinear points dropped."""
+    pts = sorted({(float(p[0]), float(p[1])) for p in points})
+    if len(pts) <= 2:
+        return pts
+
+    def half(seq):
+        out: list[tuple[float, float]] = []
+        for p in seq:
+            while len(out) >= 2 and ((out[-1][0] - out[-2][0]) * (p[1] - out[-2][1])
+                                     - (out[-1][1] - out[-2][1]) * (p[0] - out[-2][0])) <= 1e-12:
+                out.pop()
+            out.append(p)
+        return out
+
+    lower, upper = half(pts), half(reversed(pts))
+    return lower[:-1] + upper[:-1]
+
+
+def clip_half_plane(polygon: Sequence[Sequence[float]], a: float, b: float, c: float,
+                    tol: float = 1e-12) -> list[tuple[float, float]]:
+    """The part of a polygon where ``a x + b y + c <= 0`` (Sutherland-Hodgman against one half-plane;
+    exact for convex polygons, area-correct for concave ones)."""
+    pts = [(float(p[0]), float(p[1])) for p in polygon]
+    if not pts:
+        return []
+    out: list[tuple[float, float]] = []
+    n = len(pts)
+    for i in range(n):
+        p, q = pts[i], pts[(i + 1) % n]
+        dp, dq = a * p[0] + b * p[1] + c, a * q[0] + b * q[1] + c
+        if dp <= tol:
+            out.append(p)
+        if (dp < -tol and dq > tol) or (dp > tol and dq < -tol):
+            t = dp / (dp - dq)
+            out.append((p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])))
+    return clean_polygon(out, 1e-9) if len(out) >= 3 else []
+
+
+def convex_pieces(outer: Sequence[Sequence[float]], holes: Sequence[Sequence[Sequence[float]]] = ()
+                  ) -> list[list[tuple[float, float]]]:
+    """The region inside ``outer`` and outside every hole as convex pieces (the trapezoids of
+    ``polygon_faces``), each counter-clockwise."""
+    verts, faces = polygon_faces(outer, [h for h in holes if len(h) >= 3], 0.0, facing_up=True)
+    return [[(verts[i][0], verts[i][1]) for i in f] for f in faces]
+
+
+def wall_outline(walls: Sequence[dict], tol_deg: float = 0.5) -> tuple[list[tuple[float, float]], str]:
+    """``(outline, method)``: the outer outline of the union of the wall rectangles (centre line,
+    thickness), counter-clockwise: the outer face of the outer walls. Axis-parallel walls (within
+    ``tol_deg``) give the exact union (``rect_union_outline``, method ``wall_union``); otherwise the convex
+    hull of every wall corner (method ``convex_hull``, an approximation the callers record as assumed)."""
+    rects, corners, axis = [], [], True
+    for w in walls:
+        length = G.distance(w["start"], w["end"])
+        if length < 1e-9:
+            continue
+        # Square end caps (half the thickness past each end): two walls meeting at their centre-line
+        # corner leave the outer corner square open otherwise.
+        half = float(w["thickness"]) / 2.0
+        s = G.point_at_distance(w["start"], w["end"], -half)
+        e = G.point_at_distance(w["start"], w["end"], length + half)
+        quad = G.centerline_to_rectangle(s, e, float(w["thickness"]))
+        corners.extend(quad)
+        ang = G.segment_angle_deg(w["start"], w["end"]) % 90.0
+        if min(ang, 90.0 - ang) > tol_deg:
+            axis = False
+        xs, ys = [p[0] for p in quad], [p[1] for p in quad]
+        rects.append((min(xs), min(ys), max(xs), max(ys)))
+    if not rects:
+        return [], "none"
+    if axis:
+        loops = rect_union_outline(rects)
+        outer = [lp for lp in loops if G.polygon_signed_area(lp) > 0]
+        if outer:
+            return max(outer, key=G.polygon_area), "wall_union"
+    return convex_hull(corners), "convex_hull"
+
+
+def oriented_rectangle(polygon: Sequence[Sequence[float]]) -> dict:
+    """The smallest rectangle around a polygon (rotating the convex hull's edge directions):
+    ``{"center", "u", "v", "half": (A, B), "fill"}`` with ``u`` along the longer side (A >= B), ``v`` = ``u``
+    turned 90 degrees counter-clockwise, and ``fill`` = polygon area / rectangle area (1 for a rectangle)."""
+    hull = convex_hull(polygon)
+    best = None
+    n = len(hull)
+    for i in range(n):
+        p, q = hull[i], hull[(i + 1) % n]
+        length = G.distance(p, q)
+        if length < 1e-9:
+            continue
+        u = ((q[0] - p[0]) / length, (q[1] - p[1]) / length)
+        v = (-u[1], u[0])
+        s = [x * u[0] + y * u[1] for x, y in hull]
+        t = [x * v[0] + y * v[1] for x, y in hull]
+        area = (max(s) - min(s)) * (max(t) - min(t))
+        if best is None or area < best[0] - 1e-9:
+            best = (area, u, v, (min(s), max(s)), (min(t), max(t)))
+    if best is None:
+        raise ValueError("oriented_rectangle needs a polygon with area")
+    area, u, v, (s0, s1), (t0, t1) = best
+    sc, tc = (s0 + s1) / 2.0, (t0 + t1) / 2.0
+    centre = (u[0] * sc + v[0] * tc, u[1] * sc + v[1] * tc)
+    a, b = (s1 - s0) / 2.0, (t1 - t0) / 2.0
+    if a < b - 1e-9:
+        u, a, b = v, b, a
+    u = _axis_tidy(u)
+    v = (-u[1], u[0])
+    fill = G.polygon_area(clean_polygon(polygon)) / area if area > 0 else 0.0
+    return {"center": centre, "u": u, "v": v, "half": (a, b), "fill": fill}
+
+
+def _axis_tidy(u: tuple[float, float]) -> tuple[float, float]:
+    """A direction within 1e-9 of an axis snapped onto it, pointing to +X (or +Y for a vertical one)."""
+    x, y = u
+    if abs(x) < 1e-9:
+        x = 0.0
+    if abs(y) < 1e-9:
+        y = 0.0
+    if x < 0 or (x == 0 and y < 0):
+        x, y = -x, -y
+    n = math.hypot(x, y)
+    return (x / n, y / n)
+
+
+def rectangle_corners(rect: dict, grow: float = 0.0) -> list[tuple[float, float]]:
+    """The counter-clockwise corners of an ``oriented_rectangle`` grown by ``grow`` on every side."""
+    (cx, cy), (ux, uy), (vx, vy) = rect["center"], rect["u"], rect["v"]
+    a, b = rect["half"][0] + grow, rect["half"][1] + grow
+    return [(cx - ux * a - vx * b, cy - uy * a - vy * b), (cx + ux * a - vx * b, cy + uy * a - vy * b),
+            (cx + ux * a + vx * b, cy + uy * a + vy * b), (cx - ux * a + vx * b, cy - uy * a + vy * b)]
+
+
 def _cross(a: Vec3, b: Vec3) -> Vec3:
     return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
 

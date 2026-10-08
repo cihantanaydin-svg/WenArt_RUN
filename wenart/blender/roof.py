@@ -1,0 +1,819 @@
+"""The roof of the whole building (docs/milestone10.md §3.2 items 2-3, §1.6a).
+
+What:
+
+- ``planes_for(roof, building)`` derives the roof planes (3D polygons of the outer roof surface, the
+  ``roof.planes`` format of the building schema) from the roof type, the eaves outline, the eaves and
+  ridge heights, the pitches, the ridge lines and (mansard, gambrel) the closed break line. The pipeline
+  leaves ``roof.planes`` empty; the builder records what it used in the scene manifest.
+- ``roof_model(roof, building)`` decides what the scene builds: the drawn planes when the building has
+  them, else the derived ones, the thickness, the roof terraces (``roof.openings``) and every value no
+  drawing gives (``assumed``, with the reason).
+- The mesh helpers turn the model into the roof solid (``roof_solid``: covering on top, soffit under it,
+  fascia on the edges, terraces cut out), the walls under the roof into knee walls and gable ends
+  (``clip_solid_below``: a wall box cut by the roof underside) and the ceilings of the rooms under it into
+  sloped faces (``ceiling_faces``).
+- ``build_roof`` (bpy) makes the roof object.
+
+Why: Milestone 10 builds the whole building: real02 has a mansard roof (two pitches, about 40 and 13
+degrees, eaves 0.50 m above the attic floor and 0.50 m outside the wall, a closed break line on the attic
+plan) with roof terraces cut into it; the example building a gable roof with a terrace.
+
+How: every roof plane is ``z = a x + b y + c`` (``plane_from_points``). The roof types derived here are
+convex, so the outer roof surface is the lowest plane at every point (``surface_z``) and the region where
+one plane is the lowest is convex: clipping a convex piece of the outline by the half-planes ``plane_i <=
+plane_j`` gives that plane's face, and the same for the underside (each plane lowered by
+``thickness / cos(slope)``) and for the attic ceilings (the underside 1 mm lower, and the flat ceiling of
+the level where the section shows one: ``level.ceiling_height``). Rectangular roofs are derived on the
+outline's smallest enclosing rectangle (``geom2d.oriented_rectangle``); another outline is simplified to that
+rectangle and the simplification is listed as assumed. Plane names follow the downhill direction in the
+building frame (+Y = north): ``rp_south`` slopes down to -Y. Pure Python (Blender's Python has no shapely or
+numpy needs here), tested on the CPU (tests/test_blender_roof.py).
+
+Conventions of the contract (building.schema.json ``roof``): ``eaves_height`` is the building z of the eaves
+edge (the outline) on the outer roof surface; ``knee_wall`` is read to the drawn roof line at the outer face
+of the wall (the example: eaves 3.65 + 0.5 m x tan 35 = 4.00 = floor 3.00 + knee wall 1.00); ``aspect_deg``
+is the downhill direction, 0 = -Y, counter-clockwise (90 = +X).
+"""
+from __future__ import annotations
+
+import math
+from typing import Iterable, Optional, Sequence
+
+from wenart import geometry as G
+from wenart.blender import geom2d
+
+Plane = tuple[float, float, float]           # z = a x + b y + c
+
+ROOF_TYPES = ("flat", "gable", "hip", "mansard", "gambrel", "shed", "other")
+DEFAULTS = {
+    "pitch_deg": 30.0,           # no pitch and no ridge height drawn
+    "shed_pitch_deg": 10.0,
+    "overhang": 0.50,            # only used when the outline is not drawn, or for the knee-wall eaves
+    "thickness": 0.25,           # the roof is one line in most sections
+    "knee_wall": 1.00,           # an attic without eaves height and knee wall
+    "parapet": 1.00,             # a roof terrace without a drawn parapet
+    "flat_thickness": 0.30,      # a flat roof slab
+}
+CEILING_GAP = 0.001              # attic ceilings stay this far under the roof underside (no coplanar faces)
+TOL = 1e-6
+CONVEX_TOL = 0.01                # drawn planes: a plane more than this above another at its own corners -> not convex
+SAME_TOL = 0.02                  # equivalent planes: corners within 2 cm
+MIN_PIECE_AREA = 1e-5
+
+
+# --------------------------------------------------------------------------
+# Planes
+# --------------------------------------------------------------------------
+
+def plane_from_points(points: Sequence[Sequence[float]]) -> Optional[Plane]:
+    """``(a, b, c)`` of ``z = a x + b y + c`` through a planar 3D polygon (Newell normal); None for a vertical
+    or degenerate one."""
+    pts = [(float(p[0]), float(p[1]), float(p[2])) for p in points]
+    if len(pts) < 3:
+        return None
+    nx, ny, nz = geom2d.face_normal(pts, list(range(len(pts))))
+    if abs(nz) < 1e-9:
+        return None
+    cx = sum(p[0] for p in pts) / len(pts)
+    cy = sum(p[1] for p in pts) / len(pts)
+    cz = sum(p[2] for p in pts) / len(pts)
+    a, b = -nx / nz, -ny / nz
+    return (a, b, cz - a * cx - b * cy)
+
+
+def plane_z(plane: Plane, x: float, y: float) -> float:
+    return plane[0] * x + plane[1] * y + plane[2]
+
+
+def slope_aspect(plane: Plane) -> tuple[float, Optional[float]]:
+    """``(slope_deg, aspect_deg)``: the slope and the downhill direction (0 = -Y, counter-clockwise; None
+    for a flat plane)."""
+    a, b = plane[0], plane[1]
+    g = math.hypot(a, b)
+    slope = math.degrees(math.atan(g))
+    if g < 1e-9:
+        return round(slope, 4), None
+    return round(slope, 4), round(math.degrees(math.atan2(-a, b)) % 360.0, 4)
+
+
+def lowered(plane: Plane, thickness: float) -> Plane:
+    """The plane ``thickness`` metres (measured square to it) below: ``c - t / cos(slope)``."""
+    a, b, c = plane
+    return (a, b, c - float(thickness) * math.sqrt(1.0 + a * a + b * b))
+
+
+def surface_z(planes: Sequence[Plane], x: float, y: float) -> float:
+    """The roof surface of a convex roof at ``(x, y)``: the lowest plane there."""
+    return min(plane_z(p, x, y) for p in planes)
+
+
+def _ramp(base: Sequence[float], inward: Sequence[float], z0: float, tan_pitch: float) -> Plane:
+    """The plane that is ``z0`` on the line through ``base`` square to ``inward`` and rises along ``inward``
+    by ``tan_pitch`` per metre."""
+    ix, iy = float(inward[0]), float(inward[1])
+    a, b = tan_pitch * ix, tan_pitch * iy
+    return (a, b, z0 - a * float(base[0]) - b * float(base[1]))
+
+
+def side_name(aspect: Optional[float]) -> str:
+    """Compass word of a downhill direction in the building frame (+Y = north): south = down to -Y."""
+    if aspect is None:
+        return "flat"
+    return ("south", "east", "north", "west")[int(((aspect + 45.0) % 360.0) // 90.0)]
+
+
+def plane_regions(planes: Sequence[Plane], piece: Sequence[Sequence[float]]) -> list[tuple[int, list]]:
+    """``[(plane index, polygon)]``: where in the convex ``piece`` each plane is the lowest one."""
+    out = []
+    for i, pi in enumerate(planes):
+        poly = [(float(p[0]), float(p[1])) for p in piece]
+        for j, pj in enumerate(planes):
+            if j == i or not poly:
+                continue
+            # plane_i <= plane_j  <=>  (a_i - a_j) x + (b_i - b_j) y + (c_i - c_j) <= 0; ties go to the lower index.
+            poly = geom2d.clip_half_plane(poly, pi[0] - pj[0], pi[1] - pj[1], pi[2] - pj[2] - (1e-9 if j < i else 0.0))
+        if len(poly) >= 3 and G.polygon_area(poly) > MIN_PIECE_AREA:
+            out.append((i, poly))
+    return out
+
+
+def _region_polygons(planes: Sequence[Plane], outline: Sequence[Sequence[float]]) -> list[list]:
+    """Per plane its face polygon on the outline (the outline clipped by its half-planes; a concave outline
+    clipped the Sutherland-Hodgman way keeps its area)."""
+    out = []
+    for i, pi in enumerate(planes):
+        poly = geom2d.ccw(outline)
+        for j, pj in enumerate(planes):
+            if j == i or not poly:
+                continue
+            poly = geom2d.clip_half_plane(poly, pi[0] - pj[0], pi[1] - pj[1], pi[2] - pj[2] - (1e-9 if j < i else 0.0))
+        poly = geom2d._drop_collinear(poly, 1e-7) if len(poly) > 3 else poly
+        out.append(poly if len(poly) >= 3 and G.polygon_area(poly) > MIN_PIECE_AREA else [])
+    return out
+
+
+def planes_from_equations(planes: Sequence[Plane], outline: Sequence[Sequence[float]], names: Sequence[str],
+                          source: str = "derived") -> list[dict]:
+    """``roof.planes`` entries of plane equations on an outline (planes with no face there are left out)."""
+    out = []
+    used: dict[str, int] = {}
+    for plane, poly, name in zip(planes, _region_polygons(planes, outline), names):
+        if not poly:
+            continue
+        slope, aspect = slope_aspect(plane)
+        pid = name
+        if pid in used:
+            used[pid] += 1
+            pid = f"{name}_{used[name]}"
+        else:
+            used[pid] = 1
+        out.append({"id": pid, "points": [[round(x, 4), round(y, 4), round(plane_z(plane, x, y), 4)] for x, y in poly],
+                    "slope_deg": round(slope, 3), "aspect_deg": None if aspect is None else round(aspect, 3),
+                    "source": source})
+    return out
+
+
+def equivalent_planes(a: Sequence[dict], b: Sequence[dict], tol: float = SAME_TOL) -> tuple[bool, str]:
+    """``(same, why not)``: two plane lists describe the same roof surface: one-to-one, the same slope
+    (0.5 degree) and downhill direction (1 degree) and every corner of each polygon within ``tol`` of a corner
+    of the other (vertex order and start do not matter)."""
+    if len(a) != len(b):
+        return False, f"{len(a)} planes vs {len(b)}"
+    free = list(b)
+
+    def near(p, q):
+        return math.dist([float(v) for v in p[:3]], [float(v) for v in q[:3]]) <= tol
+
+    for pa in a:
+        sa, aa = slope_aspect(plane_from_points(pa["points"]) or (0.0, 0.0, 0.0))
+        hit = None
+        for pb in free:
+            sb, ab = slope_aspect(plane_from_points(pb["points"]) or (0.0, 0.0, 0.0))
+            if abs(sa - sb) > 0.5 or (aa is None) != (ab is None):
+                continue
+            if aa is not None and abs((aa - ab + 180.0) % 360.0 - 180.0) > 1.0:
+                continue
+            pts_a, pts_b = pa["points"], pb["points"]
+            if all(any(near(p, q) for q in pts_b) for p in pts_a) and all(any(near(q, p) for p in pts_a) for q in pts_b):
+                hit = pb
+                break
+        if hit is None:
+            return False, f"no plane like {pa.get('id')} (slope {sa}, aspect {aa})"
+        free.remove(hit)
+    return True, ""
+
+
+# --------------------------------------------------------------------------
+# Deriving the planes (planes_for)
+# --------------------------------------------------------------------------
+
+def _value(entry) -> Optional[float]:
+    if isinstance(entry, dict):
+        v = entry.get("value")
+        return None if v is None else float(v)
+    if isinstance(entry, (int, float)) and not isinstance(entry, bool):
+        return float(entry)
+    return None
+
+
+def _is_assumed(entry) -> bool:
+    return isinstance(entry, dict) and entry.get("method") == "assumed"
+
+
+def over_level(roof: dict, building: dict) -> Optional[dict]:
+    """The level the roof covers: ``over_level_id``, else the highest level."""
+    levels = building.get("levels") or []
+    lid = roof.get("over_level_id")
+    found = next((lv for lv in levels if lv["id"] == lid), None) if lid else None
+    if found is None and levels:
+        found = max(levels, key=lambda lv: float(lv.get("elevation") or 0.0))
+    return found
+
+
+def _ridge_axis(rect: dict, roof: dict) -> tuple[tuple[float, float], tuple[float, float], float, float,
+                                                  Optional[float], str]:
+    """``(r, across, half_along, half_across, ridge_half_length, source)`` of a rectangle: the ridge
+    direction from the longest drawn ridge line (snapped to the nearer rectangle axis), else the long axis."""
+    u, v = rect["u"], rect["v"]
+    a, b = rect["half"]
+    lines = [ln for ln in roof.get("ridge_lines") or [] if isinstance(ln, (list, tuple)) and len(ln) == 2]
+    if lines:
+        p, q = max(lines, key=lambda ln: G.distance(ln[0], ln[1]))
+        length = G.distance(p, q)
+        if length > 1e-6:
+            d = ((q[0] - p[0]) / length, (q[1] - p[1]) / length)
+            if abs(d[0] * u[0] + d[1] * u[1]) >= abs(d[0] * v[0] + d[1] * v[1]):
+                return u, v, a, b, length / 2.0, "ridge_lines"
+            return v, (-v[1], v[0]), b, a, length / 2.0, "ridge_lines"
+        return u, v, a, b, 0.0, "ridge_lines"
+    return u, v, a, b, None, "long axis"
+
+
+def _rect_planes(centre, r, across, half_along: float, half_across: float, z0: float, tan_side: float,
+                 ends: str, ridge_half: Optional[float], base: str) -> tuple[list[Plane], list[str], list[str]]:
+    """Planes over a rectangle (``centre``, ridge direction ``r``, ``across`` = ``r`` turned 90 degrees):
+    two sides rising from the long edges at ``tan_side`` to the ridge, and ``ends``: ``gable`` (none: the
+    gable walls close the ends) or ``hip`` (rising from the short edges; with ``ridge_half`` the drawn ridge
+    half-length sets their pitch, else the side pitch). Returns ``(planes, names, notes)``."""
+    cx, cy = centre
+    planes, names, notes = [], [], []
+    for sgn in (1.0, -1.0):
+        edge = (cx + across[0] * half_across * sgn, cy + across[1] * half_across * sgn)
+        planes.append(_ramp(edge, (-across[0] * sgn, -across[1] * sgn), z0, tan_side))
+        names.append(base)
+    if ends == "hip":
+        rise = half_across * tan_side
+        if ridge_half is not None and ridge_half < half_along - 1e-3:
+            inset = half_along - max(0.0, ridge_half)
+            tan_end = rise / inset
+            notes.append(f"hip ends from the drawn ridge length {2 * ridge_half:.2f} m "
+                         f"({math.degrees(math.atan(tan_end)):.1f} degrees)")
+        elif ridge_half is not None:
+            tan_end = None
+            notes.append("the drawn ridge runs the full length: gable ends")
+        else:
+            tan_end = tan_side
+        if tan_end is not None:
+            for sgn in (1.0, -1.0):
+                edge = (cx + r[0] * half_along * sgn, cy + r[1] * half_along * sgn)
+                planes.append(_ramp(edge, (-r[0] * sgn, -r[1] * sgn), z0, tan_end))
+                names.append(base)
+    return planes, names, notes
+
+
+def _named(planes: Sequence[Plane], names: Sequence[str]) -> list[str]:
+    return [f"rp_{side_name(slope_aspect(p)[1])}" + (f"_{n}" if n else "") for p, n in zip(planes, names)]
+
+
+def _offset_outline(rect: dict, grow: float) -> list[tuple[float, float]]:
+    return geom2d.rectangle_corners(rect, grow)
+
+
+def derive(roof: dict, building: dict) -> dict:
+    """The derivation behind ``planes_for``: ``{"planes": [...], "equations": [(a, b, c)], "outline",
+    "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes"}``."""
+    rtype = str(roof.get("type") or "other")
+    assumed: list[dict] = []
+    warnings: list[str] = []
+    notes: list[str] = []
+    level = over_level(roof, building)
+    floor_z = float(level["elevation"]) if level else 0.0
+    if not roof.get("over_level_id"):
+        assumed.append({"field": "over_level_id", "value": level["id"] if level else None,
+                        "reason": "not given: the roof covers the highest level"})
+
+    overhang = _value(roof.get("overhang"))
+    overhang_assumed = overhang is None or _is_assumed(roof.get("overhang"))
+    if overhang is None:
+        overhang = 0.0 if rtype == "flat" else DEFAULTS["overhang"]
+
+    outline = geom2d.ccw(roof.get("outline") or [])
+    if len(outline) < 3:
+        walls = [w for w in building.get("walls") or [] if level and w.get("level_id") == level["id"]]
+        wall_line, method = geom2d.wall_outline(walls)
+        if len(wall_line) < 3:
+            return {"planes": [], "equations": [], "outline": [], "eaves_z": None, "ridge_z": None, "pitches": [],
+                    "assumed": assumed, "warnings": ["no roof outline and no walls under the roof: no roof"],
+                    "notes": notes}
+        rect = geom2d.oriented_rectangle(wall_line)
+        outline = _offset_outline(rect, overhang)
+        assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
+                        "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
+                                  f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"})
+        overhang_used = True
+    else:
+        overhang_used = False
+    rect = geom2d.oriented_rectangle(outline)
+    if rtype not in ("flat",) and rect["fill"] < 0.98:
+        assumed.append({"field": "outline_rectangle", "value": round(rect["fill"], 3),
+                        "reason": f"the {len(outline)}-point outline is not a rectangle: the {rtype} planes are "
+                                  f"derived on its smallest enclosing rectangle and cut to the outline"})
+
+    pitches = [_value(p) for p in roof.get("pitches_deg") or []]
+    pitches = [p for p in pitches if p is not None]
+    eaves = _value(roof.get("eaves_height"))
+    ridge = _value(roof.get("ridge_height"))
+    knee = _value(roof.get("knee_wall"))
+    r, across, half_along, half_across, ridge_half, ridge_source = _ridge_axis(rect, roof)
+
+    def first_pitch() -> float:
+        if pitches:
+            return pitches[0]
+        if ridge is not None and eaves is not None and rtype in ("gable", "hip") and half_across > 0:
+            p = math.degrees(math.atan2(ridge - eaves, half_across))
+            notes.append(f"pitch {p:.2f} degrees from the eaves and ridge heights")
+            return p
+        p = DEFAULTS["shed_pitch_deg"] if rtype == "shed" else DEFAULTS["pitch_deg"]
+        assumed.append({"field": "pitch", "value": p, "reason": "no pitch and no ridge height drawn"})
+        return p
+
+    if rtype == "flat":
+        z = eaves if eaves is not None else ridge
+        if z is None:
+            top = floor_z + float(level["ceiling_height"]) if level else 0.0
+            z = top + DEFAULTS["flat_thickness"]
+            assumed.append({"field": "eaves_height", "value": round(z, 4),
+                            "reason": "flat roof without a height: the top level's ceiling + an assumed "
+                                      f"{DEFAULTS['flat_thickness']} m roof slab"})
+        eq = [(0.0, 0.0, z)]
+        planes = planes_from_equations(eq, outline, ["rp_flat"])
+        return {"planes": planes, "equations": eq, "outline": outline, "eaves_z": z, "ridge_z": z, "pitches": [0.0],
+                "assumed": assumed, "warnings": warnings, "notes": notes}
+
+    p1 = first_pitch()
+    t1 = math.tan(math.radians(p1))
+    if eaves is None:
+        if knee is not None:
+            eaves = floor_z + knee - (0.0 if overhang_used else overhang) * t1
+            notes.append(f"eaves {eaves:.3f} m from the knee wall {knee:.2f} m at the outer wall face and the "
+                         f"overhang {overhang:.2f} m")
+            if overhang_assumed and not overhang_used:
+                assumed.append({"field": "overhang", "value": overhang,
+                                "reason": "not drawn: used to bring the knee wall to the eaves"})
+        elif ridge is not None and rtype in ("gable", "hip"):
+            eaves = ridge - half_across * t1
+            notes.append(f"eaves {eaves:.3f} m from the ridge height and the pitch")
+        else:
+            knee_a = DEFAULTS["knee_wall"]
+            eaves = floor_z + knee_a - (0.0 if overhang_used else overhang) * t1
+            assumed.append({"field": "eaves_height", "value": round(eaves, 4),
+                            "reason": f"no eaves height, knee wall or ridge height drawn: an assumed knee wall of "
+                                      f"{knee_a} m at the outer wall face"})
+
+    eqs: list[Plane] = []
+    tiers: list[str] = []
+    if rtype in ("gable", "hip", "other"):
+        if rtype == "other":
+            assumed.append({"field": "type", "value": "gable",
+                            "reason": "roof type 'other': built as a gable roof along the ridge"})
+        ends = "hip" if rtype == "hip" else "gable"
+        eqs, tiers, more = _rect_planes(rect["center"], r, across, half_along, half_across, eaves, t1, ends,
+                                        ridge_half, "")
+        notes += more
+        if ridge_source == "long axis" and rtype != "hip":
+            notes.append("ridge along the long side of the outline (no ridge line drawn)")
+        top = eaves + half_across * t1
+    elif rtype == "shed":
+        lines = [ln for ln in roof.get("ridge_lines") or [] if isinstance(ln, (list, tuple)) and len(ln) == 2]
+        cx, cy = rect["center"]
+        if lines:
+            mid = G.segment_midpoint(*max(lines, key=lambda ln: G.distance(ln[0], ln[1])))
+            side = 1.0 if (mid[0] - cx) * across[0] + (mid[1] - cy) * across[1] >= 0 else -1.0
+        else:
+            side = 1.0
+            assumed.append({"field": "shed_direction", "value": "high edge on the +across side",
+                            "reason": "no ridge line drawn for the shed roof"})
+        low = (cx - across[0] * half_across * side, cy - across[1] * half_across * side)
+        eqs, tiers = [_ramp(low, (across[0] * side, across[1] * side), eaves, t1)], [""]
+        top = eaves + 2.0 * half_across * t1
+    elif rtype in ("mansard", "gambrel"):
+        brk = geom2d.ccw(roof.get("break_line") or [])
+        p2 = pitches[1] if len(pitches) > 1 else None
+        if len(brk) < 3:
+            inset = min(half_across, half_along) * 0.3
+            brk = geom2d.rectangle_corners(rect, -inset)
+            assumed.append({"field": "break_line", "value": [[round(x, 4), round(y, 4)] for x, y in brk],
+                            "reason": f"no break line drawn: the outline rectangle {inset:.2f} m in"})
+        brect = geom2d.oriented_rectangle(brk)
+        # Offsets of the break line from the outline, per side of the outline rectangle.
+        offs = []
+        cx, cy = rect["center"]
+        bx, by = brect["center"]
+        for axis, half in ((r, half_along), (across, half_across)):
+            proj = [(x - cx) * axis[0] + (y - cy) * axis[1] for x, y in brk]
+            offs.append((half - max(proj), half + min(proj)))
+        across_offs = offs[1]
+        along_offs = offs[0]
+        sides = list(across_offs) + ([] if rtype == "gambrel" else list(along_offs))
+        mean_off = sum(sides) / len(sides)
+        z_break = eaves + mean_off * t1
+        lower: list[Plane] = []
+        for (axis, half), (o_pos, o_neg) in zip(((r, half_along), (across, half_across)), (along_offs, across_offs)):
+            if rtype == "gambrel" and axis is r:
+                continue
+            for sgn, off in ((1.0, o_pos), (-1.0, o_neg)):
+                edge = (cx + axis[0] * half * sgn, cy + axis[1] * half * sgn)
+                tan_i = (z_break - eaves) / off if off > 1e-6 else t1
+                if abs(math.degrees(math.atan(tan_i)) - p1) > 0.5:
+                    notes.append(f"lower slope {math.degrees(math.atan(tan_i)):.1f} degrees on one side: the break "
+                                 f"line is {off:.2f} m in there (level break line at {z_break:.3f} m)")
+                lower.append(_ramp(edge, (-axis[0] * sgn, -axis[1] * sgn), eaves, tan_i))
+        # Upper tier over the break line: across the ridge at p2 (else from the ridge height, else assumed).
+        b_r, b_across, b_half_along, b_half_across, b_ridge_half, _ = _ridge_axis(brect, roof)
+        if p2 is None:
+            if ridge is not None and b_half_across > 0:
+                p2 = math.degrees(math.atan2(max(0.0, ridge - z_break), b_half_across))
+                notes.append(f"upper pitch {p2:.2f} degrees from the ridge height")
+            else:
+                p2 = 15.0
+                assumed.append({"field": "upper_pitch", "value": p2, "reason": "no second pitch and no ridge "
+                                                                             "height drawn"})
+        t2 = math.tan(math.radians(p2))
+        upper, _names, more = _rect_planes(brect["center"], b_r, b_across, b_half_along, b_half_across, z_break, t2,
+                                           "gable" if rtype == "gambrel" else "hip", b_ridge_half, "")
+        notes += more
+        eqs = lower + upper
+        tiers = ["lower"] * len(lower) + ["upper"] * len(upper)
+        top = z_break + b_half_across * t2
+        notes.append(f"break line at z {z_break:.3f} m")
+    else:
+        return {"planes": [], "equations": [], "outline": outline, "eaves_z": eaves, "ridge_z": ridge, "pitches": pitches,
+                "assumed": assumed, "warnings": [f"unknown roof type {rtype!r}: no roof"], "notes": notes}
+
+    planes = planes_from_equations(eqs, outline, _named(eqs, tiers))
+    if ridge is not None and abs(top - ridge) > 0.05:
+        warnings.append(f"derived ridge {top:.3f} m vs the drawn ridge height {ridge:.3f} m "
+                        f"({(top - ridge) * 100:+.0f} cm): the pitches are kept")
+    return {"planes": planes, "equations": eqs, "outline": outline, "eaves_z": eaves, "ridge_z": top,
+            "pitches": pitches or [p1], "assumed": assumed, "warnings": warnings, "notes": notes}
+
+
+def planes_for(roof: dict, building: dict) -> list:
+    """The roof planes derived from the roof's type, outline, heights, pitches, ridge lines and break line
+    (pure; docs/milestone10.md §1.6a): ``[{"id", "points": [[x, y, z], ...], "slope_deg", "aspect_deg",
+    "source": "derived"}]`` on the outer roof surface, counter-clockwise seen from above. Used when the
+    pipeline leaves ``roof.planes`` empty; ``derive`` gives the assumptions behind them."""
+    return derive(roof, building)["planes"]
+
+
+# --------------------------------------------------------------------------
+# The model the scene builds
+# --------------------------------------------------------------------------
+
+def is_convex(planes: Sequence[dict], tol: float = CONVEX_TOL) -> bool:
+    """True when every plane is the lowest one at its own corners (the roof surface is the lowest plane
+    everywhere: what the mesh, wall and ceiling helpers need)."""
+    eqs = [plane_from_points(p["points"]) for p in planes]
+    if any(e is None for e in eqs):
+        return False
+    for i, p in enumerate(planes):
+        for x, y, *_ in p["points"]:
+            zi = plane_z(eqs[i], x, y)
+            if any(plane_z(e, x, y) < zi - tol for j, e in enumerate(eqs) if j != i):
+                return False
+    return True
+
+
+def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
+    """What the scene builds for ``building.roof`` (None without a roof).
+
+    ``{"type", "over_level_id", "planes", "planes_source": "building" | "derived", "equations", "outline",
+    "openings": [{"id", "kind", "room_id", "polygon", "parapet_height", "parapet_source"}], "thickness",
+    "eaves_z", "ridge_z", "convex", "covering", "assumed": [{"field", "value", "reason"}], "warnings", "notes",
+    "derived_check"}``. Drawn planes are used as they are and compared with the derivation (a difference is a
+    note, not a change); the roof's own ``assumed`` list is carried over."""
+    if not isinstance(roof, dict):
+        return None
+    der = derive(roof, building)
+    level = over_level(roof, building)
+    drawn = [p for p in roof.get("planes") or [] if isinstance(p, dict) and len(p.get("points") or []) >= 3]
+    assumed = [{"field": "roof", "value": a, "reason": "listed as assumed in the building JSON"}
+               for a in roof.get("assumed") or []]
+    notes = list(der["notes"])
+    if drawn:
+        planes, source = drawn, "building"
+        same, why = equivalent_planes(drawn, der["planes"]) if der["planes"] else (False, "nothing derived")
+        check = {"equivalent": same, "why": why}
+        outline = geom2d.ccw(roof.get("outline") or []) or geom2d.convex_hull(
+            [(p[0], p[1]) for pl in drawn for p in pl["points"]])
+        eaves = _value(roof.get("eaves_height"))
+        if eaves is None:
+            eaves = min(float(p[2]) for pl in drawn for p in pl["points"])
+        ridge = max(float(p[2]) for pl in drawn for p in pl["points"])
+    else:
+        planes, source = der["planes"], "derived"
+        check = None
+        outline, eaves, ridge = der["outline"], der["eaves_z"], der["ridge_z"]
+        assumed += der["assumed"]
+    eqs = [plane_from_points(p["points"]) for p in planes]
+    eqs = [e for e in eqs if e is not None]
+    thickness = _value(roof.get("thickness"))
+    if thickness is None or thickness <= 0:
+        thickness = DEFAULTS["thickness"]
+        assumed.append({"field": "thickness", "value": thickness, "reason": "roof thickness not drawn"})
+    elif _is_assumed(roof.get("thickness")):
+        assumed.append({"field": "thickness", "value": thickness,
+                        "reason": (roof.get("thickness") or {}).get("note") or "assumed in the building JSON"})
+    openings = []
+    for o in roof.get("openings") or []:
+        poly = geom2d.ccw(o.get("polygon") or [])
+        if len(poly) < 3:
+            continue
+        ph = o.get("parapet_height")
+        height = _value(ph)
+        psource = "drawn" if height is not None and not _is_assumed(ph) else "assumed"
+        if height is None:
+            height = DEFAULTS["parapet"]
+        if psource == "assumed":
+            assumed.append({"field": f"parapet_height:{o.get('id')}", "value": height,
+                            "reason": (ph or {}).get("note") if isinstance(ph, dict) and ph.get("note")
+                            else "parapet height not drawn"})
+        openings.append({"id": o.get("id"), "kind": o.get("kind") or "other", "room_id": o.get("room_id"),
+                         "polygon": poly, "parapet_height": height, "parapet_source": psource})
+    convex = is_convex(planes)
+    warnings = list(der["warnings"])
+    if not convex:
+        warnings.append("the roof planes are not convex (a valley or a raised part): walls keep their level "
+                        "height and attic ceilings stay flat under this roof")
+    return {"type": roof.get("type"), "over_level_id": level["id"] if level else None, "planes": planes,
+            "planes_source": source, "equations": eqs, "outline": outline, "openings": openings,
+            "thickness": thickness, "eaves_z": eaves, "ridge_z": ridge, "convex": convex,
+            "covering": roof.get("covering"), "covering_colour": roof.get("covering_colour"),
+            "covering_source": roof.get("covering_source") or "assumed", "assumed": assumed, "warnings": warnings,
+            "notes": notes, "derived_check": check}
+
+
+def underside(model: dict) -> list[Plane]:
+    """The roof underside planes (each plane lowered by the roof thickness, square to it)."""
+    return [lowered(e, model["thickness"]) for e in model["equations"]]
+
+
+def ceiling_planes(model: dict, level: dict) -> list[Plane]:
+    """The ceiling of the rooms under the roof: the underside ``CEILING_GAP`` lower, and the level's flat
+    ceiling (``elevation + ceiling_height``, where the section shows a flat part; an attic whose ceiling
+    height reaches the roof keeps the sloped faces only)."""
+    flat = float(level["elevation"]) + float(level["ceiling_height"])
+    return [(a, b, c - CEILING_GAP) for a, b, c in underside(model)] + [(0.0, 0.0, flat)]
+
+
+def in_opening(model: dict, x: float, y: float) -> bool:
+    return any(G.point_in_polygon((x, y), o["polygon"]) for o in model.get("openings") or [])
+
+
+def covers(model: dict, x: float, y: float) -> bool:
+    """True when the roof is over ``(x, y)``: inside the outline and in no roof opening."""
+    return G.point_in_polygon((x, y), model["outline"]) and not in_opening(model, x, y)
+
+
+# --------------------------------------------------------------------------
+# Meshes (pure)
+# --------------------------------------------------------------------------
+
+def surface_pieces(outer, holes, planes: Sequence[Plane]) -> list[tuple[int, list]]:
+    """``[(plane index, polygon)]``: the region inside ``outer`` and outside ``holes`` split where each plane
+    is the lowest (convex pieces)."""
+    out = []
+    for piece in geom2d.convex_pieces(outer, holes):
+        out.extend(plane_regions(planes, piece))
+    return out
+
+
+def lift(polygon, plane: Plane, facing_up: bool) -> list[tuple[float, float, float]]:
+    pts = geom2d.ccw(polygon)
+    if not facing_up:
+        pts = pts[::-1]
+    return [(x, y, plane_z(plane, x, y)) for x, y in pts]
+
+
+def edge_breaks(p, q, planes: Sequence[Plane]) -> list[float]:
+    """Parameters 0..1 along ``p``-``q`` where the lowest of ``planes`` may change (every pairwise crossing)."""
+    ts = {0.0, 1.0}
+    zs = [(plane_z(e, *p), plane_z(e, *q)) for e in planes]
+    for i in range(len(zs)):
+        for j in range(i + 1, len(zs)):
+            d0, d1 = zs[i][0] - zs[j][0], zs[i][1] - zs[j][1]
+            if (d0 < -TOL and d1 > TOL) or (d0 > TOL and d1 < -TOL):
+                ts.add(d0 / (d0 - d1))
+    return sorted(ts)
+
+
+def side_faces(loop, top: Sequence[Plane], bottom: Sequence[Plane]) -> list[list[tuple[float, float, float]]]:
+    """Vertical quads closing a solid between the ``bottom`` and ``top`` surfaces along a boundary loop
+    (counter-clockwise for the outer boundary, clockwise for a hole: the quads face away from the solid)."""
+    faces = []
+    n = len(loop)
+    for i in range(n):
+        p, q = loop[i], loop[(i + 1) % n]
+        ts = sorted(set(edge_breaks(p, q, top)) | set(edge_breaks(p, q, bottom)))
+        for t0, t1 in zip(ts, ts[1:]):
+            if t1 - t0 < 1e-9:
+                continue
+            a = (p[0] + (q[0] - p[0]) * t0, p[1] + (q[1] - p[1]) * t0)
+            b = (p[0] + (q[0] - p[0]) * t1, p[1] + (q[1] - p[1]) * t1)
+            faces.append([(a[0], a[1], surface_z(bottom, *a)), (b[0], b[1], surface_z(bottom, *b)),
+                          (b[0], b[1], surface_z(top, *b)), (a[0], a[1], surface_z(top, *a))])
+    return faces
+
+
+def _mesh(face_lists: Iterable[tuple[list, int]]) -> tuple[list, list, list[int]]:
+    """``(verts, faces, slots)`` from ``[(face points, slot)]``, vertices shared by position (0.1 mm)."""
+    verts: list[tuple[float, float, float]] = []
+    index: dict[tuple, int] = {}
+    faces, slots = [], []
+    for pts, slot in face_lists:
+        f = []
+        for p in pts:
+            key = (round(p[0], 4), round(p[1], 4), round(p[2], 4))
+            if key not in index:
+                index[key] = len(verts)
+                verts.append((float(p[0]), float(p[1]), float(p[2])))
+            if not f or f[-1] != index[key]:
+                f.append(index[key])
+        if len(f) > 1 and f[0] == f[-1]:
+            f.pop()
+        if len(set(f)) >= 3:
+            faces.append(f)
+            slots.append(slot)
+    return verts, faces, slots
+
+
+SLOT_COVERING, SLOT_SOFFIT, SLOT_FASCIA = 0, 1, 2
+
+
+def roof_solid(model: dict) -> tuple[list, list, list[int]]:
+    """``(verts, faces, slots)`` of the roof: the covering on top (slot 0), the soffit under it (slot 1)
+    and the edges (slot 2: eaves fascia and the sides of the roof terraces cut into it)."""
+    top = list(model["equations"])
+    bottom = underside(model)
+    holes = [o["polygon"] for o in model.get("openings") or []]
+    outer = geom2d.ccw(model["outline"])
+    faces = [(lift(poly, top[i], True), SLOT_COVERING) for i, poly in surface_pieces(outer, holes, top)]
+    faces += [(lift(poly, bottom[i], False), SLOT_SOFFIT) for i, poly in surface_pieces(outer, holes, bottom)]
+    loops = [outer] + [geom2d.ccw(h)[::-1] for h in holes]
+    for loop in loops:
+        faces += [(f, SLOT_FASCIA) for f in side_faces(loop, top, bottom)]
+    return _mesh(faces)
+
+
+def ceiling_faces(polygon, holes, planes: Sequence[Plane]) -> tuple[list, list]:
+    """``(verts, faces)`` of a room ceiling under a roof: the room minus ``holes`` on the lowest of ``planes``
+    (``ceiling_planes``), facing down."""
+    verts, faces, _ = _mesh((lift(poly, planes[i], False), 0) for i, poly in surface_pieces(polygon, holes, planes))
+    return verts, faces
+
+
+# --------------------------------------------------------------------------
+# Convex solids cut by planes (knee walls and gable ends)
+# --------------------------------------------------------------------------
+
+def clip_solid_below(verts: Sequence[Sequence[float]], faces: Sequence[Sequence[int]], planes: Sequence[Plane]
+                     ) -> tuple[list, list]:
+    """The part of a convex solid below every plane (``z <= a x + b y + c``), closed by a cap face per
+    cutting plane (pure; the wall boxes under a roof). Faces stay wound outwards."""
+    polys = [[tuple(float(c) for c in verts[i]) for i in f] for f in faces]
+    for plane in planes:
+        a, b, c = plane
+
+        def d(p):
+            return p[2] - (a * p[0] + b * p[1] + c)
+
+        new_polys, cut_pts = [], []
+        for poly in polys:
+            out = []
+            n = len(poly)
+            for i in range(n):
+                p, q = poly[i], poly[(i + 1) % n]
+                dp, dq = d(p), d(q)
+                if dp <= TOL:
+                    out.append(p)
+                if (dp < -TOL and dq > TOL) or (dp > TOL and dq < -TOL):
+                    t = dp / (dp - dq)
+                    x = tuple(p[k] + t * (q[k] - p[k]) for k in range(3))
+                    out.append(x)
+                    cut_pts.append(x)
+                elif abs(dp) <= TOL:
+                    cut_pts.append(p)
+            if len(out) >= 3:
+                new_polys.append(out)
+        if len(new_polys) == len(polys) and not any(d(p) > TOL for poly in polys for p in poly):
+            continue                       # the plane is above the whole solid
+        cap = _cap_polygon(cut_pts, plane)
+        polys = new_polys + ([cap] if cap else [])
+    verts_out, faces_out, _ = _mesh((poly, 0) for poly in polys)
+    return verts_out, faces_out
+
+
+def _cap_polygon(points, plane: Plane) -> list:
+    """The convex cap of a cut: the cut points ordered counter-clockwise seen from above (normal up)."""
+    uniq: list[tuple] = []
+    for p in points:
+        if not any(math.dist(p, q) < 1e-7 for q in uniq):
+            uniq.append(p)
+    if len(uniq) < 3:
+        return []
+    hull2 = geom2d.convex_hull([(p[0], p[1]) for p in uniq])
+    if len(hull2) < 3:
+        return []
+    return [(x, y, plane_z(plane, x, y)) for x, y in hull2]
+
+
+def wall_top_planes(model: dict) -> list[Plane]:
+    """The planes the walls under the roof are cut with: the roof underside."""
+    return underside(model)
+
+
+# --------------------------------------------------------------------------
+# Roof terraces: parapets
+# --------------------------------------------------------------------------
+
+def parapet_check(model: dict, level: dict, walls: Sequence[dict], step: float = 0.25) -> list[dict]:
+    """Per roof opening (terrace) and edge of its polygon: what closes it at the side (pure).
+
+    Each edge is sampled every ``step`` metres 2 cm outside the opening: ``covered`` where the roof is there
+    (its top surface, measured above the terrace floor, is the parapet the roof forms), ``wall`` where a wall
+    of the level is under the edge, else ``open``. An edge with an open stretch, or whose roof is lower than
+    the parapet height, gets ``needs_parapet``. Returns ``[{"opening_id", "edge": [p, q], "covered", "wall",
+    "open", "min_height", "needs_parapet", "parapet_height"}]``."""
+    floor_z = float(level["elevation"])
+    out = []
+    top = model["equations"]
+    for o in model.get("openings") or []:
+        poly = o["polygon"]
+        n = len(poly)
+        for i in range(n):
+            p, q = poly[i], poly[(i + 1) % n]
+            length = G.distance(p, q)
+            if length < 1e-6:
+                continue
+            nx, ny = G.unit_normal_left(p, q)          # counter-clockwise polygon: left is inside
+            k = max(2, int(length / step) + 1)
+            counts = {"covered": 0, "wall": 0, "open": 0}
+            heights = []
+            for j in range(k):
+                t = (j + 0.5) / k
+                x, y = p[0] + (q[0] - p[0]) * t - nx * 0.02, p[1] + (q[1] - p[1]) * t - ny * 0.02
+                if covers(model, x, y):
+                    counts["covered"] += 1
+                    heights.append(surface_z(top, x, y) - floor_z)
+                elif any(G.point_segment_distance((x, y), w["start"], w["end"]) <= float(w["thickness"]) / 2.0 + 0.03
+                         for w in walls):
+                    counts["wall"] += 1
+                else:
+                    counts["open"] += 1
+            low = min(heights) if heights else None
+            need = counts["open"] > 0 or (low is not None and low < o["parapet_height"] - 1e-3)
+            out.append({"opening_id": o["id"], "edge": [list(p), list(q)], **counts,
+                        "min_height": None if low is None else round(low, 3), "needs_parapet": bool(need),
+                        "parapet_height": o["parapet_height"]})
+    return out
+
+
+# --------------------------------------------------------------------------
+# Blender
+# --------------------------------------------------------------------------
+
+def build_roof(model: dict, collection, materials: Sequence, manifest_objects: list, assumed: list) -> object:
+    """The roof object (``roof``, kind ``roof``; status ``assumed`` when its planes were derived, else
+    ``verified``) with the covering, soffit and fascia materials (``materials``, three slots). Its manifest
+    entry lists the planes, their source and the z range; every assumption goes to ``assumed``."""
+    from wenart.blender import common
+
+    verts, faces, slots = roof_solid(model)
+    status = "verified" if model["planes_source"] == "building" else "assumed"
+    ob = common.new_mesh_object("roof", verts, faces, collection=collection, wenart_id="roof", kind="roof",
+                                status=status, materials=list(materials), face_material_indices=slots)
+    zs = [v[2] for v in verts] or [0.0]
+    manifest_objects.append({
+        "name": ob.name, "wenart_id": "roof", "kind": "roof", "status": status,
+        "level_id": model.get("over_level_id"), "element_id": "roof", "evidence": [],
+        "material": materials[0].name if materials else None, "textured": False, "pass_index": None,
+        "assumed": {a["field"]: a["value"] for a in model["assumed"]},
+        "roof_type": model.get("type"), "planes_source": model["planes_source"],
+        "planes": model["planes"], "thickness": model["thickness"],
+        "openings": [{"id": o["id"], "kind": o["kind"], "room_id": o["room_id"]} for o in model["openings"]],
+        "z_range": [round(min(zs), 4), round(max(zs), 4)], "faces": len(faces),
+    })
+    for a in model["assumed"]:
+        assumed.append({"object": "roof", "field": a["field"], "value": a["value"], "reason": a["reason"]})
+    return ob

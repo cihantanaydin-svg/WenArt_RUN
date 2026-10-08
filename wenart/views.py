@@ -821,3 +821,366 @@ def project_paths(project_out) -> dict:
         "render_dir": out / "renders",
         "warnings": warnings,
     }
+
+
+# --------------------------------------------------------------------------
+# Variants and the views to render (Milestone 10, docs/milestone10.md §1.6, §1.6a, §3.2 items 6-7)
+# --------------------------------------------------------------------------
+#
+# What: the building JSON of Milestone 10 holds every level of every variant (``L-1`` and its alternative
+# ``L-1b`` at the same elevation) and ``variants[]`` (base plus one per alternative). ``variant_building``
+# cuts out what one variant builds; ``variant_changes`` says which rooms of an alternative differ from the
+# base and whether its outside differs; ``views_for`` lists what a variant renders. Why here: the builder,
+# the run stages and the report read the same answer. How: pure Python (no yaml: the builder runs inside
+# Blender's Python); the brief's keys come from ``building.project.brief`` with the defaults of
+# ``wenart/defaults.yaml`` repeated in ``BRIEF_DEFAULTS`` (tests/test_views_variants.py checks both agree),
+# and every default used is listed as assumed.
+
+BASE_VARIANT = "base"
+SAME_TOL_M = 0.02            # a room equals a base room: polygon, openings and drawn furniture within 2 cm
+SAME_ROT_DEG = 1.0           # ... and drawn pieces turned the same within 1 degree
+# The brief keys of the whole-building build (wenart/defaults.yaml ``brief:``; Blender has no PyYAML, so
+# wenart.brief.load_brief cannot run there). tests/test_views_variants.py keeps this copy equal to the file.
+BRIEF_DEFAULTS = {"site": "full", "slab_thickness": 0.20, "render.exterior_views": True,
+                  "render.twin_rooms": "one", "variants": "all"}
+
+
+def brief_setting(building: dict, key: str) -> tuple[object, bool]:
+    """``(value, assumed)`` of a brief key (dotted for nested blocks) from ``building.project.brief``, else
+    the ``BRIEF_DEFAULTS`` value with ``assumed`` True. A stored brief that lists the key in its
+    ``assumed`` list (a ``load_brief`` result) also counts as assumed."""
+    brief = ((building.get("project") or {}).get("brief")) or {}
+    cur: object = brief.get("values") if isinstance(brief.get("values"), dict) else brief
+    for part in key.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return BRIEF_DEFAULTS.get(key), True
+        cur = cur[part]
+    listed = brief.get("assumed") if isinstance(brief.get("assumed"), list) else []
+    return cur, key in listed
+
+
+def building_variants(building: dict) -> list[dict]:
+    """The variants of a building: ``variants[]`` when given, else one base variant of every level that
+    is no alternative (no ``base_level_id``), bottom up (the M3-M9 buildings)."""
+    given = [v for v in building.get("variants") or [] if isinstance(v, dict) and v.get("id")]
+    if given:
+        return given
+    levels = sorted((lv for lv in building.get("levels") or [] if not lv.get("base_level_id")),
+                    key=lambda lv: float(lv.get("elevation") or 0.0))
+    return [{"id": BASE_VARIANT, "label": "Base", "levels": [lv["id"] for lv in levels], "base": True,
+             "changes": [], "rooms_changed": [], "exterior_changed": False}]
+
+
+def variant_record(building: dict, variant: str = BASE_VARIANT) -> dict:
+    """The ``variants[]`` entry of ``variant`` (KeyError naming the known ids when there is none)."""
+    variants = building_variants(building)
+    for v in variants:
+        if v["id"] == variant:
+            return v
+    raise KeyError(f"no variant {variant!r} in the building (known: {', '.join(v['id'] for v in variants)})")
+
+
+def is_base_variant(record: dict) -> bool:
+    return bool(record.get("base", record.get("id") == BASE_VARIANT))
+
+
+def variant_replacements(record: dict) -> dict[str, str]:
+    """``{base level id: alternative level id}`` of a variant (empty for the base)."""
+    return {str(c["replaces"]): str(c["level_id"]) for c in record.get("changes") or []
+            if isinstance(c, dict) and c.get("replaces") and c.get("level_id")}
+
+
+def _same_point(a, b, tol: float = SAME_TOL_M) -> bool:
+    return math.hypot(float(a[0]) - float(b[0]), float(a[1]) - float(b[1])) <= tol
+
+
+def same_wall_line(a: dict, b: dict, tol: float = SAME_TOL_M) -> bool:
+    """Two walls on the same centre line (either direction) with the same thickness, within ``tol``."""
+    s1, e1, s2, e2 = a["start"], a["end"], b["start"], b["end"]
+    ends = (_same_point(s1, s2, tol) and _same_point(e1, e2, tol)) or \
+        (_same_point(s1, e2, tol) and _same_point(e1, s2, tol))
+    return ends and abs(float(a.get("thickness") or 0.0) - float(b.get("thickness") or 0.0)) <= tol
+
+
+def variant_building(building: dict, variant: str = BASE_VARIANT) -> dict:
+    """A copy of the building with only what ``variant`` builds: its levels (bottom up) and their walls,
+    openings, rooms, furniture and decor; the slabs of the variant (``slabs[].variants`` empty = every
+    variant) with their level ids moved to the alternative level that replaces the base one (``sl_L-1``
+    above ``L-1`` carries ``L-1b``); the roof's ``over_level_id`` likewise; facade faces of a replaced level
+    moved to the alternative's wall on the same centre line (dropped with a warning when there is none).
+    ``_variant`` holds the record, the replacements and those warnings."""
+    rec = variant_record(building, variant)
+    keep = {str(i) for i in rec.get("levels") or []}
+    repl = variant_replacements(rec)
+    warnings: list[str] = []
+    out = dict(building)
+    out["levels"] = sorted((dict(lv) for lv in building.get("levels") or [] if lv["id"] in keep),
+                           key=lambda lv: float(lv.get("elevation") or 0.0))
+    missing = sorted(keep - {lv["id"] for lv in out["levels"]})
+    if missing:
+        warnings.append(f"variant {variant}: level(s) {', '.join(missing)} not in the building")
+    for key in ("walls", "openings", "rooms", "furniture", "decor"):
+        out[key] = [e for e in building.get(key) or [] if e.get("level_id") in keep]
+    if "slabs" in building:
+        slabs = []
+        for s in building.get("slabs") or []:
+            if s.get("variants") and variant not in s["variants"]:
+                continue
+            s = dict(s)
+            for side in ("above_level_id", "below_level_id"):
+                if s.get(side) in repl:
+                    s[side] = repl[s[side]]
+            if s.get("above_level_id") in keep:
+                slabs.append(s)
+        out["slabs"] = slabs
+    if isinstance(building.get("roof"), dict):
+        roof = dict(building["roof"])
+        if roof.get("over_level_id") in repl:
+            roof["over_level_id"] = repl[roof["over_level_id"]]
+        out["roof"] = roof
+    if isinstance(building.get("facade"), dict):
+        facade = dict(building["facade"])
+        walls = {w["id"]: w for w in building.get("walls") or []}
+        faces = []
+        for f in facade.get("faces") or []:
+            wall = walls.get(f.get("wall_id"))
+            if wall is not None and wall.get("level_id") in keep:
+                faces.append(f)
+                continue
+            alt = repl.get(wall.get("level_id")) if wall else None
+            twin = next((w for w in out["walls"] if alt and w["level_id"] == alt and same_wall_line(w, wall)), None)
+            if twin is not None:
+                faces.append(dict(f, wall_id=twin["id"], level_id=alt, moved_from=f.get("wall_id")))
+            elif wall is None or alt is not None:
+                warnings.append(f"facade face of {f.get('wall_id')}: no wall on the same line in variant "
+                                f"{variant}; face not used")
+        facade["faces"] = faces
+        out["facade"] = facade
+    out["_variant"] = {"id": rec["id"], "record": rec, "replacements": repl, "warnings": warnings}
+    return out
+
+
+def _polygon_points(polygon) -> list[tuple[float, float]]:
+    pts = [(float(p[0]), float(p[1])) for p in polygon or []]
+    if len(pts) > 1 and _same_point(pts[0], pts[-1], 1e-9):
+        pts = pts[:-1]
+    return pts
+
+
+def _same_polygon(a, b, tol: float = SAME_TOL_M) -> bool:
+    """Same corner count and every corner of each within ``tol`` of a corner of the other."""
+    pa, pb = _polygon_points(a), _polygon_points(b)
+    if len(pa) != len(pb) or len(pa) < 3:
+        return False
+    return all(any(_same_point(p, q, tol) for q in pb) for p in pa) and \
+        all(any(_same_point(q, p, tol) for p in pa) for q in pb)
+
+
+def _matched(xs: list, ys: list, same) -> bool:
+    """One-to-one match of two short lists under ``same`` (greedy)."""
+    if len(xs) != len(ys):
+        return False
+    free = list(ys)
+    for x in xs:
+        hit = next((y for y in free if same(x, y)), None)
+        if hit is None:
+            return False
+        free.remove(hit)
+    return True
+
+
+def _opening_key(o: dict) -> tuple:
+    return (o.get("type"), float(o["center"][0]), float(o["center"][1]), float(o.get("width") or 0.0),
+            o.get("height"), o.get("sill_height"))
+
+
+def _same_opening(a: tuple, b: tuple, tol: float = SAME_TOL_M) -> bool:
+    if a[0] != b[0] or not _same_point(a[1:3], b[1:3], tol) or abs(a[3] - b[3]) > tol:
+        return False
+    for u, v in ((a[4], b[4]), (a[5], b[5])):
+        if (u is None) != (v is None) or (u is not None and abs(float(u) - float(v)) > tol):
+            return False
+    return True
+
+
+def _drawn_key(piece: dict) -> tuple:
+    """A drawn piece as the documents give it: type and footprint before any AI change (``drawn_*``)."""
+    fp = piece.get("drawn_footprint") or piece.get("footprint") or {}
+    size = fp.get("size") or [0.0, 0.0]
+    centre = fp.get("center") or [0.0, 0.0]
+    return (piece.get("drawn_type") or piece.get("type"), float(centre[0]), float(centre[1]), float(size[0]),
+            float(size[1]), float(fp.get("rotation_deg") or 0.0))
+
+
+def _same_piece(a: tuple, b: tuple, tol: float = SAME_TOL_M) -> bool:
+    turn = abs((a[5] - b[5] + 180.0) % 360.0 - 180.0)
+    return a[0] == b[0] and _same_point(a[1:3], b[1:3], tol) and abs(a[3] - b[3]) <= tol \
+        and abs(a[4] - b[4]) <= tol and turn <= SAME_ROT_DEG
+
+
+def room_signature(room: dict, building: dict) -> dict:
+    """What decides whether two rooms are equal (§3.2 item 6): the polygon, the openings on its edges
+    (``wenart.blender.cameras.room_openings``: type, centre, width, height, sill) and the drawn furniture
+    (``source: from_documents``: its drawn type and footprint)."""
+    from wenart.blender.cameras import room_openings   # lazy: keeps this module's imports light
+
+    poly = _polygon_points(room.get("polygon"))
+    openings = room_openings(room, poly, building) if len(poly) >= 3 else []
+    pieces = [p for p in building.get("furniture") or [] if p.get("room_id") == room["id"]
+              and p.get("source", "from_documents") == "from_documents"]
+    return {"polygon": poly, "openings": [_opening_key(o) for o in openings],
+            "furniture": [_drawn_key(p) for p in pieces]}
+
+
+def rooms_equal(a: dict, b: dict, building: dict, tol: float = SAME_TOL_M) -> tuple[bool, str]:
+    """``(equal, why not)`` of two rooms (an alternative level's room and a base room)."""
+    sa, sb = room_signature(a, building), room_signature(b, building)
+    if not _same_polygon(sa["polygon"], sb["polygon"], tol):
+        return False, "polygon differs"
+    if not _matched(sa["openings"], sb["openings"], lambda x, y: _same_opening(x, y, tol)):
+        return False, "openings differ"
+    if not _matched(sa["furniture"], sb["furniture"], lambda x, y: _same_piece(x, y, tol)):
+        return False, "drawn furniture differs"
+    return True, ""
+
+
+def _outer_signature(building: dict, level_id: str) -> tuple[list[dict], list[tuple]]:
+    walls = [w for w in building.get("walls") or [] if w.get("level_id") == level_id and w.get("exterior")]
+    ids = {w["id"] for w in walls}
+    openings = [_opening_key(o) for o in building.get("openings") or []
+                if o.get("level_id") == level_id and o.get("wall_id") in ids]
+    return walls, openings
+
+
+def variant_changes(building: dict, variant: str = BASE_VARIANT) -> dict:
+    """``rooms_changed`` and ``exterior_changed`` of a variant (§1.6: filled by the build).
+
+    Computed: a room of an alternative level differs when no room of the level it replaces equals it
+    (``rooms_equal``: polygon, openings and drawn furniture within 2 cm); the outside differs when the
+    outer walls (``exterior: true``) or the openings on them differ. The building's own values win when
+    given (``rooms_changed`` non-empty, ``exterior_changed`` true / false; the pipeline leaves them empty /
+    null); a disagreement with the computed value is a warning. Returns ``{"rooms_changed",
+    "exterior_changed", "same_as": {room: base room}, "why": {room: reason}, "computed", "source",
+    "warnings"}``; the base variant has nothing changed."""
+    rec = variant_record(building, variant)
+    out = {"rooms_changed": [], "exterior_changed": False, "same_as": {}, "why": {},
+           "computed": {"rooms_changed": [], "exterior_changed": False},
+           "source": {"rooms_changed": "base", "exterior_changed": "base"}, "warnings": []}
+    if is_base_variant(rec):
+        return out
+    rooms = building.get("rooms") or []
+    computed_rooms: list[str] = []
+    outside = False
+    for base_level, alt_level in variant_replacements(rec).items():
+        base_rooms = [r for r in rooms if r.get("level_id") == base_level]
+        for room in (r for r in rooms if r.get("level_id") == alt_level):
+            match, why = None, "no room on the base level"
+            for cand in base_rooms:
+                equal, reason = rooms_equal(room, cand, building)
+                if equal:
+                    match = cand
+                    break
+                why = reason
+            if match is None:
+                computed_rooms.append(room["id"])
+                out["why"][room["id"]] = why
+            else:
+                out["same_as"][room["id"]] = match["id"]
+            if room.get("same_as") and (match is None or room["same_as"] != match["id"]):
+                out["warnings"].append(f"{room['id']}: the building says same_as {room['same_as']}, the build "
+                                       f"finds {match['id'] if match else 'no equal base room'}")
+        bw, bo = _outer_signature(building, base_level)
+        aw, ao = _outer_signature(building, alt_level)
+        if not (_matched(aw, bw, same_wall_line) and _matched(ao, bo, _same_opening)):
+            outside = True
+    out["computed"] = {"rooms_changed": computed_rooms, "exterior_changed": outside}
+    given_rooms = rec.get("rooms_changed")
+    if given_rooms:
+        out["rooms_changed"] = [str(r) for r in given_rooms]
+        out["source"]["rooms_changed"] = "building"
+        if sorted(out["rooms_changed"]) != sorted(computed_rooms):
+            out["warnings"].append(f"variant {variant}: rooms_changed {sorted(out['rooms_changed'])} in the "
+                                   f"building, computed {sorted(computed_rooms)}; the building's list is used")
+    else:
+        out["rooms_changed"] = computed_rooms
+        out["source"]["rooms_changed"] = "computed"
+    given_outside = rec.get("exterior_changed")
+    if isinstance(given_outside, bool):
+        out["exterior_changed"] = given_outside
+        out["source"]["exterior_changed"] = "building"
+        if given_outside != outside:
+            out["warnings"].append(f"variant {variant}: exterior_changed {given_outside} in the building, "
+                                   f"computed {outside}; the building's value is used")
+    else:
+        out["exterior_changed"] = outside
+        out["source"]["exterior_changed"] = "computed"
+    return out
+
+
+def views_for(building: dict, variant: str = BASE_VARIANT, twin_rooms: Optional[str] = None,
+              exterior_views: Optional[bool] = None) -> dict:
+    """What a variant renders (docs/milestone10.md §1.6a).
+
+    Interior: the base renders every room of its levels; an alternative only its ``rooms_changed``
+    (``variant_changes``; the others equal a base room, whose images are listed for them). With
+    ``render.twin_rooms: one`` (the default) a room that is the second twin of a mirrored pair
+    (``twin_of``) is left out when its first twin is built in the same variant (it is still built).
+    Exterior: the base when ``render.exterior_views`` (default true); an alternative only when its
+    outside differs (``exterior_changed``), else the base views are listed for it. ``twin_rooms`` /
+    ``exterior_views`` None: the building's brief, else the defaults (listed in ``assumed``).
+
+    Returns ``{"variant", "base", "levels", "rooms": [room ids], "skipped": [{"room_id", "reason",
+    "same_as" | "twin_of"}], "exterior": bool, "exterior_reason", "base_views": {room: base room},
+    "twin_rooms", "exterior_views", "rooms_changed", "exterior_changed", "changes_source", "assumed",
+    "warnings"}``."""
+    rec = variant_record(building, variant)
+    assumed: list[str] = []
+    if twin_rooms is None:
+        twin_rooms, was_assumed = brief_setting(building, "render.twin_rooms")
+        if was_assumed:
+            assumed.append("render.twin_rooms")
+    if exterior_views is None:
+        exterior_views, was_assumed = brief_setting(building, "render.exterior_views")
+        if was_assumed:
+            assumed.append("render.exterior_views")
+    levels = [str(i) for i in rec.get("levels") or []]
+    rooms = [r for r in building.get("rooms") or [] if r.get("level_id") in set(levels)]
+    built = {r["id"] for r in rooms}
+    changes = variant_changes(building, variant)
+    base = is_base_variant(rec)
+    changed = set(changes["rooms_changed"])
+    skipped = []
+    if not base:
+        alt_levels = set(variant_replacements(rec).values())
+        for r in rooms:
+            if r["id"] in changed:
+                continue
+            if r.get("level_id") in alt_levels:
+                skipped.append({"room_id": r["id"], "reason": "equals a base room: the base images are listed",
+                                "same_as": changes["same_as"].get(r["id"])})
+            else:
+                skipped.append({"room_id": r["id"], "reason": "a level the base also builds: the base images "
+                                                              "are listed", "same_as": r["id"]})
+    out_rooms = []
+    for r in rooms:
+        if not base and r["id"] not in changed:
+            continue
+        first = r.get("twin_of")
+        if twin_rooms == "one" and first and first in built:
+            skipped.append({"room_id": r["id"], "reason": f"second twin of {first}: rendered once "
+                                                          f"(render.twin_rooms: one)", "twin_of": first})
+            continue
+        out_rooms.append(r["id"])
+    if not exterior_views:
+        exterior, why = False, "render.exterior_views is off"
+    elif base:
+        exterior, why = True, "base variant"
+    elif changes["exterior_changed"]:
+        exterior, why = True, "the outer walls or outer openings differ from the base"
+    else:
+        exterior, why = False, "the outside equals the base: the base exterior views are listed"
+    return {"variant": rec["id"], "base": base, "levels": levels, "rooms": out_rooms, "skipped": skipped,
+            "exterior": exterior, "exterior_reason": why, "base_views": dict(changes["same_as"]),
+            "twin_rooms": twin_rooms, "exterior_views": bool(exterior_views),
+            "rooms_changed": list(changes["rooms_changed"]), "exterior_changed": changes["exterior_changed"],
+            "changes_source": changes["source"], "assumed": assumed, "warnings": list(changes["warnings"])}
