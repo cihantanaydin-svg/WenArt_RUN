@@ -209,6 +209,40 @@ def test_nine_moods_with_their_strengths_white_balance_and_lamps():
     assert V.LIGHTING["bright noon"]["hdri"] == "qwantani_noon_puresky" and V.LIGHTING["interior evening"]["hdri"] == "sunset_jhbcentral"
 
 
+def test_every_lighting_mood_has_the_values_the_render_reads_in_sane_ranges():
+    """Lead item (track E, finding #37): one loop over every mood of the vocabulary. The Blender code reads
+    ``sun_strength`` (lighting.py, W/m2), ``sun_elevation_deg`` / ``sun_azimuth_deg``, ``hdri_strength`` (world strength of the
+    four new moods) and ``wb_residual``; ``lamps_on`` decides whether the lamps emit. The profile's lamps claim follows
+    ``finishes.LIGHTING``."""
+    from wenart.blender import materials as M
+    from wenart.style import profile as P
+
+    assert list(V.LIGHTING) == list(F.LIGHTING) and len(V.LIGHTING) == 9
+    for mood, e in V.LIGHTING.items():
+        for key in ("hdri", "sun_elevation_deg", "sun_azimuth_deg", "sun_strength", "colour_temperature_k", "hdri_strength",
+                    "wb_residual", "lamps_on"):
+            assert key in e and e[key] is not None, (mood, key)
+        assert isinstance(e["lamps_on"], bool) and isinstance(e["hdri"], str) and e["hdri"] in V.HDRIS, mood
+        assert 0.0 <= e["sun_strength"] <= 10.0, mood                         # W/m2 of the sun lamp
+        assert 0.0 < e["hdri_strength"] <= 3.0, mood
+        assert 0.0 <= e["wb_residual"] <= 1.0, mood
+        assert -90 <= e["sun_elevation_deg"] <= 90 and 0 <= e["sun_azimuth_deg"] <= 360, mood
+        assert 1500 <= e["colour_temperature_k"] <= 12000, mood
+        assert e == F.LIGHTING[mood], f"{mood}: the vocabulary and finishes.LIGHTING must agree"      # lamps_on included
+        # a mood with no sun is lit by the sky or by the lamps: it says so in the profile, matching the table
+        profile = P.profile_from_text(mood)
+        assert profile["lighting"]["mood"] == mood and profile["lighting"]["sun_strength"] == e["sun_strength"], mood
+        claims = [w for w in profile["warnings"] if w.startswith(f"{mood} mood:")]
+        if F.LIGHTING[mood]["lamps_on"]:
+            assert len(claims) == 1 and "the lamps are on" in claims[0], (mood, claims)
+        else:
+            assert not any("lamps are on" in w for w in claims), (mood, claims)
+            assert bool(claims) == (e["sun_strength"] == 0), (mood, claims)   # night and blue hour: "lamps are off"
+    for mood in set(V.LIGHTING) - set(M.MOOD_STRENGTH):                       # the moods whose world strength is the table's
+        assert M._MOOD_HDRI_STRENGTH[mood] == V.LIGHTING[mood]["hdri_strength"], mood
+    assert [m for m, e in F.LIGHTING.items() if e["lamps_on"]] == ["interior evening"]
+
+
 # --------------------------------------------------------------------------
 # The asset check record
 # --------------------------------------------------------------------------

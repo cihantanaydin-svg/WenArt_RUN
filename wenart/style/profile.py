@@ -1075,8 +1075,10 @@ def profile_from_text(text: str, defaults: Optional[dict] = None, photo_terms=No
     wet_floor = floor if is_wet_safe(floor) else V.WET_FLOOR_DEFAULT
     door_material = floor if _entry(floor).get("kind") == "wood" else V.TRIM_MATERIAL
     light = V.LIGHTING[mood]
-    if light["sun_strength"] == 0 and light.get("lamps_on"):
-        warnings.append(f"{mood} mood: no sun, the lamps are on (table, floor, pendant and ceiling lights emit)")
+    lamps = bool((FIN.LIGHTING.get(mood) or light).get("lamps_on"))        # finishes.LIGHTING is the table of record
+    if lamps:                                                               # said for every mood the table lights, sun or not
+        no_sun = "no sun, " if light["sun_strength"] == 0 else ""
+        warnings.append(f"{mood} mood: {no_sun}the lamps are on (table, floor, pendant and ceiling lights emit)")
     elif light["sun_strength"] == 0:
         warnings.append(f"{mood} mood: no sun; interior lamps are off, renders will be dark")
 

@@ -536,3 +536,18 @@ def test_a_metal_frame_word_with_a_metal_colour_takes_that_metal():
     assert look("anthracite aluminium") == {"material": "aluminium_anthracite", "colour": None}
     assert look("black aluminium") == {"material": "steel_black", "colour": None}
     assert look("white aluminium") == {"material": "painted_metal_white", "colour": "white"}
+
+
+def test_the_lamps_claim_follows_the_lighting_table_of_record(monkeypatch):
+    """Lead item (track E, #37): the profile says "the lamps are on" for exactly the moods whose
+    ``finishes.LIGHTING[mood]["lamps_on"]`` is true, with or without a sun, and never for the others."""
+    claim = lambda text: [w for w in prof(text)["warnings"] if "lamps are" in w]          # noqa: E731
+    assert claim("interior evening") == ["interior evening mood: no sun, the lamps are on (table, floor, pendant and ceiling lights emit)"]
+    assert claim("night") == ["night mood: no sun; interior lamps are off, renders will be dark"]
+    assert claim("warm daylight") == []
+    monkeypatch.setitem(FIN.LIGHTING, "warm daylight", {**FIN.LIGHTING["warm daylight"], "lamps_on": True})      # a mood with a sun
+    assert claim("warm daylight") == ["warm daylight mood: the lamps are on (table, floor, pendant and ceiling lights emit)"]
+    monkeypatch.setitem(FIN.LIGHTING, "night", {**FIN.LIGHTING["night"], "lamps_on": True})
+    assert claim("night") == ["night mood: no sun, the lamps are on (table, floor, pendant and ceiling lights emit)"]
+    monkeypatch.setitem(FIN.LIGHTING, "interior evening", {**FIN.LIGHTING["interior evening"], "lamps_on": False})
+    assert claim("interior evening") == ["interior evening mood: no sun; interior lamps are off, renders will be dark"]
