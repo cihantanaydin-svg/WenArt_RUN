@@ -740,6 +740,29 @@ def test_mirror_transform_maps_points_fronts_and_sides():
     assert C.given_transform({"twin_transform": None}) is None and C.given_transform({}) is None
 
 
+def test_a_twin_takes_the_partners_type_proposal():
+    """Review (low, unverified): the second twin's unknown piece gets the first twin's type proposal too, so both
+    dwellings stay the same; it stays unverified with its own footprint and is listed."""
+    source = twin_building()
+    for pid, rid, x in (("f_L0_003", TWIN_A, 1.0), ("f_L0_004", TWIN_B, 7.2)):
+        source["furniture"].append({"id": pid, "level_id": "L0", "room_id": rid, "type": "unknown", "type_raw": None,
+                                    "source": "from_documents", "status": "unverified",
+                                    "evidence": [B.evidence("p.dxf", "vector", 1.0)],
+                                    "footprint": {"center": [x, 0.285], "size": [0.9, 0.35], "rotation_deg": 180.0},
+                                    "front_deg": 90.0, "height": None})
+    source["unverified"] = ["f_L0_003", "f_L0_004"]
+    answers = {(TWIN_A, k): {"changes": [ch("f_L0_003", "bench", (1.2, 0.4))], "added": []} for k in (1, 2)}
+    client = FakeClient(answers)
+    out, records = C.complete_building(source, "x", client, C.Settings())
+    assert {r for r, _ in client.calls} == {TWIN_A}
+    a, b = piece(out, "f_L0_003"), piece(out, "f_L0_004")
+    assert a["type"] == b["type"] == "bench" and b["type_proposal"] is True and b["drawn_type"] == "unknown"
+    assert b["status"] == "unverified" and b["footprint"] == piece(source, "f_L0_004")["footprint"]
+    assert b["mirrored_from"] == "f_L0_003" and "modified_by_ai" not in b
+    assert any(w.startswith("f_L0_004: unverified drawn piece, AI type proposal") for w in out["warnings"])
+    assert LK.check(source, out, "complete") == []
+
+
 def test_twin_rooms_all_asks_both():
     client = FakeClient(TWIN_ANSWERS)
     C.complete_building(twin_building(), "x", client, C.Settings(twin_rooms="all"))

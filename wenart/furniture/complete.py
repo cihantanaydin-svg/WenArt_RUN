@@ -27,7 +27,9 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
    piece rule (a bed stays a bed type, nothing becomes a second one) and the type counts. An unverified
    drawn piece keeps its footprint, front and status: an agreed type becomes its ``type`` with
    ``type_proposal: true`` and ``drawn_type``, never ``modified_by_ai`` (§1.6b row 15; its AI evidence at
-   confidence 0.6, as the example). With ``furnished_rooms_keep_size`` no change is asked.
+   confidence 0.6, as the example), and only when the drawn footprint fits the type in the M7 size table (a
+   corner sofa only on a drawn L; code review #20). Any drawn bed type is a bedroom's main piece (review #18).
+   With ``furnished_rooms_keep_size`` no change is asked.
 4. ``placer.place_changes`` places the changes at their anchors (shrink, then revert); the added pieces of
    each pass are filtered (types the room may still get, one main piece, the counts), placed with the
    full M4 repairs around the drawn pieces (``placer.place(..., obstacles=...)``) and checked for their
@@ -50,8 +52,8 @@ Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's ro
 its partner's decisions as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them
 mirrored (``partner_transform``: the pipeline's ``rooms[].twin_transform`` when present, else the mirror about
 the perpendicular bisector of the two room centroids; verified on the polygons and the drawn pieces within
-``PARTNER_TOL_M``). Copied pieces carry
-``mirrored_from``; a copy that fails a check here is dropped and listed; a partner that cannot be verified
+``PARTNER_TOL_M``). Changed pieces and type proposals are copied too.
+Copied pieces carry ``mirrored_from``; a copy that fails a check here is dropped and listed; a partner that cannot be verified
 is reported and the room is asked itself. ``copy_empty_layout`` does the same for the Milestone 4 layout of
 empty rooms (user decision 7: the AI furniture of the first twin mirrored onto the second).
 """
@@ -1119,8 +1121,9 @@ def copy_room(room: dict, partner_rec: RoomCompletion, kind: str, t: Transform, 
         pid = reverse.get(d.id)
         p = partner_items.get(pid)
         ch = next((c for c in partner_rec.changes if c["id"] == pid and c["status"] in ("applied", "reverted")), None)
-        if ch is None or p is None or not p.get("modified_by_ai"):
-            continue                                           # the partner's piece stayed as drawn
+        if ch is None or p is None or not (p.get("modified_by_ai") or p.get("type_proposal")):
+            continue                                           # the partner's piece stayed as drawn (a type
+            #                                                    proposal is copied too: both rooms stay the same)
         ev = [e for e in p["evidence"] if e.get("method") == "ai"]
         if ch["status"] == "applied":
             ftype = ch["type"]
