@@ -112,6 +112,23 @@ def test_glb_materials_lists_names_colours_textures_and_triangles(glb):
     assert by[3]["name"] == "unused"
 
 
+def test_an_unnamed_material_is_called_what_the_blender_importer_calls_it(tmp_path):
+    """The scene builder matches a catalogue slot to the imported material by name; Blender 5.2.2 names a material the
+    glTF does not name ``Material_<index>`` (checked in the session by importing a GLB with unnamed materials). The
+    question shows a name only when the file gave one."""
+    path = box_glb(tmp_path / "m.glb", [(SEAT[0], SEAT[1], 0), (LEGS[0], LEGS[1], 1)],
+                   [{"pbrMetallicRoughness": {"baseColorFactor": [0.5, 0.5, 0.5, 1.0]}}, {"name": "Oak"}], texture=False)
+    first, second = R.glb_materials(path)["materials"]
+    assert (first["name"], first["named"]) == ("Material_0", False) and (second["name"], second["named"]) == ("Oak", True)
+    slots = [{"index": 0, "name": first["name"], "named": False}, {"index": 1, "name": "Oak", "named": True}]
+    text = R.prompt_for(slots)
+    assert 'the tile labelled "slot 1" (file material name: "Oak")' in text and "Material_0" not in text
+    assert '- slot_0: the tile labelled "slot 0"\n' in text
+    whole = R.prompt_for(slots[:1], whole=True)
+    assert "(slot_0): say which materials" in whole and "file material name" not in whole
+    assert 'file material name "Oak"' in R.prompt_for(slots[1:], whole=True)          # a named slot: the old words
+
+
 def test_a_primitive_without_a_material_is_counted_apart(tmp_path):
     path = box_glb(tmp_path / "m.glb", [SEAT, (LEGS[0], LEGS[1], None)], MATERIALS[:1], texture=False)
     info = R.glb_materials(path)
