@@ -645,6 +645,7 @@ lights emit; HDRI at dusk), each with a verified Poly Haven HDRI.
 | Pod | When | Steps | Est. minutes | Est. cost |
 |---|---|---|---|---|
 | L1 | A1, C, D merged | ABO survey for the new types (40 per type), Objaverse survey for gaps, thumbnails, judging by both models (with material tags and the recolour part classes), accept (20 per type, decor 15), catalogue; the `sheet_region` AI passes of real02 and synthetic-07 (stored answers) | 90–110 | $3.1–3.8 |
+| L1b, L1c | L1 cut at 2 h (8 Oct: it surveyed every type, 55 min of ABO downloads) | L1b: `--types new` surveys (caches on the volume), thumbnails, material slots; L1c: the sheet and recognition answers, both judge sessions, accept, recolour tags, catalogue, GPU tests | ≈ 80 + ≈ 66 | ≈ $1–2 each |
 | L2 | after L1 | TRELLIS.2 generation for the types the real sources cannot fill (`plan --target 20`, decor 15), thumbnails, judging, catalogue | ≤ 115 | ≤ $4.0 |
 | L3 | only if L2 is cut | the rest of the generation plan | ≤ 110 | ≤ $3.9 |
 | F1 | after the review | full run of real02 (base + `Açık mutfak`), GPU tests | 80–115 | $2.8–4.0 |
@@ -685,4 +686,52 @@ $33.80 of $100). real02 without twin rooms rendered once would need about twice 
 
 ## 10. As built
 
-(filled while building)
+### 10.1 Tracks (all merged into `opus_branch_04`, 8 Oct 2026)
+
+| Track | Built | Tests (CPU) | Notes |
+|---|---|---|---|
+| A1 sheets | `wenart/sheets/` (split, titles, levels, variants, unit check, classify, register, heights, exterior, sheet_region questions, report, debug image, to_building), `wenart/ingest/twins.py`, the pipeline handover (one page record per region, frame shift, unit override, levels left out, variants, slabs, roof, facade, site) | 148 + 18 (synthetic-07) + review tests | M2–M9 `building.json` byte-identical (synthetic-01..06, real01). sheet_region questions only for regions that title and geometry leave undecided (lead decision; before: every region asked) |
+| A2 synthetic-07 | `wenart/synthetic/{sheet,sheet_writer,sheet_truth}.py`, `projects/synthetic-07/` (one CAD sheet, cm, R2000 with `\U+` escapes; DWG in `source/`), truth files | 96 synthetic tests | knee wall truth = underside (the schema writes the top surface; the note gives the underside) |
+| A3 face-line walls | face pairs (layer by evidence: rays from room labels, ≥ 70 %, runner-up listed), columns, joins, 2-line windows, opening `operation`, 14 types in symbol typing and the size table, L outline → `sofa_corner` | 23 (real02 walls) + pipeline test | real02 basement rooms needed the lead's `clip_page` tolerance (3-decimal region boxes) |
+| B completion | `wenart/furniture/{complete,locked}.py`, placer, schemas (`l_parts`), prompts, layout | 61 + 34 + 25 + … | review: a changed piece never fails a check more than its drawn version; any drawn bed is the anchor; type proposals must fit the footprint |
+| C vocabulary | `wenart/style/{colours,finishes,objects}.py`, phrase parser in `profile.py`, `style.schema.json`, `asset_checks_m10.json` (62 textures + 9 HDRIs checked live) | ~350 | 53 colours (W3C CSS Color 4, xkcd CC0; RAL left out: no verifiable sRGB); greige = xkcd "greyish" |
+| D library | ABO / Objaverse rules for the new types, TRELLIS.2 prompts, judge words, `recolour.py` (material slots and tags), `--types new` surveys | ~600 | wall cabinets parametric only; corner sofa `chaise_side` from the footprint |
+| E whole building | `wenart/blender/{roof,site,exterior}.py`, stacked levels, slabs, attic under the roof, facade, site, exterior cameras (4 corners, aerial, 1 per elevation), variants (`--variant`, `views_for`) | ~700 (Blender) | review: mansard from the section profile (real02: eaves 3.65, break 5.35, ridge 6.79, 40.4° / 13.3°) |
+| F looks | `wenart/blender/looks.py`, materials for every new slug, 14 type builders, cabinets, doors (8 styles) and windows (6 frames, mullions, sills) in the shell, decor slots, recolour in the fit, `fit --source/--completion` | ~940 | M3–M9 projects build as before (M10 geometry only with M10 values) |
+| H checks and report | exterior and elevation checks, drawn-piece check, exterior gate, report sections (Sheets, Building, Feature 1, Exterior, Variants, assumed values) | ~770 | |
+| P prep job | recolour steps, sheet questions on the prep pod, survey types, GLB caches on the volume, partial copies after the deadline | 88 | |
+| Lead | sheets stage, variant runs, copy rules, plan, contracts, merges, review triage | run tests | |
+
+### 10.2 Lead decisions during the build
+
+| # | Topic | Decision |
+|---|---|---|
+| 1 | sheet_region AI passes | asked only for regions whose class neither title nor geometry decides (§3.1 item 2 read as a fall-through); an AI-only answer never makes a plan |
+| 2 | Variant runs | an alternative runs after the base's refit as its own sub-output; the base's gate calibration is copied and validated; its report runs before the base's; a variant with no view gets build and export only |
+| 3 | Pipeline fingerprint | `sheets.json` is not hashed (pipeline_final rewrites it); pipeline_final is reused only while `sheets.json` is the answered one it wrote |
+| 4 | real02 roof break | the section wins over the plan's break line (20 cm apart; four attic openings reach 5 cm into the 20 cm roof; listed) |
+| 5 | Knee wall | the schema's top-surface value stays; the note gives the underside the section draws |
+| 6 | Window frames | a metal frame word with a colour that has its own metal look takes it ("dark bronze aluminium" → `dark_bronze`) |
+| 7 | Library pods | new types only (`--types new`, §7), M9 models kept; GLB caches on the volume so a cut pod keeps its downloads |
+| 8 | Alternative in a second document | not supported (needs a contract change; no project has it) |
+
+### 10.3 Code review (workflow: 8 subsystem reviewers, one adversarial verifier per finding)
+
+58 agents; 47 findings confirmed, 3 refuted, 18 low ones listed without verification. Every confirmed finding was
+fixed with a test that failed before (a few were already fixed by later merges: #12, #29, #34). Highest: #10
+(real02 basement rooms lost), #17 (changed drawn piece growing through walls), #22 (mansard ignored the section),
+#38 (plant species slug broke the catalogue), #46 (a variant could keep an older gate decision).
+
+### 10.4 Known limitations
+
+- An alternative drawn in a second document is read as a copy of the base (needs `secondary_regions` on alternatives).
+- Extra walls from a secondary page get the default 2.70 m height (`pipeline._merge_secondary`); twin order for a
+  horizontal mirror axis is inverted (`twins.py`).
+- `completion_report.md` shows the drawn type for a reverted change (the final report shows the refused proposal).
+- A private project's report names its sheet debug image paths (staged names, never copied).
+- Objaverse LVIS category names are checked against the LVIS v1 list, not the Objaverse file (unverified until a pod).
+
+### 10.5 Pods
+
+(filled after the runs)
+
