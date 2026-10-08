@@ -43,7 +43,6 @@ import pytest
 
 from fakes.fake_vlm import FakeVLM
 from wenart.blender import cli as blender_cli
-from wenart.run import stages as S
 from wenart.run import state as ST
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -160,9 +159,8 @@ def test_stage_records_of_the_ok_project(smoke):
     _check_ok_project(out, records)
     assert records["intake"]["note"] == "private only"
     # A project folder inside the repo stays repo-relative (§1.1); the LibreDWG version is a pipeline input (M7).
-    # Milestone 10: the sheets stage's sheets.json is a pipeline input too.
-    assert list(records["pipeline"]["inputs"]) == ["projects/synthetic-04", S.t(out / "sheets.json"),
-                                                   "<LibreDWG VERSION>"]
+    # Milestone 10: sheets.json is no pipeline input (pipeline_final rewrites it with the answers).
+    assert list(records["pipeline"]["inputs"]) == ["projects/synthetic-04", "<LibreDWG VERSION>"]
     # The A/B project's render saved the alt previews (look None, M7 §8.2).
     render = json.loads((out / "renders" / "render_manifest.json").read_text(encoding="utf-8"))
     assert render["renders"] and all(r.get("alt_preview") for r in render["renders"])
@@ -179,7 +177,7 @@ def test_private_project_runs_through_build_render_and_report(smoke):
     assert records["intake"]["status"] == "ok"
     # The staged copy is the project folder: absolute, under the private outputs (§7.1).
     staged = out / "input" / REAL
-    assert list(records["pipeline"]["inputs"]) == [str(staged), S.t(out / "sheets.json"), "<LibreDWG VERSION>"]
+    assert list(records["pipeline"]["inputs"]) == [str(staged), "<LibreDWG VERSION>"]
     assert (staged / "3_kat_plani.dxf").is_file()
     assert not (staged / "truth").exists()
     intake = json.loads((out / "intake_manifest.json").read_text(encoding="utf-8"))
