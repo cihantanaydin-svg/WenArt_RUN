@@ -87,8 +87,18 @@ underside and the terrace parapets, closed L-joins, the facade look and the draw
 faces, sills and balcony railings (``build_outside_details``, kind ``railing``), floors and ceilings with the
 stair voids and the sloped attic ceilings. The inside and opening looks go through track F's functions
 (``wall_face_material``, ``wet_wall_look``, ``accent_walls``, ``door_look``, ``window_frame_look``,
-``facade_look``; thin wrappers with the M9 looks until ``wenart/blender/looks.py`` exists) and the outside
+``facade_look`` of ``wenart/blender/looks.py``; thin wrappers with the M9 looks as the fallback) and the outside
 materials through ``exterior_material`` / ``look_material``.
+
+Milestone 10 doors and windows (docs/milestone10.md §4.7, track F): a door or window with Milestone 10 values
+(``door_geometry_m10`` / ``window_geometry_m10``: a style door style, handle or colour, a drawn non-swing
+operation; a Milestone 10 frame material or colour, drawn mullions or transoms) is built from
+``parametric.door_parts`` / ``window_parts`` (``build_door_m10`` / ``build_window_m10``): the drawn operation
+wins (sliding and barn doors hang on the face of the room they open into, ``opening_room_side``; pocket, double,
+folding and fixed doors as drawn, a fixed one without handles), the frame material's profile with the drawn
+mullions and transoms, an inside sill on the room side (assumed), the outside sill from the frame's outer edge;
+the ``door`` / ``window`` records in the manifest. The others keep the Milestone 6-9 door and window. The floor,
+ceiling, trim, skirting, stair and slab slots take their colour name and ``params`` (``slot_material``).
 """
 from __future__ import annotations
 
@@ -892,7 +902,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
     walls = {w["id"]: w for w in building["walls"] if w["level_id"] == level_id}
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
     trim = style.get("trim") or {"material": "painted_wood_white"}
-    frame_mat = library.get(trim["material"], trim.get("asset"), trim.get("tint"))
+    frame_mat = slot_material(library, trim)
     glass_mat = library.glass()
     steel_mat = library.get("steel_brushed")
 
@@ -948,11 +958,22 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         height = top - bottom
         index = len(pass_indices) + 1
         pass_indices[opening["id"]] = index
-        # The door leaf and window frame looks (track F's door_look / window_frame_look; today the style slots).
-        leaf_mat = look_material(library, door_look(style, opening)) if opening["type"] == "door" else None
-        win_mat = look_material(library, window_frame_look(style, opening)) if opening["type"] != "door" else None
+        # The door leaf and window frame looks (looks.door_look / window_frame_look: the style slots, the door
+        # style decided by the drawn operation first).
+        dlook = door_look(style, opening) if opening["type"] == "door" else None
+        wlook = window_frame_look(style, opening) if opening["type"] != "door" else None
+        leaf_mat = look_material(library, dlook) if dlook is not None else None
+        win_mat = look_material(library, wlook) if wlook is not None else None
+        geo = {"centre": (cx, cy), "bottom": bottom, "width": width, "height": height, "thickness": thickness,
+               "angle": angle, "index": index, "status": status, "level_id": level_id}
+        ctx = {"library": library, "collection": collection, "manifest_objects": manifest_objects,
+               "assumed": assumed, "rooms": rooms}
 
-        if opening["type"] == "door":
+        if opening["type"] == "door" and door_geometry_m10(style, opening):
+            # Milestone 10: the door style of the look (the drawn operation first) from parametric.door_parts.
+            created += build_door_m10(opening, wall, dlook, geo, ctx, {"frame": frame_mat, "leaf": leaf_mat,
+                                                                       "glass": glass_mat}, op_assumed, shift)
+        elif opening["type"] == "door":
             # Frame: two jambs and a head, as deep as the wall.
             parts = [
                 geom2d.box((-(width / 2.0 - fw / 2.0), 0.0, height / 2.0), (fw, thickness, height)),
@@ -991,6 +1012,10 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             assumed.append({"object": ob.name, "field": "door_handles",
                             "value": f"steel lever pair at {HANDLE_HEIGHT} m", "reason": reason,
                             "parent": opening["id"], "kind": "door_handles"})
+        elif window_geometry_m10(style, opening):
+            # Milestone 10: the frame material's profile, mullions / transoms, the inside sill (window_parts).
+            created += build_window_m10(opening, wall, wlook, geo, ctx, {"frame": win_mat, "glass": glass_mat,
+                                                                         "sill": frame_mat}, op_assumed, shift)
         else:
             depth = min(thickness, 0.08)
             parts = [
@@ -1014,6 +1039,166 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             ob.pass_index = index
             created.append(ob)
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, glass_mat.name, False, index, op_assumed, shift))
+    return created
+
+
+def opening_room_side(centre, wall: dict, rooms: list[dict], room_id: str | None = None
+                      ) -> tuple[int, str | None, bool]:
+    """``(side, room id, assumed)`` of an opening (pure): the side of its wall where the room lies, +1 for the left
+    of the wall direction (the opening frame's +y, ``_local_to_world``), -1 for the right. ``room_id`` (a door's
+    ``swing_side``) is taken when it lies on a side; else the only side with a room; rooms on both sides or none:
+    -1, assumed."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + DEFAULTS["face_probe"]
+    found: dict[int, str] = {}
+    for side in (1, -1):
+        probe = (centre[0] + side * nx * reach, centre[1] + side * ny * reach)
+        for room in rooms:
+            if len(room.get("polygon") or []) >= 3 and G.point_in_polygon(probe, room["polygon"]):
+                found[side] = room["id"]
+                break
+    for side, rid in found.items():
+        if room_id is not None and rid == room_id:
+            return side, rid, False
+    if len(found) == 1:
+        side, rid = next(iter(found.items()))
+        return side, rid, False
+    return -1, found.get(-1), True
+
+
+def opening_parts_mesh(parts: list[dict], materials_by: dict, origin, angle: float) -> tuple[list, list, list, list]:
+    """``(verts, faces, materials, face material indices)`` of parametric parts in an opening's frame
+    (``parametric.door_parts`` / ``window_parts``), each part's material by its role, else by its key."""
+    mats: list = []
+    names: list[str] = []
+    indices: list[int] = []
+    pieces = []
+    for part in parts:
+        mat = materials_by.get(part["role"]) or materials_by[part["key"]]
+        if mat.name not in names:
+            mats.append(mat)
+            names.append(mat.name)
+        indices += [names.index(mat.name)] * len(part["faces"])
+        pieces.append((part["verts"], part["faces"]))
+    verts, faces = _local_to_world(pieces, origin, angle)
+    return verts, faces, mats, indices
+
+
+def _opening_object(opening: dict, suffix: str, parts: list[dict], materials_by: dict, geo: dict, ctx: dict,
+                    status: str):
+    """A mesh object ``<opening id>_<suffix>`` of ``parts`` (kind door / window, the opening's pass index)."""
+    from wenart.blender import common
+
+    verts, faces, mats, indices = opening_parts_mesh(parts, materials_by, (*geo["centre"], geo["bottom"]),
+                                                     geo["angle"])
+    ob = common.new_mesh_object(f"{opening['id']}_{suffix}", verts, faces, collection=ctx["collection"],
+                                wenart_id=opening["id"], kind=opening["type"], status=status, materials=mats,
+                                face_material_indices=indices)
+    ob.pass_index = geo["index"]
+    return ob, mats
+
+
+def _detail_entry(opening: dict, ob, mats: list, geo: dict, ctx: dict, detail: dict, value: str, field: str,
+                  shift: float) -> None:
+    """Manifest and ``assumed`` entries of a design detail of an opening (handles, an inside sill): status
+    assumed, its parent the opening."""
+    library = ctx["library"]
+    entry = _opening_entry(opening, ob.name, geo["level_id"], mats[0].name, library.textured(mats[0]), geo["index"],
+                           {}, shift)
+    entry.update(status="assumed", evidence=[], parent=opening["id"], assumed=detail,
+                 materials=[m.name for m in mats])
+    ctx["manifest_objects"].append(entry)
+    ctx["assumed"].append({"object": ob.name, "field": field, "value": value, "reason": detail["reason"],
+                           "parent": opening["id"], "kind": field})
+
+
+def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, mats: dict, op_assumed: dict,
+                   shift: float) -> list:
+    """A Milestone 10 door (docs/milestone10.md §4.7): ``parametric.door_parts`` for the door look
+    (``looks.door_look``: the drawn operation first, so sliding, pocket, double, folding and fixed doors are built
+    as drawn; else the style's door style), in three objects as in Milestone 6: ``<id>_frame`` (the frame, or a
+    sliding / barn door's rail), ``<id>_leaf`` (leaves, panels, glass, ledges; the manifest entry carries the
+    ``door`` record) and ``<id>_handle`` (the handles in the look's handle metal: a design detail, assumed; none
+    on a fixed door). A sliding or barn door hangs on the face of the room it opens into (``swing_side``), else
+    of the only room next to it (``opening_room_side``)."""
+    library = ctx["library"]
+    look = dict(look or {})
+    side, side_room, side_assumed = opening_room_side(geo["centre"], wall, ctx["rooms"], opening.get("swing_side"))
+    look["side"] = side
+    parts, record = P.door_parts(look, geo["width"], geo["height"], geo["thickness"], DEFAULTS["frame_width"])
+    handle_mat = library.get(look.get("handle_material") or "steel_brushed")
+    by = {"frame": mats["frame"], "rail": handle_mat, "groove": handle_mat, "leaf": mats["leaf"],
+          "glass": mats["glass"], "handle": handle_mat}
+    groups = {"frame": [p for p in parts if p["role"] in ("frame", "rail")],
+              "leaf": [p for p in parts if p["role"] not in ("frame", "rail") and p["key"] != "handle"],
+              "handle": [p for p in parts if p["key"] == "handle"]}
+    record = dict(record, operation=look.get("operation"), operation_assumed=bool(look.get("operation_assumed")),
+                  handle=look.get("handle"), handle_material=handle_mat.name if groups["handle"] else None,
+                  side_room=side_room if record["surface_mounted"] else None,
+                  side_assumed=side_assumed if record["surface_mounted"] else None, reason=look.get("reason"))
+    created = []
+    for key in ("frame", "leaf"):
+        if not groups[key]:
+            continue
+        ob, used = _opening_object(opening, key, groups[key], by, geo, ctx, geo["status"])
+        created.append(ob)
+        entry = _opening_entry(opening, ob.name, geo["level_id"], used[0].name, library.textured(used[0]),
+                               geo["index"], op_assumed, shift)
+        entry["materials"] = [m.name for m in used]
+        if key == "leaf":
+            entry["door"] = record
+        ctx["manifest_objects"].append(entry)
+    if record["surface_mounted"] and side_assumed:
+        ctx["assumed"].append({"object": opening["id"], "field": "door_side", "value": side,
+                               "reason": f"{record['door_style']} door: rooms on both sides or none and no "
+                                         f"swing_side; hung on the wall's {'left' if side > 0 else 'right'} face"})
+    if groups["handle"]:
+        ob, used = _opening_object(opening, "handle", groups["handle"], by, geo, ctx, "assumed")
+        created.append(ob)
+        what = "rail and handle" if record["surface_mounted"] else "handles on both faces"
+        reason = (f"design detail of the documented {record['door_style']} door ({look.get('handle') or 'steel'} "
+                  f"{what}); not in the documents")
+        _detail_entry(opening, ob, used, geo, ctx, {"detail": "door_handles", "lever_height_m": P.LEVER_HEIGHT_M,
+                                                    "reason": reason},
+                      f"{used[0].name} handles", "door_handles", shift)
+    return created
+
+
+def build_window_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, mats: dict, op_assumed: dict,
+                     shift: float) -> list:
+    """A Milestone 10 window (docs/milestone10.md §4.7): ``parametric.window_parts`` for the window frame look
+    (the frame material's profile, the opening's ``mullions`` / ``transoms``), in ``<id>_frame`` (frame and bars;
+    the manifest entry carries the ``window`` record, which ``build_outside_details`` reads for the outside sill),
+    ``<id>_glass`` and ``<id>_inside_sill`` (the trim look on the room side's reveal: a design detail, assumed)."""
+    library = ctx["library"]
+    look = look or {}
+    side, room_id, side_assumed = opening_room_side(geo["centre"], wall, ctx["rooms"])
+    parts, record = P.window_parts(look, geo["width"], geo["height"], geo["thickness"], look.get("mullions", 0),
+                                   look.get("transoms", 0), side)
+    by = {"frame": mats["frame"], "glass": mats["glass"], "sill": mats["sill"]}
+    record = dict(record, inside_side=side, room_id=room_id, inside_assumed=side_assumed, reason=look.get("reason"))
+    created = []
+    for key, roles in (("frame", ("frame", "mullion", "transom")), ("glass", ("glass",))):
+        group = [p for p in parts if p["role"] in roles]
+        ob, used = _opening_object(opening, key, group, by, geo, ctx, geo["status"])
+        created.append(ob)
+        entry = _opening_entry(opening, ob.name, geo["level_id"], used[0].name,
+                               library.textured(used[0]) if key == "frame" else False, geo["index"], op_assumed,
+                               shift)
+        if key == "frame":
+            entry["window"] = record
+        ctx["manifest_objects"].append(entry)
+    sill = [p for p in parts if p["role"] == "sill"]
+    if sill:
+        ob, used = _opening_object(opening, "inside_sill", sill, by, geo, ctx, "assumed")
+        created.append(ob)
+        info = record["inside_sill"]
+        reason = (f"design detail of the documented window: an inside sill {info['depth']} m deep, "
+                  f"{info['proud']} m proud of the wall face, in the trim look"
+                  + ("; rooms on both sides or none: the sill on the wall's right face" if side_assumed else "")
+                  + "; not in the documents")
+        _detail_entry(opening, ob, used, geo, ctx, {"detail": "inside_sill", **info, "reason": reason},
+                      f"{used[0].name} sill", "inside_sill", shift)
     return created
 
 
@@ -1064,12 +1249,19 @@ def floor_style(room: dict, style: dict) -> tuple[dict, bool]:
     return (style.get("wet_floor") if wet else None) or style["floor"], wet
 
 
+def slot_material(library, slot: dict, unverified: bool = False):
+    """The material of a style slot (floor, ceiling, trim, ...): its slug, asset and tint and, Milestone 10, its
+    colour name and procedural ``params`` (``materials.MaterialLibrary.get``; a slot without them is the M9
+    material)."""
+    return library.get(slot["material"], slot.get("asset"), slot.get("tint"), unverified=unverified,
+                       colour=slot.get("colour"), params=slot.get("params"))
+
+
 def floor_material(room: dict, style: dict, library):
     """``(material, wet)`` of a room floor: the style floor, the wet-room floor
     for bathroom / wc / kitchen, the dashed-red overlay for unverified rooms."""
     slot, wet = floor_style(room, style)
-    mat = library.get(slot["material"], slot.get("asset"), slot.get("tint"),
-                      unverified=room.get("status") == "unverified")
+    mat = slot_material(library, slot, unverified=room.get("status") == "unverified")
     return mat, wet
 
 
@@ -1107,7 +1299,7 @@ def _soffit(opening, wall, centre, angle, z, style, library, collection, manifes
     from wenart.blender import common
 
     ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
-    mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
+    mat = slot_material(library, ceiling_style)
     verts, faces = geom2d.polygon_face(
         G.rotated_rectangle(centre, (float(opening["width"]), float(wall["thickness"])), angle), z, facing_up=False)
     ob = common.new_mesh_object(f"{opening['id']}_soffit", verts, faces, collection=collection,
@@ -1187,7 +1379,7 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             continue
         floor_mat, wet = floor_material(room, style, library)
         ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
-        ceil_mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
+        ceil_mat = slot_material(library, ceiling_style)
         if len(room["polygon"]) < 3:
             warnings.append(f"{room['id']}: polygon with fewer than 3 points, no floor")
             continue
@@ -1261,7 +1453,7 @@ def build_skirting(building: dict, level: dict, collection, library, style: dict
     floor_z = float(level["elevation"])
     has_above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
     trim = style.get("trim") or {"material": "painted_wood_white"}
-    mat = library.get(trim["material"], trim.get("asset"), trim.get("tint"))
+    mat = slot_material(library, trim)
     reason = "design detail of the room's documented walls (painted skirting board); not in the documents"
     created = []
     for room in building["rooms"]:
@@ -1401,8 +1593,8 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         unverified = status == "unverified"
         room = stair_room(piece, rooms)
         slot, _wet = floor_style(room or {}, style)
-        tread = library.get(slot["material"], slot.get("asset"), slot.get("tint"), unverified=unverified)
-        structure = library.get(walls_style["material"], walls_style.get("asset"), unverified=unverified)
+        tread = slot_material(library, slot, unverified=unverified)
+        structure = slot_material(library, dict(walls_style, tint=None), unverified=unverified)
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=piece["id"],
@@ -1452,7 +1644,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
             continue
         sv, sf = P.void_shaft(plan)
         if sf:
-            cap_mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
+            cap_mat = slot_material(library, ceiling_style)
             shaft = common.new_mesh_object(shaft_name, [(x, y, z + floor_z) for x, y, z in sv], sf,
                                            collection=collection, wenart_id=shaft_name, kind="ceiling",
                                            status="assumed", materials=[cap_mat])
@@ -1713,7 +1905,7 @@ def build_slabs(plan: dict, collections: dict, library, style: dict, manifest_ob
     from wenart.blender import common
 
     walls_style = style.get("walls") or {"material": "plaster_white"}
-    mat = library.get(walls_style["material"], walls_style.get("asset"))
+    mat = slot_material(library, dict(walls_style, tint=None))
     created = []
     for rec in plan["slabs"]:
         col = collections.get(rec["above_level_id"])
@@ -1740,10 +1932,11 @@ def build_slabs(plan: dict, collections: dict, library, style: dict, manifest_ob
 #
 # docs/milestone10.md §1.6b row 20: track F owns ``wenart/blender/looks.py`` (pure functions this module calls:
 # ``wall_face_material``, ``accent_walls``, ``wet_wall_look``, ``door_look``, ``window_frame_look``,
-# ``facade_look``) and ``materials.exterior_material(library, slug, colour=None)``. The wrappers below hand over
-# to F's function of the same name and signature (the Milestone 9 looks remain as the fallback when the module
-# cannot be imported). A look is a dict ``{"material": slug, "asset", "tint", "colour", "rgb", "params",
-# "source", "reason"}`` (only ``material`` required); ``look_material`` makes its Blender material.
+# ``facade_look``, ``door_geometry_m10``, ``window_geometry_m10``) and ``materials.exterior_material(library,
+# slug, colour=None)``. The wrappers below hand over to F's function of the same name and signature (the
+# Milestone 9 looks remain as the fallback when the module cannot be imported). A look is a dict
+# ``{"material": slug, "asset", "tint", "colour", "rgb", "params", "source", "reason"}`` (only ``material``
+# required); ``look_material`` makes its Blender material.
 
 def _f_looks(name: str):
     """Track F's function ``name`` of ``wenart.blender.looks``, None while F's module or function is missing."""
@@ -1805,6 +1998,20 @@ def window_frame_look(style: dict, opening: dict | None = None) -> dict:
     if f is not None:
         return f(style, opening)
     return _slot_look(style.get("window_frame"), "painted_metal_white")
+
+
+def door_geometry_m10(style: dict, opening: dict | None = None) -> bool:
+    """True when a door gets the Milestone 10 geometry (``looks.door_geometry_m10``: a style door style, handle or
+    colour, or a drawn non-swing operation); else the Milestone 6-9 door."""
+    f = _f_looks("door_geometry_m10")
+    return bool(f(style, opening)) if f is not None else False
+
+
+def window_geometry_m10(style: dict, opening: dict | None = None) -> bool:
+    """True when a window gets the Milestone 10 geometry (``looks.window_geometry_m10``: a Milestone 10 frame
+    material or colour, or drawn mullions / transoms); else the Milestone 6-9 window."""
+    f = _f_looks("window_geometry_m10")
+    return bool(f(style, opening)) if f is not None else False
 
 
 def facade_look(looks: dict, wall: dict | None = None) -> dict:
@@ -1893,7 +2100,8 @@ def sill_box(opening: dict, wall: dict, level: dict, levels_above: bool, outward
     bottom, _top, _ = opening_vertical(opening, level, levels_above)
     cx, cy, _ = opening_centre_on_wall(opening, wall)
     half_t = float(wall["thickness"]) / 2.0
-    inner = min(float(wall["thickness"]), 0.08) / 2.0 + 0.001          # the window frame's outer edge
+    frame_depth = c.get("frame_depth") or min(float(wall["thickness"]), 0.08)   # M10: the frame profile's
+    inner = float(frame_depth) / 2.0 + 0.001                            # the window frame's outer edge
     outer = half_t + float(c["projection"])
     depth = outer - inner
     mid = (inner + outer) / 2.0
@@ -2012,7 +2220,9 @@ def build_outside_details(building: dict, level: dict, collection, library, look
                 if entry.get("name") == f"{o['id']}_frame":
                     entry["material_outside"] = outside_frame.name
                     entry["outside_source"] = frame_look.get("reason")
-        verts, faces, info = sill_box(o, wall, level, above, out, cfg)
+        frame_entry = next((e for e in manifest_objects if e.get("name") == f"{o['id']}_frame"), None)
+        depth = ((frame_entry or {}).get("window") or {}).get("frame_depth")     # Milestone 10 window_parts
+        verts, faces, info = sill_box(o, wall, level, above, out, dict(cfg, frame_depth=depth) if depth else cfg)
         name = f"{o['id']}_sill"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=o["id"], kind="window",
                                     status="assumed", materials=[sill_mat])

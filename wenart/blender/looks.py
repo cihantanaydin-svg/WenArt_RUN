@@ -18,9 +18,12 @@ accent wall (§4.1: "the wall behind the sofa or the bed head, else the longest 
 living room and bedroom) is found from the room's anchor piece (its back edge within ``ACCENT_REACH_M`` of a wall
 parallel to it) or the room's walls (those along the room outline, without a window, the longest overlap); door
 looks take the drawn ``operation`` first (``OPERATION_STYLES``), then the style's door style where it fits the
-operation; designs come from ``furniture.design`` (written by the layout stage, track B) and, for a piece without
-one (a project whose layout stage did not run), from ``style.json`` ``cabinets`` / ``furniture`` and the rules
-(vanity: a washbasin at least ``VANITY_MIN_DEPTH_M`` deep; built-in: a wardrobe whose two ends touch walls).
+operation (``door_geometry_m10`` / ``window_geometry_m10`` say which openings the shell builds from
+``parametric.door_parts`` / ``window_parts``: those with Milestone 10 values; the others keep the Milestone 6-9
+door and window); designs come from ``furniture.design`` (written by the layout stage, track B) and, for a piece
+without one (a project whose layout stage did not run), from ``style.json`` ``cabinets`` / ``furniture`` and
+the rules (vanity: a washbasin at least ``VANITY_MIN_DEPTH_M`` deep; built-in: a wardrobe whose two ends touch
+walls).
 Imports only the pure style tables and ``wenart.geometry`` (Blender's Python runs it).
 """
 from __future__ import annotations
@@ -270,6 +273,37 @@ def window_frame_look(style: dict, opening: Optional[dict] = None) -> dict:
         if isinstance(value, int) and not isinstance(value, bool) and value > 0:
             out[key] = value
     return out
+
+
+# Which doors and windows get the Milestone 10 geometry (``parametric.door_parts`` / ``window_parts``, built by
+# ``shell.build_openings``): those the style or the drawing gives Milestone 10 values; a project without them keeps
+# the Milestone 6-9 door (frame, leaf, lever pair) and window (frame, glass), so the M3-M9 scenes stay as they were.
+DRAWN_DOOR_OPERATIONS: tuple[str, ...] = ("double", "sliding", "pocket", "folding", "fixed")
+M10_FRAME_MATERIALS: tuple[str, ...] = ("pvc_white", "aluminium_anthracite", "steel_black", "dark_bronze", "oak")
+
+
+def _count(opening: Optional[dict], key: str) -> int:
+    value = (opening or {}).get(key)
+    return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
+
+
+def door_geometry_m10(style: dict, opening: Optional[dict] = None) -> bool:
+    """True when a door is built from ``parametric.door_parts``: the style's ``door`` slot names a door style, a
+    handle or a colour, or the drawing a non-swing operation (``DRAWN_DOOR_OPERATIONS``: the drawn type wins)."""
+    door = _slot(style, "door")
+    if door.get("style") or door.get("handle") or door.get("colour"):
+        return True
+    return (opening or {}).get("operation") in DRAWN_DOOR_OPERATIONS
+
+
+def window_geometry_m10(style: dict, opening: Optional[dict] = None) -> bool:
+    """True when a window is built from ``parametric.window_parts`` (the frame material's profile, mullions,
+    transoms, an inside sill): the style's ``window_frame`` is a Milestone 10 frame material
+    (``M10_FRAME_MATERIALS``) or has a colour, or the opening gives mullions or transoms."""
+    frame = _slot(style, "window_frame")
+    if frame.get("colour") or frame.get("material") in M10_FRAME_MATERIALS:
+        return True
+    return _count(opening, "mullions") > 0 or _count(opening, "transoms") > 0
 
 
 def facade_look(looks: dict, wall: Optional[dict] = None) -> dict:
