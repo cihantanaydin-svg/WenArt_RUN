@@ -828,7 +828,7 @@ def project_06() -> CadProject:
 
 # sha256 of projects/synthetic-07/source/sheet.dwg as LibreDWG 0.14 (d9468ae) dxf2dwg --as r2000 writes it from
 # sheet.dxf (same rule as DWG_SHA256_06: update only together with a reviewed change of the sheet).
-DWG_SHA256_07 = "3a60a31ccbbc3398e27e4abe5e57b453b88849837f1058d32ebf5b27abff0b7a"
+DWG_SHA256_07 = "287c6e2dc014169bc5e55725f9507db5f3f638591f2222e2004d8c3f0bf81e34"
 
 
 def all_projects() -> list:

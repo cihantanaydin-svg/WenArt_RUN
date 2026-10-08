@@ -233,10 +233,10 @@
      "class": "site_plan",
      "region_id": "r5",
      "region_box": [
-      7700.0,
+      7800.0,
       2000.0,
-      10500.0,
-      4550.0
+      10600.0,
+      4450.0
      ],
      "region_class": "site_plan",
      "variant": null,
@@ -259,7 +259,7 @@
      "transform_to_building": [
       0.01,
       0.0,
-      -85.0,
+      -86.0,
       0.0,
       0.01,
       -27.0

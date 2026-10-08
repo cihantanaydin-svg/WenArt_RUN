@@ -1079,15 +1079,23 @@ def test_synthetic_07_sheet_is_one_cad_drawing_in_centimetres(sheet):
     assert len(stray) == 1 and stray[0].dxf.start.x < -50000
 
 
-def test_synthetic_07_regions_equal_an_independent_clustering(sheet):
+@pytest.fixture(scope="module")
+def sheet_boxes(sheet):
+    """Boxes of the non-text entities of the sheet, the frame left out (what the spec's split clusters)."""
+    return [_box_of(e) for e in sheet["msp"] if e.dxftype() not in ("TEXT", "MTEXT") and e.dxf.layer != "A_Cerceve"]
+
+
+@pytest.mark.parametrize("fraction", [0.005, 0.01, 0.015, 0.02, 0.03])
+def test_synthetic_07_regions_equal_an_independent_clustering(sheet, sheet_boxes, fraction):
     """The spec's split (docs/milestone10.md §3.1.1): boxes of the non-text entities, the frame left out, clustered with
-    a gap of 1.5 % of the frame's diagonal, give exactly the truth's regions (and one stray)."""
+    a gap of 1.5 % of the frame's diagonal, give exactly the truth's regions (and one stray) - and so does every gap of the
+    range the spec tested, 0.5 to 3 %."""
     document = sheet["sheets"]["documents"][0]["sheets"][0]
     frame = document["frames"][0]["box"]
-    gap = 0.015 * math.hypot(frame[2] - frame[0], frame[3] - frame[1])
-    assert gap == pytest.approx(document["gap_units"], abs=1e-3)
-    items = [(e, _box_of(e)) for e in sheet["msp"] if e.dxftype() not in ("TEXT", "MTEXT") and e.dxf.layer != "A_Cerceve"]
-    parent = list(range(len(items)))
+    gap = fraction * math.hypot(frame[2] - frame[0], frame[3] - frame[1])
+    if fraction == 0.015:
+        assert gap == pytest.approx(document["gap_units"], abs=1e-3)
+    parent = list(range(len(sheet_boxes)))
 
     def find(i):
         while parent[i] != i:
@@ -1095,12 +1103,12 @@ def test_synthetic_07_regions_equal_an_independent_clustering(sheet):
             i = parent[i]
         return i
 
-    for i in range(len(items)):
-        for j in range(i + 1, len(items)):
-            if _box_distance(items[i][1], items[j][1]) <= gap:
+    for i in range(len(sheet_boxes)):
+        for j in range(i + 1, len(sheet_boxes)):
+            if _box_distance(sheet_boxes[i], sheet_boxes[j]) <= gap:
                 parent[find(i)] = find(j)
     clusters: dict = {}
-    for i, (_, box) in enumerate(items):
+    for i, box in enumerate(sheet_boxes):
         clusters.setdefault(find(i), []).append(box)
     found = sorted(([min(b[0] for b in m), min(b[1] for b in m), max(b[2] for b in m), max(b[3] for b in m), len(m)]
                     for m in clusters.values()), key=lambda c: (-c[3], c[0]))

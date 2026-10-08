@@ -148,11 +148,11 @@ join the nearest region by their insertion point, the frame is not a region.
 | r2 | alternative_floor_plan | `BODRUM KAT PLANI (AÇIK MUTFAK)` | L-1b, `Açık mutfak` (`acik-mutfak`, gloss open kitchen) | 2300, 4175, 3300, 4975 | 17.0, −1.35 | read |
 | r3 | floor_plan | `ZEMİN KAT PLANI` (the reference) | L0 | 4000, 3910, 5000, 4950 | 0, 0 | read |
 | r4 | floor_plan | `ÇATI KAT PLANI` | L1 attic | 5700, 4025, 6800, 4925 | −17.5, −0.35 | read |
-| r5 | site_plan | `VAZİYET PLANI` | – | 7700, 2000, 10500, 4550 | −45.0, 13.4 (through its building outline) | exterior |
+| r5 | site_plan | `VAZİYET PLANI` | – | 7800, 2000, 10600, 4450 | −46.0, 13.4 (through its building outline) | exterior |
 | r6 | section | `A-A KESİTİ` | – | 845, 1680, 2300, 2710.602 | – | heights |
 | r7 | elevation | `GÜNEY GÖRÜNÜŞÜ` | – | 3700, 1990, 5300, 2700.602 | – | exterior |
 | r8 | elevation | `DOĞU GÖRÜNÜŞÜ` | – | 5900, 1980, 7300, 2690.602 | – | exterior |
-| r9 | legend | `LEJANT` | – | 8600, 700, 10400, 1450 | – | ignored |
+| r9 | legend | `LEJANT` | – | 8600, 800, 10400, 1550 | – | ignored |
 | r10 | title_block | – (cells `PROJE`, `ÇİZEN`, `ÖLÇEK 1/100`, `TARİH`, `PAFTA`) | – | 5000, 0, 11000, 360 | – | ignored |
 
 Plan titles are MTEXT, the others TEXT (height 30 cm). Each plan sits at its own offset (pure shifts, no rotation), so
@@ -241,7 +241,7 @@ labels `43.5M2` match the polygons, level marks match the slab spacing, door arc
 
 | Stage | What the reader must find |
 |---|---|
-| split | 10 regions and 1 stray; boxes within 0.01 cm of the table (an independent clustering with gap 185 cm reproduces them: `tests/test_synthetic.py`); the frame is not a region |
+| split | 10 regions and 1 stray; boxes within 0.01 cm of the table (an independent clustering reproduces them for every gap from 0.5 % to 3 % of the frame's diagonal, 62 to 370 cm: `tests/test_synthetic.py`); the frame is not a region |
 | classify | classes by title; `r2` alternative of `r1` (same level, extra bracket); the title block by geometry; no AI needed |
 | units | `$INSUNITS` 5 agrees with every check: `metres_per_unit` 0.01, no `unit_mismatch` |
 | register | shifts as in the table (± 1 cm), residual 0, stairs aligned (the `MERDIVEN` sits at the same place on all four plans) |

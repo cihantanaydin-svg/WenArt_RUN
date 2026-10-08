@@ -696,10 +696,10 @@ PLOT = ((-6.0, -7.0), (18.0, -7.0), (18.0, 13.0), (-6.0, 13.0))
 PLOT_WALL_T = 0.20
 PLOT_WALL_INSET = 0.05                                 # outer face of the plot wall, inside the boundary line
 PARKING = ((11.0, 8.5), (16.0, 8.5), (16.0, 12.5), (11.0, 12.5))
-ROAD = ((-8.0, 14.5), (20.0, 14.5), (20.0, 18.5), (-8.0, 18.5))
+ROAD = ((-8.0, 13.5), (20.0, 13.5), (20.0, 17.5), (-8.0, 17.5))
 TREES = ((-3.5, -3.5), (13.5, -4.5), (-3.0, 10.0))
 NORTH_AT = (15.0, 2.0)
-SITE_LABELS = (("OTOPARK", (12.3, 10.2)), ("BAHÇE", (1.5, -4.0)), ("YOL", (6.5, 16.2)))
+SITE_LABELS = (("OTOPARK", (12.3, 10.2)), ("BAHÇE", (1.5, -4.0)), ("YOL", (6.5, 15.2)))
 
 
 def plot_wall_centre() -> list[tuple[tuple[float, float], tuple[float, float]]]:
@@ -765,8 +765,8 @@ def title_block_prims() -> list[Prim]:
 
 # Position (cm) of each local origin: plans at their own offsets (row 1), section / elevations (row 2), site plan right.
 ORIGINS = {"basement": (600.0, 4200.0), "basement_alt": (2300.0, 4175.0), "ground": (4000.0, 4040.0), "attic": (5750.0, 4075.0),
-           "section": (1200.0, 2000.0), "south": (4000.0, 1990.0), "east": (6200.0, 1980.0), "site": (8500.0, 2700.0),
-           "legend": (8600.0, 700.0), "titleblock": (0.0, 0.0)}
+           "section": (1200.0, 2000.0), "south": (4000.0, 1990.0), "east": (6200.0, 1980.0), "site": (8600.0, 2700.0),
+           "legend": (8600.0, 800.0), "titleblock": (0.0, 0.0)}
 TITLE_DROP = 0.7                                          # metres between a drawing's box and its title's top
 BRIEF_07 = {"style": "Modern minimal, light oak floor, white walls, warm daylight",
             "exterior": {"facade": "white render", "roof": "clay tiles", "window_frame": "anthracite aluminium"}}
