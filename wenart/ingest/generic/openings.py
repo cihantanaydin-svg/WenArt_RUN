@@ -38,9 +38,10 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   §3.1 item 11).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
-  that perpendicular walls split is one wall with openings only when every part holds a door or window symbol (or
-  is < 0.25 m); a part that is empty or unclassified makes all parts ``open`` (no wall across), and the free ends
-  cast their own end gaps.
+  that perpendicular walls running through the band split is one wall with openings only when every part holds a
+  door or window symbol (or is < 0.25 m); a part that is empty or unclassified makes all parts ``open`` (no wall
+  across), and the free ends cast their own end gaps. A wall *ending* in the band (real01's two bedroom doors) splits
+  as before.
 
 Everything is in page metres (y up). Walls at other angles than the plan's dominant pair pass through untouched.
 """
@@ -685,7 +686,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     classify_gap(g, index, trial)
                     _own(g, index, trial)
                 found.append(g)
-            if len(subs) > 1 and any(g.cls in ("empty", "unclassified") for g in found):
+            if len(subs) > 1 and any(g.cls in ("empty", "unclassified") for g in found) and _crossed(p, q, ends):
                 # Perpendicular walls cross the gap and one part holds no door or window symbol: the pieces are two
                 # walls on one line (real02: the bedroom walls of both dwellings, the corridor and a bathroom
                 # between them), never one wall across; free ends cast their own end gaps (b).
@@ -882,6 +883,24 @@ def _split(p: Piece, q: Piece, pieces: list[Piece]) -> list[tuple[float, float]]
                 nxt.append((c1, s1))
         subs = nxt
     return subs
+
+
+def _crossed(p: Piece, q: Piece, pieces: list[Piece]) -> bool:
+    """Whether every perpendicular wall that splits the run gap between p and q runs through the run band (beyond
+    both faces by its thickness): two walls on one line with walls crossing between them (real02), not a wall end
+    splitting one wall's door gap (real01's bedrooms)."""
+    a, b = p.b, q.a
+    lo, hi = p.c - p.t / 2.0, p.c + p.t / 2.0
+    cutting = []
+    for w in pieces:
+        if w.axis == p.axis:
+            continue
+        w0, w1 = w.c - w.t / 2.0, w.c + w.t / 2.0
+        if w1 <= a + GAP_IGNORE_M or w0 >= b - GAP_IGNORE_M:
+            continue
+        if min(w.b, hi) - max(w.a, lo) >= 0.5 * p.t:
+            cutting.append(w)
+    return bool(cutting) and all(w.a < lo - p.t and w.b > hi + p.t for w in cutting)
 
 
 def _is_free(p: Piece, which: str, pieces: list[Piece]) -> bool:
