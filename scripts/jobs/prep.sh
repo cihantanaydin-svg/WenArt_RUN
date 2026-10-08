@@ -29,8 +29,23 @@
 # resumes (pipeline records, answers, the library work, thumbnail measurements, detector boxes and timing renders
 # are reused from the volume).
 #
+# Milestone 10 (docs/milestone10.md §7): L1 = the real models with their material slots (recolour_slots, the recolour
+# judge in both sessions, recolour tags in the library step) and the sheet_region answers of real02 and synthetic-07
+# (the sheets stage before each pipeline; both question folders, <out>/sheets and <out>/recognition, are asked in the
+# same sessions); L2 = the generation, its slots and judging, the catalogue of every source:
+#
+#   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 120 \
+#     --grace 600 --env PREP_PROJECTS=real02,synthetic-07 \
+#     --env PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,pipelines,session_qwen,session_glm,pipeline_final,library,copy,tests \
+#     --purpose "M10 L1: library with material slots, sheet_region answers"
+#   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 120 \
+#     --grace 600 --env WENART_GENERATE_TARGET=20 \
+#     --env PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests \
+#     --purpose "M10 L2: TRELLIS.2 generation, slots, judging, catalogue"
+#
 # Env (all optional):
-#   PREP_PROJECTS   prep projects (default "real01 synthetic-02 synthetic-06 real01-scan real01-photo")
+#   PREP_PROJECTS   prep projects (default "real01 synthetic-02 synthetic-06 real01-scan real01-photo real02
+#                   synthetic-07"; spaces or commas)
 #   PREP_SKIP       steps to leave out, comma separated; PREP_ONLY: only these (python -m wenart.run.prep --help);
 #                   a selected step whose inputs are missing fails (e.g. PREP_ONLY=session_qwen,session_glm,library
 #                   needs the library work of an earlier job in /workspace/prep/library; on a new pod add survey:
@@ -45,6 +60,8 @@
 #                   copy L1's write-catalog made)
 #   WENART_GENERATE_RESERVE_MIN  minutes the generation stops before the job deadline (default 30 when the job also
 #                   thumbnails or judges, so the same pod judges what it generated; else 0)
+#   WENART_RECOLOUR_WORKERS  Milestone 10: Blender processes of the recolour_slots step (default: the CPU budget set
+#                   below, at most 4); no new variable of this script: wenart.run.prep reads it
 #   WENART_ABO_CACHE  ABO metadata and GLBs (default $WENART_FAST/abo, container disk)
 #   WENART_TRELLIS_PY venv-trellis python (default $WENART_FAST/venv-trellis/bin/python, scripts/pod_setup_trellis.sh)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")

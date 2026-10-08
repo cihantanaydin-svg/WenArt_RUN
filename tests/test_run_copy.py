@@ -401,3 +401,20 @@ def test_m10_variants_are_copied_with_their_project(tmp_path):
     assert not any(f.endswith(".glb") or "renders" in f for f in got)
     assert "inputs" not in json.loads((tmp_path / "pr" / "real-01" / "run" / "variants" / vid / "build.json")
                                       .read_text())
+
+
+def test_m10_library_files_copy_the_recolour_folder(tmp_path):
+    """Milestone 10 (docs/milestone10.md §4.5): the prep job's copy takes ``<library>/recolour/`` (the judging sheets,
+    slots.json, the requests, both models' answers and tags.json, which write-catalog reads on a pod that did not
+    make it); the Blender renders of a ``--work`` folder inside the library (model files) stay out."""
+    lib = tmp_path / "library"
+    keep = ["recolour/slots.json", "recolour/requests.json", "recolour/answers_qwen3-vl-8b.json",
+            "recolour/answers_glm-4.6v-flash.json", "recolour/tags.json", "recolour/sheets/u1.jpg",
+            "recolour/sheets/u1_p1.jpg"]
+    for rel in keep:
+        put(lib / rel)
+    for rel in ("work/recolour/u1/model.glb", "work/recolour/u1/jobs.tmp"):
+        put(lib / rel)
+    put(lib / "recolour" / "slots_big.json", size=CP.MAX_TEXT_BYTES + 1)
+    got = sorted(f.relative_to(lib).as_posix() for f in CP.library_files(lib))
+    assert got == sorted(keep)
