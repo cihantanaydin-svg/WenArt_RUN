@@ -9,8 +9,9 @@ the round piece, the 2 counter legs and the stair, no cluster over 4.5 m, and 9 
 
 Milestone 10 (real02): the Turkish and English block-name words of the new types (whole words for short ones, M7 words
 first, KOLTUK resolved by size), L outlines as corner-sofa candidates (chaise side, depths, the open corner as the
-front), one named piece per block instance (a WC's flush plate joins it, a footstool or nightstands are asked), and
-stairs drawn with nosing strips and no divider line.
+front), one named piece per block instance (a WC's flush plate joins it, a footstool or nightstands are asked),
+stairs drawn with nosing strips and no divider line, a room label over a piece that does not cut its outline, and an
+armchair with open arm lines that keeps its own piece inside a large cluster's box.
 """
 import math
 
@@ -76,6 +77,37 @@ def test_glyph_and_dimension_strokes_are_ignored():
     dims = [R.DimStub({dim.id})]
     pieces, cands, _ = _furn([glyph, dim], texts=[text], dims=dims)
     assert pieces == [] and cands == []
+
+
+def test_a_label_over_a_piece_does_not_cut_its_outline():
+    # Milestone 10 (real02): BANYO written over the front of a WC bowl. One closed polyline, its pointed top under
+    # the text box: a vector stroke is a glyph only when all of it lies in the box, so the outline stays whole; a
+    # short stroke inside the box is still a glyph.
+    bowl = R.stroke([(2.0, 1.0), (2.5, 1.0), (2.5, 1.5), (2.25, 1.75), (2.0, 1.5)], closed=True)
+    glyph = R.stroke([(2.1, 1.55), (2.15, 1.6)])
+    text = type("T", (), {"box": (1.95, 1.45, 2.55, 1.8)})()
+    notes = []
+    pieces, cands, _ = _furn([bowl, glyph], texts=[text], notes=notes)
+    sizes = [tuple(round(v, 2) for v in sorted(p.size)) for p in _all(pieces, cands)]
+    assert sizes == [(0.5, 0.75)]
+    assert "1 glyph strokes inside text boxes ignored" in notes
+
+
+def test_an_armchair_with_open_arm_lines_keeps_its_own_piece_in_a_large_cluster_box():
+    # Milestone 10 (real02, the Açık mutfak Salon): an armchair drawn with loose lines, its arms open three-line
+    # boxes ending on the body's sides, stands inside the box of a 5.1 m TV unit + column cluster. Its body alone
+    # covers 79.95 % of its box (under the 80 % own-outline share); noded at the T-junctions it closes, so it stays
+    # its own piece (the mirrored copy, 0.01 % over the share, always did).
+    tv = _rect_strokes(7.0, 1.9, 7.38, 7.0)
+    column = _rect_strokes(4.62, 7.04, 5.02, 7.44)
+    shelf = [R.stroke([(5.02, 7.04), (7.19, 7.04)]), R.stroke([(7.19, 7.04), (7.19, 7.0)])]
+    x0, x1, xa, xb, y0, y1 = 5.585, 6.239, 5.503, 6.321, 2.205, 2.996
+    body = _rect_strokes(x0, y0, x1, y1) + [R.stroke([(x0, 2.314), (x1, 2.314)]), R.stroke([(x0, 2.477), (x1, 2.477)])]
+    arms = [R.stroke([(xa, 2.232), (xa, 2.941)]), R.stroke([(xa, 2.232), (x0, 2.232)]), R.stroke([(xa, 2.941), (x0, 2.941)]),
+            R.stroke([(xb, 2.232), (xb, 2.941)]), R.stroke([(x1, 2.232), (xb, 2.232)]), R.stroke([(x1, 2.941), (xb, 2.941)])]
+    pieces, cands, _ = _furn(tv + column + shelf + body + arms, walls=_room(0.0, 0.0, 9.0, 9.0))
+    sizes = [tuple(round(v, 2) for v in sorted(p.size)) for p in _all(pieces, cands)]
+    assert sorted(sizes) == [(0.79, 0.82), (2.76, 5.54)]             # the TV unit cluster does not take it
 
 
 def test_contained_sink_stays_its_own_piece_but_a_bed_outline_and_pillows_do_not():
