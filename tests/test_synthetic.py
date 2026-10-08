@@ -264,6 +264,17 @@ RASTER_STRONG_DIFF = 64             # a pixel differing by more than this is con
 RASTER_MAX_STRONG_FRACTION = 0.001  # at most 0.1 % such pixels (a missing symbol gives more)
 
 
+def json_close(a, b, rel: float = 1e-9) -> bool:
+    """Two JSON values equal up to the last digits of their floats (numpy/OpenCV builds differ there)."""
+    if isinstance(a, float) or isinstance(b, float):
+        return isinstance(a, (int, float)) and isinstance(b, (int, float)) and abs(a - b) <= rel * max(1.0, abs(a), abs(b))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(json_close(a[k], b[k], rel) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(json_close(x, y, rel) for x, y in zip(a, b))
+    return a == b
+
+
 def rasters_match(a: Path, b: Path, max_mean_diff: float = RASTER_MAX_MEAN_DIFF,
                   max_strong_fraction: float = RASTER_MAX_STRONG_FRACTION) -> bool:
     """Same size and mode, mean absolute pixel difference below ``max_mean_diff`` and
@@ -321,6 +332,10 @@ def test_committed_projects_are_current(generated, name):
             # Style photos are byte copies and compared by bytes.
             assert rasters_match(committed, fresh), \
                 f"{name}/{rel} differs in content: run python -m wenart.synthetic.generate --out projects"
+        elif committed.suffix == ".json" and "/truth/" in "/" + rel:
+            # Truth JSON holds float matrices from numpy/OpenCV: equal up to the last digits.
+            assert json_close(json.loads(committed.read_text(encoding="utf-8")), json.loads(fresh.read_text(encoding="utf-8"))), \
+                f"{name}/{rel} is stale: run python -m wenart.synthetic.generate --out projects"
         else:
             assert committed.read_bytes() == fresh.read_bytes(), \
                 f"{name}/{rel} is stale: run python -m wenart.synthetic.generate --out projects"

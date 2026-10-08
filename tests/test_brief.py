@@ -24,11 +24,17 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
     assert set(brief) == {"values", "assumed", "path", "warnings"}
     v = brief["values"]
     assert v["style"].startswith("Scandinavian") and v["polish"] is True and v["style_photos"] == []
-    # Milestone 8: render.lens_mm (auto = 18 mm, 16 mm in rooms narrower than 2.2 m) is listed as assumed too.
-    assert v["render"] == {"views_per_room": 3, "resolution": [1920, 1080], "samples": 256, "lens_mm": "auto"}
+    # Milestone 8: render.lens_mm (auto = 18 mm, 16 mm in rooms narrower than 2.2 m) is listed as assumed too;
+    # Milestone 10 (docs/milestone10.md §1.3): the furniture completion, variant, level, site and exterior keys.
+    assert v["render"] == {"views_per_room": 3, "resolution": [1920, 1080], "samples": 256, "lens_mm": "auto",
+                           "exterior_views": True, "twin_rooms": "one"}
     assert "style" not in brief["assumed"]
-    assert brief["assumed"] == ["empty_rooms", "decor", "polish", "style_photos", "ceiling_height",
-                                "render.views_per_room", "render.resolution", "render.samples", "render.lens_mm"]
+    assert brief["assumed"] == ["empty_rooms", "decor", "polish", "style_photos", "ceiling_height", "slab_thickness",
+                                "furnished_rooms", "furnished_rooms_keep", "furnished_rooms_keep_size", "variants",
+                                "failed_levels", "site", "exterior.facade", "exterior.roof", "exterior.window_frame",
+                                "exterior.door", "exterior.paving", "exterior.garden",
+                                "render.views_per_room", "render.resolution", "render.samples", "render.lens_mm",
+                                "render.exterior_views", "render.twin_rooms"]
     assert brief["warnings"] == [] and brief["path"].endswith("brief.yaml")
     styles = B.load_brief(PROJECTS / "synthetic-03")["values"]["styles"]
     assert len(styles) == 2
@@ -50,7 +56,7 @@ def test_brief_values_win_and_nested_blocks_merge_key_by_key(tmp_path):
     v = brief["values"]
     assert v["polish"] is False and v["style_photos"] == ["a.jpg", "b.jpg"] and v["custom_key"] == 7
     assert v["render"] == {"views_per_room": 3, "resolution": [1920, 1080], "samples": 64, "lens_mm": "auto",
-                           "extra": 1}
+                           "exterior_views": True, "twin_rooms": "one", "extra": 1}
     assert "polish" not in brief["assumed"] and "style_photos" not in brief["assumed"]
     assert "render.samples" not in brief["assumed"] and "render.views_per_room" in brief["assumed"]
     assert brief["warnings"] == []

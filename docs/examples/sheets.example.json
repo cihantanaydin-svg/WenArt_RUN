@@ -1,0 +1,1744 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "example-m10",
+ "created_utc": "2026-10-08T12:00:00Z",
+ "code_commit": "abc1234",
+ "documents": [
+  {
+   "file": "ornek_bina.dxf",
+   "format": "dxf",
+   "converter": null,
+   "units": {
+    "insunits": 5,
+    "metres_per_unit": 0.01,
+    "method": "dxf_insunits",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": "cm",
+      "score": 0.97,
+      "samples": 6,
+      "note": null
+     },
+     {
+      "check": "level_marks",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 3,
+      "note": null
+     },
+     {
+      "check": "door_widths",
+      "unit": "cm",
+      "score": 0.95,
+      "samples": 10,
+      "note": null
+     }
+    ],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      0,
+      0,
+      3900,
+      3900
+     ],
+     "frames": [
+      {
+       "entity": "LWPOLYLINE:F1",
+       "box": [
+        -50,
+        -50,
+        3950,
+        3950
+       ]
+      }
+     ],
+     "gap_units": 84.0,
+     "debug_image": "sheets_debug/ornek_bina_dxf_s1.png"
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    2600,
+    0,
+    3000,
+    200
+   ],
+   "box_m": [
+    4.0,
+    2.0
+   ],
+   "entities": 30,
+   "frame": "LWPOLYLINE:F1",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "short_texts": 12,
+    "on_frame_edge": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "title_block",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "title_block",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "conflicts": [],
+   "evidence": []
+  },
+  {
+   "id": "r2",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    0,
+    3000,
+    1100,
+    3900
+   ],
+   "box_m": [
+    11.0,
+    9.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI",
+    "entity": "MTEXT:r2",
+    "box": [
+     0,
+     2940,
+     600,
+     2970
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "closed_wall_loops": 3,
+    "room_labels": 3
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1",
+    "kind": "basement",
+    "method": "title",
+    "evidence": []
+   },
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -0.5,
+    0.0,
+    0.01,
+    -30.5
+   ],
+   "registration": {
+    "reference": "r4",
+    "method": "outline_icp",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -0.5,
+     -30.5
+    ],
+    "residual_m": 0.004,
+    "matched": 4,
+    "stairs_aligned": true,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r2",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI"
+    }
+   ]
+  },
+  {
+   "id": "r3",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    1300,
+    3000,
+    2400,
+    3900
+   ],
+   "box_m": [
+    11.0,
+    9.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "alternative_floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+    "entity": "MTEXT:r3",
+    "box": [
+     1300,
+     2940,
+     1900,
+     2970
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI",
+     "(AÇIK MUTFAK)"
+    ]
+   },
+   "features": {
+    "closed_wall_loops": 2,
+    "room_labels": 2
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1b",
+    "kind": "basement",
+    "method": "title",
+    "evidence": []
+   },
+   "variant_group": "vg_L-1",
+   "variant": "Açık mutfak",
+   "variant_slug": "acik-mutfak",
+   "variant_gloss": "open kitchen",
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "alternative_floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "alternative_floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -13.5,
+    0.0,
+    0.01,
+    -30.5
+   ],
+   "registration": {
+    "reference": "r4",
+    "method": "outline_icp",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -13.5,
+     -30.5
+    ],
+    "residual_m": 0.004,
+    "matched": 4,
+    "stairs_aligned": true,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r3",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)"
+    }
+   ]
+  },
+  {
+   "id": "r4",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    0,
+    1800,
+    1100,
+    2700
+   ],
+   "box_m": [
+    11.0,
+    9.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI",
+    "entity": "MTEXT:r4",
+    "box": [
+     0,
+     1740,
+     600,
+     1770
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMİN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "closed_wall_loops": 3,
+    "room_labels": 3
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": []
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -0.5,
+    0.0,
+    0.01,
+    -18.5
+   ],
+   "registration": {
+    "reference": null,
+    "method": "reference",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -0.5,
+     -18.5
+    ],
+    "residual_m": 0.0,
+    "matched": 0,
+    "stairs_aligned": null,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r4",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI"
+    }
+   ]
+  },
+  {
+   "id": "r5",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    1300,
+    1800,
+    2400,
+    2700
+   ],
+   "box_m": [
+    11.0,
+    9.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ÇATI KAT PLANI",
+    "entity": "MTEXT:r5",
+    "box": [
+     1300,
+     1740,
+     1900,
+     1770
+    ],
+    "language": "tr",
+    "keywords": [
+     "ÇATI KAT",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "closed_wall_loops": 3,
+    "room_labels": 3,
+    "roof_outline": true
+   },
+   "level": {
+    "order": 1,
+    "label": "Çatı Katı",
+    "id": "L1",
+    "kind": "attic",
+    "method": "title",
+    "evidence": []
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -13.5,
+    0.0,
+    0.01,
+    -18.5
+   ],
+   "registration": {
+    "reference": "r4",
+    "method": "outline_icp",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -13.5,
+     -18.5
+    ],
+    "residual_m": 0.004,
+    "matched": 4,
+    "stairs_aligned": true,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r5",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI"
+    }
+   ]
+  },
+  {
+   "id": "r6",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    0,
+    600,
+    1300,
+    1500
+   ],
+   "box_m": [
+    13.0,
+    9.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "section",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "A-A KESİTİ",
+    "entity": "MTEXT:r6",
+    "box": [
+     0,
+     540,
+     600,
+     570
+    ],
+    "language": "tr",
+    "keywords": [
+     "KESİT"
+    ]
+   },
+   "features": {
+    "slab_bands": 3,
+    "level_marks": 4,
+    "roof_lines": 2,
+    "ground_lines": 2
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "section",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "section",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "heights",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r6",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "A-A KESİTİ"
+    }
+   ]
+  },
+  {
+   "id": "r7",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    1400,
+    600,
+    2600,
+    1300
+   ],
+   "box_m": [
+    12.0,
+    7.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "elevation",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "GÜNEY GÖRÜNÜŞÜ",
+    "entity": "MTEXT:r7",
+    "box": [
+     1400,
+     540,
+     2000,
+     570
+    ],
+    "language": "tr",
+    "keywords": [
+     "GÖRÜNÜŞ"
+    ]
+   },
+   "features": {
+    "window_rows": 2,
+    "ground_lines": 1,
+    "hatches": 1
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "elevation",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "elevation",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "exterior",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r7",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "GÜNEY GÖRÜNÜŞÜ"
+    }
+   ]
+  },
+  {
+   "id": "r8",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    2700,
+    600,
+    3700,
+    1300
+   ],
+   "box_m": [
+    10.0,
+    7.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "elevation",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "DOĞU GÖRÜNÜŞÜ",
+    "entity": "MTEXT:r8",
+    "box": [
+     2700,
+     540,
+     3300,
+     570
+    ],
+    "language": "tr",
+    "keywords": [
+     "GÖRÜNÜŞ"
+    ]
+   },
+   "features": {
+    "window_rows": 1,
+    "ground_lines": 1
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "elevation",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "elevation",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "exterior",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r8",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "DOĞU GÖRÜNÜŞÜ"
+    }
+   ]
+  },
+  {
+   "id": "r9",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    2600,
+    1800,
+    3900,
+    3900
+   ],
+   "box_m": [
+    13.0,
+    21.0
+   ],
+   "entities": 400,
+   "frame": "LWPOLYLINE:F1",
+   "class": "site_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "VAZİYET PLANI",
+    "entity": "MTEXT:r9",
+    "box": [
+     2600,
+     1740,
+     3200,
+     1770
+    ],
+    "language": "tr",
+    "keywords": [
+     "VAZİYET"
+    ]
+   },
+   "features": {
+    "north_arrow": true,
+    "plot_boundary": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "exterior",
+   "ignored_reason": null,
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r9",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "VAZİYET PLANI"
+    }
+   ]
+  },
+  {
+   "id": "r10",
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    2600,
+    300,
+    3000,
+    550
+   ],
+   "box_m": [
+    4.0,
+    2.5
+   ],
+   "entities": 40,
+   "frame": "LWPOLYLINE:F1",
+   "class": "legend",
+   "class_method": "title",
+   "class_confidence": 0.95,
+   "status": "verified",
+   "title": {
+    "text": "LEJANT",
+    "entity": "MTEXT:r10",
+    "box": [
+     2600,
+     240,
+     3200,
+     270
+    ],
+    "language": "tr",
+    "keywords": [
+     "LEJANT"
+    ]
+   },
+   "features": {},
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "legend",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.9,
+     "reason": "",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "legend",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.85,
+     "reason": "",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "legend",
+   "conflicts": [],
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:r10",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "LEJANT"
+    }
+   ]
+  }
+ ],
+ "stray": [
+  {
+   "file": "ornek_bina.dxf",
+   "sheet": "s1",
+   "entity": "LINE:DEAD",
+   "type": "LINE",
+   "layer": "0",
+   "box": [
+    -90000,
+    80000,
+    -89900,
+    80400
+   ],
+   "distance_m": 1203.5,
+   "reason": "far outside the frame, 1 entity (< 1 % of the sheet)"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L-1",
+   "order": -1,
+   "label": "Bodrum Kat",
+   "kind": "basement",
+   "base_region": "r2",
+   "alternatives": [
+    {
+     "region": "r3",
+     "variant": "Açık mutfak",
+     "slug": "acik-mutfak",
+     "level_id": "L-1b",
+     "base_unclear": false
+    }
+   ],
+   "furniture_regions": [],
+   "evidence": []
+  },
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r4",
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": []
+  },
+  {
+   "id": "L1",
+   "order": 1,
+   "label": "Çatı Katı",
+   "kind": "attic",
+   "base_region": "r5",
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": []
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r2",
+    "r4",
+    "r5"
+   ]
+  },
+  {
+   "id": "l-1b-acik-mutfak",
+   "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+   "base": false,
+   "levels": [
+    "L-1b",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r3",
+    "r4",
+    "r5"
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [
+   "r6"
+  ],
+  "cut_axis": "y",
+  "datum": {
+   "value": 0.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:KOT0",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "level_mark",
+     "text": "±0.00"
+    }
+   ]
+  },
+  "levels": [
+   {
+    "level_id": "L-1",
+    "floor_z": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.8,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "level_mark": {
+     "value": -3.0,
+     "method": "ocr",
+     "confidence": 0.9,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:KOT1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "text": "-3.00"
+      }
+     ]
+    }
+   },
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.8,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "level_mark": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:KOT0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "text": "±0.00"
+      }
+     ]
+    }
+   },
+   {
+    "level_id": "L1",
+    "floor_z": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.4,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:8B1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_underside"
+      }
+     ],
+     "note": "flat part under the collar; sloped to the knee wall"
+    },
+    "floor_to_floor": null,
+    "level_mark": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:KOT2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "text": "+3.00"
+      }
+     ]
+    }
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L-1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "z_top": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L-1",
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L0",
+     "L1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:7A2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands"
+      }
+     ]
+    }
+   }
+  ],
+  "ground": [
+   {
+    "side": "all",
+    "z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:GL1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line"
+      }
+     ]
+    }
+   }
+  ],
+  "roof": {
+   "eaves_z": {
+    "value": 3.65,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:8B0",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6",
+      "rule": "roof_line"
+     }
+    ]
+   },
+   "ridge_z": {
+    "value": 6.888,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:8B0",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6",
+      "rule": "roof_line"
+     }
+    ]
+   },
+   "pitches_deg": [
+    {
+     "value": 35.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:8B0",
+       "method": "vector",
+       "confidence": 1.0,
+       "region_id": "r6",
+       "rule": "roof_line"
+      }
+     ]
+    }
+   ],
+   "knee_wall": {
+    "value": 1.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LINE:7B3",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6"
+     }
+    ]
+   },
+   "overhang": {
+    "value": 0.5,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:8B0",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6"
+     }
+    ]
+   },
+   "thickness": {
+    "value": 0.25,
+    "method": "assumed",
+    "confidence": 0.0,
+    "evidence": [],
+    "note": "not drawn: the roof is one line in the section"
+   },
+   "profile": [
+    [
+     -0.625,
+     3.65
+    ],
+    [
+     4.0,
+     6.888
+    ],
+    [
+     8.625,
+     3.65
+    ]
+   ]
+  }
+ },
+ "exterior": {
+  "roof": {
+   "type": "gable",
+   "type_source": "section",
+   "outline": [
+    [
+     -0.625,
+     -0.625
+    ],
+    [
+     10.625,
+     -0.625
+    ],
+    [
+     10.625,
+     8.625
+    ],
+    [
+     -0.625,
+     8.625
+    ]
+   ],
+   "break_line": null,
+   "ridge_lines": [
+    [
+     [
+      -0.625,
+      4.0
+     ],
+     [
+      10.625,
+      4.0
+     ]
+    ]
+   ],
+   "covering": null,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:8B0",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6",
+     "rule": "roof_line"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:8C0",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r8",
+     "rule": "elevation_outline"
+    }
+   ]
+  },
+  "facade": [
+   {
+    "region": "r7",
+    "side": "south",
+    "z_range": [
+     -3.0,
+     -2.0
+    ],
+    "material": "stone_cladding",
+    "source": "hatch",
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "TARAMA",
+      "entity": "HATCH:9A0",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "facade_hatch"
+     }
+    ]
+   }
+  ],
+  "openings_seen": [
+   {
+    "region": "r7",
+    "side": "south",
+    "windows": 5,
+    "doors": 1,
+    "positions_m": [],
+    "plan_check": {
+     "matched": 6,
+     "missing": 0,
+     "extra": 0
+    }
+   },
+   {
+    "region": "r8",
+    "side": "east",
+    "windows": 0,
+    "doors": 0,
+    "positions_m": [],
+    "plan_check": {
+     "matched": 0,
+     "missing": 0,
+     "extra": 0
+    }
+   }
+  ],
+  "site": {
+   "plot": [
+    [
+     -6.0,
+     -8.0
+    ],
+    [
+     16.0,
+     -8.0
+    ],
+    [
+     16.0,
+     14.0
+    ],
+    [
+     -6.0,
+     14.0
+    ]
+   ],
+   "parking": [
+    [
+     [
+      11.0,
+      8.5
+     ],
+     [
+      15.5,
+      8.5
+     ],
+     [
+      15.5,
+      13.5
+     ],
+     [
+      11.0,
+      13.5
+     ]
+    ]
+   ],
+   "trees": [
+    [
+     -3.0,
+     -4.0
+    ]
+   ]
+  },
+  "north": {
+   "value": 0.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "VAZIYET",
+     "entity": "INSERT:KUZEY",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r9",
+     "rule": "north_arrow"
+    }
+   ]
+  },
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [
+  {
+   "id": "sc_001",
+   "kind": "level_mark_mismatch",
+   "regions": [
+    "r6"
+   ],
+   "description": "example: a level mark that disagrees with the slab lines by more than 5 cm",
+   "resolution": "geometry wins"
+  }
+ ],
+ "warnings": [],
+ "needs_review": [],
+ "questions": 20,
+ "answers": null
+}

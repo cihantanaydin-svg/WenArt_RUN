@@ -1483,7 +1483,8 @@ def test_families_of_the_committed_projects(tmp_path):
     (w.repo / "projects" / "synthetic-06" / "brief.yaml").write_text("style: something no family names\n")
     assert w.prep().families() == ["japandi", "industrial", "scandinavian"]
     real = P.Prep(P.PrepOptions(results=tmp_path / "r"), runner=w.runner)
-    assert real.families() == ["scandinavian", "modern minimal", "japandi", "modern"]
+    # real02 (6 Oct 2026, "Modern natural") brings modern forward.
+    assert real.families() == ["scandinavian", "modern", "modern minimal", "japandi"]
 
 
 def test_the_library_copy_leaves_model_files_out(tmp_path):

@@ -437,7 +437,7 @@ def test_real01_fixture_size_and_truth(name, file):
 def test_real01_fixtures_regenerate(tmp_path, monkeypatch):
     """``python -m wenart.synthetic.raster fixtures --pdf projects/real01/real01.pdf --page 1 --name real01`` gives
     the committed fixtures again (rasters by content, truth JSON exactly)."""
-    from test_synthetic import rasters_match
+    from test_synthetic import json_close, rasters_match
     from wenart.synthetic import raster as SR
 
     monkeypatch.chdir(ROOT)
@@ -446,7 +446,7 @@ def test_real01_fixtures_regenerate(tmp_path, monkeypatch):
         assert rasters_match(FIXTURES / name / file, tmp_path / name / file), name
         a = json.loads((FIXTURES / name / "truth" / "raster.json").read_text(encoding="utf-8"))
         b = json.loads((tmp_path / name / "truth" / "raster.json").read_text(encoding="utf-8"))
-        assert a == b
+        assert json_close(a, b), name          # float matrices: equal up to the last digits (numpy/OpenCV builds)
 
 
 # --------------------------------------------------------------------------

@@ -3,7 +3,10 @@
 What: ``load_brief(project_dir)`` reads ``<project_dir>/brief.yaml`` and
 fills every key the brief does not set from the ``brief:`` block of
 ``wenart/defaults.yaml`` (``empty_rooms``, ``decor``, ``polish``,
-``style_photos``, ``ceiling_height``, ``render``). It returns
+``style_photos``, ``ceiling_height``, ``render``; Milestone 10:
+``slab_thickness``, ``furnished_rooms``, ``furnished_rooms_keep``,
+``furnished_rooms_keep_size``, ``variants``, ``failed_levels``, ``site``,
+``exterior``, ``render.exterior_views``, ``render.twin_rooms``). It returns
 ``{"values": dict, "assumed": [keys], "path": str | None, "warnings": [str]}``:
 
 - ``values``: one dict with every brief key: the brief's own keys (also
@@ -73,8 +76,42 @@ def _lens_problem(value: Any) -> Optional[str]:
     return None
 
 
+def _one_of(*allowed: str):
+    """A rule for a key that takes one word of ``allowed``."""
+    def rule(value: Any) -> Optional[str]:
+        if value in allowed:
+            return None
+        return f"expected one of {', '.join(allowed)}, got {value!r}"
+    return rule
+
+
+def _variants_problem(value: Any) -> Optional[str]:
+    """``variants`` (Milestone 10): ``all``, ``base`` or a list of alternative names as titled."""
+    if value in ("all", "base"):
+        return None
+    if isinstance(value, list) and value and all(isinstance(v, str) and v.strip() for v in value):
+        return None
+    return f"expected all, base or a list of alternative names, got {value!r}"
+
+
+def _names_problem(value: Any) -> Optional[str]:
+    """``furnished_rooms_keep`` (Milestone 10): a list of room ids or labels."""
+    if isinstance(value, list) and all(isinstance(v, str) and v.strip() for v in value):
+        return None
+    return f"expected a list of room ids or labels, got {value!r}"
+
+
 # Dotted keys whose value has a rule of its own (instead of the default's type): a problem text or None.
-VALUE_RULES = {"render.lens_mm": _lens_problem}
+VALUE_RULES = {
+    "render.lens_mm": _lens_problem,
+    # Milestone 10 (docs/milestone10.md §1.3)
+    "furnished_rooms": _one_of("keep", "complete"),
+    "furnished_rooms_keep": _names_problem,
+    "variants": _variants_problem,
+    "failed_levels": _one_of("leave_out", "stop"),
+    "site": _one_of("full", "ground"),
+    "render.twin_rooms": _one_of("one", "all"),
+}
 
 
 def _merge(raw: dict, defaults: dict, prefix: str, assumed: list[str], warnings: list[str]) -> dict:

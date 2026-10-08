@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wenart.run/schema/sheets.schema.json",
+  "title": "WenArt sheet analysis",
+  "description": "Milestone 10 (docs/milestone10.md §1.2, §3.1): what is drawn on every sheet of a project, written by the sheets stage (python -m wenart.sheets) before any wall is read. Units: source units for boxes (DXF drawing units, PDF points, image pixels), metres for every *_m value and every height. Every class, level, height and exterior value carries its method and evidence; AI proposes, title text and geometry decide.",
+  "type": "object",
+  "required": ["schema_version", "kind", "project", "documents", "regions", "stray", "levels", "variants", "heights", "exterior", "conflicts", "warnings", "needs_review"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "kind": {"const": "sheets"},
+    "project": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "code_commit": {"type": "string"},
+    "documents": {"type": "array", "items": {"$ref": "#/$defs/document"}},
+    "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}},
+    "stray": {"type": "array", "items": {"$ref": "#/$defs/stray"}},
+    "levels": {"type": "array", "items": {"$ref": "#/$defs/level"}},
+    "variants": {"type": "array", "items": {"$ref": "#/$defs/variant"}},
+    "heights": {"$ref": "#/$defs/heights"},
+    "exterior": {"$ref": "#/$defs/exterior"},
+    "conflicts": {"type": "array", "items": {"$ref": "#/$defs/conflict"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "needs_review": {"type": "array", "items": {"type": "object", "required": ["reason"], "properties": {
+      "region": {"type": ["string", "null"]},
+      "file": {"type": ["string", "null"]},
+      "reason": {"type": "string"}
+    }}},
+    "questions": {"type": "integer", "minimum": 0, "description": "Number of sheet_region AI questions written (answered by the recognition sessions)"},
+    "answers": {"type": ["string", "null"], "description": "The answers folder used (pipeline_final), null = no AI answers"}
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "required": ["file", "method", "confidence"],
+      "properties": {
+        "file": {"type": "string"},
+        "page": {"type": ["integer", "null"]},
+        "layer": {"type": ["string", "null"]},
+        "entity": {"type": ["string", "null"], "description": "DXF handle (MTEXT:2F08F, LWPOLYLINE:2F086), PDF object index"},
+        "pixel_box": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+        "method": {"enum": ["vector", "raster", "ocr", "ai", "derived"]},
+        "model": {"type": ["string", "null"]},
+        "pass": {"type": ["integer", "null"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "text": {"type": ["string", "null"]},
+        "rule": {"type": ["string", "null"], "description": "The deterministic rule that decided (title_keyword, slab_bands, closed_wall_loops, ...)"}
+      }
+    },
+    "value": {
+      "type": "object",
+      "required": ["value", "method"],
+      "properties": {
+        "value": {"type": ["number", "null"]},
+        "method": {"enum": ["vector", "raster", "ocr", "ai", "derived", "assumed"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "note": {"type": ["string", "null"]}
+      }
+    },
+    "box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "[x0, y0, x1, y1] in source units"},
+    "point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+    "document": {
+      "type": "object",
+      "required": ["file", "format", "units", "sheets"],
+      "properties": {
+        "file": {"type": "string"},
+        "format": {"enum": ["dwg", "dxf", "pdf", "image"]},
+        "converter": {"type": ["string", "null"]},
+        "units": {
+          "type": "object",
+          "required": ["metres_per_unit", "method"],
+          "properties": {
+            "insunits": {"type": ["integer", "null"], "description": "DXF $INSUNITS as stored"},
+            "metres_per_unit": {"type": ["number", "null"]},
+            "method": {"enum": ["dxf_insunits", "unit_check", "pdf_scale_text", "dimension_text", "raster", "none"]},
+            "checks": {"type": "array", "items": {"type": "object", "required": ["check", "unit"], "properties": {
+              "check": {"enum": ["area_labels", "level_marks", "door_widths", "wall_thickness", "text_height", "dimensions"]},
+              "unit": {"type": ["string", "null"], "description": "mm, cm, m, in, ft or null (no decision)"},
+              "score": {"type": ["number", "null"]},
+              "samples": {"type": "integer"},
+              "note": {"type": ["string", "null"]}
+            }}},
+            "conflict": {"type": ["string", "null"], "description": "unit_mismatch description when the header disagrees with the checks"}
+          }
+        },
+        "sheets": {"type": "array", "items": {"type": "object", "required": ["id", "space", "box"], "properties": {
+          "id": {"type": "string", "description": "s<n>"},
+          "space": {"type": "string", "description": "model | layout:<name> | page:<n>"},
+          "box": {"$ref": "#/$defs/box"},
+          "frames": {"type": "array", "items": {"type": "object", "properties": {"entity": {"type": ["string", "null"]}, "box": {"$ref": "#/$defs/box"}}}},
+          "gap_units": {"type": ["number", "null"], "description": "The clustering gap used"},
+          "debug_image": {"type": ["string", "null"]}
+        }}}
+      }
+    },
+    "region": {
+      "type": "object",
+      "required": ["id", "file", "sheet", "box", "class", "class_method", "class_confidence", "status", "use", "evidence"],
+      "properties": {
+        "id": {"type": "string", "description": "r<n>, in reading order (top-left first) per document"},
+        "file": {"type": "string"},
+        "sheet": {"type": "string"},
+        "page": {"type": ["integer", "null"], "description": "PDF page (1-based); 1 for DXF/DWG model space"},
+        "box": {"$ref": "#/$defs/box"},
+        "box_m": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2, "description": "Width and height in metres (after the unit check)"},
+        "entities": {"type": "integer", "minimum": 0},
+        "frame": {"type": ["string", "null"], "description": "The frame entity that holds the region, if any"},
+        "class": {"enum": ["floor_plan", "alternative_floor_plan", "furniture_plan", "section", "elevation", "roof_plan", "site_plan", "detail", "3d_view", "title_block", "legend", "other"]},
+        "class_method": {"enum": ["title", "geometry", "ai", "none"]},
+        "class_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "status": {"enum": ["verified", "unverified"]},
+        "title": {"type": ["object", "null"], "required": ["text"], "properties": {
+          "text": {"type": "string"},
+          "entity": {"type": ["string", "null"]},
+          "box": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/box"}]},
+          "language": {"enum": ["tr", "en", "de", "fr", null]},
+          "keywords": {"type": "array", "items": {"type": "string"}}
+        }},
+        "features": {"type": "object", "description": "Geometry evidence: closed_wall_loops, room_labels, slab_bands, level_marks, roof_lines, window_rows, ground_lines, north_arrow, grid_bubbles, columns ...", "additionalProperties": true},
+        "level": {"type": ["object", "null"], "required": ["order", "label", "id", "kind", "method"], "properties": {
+          "order": {"type": "integer"},
+          "label": {"type": "string"},
+          "id": {"type": "string"},
+          "kind": {"enum": ["basement", "floor", "attic"]},
+          "method": {"enum": ["title", "section_order", "assumed"]},
+          "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+        }},
+        "variant_group": {"type": ["string", "null"]},
+        "variant": {"type": ["string", "null"], "description": "base or the alternative's name as titled"},
+        "variant_slug": {"type": ["string", "null"]},
+        "variant_gloss": {"type": ["string", "null"], "description": "English gloss from the gloss table (open kitchen)"},
+        "ai": {"type": "array", "items": {"type": "object", "required": ["pass", "model"], "properties": {
+          "pass": {"type": "integer"},
+          "model": {"type": "string"},
+          "class": {"type": ["string", "null"]},
+          "level_word": {"type": ["string", "null"]},
+          "variant_word": {"type": ["string", "null"]},
+          "confidence": {"type": ["number", "null"]},
+          "reason": {"type": ["string", "null"]},
+          "error": {"type": ["string", "null"]}
+        }}},
+        "metres_per_unit": {"type": ["number", "null"]},
+        "transform_to_building": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a, b, c, d, e, f] from source units to building metres (x' = a x + b y + c, y' = d x + e y + f)"},
+        "registration": {"type": ["object", "null"], "properties": {
+          "reference": {"type": ["string", "null"], "description": "Region id of the reference plan (null for the reference itself)"},
+          "method": {"enum": ["reference", "outline_icp", "grid", "columns", "identity", "none"]},
+          "rotation_deg": {"type": "number"},
+          "shift_m": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+          "residual_m": {"type": ["number", "null"]},
+          "matched": {"type": "integer"},
+          "stairs_aligned": {"type": ["boolean", "null"]},
+          "note": {"type": ["string", "null"]}
+        }},
+        "use": {"enum": ["read", "heights", "exterior", "ignored"], "description": "read = a plan region the pipeline reads as a page record; heights = a section (or elevation) for the heights; exterior = elevation / roof plan / site plan evidence; ignored = title block, legend, detail, 3D view, other"},
+        "ignored_reason": {"type": ["string", "null"]},
+        "conflicts": {"type": "array", "items": {"type": "string"}, "description": "Conflict ids that name this region"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "stray": {
+      "type": "object",
+      "required": ["file", "entity", "type", "box", "reason"],
+      "properties": {
+        "file": {"type": "string"},
+        "sheet": {"type": ["string", "null"]},
+        "entity": {"type": "string"},
+        "type": {"type": "string", "description": "DXF entity type or PDF object kind"},
+        "layer": {"type": ["string", "null"]},
+        "box": {"$ref": "#/$defs/box"},
+        "distance_m": {"type": ["number", "null"], "description": "Distance to the nearest region (metres after the unit check)"},
+        "reason": {"type": "string"}
+      }
+    },
+    "level": {
+      "type": "object",
+      "required": ["id", "order", "label", "kind", "base_region", "alternatives"],
+      "properties": {
+        "id": {"type": "string"},
+        "order": {"type": "integer"},
+        "label": {"type": "string"},
+        "kind": {"enum": ["basement", "floor", "attic"]},
+        "base_region": {"type": ["string", "null"]},
+        "alternatives": {"type": "array", "items": {"type": "object", "required": ["region", "variant", "slug", "level_id"], "properties": {
+          "region": {"type": "string"},
+          "variant": {"type": "string"},
+          "slug": {"type": "string"},
+          "level_id": {"type": "string", "description": "<base id>b, <base id>c ..."},
+          "base_unclear": {"type": "boolean"}
+        }}},
+        "furniture_regions": {"type": "array", "items": {"type": "string"}, "description": "furniture_plan regions of this level"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "variant": {
+      "type": "object",
+      "required": ["id", "label", "regions", "levels", "base"],
+      "properties": {
+        "id": {"type": "string", "description": "base or <alternative level id lower case>-<slug> (as building.variants[].id)"},
+        "label": {"type": "string"},
+        "base": {"type": "boolean"},
+        "levels": {"type": "array", "items": {"type": "string"}},
+        "regions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "heights": {
+      "type": "object",
+      "required": ["levels", "slabs", "ground", "roof"],
+      "properties": {
+        "section_regions": {"type": "array", "items": {"type": "string"}},
+        "cut_axis": {"enum": ["x", "y", null], "description": "Building axis the section width matches (the cut direction)"},
+        "datum": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Absolute level of the ground floor (building z = 0), e.g. 43.00 from a level mark"},
+        "levels": {"type": "array", "items": {"type": "object", "required": ["level_id"], "properties": {
+          "level_id": {"type": "string"},
+          "floor_z": {"$ref": "#/$defs/value"},
+          "ceiling_height": {"$ref": "#/$defs/value"},
+          "floor_to_floor": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "level_mark": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]}
+        }}},
+        "slabs": {"type": "array", "items": {"type": "object", "required": ["between", "thickness", "z_top"], "properties": {
+          "between": {"type": "array", "items": {"type": ["string", "null"]}, "minItems": 2, "maxItems": 2, "description": "[level below, level above]"},
+          "thickness": {"$ref": "#/$defs/value"},
+          "z_top": {"$ref": "#/$defs/value"}
+        }}},
+        "ground": {"type": "array", "items": {"type": "object", "required": ["side", "z"], "properties": {
+          "side": {"type": "string"},
+          "z": {"$ref": "#/$defs/value"}
+        }}},
+        "roof": {"type": "object", "properties": {
+          "eaves_z": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "ridge_z": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "pitches_deg": {"type": "array", "items": {"$ref": "#/$defs/value"}},
+          "knee_wall": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "overhang": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "thickness": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "profile": {"type": "array", "items": {"$ref": "#/$defs/point"}, "description": "Outer roof line of the section in the cut plane (horizontal metres along the cut axis, building z)"}
+        }}
+      }
+    },
+    "exterior": {
+      "type": "object",
+      "properties": {
+        "roof": {"type": ["object", "null"], "properties": {
+          "type": {"enum": ["flat", "gable", "hip", "mansard", "gambrel", "shed", "other", null]},
+          "type_source": {"enum": ["roof_plan", "section", "elevation", "plan_roof_lines", "assumed", null]},
+          "outline": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}, "description": "Building metres"},
+          "break_line": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}},
+          "ridge_lines": {"type": "array", "items": {"type": "array", "items": {"$ref": "#/$defs/point"}}},
+          "covering": {"type": ["string", "null"]},
+          "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+        }},
+        "facade": {"type": "array", "items": {"type": "object", "required": ["side", "material", "source"], "properties": {
+          "region": {"type": ["string", "null"]},
+          "side": {"type": "string"},
+          "z_range": {"type": ["array", "null"], "items": {"type": "number"}},
+          "material": {"type": "string"},
+          "source": {"enum": ["hatch", "label", "assumed"]},
+          "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+        }}},
+        "openings_seen": {"type": "array", "items": {"type": "object", "required": ["region", "side", "windows", "doors"], "properties": {
+          "region": {"type": "string"},
+          "side": {"type": "string"},
+          "windows": {"type": "integer"},
+          "doors": {"type": "integer"},
+          "positions_m": {"type": "array", "items": {"type": "object"}, "description": "Per opening: kind, x along the facade, sill, head (metres)"},
+          "plan_check": {"type": ["object", "null"], "description": "Count and positions vs the plans: matched, missing, extra"}
+        }}},
+        "site": {"type": ["object", "null"], "description": "Site plan evidence in building metres: plot, plot walls, paving, grass, parking, trees, street words"},
+        "north": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Compass bearing of +Y (north arrow)"},
+        "balconies": {"type": "array", "items": {"type": "object"}},
+        "chimneys": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "required": ["id", "kind", "description", "resolution"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {"enum": ["unit_mismatch", "registration_residual", "level_mark_mismatch", "section_width_mismatch", "stair_alignment", "elevation_opening_mismatch", "variant_base_unclear", "region_class_disagreement", "outline_mismatch", "other"]},
+        "regions": {"type": "array", "items": {"type": "string"}},
+        "description": {"type": "string"},
+        "resolution": {"type": "string"}
+      }
+    }
+  }
+}

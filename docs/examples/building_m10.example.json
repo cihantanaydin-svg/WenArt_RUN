@@ -1,0 +1,4186 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "example-m10",
+  "source_folder": "projects/example-m10",
+  "created_utc": "2026-10-08T12:00:00Z",
+  "pipeline_commit": "abc1234",
+  "unit_system": "metric",
+  "brief": {
+   "furnished_rooms": "complete",
+   "variants": "all",
+   "failed_levels": "leave_out",
+   "site": "full",
+   "render": {
+    "twin_rooms": "one",
+    "exterior_views": true
+   }
+  }
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_dxf",
+   "file": "ornek_bina.dxf",
+   "format": "dxf",
+   "converter": null,
+   "unit_system": "metric",
+   "source_kind": "dxf",
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "kind": "vector",
+     "level_id": "L-1",
+     "level_label_raw": "BODRUM KAT PLANI",
+     "classifier": "title",
+     "region_id": "r2",
+     "region_box": [
+      0,
+      3000,
+      1100,
+      3900
+     ],
+     "region_class": "floor_plan",
+     "variant": "base",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "$INSUNITS=5",
+       "method": "vector",
+       "confidence": 1.0
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -0.5,
+      0.0,
+      0.01,
+      -30.5
+     ],
+     "confidence": 0.99,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:r2",
+       "method": "vector",
+       "confidence": 1.0,
+       "text": "BODRUM KAT PLANI",
+       "region_id": "r2"
+      }
+     ],
+     "debug_image": "debug/ornek_bina_dxf_p1_r2.png"
+    },
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "kind": "vector",
+     "level_id": "L-1b",
+     "level_label_raw": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "classifier": "title",
+     "region_id": "r3",
+     "region_box": [
+      1300,
+      3000,
+      2400,
+      3900
+     ],
+     "region_class": "alternative_floor_plan",
+     "variant": "Açık mutfak",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "$INSUNITS=5",
+       "method": "vector",
+       "confidence": 1.0
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -13.5,
+      0.0,
+      0.01,
+      -30.5
+     ],
+     "confidence": 0.99,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:r3",
+       "method": "vector",
+       "confidence": 1.0,
+       "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+       "region_id": "r3"
+      }
+     ],
+     "debug_image": "debug/ornek_bina_dxf_p1_r3.png"
+    },
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
+     "region_id": "r4",
+     "region_box": [
+      0,
+      1800,
+      1100,
+      2700
+     ],
+     "region_class": "floor_plan",
+     "variant": "base",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "$INSUNITS=5",
+       "method": "vector",
+       "confidence": 1.0
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -0.5,
+      0.0,
+      0.01,
+      -18.5
+     ],
+     "confidence": 0.99,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:r4",
+       "method": "vector",
+       "confidence": 1.0,
+       "text": "ZEMİN KAT PLANI",
+       "region_id": "r4"
+      }
+     ],
+     "debug_image": "debug/ornek_bina_dxf_p1_r4.png"
+    },
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "kind": "vector",
+     "level_id": "L1",
+     "level_label_raw": "ÇATI KAT PLANI",
+     "classifier": "title",
+     "region_id": "r5",
+     "region_box": [
+      1300,
+      1800,
+      2400,
+      2700
+     ],
+     "region_class": "floor_plan",
+     "variant": "base",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "$INSUNITS=5",
+       "method": "vector",
+       "confidence": 1.0
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -13.5,
+      0.0,
+      0.01,
+      -18.5
+     ],
+     "confidence": 0.99,
+     "evidence": [
+      {
+       "file": "ornek_bina.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:r5",
+       "method": "vector",
+       "confidence": 1.0,
+       "text": "ÇATI KAT PLANI",
+       "region_id": "r5"
+      }
+     ],
+     "debug_image": "debug/ornek_bina_dxf_p1_r5.png"
+    },
+    {
+     "page": 1,
+     "class": "section",
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": null,
+     "classifier": "title",
+     "region_id": "r6",
+     "region_box": null,
+     "region_class": "section",
+     "variant": null,
+     "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
+     "scale": null,
+     "transform_to_building": null,
+     "confidence": 0.95,
+     "evidence": [],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "elevation",
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": null,
+     "classifier": "title",
+     "region_id": "r7",
+     "region_box": null,
+     "region_class": "elevation",
+     "variant": null,
+     "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
+     "scale": null,
+     "transform_to_building": null,
+     "confidence": 0.95,
+     "evidence": [],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "elevation",
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": null,
+     "classifier": "title",
+     "region_id": "r8",
+     "region_box": null,
+     "region_class": "elevation",
+     "variant": null,
+     "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
+     "scale": null,
+     "transform_to_building": null,
+     "confidence": 0.95,
+     "evidence": [],
+     "debug_image": null
+    },
+    {
+     "page": 1,
+     "class": "site_plan",
+     "kind": "vector",
+     "level_id": null,
+     "level_label_raw": null,
+     "classifier": "title",
+     "region_id": "r9",
+     "region_box": null,
+     "region_class": "site_plan",
+     "variant": null,
+     "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
+     "scale": null,
+     "transform_to_building": null,
+     "confidence": 0.95,
+     "evidence": [],
+     "debug_image": null
+    }
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "id": "L-1",
+   "label": "Bodrum Kat",
+   "order": -1,
+   "elevation": -3.0,
+   "ceiling_height": 2.8,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "basement",
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r2",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LINE:7A1",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6",
+      "rule": "slab_bands"
+     }
+    ]
+   },
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:5A0",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "BODRUM KAT PLANI",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "L-1b",
+   "label": "Bodrum Kat",
+   "order": -1,
+   "elevation": -3.0,
+   "ceiling_height": 2.8,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "basement",
+   "variant_group": "vg_L-1",
+   "variant": "Açık mutfak",
+   "variant_slug": "acik-mutfak",
+   "base_level_id": "L-1",
+   "region_id": "r3",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LINE:7A1",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6",
+      "rule": "slab_bands"
+     }
+    ]
+   },
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:5A1",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.8,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "floor",
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r4",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LINE:7A2",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6",
+      "rule": "slab_bands"
+     }
+    ]
+   },
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:5A2",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "label": "Çatı Katı",
+   "order": 1,
+   "elevation": 3.0,
+   "ceiling_height": 2.4,
+   "ceiling_height_source": "section",
+   "label_source": "title",
+   "kind": "attic",
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r5",
+   "elevation_source": "section",
+   "floor_to_floor": null,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:5A3",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r5"
+    }
+   ]
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L-1_001",
+   "level_id": "L-1",
+   "start": [
+    0.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-11",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_002",
+   "level_id": "L-1",
+   "start": [
+    10.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-12",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_003",
+   "level_id": "L-1",
+   "start": [
+    10.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-13",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_004",
+   "level_id": "L-1",
+   "start": [
+    0.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-14",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_005",
+   "level_id": "L-1",
+   "start": [
+    6.0,
+    0.0
+   ],
+   "end": [
+    6.0,
+    8.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-15",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1_006",
+   "level_id": "L-1",
+   "start": [
+    6.0,
+    4.0
+   ],
+   "end": [
+    10.0,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-16",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_001",
+   "level_id": "L-1b",
+   "start": [
+    0.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-1b1",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_002",
+   "level_id": "L-1b",
+   "start": [
+    10.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-1b2",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_003",
+   "level_id": "L-1b",
+   "start": [
+    10.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-1b3",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_004",
+   "level_id": "L-1b",
+   "start": [
+    0.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-1b4",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_005",
+   "level_id": "L-1b",
+   "start": [
+    6.0,
+    4.0
+   ],
+   "end": [
+    6.0,
+    8.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-1b5",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L-1b_006",
+   "level_id": "L-1b",
+   "start": [
+    6.0,
+    4.0
+   ],
+   "end": [
+    10.0,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L-1b6",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L01",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    10.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L02",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    10.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L03",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L04",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    6.0,
+    0.0
+   ],
+   "end": [
+    6.0,
+    8.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L05",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    6.0,
+    4.0
+   ],
+   "end": [
+    10.0,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L06",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_001",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L11",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_002",
+   "level_id": "L1",
+   "start": [
+    10.0,
+    0.0
+   ],
+   "end": [
+    10.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L12",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_003",
+   "level_id": "L1",
+   "start": [
+    10.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L13",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_004",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    8.0
+   ],
+   "end": [
+    0.0,
+    0.0
+   ],
+   "thickness": 0.25,
+   "height": null,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L14",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_005",
+   "level_id": "L1",
+   "start": [
+    6.0,
+    0.0
+   ],
+   "end": [
+    6.0,
+    8.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L15",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_006",
+   "level_id": "L1",
+   "start": [
+    6.0,
+    4.0
+   ],
+   "end": [
+    10.0,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": null,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:L16",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L-1_001",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    2.0,
+    0.0
+   ],
+   "width": 1.0,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L-1_salon",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL-11",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_001",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    4.5,
+    0.0
+   ],
+   "width": 2.0,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL-11",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1_002",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    8.0,
+    0.0
+   ],
+   "width": 1.2,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL-12",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "d_L-1_002",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_005",
+   "center": [
+    6.0,
+    6.0
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L-1_salon",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL-12",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L-1_003",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_006",
+   "center": [
+    7.0,
+    4.0
+   ],
+   "width": 0.8,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L-1_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL-13",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L-1b_001",
+   "type": "door",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_001",
+   "center": [
+    2.0,
+    0.0
+   ],
+   "width": 1.0,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L-1b_salon_acik_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL-1b1",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_001",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_001",
+   "center": [
+    4.5,
+    0.0
+   ],
+   "width": 2.0,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL-1b1",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "win_L-1b_002",
+   "type": "window",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_001",
+   "center": [
+    8.0,
+    0.0
+   ],
+   "width": 1.2,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL-1b2",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "d_L-1b_002",
+   "type": "door",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_005",
+   "center": [
+    6.0,
+    6.0
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L-1b_salon_acik_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL-1b2",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L-1b_003",
+   "type": "door",
+   "level_id": "L-1b",
+   "wall_id": "w_L-1b_006",
+   "center": [
+    7.0,
+    4.0
+   ],
+   "width": 0.8,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L-1b_salon_acik_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL-1b3",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    7.0,
+    8.0
+   ],
+   "width": 1.0,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L0_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL01",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    3.0,
+    0.0
+   ],
+   "width": 1.6,
+   "height": 1.4,
+   "sill_height": 0.9,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL01",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    0.0,
+    4.0
+   ],
+   "width": 1.2,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL02",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    8.0,
+    0.0
+   ],
+   "width": 0.6,
+   "height": 0.6,
+   "sill_height": 1.5,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL03",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4",
+     "block": "PENCERE"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    6.0,
+    6.0
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L0_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL02",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_006",
+   "center": [
+    7.0,
+    4.0
+   ],
+   "width": 0.8,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L0_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL03",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_001",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_005",
+   "center": [
+    6.0,
+    6.0
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L1_oyun_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL11",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_002",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_006",
+   "center": [
+    8.0,
+    4.0
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": 0.0,
+   "assumed": [],
+   "swing_side": "r_L1_teras",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "KAPI",
+     "entity": "INSERT:dL12",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "win_L1_001",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_004",
+   "center": [
+    0.0,
+    4.0
+   ],
+   "width": 1.2,
+   "height": 1.0,
+   "sill_height": 0.6,
+   "assumed": [],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "PENCERE",
+     "entity": "INSERT:winL11",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r5",
+     "block": "PENCERE"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L-1_salon",
+   "level_id": "L-1",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.125,
+     0.125
+    ],
+    [
+     5.95,
+     0.125
+    ],
+    [
+     5.95,
+     7.875
+    ],
+    [
+     0.125,
+     7.875
+    ]
+   ],
+   "area_computed": 45.14,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L-1Sal",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "SALON",
+     "region_id": "r2"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L-1",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1_mutfak",
+   "level_id": "L-1",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     6.05,
+     0.125
+    ],
+    [
+     9.875,
+     0.125
+    ],
+    [
+     9.875,
+     3.95
+    ],
+    [
+     6.05,
+     3.95
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L-1Mut",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "MUTFAK",
+     "region_id": "r2"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L-1",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1_hol",
+   "level_id": "L-1",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.05,
+     4.05
+    ],
+    [
+     9.875,
+     4.05
+    ],
+    [
+     9.875,
+     7.875
+    ],
+    [
+     6.05,
+     7.875
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L-1Hol",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "HOL",
+     "region_id": "r2"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L-1",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1b_salon_acik_mutfak",
+   "level_id": "L-1b",
+   "label": "Salon + Açık Mutfak",
+   "label_raw": "SALON + AÇIK MUTFAK",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.125,
+     0.125
+    ],
+    [
+     9.875,
+     0.125
+    ],
+    [
+     9.875,
+     3.95
+    ],
+    [
+     5.95,
+     3.95
+    ],
+    [
+     5.95,
+     7.875
+    ],
+    [
+     0.125,
+     7.875
+    ]
+   ],
+   "area_computed": 60.16,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L-1bSal",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "SALON + AÇIK MUTFAK",
+     "region_id": "r3"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L-1b",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "r_L-1b_hol",
+   "level_id": "L-1b",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.05,
+     4.05
+    ],
+    [
+     9.875,
+     4.05
+    ],
+    [
+     9.875,
+     7.875
+    ],
+    [
+     6.05,
+     7.875
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": "r_L-1_hol",
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L-1bHol",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "HOL",
+     "region_id": "r3"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L-1b",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.125,
+     0.125
+    ],
+    [
+     5.95,
+     0.125
+    ],
+    [
+     5.95,
+     7.875
+    ],
+    [
+     0.125,
+     7.875
+    ]
+   ],
+   "area_computed": 45.14,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L0Yat",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "YATAK ODASI",
+     "region_id": "r4"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L0",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     6.05,
+     0.125
+    ],
+    [
+     9.875,
+     0.125
+    ],
+    [
+     9.875,
+     3.95
+    ],
+    [
+     6.05,
+     3.95
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L0Ban",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "BANYO",
+     "region_id": "r4"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L0",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_hol",
+   "level_id": "L0",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.05,
+     4.05
+    ],
+    [
+     9.875,
+     4.05
+    ],
+    [
+     9.875,
+     7.875
+    ],
+    [
+     6.05,
+     7.875
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L0Hol",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "HOL",
+     "region_id": "r4"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L0",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_oyun_odasi",
+   "level_id": "L1",
+   "label": "Oyun Odası",
+   "label_raw": "OYUN ODASI",
+   "room_type": "other",
+   "polygon": [
+    [
+     0.125,
+     0.125
+    ],
+    [
+     5.95,
+     0.125
+    ],
+    [
+     5.95,
+     7.875
+    ],
+    [
+     0.125,
+     7.875
+    ]
+   ],
+   "area_computed": 45.14,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L1Oyu",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "OYUN ODASI",
+     "region_id": "r5"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L1",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_teras",
+   "level_id": "L1",
+   "label": "Teras",
+   "label_raw": "TERAS",
+   "room_type": "balcony",
+   "polygon": [
+    [
+     6.05,
+     0.125
+    ],
+    [
+     9.875,
+     0.125
+    ],
+    [
+     9.875,
+     3.95
+    ],
+    [
+     6.05,
+     3.95
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L1Ter",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "TERAS",
+     "region_id": "r5"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L1",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_hol",
+   "level_id": "L1",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     6.05,
+     4.05
+    ],
+    [
+     9.875,
+     4.05
+    ],
+    [
+     9.875,
+     7.875
+    ],
+    [
+     6.05,
+     7.875
+    ]
+   ],
+   "area_computed": 14.63,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "room_subtype": null,
+   "twin_of": null,
+   "same_as": null,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:L1Hol",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "HOL",
+     "region_id": "r5"
+    },
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "entity": "derived-from:L1",
+     "method": "derived",
+     "confidence": 0.98,
+     "region_id": "r5"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L-1_001",
+   "level_id": "L-1",
+   "room_id": "r_L-1_hol",
+   "type": "stair",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.35,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": 3.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L-1_001",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ],
+   "stair": {
+    "flights": [
+     {
+      "start": [
+       9.35,
+       4.5
+      ],
+      "end": [
+       9.35,
+       7.5
+      ],
+      "width": 1.0,
+      "lines": 16,
+      "spacing": 0.25
+     }
+    ],
+    "landing": null,
+    "direction": [
+     0.0,
+     1.0
+    ],
+    "direction_assumed": false,
+    "turn": "straight",
+    "turn_assumed": false,
+    "void_assumed": true,
+    "riser_m": 0.1875,
+    "riser_source": "floor to floor 3.00 m / 16 risers"
+   }
+  },
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_hol",
+   "type": "stair",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.35,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": 3.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L0_001",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ],
+   "stair": {
+    "flights": [
+     {
+      "start": [
+       9.35,
+       4.5
+      ],
+      "end": [
+       9.35,
+       7.5
+      ],
+      "width": 1.0,
+      "lines": 16,
+      "spacing": 0.25
+     }
+    ],
+    "landing": null,
+    "direction": [
+     0.0,
+     1.0
+    ],
+    "direction_assumed": false,
+    "turn": "straight",
+    "turn_assumed": false,
+    "void_assumed": true,
+    "riser_m": 0.1875,
+    "riser_source": "floor to floor 3.00 m / 16 risers"
+   }
+  },
+  {
+   "id": "f_L-1b_001",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_hol",
+   "type": "stair",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.35,
+     6.0
+    ],
+    "size": [
+     1.0,
+     3.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": 3.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L-1b_001",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ],
+   "stair": {
+    "flights": [
+     {
+      "start": [
+       9.35,
+       4.5
+      ],
+      "end": [
+       9.35,
+       7.5
+      ],
+      "width": 1.0,
+      "lines": 16,
+      "spacing": 0.25
+     }
+    ],
+    "landing": null,
+    "direction": [
+     0.0,
+     1.0
+    ],
+    "direction_assumed": false,
+    "turn": "straight",
+    "turn_assumed": false,
+    "void_assumed": true,
+    "riser_m": 0.1875,
+    "riser_source": "floor to floor 3.00 m / 16 risers"
+   }
+  },
+  {
+   "id": "f_L-1_002",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon",
+   "type": "sofa_corner",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.0,
+     7.05
+    ],
+    "size": [
+     2.6,
+     1.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.85,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L-1_002",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    },
+    {
+     "file": "building.json",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "a corner sofa fills the long wall and keeps the garden door free"
+    },
+    {
+     "file": "building.json",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "a corner sofa fills the long wall and keeps the garden door free"
+    }
+   ],
+   "shape": "L",
+   "chaise_side": "right",
+   "chaise_depth": 1.6,
+   "modified_by_ai": true,
+   "drawn_type": "sofa",
+   "drawn_footprint": {
+    "center": [
+     3.0,
+     7.4
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "drawn_height": null,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     3.0,
+     7.85
+    ],
+    "wall_id": "w_L-1_003"
+   },
+   "design": {
+    "fabric_colour": "light grey",
+    "style_family": "modern",
+    "material_tags": [
+     "fabric"
+    ]
+   }
+  },
+  {
+   "id": "f_L-1_003",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon",
+   "type": "table_coffee",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.6,
+     5.6
+    ],
+    "size": [
+     1.0,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": 0.45,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "coffee table in front of the corner sofa"
+    }
+   ],
+   "completes_room": true,
+   "method": "ai",
+   "design": {
+    "material_tags": [
+     "glass"
+    ]
+   },
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   }
+  },
+  {
+   "id": "f_L-1_004",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.0,
+     3.6
+    ],
+    "size": [
+     3.0,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.9,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L-1_004",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r2"
+    }
+   ],
+   "counter_run": {
+    "wall_id": "w_L-1_006",
+    "strokes": [
+     "LINE:C1",
+     "LINE:C2"
+    ]
+   },
+   "design": {
+    "front_style": "shaker",
+    "colour": "sage",
+    "handle": "brass",
+    "worktop": "stone"
+   }
+  },
+  {
+   "id": "f_L-1_005",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "wall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     8.0,
+     3.775
+    ],
+    "size": [
+     2.4,
+     0.35
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.7,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "derived",
+     "confidence": 1.0,
+     "text": "wall cabinets along the counter run f_L-1_004 (rule, docs/milestone10.md §4.4), 1.45-2.15 m"
+    }
+   ],
+   "completes_room": true,
+   "method": "rule",
+   "design": {
+    "front_style": "shaker",
+    "colour": "sage",
+    "handle": "brass"
+   }
+  },
+  {
+   "id": "f_L-1b_002",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.0,
+     3.6
+    ],
+    "size": [
+     3.0,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.9,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L-1b_002",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r3"
+    }
+   ],
+   "counter_run": {
+    "wall_id": "w_L-1b_006",
+    "strokes": [
+     "LINE:C5",
+     "LINE:C6"
+    ]
+   }
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.0,
+     6.85
+    ],
+    "size": [
+     1.6,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L0_002",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     3.0,
+     7.85
+    ],
+    "wall_id": "w_L0_003"
+   }
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.9,
+     7.65
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "missing expected type of a bedroom"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.9,
+     "text": "missing expected type of a bedroom"
+    }
+   ],
+   "completes_room": true,
+   "method": "ai",
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   }
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     4.1,
+     7.65
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "missing expected type of a bedroom"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.9,
+     "text": "missing expected type of a bedroom"
+    }
+   ],
+   "completes_room": true,
+   "method": "ai",
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   }
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.425,
+     2.5
+    ],
+    "size": [
+     1.8,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 0.0,
+   "height": 2.1,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "missing expected type of a bedroom"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.9,
+     "text": "missing expected type of a bedroom"
+    }
+   ],
+   "completes_room": true,
+   "method": "ai",
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   }
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "toilet",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.4,
+     2.5
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 180.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L0_006",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washbasin",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.6,
+     1.2
+    ],
+    "size": [
+     0.6,
+     0.5
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 180.0,
+   "height": 0.85,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L0_007",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ],
+   "design": {
+    "vanity": true,
+    "front_style": "slatted",
+    "colour": "walnut brown",
+    "handle": null
+   }
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "shower",
+   "type_raw": null,
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.6,
+     0.7
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": 2.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L0_008",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    }
+   ]
+  }
+ ],
+ "decor": [
+  {
+   "id": "dec_L0_001",
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "center": [
+    3.0,
+    0.3,
+    0.0
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.2,
+    0.08,
+    2.6
+   ],
+   "window_id": "win_L0_001",
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_001",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "linen curtain"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.9,
+     "text": "linen curtain"
+    }
+   ]
+  },
+  {
+   "id": "dec_L-1_001",
+   "kind": "decor",
+   "type": "plant_large",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon",
+   "center": [
+    0.5,
+    0.6
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.6,
+    0.6,
+    1.6
+   ],
+   "species": "monstera",
+   "pot": {
+    "material": "rattan",
+    "colour": "cream"
+   },
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "floor:corner_1",
+   "colour": null,
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "monstera in a rattan pot"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.9,
+     "text": "monstera in a rattan pot"
+    }
+   ]
+  },
+  {
+   "id": "dec_L-1_002",
+   "kind": "decor",
+   "type": "pendant_light",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon",
+   "center": [
+    2.6,
+    5.6,
+    2.1
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    0.5
+   ],
+   "light_on": true,
+   "asset": null,
+   "host_id": null,
+   "anchor_ids": [
+    "f_L-1_003"
+   ],
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1_003",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.9,
+     "text": "pendant over the coffee table"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.9,
+     "text": "pendant over the coffee table"
+    }
+   ]
+  }
+ ],
+ "conflicts": [
+  {
+   "id": "c_001",
+   "kind": "level_mark_mismatch",
+   "element_ids": [
+    "L1"
+   ],
+   "description": "Level mark of the attic reads +3.10 in the elevation r7; the section's slab lines give +3.00",
+   "resolution": "geometry wins: +3.00 kept"
+  }
+ ],
+ "unverified": [],
+ "warnings": [
+  "roof covering assumed (no elevation names it): concrete_tiles anthracite"
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "base": true,
+   "changes": [],
+   "rooms_changed": [],
+   "exterior_changed": false
+  },
+  {
+   "id": "l-1b-acik-mutfak",
+   "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+   "levels": [
+    "L-1b",
+    "L0",
+    "L1"
+   ],
+   "base": false,
+   "changes": [
+    {
+     "variant_group": "vg_L-1",
+     "level_id": "L-1b",
+     "replaces": "L-1"
+    }
+   ],
+   "rooms_changed": [
+    "r_L-1b_salon_acik_mutfak"
+   ],
+   "exterior_changed": false,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:5A1",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "region_id": "r3"
+    }
+   ]
+  }
+ ],
+ "levels_left_out": [],
+ "slabs": [
+  {
+   "id": "sl_L-1",
+   "below_level_id": null,
+   "above_level_id": "L-1",
+   "z_top": -3.0,
+   "thickness": 0.2,
+   "thickness_source": "section",
+   "outline": [
+    [
+     -0.125,
+     -0.125
+    ],
+    [
+     10.125,
+     -0.125
+    ],
+    [
+     10.125,
+     8.125
+    ],
+    [
+     -0.125,
+     8.125
+    ]
+   ],
+   "openings": [],
+   "variants": [],
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LINE:7A0",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6",
+     "rule": "slab_bands"
+    }
+   ]
+  },
+  {
+   "id": "sl_L0",
+   "below_level_id": "L-1",
+   "above_level_id": "L0",
+   "z_top": 0.0,
+   "thickness": 0.2,
+   "thickness_source": "section",
+   "outline": [
+    [
+     -0.125,
+     -0.125
+    ],
+    [
+     10.125,
+     -0.125
+    ],
+    [
+     10.125,
+     8.125
+    ],
+    [
+     -0.125,
+     8.125
+    ]
+   ],
+   "openings": [
+    {
+     "id": "sv_L0_001",
+     "kind": "stair_void",
+     "furniture_id": "f_L-1_001",
+     "polygon": [
+      [
+       8.8,
+       4.45
+      ],
+      [
+       9.9,
+       4.45
+      ],
+      [
+       9.9,
+       7.55
+      ],
+      [
+       8.8,
+       7.55
+      ]
+     ],
+     "source": "derived"
+    }
+   ],
+   "variants": [],
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LINE:7A1",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6",
+     "rule": "slab_bands"
+    }
+   ]
+  },
+  {
+   "id": "sl_L1",
+   "below_level_id": "L0",
+   "above_level_id": "L1",
+   "z_top": 3.0,
+   "thickness": 0.2,
+   "thickness_source": "section",
+   "outline": [
+    [
+     -0.125,
+     -0.125
+    ],
+    [
+     10.125,
+     -0.125
+    ],
+    [
+     10.125,
+     8.125
+    ],
+    [
+     -0.125,
+     8.125
+    ]
+   ],
+   "openings": [
+    {
+     "id": "sv_L1_001",
+     "kind": "stair_void",
+     "furniture_id": "f_L0_001",
+     "polygon": [
+      [
+       8.8,
+       4.45
+      ],
+      [
+       9.9,
+       4.45
+      ],
+      [
+       9.9,
+       7.55
+      ],
+      [
+       8.8,
+       7.55
+      ]
+     ],
+     "source": "derived"
+    }
+   ],
+   "variants": [],
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LINE:7A2",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6",
+     "rule": "slab_bands"
+    }
+   ]
+  }
+ ],
+ "roof": {
+  "type": "gable",
+  "type_source": "section",
+  "over_level_id": "L1",
+  "eaves_height": {
+   "value": 3.65,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:8B0",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6",
+     "rule": "roof_line"
+    }
+   ]
+  },
+  "ridge_height": {
+   "value": 6.888,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:8B0",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6",
+     "rule": "roof_line"
+    }
+   ]
+  },
+  "pitches_deg": [
+   {
+    "value": 35.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:8B0",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r6",
+      "rule": "roof_line"
+     }
+    ]
+   }
+  ],
+  "overhang": {
+   "value": 0.5,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:8B0",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6"
+    }
+   ]
+  },
+  "thickness": {
+   "value": 0.25,
+   "method": "assumed",
+   "confidence": 0.0,
+   "evidence": [],
+   "note": "not drawn: the roof is one line in the section"
+  },
+  "knee_wall": {
+   "value": 1.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LINE:7B3",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r6"
+    }
+   ]
+  },
+  "outline": [
+   [
+    -0.625,
+    -0.625
+   ],
+   [
+    10.625,
+    -0.625
+   ],
+   [
+    10.625,
+    8.625
+   ],
+   [
+    -0.625,
+    8.625
+   ]
+  ],
+  "break_line": null,
+  "ridge_lines": [
+   [
+    [
+     -0.625,
+     4.0
+    ],
+    [
+     10.625,
+     4.0
+    ]
+   ]
+  ],
+  "planes": [
+   {
+    "id": "rp_south",
+    "points": [
+     [
+      -0.625,
+      -0.625,
+      3.65
+     ],
+     [
+      10.625,
+      -0.625,
+      3.65
+     ],
+     [
+      10.625,
+      4.0,
+      6.888
+     ],
+     [
+      -0.625,
+      4.0,
+      6.888
+     ]
+    ],
+    "slope_deg": 35.0,
+    "aspect_deg": 0.0,
+    "source": "derived"
+   },
+   {
+    "id": "rp_north",
+    "points": [
+     [
+      10.625,
+      8.625,
+      3.65
+     ],
+     [
+      -0.625,
+      8.625,
+      3.65
+     ],
+     [
+      -0.625,
+      4.0,
+      6.888
+     ],
+     [
+      10.625,
+      4.0,
+      6.888
+     ]
+    ],
+    "slope_deg": 35.0,
+    "aspect_deg": 180.0,
+    "source": "derived"
+   }
+  ],
+  "openings": [
+   {
+    "id": "ro_001",
+    "kind": "terrace",
+    "room_id": "r_L1_teras",
+    "polygon": [
+     [
+      6.05,
+      0.125
+     ],
+     [
+      9.875,
+      0.125
+     ],
+     [
+      9.875,
+      3.95
+     ],
+     [
+      6.05,
+      3.95
+     ]
+    ],
+    "parapet_height": {
+     "value": 1.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "parapet not drawn"
+    },
+    "source": "derived"
+   }
+  ],
+  "covering": "concrete_tiles",
+  "covering_colour": "anthracite",
+  "covering_source": "assumed",
+  "assumed": [
+   "roof thickness",
+   "gable ends (no roof plan)",
+   "covering"
+  ],
+  "status": "verified",
+  "evidence": [
+   {
+    "file": "ornek_bina.dxf",
+    "page": 1,
+    "layer": null,
+    "entity": "LWPOLYLINE:8B0",
+    "method": "vector",
+    "confidence": 1.0,
+    "region_id": "r6",
+    "rule": "roof_line"
+   },
+   {
+    "file": "ornek_bina.dxf",
+    "page": 1,
+    "layer": null,
+    "entity": "LWPOLYLINE:8C0",
+    "method": "vector",
+    "confidence": 1.0,
+    "region_id": "r8",
+    "rule": "elevation_outline"
+   }
+  ]
+ },
+ "facade": {
+  "default": {
+   "material": "render",
+   "colour": "greige",
+   "source": "brief"
+  },
+  "faces": [
+   {
+    "wall_id": "w_L-1_001",
+    "level_id": "L-1",
+    "side": "south",
+    "z_range": [
+     -3.0,
+     -2.0
+    ],
+    "material": "stone_cladding",
+    "colour": null,
+    "source": "elevation",
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "TARAMA",
+      "entity": "HATCH:9A0",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r7",
+      "rule": "facade_hatch"
+     }
+    ]
+   }
+  ],
+  "window_frame": "dark_bronze",
+  "sills": {
+   "material": "stone",
+   "depth": 0.3,
+   "projection": 0.04,
+   "source": "assumed"
+  },
+  "openings_seen": [
+   {
+    "region": "r7",
+    "side": "south",
+    "windows": 5,
+    "doors": 1,
+    "plan_check": {
+     "matched": 6,
+     "missing": 0,
+     "extra": 0
+    }
+   }
+  ],
+  "evidence": [
+   {
+    "file": "ornek_bina.dxf",
+    "page": 1,
+    "layer": "TARAMA",
+    "entity": "HATCH:9A0",
+    "method": "vector",
+    "confidence": 1.0,
+    "region_id": "r7"
+   }
+  ]
+ },
+ "site": {
+  "boundary_walls": [
+   {
+    "id": "sw_L0_001",
+    "level_id": "L0",
+    "start": [
+     -6.0,
+     -8.0
+    ],
+    "end": [
+     16.0,
+     -8.0
+    ],
+    "thickness": 0.2,
+    "kind": "plot",
+    "height": {
+     "value": 1.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no elevation of the plot wall"
+    },
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "LINE:SW1",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r9"
+     }
+    ]
+   },
+   {
+    "id": "sw_L0_002",
+    "level_id": "L0",
+    "start": [
+     16.0,
+     -8.0
+    ],
+    "end": [
+     16.0,
+     14.0
+    ],
+    "thickness": 0.2,
+    "kind": "plot",
+    "height": {
+     "value": 1.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no elevation of the plot wall"
+    },
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "LINE:SW2",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r9"
+     }
+    ]
+   },
+   {
+    "id": "sw_L0_003",
+    "level_id": "L0",
+    "start": [
+     16.0,
+     14.0
+    ],
+    "end": [
+     -6.0,
+     14.0
+    ],
+    "thickness": 0.2,
+    "kind": "plot",
+    "height": {
+     "value": 1.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no elevation of the plot wall"
+    },
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "LINE:SW3",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r9"
+     }
+    ]
+   },
+   {
+    "id": "sw_L0_004",
+    "level_id": "L0",
+    "start": [
+     -6.0,
+     14.0
+    ],
+    "end": [
+     -6.0,
+     -8.0
+    ],
+    "thickness": 0.2,
+    "kind": "plot",
+    "height": {
+     "value": 1.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no elevation of the plot wall"
+    },
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "LINE:SW4",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r9"
+     }
+    ]
+   }
+  ],
+  "areas": [
+   {
+    "id": "sa_L0_otopark",
+    "level_id": "L0",
+    "label": "Otopark",
+    "label_raw": "OTOPARK",
+    "polygon": [
+     [
+      11.0,
+      8.5
+     ],
+     [
+      15.5,
+      8.5
+     ],
+     [
+      15.5,
+      13.5
+     ],
+     [
+      11.0,
+      13.5
+     ]
+    ],
+    "anchor": [
+     13.2,
+     11.0
+    ],
+    "kind": "parking",
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "TEXT:OT1",
+      "method": "vector",
+      "confidence": 1.0,
+      "text": "OTOPARK",
+      "region_id": "r9"
+     }
+    ]
+   },
+   {
+    "id": "sa_L0_bahce",
+    "level_id": "L0",
+    "label": "Bahçe",
+    "label_raw": "BAHÇE",
+    "polygon": null,
+    "anchor": [
+     3.0,
+     -5.0
+    ],
+    "kind": "garden",
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "TEXT:BA1",
+      "method": "vector",
+      "confidence": 1.0,
+      "text": "BAHÇE",
+      "region_id": "r9"
+     }
+    ]
+   }
+  ],
+  "decor": [
+   {
+    "id": "sd_L0_001",
+    "level_id": "L0",
+    "kind": "tree",
+    "center": [
+     -3.0,
+     -4.0
+    ],
+    "size": [
+     3.0,
+     3.0
+    ],
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "AGAC",
+      "entity": "INSERT:AG1",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r9"
+     }
+    ]
+   }
+  ],
+  "openings": [],
+  "ground": {
+   "levels": [
+    {
+     "side": "south",
+     "azimuth_deg": 180.0,
+     "z": {
+      "value": -3.0,
+      "method": "assumed",
+      "confidence": 0.0,
+      "evidence": [],
+      "note": "basement garden door d_L-1_001 on the south wall: terrain at the basement floor (assumed)"
+     }
+    },
+    {
+     "side": "north",
+     "azimuth_deg": 0.0,
+     "z": {
+      "value": 0.0,
+      "method": "vector",
+      "confidence": 1.0,
+      "evidence": [
+       {
+        "file": "ornek_bina.dxf",
+        "page": 1,
+        "layer": null,
+        "entity": "LINE:GL1",
+        "method": "vector",
+        "confidence": 1.0,
+        "region_id": "r6",
+        "rule": "ground_line"
+       }
+      ]
+     }
+    },
+    {
+     "side": "east",
+     "azimuth_deg": 90.0,
+     "z": {
+      "value": 0.0,
+      "method": "vector",
+      "confidence": 1.0,
+      "evidence": [
+       {
+        "file": "ornek_bina.dxf",
+        "page": 1,
+        "layer": null,
+        "entity": "LINE:GL1",
+        "method": "vector",
+        "confidence": 1.0,
+        "region_id": "r6",
+        "rule": "ground_line"
+       }
+      ]
+     }
+    },
+    {
+     "side": "west",
+     "azimuth_deg": 270.0,
+     "z": {
+      "value": 0.0,
+      "method": "vector",
+      "confidence": 1.0,
+      "evidence": [
+       {
+        "file": "ornek_bina.dxf",
+        "page": 1,
+        "layer": null,
+        "entity": "LINE:GL1",
+        "method": "vector",
+        "confidence": 1.0,
+        "region_id": "r6",
+        "rule": "ground_line"
+       }
+      ]
+     }
+    }
+   ],
+   "terrain": "sides",
+   "light_wells": []
+  },
+  "north_deg": {
+   "value": 0.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "VAZIYET",
+     "entity": "INSERT:KUZEY",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r9",
+     "rule": "north_arrow"
+    }
+   ]
+  },
+  "paving": [
+   {
+    "id": "sp_001",
+    "polygon": [
+     [
+      6.5,
+      8.125
+     ],
+     [
+      7.5,
+      8.125
+     ],
+     [
+      7.5,
+      14.0
+     ],
+     [
+      6.5,
+      14.0
+     ]
+    ],
+    "z": 0.0,
+    "material": "paving_concrete_grey",
+    "source": "site_plan",
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "LWPOLYLINE:YOL1",
+      "method": "vector",
+      "confidence": 1.0,
+      "region_id": "r9"
+     }
+    ]
+   }
+  ],
+  "grass": [
+   {
+    "id": "sg_001",
+    "polygon": [
+     [
+      -6.0,
+      -8.0
+     ],
+     [
+      16.0,
+      -8.0
+     ],
+     [
+      16.0,
+      14.0
+     ],
+     [
+      -6.0,
+      14.0
+     ]
+    ],
+    "z": null,
+    "material": "grass",
+    "source": "assumed",
+    "build": true,
+    "evidence": []
+   }
+  ],
+  "parking": [
+   {
+    "id": "spk_001",
+    "polygon": [
+     [
+      11.0,
+      8.5
+     ],
+     [
+      15.5,
+      8.5
+     ],
+     [
+      15.5,
+      13.5
+     ],
+     [
+      11.0,
+      13.5
+     ]
+    ],
+    "z": 0.0,
+    "material": "paving_concrete_grey",
+    "source": "site_plan",
+    "build": true,
+    "evidence": [
+     {
+      "file": "ornek_bina.dxf",
+      "page": 1,
+      "layer": "VAZIYET",
+      "entity": "TEXT:OT1",
+      "method": "vector",
+      "confidence": 1.0,
+      "text": "OTOPARK",
+      "region_id": "r9"
+     }
+    ]
+   }
+  ],
+  "plot": {
+   "id": "plot",
+   "polygon": [
+    [
+     -6.0,
+     -8.0
+    ],
+    [
+     16.0,
+     -8.0
+    ],
+    [
+     16.0,
+     14.0
+    ],
+    [
+     -6.0,
+     14.0
+    ]
+   ],
+   "z": null,
+   "material": null,
+   "source": "site_plan",
+   "build": true,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "VAZIYET",
+     "entity": "LWPOLYLINE:PLOT",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r9"
+    }
+   ]
+  }
+ }
+}

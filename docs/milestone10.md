@@ -167,6 +167,20 @@ writes `outputs/<p>/variants/<slug>/{scene,renders,export}/` with only the rooms
 outside differs, its exterior views. 3D files: `<p>.blend` / `<p>.glb` (base, the whole building) and
 `<p>-<slug>.blend` / `<p>-<slug>.glb`.
 
+### 1.6a Interfaces (commands, files, exit codes)
+
+| Command / function | Owner | Contract |
+|---|---|---|
+| `python -m wenart.sheets <project_dir> --out outputs/<p> [--answers <out>/sheets] [--no-ai] [--work DIR]`; `wenart.sheets.analyse(project_dir, out_dir, answers=None, no_ai=False) -> dict` | A1 | writes `<out>/sheets.json` (schema §1.2), `<out>/sheets_report.md`, `<out>/sheets_debug/<file>_<sheet>.png`, and the `sheet_region` questions in `<out>/sheets/requests.json` (the M7 request format of `wenart/recognition/answers.py`, task `sheet_region`, crops in `<out>/sheets/crops/`); answered by `python -m wenart.recognition.answers ask <out>/sheets --model-key qwen\|glm ...` in the same server session as the recognition questions. Exit 0 done (answers complete, or `--no-ai`), 4 questions written and answers missing, 1 needs review (no readable plan region or no unit agreement in any document; `sheets.json` still written), 2 usage or crash |
+| `python -m wenart.ingest.pipeline <project> --out <out> [--answers ...] [--no-ai]` | A1 | reads `<out>/sheets.json` when present, else runs `wenart.sheets.analyse` in-process (standalone runs and old tests); one page record per `use: read` region (`documents[].pages[].region_id`); writes `levels` (variant fields, kinds, section heights), `variants`, `levels_left_out`, `slabs` (outline, thickness, stair voids), `roof` (type, heights, outline, break line, ridge lines, terrace openings; `planes` may be empty), `facade` (drawn faces only; no `default`), `site` (plot, areas, paving, parking, ground levels, north), `rooms[].room_subtype / twin_of / same_as`; exit codes unchanged |
+| `wenart.blender.roof.planes_for(roof, building) -> list` (pure Python) | E | derives `roof.planes` when the pipeline leaves them empty; the builder records them in the scene manifest |
+| `python -m wenart.furniture.layout <building_fitted.json> --style ... --out building_furnished.json --debug layout_debug/ --passes 2 [--project-dir projects/<p>]` | B | reads `furnished_rooms`, `furnished_rooms_keep`, `furnished_rooms_keep_size`, `render.twin_rooms` through `wenart.brief.load_brief(project_dir)` (default: the building's `project.source_folder`); also writes `completion.json` and `completion_report.md`; runs `locked.check(source=building_fitted.json, final=building_furnished.json)`: a violation exits 1 |
+| `wenart.furniture.locked.check(source: dict, final: dict, mode: str) -> list[str]` | B | `mode` `complete` or `keep`; an empty list = pass; called by the layout CLI and by `fit` (refit, `--source building.json`, the lead wires the flag) |
+| `python -m wenart.blender.cli build\|render\|export ... [--variant <id>]` | E | `--variant` default `base`: the base writes the M9 paths, an alternative writes `outputs/<p>/variants/<id>/{scene,renders,export}/`; exterior views are cameras `ext_<n>` in the same render list (kind `exterior` in the scene manifest); `views_for(building, variant)` in `wenart/views.py` returns the interior views of the variant's rooms to render (base: every room except a second twin with `twin_rooms: one`; alternative: `rooms_changed`) and the exterior views (base; an alternative only when `exterior_changed`) |
+| Style profile (`style.json`) | C | adds the slots `exterior` (facade, roof, window_frame, door, paving, garden: slug, colour, source, assumed), `colours` (the brief's colour words per object), `wall_accent`, `wet_walls` (tile kind, size, colour, grout), `cabinets` (front, colour, handle, worktop), `doors`, `window_frame`, `furniture` (fabric colour, wood, material tags), `decor` (species, pots, cushion colours); `style.exterior_fallback` of `defaults.yaml` for the rest |
+
+Every new output is listed by the stage records (`run/<stage>.json` `outputs`) and copied by `wenart.run copy` (lead).
+
 ### 1.7 `CLAUDE.md` furniture rules (the user's OK of 8 Oct 2026; `CLAUDE.md` edited)
 
 Today:
