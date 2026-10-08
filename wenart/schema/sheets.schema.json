@@ -43,9 +43,11 @@
         "pass": {"type": ["integer", "null"]},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "text": {"type": ["string", "null"]},
-        "rule": {"type": ["string", "null"], "description": "The deterministic rule that decided (title_keyword, slab_bands, closed_wall_loops, ...)"}
+        "rule": {"type": ["string", "null"], "description": "The deterministic rule that decided (title_keyword, slab_bands, closed_wall_loops, ...)"},
+        "region_id": {"type": ["string", "null"]}
       }
     },
+    "side": {"enum": ["all", "north", "east", "south", "west", "front", "back", "left", "right"], "description": "As building.schema $defs/side: compass when north is known, else front = -Y, back = +Y, left = -X, right = +X"},
     "value": {
       "type": "object",
       "required": ["value", "method"],
@@ -55,9 +57,13 @@
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
         "note": {"type": ["string", "null"]}
-      }
+      },
+      "allOf": [
+        {"if": {"properties": {"method": {"const": "assumed"}}, "required": ["method"]}, "then": {"required": ["note"], "properties": {"confidence": {"const": 0}}}},
+        {"if": {"properties": {"method": {"enum": ["vector", "raster", "ocr", "derived"]}}, "required": ["method"]}, "then": {"required": ["evidence"], "properties": {"evidence": {"minItems": 1}}}}
+      ]
     },
-    "box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "[x0, y0, x1, y1] in source units"},
+    "box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "[x0, y0, x1, y1] in source units: DXF model space drawing units (y up); a layout viewport: its model-space window; PDF: points in the cad_pdf GenericPage frame (origin bottom-left, y up); raster: original image pixels at native resolution (y down, as evidence.pixel_box)"},
     "point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
     "document": {
       "type": "object",
@@ -96,8 +102,11 @@
     "region": {
       "type": "object",
       "required": ["id", "file", "sheet", "box", "class", "class_method", "class_confidence", "status", "use", "evidence"],
+      "allOf": [
+        {"if": {"properties": {"class_method": {"const": "ai"}}, "required": ["class_method"]}, "then": {"properties": {"status": {"const": "unverified"}, "use": {"const": "ignored"}}}}
+      ],
       "properties": {
-        "id": {"type": "string", "description": "r<n>, in reading order (top-left first) per document"},
+        "id": {"type": "string", "description": "r<n>, unique in the project: documents in classify.project_documents order, then sheets, then reading order (top to bottom by box top in y-up space, then left to right)"},
         "file": {"type": "string"},
         "sheet": {"type": "string"},
         "page": {"type": ["integer", "null"], "description": "PDF page (1-based); 1 for DXF/DWG model space"},
@@ -106,7 +115,7 @@
         "entities": {"type": "integer", "minimum": 0},
         "frame": {"type": ["string", "null"], "description": "The frame entity that holds the region, if any"},
         "class": {"enum": ["floor_plan", "alternative_floor_plan", "furniture_plan", "section", "elevation", "roof_plan", "site_plan", "detail", "3d_view", "title_block", "legend", "other"]},
-        "class_method": {"enum": ["title", "geometry", "ai", "none"]},
+        "class_method": {"enum": ["title", "geometry", "ai", "none"], "description": "ai = only the AI passes name the class: status unverified, use ignored (AI never makes a plan)"},
         "class_confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "status": {"enum": ["verified", "unverified"]},
         "title": {"type": ["object", "null"], "required": ["text"], "properties": {
@@ -140,12 +149,12 @@
           "error": {"type": ["string", "null"]}
         }}},
         "metres_per_unit": {"type": ["number", "null"]},
-        "transform_to_building": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a, b, c, d, e, f] from source units to building metres (x' = a x + b y + c, y' = d x + e y + f)"},
+        "transform_to_building": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a, b, c, d, e, f] from source units to building metres (x' = a x + b y + c, y' = d x + e y + f) = the building origin step of the reference after the registration map; the extractor uses it instead of its own origin step. Building frame = the reference plan's frame in metres, origin at the min corner of its outer outline (outer wall faces). Sections: x -> building coordinate along heights.cut_axis, y -> building z. Elevations: x -> metres from the facade's left end seen from outside, y -> building z. Site plans: registered through their building outline (method site_outline)"},
         "registration": {"type": ["object", "null"], "properties": {
           "reference": {"type": ["string", "null"], "description": "Region id of the reference plan (null for the reference itself)"},
-          "method": {"enum": ["reference", "outline_icp", "grid", "columns", "identity", "none"]},
-          "rotation_deg": {"type": "number"},
-          "shift_m": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+          "method": {"enum": ["reference", "outline_icp", "grid", "columns", "site_outline", "section_width", "identity", "none"]},
+          "rotation_deg": {"type": "number", "description": "Rotation of the region's drawing (metres) onto the reference drawing, counter-clockwise"},
+          "shift_m": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2, "description": "p_ref = R(rotation_deg) · (p_source · metres_per_unit) + shift_m; the reference has 0 and [0, 0]"},
           "residual_m": {"type": ["number", "null"]},
           "matched": {"type": "integer"},
           "stairs_aligned": {"type": ["boolean", "null"]},
@@ -180,6 +189,7 @@
         "label": {"type": "string"},
         "kind": {"enum": ["basement", "floor", "attic"]},
         "base_region": {"type": ["string", "null"]},
+        "secondary_regions": {"type": "array", "items": {"type": "string"}, "description": "The same level drawn again in another document or with the same title: cross-check evidence merged as in M7 (trust order DWG > vector PDF > scan > photo picks base_region), never an alternative"},
         "alternatives": {"type": "array", "items": {"type": "object", "required": ["region", "variant", "slug", "level_id"], "properties": {
           "region": {"type": "string"},
           "variant": {"type": "string"},
@@ -208,13 +218,16 @@
       "properties": {
         "section_regions": {"type": "array", "items": {"type": "string"}},
         "cut_axis": {"enum": ["x", "y", null], "description": "Building axis the section width matches (the cut direction)"},
+        "cut_at": {"type": ["number", "null"], "description": "Building coordinate of the cut on the other axis (from a cut line A-A on a plan), null when no cut line is drawn"},
+        "flipped": {"type": ["boolean", "null"], "description": "true when the section's left end is the building's max end along cut_axis"},
         "datum": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Absolute level of the ground floor (building z = 0), e.g. 43.00 from a level mark"},
-        "levels": {"type": "array", "items": {"type": "object", "required": ["level_id"], "properties": {
+        "levels": {"type": "array", "description": "One entry per base level; a variant group occupies one slot in the bottom-up mapping and its alternative levels copy the base level's values", "items": {"type": "object", "required": ["level_id"], "properties": {
           "level_id": {"type": "string"},
           "floor_z": {"$ref": "#/$defs/value"},
           "ceiling_height": {"$ref": "#/$defs/value"},
           "floor_to_floor": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
-          "level_mark": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]}
+          "level_mark": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "value = printed mark - datum (building z); evidence text = the printed mark"},
+          "level_mark_target_z": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Building z of the line the mark's triangle points at; a level_mark_mismatch conflict when it differs from the geometry by more than 5 cm"}
         }}},
         "slabs": {"type": "array", "items": {"type": "object", "required": ["between", "thickness", "z_top"], "properties": {
           "between": {"type": "array", "items": {"type": ["string", "null"]}, "minItems": 2, "maxItems": 2, "description": "[level below, level above]"},
@@ -222,7 +235,8 @@
           "z_top": {"$ref": "#/$defs/value"}
         }}},
         "ground": {"type": "array", "items": {"type": "object", "required": ["side", "z"], "properties": {
-          "side": {"type": "string"},
+          "side": {"$ref": "#/$defs/side"},
+          "azimuth_deg": {"type": ["number", "null"]},
           "z": {"$ref": "#/$defs/value"}
         }}},
         "roof": {"type": "object", "properties": {
@@ -232,7 +246,7 @@
           "knee_wall": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
           "overhang": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
           "thickness": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
-          "profile": {"type": "array", "items": {"$ref": "#/$defs/point"}, "description": "Outer roof line of the section in the cut plane (horizontal metres along the cut axis, building z)"}
+          "profile": {"type": "array", "items": {"$ref": "#/$defs/point"}, "description": "Top roof line of the section: [s, z], s = building metres along cut_axis, z = building z"}
         }}
       }
     },
@@ -250,22 +264,33 @@
         }},
         "facade": {"type": "array", "items": {"type": "object", "required": ["side", "material", "source"], "properties": {
           "region": {"type": ["string", "null"]},
-          "side": {"type": "string"},
+          "side": {"$ref": "#/$defs/side"},
           "z_range": {"type": ["array", "null"], "items": {"type": "number"}},
+          "colour": {"type": ["string", "null"]},
           "material": {"type": "string"},
           "source": {"enum": ["hatch", "label", "assumed"]},
           "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
         }}},
         "openings_seen": {"type": "array", "items": {"type": "object", "required": ["region", "side", "windows", "doors"], "properties": {
           "region": {"type": "string"},
-          "side": {"type": "string"},
+          "side": {"$ref": "#/$defs/side"},
+          "view_bearing_deg": {"type": ["number", "null"]},
           "windows": {"type": "integer"},
           "doors": {"type": "integer"},
           "positions_m": {"type": "array", "items": {"type": "object"}, "description": "Per opening: kind, x along the facade, sill, head (metres)"},
-          "plan_check": {"type": ["object", "null"], "description": "Count and positions vs the plans: matched, missing, extra"}
+          "plan_check": {"type": ["object", "null"], "description": "null in sheets.json: the pipeline fills building facade.elevations[].plan_check after reading the plans"}
         }}},
-        "site": {"type": ["object", "null"], "description": "Site plan evidence in building metres: plot, plot walls, paving, grass, parking, trees, street words"},
-        "north": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Compass bearing of +Y (north arrow)"},
+        "site": {"type": ["object", "null"], "description": "Site plan evidence in building metres (after the site plan's registration); the site plan wins over the ground-floor plan, duplicates within 0.1 m merged with both evidences", "properties": {
+          "region": {"type": ["string", "null"]},
+          "plot": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}},
+          "plot_walls": {"type": "array", "items": {"type": "object"}},
+          "paving": {"type": "array", "items": {"type": "object"}},
+          "grass": {"type": "array", "items": {"type": "object"}},
+          "parking": {"type": "array", "items": {"type": "object"}},
+          "trees": {"type": "array", "items": {"type": "object"}},
+          "labels": {"type": "array", "items": {"type": "object"}}
+        }},
+        "north": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Compass bearing of the building +Y after the site plan's registration (north arrow)"},
         "balconies": {"type": "array", "items": {"type": "object"}},
         "chimneys": {"type": "array", "items": {"type": "object"}}
       }

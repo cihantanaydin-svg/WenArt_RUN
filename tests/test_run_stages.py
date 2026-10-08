@@ -155,7 +155,8 @@ def test_code_lists_cover_the_import_closure():
 
 def test_outputs_of():
     assert S.outputs_of("intake", "real-01") == ["input/real-01", "intake_manifest.json"]
-    assert S.outputs_of("layout", "p") == ["building_furnished.json", "layout.json"]
+    assert S.outputs_of("layout", "p") == ["building_furnished.json", "layout.json", "completion.json",
+                                           "completion_report.md"]                     # Milestone 10: completion
 
 
 def test_golden_commands_cpu_stages():
@@ -216,7 +217,7 @@ def test_golden_commands_vlm_stages():
     assert S.layout(TOOLS, REF, URL) == [
         "PY", "-m", "wenart.furniture.layout", f"{O}/building_fitted.json", "--style", f"{O}/style.json", "--server",
         URL, "--model", "Qwen/Qwen3-VL-8B-Instruct", "--out", f"{O}/building_furnished.json", "--debug",
-        f"{O}/layout_debug", "--passes", "2"]
+        f"{O}/layout_debug", "--passes", "2", "--project-dir", S.t(REF.project_dir)]
     # M7 §8.1: the insertion controls are asked in every full run.
     assert S.check_run(TOOLS, REF, "qwen", URL, 2) == [
         "PY", "-m", "wenart.vision_check", "run", "--project-out", O, "--model-key", "qwen", "--server", URL,
