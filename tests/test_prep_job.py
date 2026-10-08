@@ -2024,8 +2024,9 @@ def test_copy_puts_the_sheet_files_into_the_results_layout(tmp_path):
     prep = _sheet_prep(w)
     assert prep.run_all() == 0, w.lines
     rec = w.results / "recognition" / "real02" / "sheets"
-    assert sorted(f.name for f in rec.iterdir()) == ["answers_glm.json", "answers_qwen.json", "requests.json"]
-    assert not (rec / "crops").exists()                               # the crops stay on the volume
+    assert sorted(f.name for f in rec.iterdir() if f.is_file()) == ["answers_glm.json", "answers_qwen.json",
+                                                                    "requests.json"]
+    # The crops go as the recognition crops do (copy.PUBLIC_RULES: sheets/crops, the first 200 by name).
     assert (w.results / "recognition" / "real02" / "requests.json").is_file()      # the recognition folder, as before
     fur = w.results / "furniture" / "real02"
     assert (fur / "sheets.json").is_file() and (fur / "sheets_report.md").is_file()   # copy_project's *.json / *.md rule
