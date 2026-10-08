@@ -18,7 +18,10 @@ The schemas sent to vLLM (``VLMClient.run_schema`` / ``run_task`` / ``build_text
   orders);
 - furniture layout (``furniture.layout``, text-only calls);
 - the Objaverse library judge (``assets.objaverse``);
-- the style photo reader (``style.photos``).
+- the style photo reader (``style.photos``);
+- Milestone 10: the ``sheet_region`` question of the sheets stage (asked by ``recognition.answers ask`` in the
+  recognition sessions) and the recolour judge (``assets.recolour``: one schema per sheet, ``slot_<n>`` ->
+  ``{materials: [...]}``, built from the slot indexes of the sheet).
 """
 import copy
 
@@ -41,6 +44,11 @@ def _recognition() -> dict:
     out["recognition/symbol_type digest"] = C.question_digest("symbol_type", facts)["schema"]
     room = {"key": "lbl_L0_1", "task": "room_label", "images": ["crops/lbl_L0_1.png"], "input_sha256": "0" * 64}
     out["recognition/room_label call_args"] = A.call_args(room, ".")["schema"]
+    # Milestone 10: the sheet_region question (wenart.sheets.question.SCHEMA), as the answer store sends it.
+    sheet = {"key": "sheet_a_s1_r1", "task": "sheet_region", "images": ["crops/sheet_a_s1_r1.png"],
+             "input_sha256": "0" * 64}
+    out["recognition/sheet_region call_args"] = A.call_args(sheet, ".")["schema"]
+    out["recognition/sheet_region task_schema"] = A.task_schema("sheet_region")
     return out
 
 
@@ -71,8 +79,20 @@ def _style() -> dict:
     return {"style/photo": photos.photo_schema()}
 
 
+def _recolour() -> dict:
+    """The recolour judge (Milestone 10): ``answer_schema(slot indexes)``, from one slot to the largest sheet, and the
+    schema the shared judging asks for a request item (``JudgeSpec.schema_of``)."""
+    from wenart.assets import recolour as RC
+    out = {f"assets/recolour {n} slot(s)": RC.answer_schema(list(range(n))) for n in (1, 3, RC.load_config()[
+        "max_slots_per_sheet"])}
+    out["assets/recolour sparse slots"] = RC.answer_schema([0, 2, 5])
+    item = {"key": "mat_u1", "context": {"uid": "u1", "slots": [1, 4]}}
+    out["assets/recolour judge item"] = RC._spec().schema_of(item)
+    return out
+
+
 SOURCES = {"recognition": _recognition, "vision_check": _vision_check, "furniture": _furniture,
-           "objaverse": _objaverse, "style": _style}
+           "objaverse": _objaverse, "style": _style, "recolour": _recolour}
 
 
 @pytest.mark.parametrize("source", sorted(SOURCES))
