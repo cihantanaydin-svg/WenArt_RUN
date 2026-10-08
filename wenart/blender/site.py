@@ -199,8 +199,8 @@ def terrain_model(building: dict, outline: Sequence[Sequence[float]], default_z:
             "north_deg": north, "north_source": north_src, "changes": changes}
 
 
-def door_terrain(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]]
-                 ) -> dict:
+def door_terrain(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
+                 outlines: Optional[dict] = None) -> dict:
     """The build's terrain changes for outside doors below the ground (pure; §3.2 item 5): a door on an outer
     wall whose bottom lies more than ``LIGHT_WELL_CLEARANCE`` under the ground outside (a basement door) puts
     the terrain of its side at its floor: ``{axis: {"z", "reason", "opening_ids"}}`` (the lowest door of a
@@ -216,7 +216,7 @@ def door_terrain(building: dict, levels: Sequence[dict], terrain: dict, outline:
         if lv is None or wall is None or o.get("type") != "door":
             continue
         cx, cy, _ = opening_centre_on_wall(o, wall)
-        side = outward_side(wall, outline, (cx, cy))
+        side = outward_side(wall, (outlines or {}).get(lv["id"]) or outline, (cx, cy))     # its own level (#27)
         if side is None:
             continue
         levels_above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels)
@@ -356,8 +356,8 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
 # Light wells
 # --------------------------------------------------------------------------
 
-def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]]
-                ) -> tuple[list[dict], list[str]]:
+def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
+                outlines: Optional[dict] = None) -> tuple[list[dict], list[str]]:
     """``(wells, warnings)``: the light wells of windows whose sill lies less than ``LIGHT_WELL_CLEARANCE``
     above the ground outside (pure). A drawn light well (``site.ground.light_wells`` with the window's
     ``opening_id``) is used as drawn; any other is assumed: ``light_well_depth`` out from the wall face,
@@ -378,7 +378,7 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
         if lv is None or wall is None or o.get("type") not in ("window", "door"):
             continue
         cx, cy, _ = opening_centre_on_wall(o, wall)
-        out = outward_side(wall, outline, (cx, cy))
+        out = outward_side(wall, (outlines or {}).get(lv["id"]) or outline, (cx, cy))      # its own level (#27)
         if out is None:
             continue
         levels_above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels)
@@ -538,23 +538,48 @@ def _built(items) -> list[dict]:
     return [i for i in items or [] if isinstance(i, dict) and i.get("build", True) is not False]
 
 
-def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full"
-              ) -> dict:
+def set_back_levels(levels: Sequence[dict], outline: Sequence[Sequence[float]], outlines: dict, terrain: dict,
+                    tol_m2: float = 0.05) -> list[str]:
+    """Warnings for the levels below the ground whose own outline differs from the ground hole ``outline`` (pure;
+    review #27): a basement set back from (or reaching past) the ground floor's faces leaves an open gap between
+    the terrain and its walls (or walls in the earth)."""
+    hole = G.polygon_area(outline) if len(outline) >= 3 else 0.0
+    top = max(float(z) for z in terrain["z"].values()) if terrain.get("z") else 0.0
+    out = []
+    for lv in levels:
+        own = outlines.get(lv["id"]) or []
+        if len(own) < 3 or float(lv["elevation"]) >= top - 0.5:
+            continue
+        diff = G.polygon_area(own) - hole
+        inside = all(G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < 1e-3
+                     for p in own)
+        if abs(diff) > tol_m2 or not inside:
+            out.append(f"{lv['id']}: its outline ({G.polygon_area(own):.2f} m2) differs from the ground hole cut at "
+                       f"the outline of the levels at the ground ({hole:.2f} m2): "
+                       + ("the gap between its walls and the terrain is open" if diff < 0 and inside
+                          else "part of its walls stands in the earth"))
+    return out
+
+
+def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full",
+              outlines: Optional[dict] = None) -> dict:
     """Everything the site build makes (pure): ``{"mode", "terrain", "outline", "plot", "extent", "wells",
     "plot_walls", "areas": [{"id", "kind", "polygon", "z", "material", "source"}], "trees", "not_built",
     "assumed", "warnings", "ground_is_grass"}``. ``mode`` ``full`` (plot, paving, grass, plot walls,
-    parking, trees as drawn) or ``ground`` (the ground plane and the light wells)."""
+    parking, trees as drawn) or ``ground`` (the ground plane and the light wells). ``outlines``: each level's own
+    outline (review #27: a wall's outward side for its light well or basement door is judged on its level's
+    outline, and a level below the ground that differs from the ground hole is a warning)."""
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
     lowest = min(levels, key=lambda lv: float(lv["elevation"])) if levels else None
     default_z = 0.0 if lowest is None or float(lowest["elevation"]) < 0 else float(lowest["elevation"])
     terrain = terrain_model(building, outline, default_z)
-    doors = door_terrain(building, levels, terrain, outline)
+    doors = door_terrain(building, levels, terrain, outline, outlines)
     if doors:                                   # the basement doors' sides at their floor (assumed)
         terrain = terrain_model(building, outline, default_z, overrides=doors)
     plot, plot_src = plot_polygon(building) if mode == "full" else ([], "none")
     extent = ground_extent(outline, plot)
-    wells, warnings = light_wells(building, levels, terrain, outline)
-    warnings = list(terrain["warnings"]) + warnings
+    wells, warnings = light_wells(building, levels, terrain, outline, outlines)
+    warnings = list(terrain["warnings"]) + warnings + set_back_levels(levels, outline, outlines or {}, terrain)
     assumed = list(terrain["assumed"])
     for w in wells:
         if w["source"] == "assumed":

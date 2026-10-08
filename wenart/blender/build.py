@@ -643,7 +643,7 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         mode = site_mode if site_mode in ("full", "ground") else "full"
         if mode != site_mode:
             out["warnings"].append(f"brief site {site_mode!r} unknown: full used")
-        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode)
+        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode, outlines=out["outlines"])
         out["warnings"] += out["site"]["warnings"]
     out["faces"], warnings = facade_faces(vb, out["outlines"])
     out["warnings"] += warnings
