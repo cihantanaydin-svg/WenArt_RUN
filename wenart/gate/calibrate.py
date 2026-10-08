@@ -645,6 +645,12 @@ def exterior_polish(project_out, gate_dir=None, thresholds=None) -> dict:
 
     folder = Path(gate_dir) if gate_dir else Path(project_out) / "gate"
     path = folder / VAL.CALIBRATION_NAME
+    if not path.is_file() and not gate_dir and Path(project_out).resolve().parent.name == "variants":
+        # An alternative's sub-output (outputs/<p>/variants/<id>) reuses the base project's calibration
+        # (docs/milestone10.md §1.6b row 9).
+        base = Path(project_out).resolve().parent.parent / "gate" / VAL.CALIBRATION_NAME
+        if base.is_file():
+            path = base
     cal = None
     if path.is_file():
         try:
@@ -655,6 +661,7 @@ def exterior_polish(project_out, gate_dir=None, thresholds=None) -> dict:
     out = exterior_validation(cal, VAL.load_validation_config(), current)
     out["limits"] = VAL.load_validation_config()
     out["source"] = VAL.CALIBRATION_NAME if path.is_file() else None
+    out["from_base_project"] = bool(path.is_file() and path.parent != folder)
     return out
 
 

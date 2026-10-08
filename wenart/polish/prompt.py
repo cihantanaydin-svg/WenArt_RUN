@@ -282,3 +282,202 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     return {"prompt": " ".join(sentences), "room_type": room_type, "room_words": room, "family": family,
             "walls": surf["walls"], "floor": surf["floor"], "mood": mood, "furniture": furniture,
             "lens_mm": float(lens_mm) if lens else None, "warnings": warnings}
+
+
+# --------------------------------------------------------------------------
+# Exterior views (Milestone 10, docs/milestone10.md §3.3 items 3 and 5, §4.8)
+# --------------------------------------------------------------------------
+#
+# What: the prompt of an exterior view is built from the outside looks the build resolved
+# (``scene manifest exterior_looks``: per slot ``{material, colour, source, assumed, reason}``), not from the
+# interior profile: "Photorealistic architectural photograph of a house exterior in {family} style, seen
+# {view}. {colour} {facade words} facade, {roof words} roof, {frame words} window frames, {paving} and {garden}.
+# {mood} sunlight under a clear sky, soft natural shadows, realistic materials and textures, sharp focus,
+# {lens} mm lens."
+#
+# Why: the interior tables say "walls" and "floor"; an outside view needs facade, roof, frames and ground, and
+# its light comes from the sky, not "through the windows".
+#
+# How: slugs of ``wenart.blender.exterior`` (the E-owned ``EXTERIOR_WORDS`` / ``EXTERIOR_FALLBACK``) and of the
+# M10 vocabulary go through the tables below; ``brick_*``, ``painted:<colour>`` and ``render:<colour>`` are
+# built from their colour word; a slug the tables do not know is used as plain words and listed in ``warnings``
+# (never silently), exactly as the interior prompt does.
+
+# Material slugs of the outside slots, written to be followed by "facade", "roof", "window frames" or the like.
+EXTERIOR_MATERIAL_WORDS: dict[str, str] = {
+    # facade
+    "render": "smooth rendered",
+    "plaster_exterior": "grey exterior plaster",
+    "fibre_cement": "fibre-cement board",
+    "stone_cladding": "natural stone clad",
+    "wood_cladding": "timber clad",
+    "concrete_exposed": "exposed concrete",
+    "brick": "exposed red brick",
+    "brick_red": "red brick",
+    "paint": "painted",
+    "microcement": "microcement",
+    # roof
+    "clay_tiles": "clay tile",
+    "concrete_tiles": "concrete tile",
+    "slate": "slate",
+    "standing_seam": "standing-seam metal",
+    "green_roof": "green sedum",
+    # window frames and doors
+    "pvc": "white PVC",
+    "pvc_white": "white PVC",
+    "aluminium": "aluminium",
+    "aluminium_anthracite": "anthracite aluminium",
+    "steel": "steel",
+    "steel_black": "black steel",
+    "dark_bronze": "dark bronze",
+    "oak": "oak",
+    "glass": "glass",
+    # ground
+    "paving": "concrete paver",
+    "gravel": "gravel",
+    "decking": "timber decking",
+    "stone": "natural stone",
+    "grass": "lawn",
+    "concrete": "concrete",
+    "soil": "bare soil",
+}
+# The noun that follows the words of a slot.
+EXTERIOR_SLOT_NOUN: dict[str, str] = {
+    "facade": "facade",
+    "roof": "roof",
+    "window_frame": "window frames",
+    "door": "front door",
+    "paving": "paving",
+    "garden": "garden",
+}
+# Slots named in the prompt, in this order (the door and the ground are short clauses at the end).
+EXTERIOR_PROMPT_SLOTS = ("facade", "roof", "window_frame", "door", "paving", "garden")
+# Lighting moods of vocabulary.LIGHTING, written for an outside view (sun and sky, not "through the windows").
+EXTERIOR_MOOD_WORDS: dict[str, str] = {
+    "warm daylight": "Warm daytime sunlight under a clear sky",
+    "cool daylight": "Cool daytime sunlight under a clear sky",
+    "golden evening": "Golden evening sunlight low over the roofs",
+    "overcast": "Soft overcast daylight under a grey sky",
+    "night": "Dim night light with a dark blue sky",
+    "bright noon": "Bright noon sunlight under a clear sky",
+    "blue hour": "Soft blue-hour light after sunset",
+    "cloudy soft": "Soft cloudy daylight under a pale sky",
+    "interior evening": "Dusk light with warm lamps lit behind the windows",
+}
+EXTERIOR_TAIL = "soft natural shadows, realistic materials and textures, sharp focus"
+# Camera views of the scene manifest (``view``): how the picture is taken.
+EXTERIOR_VIEW_WORDS: dict[str, str] = {
+    "corner": "from a corner of the plot at eye level, two facades in view",
+    "aerial": "in a three-quarter aerial view from above, roof and two facades in view",
+    "elevation": "straight on from the front, one facade in view",
+}
+EXTERIOR_DEFAULT_VIEW = "from outside, two facades in view"
+
+
+def exterior_material_words(slug, colour=None, warnings: Optional[list] = None) -> Optional[str]:
+    """The words of one outside material slug (plus its colour name), or None for no slug.
+
+    ``brick_<variant>`` -> "<variant> brick", ``painted:<colour>`` -> "<colour> painted", ``render:<colour>`` ->
+    "<colour> smooth rendered"; a plain slug goes through ``EXTERIOR_MATERIAL_WORDS``, then the interior
+    ``MATERIAL_WORDS`` (a window frame or door that takes the inside look). A slug no table knows is used as plain
+    words and listed in ``warnings``. The colour name goes in front unless the material words already hold it."""
+    if not slug:
+        return None
+    slug = str(slug)
+    inline = None
+    if slug in EXTERIOR_MATERIAL_WORDS:
+        words = EXTERIOR_MATERIAL_WORDS[slug]
+    elif slug.startswith("painted:") or slug.startswith("render:"):
+        head, _, tail = slug.partition(":")
+        inline = tail.replace("_", " ").strip() or None
+        words = "painted" if head == "painted" else "smooth rendered"
+    elif slug.startswith("brick_"):
+        words = slug[len("brick_"):].replace("_", " ") + " brick"
+    elif slug in MATERIAL_WORDS:
+        words = MATERIAL_WORDS[slug]
+    else:
+        if warnings is not None:
+            warnings.append(f"no prompt words for exterior material {slug!r}; used the slug")
+        words = slug.replace("_", " ").replace(":", " ")
+    name = inline or (str(colour).replace("_", " ").strip() if colour else None)
+    if name and name.lower() not in words.lower():
+        words = f"{name} {words}"
+    return words
+
+
+def exterior_mood_words(mood, warnings: Optional[list] = None) -> str:
+    """The light sentence start for a lighting mood of the style profile (``EXTERIOR_MOOD_WORDS``; a mood only
+    ``MOOD_WORDS`` knows becomes "<words> light"; no mood = "Natural daylight", listed in ``warnings``)."""
+    if mood is None:
+        if warnings is not None:
+            warnings.append("no light mood in the rendered profile; exterior prompt says 'Natural daylight'")
+        return "Natural daylight under a clear sky"
+    if mood in EXTERIOR_MOOD_WORDS:
+        return EXTERIOR_MOOD_WORDS[mood]
+    if mood in MOOD_WORDS:
+        return f"{MOOD_WORDS[mood]} light"
+    if warnings is not None:
+        warnings.append(f"no prompt words for light mood {mood!r}; used the slug")
+    return f"{str(mood).replace('_', ' ').capitalize()} light"
+
+
+def exterior_look_words(looks: Optional[dict], warnings: list) -> dict:
+    """``{slot: words}`` of the outside looks (a scene manifest ``exterior_looks`` block) for the slots of
+    ``EXTERIOR_PROMPT_SLOTS``, with the slot noun ("smooth rendered facade"). A slot without a look is left out;
+    a non-dict entry is a warning."""
+    out: dict = {}
+    for slot in EXTERIOR_PROMPT_SLOTS:
+        look = (looks or {}).get(slot)
+        if look is None:
+            continue
+        if not isinstance(look, dict):
+            warnings.append(f"exterior look {slot!r} is not a record; left out of the prompt")
+            continue
+        words = exterior_material_words(look.get("material"), look.get("colour"), warnings)
+        if words:
+            out[slot] = f"{words} {EXTERIOR_SLOT_NOUN[slot]}"
+    return out
+
+
+def build_exterior_prompt(style_profile: dict, exterior_looks: Optional[dict], lens_mm: Optional[float] = None,
+                          view: Optional[str] = None) -> dict:
+    """The prompt of one exterior view and the words it was made from.
+
+    ``exterior_looks``: the scene manifest's block (``{slot: {material, colour, ...}}``); ``view``: the camera's
+    ``view`` (corner / aerial / elevation, else a neutral phrase); ``lens_mm``: the camera's own lens.
+
+    Returns ``{"prompt", "view_kind": "exterior", "view", "family", "mood", "looks": {slot: words}, "lens_mm",
+    "warnings": [...]}``."""
+    warnings: list[str] = []
+    profile = style_profile or {}
+    family = style_family(profile)
+    family_words = _words(FAMILY_WORDS, family, "style family", warnings)
+    if family is None:
+        warnings.append("no style family word in the rendered profile; exterior prompt says no style")
+    mood = ((profile.get("lighting") or {}).get("mood"))
+    mood_words = exterior_mood_words(mood, warnings)
+    if not exterior_looks:
+        warnings.append("no exterior looks in the scene manifest; the prompt names no material")
+    words = exterior_look_words(exterior_looks, warnings)
+    view_words = EXTERIOR_VIEW_WORDS.get(view) if view else None
+    if view and view_words is None:
+        warnings.append(f"no prompt words for exterior view {view!r}; used a neutral phrase")
+    first = "Photorealistic architectural photograph of a house exterior"
+    if family_words:
+        first += f" in {family_words} style"
+    first += f", seen {view_words or EXTERIOR_DEFAULT_VIEW}."
+    sentences = [first]
+    building = [words[s] for s in ("facade", "roof", "window_frame") if s in words]
+    if building:
+        second = ", ".join(building)
+        sentences.append(second[:1].upper() + second[1:] + ".")
+    ground = [words[s] for s in ("door", "paving", "garden") if s in words]
+    if ground:
+        third = ", ".join(ground)
+        sentences.append(third[:1].upper() + third[1:] + ".")
+    lens = lens_words(lens_mm)
+    if lens is None:
+        warnings.append("no camera lens for the view; prompt names no lens")
+    sentences.append(f"{mood_words}, {EXTERIOR_TAIL}" + (f", {lens}." if lens else "."))
+    return {"prompt": " ".join(sentences), "view_kind": "exterior", "view": view, "family": family, "mood": mood,
+            "looks": words, "lens_mm": float(lens_mm) if lens else None, "warnings": warnings}
