@@ -20,10 +20,15 @@ How (pure Python, tested on the CPU; ``build_site`` makes the Blender objects):
 - ``ground_faces``: the ground region (the plot or a margin around the building, whichever is larger,
   minus the building outline and the light wells) in convex pieces on a grid (``GRID_M``), lifted to
   ``ground_z`` (triangles where the terrain is not flat).
+- ``door_terrain``: an outside door whose bottom lies below the ground outside (a basement door) puts the
+  terrain of its side at its floor (``terrain_model(..., overrides=)``; assumed, in the scene manifest; the
+  drawn ``site.ground`` is never changed, §1.6b row 12).
 - ``light_wells``: a window on an outer wall whose sill lies less than ``LIGHT_WELL_CLEARANCE`` above the
   ground outside it gets an open concrete light well (assumed size), unless one is drawn.
 - plot walls step with the ground (segments of ``PLOT_WALL_STEP_M``); trees are a trunk and a low-poly
   crown sized from the drawn crown (height assumed); cars and other site decor are listed, not built.
+- ``build_site``: object kinds ``terrain``, ``light_well``, ``site_wall``, ``site_area``, ``site_decor``
+  (§1.6b row 11); the looks come from ``exterior.resolve_looks`` (an area's own drawn material first).
 """
 from __future__ import annotations
 
@@ -32,7 +37,7 @@ from typing import Optional, Sequence
 
 from wenart import geometry as G
 from wenart.blender import geom2d
-from wenart.blender.shell import outward_side  # noqa: F401 - the outward side of a wall (site and exterior use it)
+from wenart.blender.shell import outward_side
 
 GRID_M = 1.0                    # ground grid where the terrain is not flat
 GRID_MAX_CELLS = 80              # per side: a large ground gets a coarser grid
@@ -88,15 +93,41 @@ def nearest_axis(d: Sequence[float]) -> str:
     return max(AXES, key=lambda k: AXES[k][0] * d[0] + AXES[k][1] * d[1])
 
 
+# Drawing-relative sides (docs/milestone10.md §1.6b row 1, $defs/side): front = -Y, back = +Y, left = -X, right = +X.
+DRAWING_SIDES = {"front": (0.0, -1.0), "back": (0.0, 1.0), "left": (-1.0, 0.0), "right": (1.0, 0.0)}
+
+
+def side_direction(side: Optional[str], north: float = 0.0) -> Optional[tuple[float, float]]:
+    """The outward unit vector in the building frame of a ``$defs/side`` (a compass side with the building's
+    ``north`` bearing, or a drawing-relative one); None for ``all`` or an unknown word."""
+    if side in COMPASS:
+        return compass_to_building(COMPASS[side], north)
+    return DRAWING_SIDES.get(str(side)) if side else None
+
+
+def side_of(direction: Sequence[float], north: float = 0.0, north_known: bool = True) -> str:
+    """The ``$defs/side`` an outward direction (building frame) faces within 45 degrees: a compass side when
+    north is known, else front / back / left / right."""
+    if north_known:
+        theta = math.degrees(math.atan2(float(direction[1]), float(direction[0])))
+        bearing = (float(north) + 90.0 - theta) % 360.0
+        return min(COMPASS, key=lambda s: abs((bearing - COMPASS[s] + 180.0) % 360.0 - 180.0))
+    return max(DRAWING_SIDES, key=lambda s: DRAWING_SIDES[s][0] * direction[0] + DRAWING_SIDES[s][1] * direction[1])
+
+
 # --------------------------------------------------------------------------
 # Terrain
 # --------------------------------------------------------------------------
 
-def terrain_model(building: dict, outline: Sequence[Sequence[float]], default_z: float = 0.0) -> dict:
+def terrain_model(building: dict, outline: Sequence[Sequence[float]], default_z: float = 0.0,
+                  overrides: Optional[dict] = None) -> dict:
     """The ground levels around the building (pure; see the module docstring).
 
-    Returns ``{"kind": "flat" | "sides", "z": {axis: z}, "rect": [x0, y0, x1, y1], "sides": [{"side",
-    "axis", "z", "method"}], "assumed": [{"field", "value", "reason"}], "warnings"}``."""
+    ``overrides``: ``{axis: {"z", "reason", "opening_ids"}}`` the build's own terrain changes (``door_terrain``:
+    the ground at a basement door's floor on its side; assumed); a side with a drawn level of its own keeps it
+    (a warning). Returns ``{"kind": "flat" | "sides", "z": {axis: z}, "rect": [x0, y0, x1, y1], "sides":
+    [{"side", "axis", "z", "method"}], "assumed": [{"field", "value", "reason"}], "warnings", "changes":
+    [{"axis", "z", "reason", "opening_ids"}]}``."""
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
     ground = site.get("ground") if isinstance(site.get("ground"), dict) else {}
     north, north_src = north_deg(building)
@@ -133,27 +164,76 @@ def terrain_model(building: dict, outline: Sequence[Sequence[float]], default_z:
             continue
         by_axis.setdefault(axis, []).append(z)
         sides.append({"side": name, "axis": axis, "z": z, "method": method})
+    changes = []
+    for axis, ov in sorted((overrides or {}).items()):
+        if axis in by_axis:
+            warnings.append(f"{', '.join(ov.get('opening_ids') or [])}: below the drawn ground on the {axis} side; "
+                            f"the drawn ground is kept")
+            continue
+        by_axis[axis] = [float(ov["z"])]
+        sides.append({"side": None, "axis": axis, "z": float(ov["z"]), "method": "assumed"})
+        assumed.append({"field": f"ground:{axis}", "value": round(float(ov["z"]), 4), "reason": ov["reason"]})
+        changes.append({"axis": axis, "z": round(float(ov["z"]), 4), "reason": ov["reason"],
+                        "opening_ids": list(ov.get("opening_ids") or [])})
     if not by_axis:
         z = flat_z if flat_z is not None else default_z
         if flat_z is None:
             assumed.append({"field": "ground", "value": z, "reason": "no ground level drawn: the ground is flat at "
                                                                       f"z {z:.2f} (the lowest level above ground)"})
         return {"kind": "flat", "z": {k: z for k in AXES}, "rect": rect, "sides": sides, "assumed": assumed,
-                "warnings": warnings, "north_deg": north, "north_source": north_src}
+                "warnings": warnings, "north_deg": north, "north_source": north_src, "changes": changes}
     zs = {k: sum(v) / len(v) for k, v in by_axis.items()}
     mean = sum(zs.values()) / len(zs)
     for k in AXES:
         if k not in zs:
             zs[k] = flat_z if flat_z is not None else mean
-            assumed.append({"field": f"ground:{k}", "value": round(zs[k], 4),
-                            "reason": "no ground level drawn on this side: the mean of the drawn sides"})
+            if flat_z is None:                     # a drawn "all" level holds for the sides without their own
+                assumed.append({"field": f"ground:{k}", "value": round(zs[k], 4),
+                                "reason": "no ground level drawn on this side: the mean of the drawn sides"})
     kind = "flat" if max(zs.values()) - min(zs.values()) < 1e-6 else "sides"
     if kind == "sides":
         assumed.append({"field": "terrain_slope", "value": "between the sides",
                         "reason": "the ground between two sides of different level slopes around the building "
                                   "corner (no retaining wall drawn)"})
     return {"kind": kind, "z": zs, "rect": rect, "sides": sides, "assumed": assumed, "warnings": warnings,
-            "north_deg": north, "north_source": north_src}
+            "north_deg": north, "north_source": north_src, "changes": changes}
+
+
+def door_terrain(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]]
+                 ) -> dict:
+    """The build's terrain changes for outside doors below the ground (pure; §3.2 item 5): a door on an outer
+    wall whose bottom lies more than ``LIGHT_WELL_CLEARANCE`` under the ground outside (a basement door) puts
+    the terrain of its side at its floor: ``{axis: {"z", "reason", "opening_ids"}}`` (the lowest door of a
+    side), for ``terrain_model(..., overrides=)``."""
+    from wenart.blender.shell import opening_centre_on_wall, opening_vertical
+
+    ids = {lv["id"] for lv in levels}
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") in ids}
+    out: dict = {}
+    for o in building.get("openings") or []:
+        lv = next((lv for lv in levels if lv["id"] == o.get("level_id")), None)
+        wall = walls.get(o.get("wall_id"))
+        if lv is None or wall is None or o.get("type") != "door":
+            continue
+        cx, cy, _ = opening_centre_on_wall(o, wall)
+        side = outward_side(wall, outline, (cx, cy))
+        if side is None:
+            continue
+        levels_above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels)
+        bottom, _top, _ = opening_vertical(o, lv, levels_above)
+        half_t = float(wall["thickness"]) / 2.0
+        gz = ground_z(terrain, cx + side[0] * (half_t + 0.3), cy + side[1] * (half_t + 0.3))
+        if bottom >= gz - LIGHT_WELL_CLEARANCE:
+            continue
+        axis = nearest_axis(side)
+        rec = out.setdefault(axis, {"z": bottom, "opening_ids": []})
+        rec["z"] = min(rec["z"], bottom)
+        rec["opening_ids"].append(o["id"])
+    for axis, rec in out.items():
+        rec["reason"] = (f"outside door {', '.join(rec['opening_ids'])} below the ground: the terrain on the {axis} "
+                         f"side at its floor ({rec['z']:.2f} m), sloping to the drawn ground around the building "
+                         f"corners (no retaining wall drawn)")
+    return out
 
 
 def ground_z(model: dict, x: float, y: float) -> float:
@@ -166,7 +246,9 @@ def ground_z(model: dict, x: float, y: float) -> float:
     dy = -1 if y < y0 else (1 if y > y1 else 0)
     if dx == 0 and dy == 0:                           # under the building: the nearest side
         d = {"-x": x - x0, "+x": x1 - x, "-y": y - y0, "+y": y1 - y}
-        return float(z[min(d, key=d.get)])
+        near = min(d.values())
+        # A building corner belongs to two sides: the lower one (the ground never rises over a door there).
+        return float(min(z[k] for k in d if d[k] <= near + 1e-9))
     if dy == 0:
         return float(z["+x" if dx > 0 else "-x"])
     if dx == 0:
@@ -300,7 +382,7 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
         if out is None:
             continue
         levels_above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels)
-        bottom, top, _ = opening_vertical(o, lv, levels_above)
+        bottom, _top, _ = opening_vertical(o, lv, levels_above)
         half_t = float(wall["thickness"]) / 2.0
         probe = (cx + out[0] * (half_t + 0.3), cy + out[1] * (half_t + 0.3))
         gz = ground_z(terrain, *probe)
@@ -459,6 +541,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     lowest = min(levels, key=lambda lv: float(lv["elevation"])) if levels else None
     default_z = 0.0 if lowest is None or float(lowest["elevation"]) < 0 else float(lowest["elevation"])
     terrain = terrain_model(building, outline, default_z)
+    doors = door_terrain(building, levels, terrain, outline)
+    if doors:                                   # the basement doors' sides at their floor (assumed)
+        terrain = terrain_model(building, outline, default_z, overrides=doors)
     plot, plot_src = plot_polygon(building) if mode == "full" else ([], "none")
     extent = ground_extent(outline, plot)
     wells, warnings = light_wells(building, levels, terrain, outline)
@@ -484,7 +569,8 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                     ground_is_grass = True          # the grass covers the plot: the ground takes it
                     continue
                 areas.append({"id": a.get("id"), "kind": kind, "polygon": poly, "z": a.get("z"),
-                              "material": a.get("material"), "source": a.get("source"), "lift": lift})
+                              "material": a.get("material"), "colour": a.get("colour"), "source": a.get("source"),
+                              "area_id": a.get("area_id"), "lift": lift})
         for item in _built(site.get("decor")):
             if item.get("kind") in ("tree", "plant"):
                 trees.append(item)
@@ -495,9 +581,10 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             if isinstance(item, dict):
                 not_built.append({"id": item.get("id"), "kind": "site_opening",
                                   "reason": "gates in the plot walls are not built (the wall is closed)"})
-        for a in _built(site.get("areas")):
-            not_built.append({"id": a.get("id"), "kind": f"area:{a.get('kind')}",
-                              "reason": "exterior label: its surface is built from site.paving / parking / grass"})
+        for a in site.get("areas") or []:            # label records (build: false, §1.6b row 12)
+            if isinstance(a, dict):
+                not_built.append({"id": a.get("id"), "kind": f"area:{a.get('kind')}",
+                                  "reason": "exterior label: its surface is built from site.paving / parking / grass"})
     else:
         not_built.append({"id": None, "kind": "site", "reason": "brief site: ground (the ground plane and the "
                                                                 "light wells only)"})
@@ -506,11 +593,26 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass}
 
 
-def build_site(plan: dict, collection, materials: dict, manifest_objects: list, assumed: list) -> dict:
-    """The site objects of ``site_plan`` (kind ``site``): ``ground``, ``lightwell_<opening>``, the plot walls
-    (their ids), the areas (their ids) and ``tree_<id>`` (trunk and crown in one object, two slots).
-    ``materials``: Blender materials by look name (``ground``, ``grass``, ``paving``, ``parking``,
-    ``plot_wall``, ``light_well``, ``bark``, ``foliage``). Returns the summary for the scene manifest."""
+# The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
+AREA_LOOKS = {"grass": "garden", "paving": "paving", "parking": "paving"}
+
+
+def area_look(area: dict, looks: dict) -> dict:
+    """The look of a built site area (pure): its own drawn ``material`` / ``colour`` (documents), else the
+    resolved look of its kind (``AREA_LOOKS``)."""
+    if area.get("material"):
+        return {"material": area["material"], "colour": area.get("colour"), "source": "documents",
+                "assumed": False, "reason": f"site {area['kind']} {area.get('id')}: drawn material"}
+    return looks[AREA_LOOKS.get(area["kind"], "paving")]
+
+
+def build_site(plan: dict, collection, looks: dict, make_material, manifest_objects: list, assumed: list) -> dict:
+    """The site objects of ``site_plan``: the ground (kind ``terrain``), ``lightwell_<opening>`` (kind
+    ``light_well``), the plot walls (``site_wall``, their ids), the areas (``site_area``, their ids) and
+    ``tree_<id>`` (``site_decor``: trunk and crown in one object, two slots). ``looks``: the resolved looks
+    (``exterior.resolve_looks``: ``garden``, ``paving``, ``plot_wall``, ``light_well``, ``bark``, ``foliage``,
+    ``ground``); ``make_material(look)`` gives the Blender material. Returns the summary for the scene
+    manifest (with the build's terrain changes for basement doors and the light wells)."""
     from wenart.blender import common
 
     terrain = plan["terrain"]
@@ -518,39 +620,46 @@ def build_site(plan: dict, collection, materials: dict, manifest_objects: list, 
     summary = {"built": True, "mode": plan["mode"], "objects": [],
                "reason": f"brief site: {plan['mode']} (docs/milestone10.md §3.2 item 5)", "terrain": {
         "kind": terrain["kind"], "z": {k: round(v, 4) for k, v in terrain["z"].items()}, "sides": terrain["sides"],
-        "north_deg": terrain["north_deg"], "north_source": terrain["north_source"]},
+        "north_deg": terrain["north_deg"], "north_source": terrain["north_source"],
+        "changes": terrain.get("changes") or []},
+        "light_wells": [{"opening_id": w["opening_id"], "level_id": w["level_id"], "source": w["source"],
+                         "floor_z": round(w["floor_z"], 4), "top_z": round(w["top_z"], 4), "reason": w["reason"]}
+                        for w in plan["wells"]],
         "plot_source": plan["plot_source"], "not_built": plan["not_built"], "warnings": plan["warnings"]}
 
-    def entry(name, wid, mat, status, extra):
-        manifest_objects.append({"name": name, "wenart_id": wid, "kind": "site", "status": status, "level_id": None,
+    def entry(name, wid, kind, mat, status, extra):
+        manifest_objects.append({"name": name, "wenart_id": wid, "kind": kind, "status": status, "level_id": None,
                                  "element_id": wid, "evidence": [], "material": mat.name if mat else None,
                                  "textured": False, "pass_index": None, **extra})
         summary["objects"].append(name)
 
-    ground_mat = materials["grass" if plan["ground_is_grass"] or plan["mode"] == "full" else "ground"]
+    ground_look = looks["garden"] if plan["ground_is_grass"] or plan["mode"] == "full" else looks["ground"]
+    ground_mat = make_material(ground_look)
     verts, faces = draped_faces(plan["extent"], holes, terrain)
-    ob = common.new_mesh_object("ground", verts, faces, collection=collection, wenart_id="ground", kind="site",
+    ob = common.new_mesh_object("ground", verts, faces, collection=collection, wenart_id="ground", kind="terrain",
                                 status="assumed", materials=[ground_mat])
     zs = [v[2] for v in verts] or [0.0]
-    entry(ob.name, "ground", ground_mat, "assumed",
+    entry(ob.name, "ground", "terrain", ground_mat, "assumed",
           {"assumed": {"extent": [list(p) for p in plan["extent"]], "terrain": terrain["kind"],
                        "reason": "ground plane around the building (the levels per side as drawn, the rest assumed)"},
-           "z_range": [round(min(zs), 4), round(max(zs), 4)]})
+           "z_range": [round(min(zs), 4), round(max(zs), 4)], "look_source": ground_look.get("source")})
+    well_mat = make_material(looks["light_well"])
     for w in plan["wells"]:
         v, f = light_well_faces(w)
         name = f"lightwell_{w['opening_id']}"
-        ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site",
-                                    status="verified" if w["source"] == "drawn" else "assumed",
-                                    materials=[materials["light_well"]])
-        entry(ob.name, name, materials["light_well"], "verified" if w["source"] == "drawn" else "assumed",
+        status = "verified" if w["source"] == "drawn" else "assumed"
+        ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="light_well",
+                                    status=status, materials=[well_mat])
+        entry(ob.name, name, "light_well", well_mat, status,
               {"assumed": {} if w["source"] == "drawn" else {"reason": w["reason"]}, "parent": w["opening_id"],
                "z_range": [round(w["floor_z"], 4), round(w["top_z"] + DEFAULTS["light_well_curb"], 4)]})
+    wall_mat = make_material(looks["plot_wall"]) if plan["plot_walls"] else None
     for wall in plan["plot_walls"]:
         v, f, info = plot_wall_parts(wall, terrain)
         wid = str(wall.get("id") or f"plot_wall_{len(summary['objects'])}")
-        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site",
-                                    status="verified", materials=[materials["plot_wall"]])
-        entry(ob.name, wid, materials["plot_wall"], "verified",
+        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_wall",
+                                    status="verified", materials=[wall_mat])
+        entry(ob.name, wid, "site_wall", wall_mat, "verified",
               {"evidence": wall.get("evidence") or [], "z_range": info["z_range"], "segments": info["segments"],
                "assumed": {"height": info["height"]} if info["height_assumed"] else {}})
         if info["height_assumed"]:
@@ -561,23 +670,26 @@ def build_site(plan: dict, collection, materials: dict, manifest_objects: list, 
         v, f = draped_faces(area["polygon"], holes, terrain, lift=area["lift"], z=z)
         if not f:
             continue
-        mat = materials[area["kind"]]
+        look = area_look(area, looks)
+        mat = make_material(look)
         wid = str(area.get("id") or f"{area['kind']}_{len(summary['objects'])}")
         status = "assumed" if area.get("source") == "assumed" else "verified"
-        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site", status=status,
+        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_area", status=status,
                                     materials=[mat])
-        entry(ob.name, wid, mat, status, {"assumed": {"lift_m": area["lift"]} if z is not None else
-                                          {"lift_m": area["lift"], "draped": True},
-                                          "area_kind": area["kind"], "slug": area.get("material")})
+        entry(ob.name, wid, "site_area", mat, status,
+              {"assumed": {"lift_m": area["lift"]} if z is not None else {"lift_m": area["lift"], "draped": True},
+               "area_kind": area["kind"], "area_id": area.get("area_id"), "slug": look.get("material"),
+               "colour": look.get("colour"), "look_source": look.get("source")})
+    bark, foliage = (make_material(looks["bark"]), make_material(looks["foliage"])) if plan["trees"] else (None, None)
     for item in plan["trees"]:
         parts = tree_parts(item, terrain)
         wid = f"tree_{item.get('id') or len(summary['objects'])}"
         meshes = [m for m in (parts["trunk"], parts["crown"]) if m is not None]
         v, f = geom2d.merge(meshes)
         slots = ([0] * len(parts["trunk"][1]) if parts["trunk"] else []) + [1] * len(parts["crown"][1])
-        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site", status="assumed",
-                                    materials=[materials["bark"], materials["foliage"]], face_material_indices=slots)
-        entry(ob.name, wid, materials["foliage"], "assumed",
+        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_decor",
+                                    status="assumed", materials=[bark, foliage], face_material_indices=slots)
+        entry(ob.name, wid, "site_decor", foliage, "assumed",
               {"evidence": item.get("evidence") or [], "parent": item.get("id"),
                "assumed": {"height_m": parts["height"], "reason": parts["reason"]}, "site_kind": item.get("kind")})
         assumed.append({"object": wid, "field": "tree", "value": parts["height"], "reason": parts["reason"],
