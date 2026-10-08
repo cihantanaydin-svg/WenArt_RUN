@@ -573,6 +573,10 @@ def _h_doors(ph: _Phrase, frag: Frag) -> int:
     return 1 if look else 0
 
 
+# Metal frame looks of finishes.WINDOW_FRAME_MATERIALS: a metal word with a colour that has its own metal look takes it.
+METAL_FRAMES = ("aluminium_anthracite", "steel_black", "dark_bronze")
+
+
 def _frame_look(ph: _Phrase, frag: Frag) -> dict:
     """The window-frame words of a fragment: ``{material, colour}`` (empty when nothing is named)."""
     word = O.first_span(frag.sub, O.FRAME_WORDS, taken=frag.claimed)
@@ -587,6 +591,8 @@ def _frame_look(ph: _Phrase, frag: Frag) -> dict:
         by_colour = None if mods else FIN.FRAME_COLOUR_MATERIALS.get(name)
         if material is None:
             material = by_colour or "painted_metal_white"
+        elif material in METAL_FRAMES and by_colour in METAL_FRAMES:
+            material = by_colour                                # e.g. dark bronze aluminium: the dark bronze metal
         elif material not in ("painted_metal_white", "oak") and by_colour != material:
             material = "painted_metal_white"                    # e.g. white aluminium: painted metal in that colour
         if material == "oak":

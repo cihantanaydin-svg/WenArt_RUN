@@ -193,7 +193,8 @@ def test_resolve_looks_documents_brief_style_fallback():
     looks = E.resolve_looks(EXAMPLE, style, brief)
     assert (looks["facade"]["material"], looks["facade"]["colour"], looks["facade"]["source"]) == \
         ("render", "white", "brief")
-    assert (looks["roof"]["material"], looks["roof"]["colour"]) == ("clay_tiles", "red")
+    # Track C's tables: a clay roof keeps the colour of its photo texture (the colour word is a warning).
+    assert (looks["roof"]["material"], looks["roof"]["colour"]) == ("clay_tiles", None)
     assert looks["paving"]["source"] == "fallback" and "nice" in looks["paving"]["warnings"][0]
     # the documents win over everything: a drawn whole facade and a drawn roof covering
     b = copy.deepcopy(EXAMPLE)
@@ -211,8 +212,8 @@ def test_resolve_looks_documents_brief_style_fallback():
 def test_look_words():
     assert E.look_from_words("facade", "Light grey fibre cement panels") == {"material": "fibre_cement",
                                                                              "colour": "light grey"}
-    assert E.look_from_words("window_frame", "anthracite aluminium") == {"material": "aluminium",
-                                                                         "colour": "anthracite"}
+    assert E.look_from_words("window_frame", "anthracite aluminium") == {"material": "aluminium_anthracite",
+                                                                         "colour": None}      # track C's slug
     assert E.look_from_words("roof", "something else") is None
 
 

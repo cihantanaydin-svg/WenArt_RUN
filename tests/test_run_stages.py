@@ -187,7 +187,9 @@ def test_golden_commands_cpu_stages():
     # refit: the library style filter of the final style (M7 §6.3); fit stays style-free.
     assert S.refit(TOOLS, REF) == ["PY", "-m", "wenart.furniture.fit", f"{O}/building_decor.json", "--catalog",
                                    "wenart/furniture/catalog.json", "--out", f"{O}/building_final.json",
-                                   "--assets", "/workspace/assets", "--style", f"{O}/style.json"]
+                                   "--assets", "/workspace/assets", "--style", f"{O}/style.json",
+                                   "--source", f"{O}/building.json"]          # M10: the locked check
+    assert S.refit(TOOLS, REF, completion=True)[-2:] == ["--completion", f"{O}/completion.json"]
     assert "--style" not in S.fit(TOOLS, REF)
     assert S.expected(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "expected", "--project-out", O]
     assert S.plan_crops(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "plan-crops", "--project-out", O]

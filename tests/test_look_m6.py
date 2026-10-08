@@ -69,7 +69,9 @@ def test_piece_boxes_of_every_type_are_the_milestone_5_boxes():
     """docs/milestone6.md §5 row 8: the bedding, fronts and bevel change no box of any type."""
     table = _m5_box_table()
     # Milestone 7 types (docs/milestone7.md §6.4) are newer than the M5 table; every M5 box still matches.
-    types = (set(P.PARAMETRIC_TYPES) - {"stair", "side_table", "floor_lamp", "potted_plant"}) | {"unknown"}
+    m10 = {"sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib",
+           "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet"}   # M10 types
+    types = (set(P.PARAMETRIC_TYPES) - {"stair", "side_table", "floor_lamp", "potted_plant"} - m10) | {"unknown"}
     assert {k.split("|")[0] for k in table} == types
     for key, want in table.items():
         ftype, size, height = key.split("|")

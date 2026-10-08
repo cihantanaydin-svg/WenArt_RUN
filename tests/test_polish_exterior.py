@@ -71,7 +71,8 @@ def test_each_view_kind_has_its_own_words():
 
 def test_every_slug_the_build_can_resolve_has_exterior_words():
     """A new slug without words fails here instead of reaching a prompt as a raw slug."""
-    slugs = {slot: {slug for _, slug in table} for slot, table in BE.EXTERIOR_WORDS.items()}
+    from wenart.style import finishes as FIN                 # track C's exterior slugs per slot (Milestone 10)
+    slugs = {slot: set(names) for slot, names in FIN.EXTERIOR_MATERIALS.items()}
     for slot, fb in BE.EXTERIOR_FALLBACK.items():
         if isinstance(fb, dict):
             slugs.setdefault(slot, set()).add(fb["material"])

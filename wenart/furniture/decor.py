@@ -55,6 +55,20 @@ and prayer-room rule, only around verified, built pieces of a verified room:
   nominal depth into the room, ``rotation_deg`` turns local -Y into the room.
   Wall art is built only from a library decor model (``fit.fit_decor_item``).
 - Rugs and wall art may be larger than ``MAX_DECOR_M`` (``LARGE_DECOR_TYPES``).
+
+Milestone 10 (docs/milestone10.md §4.6, §1.6b rows 18, 20; track F):
+
+- The 12 new decor types are in ``DECOR_TYPES`` (the AI decorator places them, ``decor_ai``); curtains, blinds,
+  throws, large plants, floor sculptures and pendants may pass the 0.6 m cap.
+- Host tables of the new furniture types: a corner sofa takes cushions along its back like a sofa
+  (``host_decor``), wall art above it, and its rug lies in the inner corner (in front of the main seat beside the
+  chaise, with the coffee table); tall, wall, shoe and display cabinets and sideboards are rug blockers.
+- Partners (``partner_rooms``, ``copy_partner_decor``): a room with ``same_as`` (an alternative level's room equal
+  to a base room) and, with ``render.twin_rooms: one`` (the default), the second twin of a mirrored pair
+  (``twin_of``) are not decorated themselves: the partner's decor is copied onto them (mirrored for twins, through
+  ``wenart.furniture.complete.partner_transform``) with ``mirrored_from``; host pieces, rug and wall-art anchors and
+  curtain windows are mapped to the room's own (an item whose piece or window has no counterpart is dropped and
+  listed). A partner that cannot be verified leaves the room to be decorated itself (listed).
 """
 from __future__ import annotations
 
@@ -76,8 +90,14 @@ from wenart.furniture import placer
 DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art",
                                  # Milestone 9 (docs/milestone9.md §3): tabletop decor and the wall mirror; the AI
                                  # decorator (wenart/furniture/decor_ai.py) places them, the rules never do.
-                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")
-LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror")   # not held to MAX_DECOR_M (Milestone 8, 9)
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror",
+                                 # Milestone 10 (docs/milestone10.md §4.6): the AI decorator's slots place them.
+                                 "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
+                                 "sculpture", "plant_large", "pendant_light", "ceiling_light")
+# Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
+# sculptures, pendants on their cord).
+LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
+                                      "sculpture", "pendant_light")
 MAX_DECOR_M = 0.6
 CUSHION_SIZE = (0.45, 0.15)       # standing against a sofa back
 PILLOW_SIZE = (0.5, 0.3)          # lying at the head of a bed
@@ -90,7 +110,9 @@ CORNER_INSET_M = 0.25             # plant centre from each wall of the corner
 HOST_TYPES: dict[str, str] = {    # host type -> decor type
     "sofa": "cushion", "bed_double": "cushion", "bed_single": "cushion",
     "bookshelf": "book_set", "desk": "book_set",
+    "sofa_corner": "cushion",     # Milestone 10: cushions along the L's back, as a sofa
 }
+CORNER_SOFA_CUSHION_PITCH_M = 0.6  # Milestone 10: one cushion per this much of a corner sofa's back
 # Milestone 8 rugs (docs/milestone8.md §4).
 RUG_MARGIN_M = 0.3                # the group box grows by this on every side
 RUG_ROOM_INSET_M = 0.3            # ... and is clipped to the room shrunk by this
@@ -104,10 +126,13 @@ BED_RUG_ROOM_TYPES: tuple[str, ...] = ("bedroom",)
 # Pieces a rug never runs under (fixed equipment, tall storage, bathroom and kitchen pieces, unknown symbols).
 RUG_BLOCKER_TYPES: tuple[str, ...] = (
     "stair", "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washing_machine", "wardrobe",
-    "bookshelf", "bathtub", "shower", "toilet", "washbasin", "unknown")
+    "bookshelf", "bathtub", "shower", "toilet", "washbasin", "unknown",
+    # Milestone 10: storage standing on the floor (and wall cabinets, over the counter run anyway)
+    "tall_cabinet", "wall_cabinet", "shoe_cabinet", "display_cabinet", "sideboard")
+LIVING_RUG_SOFAS: tuple[str, ...] = ("sofa", "sofa_corner")      # Milestone 10: a corner sofa groups like a sofa
 # Milestone 8 wall art.
 WALL_ART_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom", "dining")
-WALL_ART_HOST_TYPES: tuple[str, ...] = ("sofa", "bed_double", "bed_single", "dresser")   # in this order
+WALL_ART_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "bed_double", "bed_single", "dresser")   # in order
 WALL_ART_GAP_M = 0.25             # bottom edge above the piece top
 WALL_ART_WIDTH_SHARE = 0.6        # width <= this x the piece width
 WALL_ART_MAX_W = 1.5
@@ -139,7 +164,14 @@ def host_decor(host: dict) -> list[dict]:
     rot = host["footprint"]["rotation_deg"]
     kind = HOST_TYPES.get(host["type"])
     items = []
-    if kind == "cushion" and host["type"] == "sofa":
+    if kind == "cushion" and host["type"] == "sofa_corner":
+        n = max(2, int(w / CORNER_SOFA_CUSHION_PITCH_M))
+        for i in range(n):
+            x = -w / 2.0 + w * (i + 0.5) / n
+            centre = _local_to_building(host, x, d / 2.0 - CUSHION_SIZE[1] / 2.0 - 0.1)
+            items.append({"type": "cushion", "center": centre, "rotation_deg": rot, "size": list(CUSHION_SIZE),
+                          "reason": "cushion against the corner sofa's back"})
+    elif kind == "cushion" and host["type"] == "sofa":
         for x in (-w / 4.0, w / 4.0):
             items.append({"type": "cushion", "center": _local_to_building(host, x, d / 2.0 - CUSHION_SIZE[1] / 2.0 - 0.1),
                           "rotation_deg": rot, "size": list(CUSHION_SIZE), "reason": "cushion against the sofa back"})
@@ -158,8 +190,9 @@ def host_decor(host: dict) -> list[dict]:
     return items
 
 
-def _corner_candidates(ctx: placer.RoomContext) -> list[tuple[float, float]]:
-    """Plant centres inset from every convex corner of the room, in boundary order."""
+def _corner_candidates(ctx: placer.RoomContext, inset: float = CORNER_INSET_M) -> list[tuple[float, float]]:
+    """Plant centres inset (``inset`` from each wall; Milestone 10: a larger item insets more) from every convex
+    corner of the room, in boundary order."""
     segs = ctx.segments
     out = []
     for i in range(len(segs)):
@@ -171,8 +204,8 @@ def _corner_candidates(ctx: placer.RoomContext) -> list[tuple[float, float]]:
         cross = u_prev[0] * u_next[1] - u_prev[1] * u_next[0]
         if cross >= -1e-9:          # reflex or straight corner (CCW ring): not a corner to stand in
             continue
-        out.append((round(corner[0] + (u_prev[0] + u_next[0]) * CORNER_INSET_M, 3),
-                    round(corner[1] + (u_prev[1] + u_next[1]) * CORNER_INSET_M, 3)))
+        out.append((round(corner[0] + (u_prev[0] + u_next[0]) * inset, 3),
+                    round(corner[1] + (u_prev[1] + u_next[1]) * inset, 3)))
     return out
 
 
@@ -310,6 +343,24 @@ def _rug_item(ctx: placer.RoomContext, frame_piece: dict, group: list[dict], reg
             "size": [w, d], "anchor_ids": [p["id"] for p in group], "reason": reason + cut}, "ok"
 
 
+def inner_corner_region(sofa: dict, table: dict) -> tuple[float, float, float, float]:
+    """Milestone 10: the rug region of a corner sofa group in the sofa's frame (pure): from the chaise's inner edge
+    (``schemas.l_parts``) across the free inner corner in front of the main seat, down to the coffee table's far
+    edge; the table's own box is always inside."""
+    from wenart.blender import parametric as P
+
+    fp = sofa["footprint"]
+    side = sofa.get("chaise_side") if sofa.get("chaise_side") in ("left", "right") else "right"
+    main, chaise = P.l_parts(fp["size"], side, sofa.get("chaise_depth"), sofa.get("seat_depth"),
+                             sofa.get("chaise_width"))
+    tx0, ty0, tx1, ty1 = _local_bounds([table], fp["center"], float(fp["rotation_deg"]))
+    if side == "right":
+        x0, x1 = main[0], chaise[0]
+    else:
+        x0, x1 = chaise[1], main[1]
+    return (min(x0, tx0), min(chaise[2], ty0), max(x1, tx1), main[2])
+
+
 def rug_polygon(item: dict) -> Polygon:
     return placer.Piece("rug", tuple(item["center"]), item["rotation_deg"], tuple(item["size"]), False).polygon()
 
@@ -332,7 +383,7 @@ def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[li
     if room.get("room_type") in LIVING_RUG_ROOM_TYPES:
         tables = [f for f in usable if f["type"] == "table_coffee"]
         group = None
-        for sofa in sorted((f for f in usable if f["type"] == "sofa"),
+        for sofa in sorted((f for f in usable if f["type"] in LIVING_RUG_SOFAS),
                            key=lambda f: (-float(f["footprint"]["size"][0]), f["id"])):
             fp = sofa["footprint"]
             sw, sd = (float(v) for v in fp["size"])
@@ -349,10 +400,12 @@ def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[li
             sofa, members, key = group
             fp = sofa["footprint"]
             region = _local_bounds(members, fp["center"], float(fp["rotation_deg"]))
+            if sofa["type"] == "sofa_corner":
+                region = inner_corner_region(sofa, members[1])
             item, why = _rug_item(ctx, sofa, members, region, key, furniture, placed,
                                   "rug under the sofa and coffee table group")
             add(item, why, f"under {sofa['id']} + {members[1]['id']}")
-        elif any(f["type"] == "sofa" for f in usable):
+        elif any(f["type"] in LIVING_RUG_SOFAS for f in usable):
             notes.append("no rug: no coffee table in front of a sofa")
     if room.get("room_type") in BED_RUG_ROOM_TYPES:
         for bed in sorted((f for f in usable if f["type"] == "bed_double"), key=lambda f: f["id"]):
@@ -509,10 +562,22 @@ def add_decor(building: dict) -> tuple[dict, list[dict]]:
         counters[level_id] = counters.get(level_id, 0) + 1
         return f"dec_{level_id}_{counters[level_id]:03d}"
 
+    targets, notes = copy_targets(out)
     for room, pieces in rooms_with_pieces(out):
+        if room["id"] in targets:
+            continue
         items, row = rule_decor_room(out, room, pieces, new_id)
         out["decor"].extend(items)
         rows.append(row)
+    copies, copy_notes = copy_partner_decor(out, out["decor"], targets, new_id)
+    out["decor"].extend(copies)
+    for rid, (pid, kind, _t) in sorted(targets.items()):
+        room = next(r for r in out["rooms"] if r["id"] == rid)
+        rows.append({"room_id": rid, "label": room["label"], "cushions": "-", "books": "-", "plant": "-", "rugs": "-",
+                     "wall_art": "-", "note": f"decor copied from {pid} ({kind}): "
+                                              f"{sum(1 for c in copies if c['room_id'] == rid)} item(s)"})
+    for note in notes + copy_notes:
+        rows.append({"room_id": "-", "label": "-", "note": note})
     return out, rows
 
 
@@ -584,6 +649,125 @@ def _large_item(item_id: str, room: dict, item: dict) -> dict:
         if key in item:
             out[key] = item[key]
     return out
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: partners (same_as rooms, second twins) take a copy of their partner's decor
+# --------------------------------------------------------------------------
+
+PARTNER_WINDOW_TOL_M = 0.15       # a mapped window centre within this of the room's own window
+PARTNER_PIECE_TOL_M = 0.10        # a mapped piece centre within this of the room's own piece of the same type
+
+
+def partner_rooms(building: dict) -> dict[str, tuple[str, str]]:
+    """``{room id: (partner room id, "same_as" | "twin")}`` of the rooms that take their partner's decor:
+    ``same_as`` rooms always, second twins (``twin_of``) with ``render.twin_rooms: one`` (the building's stored
+    brief or the default, ``wenart.views.brief_value``)."""
+    from wenart import views as VW
+
+    twin_rooms, _assumed = VW.brief_value(building, None, "render.twin_rooms")
+    ids = {r["id"] for r in building.get("rooms") or []}
+    out = {}
+    for room in building.get("rooms") or []:
+        if room.get("same_as") in ids:
+            out[room["id"]] = (room["same_as"], "same_as")
+        elif room.get("twin_of") in ids and str(twin_rooms or "one") == "one":
+            out[room["id"]] = (room["twin_of"], "twin")
+    return out
+
+
+def copy_targets(building: dict) -> tuple[dict, list[str]]:
+    """``({room id: (partner id, kind, transform)}, notes)``: the partner rooms whose map onto the room is verified
+    (``complete.partner_transform``); a room whose partner does not map stays to be decorated itself (noted)."""
+    from wenart.furniture import complete as CP
+
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    out, notes = {}, []
+    for rid, (pid, kind) in sorted(partner_rooms(building).items()):
+        t, why = CP.partner_transform(rooms[rid], rooms[pid], "same_as" if kind == "same_as" else "twin", building)
+        if t is None:
+            notes.append(f"{rid}: its {kind} partner {pid} cannot be mapped ({why}); decorated itself")
+            continue
+        out[rid] = (pid, kind, t)
+    return out, notes
+
+
+def _piece_map(building: dict, room: dict, partner_id: str, t) -> dict[str, str]:
+    """Partner piece id -> the room's piece id: a piece copied from it (``mirrored_from``), else the room's piece of the
+    same type whose centre the map puts the partner's within ``PARTNER_PIECE_TOL_M``."""
+    mine = [f for f in building.get("furniture") or [] if f.get("room_id") == room["id"]]
+    out = {}
+    for f in building.get("furniture") or []:
+        if f.get("room_id") != partner_id:
+            continue
+        copied = next((m for m in mine if m.get("mirrored_from") == f["id"]), None)
+        if copied is None:
+            c = t.point(f["footprint"]["center"])
+            near = [(G.distance(c, m["footprint"]["center"]), m["id"]) for m in mine if m["type"] == f["type"]]
+            near = [x for x in near if x[0] <= PARTNER_PIECE_TOL_M]
+            copied = {"id": min(near)[1]} if near else None
+        if copied is not None:
+            out[f["id"]] = copied["id"]
+    return out
+
+
+def _window_map(building: dict, room: dict, t) -> dict[str, str]:
+    windows = [o for o in building.get("openings") or [] if o.get("level_id") == room["level_id"]
+               and o.get("type") == "window"]
+    out = {}
+    for o in building.get("openings") or []:
+        if o.get("type") != "window":
+            continue
+        c = t.point(o["center"])
+        near = [(G.distance(c, w["center"]), w["id"]) for w in windows]
+        near = [x for x in near if x[0] <= PARTNER_WINDOW_TOL_M]
+        if near:
+            out[o["id"]] = min(near)[1]
+    return out
+
+
+def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id) -> tuple[list[dict], list[str]]:
+    """The decor of every target room (``copy_targets``) copied from its partner's ``items`` (``mirrored_from`` =
+    the partner item's id; centre, wall point and rotation through the map; host, anchors and window mapped,
+    ``wall_id`` the room's nearest wall) and the notes of the items that could not be copied."""
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    out, notes = [], []
+    for rid, (pid, kind, t) in sorted(targets.items()):
+        room = rooms[rid]
+        pieces = _piece_map(building, room, pid, t)
+        windows = _window_map(building, room, t)
+        for item in items:
+            if item.get("room_id") != pid:
+                continue
+            new = json.loads(json.dumps(item))
+            missing = []
+            if item.get("host_id") is not None:
+                new["host_id"] = pieces.get(item["host_id"])
+                if new["host_id"] is None:
+                    missing.append(f"host {item['host_id']}")
+            if item.get("anchor_ids"):
+                new["anchor_ids"] = [pieces.get(a) for a in item["anchor_ids"]]
+                if None in new["anchor_ids"]:
+                    missing.append(f"anchors {item['anchor_ids']}")
+            if item.get("window_id"):
+                new["window_id"] = windows.get(item["window_id"])
+                if new["window_id"] is None:
+                    missing.append(f"window {item['window_id']}")
+            if missing:
+                notes.append(f"{rid}: {item['type']} {item['id']} of {pid} not copied (no counterpart for "
+                             f"{', '.join(missing)})")
+                continue
+            c = t.point(item["center"][:2])
+            new["center"] = [round(c[0], 3), round(c[1], 3)] + list(item["center"][2:])
+            new["rotation_deg"] = round(t.rotation(float(item.get("rotation_deg") or 0.0)), 3)
+            if item.get("wall_point"):
+                wp = t.point(item["wall_point"])
+                new["wall_point"] = [round(wp[0], 3), round(wp[1], 3)]
+                new["wall_id"] = _nearest_wall_id(building, room["level_id"], wp)
+            new.update(id=new_id(room["level_id"]), level_id=room["level_id"], room_id=rid, mirrored_from=item["id"],
+                       reason=f"copied from {item['id']} of {pid} ({'mirrored twin' if kind == 'twin' else 'same as'})")
+            out.append(new)
+    return out, notes
 
 
 def decor_report(building: dict, rows: list[dict]) -> str:

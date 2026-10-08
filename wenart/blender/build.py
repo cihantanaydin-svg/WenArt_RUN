@@ -281,6 +281,13 @@ def referenced_asset_ids(building: dict, style: dict) -> list[str]:
         entry = style.get(slot)
         if isinstance(entry, dict) and entry.get("asset"):
             ids.add(str(entry["asset"]))
+    # Milestone 10 (track F): every texture the profile uses (accent wall, outside frames, cabinet and furniture
+    # woods, worktops, handles, pots, the exterior looks; wenart.style.profile.assets_in_profile).
+    try:
+        from wenart.style.profile import assets_in_profile
+        ids.update(str(asset_id) for _src, asset_id, _slug in assets_in_profile(style)["textures"])
+    except (ImportError, AttributeError, TypeError):
+        pass
     hdri = (style.get("lighting") or {}).get("hdri")
     if hdri:
         ids.add(str(hdri))

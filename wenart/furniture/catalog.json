@@ -1729,6 +1729,76 @@
       "reason": "documented-only type (docs/milestone7.md §6.4-6.5): the decor plant scaled to the drawn footprint, built by wenart.blender; until the Objaverse library adds flowerpot models"
     },
     {
+      "type": "sofa_corner",
+      "parametric": true,
+      "reason": "Milestone 10 corner sofa (docs/milestone10.md §1.6b row 15): the L shape of schemas.l_parts with its chaise side, built parametrically until the library adds L-shaped models of both sides"
+    },
+    {
+      "type": "chaise",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "ottoman",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "bench",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "bar_stool",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "office_chair",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "console_table",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "crib",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "bunk_bed",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "sideboard",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "shoe_cabinet",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "display_cabinet",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "tall_cabinet",
+      "parametric": true,
+      "reason": "Milestone 10 type (docs/milestone10.md §1.1, §4.4-§4.5): the parametric builder of wenart.blender.parametric until the library pod (ABO, Objaverse, TRELLIS.2) adds models in catalog_library.json, which replaces this entry when merged"
+    },
+    {
+      "type": "wall_cabinet",
+      "parametric": true,
+      "reason": "Milestone 10 wall cabinet (docs/milestone10.md §4.4): placed by rule along a drawn counter run and built parametrically with the counter's fronts, hung at mount_bottom_m; a library model may replace it through catalog_library.json"
+    },
+    {
       "type": "unknown",
       "parametric": true,
       "reason": "type unknown: the Milestone 3 striped proxy box"

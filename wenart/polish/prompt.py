@@ -37,6 +37,14 @@ The tables cover every slug of ``wenart.style.vocabulary`` (MATERIALS,
 FURNITURE_MATERIALS, LIGHTING moods, STYLE_FAMILIES) and every room and
 furniture type of the building schema; tests check that, so a new slug
 without words fails a test instead of reaching a prompt as a raw slug.
+
+Milestone 10 (docs/milestone10.md §4; track F): the wall and floor words
+carry the profile's colour phrase where the slot has one ("warm greige
+smooth painted walls"; a slug never carries a colour, §1.6b row 14); a
+child's room (``room_subtype``) has its own room words; ``decor`` (decor
+types of the view, optional) adds up to ``MAX_DECOR`` of ``DECOR_WORDS``
+after the furniture. Both are optional arguments, so a caller without them
+gets the Milestone 9 prompt.
 """
 from __future__ import annotations
 
@@ -45,6 +53,7 @@ from typing import Optional
 from wenart.style import vocabulary as VOC
 
 MAX_FURNITURE = 8
+MAX_DECOR = 4                     # Milestone 10: decor words after the furniture
 
 # Room types of wenart/schema/building.schema.json.
 ROOM_WORDS: dict[str, str] = {
@@ -250,6 +259,18 @@ FURNITURE_WORDS: dict[str, str] = {
     "wall_cabinet": "wall cabinets",
 }
 
+# Decor types of the building schema (docs/milestone10.md §4.6; Milestone 8/9 types too), plural where several
+# stand in a room.
+DECOR_WORDS: dict[str, str] = {
+    "cushion": "cushions", "book_set": "books", "plant": "potted plant", "rug": "rug", "wall_art": "framed wall art",
+    "vase": "vase", "bowl": "bowl", "plant_small": "small plant", "table_lamp": "table lamp", "mirror": "wall mirror",
+    "curtain": "linen curtains", "blind": "roller blind", "throw": "throw blanket", "books": "stacked books",
+    "candle": "candles", "basket": "woven basket", "tray": "tray", "clock": "wall clock", "sculpture": "sculpture",
+    "plant_large": "large indoor plant", "pendant_light": "pendant light", "ceiling_light": "ceiling light",
+}
+# rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
+SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}
+
 PROMPT_TAIL = "light through the windows, soft natural shadows, realistic materials and textures, sharp focus"
 
 
@@ -295,14 +316,16 @@ def _slot_colour(profile: dict, slot: str) -> Optional[str]:
 
 
 def surfaces(profile: dict, room_type: Optional[str]) -> dict:
-    """``{"walls": slug, "walls_colour": phrase | None, "floor": slug, "wet": bool}``: the wet-room slots for
-    bathrooms, WCs and kitchens; the colour is the one of the slot that gave the wall material."""
+    """``{"walls": slug, "walls_colour": phrase | None, "floor": slug, "floor_colour": phrase | None, "wet": bool}``:
+    the wet-room slots for bathrooms, WCs and kitchens; Milestone 10: the colour phrase of the slot that gave each
+    material (None when it has none)."""
     wet = room_type in VOC.WET_ROOM_TYPES
     walls = _slot(profile, "wet_walls") if wet else None
     floor = _slot(profile, "wet_floor") if wet else None
     wall_slot = "wet_walls" if walls else "walls"
-    return {"walls": walls or _slot(profile, "walls"), "walls_colour": _slot_colour(profile, wall_slot),
-            "floor": floor or _slot(profile, "floor"), "wet": wet}
+    floor_slot = "wet_floor" if floor else "floor"
+    return {"walls": walls or _slot(profile, "walls"), "floor": floor or _slot(profile, "floor"), "wet": wet,
+            "walls_colour": _slot_colour(profile, wall_slot), "floor_colour": _slot_colour(profile, floor_slot)}
 
 
 # Milestone 10 (docs/milestone10.md §1.4, §4.1): finishes whose look is the colour itself. Words of this module's own
@@ -397,11 +420,14 @@ def lens_words(lens_mm) -> Optional[str]:
 
 
 def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[str],
-                 lens_mm: Optional[float] = None) -> dict:
-    """The prompt of one view and the words it was made from; ``lens_mm``: the view camera's own lens.
+                 lens_mm: Optional[float] = None, room_subtype: Optional[str] = None,
+                 decor: Optional[list[str]] = None) -> dict:
+    """The prompt of one view and the words it was made from; ``lens_mm``: the view camera's own lens;
+    Milestone 10: ``room_subtype`` (``child``) and ``decor`` (decor types of the view, deduplicated, at most
+    ``MAX_DECOR``).
 
     Returns ``{"prompt", "room_type", "room_words", "family", "walls", "walls_colour", "accent", "floor",
-    "mood", "lamps_on", "furniture": [types], "lens_mm", "warnings": [...]}``.
+    "floor_colour", "mood", "lamps_on", "furniture": [types], "decor": [types], "lens_mm", "warnings": [...]}``.
     """
     warnings: list[str] = []
     profile = style_profile or {}
@@ -409,6 +435,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     if room is None:
         warnings.append(f"no prompt words for room type {room_type!r}; used 'room'")
         room = "room"
+    if room_subtype and room_type == "bedroom":
+        room = _words(SUBTYPE_WORDS, room_subtype, "room subtype", warnings) or room
     family = style_family(profile)
     family_words = _words(FAMILY_WORDS, family, "style family", warnings)
     if family is None:
@@ -416,7 +444,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     surf = surfaces(profile, room_type)
     wall_words = surface_words(surf["walls"], surf["walls_colour"], "wall material", warnings)
     accent = accent_words(profile, room_type, warnings)
-    floor_words = _words(MATERIAL_WORDS, surf["floor"], "floor material", warnings)
+    # Milestone 10: the floor slot's colour phrase in front of its words, as the walls' (said once).
+    floor_words = surface_words(surf["floor"], surf["floor_colour"], "floor material", warnings)
     mood = ((profile.get("lighting") or {}).get("mood"))
     mood_words = _words(MOOD_WORDS, mood, "light mood", warnings)
     if mood is None:
@@ -424,6 +453,12 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
         mood_words = "Natural"
     furniture = [f for f in furniture if f and f != "unknown"][:MAX_FURNITURE]
     furniture_words = [_words(FURNITURE_WORDS, f, "furniture type", warnings) for f in furniture]
+    decor_types: list[str] = []
+    for d in decor or []:
+        if d and d not in decor_types:
+            decor_types.append(d)
+    decor_types = decor_types[:MAX_DECOR]
+    decor_words = [_words(DECOR_WORDS, d, "decor type", warnings) for d in decor_types]
 
     first = f"Photorealistic interior photograph of {_article(room)} {room}"
     if family_words:
@@ -435,7 +470,7 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
         parts.append(accent)
     if floor_words:
         parts.append(f"{floor_words} floor")
-    parts += furniture_words
+    parts += furniture_words + decor_words
     sentences = [first + "."]
     if parts:
         second = ", ".join(parts)
@@ -447,8 +482,8 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     sentences.append(f"{mood_words} {tail}" + (f", {lens}." if lens else "."))
     return {"prompt": " ".join(sentences), "room_type": room_type, "room_words": room, "family": family,
             "walls": surf["walls"], "walls_colour": surf["walls_colour"], "accent": accent, "floor": surf["floor"],
-            "mood": mood, "lamps_on": lamps_on(mood), "furniture": furniture,
-            "lens_mm": float(lens_mm) if lens else None, "warnings": warnings}
+            "floor_colour": surf["floor_colour"], "mood": mood, "lamps_on": lamps_on(mood), "furniture": furniture,
+            "decor": decor_types, "lens_mm": float(lens_mm) if lens else None, "warnings": warnings}
 
 
 # --------------------------------------------------------------------------

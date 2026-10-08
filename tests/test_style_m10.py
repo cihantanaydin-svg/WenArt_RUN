@@ -524,3 +524,15 @@ def test_random_briefs_validate_and_are_deterministic():
         assert errors(p) == [], text
         assert P.profile_from_text(text) == p, text
         assert set(p["matched_terms"]) | set(p["unmatched_terms"]) == set(P.split_phrases(text)), text
+
+
+def test_a_metal_frame_word_with_a_metal_colour_takes_that_metal():
+    """'dark bronze aluminium' is the dark bronze metal frame, not white painted metal tinted dark bronze (lead fix
+    after the merge of tracks C, E and F); a colour without its own metal look stays a painted metal frame."""
+    from wenart.style import profile as P
+
+    look = lambda phrase: P.exterior_look_from_words("window_frame", phrase)[0]        # noqa: E731
+    assert look("dark bronze aluminium") == {"material": "dark_bronze", "colour": None}
+    assert look("anthracite aluminium") == {"material": "aluminium_anthracite", "colour": None}
+    assert look("black aluminium") == {"material": "steel_black", "colour": None}
+    assert look("white aluminium") == {"material": "painted_metal_white", "colour": "white"}

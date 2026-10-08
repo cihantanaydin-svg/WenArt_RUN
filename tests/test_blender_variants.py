@@ -354,14 +354,15 @@ def test_example_attic_ceiling_slopes_the_plinth_is_stone_and_the_frames(example
     assert all(f["n"][2] < -0.999 for f in hall["faces"])         # a floor below the roof keeps a flat ceiling
     # the south basement wall: stone cladding from -3 to -2 (facade.faces: side south, z_range), render above
     south = [f for f in objs["w_L-1_001"]["faces"] if f["n"][1] < -0.9]
-    low = {f["m"].split(".")[0] for f in south if f["c"][2] < -2.0}
-    high = {f["m"].split(".")[0] for f in south if f["c"][2] > -2.0}
+    # Track F: an exterior material with a colour is named <slug>__<colour> (render__white); compare the slugs.
+    low = {f["m"].split(".")[0].split("__")[0] for f in south if f["c"][2] < -2.0}
+    high = {f["m"].split(".")[0].split("__")[0] for f in south if f["c"][2] > -2.0}
     assert low == {"stone_cladding"} and high == {"render"}
     west = [f for f in objs["w_L-1_004"]["faces"] if f["n"][0] < -0.9]  # another side: no plinth
-    assert west and {f["m"].split(".")[0] for f in west} == {"render"}
+    assert west and {f["m"].split(".")[0].split("__")[0] for f in west} == {"render"}
     # the wall between the attic hall and the roof terrace shows the facade on the terrace side
     terrace_side = [f for f in objs["w_L1_006"]["faces"] if f["n"][1] < -0.9 and 6.3 < f["c"][0] < 10.0]
-    assert terrace_side and {f["m"].split(".")[0] for f in terrace_side} == {"render"}
+    assert terrace_side and {f["m"].split(".")[0].split("__")[0] for f in terrace_side} == {"render"}
     # window frames: the base has no outside look of its own (the fallback "interior"); the alternative's brief
     # names dark bronze aluminium, on the outer faces only
     m = example_builds["base"]["manifest"]
@@ -369,11 +370,12 @@ def test_example_attic_ceiling_slopes_the_plinth_is_stone_and_the_frames(example
     assert m["exterior_looks"]["window_frame"]["source"] == "fallback"
     alt = example_builds[ALT]
     look = alt["manifest"]["exterior_looks"]["window_frame"]
-    assert (look["material"], look["colour"], look["source"]) == ("aluminium", "dark bronze", "brief")
+    # Track C's frame words: dark bronze aluminium is the dark bronze metal look (its colour is the material's).
+    assert (look["material"], look["colour"], look["source"]) == ("dark_bronze", None, "brief")
     frame = alt["objects"]["win_L0_001_frame"]["faces"]
-    out = {f["m"].split(".")[0] for f in frame if f["n"][1] < -0.5}
-    inside = {f["m"].split(".")[0] for f in frame if f["n"][1] > 0.5}
-    assert out == {"aluminium"} and "aluminium" not in inside
+    out = {f["m"].split(".")[0].split("__")[0] for f in frame if f["n"][1] < -0.5}
+    inside = {f["m"].split(".")[0].split("__")[0] for f in frame if f["n"][1] > 0.5}
+    assert out == {"dark_bronze"} and "dark_bronze" not in inside
 
 
 @needs_blender

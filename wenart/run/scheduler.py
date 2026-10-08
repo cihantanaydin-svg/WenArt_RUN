@@ -1605,9 +1605,12 @@ class Orchestrator:
                           [src, pr.out / "style.json", pr.out / S.DECOR_ANSWERS])
             if not pr.active:
                 continue
-            self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref),
+            # Milestone 10: the locked check against the pipeline's building (and the layout's completion.json).
+            completion = furnished and (pr.out / "completion.json").is_file()
+            self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref, completion),
                           [pr.out / "building_decor.json", pr.out / "style.json", self.repo_root / S.CATALOG,
-                           self.repo_root / S.CATALOG_OBJAVERSE, self.repo_root / S.CATALOG_LIBRARY])
+                           self.repo_root / S.CATALOG_OBJAVERSE, self.repo_root / S.CATALOG_LIBRARY,
+                           pr.out / "building.json"] + ([pr.out / "completion.json"] if completion else []))
         if self.opts.ab_phase == "judge":
             return
         for pr in self.ab_runs:

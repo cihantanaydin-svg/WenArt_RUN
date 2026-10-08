@@ -103,7 +103,10 @@ BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/units.py",
-            "wenart/geometry.py", "wenart/schema/**")
+            "wenart/geometry.py", "wenart/schema/**",
+            # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
+            "wenart/blender/looks.py", "wenart/furniture/locked.py", "wenart/furniture/placer.py",
+            "wenart/furniture/schemas.py", "wenart/synthetic/**")
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
@@ -122,7 +125,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
              "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/shell.py",
              # Milestone 10 (track H): the exterior scope of the expected views reads the roof and the site.
-             "wenart/vision_check/exterior.py", "wenart/blender/roof.py", "wenart/blender/site.py")
+             "wenart/vision_check/exterior.py", "wenart/blender/roof.py", "wenart/blender/site.py",
+             "wenart/blender/looks.py")                  # track F: shell's looks
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
@@ -131,7 +135,8 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/decor_ai.py", "wena
               "wenart/furniture/schemas.py", "wenart/furniture/layout.py", "wenart/furniture/prompts.py",
               "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/brief.py",
               "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
-              "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**")
+              "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**",
+              "wenart/views.py")                         # M10: render.twin_rooms through views.brief_value
 DECOR_ANSWERS = "decor_ai_answers.json"
 
 
@@ -371,12 +376,15 @@ def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:
             _out(ref, "decor_debug")]
 
 
-def refit(tools: Tools, ref: ProjectRef) -> list[str]:
+def refit(tools: Tools, ref: ProjectRef, completion: bool = False) -> list[str]:
     """The fit after layout and decor, with the project's final style (``--style``: the library style filter,
-    M7 §6.3; ``fit`` stays style-free)."""
-    return [tools.py, "-m", "wenart.furniture.fit", _out(ref, "building_decor.json"), "--catalog", CATALOG,
-            "--out", _out(ref, "building_final.json"), "--assets", t(tools.assets), "--style",
-            _out(ref, "style.json")]
+    M7 §6.3; ``fit`` stays style-free). Milestone 10 (§2.7, §1.6b row 16): ``--source building.json`` runs the
+    locked check of the drawn furniture (exit 1 on a violation); ``completion``: the layout ran in this run, so its
+    ``completion.json`` gives the check's mode and kept rooms (without it: mode ``complete``)."""
+    cmd = [tools.py, "-m", "wenart.furniture.fit", _out(ref, "building_decor.json"), "--catalog", CATALOG,
+           "--out", _out(ref, "building_final.json"), "--assets", t(tools.assets), "--style",
+           _out(ref, "style.json"), "--source", _out(ref, "building.json")]
+    return cmd + (["--completion", _out(ref, "completion.json")] if completion else [])
 
 
 def preview_samples(tools: Tools) -> str:
