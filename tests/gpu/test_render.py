@@ -119,9 +119,10 @@ def test_every_room_has_three_views(project):
     planned = {c["name"] for c in scene["cameras"]}
     assert planned <= rendered, f"{name}: missing renders {sorted(planned - rendered)}"
     by_room: dict = {}
-    for c in scene["cameras"]:
+    interior = [c for c in scene["cameras"] if c.get("kind", "interior") != "exterior"]   # M10: no ext_* view
+    for c in interior:
         by_room.setdefault(c["room_id"], []).append(c)
-    policies = {_policy(c) for c in scene["cameras"]}
+    policies = {_policy(c) for c in interior}
     assert len(policies) == 1, f"{name}: cameras of two policies in one scene: {sorted(policies)}"
     if policies == {"m5"}:
         for room in by_room:
@@ -129,9 +130,12 @@ def test_every_room_has_three_views(project):
         return
     building = _building(name, scene)
     levels = {lv["id"] for lv in scene["levels"]}
-    rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels}
-    listed = {r["room_id"]: r for r in scene.get("rooms_without_view") or []}
-    expected = {r["room_id"] for lv in levels for r in camsearch.rooms_without_view(building, lv)}
+    # Milestone 10 (§1.6b row 10): the rooms this variant renders (no second twin, an alternative's changed rooms).
+    from wenart.views import views_for
+    shown = set(views_for(building, scene.get("variant") or "base")["rooms"])
+    rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels and r["id"] in shown}
+    listed = {r["room_id"]: r for r in scene.get("rooms_without_view") or [] if r["room_id"] in rooms}
+    expected = {r["room_id"] for lv in levels for r in camsearch.rooms_without_view(building, lv)} & set(rooms)
     assert set(listed) == expected, f"{name}: rooms_without_view {sorted(listed)}, the rule gives {sorted(expected)}"
     assert all(r.get("reason") for r in listed.values()), f"{name}: a room without a view has no reason"
     assert set(by_room) == set(rooms) - expected, \
@@ -170,7 +174,7 @@ def test_no_blocked_searched_view(project):
     blocked, allowed, low, measured = [], [], [], []
     for r in render["renders"]:
         plan = plans.get(r["camera"])
-        if plan is None:
+        if plan is None or plan.get("kind") == "exterior":      # M10: a facade fills an exterior view by design
             continue
         m = _blocked(r, out, plan.get("lens_mm") or 24.0)
         measured.append((r["camera"], m, plan))
@@ -224,7 +228,7 @@ def test_cameras_render_with_their_own_lens(project):
     bad, lenses = [], {}
     for r in render["renders"]:
         plan = plans.get(r["camera"])
-        if plan is None:
+        if plan is None or plan.get("kind") == "exterior":      # M10: the exterior lens rule is tests/gpu/test_m10.py's
             continue
         if _policy(plan) == "m5":
             want = cameras.M5_LENS_MM
