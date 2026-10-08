@@ -1,0 +1,714 @@
+{
+ "schema_version": "0.1",
+ "kind": "abo_session_survey",
+ "date": "2026-10-08",
+ "command": "python -m wenart.assets.abo survey --metadata DIR --no-download --summary results/library/survey_m10_session.json",
+ "source": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html",
+ "per_type_limit": 40,
+ "config_sha256": {
+  "abo.yaml": "9cfc2affb0db355e29944a3433372166ac32ed69c276a80bd83b9c5fbfeaaae5",
+  "objaverse.yaml": "acdd502b8c0e2fb40cffdd48a4764924f163c0c1ae4d5845ef3dd12b7eddfc42"
+ },
+ "metadata_files": {
+  "3dmodels.csv.gz": {
+   "sha256": "90d061c3e3efa555a55bfc8ed7fc55cdb322086397443de1b33e91f7924d7d92",
+   "bytes": 340528
+  },
+  "README.md": {
+   "sha256": "01d8c8b2ea90ab30b29979f77e7550deccc4a2b981ee71d4f5ee3ffdb894db86",
+   "bytes": 5158
+  },
+  "listings_0.json.gz": {
+   "sha256": "c5e7723f4a4afa3da4f35c497ab30ac0f8ee5b3e473ec0ffa897511e127e9324",
+   "bytes": 5446000
+  },
+  "listings_1.json.gz": {
+   "sha256": "3c1b0d27a008d7db96b22baac53f613cba3322ae1bddca3da90f92c2834550c2",
+   "bytes": 5350124
+  },
+  "listings_2.json.gz": {
+   "sha256": "90efc22137ddff87db5889d807b60c19e39f157d74ae7f4e8e95270223cbbf3c",
+   "bytes": 5446138
+  },
+  "listings_3.json.gz": {
+   "sha256": "72ffc22271d1ce3e091731c12a24d6875c9864a11fc1966272248b018e25a291",
+   "bytes": 5390098
+  },
+  "listings_4.json.gz": {
+   "sha256": "7ff0d40dbfa23c6f0972e1814177f15aa866511f96e4720e5c860c9d314719c5",
+   "bytes": 5546055
+  },
+  "listings_5.json.gz": {
+   "sha256": "06b88440b35b47a1924ba15e4b2a7b86b62069fd3a02b79bbf361ef9371d8f7f",
+   "bytes": 5581270
+  },
+  "listings_6.json.gz": {
+   "sha256": "2cea3adb5f6d8680f62676e6bbb5e3585a08e089687199755dbfe97d23e60376",
+   "bytes": 5496890
+  },
+  "listings_7.json.gz": {
+   "sha256": "8a1a5a4c7c8b426cc081baeb51c84e934218934faffd439732bafd567d4e4c1c",
+   "bytes": 5428695
+  },
+  "listings_8.json.gz": {
+   "sha256": "5bcaf1ed85c34f204da3d3e787730ad228a96c410565a4fdb57826a297d868cc",
+   "bytes": 5565097
+  },
+  "listings_9.json.gz": {
+   "sha256": "e1a8d0ce00d7d1b858db7bcc384e3301a939f449ded3c04aa8e1ef6bd2a123ae",
+   "bytes": 5497477
+  },
+  "listings_a.json.gz": {
+   "sha256": "1655cdb9b83e46f3d5bf870bb92ba4259cb3ba85c7e3fc19786f4da1ba60d648",
+   "bytes": 5461223
+  },
+  "listings_b.json.gz": {
+   "sha256": "73df50844054d7f33553012f6f606e8128bc83762acadf9a63440ee39f55349b",
+   "bytes": 5409119
+  },
+  "listings_c.json.gz": {
+   "sha256": "6339e61243aa6c9ea88c29cfc72e1e005a7c6c2152185e21ceabe8c8046271c6",
+   "bytes": 5443388
+  },
+  "listings_d.json.gz": {
+   "sha256": "b7e252bbff66da0084420ccbbec6d36ed251cadefb1daababd3709114a07e299",
+   "bytes": 5413521
+  },
+  "listings_e.json.gz": {
+   "sha256": "9240ddbe9f1712c2179ca8eb2f70efa4053a243bbb2609df3609d4933524a45a",
+   "bytes": 5501262
+  },
+  "listings_f.json.gz": {
+   "sha256": "0ef3dd735b0542d017c45d7feb939eeeb01d4d1b37398d17b031fd84d8f5bb1b",
+   "bytes": 5460984
+  }
+ },
+ "listings": {
+  "with_3d_model": 7960,
+  "models": 7953,
+  "no_english_name": 483,
+  "product_types": {
+   "CHAIR": 1184,
+   "SOFA": 859,
+   "RUG": 817,
+   "WALL_ART": 599,
+   "TABLE": 584,
+   "HOME_FURNITURE_AND_DECOR": 549,
+   "LAMP": 345,
+   "STOOL_SEATING": 340,
+   "OTTOMAN": 288,
+   "PILLOW": 275,
+   "HEADBOARD": 206,
+   "LIGHT_FIXTURE": 195,
+   "PLANTER": 182,
+   "HOME": 176,
+   "DESK": 145,
+   "BED": 140,
+   "CABINET": 137,
+   "HOME_MIRROR": 109,
+   "SHELF": 106,
+   "DRESSER": 62,
+   "BED_FRAME": 52,
+   "VASE": 50,
+   "BENCH": 39,
+   "FURNITURE_COVER": 34,
+   "ELECTRIC_FAN": 29,
+   "SPORTING_GOODS": 28,
+   "CLOTHES_RACK": 24,
+   "STORAGE_BOX": 23,
+   "FREESTANDING_SHELTER": 20,
+   "FLAT_SCREEN_DISPLAY_MOUNT": 18,
+   "CURTAIN": 17,
+   "MATTRESS": 17,
+   "MULTIPORT_HUB": 16,
+   "PROFESSIONAL_HEALTHCARE": 16,
+   "FURNITURE": 15,
+   "AUTO_ACCESSORY": 14,
+   "BEAN_BAG_CHAIR": 14,
+   "AIR_CONDITIONER": 13,
+   "HOME_BED_AND_BATH": 13,
+   "OUTDOOR_LIVING": 13,
+   "LADDER": 11,
+   "BUILDING_MATERIAL": 9,
+   "ELECTRONIC_CABLE": 9,
+   "CLOCK": 8,
+   "PORTABLE_ELECTRONIC_DEVICE_STAND": 8,
+   "EXERCISE_MAT": 7,
+   "PICTURE_FRAME": 7,
+   "COMPUTER_ADD_ON": 6,
+   "OFFICE_PRODUCTS": 6,
+   "SOUND_AND_RECORDING_EQUIPMENT": 6,
+   "TOOLS": 6,
+   "BISS": 5,
+   "BOTTLE_RACK": 5,
+   "CANDLE_HOLDER": 5,
+   "JANITORIAL_SUPPLY": 5,
+   "MOUSE_PAD": 5,
+   "PLACEMAT": 5,
+   "STORAGE_RACK": 5,
+   "WRITING_BOARD": 5,
+   "CE_ACCESSORY": 4,
+   "PAPER_PRODUCT": 4,
+   "SAUTE_FRY_PAN": 4,
+   "STORAGE_DRAWER": 4,
+   "STORAGE_HOOK": 4,
+   "DEHUMIDIFIER": 3,
+   "HOME_LIGHTING_AND_LAMPS": 3,
+   "INSTRUMENT_PARTS_AND_ACCESSORIES": 3,
+   "PORTABLE_ELECTRONIC_DEVICE_COVER": 3,
+   "ANIMAL_COLLAR": 2,
+   "DISHWARE_BOWL": 2,
+   "DRINK_COASTER": 2,
+   "HANDBAG": 2,
+   "PORTABLE_ELECTRONIC_DEVICE_MOUNT": 2,
+   "ACCESSORY_OR_PART_OR_SUPPLY": 1,
+   "ARTIFICIAL_PLANT": 1,
+   "BASKET": 1,
+   "BATTERY": 1,
+   "BLANKET": 1,
+   "BODY_POSITIONER": 1,
+   "CARRYING_CASE_OR_BAG": 1,
+   "CELLULAR_PHONE_CASE": 1,
+   "COMPUTER": 1,
+   "CONSUMER_ELECTRONICS": 1,
+   "DRINKING_CUP": 1,
+   "ELECTRONIC_ADAPTER": 1,
+   "FIGURINE": 1,
+   "FILE_FOLDER": 1,
+   "FITNESS_BENCH": 1,
+   "JAR": 1,
+   "JEWELRY_STORAGE": 1,
+   "KITCHEN": 1,
+   "LAUNDRY_HAMPER": 1,
+   "PINBOARD": 1,
+   "PUMP_DISPENSER": 1,
+   "ROWING_MACHINE": 1,
+   "SCULPTURE": 1,
+   "UTILITY_CART_WAGON": 1,
+   "WIRELESS_ACCESSORY": 1
+  }
+ },
+ "new_types": {
+  "bar_stool": {
+   "kind": "furniture",
+   "mapped": 340,
+   "in_size_range": 337,
+   "candidates": 40,
+   "rules": {
+    "bar_stool": 332,
+    "bar_stool_named": 8
+   },
+   "note": ""
+  },
+  "bench": {
+   "kind": "furniture",
+   "mapped": 65,
+   "in_size_range": 55,
+   "candidates": 40,
+   "rules": {
+    "bench": 34,
+    "bench_named": 31
+   },
+   "note": ""
+  },
+  "bunk_bed": {
+   "kind": "furniture",
+   "mapped": 1,
+   "in_size_range": 1,
+   "candidates": 1,
+   "rules": {
+    "bunk_bed": 1
+   },
+   "note": "one floor bunk bed (Max & Finn); the two metal loft beds are no bunk beds"
+  },
+  "chaise": {
+   "kind": "furniture",
+   "mapped": 6,
+   "in_size_range": 6,
+   "candidates": 6,
+   "rules": {
+    "chaise": 6
+   },
+   "note": "six chaise lounges (Ravenna Home tufted, Stone & Beam Varon daybed chaise); the sofa chaises are corner sofas"
+  },
+  "console_table": {
+   "kind": "furniture",
+   "mapped": 41,
+   "in_size_range": 35,
+   "candidates": 35,
+   "rules": {
+    "console_table": 41
+   },
+   "note": ""
+  },
+  "crib": {
+   "kind": "furniture",
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no baby bed: no item name holds crib, cot, cradle or bassinet (one MATTRESS is a rollaway guest bed, 'Cot size')"
+  },
+  "display_cabinet": {
+   "kind": "furniture",
+   "mapped": 1,
+   "in_size_range": 1,
+   "candidates": 1,
+   "rules": {
+    "display_cabinet": 1
+   },
+   "note": "one display cabinet (Alkove Malvern); the display cases are flag cases"
+  },
+  "office_chair": {
+   "kind": "furniture",
+   "mapped": 99,
+   "in_size_range": 99,
+   "candidates": 40,
+   "rules": {
+    "office_chair": 92,
+    "office_chair_named": 7
+   },
+   "note": ""
+  },
+  "ottoman": {
+   "kind": "furniture",
+   "mapped": 314,
+   "in_size_range": 296,
+   "candidates": 40,
+   "rules": {
+    "ottoman": 234,
+    "ottoman_named": 80
+   },
+   "note": ""
+  },
+  "shoe_cabinet": {
+   "kind": "furniture",
+   "mapped": 22,
+   "in_size_range": 22,
+   "candidates": 22,
+   "rules": {
+    "shoe_cabinet": 22
+   },
+   "note": ""
+  },
+  "sideboard": {
+   "kind": "furniture",
+   "mapped": 27,
+   "in_size_range": 24,
+   "candidates": 24,
+   "rules": {
+    "sideboard": 27
+   },
+   "note": ""
+  },
+  "sofa_corner": {
+   "kind": "furniture",
+   "mapped": 194,
+   "in_size_range": 193,
+   "candidates": 40,
+   "rules": {
+    "sofa_corner": 169,
+    "sofa_corner_named": 25
+   },
+   "note": ""
+  },
+  "tall_cabinet": {
+   "kind": "furniture",
+   "mapped": 29,
+   "in_size_range": 17,
+   "candidates": 17,
+   "rules": {
+    "tall_cabinet": 29
+   },
+   "note": "17 in range; most CABINET listings of this kind have no English name, only the height rule takes them"
+  },
+  "wall_cabinet": {
+   "kind": "furniture",
+   "mapped": 3,
+   "in_size_range": 2,
+   "candidates": 2,
+   "rules": {
+    "wall_cabinet": 3
+   },
+   "note": "two wall cabinets in range; the Movian bathroom wall cabinets are 1.4 m tall or have no English name"
+  },
+  "basket": {
+   "kind": "decor",
+   "mapped": 9,
+   "in_size_range": 7,
+   "candidates": 7,
+   "rules": {
+    "basket": 2,
+    "basket_named": 7
+   },
+   "note": "mostly sets of two or three baskets (the judges decide whether a set is one object)"
+  },
+  "blind": {
+   "kind": "decor",
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no window blind or shade in any item name"
+  },
+  "books": {
+   "kind": "decor",
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no book or book stack in any item name"
+  },
+  "candle": {
+   "kind": "decor",
+   "mapped": 6,
+   "in_size_range": 6,
+   "candidates": 6,
+   "rules": {
+    "candle": 4,
+    "candle_named": 2
+   },
+   "note": "four candle holders and two candle lanterns"
+  },
+  "ceiling_light": {
+   "kind": "decor",
+   "mapped": 17,
+   "in_size_range": 17,
+   "candidates": 17,
+   "rules": {
+    "ceiling_light": 17
+   },
+   "note": "17 models in range: Objaverse and generated models fill the rest"
+  },
+  "clock": {
+   "kind": "decor",
+   "mapped": 11,
+   "in_size_range": 11,
+   "candidates": 11,
+   "rules": {
+    "clock": 8,
+    "clock_named": 3
+   },
+   "note": "eight CLOCK listings and three named clocks, all wall clocks"
+  },
+  "curtain": {
+   "kind": "decor",
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no curtain or drape in any item name; the product type CURTAIN holds 17 wall-art canvases"
+  },
+  "pendant_light": {
+   "kind": "decor",
+   "mapped": 81,
+   "in_size_range": 80,
+   "candidates": 40,
+   "rules": {
+    "pendant_light": 81
+   },
+   "note": ""
+  },
+  "plant_large": {
+   "kind": "decor",
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no tall plant: the tallest PLANTER is a hanging planter, ARTIFICIAL_PLANT is one hanging planter"
+  },
+  "sculpture": {
+   "kind": "decor",
+   "mapped": 1,
+   "in_size_range": 1,
+   "candidates": 1,
+   "rules": {
+    "sculpture": 1
+   },
+   "note": "one figurine; the SCULPTURE listing is a planter set"
+  },
+  "throw": {
+   "kind": "decor",
+   "mapped": 0,
+   "in_size_range": 0,
+   "candidates": 0,
+   "rules": {},
+   "note": "no throw blanket: BLANKET is one blanket ladder; 'throw' names 204 throw pillows (cushion)"
+  },
+  "tray": {
+   "kind": "decor",
+   "mapped": 4,
+   "in_size_range": 4,
+   "candidates": 4,
+   "rules": {
+    "tray": 4
+   },
+   "note": "four serving trays"
+  }
+ },
+ "old_types": {
+  "armchair": {
+   "kind": "furniture",
+   "mapped": 575,
+   "in_size_range": 560,
+   "candidates": 40,
+   "rules": {
+    "armchair": 427,
+    "chair": 148
+   },
+   "note": ""
+  },
+  "bed_double": {
+   "kind": "furniture",
+   "mapped": 161,
+   "in_size_range": 144,
+   "candidates": 40,
+   "rules": {
+    "bed": 161
+   },
+   "note": ""
+  },
+  "bed_single": {
+   "kind": "furniture",
+   "mapped": 27,
+   "in_size_range": 12,
+   "candidates": 12,
+   "rules": {
+    "bed": 27
+   },
+   "note": "12 models in range: Objaverse and generated models fill the rest"
+  },
+  "bookshelf": {
+   "kind": "furniture",
+   "mapped": 48,
+   "in_size_range": 41,
+   "candidates": 40,
+   "rules": {
+    "bookshelf": 46,
+    "bookshelf_named": 2
+   },
+   "note": ""
+  },
+  "chair": {
+   "kind": "furniture",
+   "mapped": 397,
+   "in_size_range": 359,
+   "candidates": 40,
+   "rules": {
+    "armchair": 4,
+    "chair": 393
+   },
+   "note": ""
+  },
+  "cushion": {
+   "kind": "decor",
+   "mapped": 195,
+   "in_size_range": 195,
+   "candidates": 40,
+   "rules": {
+    "cushion": 187,
+    "cushion_named": 8
+   },
+   "note": ""
+  },
+  "desk": {
+   "kind": "furniture",
+   "mapped": 143,
+   "in_size_range": 99,
+   "candidates": 40,
+   "rules": {
+    "desk": 142,
+    "desk_named": 1
+   },
+   "note": ""
+  },
+  "dresser": {
+   "kind": "furniture",
+   "mapped": 53,
+   "in_size_range": 46,
+   "candidates": 40,
+   "rules": {
+    "dresser": 51,
+    "dresser_named": 2
+   },
+   "note": ""
+  },
+  "floor_lamp": {
+   "kind": "furniture",
+   "mapped": 101,
+   "in_size_range": 76,
+   "candidates": 40,
+   "rules": {
+    "floor_lamp": 101
+   },
+   "note": ""
+  },
+  "mirror": {
+   "kind": "decor",
+   "mapped": 137,
+   "in_size_range": 128,
+   "candidates": 40,
+   "rules": {
+    "mirror": 106,
+    "mirror_named": 31
+   },
+   "note": ""
+  },
+  "nightstand": {
+   "kind": "furniture",
+   "mapped": 82,
+   "in_size_range": 76,
+   "candidates": 40,
+   "rules": {
+    "dresser": 2,
+    "nightstand": 80
+   },
+   "note": ""
+  },
+  "plant": {
+   "kind": "decor",
+   "mapped": 185,
+   "in_size_range": 139,
+   "candidates": 40,
+   "rules": {
+    "plant": 178,
+    "plant_named": 7
+   },
+   "note": ""
+  },
+  "rug": {
+   "kind": "decor",
+   "mapped": 861,
+   "in_size_range": 861,
+   "candidates": 40,
+   "rules": {
+    "rug": 817,
+    "rug_named": 44
+   },
+   "note": ""
+  },
+  "side_table": {
+   "kind": "furniture",
+   "mapped": 132,
+   "in_size_range": 121,
+   "candidates": 40,
+   "rules": {
+    "side_table": 132
+   },
+   "note": ""
+  },
+  "sofa": {
+   "kind": "furniture",
+   "mapped": 780,
+   "in_size_range": 742,
+   "candidates": 40,
+   "rules": {
+    "sofa": 678,
+    "sofa_corner": 12,
+    "sofa_named": 90
+   },
+   "note": ""
+  },
+  "table_coffee": {
+   "kind": "furniture",
+   "mapped": 152,
+   "in_size_range": 143,
+   "candidates": 40,
+   "rules": {
+    "table_coffee": 152
+   },
+   "note": ""
+  },
+  "table_dining": {
+   "kind": "furniture",
+   "mapped": 54,
+   "in_size_range": 46,
+   "candidates": 40,
+   "rules": {
+    "table_dining": 54
+   },
+   "note": ""
+  },
+  "table_lamp": {
+   "kind": "decor",
+   "mapped": 242,
+   "in_size_range": 242,
+   "candidates": 40,
+   "rules": {
+    "table_lamp": 242
+   },
+   "note": ""
+  },
+  "tv_unit": {
+   "kind": "furniture",
+   "mapped": 68,
+   "in_size_range": 57,
+   "candidates": 40,
+   "rules": {
+    "tv_unit": 68
+   },
+   "note": ""
+  },
+  "vase": {
+   "kind": "decor",
+   "mapped": 54,
+   "in_size_range": 54,
+   "candidates": 40,
+   "rules": {
+    "vase": 50,
+    "vase_named": 4
+   },
+   "note": ""
+  },
+  "wall_art": {
+   "kind": "decor",
+   "mapped": 639,
+   "in_size_range": 633,
+   "candidates": 40,
+   "rules": {
+    "wall_art": 599,
+    "wall_art_named": 40
+   },
+   "note": ""
+  },
+  "wardrobe": {
+   "kind": "furniture",
+   "mapped": 21,
+   "in_size_range": 16,
+   "candidates": 16,
+   "rules": {
+    "wardrobe": 21
+   },
+   "note": "16 models in range: Objaverse and generated models fill the rest"
+  }
+ },
+ "candidates_total": 1222,
+ "refused_size_range": 374,
+ "unmapped_product_types": {
+  "HOME_FURNITURE_AND_DECOR": 314,
+  "HEADBOARD": 206,
+  "TABLE": 129,
+  "LIGHT_FIXTURE": 99,
+  "PILLOW": 88,
+  "HOME": 76,
+  "SHELF": 57,
+  "CABINET": 47,
+  "FURNITURE_COVER": 34,
+  "CHAIR": 29,
+  "ELECTRIC_FAN": 29,
+  "SPORTING_GOODS": 28,
+  "OTTOMAN": 27,
+  "STORAGE_BOX": 21,
+  "FREESTANDING_SHELTER": 20,
+  "FLAT_SCREEN_DISPLAY_MOUNT": 18,
+  "CURTAIN": 17,
+  "MATTRESS": 17,
+  "MULTIPORT_HUB": 16,
+  "PROFESSIONAL_HEALTHCARE": 16,
+  "AUTO_ACCESSORY": 14,
+  "BEAN_BAG_CHAIR": 14,
+  "CLOTHES_RACK": 14,
+  "AIR_CONDITIONER": 13,
+  "FURNITURE": 13
+ }
+}

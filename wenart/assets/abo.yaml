@@ -67,6 +67,29 @@ survey:
 # nightstand 82/76, tv_unit 68/57, dresser 53/46, table_dining 54/46, bookshelf 48/41, wardrobe 21/16; decor: rug
 # 861/861, wall_art 639/633, cushion 195/195, plant 189/142 (436 candidates; 536 models refused size_range; 483 models
 # without an English item name). No sanitary ware or kitchen appliances in ABO: those stay Objaverse/parametric.
+# Milestone 10 types the ABO listings hold no model of (read 8 Oct 2026, 7,960 listings with a 3D model): no rule, the
+# reason is in the session summary (abo survey --summary) and the coverage table of docs/milestone10.md §4.11.
+no_listing:
+  crib: "no baby bed: no item name holds crib, cot, cradle or bassinet (one MATTRESS is a rollaway guest bed, 'Cot size')"
+  curtain: "no curtain or drape in any item name; the product type CURTAIN holds 17 wall-art canvases"
+  blind: "no window blind or shade in any item name"
+  throw: "no throw blanket: BLANKET is one blanket ladder; 'throw' names 204 throw pillows (cushion)"
+  books: "no book or book stack in any item name"
+
+# What the few listings of a Milestone 10 type are (session summary, same date).
+type_notes:
+  bunk_bed: "one floor bunk bed (Max & Finn); the two metal loft beds are no bunk beds"
+  chaise: "six chaise lounges (Ravenna Home tufted, Stone & Beam Varon daybed chaise); the sofa chaises are corner sofas"
+  display_cabinet: "one display cabinet (Alkove Malvern); the display cases are flag cases"
+  wall_cabinet: "two wall cabinets in range; the Movian bathroom wall cabinets are 1.4 m tall or have no English name"
+  tall_cabinet: "17 in range; most CABINET listings of this kind have no English name, only the height rule takes them"
+  sculpture: "one figurine; the SCULPTURE listing is a planter set"
+  plant_large: "no tall plant: the tallest PLANTER is a hanging planter, ARTIFICIAL_PLANT is one hanging planter"
+  tray: "four serving trays"
+  candle: "four candle holders and two candle lanterns"
+  basket: "mostly sets of two or three baskets (the judges decide whether a set is one object)"
+  clock: "eight CLOCK listings and three named clocks, all wall clocks"
+
 rules:
   - {name: bed, product_types: [BED, BED_FRAME],
      not_words: [loft, bunk, air mattress, airbed, inflatable, daybed, trundle, toddler], types: [bed]}
@@ -75,13 +98,13 @@ rules:
   # crib, no curtain or blind (the product type CURTAIN holds 17 wall-art canvases), no throw blanket (BLANKET is one
   # blanket ladder; "throw" names throw pillows), no book, and no large floor plant (the tallest PLANTER is a hanging
   # planter): those types get no ABO rule; Objaverse and the generated models fill them.
-  - {name: bunk_bed, product_types: [BED, BED_FRAME, FURNITURE, HOME_FURNITURE_AND_DECOR], words: [bunk, bunk bed],
+  - {name: bunk_bed, since: m10, product_types: [BED, BED_FRAME, FURNITURE, HOME_FURNITURE_AND_DECOR], words: [bunk, bunk bed],
      types: [bunk_bed]}
-  - {name: sofa_corner, product_types: [SOFA],
+  - {name: sofa_corner, since: m10, product_types: [SOFA],
      words: [sectional, corner, l-shaped, l shaped, l-shape, l shape, chaise],
      not_words: [slipcover, cover, outdoor, patio, aluminum, wicker, rattan, ottoman, pillow, module, component],
      types: [sofa_corner, sofa]}
-  - {name: sofa_corner_named, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
+  - {name: sofa_corner_named, since: m10, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
      words: [sectional, corner, l-shaped, l shaped, l-shape, l shape, sofa chaise],
      not_words: [slipcover, cover, outdoor, patio, aluminum, wicker, rattan, ottoman, pillow, chair, armchair, loveseat,
                  bench, desk, table, bed, shelf, cabinet, module, component],
@@ -89,35 +112,35 @@ rules:
   - {name: sofa, product_types: [SOFA], types: [sofa]}
   - {name: sofa_named, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
      words: [sofa, couch, loveseat, settee], not_words: [slipcover, cover, ottoman, table, bed, pillow], types: [sofa]}
-  - {name: chaise, product_types: [CHAIR, SOFA, HOME_FURNITURE_AND_DECOR, FURNITURE],
+  - {name: chaise, since: m10, product_types: [CHAIR, SOFA, HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [chaise lounge, chaise lounger, chaise longue, daybed chaise, chaise],
      not_words: [sofa, sectional, couch, corner, l-shaped, reversible, outdoor, patio, pool, wicker, zero gravity,
                  folding, ottoman],
      types: [chaise]}
-  - {name: office_chair, product_types: [CHAIR],
+  - {name: office_chair, since: m10, product_types: [CHAIR],
      words: [office, gaming, task, computer, executive, ergonomic, desk chair],
      not_words: [outdoor, patio, folding, stool, kids, kid, children, toy], types: [office_chair]}
-  - {name: office_chair_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE],
+  - {name: office_chair_named, since: m10, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [office chair, desk chair, task chair, gaming chair, computer chair, executive chair, ergonomic chair],
      not_words: [table, workstation, outdoor, patio, folding, stool, kids, kid, children, toy],
      types: [office_chair]}
-  - {name: bar_stool, product_types: [STOOL_SEATING],
+  - {name: bar_stool, since: m10, product_types: [STOOL_SEATING],
      not_words: [drafting, wheels, step, ladder, vanity, makeup, ottoman, pouf, footrest stool], types: [bar_stool]}
-  - {name: bar_stool_named, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE],
+  - {name: bar_stool_named, since: m10, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [bar stool, barstool, counter stool, bar height, counter height],
      not_words: [office, gaming, task, computer, executive, desk, outdoor, patio, folding, drafting], types: [bar_stool]}
-  - {name: shoe_cabinet, product_types: [CABINET, CLOTHES_RACK, BENCH, STORAGE_BOX, STORAGE_RACK, SHELF, FURNITURE,
+  - {name: shoe_cabinet, since: m10, product_types: [CABINET, CLOTHES_RACK, BENCH, STORAGE_BOX, STORAGE_RACK, SHELF, FURNITURE,
                                           HOME_FURNITURE_AND_DECOR, HOME],
      words: [shoe, shoes], not_words: [mat, mats, box, boxes, polish, brush, horn], types: [shoe_cabinet]}
-  - {name: bench, product_types: [BENCH],
+  - {name: bench, since: m10, product_types: [BENCH],
      not_words: [fitness, workout, weight, exercise, piano, keyboard, cushion], types: [bench]}
-  - {name: bench_named, product_types: [OTTOMAN, SOFA, HOME_FURNITURE_AND_DECOR, FURNITURE],
+  - {name: bench_named, since: m10, product_types: [OTTOMAN, SOFA, HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [bench], not_words: [sofa, loveseat, couch, settee, pillow, cushion, cover, workout, fitness, weight, desk,
                                  table],
      types: [bench]}
-  - {name: ottoman, product_types: [OTTOMAN],
+  - {name: ottoman, since: m10, product_types: [OTTOMAN],
      not_words: [bench, cover, slipcover, chair, sofa, sectional], types: [ottoman]}
-  - {name: ottoman_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
+  - {name: ottoman_named, since: m10, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
      words: [ottoman, pouf, pouffe, footstool, foot stool, hassock],
      not_words: [chair, sofa, armchair, cover, slipcover, bench, bed, sectional, tray table, desk], types: [ottoman]}
   - {name: armchair, product_types: [CHAIR],
@@ -133,7 +156,7 @@ rules:
      words: [nightstand, night stand, bedside, night table], types: [nightstand]}
   - {name: tv_unit, product_types: [CABINET, TABLE, SHELF, HOME_FURNITURE_AND_DECOR, FURNITURE], words: [tv, media],
      types: [tv_unit]}
-  - {name: console_table, product_types: [TABLE, HOME_FURNITURE_AND_DECOR, FURNITURE, DESK, SHELF, CABINET],
+  - {name: console_table, since: m10, product_types: [TABLE, HOME_FURNITURE_AND_DECOR, FURNITURE, DESK, SHELF, CABINET],
      words: [console, sofa table, entryway, hall table, entry table, hallway],
      not_words: [tv, media, entertainment, bar, coffee, gaming, game, video], types: [console_table]}
   - {name: side_table, product_types: [TABLE], words: [side, end, accent], types: [side_table]}
@@ -147,15 +170,15 @@ rules:
      words: [chest of drawers, dresser], types: [dresser, nightstand]}
   # Milestone 10 cabinets. After the wardrobe, dresser and TV rules; many CABINET listings have no English name and
   # match only rules without words (tall_cabinet: a CABINET at least 1.4 m high).
-  - {name: sideboard, product_types: [CABINET, TABLE, HOME_FURNITURE_AND_DECOR, FURNITURE, SHELF],
+  - {name: sideboard, since: m10, product_types: [CABINET, TABLE, HOME_FURNITURE_AND_DECOR, FURNITURE, SHELF],
      words: [sideboard, buffet, credenza], not_words: [lamp, tv, media, island, cart], types: [sideboard]}
-  - {name: display_cabinet, product_types: [CABINET, SHELF, HOME_FURNITURE_AND_DECOR, FURNITURE],
+  - {name: display_cabinet, since: m10, product_types: [CABINET, SHELF, HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [display, curio, china, vitrine, glass door, glass doors, hutch],
      not_words: [flag, case, stand, wall mounted, wall mount, floating], types: [display_cabinet]}
-  - {name: wall_cabinet, product_types: [CABINET, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
+  - {name: wall_cabinet, since: m10, product_types: [CABINET, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
      words: [wall cabinet, wall mounted, wall-mounted, wall mount, medicine cabinet, hanging cabinet, floating wall],
      not_words: [rack, hook, hooks, tv, mirror, art, clock, bracket, bracket shelf], types: [wall_cabinet]}
-  - {name: tall_cabinet, product_types: [CABINET], min_height: 1.4,
+  - {name: tall_cabinet, since: m10, product_types: [CABINET], min_height: 1.4,
      not_words: [wardrobe, armoire, bed, bunk, tv, media, desk, wall mounted, wall mount, floating, closet],
      types: [tall_cabinet]}
   - {name: bookshelf, product_types: [SHELF], not_words: [floating, wall], min_height: 1.0, types: [bookshelf]}
@@ -176,32 +199,32 @@ rules:
   # Milestone 10 decor (docs/milestone10.md §4.6): candles and holders, baskets, trays, wall clocks, figurines,
   # tall planters with a plant, pendant and ceiling lights. A candle-holder listing that is a hanging light
   # ("Raffia Ceiling Hanging Pendant Chandelier") is a pendant light.
-  - {name: pendant_light, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS, CANDLE_HOLDER],
+  - {name: pendant_light, since: m10, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS, CANDLE_HOLDER],
      words: [pendant, chandelier, hanging, cage],
      not_words: [wall, sconce, vanity, outdoor, fan, flush, semi flush, semi-flush, recessed], types: [pendant_light]}
-  - {name: ceiling_light, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS],
+  - {name: ceiling_light, since: m10, product_types: [LIGHT_FIXTURE, HOME_LIGHTING_AND_LAMPS],
      words: [ceiling, flush, semi flush, semi-flush, close to ceiling],
      not_words: [pendant, chandelier, sconce, wall, vanity, outdoor, fan, hanging, recessed], types: [ceiling_light]}
-  - {name: candle, product_types: [CANDLE_HOLDER],
+  - {name: candle, since: m10, product_types: [CANDLE_HOLDER],
      not_words: [pendant, chandelier, ceiling, shade, light fixture, led, wall, hanging, lamp, sconce],
      types: [candle]}
-  - {name: candle_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [candle, candles, lantern],
+  - {name: candle_named, since: m10, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [candle, candles, lantern],
      not_words: [pendant, chandelier, ceiling, shade, light fixture, led, wall, hanging, lamp, sconce, scent, scented],
      types: [candle]}
-  - {name: basket, product_types: [BASKET, STORAGE_BOX], words: [basket, baskets],
+  - {name: basket, since: m10, product_types: [BASKET, STORAGE_BOX], words: [basket, baskets],
      not_words: [waste, trash, side table, ladder, drawer], types: [basket]}
-  - {name: basket_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [basket, baskets],
+  - {name: basket_named, since: m10, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [basket, baskets],
      not_words: [waste, trash, side table, ladder, drawer, hamper], types: [basket]}
-  - {name: tray, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [tray, trays],
+  - {name: tray, since: m10, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [tray, trays],
      not_words: [ottoman, folding, table, dinner, drawer, organizer], types: [tray]}
-  - {name: clock, product_types: [CLOCK], not_words: [alarm, grandfather, floor, table clock], types: [clock]}
-  - {name: clock_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [clock],
+  - {name: clock, since: m10, product_types: [CLOCK], not_words: [alarm, grandfather, floor, table clock], types: [clock]}
+  - {name: clock_named, since: m10, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [clock],
      not_words: [alarm, grandfather, floor, table clock, lamp], types: [clock]}
-  - {name: sculpture, product_types: [SCULPTURE, FIGURINE], not_words: [planter, planters, wall, pot],
+  - {name: sculpture, since: m10, product_types: [SCULPTURE, FIGURINE], not_words: [planter, planters, wall, pot],
      types: [sculpture]}
-  - {name: sculpture_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [sculpture, statue, figurine, bust],
+  - {name: sculpture_named, since: m10, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [sculpture, statue, figurine, bust],
      not_words: [wall art, print, wall, planter, lamp, mirror], types: [sculpture]}
-  - {name: plant_large, product_types: [PLANTER, ARTIFICIAL_PLANT], min_height: 0.9,
+  - {name: plant_large, since: m10, product_types: [PLANTER, ARTIFICIAL_PLANT], min_height: 0.9,
      not_words: [hanging, wall, mount], types: [plant_large]}
   # decor (kind decor; docs/milestone8.md §4)
   - {name: rug, product_types: [RUG], types: [rug]}

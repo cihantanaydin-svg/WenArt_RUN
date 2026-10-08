@@ -312,7 +312,7 @@ types:
   # and figurines 10 to 120 cm, large floor plants 0.9 to 2.6 m, pendants (with their drop) and ceiling lights.
   curtain:      {height: [0.80, 3.20], front: none}
   blind:        {height: [0.40, 3.00], front: none}
-  throw:        {height: [0.02, 0.80], front: none}
+  throw:        {height: [0.03, 0.80], front: none}
   books:        {height: [0.03, 0.50], front: none}
   candle:       {height: [0.04, 0.80], front: none}
   basket:       {height: [0.10, 0.80], front: none}

@@ -434,6 +434,39 @@ def test_stale_answers_are_asked_again(tmp_path, glb):
 # The catalogue
 # --------------------------------------------------------------------------
 
+def test_the_gpu_library_checks_pass_on_a_library_of_the_cpu_pipeline(tmp_path, glb, monkeypatch):
+    """tests/gpu/test_library.py reads the files the pod wrote; here the same checks run on a library made by this
+    file's pipeline (renders faked, judges faked): write-catalog's entry carries the four fields, the stored tags
+    agree with the slots, and the new-type checks find nothing to complain about for a one-model library."""
+    import importlib.util
+    out, uid, sha, _req = prepared(tmp_path, glb)
+    judge_both(out, {"qwen": AGREE, "glm": AGREE})
+    tags = R.write_tags(out)
+    cand = next(c for c in OV.load_candidates(out) if c["uid"] == uid)
+    obj = {"unit": {"scale": 1.0, "note": "units known", "ok": True},
+           "measure": {"bbox_min_raw": [0, 0, 0], "bbox_max_raw": [1, 0.8, 0.57], "triangles": 36, "vertices": 24}}
+    dec = {"type": "sofa", "kind": "furniture", "front_axis": "-Y", "front_axis_confidence": "high",
+           "front_axis_note": "documented", "styles": ["modern"], "style_note": "s", "quality": [5, 5],
+           "licence_flag": None, "has_mattress": None}
+    entry = OV.catalog_entry(dict(cand, licence="CC-BY-4.0", licence_url="u", via="v"), obj, dec, sha, OV.load_config(),
+                             None, tags["models"][uid])
+    OV.write_json(out / OV.CATALOG_NAME, {"entries": [entry], "decor": [], "sources": ["abo"]})
+    assets = tmp_path / "assets"
+    (assets / "models" / "abo").mkdir(parents=True)
+    (assets / "models" / "abo" / f"{uid}.glb").write_bytes(glb.read_bytes())
+    entry["glb"] = f"models/abo/{uid}.glb"
+    OV.write_json(out / OV.CATALOG_NAME, {"entries": [entry], "decor": [], "sources": ["abo"]})
+    spec = importlib.util.spec_from_file_location("gpu_library", Path(__file__).parent / "gpu" / "test_library.py")
+    gpu = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gpu)
+    monkeypatch.setattr(gpu, "LIBRARY", out)
+    monkeypatch.setattr(gpu, "ASSETS", assets)
+    with pytest.warns(UserWarning):                                  # the new types without a model yet
+        gpu.test_new_types_have_models_in_three_style_families_and_credits()
+    gpu.test_material_tags_of_the_catalogue_follow_both_judges(OV.load_config())
+    assert entry["material_tags"] == ["glass", "wood", "fabric"] and entry["recolourable_fabric"] is True
+
+
 def test_catalog_entry_gets_the_four_fields_and_a_generated_plant_its_species():
     cand = {"uid": "gen_plant_large_modern_1_abcd1234", "source": "generated", "licence": "generated (TRELLIS.2-4B, MIT)",
             "title": "Generated modern plant large (1)", "glb_info": {"textured": True},
