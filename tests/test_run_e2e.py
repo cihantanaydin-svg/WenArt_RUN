@@ -200,15 +200,16 @@ def test_needs_review_projects(smoke):
     m = _manifest(smoke)
     out = smoke["outputs"] / "review-01"
     records = _records(out, m["run_id"])
-    assert records["pipeline"]["status"] == "needs_review"
+    # Milestone 10: the sheet analysis stops it before the pipeline (two plans without a level title).
+    assert records["sheets"]["status"] == "needs_review" and "pipeline" not in records
     assert "build" not in records and "layout" not in records and "recognize" not in records
     assert (out / "final" / "final_report.md").is_file()
     final = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
     assert final["status"] == "needs_review" and final["reasons"]
-    assert "cannot order untitled plan pages" in (out / "report.md").read_text(encoding="utf-8")
+    assert "plan without a level title" in (out / "sheets_report.md").read_text(encoding="utf-8")
     assert m["test_lists"]["NEEDS_REVIEW_TEST_PROJECTS"].split()[0] == "review-01"
     private = _records(smoke["po"] / ALIAS, m["run_id"])
-    assert private["intake"]["status"] == "ok" and private["pipeline"]["status"] == "needs_review"
+    assert private["intake"]["status"] == "ok" and private["sheets"]["status"] == "needs_review"
     assert "build" not in private and (smoke["pp"] / ALIAS).is_dir()      # the self-test upload (review-01)
     assert sorted(p.name for p in (smoke["pp"] / ALIAS).iterdir()) == ["plan_a.pdf", "plan_b.pdf"]
     assert (smoke["po"] / ALIAS / "intake_manifest.json").is_file()
