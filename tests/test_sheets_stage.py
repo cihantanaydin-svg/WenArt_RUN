@@ -85,6 +85,9 @@ def test_registration_puts_every_plan_in_one_frame(result):
         assert (x, y) == pytest.approx((0.0, 0.0), abs=0.01), r["id"]
         assert r["registration"]["residual_m"] <= 0.05
         assert r["registration"]["rotation_deg"] == 0.0
+        # p_ref = R . (p_source . metres_per_unit) + shift_m (§1.6b row 1); the reference maps onto itself.
+        g = PLANS["ground"][0]
+        assert r["registration"]["shift_m"] == pytest.approx([(g[0] - ox) * 0.01, (g[1] - oy) * 0.01], abs=0.01)
     attic = next(r for r in plans if r["level"]["id"] == "L1")
     assert attic["registration"]["stairs_aligned"] is True
 
@@ -113,6 +116,30 @@ def test_heights_from_the_section(result):
     assert len(mism) == 1 and "0.15 m apart" in mism[0]["description"]
     every_value = [lv["floor_z"] for lv in h["levels"]] + [s["thickness"] for s in h["slabs"]]
     assert all(v["method"] == "vector" and v["evidence"] for v in every_value)
+    # level_mark = printed mark - datum (building z); level_mark_target_z = the line the mark points at.
+    lv = {e["level_id"]: e for e in h["levels"]}
+    assert lv["L-1"]["level_mark"]["value"] == pytest.approx(-3.0) and "40.00" in lv["L-1"]["level_mark"]["note"]
+    assert lv["L-1"]["level_mark_target_z"]["value"] == pytest.approx(-3.15, abs=0.01)
+    assert lv["L0"]["level_mark"]["value"] == pytest.approx(0.0) and lv["L1"]["level_mark"] is None
+    # Profile s from the left outer wall face; the knee wall = the roof's top surface there minus the attic floor.
+    assert roof["profile"][0] == pytest.approx([-0.5, 3.65], abs=0.01)
+    assert roof["knee_wall"]["value"] == pytest.approx(0.5 + 0.05 * 300 / 55, abs=0.01)
+    assert h["cut_at"] is None and h["flipped"] is None
+
+
+def test_no_section_assumes_heights(tmp_path):
+    # §1.6b row 6: no section: floor to floor 3.00 m, slab and ceiling from the brief, all assumed (note, conf. 0).
+    res = _run(tmp_path, section=False, brief="slab_thickness: 0.2\nceiling_height: 2.6\n")
+    h = res.doc["heights"]
+    lv = {e["level_id"]: e for e in h["levels"]}
+    assert {k: v["floor_z"]["value"] for k, v in lv.items()} == pytest.approx({"L-1": -3.0, "L0": 0.0, "L1": 3.0})
+    for e in h["levels"]:
+        for key, want in (("floor_to_floor", 3.0), ("ceiling_height", 2.6)):
+            v = e[key]
+            assert v["value"] == pytest.approx(want) and v["method"] == "assumed"
+            assert v["confidence"] == 0 and v["note"]
+    assert all(s["thickness"]["value"] == pytest.approx(0.2) for s in h["slabs"])
+    assert SH.validation_errors(res.doc) == []
 
 
 def test_marks_that_agree_give_no_conflict(tmp_path):
@@ -139,20 +166,44 @@ def test_report_and_debug_image_are_written(result, tmp_path_factory):
     assert (out.parent / debug).is_file()
 
 
-def test_brief_variants_base_leaves_the_alternative_out(tmp_path):
+def test_brief_variants_base_reads_the_alternative_but_does_not_list_it(tmp_path):
+    # §1.6b row 7: variants: base: alternatives read but not in variants[].
     res = _run(tmp_path, brief="variants: base\n")
     alt = next(r for r in res.doc["regions"] if r["class"] == "alternative_floor_plan")
-    assert alt["use"] == "ignored" and "not selected" in alt["ignored_reason"]
+    assert alt["use"] == "read" and alt["level"]["id"] == "L-1b"
     assert [v["id"] for v in res.doc["variants"]] == ["base"]
+    assert any("alternatives read, not built: l-1b-acik-mutfak" in w for w in res.doc["warnings"])
 
 
-def test_two_plain_titles_of_one_level_make_the_base_unclear(tmp_path):
+def test_brief_variants_list_matches_name_slug_gloss_or_id(tmp_path):
+    for name in ("Açık mutfak", "acik-mutfak", "open kitchen", "l-1b-acik-mutfak"):
+        res = _run(tmp_path, name=f"p_{len(name)}_{name[:3]}", brief=f"variants: ['{name}']\n")
+        assert [v["id"] for v in res.doc["variants"]] == ["base", "l-1b-acik-mutfak"], name
+    res = _run(tmp_path, name="p_unknown", brief="variants: ['sauna']\n")
+    assert [v["id"] for v in res.doc["variants"]] == ["base"]
+    assert any("sauna not found among the alternatives" in w for w in res.doc["warnings"])
+
+
+def test_two_plain_titles_of_one_level_are_a_copy_not_an_alternative(tmp_path):
+    # §1.6b row 4: the same level with the same title is a copy (secondary_regions), never an alternative.
     res = _run(tmp_path, alternative_title="BODRUM KAT PLANI")
+    basement = next(lv for lv in res.doc["levels"] if lv["id"] == "L-1")
+    assert basement["alternatives"] == [] and basement["secondary_regions"] == ["r4"]
+    assert basement["base_region"] == "r3"
+    assert [v["id"] for v in res.doc["variants"]] == ["base"]
+    assert "variant_base_unclear" not in [c["kind"] for c in res.doc["conflicts"]]
+
+
+def test_all_titles_with_alternative_words_make_the_base_unclear(tmp_path):
+    res = _run(tmp_path, titles={"basement": "BODRUM KAT PLANI ALTERNATİF 1"},
+               alternative_title="BODRUM KAT PLANI ALTERNATİF 2")
     kinds = [c["kind"] for c in res.doc["conflicts"]]
     assert "variant_base_unclear" in kinds
     basement = next(lv for lv in res.doc["levels"] if lv["id"] == "L-1")
+    assert basement["base_region"] == "r3" and basement["alternatives"][0]["region"] == "r4"
     assert basement["alternatives"][0]["base_unclear"] is True
-    assert basement["alternatives"][0]["variant"] == "Alternative 2"
+    for rid in ("r3", "r4"):
+        assert _region(res.doc, rid)["status"] == "unverified"
 
 
 def test_one_drawing_per_page_is_not_multi_region(tmp_path):

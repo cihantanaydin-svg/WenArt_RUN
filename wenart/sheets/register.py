@@ -12,7 +12,11 @@ How (metres):
   holes filled and shrunk back (the walls' outer faces; furniture and tiles inside do not matter); a closed outline
   that encloses all other strokes with a margin (the roof outline on an attic plan) is left out;
 - the reference is the base ground-floor plan (else the lowest base plan); its frame: x right, y up, origin at the
-  min corner of its outline (transform ``[s, 0, -s x0, 0, s, -s y0]``);
+  min corner of its outline (transform ``[s, 0, -s x0, 0, s, -s y0]``; the pipeline moves the origin to the min corner
+  of the reference's outer walls once the core has read them, docs/milestone10.md §1.6b row 1);
+- ``registration.shift_m`` / ``rotation_deg`` map a region's drawing onto the reference drawing, both in metres
+  (``p_ref = R(rotation) (p metres_per_unit) + shift_m``); ``transform_to_building`` is that map followed by the
+  reference's origin step;
 - every other plan: candidates at 0/90/180/270 degrees, started from its outline box aligned to the reference's at
   the centre and at each corner, refined by trimmed ICP (the 80 % nearest outline points, translation only); the
   lowest trimmed RMS wins (0 degrees on ties). Columns (closed squares 0.15-0.8 m) that match within 0.10 m refine the
@@ -151,7 +155,7 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
     ref_t = np.array([-x0 * ref_mpu, -y0 * ref_mpu])
     reference.transform_to_building = [ref_mpu, 0.0, _r(ref_t[0]), 0.0, ref_mpu, _r(ref_t[1])]
     reference.registration = {"reference": None, "method": "reference", "rotation_deg": 0.0,
-                              "shift_m": [_r(ref_t[0]), _r(ref_t[1])], "residual_m": 0.0, "matched": 0,
+                              "shift_m": [0.0, 0.0], "residual_m": 0.0, "matched": 0,
                               "stairs_aligned": None, "note": None}
     ref_m = affinity.affine_transform(ref_poly, [ref_mpu, 0, 0, ref_mpu, ref_t[0], ref_t[1]])
     outlines[reference.id] = ref_m
@@ -209,8 +213,8 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
         b = mpu * math.sin(math.radians(theta))
         r.transform_to_building = [_r(a), _r(-b), _r(t[0]), _r(b), _r(a), _r(t[1])]
         r.registration = {"reference": reference.id, "method": method, "rotation_deg": theta,
-                          "shift_m": [_r(t[0]), _r(t[1])], "residual_m": round(residual, 4), "matched": matched,
-                          "stairs_aligned": None, "note": note}
+                          "shift_m": [_r(t[0] - ref_t[0]), _r(t[1] - ref_t[1])], "residual_m": round(residual, 4),
+                          "matched": matched, "stairs_aligned": None, "note": note}
         outlines[r.id] = affinity.affine_transform(poly, [a, -b, b, a, t[0], t[1]])
         if residual > RESIDUAL_MAX_M:
             cid = conflict("registration_residual", [r.id, reference.id],

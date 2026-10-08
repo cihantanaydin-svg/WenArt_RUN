@@ -136,7 +136,7 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                 w, h = sheet.size or (0.0, 0.0)
                 sheet.box = (0.0, 0.0, w, h)
                 sheet_json["box"] = round_box(sheet.box)
-                r = Region(id=f"r{len(doc_regions) + 1}", file=doc.file, sheet=sheet, box=sheet.box,
+                r = Region(id=f"r{len(regions) + len(doc_regions) + 1}", file=doc.file, sheet=sheet, box=sheet.box,
                            geometry_box=sheet.box, kind="raster")
                 r.features = {"raster": True, "note": "raster page: one region; classified and read by the "
                                                       "pipeline's OCR path (M7), not split"}
@@ -151,7 +151,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                                "gap_units": round(res.gap, 3)})
             frames_all.extend(res.frames)
             for c in res.clusters:
-                doc_regions.append(Region(id=f"r{len(doc_regions) + 1}", file=doc.file, sheet=sheet, box=c.box,
+                rid = f"r{len(regions) + len(doc_regions) + 1}"         # unique in the project (§1.6b row 2)
+                doc_regions.append(Region(id=rid, file=doc.file, sheet=sheet, box=c.box,
                                           geometry_box=c.geometry_box, ents=c.ents, texts=c.texts, frame=c.frame,
                                           kind=c.kind))
             for c, dist in res.strays:
@@ -282,8 +283,7 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     top_plan = None
     if levels_json:
         top_level = max(levels_json, key=lambda lv: lv["order"])
-        top_plan = next((r for r in read_plans if r.id == top_level["base_region"] and r.file == top_level["file"]),
-                        None)
+        top_plan = next((r for r in read_plans if r.id == top_level["base_region"]), None)
     elevations = [r for r in regions if r.cls == "elevation" and r.use == "exterior"]
     sites = [r for r in regions if r.cls == "site_plan" and r.use == "exterior"]
     exterior_json = EX.exterior(top_plan, section_geom, elevations, sites,
@@ -406,7 +406,7 @@ def _reference(plans: list, levels: list) -> Optional[Region]:
     """The base ground-floor plan, else the lowest base plan."""
     bases = []
     for lv in levels:
-        r = next((p for p in plans if p.id == lv["base_region"] and p.file == lv["file"]), None)
+        r = next((p for p in plans if p.id == lv["base_region"]), None)
         if r is not None and r.metres_per_unit:
             bases.append((lv["order"], r))
     if not bases:

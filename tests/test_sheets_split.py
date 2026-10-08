@@ -60,7 +60,7 @@ def test_fixture_sheet_regions_frames_and_strays(sheet):
     kinds = [c.kind for c in res.clusters]
     assert len(res.clusters) == 6 and kinds[0] == "box"
     titles = [sorted(t.text for t in c.texts) for c in res.clusters]
-    assert titles[0] == ["PLANLAR"]
+    assert "PLANLAR" in titles[0]
     # Reading order: the title box, the row of three plans left to right, then the attic and the section.
     for k, key in enumerate(("ground", "basement", "alternative"), start=1):
         x0 = res.clusters[k].geometry_box[0]
@@ -85,7 +85,7 @@ def test_frames_never_bridge_and_texts_never_bridge():
 def _house(dx: float, prefix: str) -> list[Ent]:
     """A 10 x 8 m outline drawn as one closed polyline with three inner walls running into it (cm)."""
     return [_ent(f"LWPOLYLINE:{prefix}O", (dx, 0, dx + 1000, 800), rect=True),
-            _ent(f"LINE:{prefix}1", (dx + 400, 0, dx + 410, 800)), _ent(f"LINE:{prefix}2", (dx + 0, 400, dx + 400, 410)),
+            _ent(f"LINE:{prefix}1", (dx + 400, 0, dx + 410, 800)), _ent(f"LINE:{prefix}2", (dx, 400, dx + 400, 410)),
             _ent(f"LINE:{prefix}3", (dx + 700, 0, dx + 710, 800))] + \
         [_ent(f"LINE:{prefix}f{k}", (dx + 100 + k * 20.0, 100, dx + 110 + k * 20.0, 150)) for k in range(8)]
 

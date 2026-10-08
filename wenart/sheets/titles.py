@@ -16,10 +16,10 @@ no class word and never become titles.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 from typing import Optional
 
 from wenart import building as B
+from wenart.sheets.levels import LevelWord, level_of  # noqa: F401 - re-exported
 
 # (class, pattern on the ASCII-folded upper-case text, language), most specific first.
 CLASS_WORDS: list[tuple[str, str, str]] = [
@@ -62,31 +62,6 @@ CLASS_WORDS: list[tuple[str, str, str]] = [
 ]
 _CLASS_RE = [(cls, re.compile(pat), lang) for cls, pat, lang in CLASS_WORDS]
 
-# Level words (§3.1 item 3): (order or "top", kind, label, pattern, language).
-LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
-    ("top", "attic", "Çatı Katı", r"\bCATI KATI?\b", "tr"),
-    ("top", "attic", "Attic", r"\bATTIC\b|\bLOFT\b", "en"),
-    ("top", "attic", "Dachgeschoss", r"\bDACHGESCHOSS\b", "de"),
-    ("top", "attic", "Combles", r"\bCOMBLES\b", "fr"),
-    (-1, "basement", "Bodrum Kat", r"\bBODRUM\b", "tr"),
-    (-1, "basement", "Basement", r"\bBASEMENT\b", "en"),
-    (-1, "basement", "Untergeschoss", r"\bUNTERGESCHOSS\b|\bKELLER(?:GESCHOSS)?\b", "de"),
-    (-1, "basement", "Sous-sol", r"\bSOUS-SOL\b|\bSOUS SOL\b", "fr"),
-    (0, "floor", "Zemin Kat", r"\bZEMIN\b", "tr"),
-    (0, "floor", "Ground Floor", r"\bGROUND\b", "en"),
-    (0, "floor", "Erdgeschoss", r"\bERDGESCHOSS\b", "de"),
-    (0, "floor", "Rez-de-chaussée", r"\bREZ-DE-CHAUSSEE\b|\bREZ DE CHAUSSEE\b", "fr"),
-]
-_LEVEL_RE = [(o, k, lab, re.compile(p), lang) for o, k, lab, p, lang in LEVEL_WORDS]
-_NTH_RE = [
-    (re.compile(r"\b(\d{1,2})\s*\.\s*KAT\b"), "tr", "{n}. Kat"),
-    (re.compile(r"\b(\d{1,2})\s*(?:ST|ND|RD|TH)\s+FLOOR\b"), "en", "{n}th Floor"),
-    (re.compile(r"\b(FIRST|SECOND|THIRD|FOURTH)\s+FLOOR\b"), "en", "{w} Floor"),
-    (re.compile(r"\b(\d{1,2})\s*\.\s*(?:OG|OBERGESCHOSS)\b"), "de", "{n}. Obergeschoss"),
-    (re.compile(r"\b(\d{1,2})\s*(?:ER|E|EME)\s+ETAGE\b"), "fr", "{n}e étage"),
-]
-_ORDINALS = {"FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4}
-
 # Alternative words (§3.1 item 4).
 ALTERNATIVE_WORDS = ("ALTERNATIF", "SECENEK", "OPSIYON", "VARYANT", "ALTERNATIVE", "OPTION", "VARIANT", "VARIANTE")
 _ALT_RE = re.compile(r"\b(" + "|".join(ALTERNATIVE_WORDS) + r")\b\s*[:\-]?\s*(.*)$")
@@ -126,43 +101,6 @@ def class_of(text: str) -> Optional[tuple[str, list[str], str]]:
                 words.insert(0, level.word)
             return cls, words, lang
     return None
-
-
-@dataclass
-class LevelWord:
-    order: Optional[int]          # None = the top level (attic)
-    kind: str                     # basement | floor | attic
-    label: str
-    word: str
-    language: str
-
-
-def level_of(text: str) -> Optional[LevelWord]:
-    """The level a title names: basement -1, ground 0, ``n. KAT`` / ``n-th FLOOR`` / ``n. OG`` n, attic = the top."""
-    folded = fold(text)
-    for order, kind, label, pattern, lang in _LEVEL_RE:
-        m = pattern.search(folded)
-        if m:
-            return LevelWord(order=None if order == "top" else int(order), kind=kind, label=label, word=m.group(0),
-                             language=lang)
-    for pattern, lang, label in _NTH_RE:
-        m = pattern.search(folded)
-        if m:
-            g = m.group(1)
-            n = _ORDINALS[g] if g in _ORDINALS else int(g)
-            if n == 0:
-                continue
-            text_label = label.format(n=n, w=g.capitalize())
-            if lang == "en" and label.startswith("{n}"):
-                text_label = f"{n}{_suffix(n)} Floor"
-            return LevelWord(order=n, kind="floor", label=text_label, word=m.group(0), language=lang)
-    return None
-
-
-def _suffix(n: int) -> str:
-    if 10 <= n % 100 <= 20:
-        return "th"
-    return {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
 
 
 def alternative_of(text: str) -> Optional[tuple[str, str]]:

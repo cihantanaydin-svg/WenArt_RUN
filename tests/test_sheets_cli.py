@@ -58,7 +58,7 @@ def test_exit_codes(project, tmp_path):
 
 def test_input_hash_is_stable_and_names_the_region(project, tmp_path):
     a = SH.run(project, tmp_path / "a", no_ai=True)
-    b = SH.run(project, tmp_path / "b", no_ai=True)
+    SH.run(project, tmp_path / "b", no_ai=True)
     ha = [it["input_sha256"] for it in A.read_requests(tmp_path / "a" / "sheets")["items"]]
     hb = [it["input_sha256"] for it in A.read_requests(tmp_path / "b" / "sheets")["items"]]
     assert ha == hb and len(set(ha)) == len(ha)

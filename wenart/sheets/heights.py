@@ -46,6 +46,7 @@ MARK_TOL_M = 0.05
 SECTION_WIDTH_TOL = (0.01, 0.05)       # 1 % or 5 cm
 PROFILE_TOL_M = 0.01
 ROOF_THICKNESS_M = (0.05, 0.6)
+FLOOR_TO_FLOOR_M = 3.00                # no section: floor to floor (assumed, docs/milestone10.md §1.6b row 6)
 
 
 @dataclass
@@ -282,7 +283,8 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
     warnings: list[str] = []
     ceiling_default = float(brief_values.get("ceiling_height", 2.70))
     slab_default = float(brief_values.get("slab_thickness", 0.20))
-    out = {"section_regions": [], "cut_axis": None, "datum": None, "levels": [], "slabs": [], "ground": [],
+    out = {"section_regions": [], "cut_axis": None, "cut_at": None, "flipped": None, "datum": None, "levels": [],
+           "slabs": [], "ground": [],
            "roof": {"eaves_z": None, "ridge_z": None, "pitches_deg": [], "knee_wall": None, "overhang": None,
                     "thickness": None, "profile": []}}
     usable = section is not None and section.mpu and section.bands and section.walls is not None
@@ -292,7 +294,7 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
                "no slab bands found in the section" if not section.bands else "no outer walls found in the section")
         _assumed_levels(out, levels, ceiling_default, slab_default, why)
         warnings.append(f"heights assumed ({why}): ceiling {ceiling_default:.2f} m, slab {slab_default:.2f} m, "
-                        f"floor to floor {ceiling_default + slab_default:.2f} m")
+                        f"floor to floor {FLOOR_TO_FLOOR_M:.2f} m")
         return out, warnings
     s = float(section.mpu)
     r = section.region
@@ -372,18 +374,19 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
             entry["ceiling_height"] = assumed(ceiling_default, "nothing drawn above the top level (brief "
                                                                "ceiling_height)")
             entry["floor_to_floor"] = None
-        mark = next((m for m in marks if abs(m["value"] - (datum["value"] if datum else 0.0)
-                                             - (z(yt) if datum else 0.0)) <= MARK_TOL_M and datum is not None), None)
-        if mark is None and datum is not None:
-            mark = next((m for m in marks if abs(m["y"] - yt) * s <= MARK_TOL_M), None)
-        if mark is not None and datum is not None:
-            note = None
-            if abs(mark["y"] - yt) * s > MARK_TOL_M:
-                note = f"the mark points at {z(mark['y']):+.2f} m{_what_at(section, mark['y'])}"
-            entry["level_mark"] = _value(mark["value"] - datum["value"], "vector",
-                                         [_ev(file_rel, mark["t"].id, "level_mark", rid, mark["t"].text)], note=note)
+        mark = None
+        if datum is not None:
+            mark = next((m for m in marks if abs(m["value"] - datum["value"] - z(yt)) <= MARK_TOL_M), None) or \
+                next((m for m in marks if abs(m["y"] - yt) * s <= MARK_TOL_M), None)
+        if mark is not None:
+            ev = [_ev(file_rel, mark["t"].id, "level_mark", rid, mark["t"].text)]
+            entry["level_mark"] = _value(mark["value"] - datum["value"], "vector", ev,
+                                         note=f"printed {mark['t'].text} - datum {datum['value']:.2f}")
+            entry["level_mark_target_z"] = _value(z(mark["y"]), "vector", ev,
+                                                  note=f"the line the mark points at{_what_at(section, mark['y'])}")
         else:
             entry["level_mark"] = None
+            entry["level_mark_target_z"] = None
         out["levels"].append(entry)
         below = mapped[idx - 1][0]["id"] if idx > 0 else None
         out["slabs"].append({"between": [below, lv["id"]],
@@ -474,13 +477,15 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
             roof["thickness"] = assumed(None, "not drawn: the roof is one line in the section")
         knee = _knee(section, top_floor_y)
         if knee is not None:
-            roof["knee_wall"] = _value(knee[0] * s, "derived", [_ev(file_rel, knee[1], "roof_underside", rid,
-                                                                     method="derived", confidence=0.6)],
-                                       confidence=0.6,
-                                       note="the roof underside above the top floor at the inner face of the outer "
-                                            "wall below (the top floor's walls are not cut in the section)")
-        cut_min = 0.0
-        roof["profile"] = [[round(cut_min + (x - x0) * s, 3) + 0.0, round(z(y), 3) + 0.0] for x, y in prof]
+            roof["knee_wall"] = _value(knee[0] * s, "vector", [_ev(file_rel, knee[1], "roof_line", rid)],
+                                       note="the roof's top surface at the outer face of the outer wall above the top "
+                                            "floor (a cross-check)")
+        # s along cut_axis: 0 at the section's left outer wall face (= the reference outline's min side along the
+        # axis, flipped unknown without a cut line on the plans).
+        roof["profile"] = [[round((x - x0) * s, 3) + 0.0, round(z(y), 3) + 0.0] for x, y in prof]
+    if section.profile:
+        warnings.append(f"section {rid}: no cut line on the plans: the section's left end is taken as the building's "
+                        f"min side along the cut axis (flipped unknown)")
     return out, warnings
 
 
@@ -527,27 +532,25 @@ def _roof_thickness(section: SectionGeometry) -> Optional[tuple[float, str]]:
 
 
 def _knee(section: SectionGeometry, top_floor_y: Optional[float]) -> Optional[tuple[float, str]]:
-    if top_floor_y is None or section.wall_inner is None or not section.underside:
+    """The roof's top surface (the profile) at the left outer wall face, above the top floor (units, line id)."""
+    if top_floor_y is None or section.walls is None or len(section.profile) < 2:
         return None
-    x = section.wall_inner[0]
-    best = None
-    for ln in section.underside:
-        y = _y_on(ln, x)
-        if y is not None and y > top_floor_y and (best is None or y < best[0]):
-            best = (y, ln.id)
-    if best is None:
-        return None
-    return best[0] - top_floor_y, best[1]
+    x = section.walls[0]
+    for (ax, ay), (bx, by), lid in zip(section.profile, section.profile[1:], section.profile_ids or [None] * 99):
+        if ax <= x <= bx and bx > ax:
+            return ay + (by - ay) * (x - ax) / (bx - ax) - top_floor_y, lid
+    return None
 
 
 def _assumed_level(out: dict, lv: dict, ceiling: float, slab: float, why: str) -> None:
     order = lv.get("order") or 0
-    pitch = ceiling + slab
     out["levels"].append({"level_id": lv["id"],
-                          "floor_z": assumed(round(order * pitch, 3), f"{why}: order x {pitch:.2f} m"),
+                          "floor_z": assumed(round(order * FLOOR_TO_FLOOR_M, 3), f"{why}: order x "
+                                                                                 f"{FLOOR_TO_FLOOR_M:.2f} m"),
                           "ceiling_height": assumed(ceiling, f"{why}: brief ceiling_height"),
-                          "floor_to_floor": assumed(pitch, f"{why}: ceiling_height + slab_thickness"),
-                          "level_mark": None})
+                          "floor_to_floor": assumed(FLOOR_TO_FLOOR_M, f"{why}: {FLOOR_TO_FLOOR_M:.2f} m (above the "
+                                                                      f"ceiling and slab: an assumed plenum)"),
+                          "level_mark": None, "level_mark_target_z": None})
 
 
 def _assumed_levels(out: dict, levels: list[dict], ceiling: float, slab: float, why: str) -> None:
@@ -556,5 +559,5 @@ def _assumed_levels(out: dict, levels: list[dict], ceiling: float, slab: float, 
         _assumed_level(out, lv, ceiling, slab, why)
         order = lv.get("order") or 0
         out["slabs"].append({"between": [prev, lv["id"]], "thickness": assumed(slab, f"{why}: brief slab_thickness"),
-                             "z_top": assumed(round(order * (ceiling + slab), 3), f"{why}")})
+                             "z_top": assumed(round(order * FLOOR_TO_FLOOR_M, 3), f"{why}: the level's floor")})
         prev = lv["id"]

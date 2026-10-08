@@ -1,9 +1,9 @@
 """A small multi-drawing CAD sheet for the sheets-stage tests (docs/milestone10.md §3.1), written with ezdxf.
 
-What: ``write_sheet(path, ...)`` draws, in centimetres, one frame with a title box (``PLANLAR``), four plans (ground
-floor, basement, the basement's alternative ``( Açık mutfak)``, an attic with its roof outline and break line), a
-section (three slab bands, level marks 43.00 / 40.00, a roof of two slopes, ground lines) and one stray line far
-away. Every plan is a 10 x 8 m dwelling with 20 cm outer walls and a 10 cm inner wall (closed solid-hatched
+What: ``write_sheet(path, ...)`` draws, in centimetres, one frame with a title box (``PLANLAR``, 16 fields), four
+plans (ground floor, basement, the basement's alternative ``( Açık mutfak)``, an attic with its roof outline and break
+line), a section (three slab bands, level marks 43.00 / 40.00, a roof of two slopes, ground lines) and one stray
+line far away. Every plan is a 10 x 8 m dwelling with 20 cm outer walls and a 10 cm inner wall (closed solid-hatched
 rectangles on layer ``DUVAR``), two labelled rooms, a door block (quarter arc + leaf) and a stair block.
 
 Why: real02 needs LibreDWG; this sheet tests the same rules in a second, with known answers (``EXPECTED``).
@@ -24,6 +24,9 @@ PLANS = {
     "attic": ((500.0, 800.0), "ÇATI KAT PLANI"),
 }
 SECTION = (2700.0, 300.0)
+TITLE_FIELDS = ("PROJE: KONUT", "MİMARİ PROJE", "İŞVEREN: D. ŞAHİN", "ADRES: İSTANBUL", "MİMAR: A. YILMAZ",
+                "ÇİZEN: B. KAYA", "KONTROL: C. DEMİR", "PAFTA NO: A-01", "REVİZYON: 0", "TARİH: EKİM 2026",
+                "ONAY: BELEDİYE", "STATİK: E. ÇELİK", "ELEKTRİK: F. AK", "MEKANİK: G. SU", "SAYFA: BİR", "NOT: TASLAK")
 W, D = 1000.0, 800.0                 # dwelling outer size (cm)
 OUTER, INNER = 20.0, 10.0
 EXPECTED = {
@@ -115,7 +118,7 @@ def _section(msp, origin, mark40_at_bottom: bool) -> None:
 
 
 def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
-                alternative_title: str = PLANS["alternative"][1], walls: dict | None = None,
+                alternative_title: str = PLANS["alternative"][1], walls: dict | None = None, titles: dict | None = None,
                 stray: bool = True, section: bool = True, frame: bool = True) -> Path:
     """Write the sheet (DXF R2013) and return its path."""
     doc = ezdxf.new("R2013")
@@ -128,11 +131,15 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
         _rect(msp, 0.0, 0.0, 6000.0, 5000.0, "PAFTA")
         _rect(msp, 200.0, 4500.0, 5800.0, 4900.0, "PAFTA")
         msp.add_mtext("PLANLAR", dxfattribs={"insert": (300.0, 4800.0), "char_height": 150, "layer": "PAFTA"})
+        # Title-block fields (small texts): with them the stray line holds < 1 % of the sheet's entities.
+        for k, field in enumerate(TITLE_FIELDS):
+            msp.add_text(field, height=30, dxfattribs={"insert": (1500.0 + 1000.0 * (k // 4), 4800.0 - 80.0 * (k % 4)),
+                                                         "layer": "PAFTA"})
     walls = walls or {}
     labels = {"ground": ("SALON", "YATAK ODASI"), "basement": ("SALON", "MUTFAK"),
               "alternative": ("SALON", "AÇIK MUTFAK"), "attic": ("ÇOCUK ODASI", "BANYO")}
     for key, (origin, title) in PLANS.items():
-        t = alternative_title if key == "alternative" else title
+        t = alternative_title if key == "alternative" else (titles or {}).get(key, title)
         _plan(msp, origin, t, labels[key], walls=walls.get(key, True))
     ax, ay = PLANS["attic"][0]
     _rect(msp, ax - 50.0, ay - 50.0, ax + W + 50.0, ay + D + 50.0, "CATI")          # roof outline

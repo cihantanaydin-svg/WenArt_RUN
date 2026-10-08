@@ -363,7 +363,7 @@ def _absorb_satellites(clusters: list[Cluster]) -> list[Cluster]:
 
 
 def _strays(clusters: list[Cluster], frame_boxes: list, total: int, gap: float):
-    small = [c for c in clusters if c.size < STRAY_SHARE * max(total, 1) or c.size == 1]
+    small = [c for c in clusters if c.size < STRAY_SHARE * max(total, 1)]
     if frame_boxes:
         far = [c for c in small if c.frame is None and not any(box_distance(c.box, fb) == 0.0 and
                                                                   _overlap(c.box, fb) for _, fb in frame_boxes)]
