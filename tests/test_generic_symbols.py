@@ -377,6 +377,14 @@ def test_m10_block_name_words():
     assert "sofa_corner" in SY.fitting_types(TABLE, (2.6, 1.6), "L")
 
 
+def test_a_tv_console_block_is_a_tv_unit():
+    # Review #15: KONSOL (console table) must not shadow the M7 TV word in a TV console's name.
+    for name in ("TV_KONSOL", "TV KONSOLU", "tv-konsol", "TV_CONSOLE", "TVKONSOL"):
+        assert SY.keyword_type(name) == "tv_unit", name
+    assert SY.block_type(["TV KONSOLU"], (1.8, 0.45), TABLE) == "tv_unit"
+    assert SY.keyword_type("KONSOL") == "console_table"
+
+
 def _l_sofa(notch="bottom-left"):
     """An L outline in the box x 1.0-3.6, y 2.4-4.0: the main seat 0.9 m deep along y 4.0, the chaise 0.9 m wide."""
     if notch == "bottom-left":
@@ -413,6 +421,18 @@ def test_a_corner_sofa_block_takes_its_l_front():
     assert p.type_method == "block_name" and p.status == "verified" and p.front_deg == 270.0
     assert p.size == pytest.approx((2.6, 1.6)) and p.rotation_deg == 0.0     # front_deg = (270 + rotation) mod 360
     assert p.details["l_outline"]["chaise_side"] == "right"
+
+
+def test_an_l_shaped_stair_outline_stays_a_stair():
+    # Review #11: a quarter-turn stair drawn as a closed L outline with its treads inside (20 mm short of the outline)
+    # is read by the stair rule before the L-outline (corner sofa) path.
+    def p(x, y):
+        return (x + 1.0, y + 1.0)
+    outline = R.stroke([p(0, 1.6), p(2, 1.6), p(2, 0), p(3, 0), p(3, 2.6), p(0, 2.6)], closed=True)
+    treads = [R.stroke([p(0.28 * k + 0.2, 1.62), p(0.28 * k + 0.2, 2.58)]) for k in range(6)] + \
+        [R.stroke([p(2.02, 0.28 * k + 0.2), p(2.98, 0.28 * k + 0.2)]) for k in range(5)]
+    pieces, cands, _ = _furn([outline] + treads)
+    assert [(x.type, x.type_method) for x in pieces] == [("stair", "rule")] and cands == []
 
 
 def test_rectangles_and_u_shapes_are_no_l():
