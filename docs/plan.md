@@ -238,7 +238,7 @@ own site was blocked here → re-check in Milestone 1). Cycles GPU: `compute_dev
 |---|---|---|---|---|---|---|---|
 | **Poly Haven models** (pick, first choice) | CC0 | yes | – | API download | high, PBR, few hundred models | 2026 | https://github.com/Poly-Haven/Public-API |
 | **Objaverse 1.0 filtered to CC0 / CC-BY, LVIS furniture classes** (pick, second) | per object | yes with attribution | – | bulk download | mixed quality and scale | 2023 | https://github.com/allenai/objaverse-xl |
-| BlenderKit CC0 / Royalty-Free | mixed | yes | – | API key | large catalogue | 2026 | https://github.com/BlenderKit/BlenderKit |
+| Blendkit (was BlenderKit) CC0 / Royalty-Free (planned, see "Blendkit" below) | CC0 / Royalty Free | yes in renders; RF not in 3D files | – | account token | 10,000+ free models | 2026 | https://www.blendkit.com |
 | **TRELLIS.2-4B image-to-3D** (pick, generative fallback for types with no library match) | MIT | yes | ≥24 GB | 3–17 s/object (H100), slower on 24 GB cards | PBR GLB | Jun 2026 | https://github.com/microsoft/TRELLIS.2 |
 | 3DTopia-XL / Step1X-3D | Apache-2.0 | yes | n/a / 27 GB | slow | PBR / textured | 2025 | https://github.com/3DTopia/3DTopia-XL |
 | Hunyuan3D-2.1 / Omni (bbox control would fit footprints perfectly) | Tencent community licence, **EU/UK/South Korea excluded** | flagged | 10–29 GB | fast | best | 2025 | https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1 |
@@ -281,6 +281,27 @@ labelled `source: generated` and judged like any library model. Checked on Huggi
 | CuMesh / FlexGEMM | `12289e10` / `6dd94a85` | MIT | mesh clean-up, UV unwrap / sparse convolution |
 | nvdiffrast v0.4.0 / nvdiffrec renderutils | `253ac4fc` / `b296927c` | NVIDIA Source Code License (**non-commercial**) | UV-space texture baking in `to_glb` / previews only (optional) |
 | flash-attn 2.8.3, else xformers 0.0.33.post2 | release wheels | BSD-3-Clause | attention backend (TRELLIS.2's sparse attention has no SDPA path) |
+
+**Blendkit (to do, checked 7 Oct 2026, your request of 7 Oct):** BlenderKit was renamed **Blendkit** on 23 Jun 2026
+(new domain `www.blendkit.com`; add-on GPL-2.0, https://github.com/BlenderKit/BlenderKit). It is the planned next
+source of real furniture models, before more TRELLIS.2 generation.
+
+| Point | Finding | Effect on us |
+|---|---|---|
+| Size | 10,000+ models free (free plan), 27,000+ with the paid "Full" plan | enough to reach far more than 20 per type for common furniture |
+| Licences | CC0 or Royalty Free (RF); "everything you download is available for commercial use"; RF: no credit needed, no reselling the asset as is | renders: both fine |
+| RF and 3D files | Licensing FAQ: models in products are allowed if "the assets shouldn't be directly extractable" | our `<project>.blend` / `.glb` hand-over packs the models: **RF models must not go into the 3D files** (CC0 only there, else the parametric mesh or another source) |
+| Access | the add-on's search/download API needs a free account API key; no public API documentation; terms for scripted bulk download not found (terms page 404) | ask Blendkit support before bulk use; key as RunPod secret / env, never in the repo |
+| Network | `www.blendkit.com` is refused by the cloud-session proxy (7 Oct 2026); pods have open internet | run survey and download on the pod (CPU steps of the prep job), or add the domain in `docs/setup.md` §4.1 |
+| Format | `.blend` files (Blender scenes), not GLB | import in Blender on the pod, apply transforms, export GLB into the library, record the asset id and licence |
+| Storage | similar to ABO (~15–20 MB per model) | +15 GB for ~800 models; the 120 GB volume should fit it (check `df -h /workspace` on the next pod first) |
+| Cost | download and conversion are CPU; GPU only for the two-model judging | much cheaper per model than TRELLIS.2 (~$0.03 per candidate) |
+
+Steps: (1) confirm with Blendkit that scripted download for an internal pipeline is allowed; (2) free account, API key
+as secret `blendkit_api_key`; (3) `wenart/assets/blendkit.py`: survey by category (furniture, bathroom, kitchen),
+free assets only, record licence (CC0 / RF) as `licence_flag: null` / `no_extract`; (4) convert to GLB, thumbnails,
+judges, accept with the same rules as ABO (source order: ABO, Poly Haven, **Blendkit**, Objaverse, generated);
+(5) the 3D-file export (`wenart/run/pack3d`) swaps or drops `no_extract` models and lists them. Nothing is built yet.
 
 ### 4.9 Materials and HDRIs
 
