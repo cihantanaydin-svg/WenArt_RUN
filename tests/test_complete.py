@@ -10,13 +10,14 @@ import json
 import math
 
 import pytest
+from shapely.geometry import Polygon
 
 from wenart import building as B
 from wenart.furniture import complete as C
 from wenart.furniture import layout as L
 from wenart.furniture import locked as LK
 from wenart.furniture import placer as P
-from wenart.furniture import prompts, schemas
+from wenart.furniture import schemas
 from wenart.recognition.schemas import grammar_problems
 
 from test_locked import drawn_building, example
@@ -537,6 +538,25 @@ def test_twin_room_takes_the_mirrored_decisions():
 
 def G_front(f):
     return f["front_deg"] % 360.0
+
+
+def test_a_mirrored_corner_sofa_takes_the_other_side():
+    source = twin_building()
+    for r in source["rooms"]:
+        r["room_type"], r["label"] = "living", "Salon"
+    for f in source["furniture"]:
+        f.update(type="sofa", height=0.85)
+        f["footprint"].update(center=[f["footprint"]["center"][0], 3.15], size=[2.2, 0.9])
+    answers = {(TWIN_A, k): {"changes": [ch("f_L0_001", "sofa_corner", (2.6, 1.6))], "added": []} for k in (1, 2)}
+    client = FakeClient(answers)
+    out, records = C.complete_building(source, "x", client, C.Settings())
+    assert {r for r, _ in client.calls} == {TWIN_A}
+    a, b = piece(out, "f_L0_001"), piece(out, "f_L0_002")
+    assert (a["type"], a["chaise_side"], b["type"], b["chaise_side"]) == ("sofa_corner", "right", "sofa_corner", "left")
+    pa, pb = P.drawn_piece(a).polygon(), P.drawn_piece(b).polygon()
+    mirrored = Polygon([(8.2 - x, y) for x, y in pa.exterior.coords])
+    assert pb.symmetric_difference(mirrored).area < 1e-6
+    assert LK.check(source, out, "complete") == []
 
 
 def test_twin_rooms_all_asks_both():

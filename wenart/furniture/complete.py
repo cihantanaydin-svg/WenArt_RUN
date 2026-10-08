@@ -712,6 +712,8 @@ def run_changes(rec: RoomCompletion, changes: list[dict], ctx: placer.RoomContex
         design = ch.get("design") or _design(d.item, res.piece.type, ch.get("style"), ch.get("colour"), family)
         out["furniture"][by_id[d.id]] = _apply_change(d.item, d.anchor, res.piece, record, evidence, design,
                                                       d.unverified, (mirrored or {}).get(d.id))
+        if record["type_proposal"] and d.id not in out.setdefault("unverified", []):
+            out["unverified"].append(d.id)                   # listed with the unverified items (§2.2)
     for d in floor:
         if d.kind == "changeable" and "anchor" not in out["furniture"][by_id[d.id]]:
             out["furniture"][by_id[d.id]]["anchor"] = d.anchor
