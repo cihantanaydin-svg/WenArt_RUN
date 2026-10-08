@@ -33,8 +33,18 @@ How:
   times the downscale). ``PlanMapping.to_crop`` is that chain, so a known
   building point lands on a known pixel (tested).
 - Elements: furniture footprints and decor boxes from the building JSON,
-  openings as their wall-centre rectangle (width x wall thickness); green
-  ``from_documents``, orange ``added_by_ai``, dashed red ``unverified``.
+  openings as their wall-centre rectangle (width x wall thickness). Milestone 10
+  (docs/milestone10.md §2.6, §2.8) draws three colours for furniture: green = drawn as
+  drawn, blue = drawn but changed by the AI (``modified_by_ai``: the new outline in blue,
+  the drawn outline (``drawn_footprint``) dashed green under it, the locked anchor marked with a
+  cross), orange = added by the AI (``added_by_ai``); dashed red = ``unverified`` (a type proposal
+  for such a piece is labelled ``proposal``). The label of a changed piece says what it was
+  (``sofa (was armchair)``). The camera is purple.
+- Region (Milestone 10, docs/milestone10.md §1.6b row 2): a page record of a region of a multi-drawing
+  sheet carries ``region_id`` and ``region_box``; the DXF raster draws only that box (``raster_from_dxf(...,
+  clip_box=)``) and the cached rasters are kept per (file, page, region).
+- Exterior views (a camera of kind ``exterior``): the crop shows the lowest base level's page around the
+  building outline and the camera, with the outer openings in view (the expected elements).
 
 Pillow and the ingest rasters are imported inside the functions.
 """
@@ -59,9 +69,11 @@ TRUST_ORDER = {"dxf": 0, "dwg": 1, "pdf": 2, "raster_scan": 3, "image": 4, "rast
 RASTER_KINDS = ("raster_scan", "raster_photo")
 CLASS_ORDER = {"floor_plan": 0, "furniture_plan": 1}
 COLOURS = {"from_documents": (0, 150, 0), "added_by_ai": (235, 130, 0)}
+CHANGED_COLOUR = (30, 90, 220)           # drawn but changed by the AI (Milestone 10)
 OTHER_COLOUR = (120, 120, 120)
 UNVERIFIED_COLOUR = (220, 20, 20)
-CAMERA_COLOUR = (30, 90, 220)
+CAMERA_COLOUR = (150, 40, 190)
+EXTERIOR_MARGIN_M = 3.0                  # an exterior crop: the building outline and the camera + 3 m
 
 
 @dataclass
@@ -157,6 +169,9 @@ def load_raster(doc: dict, page: dict, path: Path, project_out: Optional[Path] =
     if fmt == "pdf":
         return DI.raster_from_pdf(path, int(page.get("page") or 1), dpi=PDF_DPI)
     if fmt in ("dxf", "dwg"):
+        box = page.get("region_box")
+        if box and len(box) == 4:                 # a region of a multi-drawing sheet: only its box is drawn
+            return DI.raster_from_dxf(path, clip_box=tuple(float(v) for v in box))
         return DI.raster_from_dxf(path)
     return DI.raster_from_image(path)
 
@@ -232,16 +247,44 @@ def save_jpeg(image, path: Path, max_bytes: int = MAX_JPEG_BYTES) -> Path:
         img = img.resize((max(1, img.width * 3 // 4), max(1, img.height * 3 // 4)))
 
 
+def piece_class(item: dict, e: dict) -> str:
+    """How a furniture piece is drawn: ``changed`` (drawn but changed by the AI), ``added`` (added by the AI),
+    ``unverified`` or ``drawn`` (as drawn). Decor and openings: ``added`` / ``drawn`` by their source."""
+    if item.get("status") == "unverified" or e.get("type_unverified"):
+        return "unverified"
+    if item.get("modified_by_ai") or e.get("modified_by_ai"):
+        return "changed"
+    source = e.get("source") or item.get("source") or ""
+    return "added" if source == "added_by_ai" else "drawn"
+
+
+def drawn_outline(item: dict) -> Optional[list]:
+    """The polygon (building metres) of a changed piece as the documents drew it (``drawn_footprint``), or None."""
+    fp = item.get("drawn_footprint")
+    if not isinstance(fp, dict) or not fp.get("center") or not fp.get("size"):
+        return None
+    return G.rotated_rectangle(fp["center"], fp["size"], fp.get("rotation_deg") or 0.0)
+
+
+def _cross(draw, c, colour, r: float = 5.0, width: int = 2) -> None:
+    draw.line([(c[0] - r, c[1] - r), (c[0] + r, c[1] + r)], fill=colour, width=width)
+    draw.line([(c[0] - r, c[1] + r), (c[0] + r, c[1] - r)], fill=colour, width=width)
+
+
 def render_plan_crop(raster, page: dict, room: dict, camera: Optional[dict], elements: list[dict],
-                     building: dict, note: str = "", max_side: int = MAX_SIDE_PX, min_side: int = MIN_SIDE_PX):
-    """``(PIL image, PlanMapping)`` of one view's plan crop, or ``(None, reason)``."""
+                     building: dict, note: str = "", max_side: int = MAX_SIDE_PX, min_side: int = MIN_SIDE_PX,
+                     margin_m: float = MARGIN_M):
+    """``(PIL image, PlanMapping)`` of one view's plan crop, or ``(None, reason)``.
+
+    ``room``: a room dict, or for an exterior view ``{"polygon": the building outline and the camera}``;
+    ``margin_m``: the crop's margin round it."""
     from PIL import Image, ImageDraw
 
     to_page = G.invert_affine(page["transform_to_building"])
     polygon = [tuple(p[:2]) for p in room.get("polygon") or []]
     if len(polygon) < 3:
         return None, "room has no polygon"
-    box = crop_box(raster.image.size, lambda p: raster.to_pixels(G.apply_affine(to_page, p)), polygon)
+    box = crop_box(raster.image.size, lambda p: raster.to_pixels(G.apply_affine(to_page, p)), polygon, margin_m)
     if box is None:
         return None, "room is outside the page raster"
     crop = raster.image.crop(tuple(box))
@@ -266,17 +309,33 @@ def render_plan_crop(raster, page: dict, room: dict, camera: Optional[dict], ele
             continue
         poly, item = found
         px = [mapping.to_crop(p) for p in poly]
-        unverified = (item.get("status") == "unverified") or e.get("type_unverified")
+        kind = piece_class(item, e)
         width = 3 if e.get("role") == "required" else 1
-        if unverified:
+        label = f"{e['wenart_id']} {e.get('type')} {e.get('source') or '-'}"
+        if kind == "unverified":
             closed = px + [px[0]]
             for a, b in zip(closed[:-1], closed[1:]):
                 _dashed(draw, a, b, UNVERIFIED_COLOUR + (255,), width)
             colour = UNVERIFIED_COLOUR
-        else:
-            colour = COLOURS.get(e.get("source") or "", OTHER_COLOUR)
+            if item.get("type_proposal"):
+                label += " proposal"
+        elif kind == "changed":
+            # The drawn outline dashed under the new one, the locked anchor marked (docs/milestone10.md §2.6).
+            old = drawn_outline(item)
+            if old is not None:
+                oldpx = [mapping.to_crop(p) for p in old]
+                closed = oldpx + [oldpx[0]]
+                for a, b in zip(closed[:-1], closed[1:]):
+                    _dashed(draw, a, b, COLOURS["from_documents"] + (255,), width)
+            colour = CHANGED_COLOUR
             draw.polygon(px, outline=colour + (255,), width=width)
-        label = f"{e['wenart_id']} {e.get('type')} {e.get('source') or '-'}"
+            anchor = (item.get("anchor") or {}).get("point") or (item.get("footprint") or {}).get("center")
+            if anchor:
+                _cross(draw, mapping.to_crop(tuple(anchor[:2])), (0, 0, 0, 255))
+            label += f" (was {item.get('drawn_type') or e.get('drawn_type') or '?'})"
+        else:
+            colour = COLOURS.get(e.get("source") or item.get("source") or "", OTHER_COLOUR)
+            draw.polygon(px, outline=colour + (255,), width=width)
         draw.text((min(p[0] for p in px) + 2, min(p[1] for p in px) + 1), label, fill=colour + (255,), font=font)
     if camera is not None:
         cam_xy = tuple(camera["position"][:2])
@@ -309,6 +368,31 @@ def view_half_angle(camera: dict) -> float:
     return math.atan((sensor / 2.0) / lens)
 
 
+def exterior_level(building: dict, exp: dict) -> Optional[str]:
+    """The level whose page an exterior crop draws: the lowest level of the camera's variant at or above the
+    ground (order 0, else the lowest level), from the expected view's ``exterior.levels``."""
+    ids = list((exp.get("exterior") or {}).get("levels") or [])
+    levels = [lv for lv in building.get("levels") or [] if lv.get("id") in ids] or list(building.get("levels") or [])
+    if not levels:
+        return None
+    ground = [lv for lv in levels if lv.get("order") == 0]
+    pick = ground[0] if ground else min(levels, key=lambda lv: float(lv.get("elevation") or 0.0))
+    return pick["id"]
+
+
+def exterior_room(building: dict, exp: dict, camera: Optional[dict]) -> Optional[dict]:
+    """A pseudo room for an exterior crop: the box round the outer walls of the camera's levels and the camera."""
+    ids = set((exp.get("exterior") or {}).get("levels") or [])
+    walls = [w for w in building.get("walls") or [] if not ids or w.get("level_id") in ids]
+    pts = [tuple(p[:2]) for w in walls for p in (w["start"], w["end"])]
+    if camera is not None:
+        pts.append(tuple(camera["position"][:2]))
+    if len(pts) < 2:
+        return None
+    x0, y0, x1, y1 = G.bbox(pts)
+    return {"id": "exterior", "polygon": [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]}
+
+
 def write_plan_crops(project, cameras=None, log=print) -> dict:
     """``check/<cam>_plan.jpg`` for every view; returns ``check/plan_crops.json`` content (also written)."""
     from wenart.vision_check.project import rel, write_json
@@ -317,13 +401,22 @@ def write_plan_crops(project, cameras=None, log=print) -> dict:
     rasters: dict = {}
     for cam in (cameras or list(project.views())):
         exp = project.expected(cam)
-        room = project.room(exp.get("room_id"))
-        found = plan_page(project.building, exp.get("level_id"), room)
+        camera = next((c for c in project.scene.get("cameras") or [] if c.get("name") == cam), None)
+        margin = MARGIN_M
+        if exp.get("view_kind") == "exterior":
+            room, level_id = exterior_room(project.building, exp, camera), exterior_level(project.building, exp)
+            margin = EXTERIOR_MARGIN_M
+            if room is None or level_id is None:
+                out["views"][cam] = {"plan": None, "reason": "no building outline or no level for an exterior view"}
+                continue
+        else:
+            room, level_id = project.room(exp.get("room_id")), exp.get("level_id")
+        found = plan_page(project.building, level_id, room if exp.get("view_kind") != "exterior" else None)
         if found is None:
-            out["views"][cam] = {"plan": None, "reason": f"no page with a transform for level {exp.get('level_id')}"}
+            out["views"][cam] = {"plan": None, "reason": f"no page with a transform for level {level_id}"}
             continue
         doc, page = found
-        key = (doc["file"], page.get("page"))
+        key = (doc["file"], page.get("page"), page.get("region_id"))
         if key not in rasters:
             path = source_file(doc, project.project_dir, project.out, page)
             if path is None:
@@ -338,10 +431,11 @@ def write_plan_crops(project, cameras=None, log=print) -> dict:
         if raster is None:
             out["views"][cam] = {"plan": None, "reason": why}
             continue
-        camera = next((c for c in project.scene.get("cameras") or [] if c.get("name") == cam), None)
         elements = list(exp.get("elements") or [])
-        note = f"{doc['file']} p{page.get('page')} | {cam} | green documents, orange ai, dashed red unverified"
-        image, mapping = render_plan_crop(raster, page, room, camera, elements, project.building, note)
+        note = (f"{doc['file']} p{page.get('page')} | {cam} | green drawn, blue changed by ai (drawn outline dashed), "
+                f"orange added by ai, dashed red unverified")
+        image, mapping = render_plan_crop(raster, page, room, camera, elements, project.building, note,
+                                          margin_m=margin)
         if image is None:
             out["views"][cam] = {"plan": None, "reason": mapping}
             continue

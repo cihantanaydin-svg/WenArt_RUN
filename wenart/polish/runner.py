@@ -24,6 +24,15 @@ What it does for ``kind="run"`` (the milestone result):
 6. Previews of the final attempts, ``determinism.json`` (the
    ``determinism_view`` polished twice with the same seed), the report.
 
+Exterior views (Milestone 10, docs/milestone10.md §3.3 items 3 and 5): a camera of kind ``exterior`` has no
+room, so its prompt is built from the build's outside looks (``prompt.build_exterior_prompt``: scene manifest
+``exterior_looks``, the camera's ``view`` and lens), not from the furniture. The exterior views are calibrated and
+validated apart from the rooms (``gate_calibration.json`` ``exterior``; ``wenart.gate.calibrate.exterior_polish``,
+the base project's calibration for an alternative's sub-output): when that decision does not allow the polish
+(``polish_disabled``, ``not_validated``, ``not_applicable`` or unreadable) every exterior view keeps the Cycles
+render before any attempt (``final: cycles``, reason ``gate``, a note, no gate reference, no model prompt) and the
+rooms are polished as usual. The decision is the manifest's ``exterior_gate``; each view entry has ``view_kind``.
+
 ``sweep`` runs every attempt of a grid on every view, each gated, no early
 stop, into ``polish/sweep/`` (``--views auto`` = ``expected.sweep_views(...,
 n=4)``); ``smoke`` runs the 4 smoke settings on a few views into
@@ -139,7 +148,9 @@ class Deps:
     ``find_gate_debug_writer``; else no gate debug images); ``expected``:
     an object with ``expected_view``, ``expected_views`` and ``sweep_views``
     (§1.4); ``gate_models()`` -> the gate's ``models.yaml`` dict; ``clock``
-    (epoch seconds, for the deadline); ``log``.
+    (epoch seconds, for the deadline); ``log``; ``exterior_polish(project_out)`` -> the exterior polish
+    decision of the project (Milestone 10: ``wenart.gate.calibrate.exterior_polish``; a dict with
+    ``decision``, ``polish_allowed`` and ``reasons``).
     """
     backend_factory: Optional[Callable] = None
     gate_factory: Optional[Callable] = None
@@ -150,6 +161,7 @@ class Deps:
     clock: Callable[[], float] = time.time
     log: Callable[[str], None] = print
     find_debug_writer: bool = True
+    exterior_polish: Optional[Callable] = None
 
     def resolved(self) -> "Deps":
         d = copy.copy(self)
@@ -166,6 +178,9 @@ class Deps:
         if d.gate_models is None:
             from wenart.gate.api import load_models_config
             d.gate_models = load_models_config
+        if d.exterior_polish is None:
+            from wenart.gate.calibrate import exterior_polish
+            d.exterior_polish = exterior_polish
         return d
 
 
@@ -326,6 +341,12 @@ def _room_types(building: dict) -> dict:
     return {r.get("id"): r.get("room_type") for r in (building or {}).get("rooms") or []}
 
 
+def is_exterior_camera(scene: Optional[dict], camera: Optional[str], room_id: Optional[str] = None) -> bool:
+    """True for a camera of kind ``exterior`` in the scene manifest (``wenart.gate.colour.is_exterior``)."""
+    from wenart.gate.colour import is_exterior
+    return is_exterior(scene, camera, room_id)
+
+
 # --------------------------------------------------------------------------
 # Per-view state
 # --------------------------------------------------------------------------
@@ -348,6 +369,8 @@ class ViewJob:
     final_attempt: Optional[int] = None
     reason: Optional[str] = None
     notes: list = field(default_factory=list)
+    kind: str = "interior"                                 # "exterior" for a camera of kind exterior (Milestone 10)
+    held: bool = False                                     # kept Cycles before any attempt (the exterior gate)
     _arrays: Optional[dict] = None
 
     def arrays(self) -> dict:
@@ -401,6 +424,7 @@ class PolishRun:
         self.warnings: list[str] = []
         self.jobs: list[ViewJob] = []
         self.rooms: dict = {}
+        self.exterior_gate: Optional[dict] = None      # the per-kind decision of the exterior views (run only)
         self.incomplete = False
         self.backend = None
         self.versions: dict = {"torch": None, "diffusers": None, "device": None}
@@ -500,6 +524,17 @@ class PolishRun:
     def _prepare_job(self, job: ViewJob) -> None:
         view = job.view
         job.source_sha256 = sha256_file(view.png)
+        camera = next((c for c in (self.scene or {}).get("cameras") or [] if c.get("name") == view.camera), None)
+        if is_exterior_camera(self.scene, view.camera, view.room_id):
+            # Milestone 10: an outside view has no room and no furniture; its words are the build's outside looks.
+            job.kind = "exterior"
+            job.expected_source = "exterior_looks"
+            job.prompt_info = PR.build_exterior_prompt(self.style_profile, (self.scene or {}).get("exterior_looks"),
+                                                       (camera or {}).get("lens_mm"), (camera or {}).get("view"))
+            job.prompt = job.prompt_info["prompt"]
+            for w in job.prompt_info["warnings"]:
+                self._warn(f"{view.camera}: {w}")
+            return
         exp = self._expected(view)
         if exp is not None:
             furniture = PR.furniture_types(exp)
@@ -509,7 +544,6 @@ class PolishRun:
             furniture = fallback_furniture(view, self.table)
             room_type = _room_types(self.building).get(view.room_id)
             job.expected_source = "index_pass"
-        camera = next((c for c in (self.scene or {}).get("cameras") or [] if c.get("name") == view.camera), None)
         job.prompt_info = PR.build_prompt(self.style_profile, room_type, furniture,
                                           (camera or {}).get("lens_mm"))
         job.prompt = job.prompt_info["prompt"]
@@ -570,7 +604,7 @@ class PolishRun:
             raise RuntimeError(f"polish models could not be loaded: {self._load_error}")
         self._ensure_backend()
         if not self._ready:
-            prompts = list(dict.fromkeys(j.prompt for j in self.jobs))
+            prompts = list(dict.fromkeys(j.prompt for j in self.jobs if not j.held))
             self.log(f"loading the polish models ({len(prompts)} prompts)")
             try:
                 self.backend.ensure_ready(prompts)
@@ -781,6 +815,43 @@ class PolishRun:
         if self.kind == "run":
             job.final, job.final_attempt, job.reason = ladder_outcome(job.attempts, job.complete)
 
+    def _exterior_rule(self) -> None:
+        """The per-kind gate decision of the exterior views (docs/milestone10.md §3.3 item 5).
+
+        The exterior views are calibrated and validated apart from the rooms (``gate_calibration.json``
+        ``exterior``, ``wenart.gate.calibrate.exterior_polish``). Only ``ok`` and ``flagged`` allow their polish;
+        ``polish_disabled``, ``not_validated`` (no calibration, no exterior comparison, cut, other thresholds), an
+        unreadable decision or ``not_applicable`` keep every exterior view Cycles only, before any attempt:
+        ``final: cycles``, reason ``gate``, a note naming the decision. The record is the manifest's
+        ``exterior_gate``. The interior views are not touched by it."""
+        jobs = [j for j in self.jobs if j.kind == "exterior"]
+        if not jobs:
+            return
+        try:
+            decision = dict(self.deps.exterior_polish(self.project_out) or {})
+        except Exception as exc:  # noqa: BLE001 - an unreadable decision never allows the polish
+            decision = {"decision": "not_validated", "polish_allowed": False,
+                        "reasons": [f"the exterior validation could not be read ({type(exc).__name__}: {exc})"]}
+        allowed = bool(decision.get("polish_allowed"))
+        record = {"decision": decision.get("decision"), "polish_allowed": allowed,
+                  "reasons": list(decision.get("reasons") or []),
+                  "benign_accept": decision.get("benign_accept"), "negative_reject": decision.get("negative_reject"),
+                  "n_benign": decision.get("n_benign"), "n_negative": decision.get("n_negative"),
+                  "source": decision.get("source"), "from_base_project": decision.get("from_base_project"),
+                  "views": [j.view.camera for j in jobs], "held": [] if allowed else [j.view.camera for j in jobs]}
+        self.exterior_gate = record
+        if allowed:
+            self.log(f"exterior gate {record['decision']}: {len(jobs)} exterior views may be polished")
+            return
+        why = "; ".join(str(r) for r in record["reasons"][:3]) or "no reason recorded"
+        for job in jobs:
+            job.held = True
+            job.final, job.final_attempt, job.reason = "cycles", None, "gate"
+            job.source_sha256 = job.source_sha256 or sha256_file(job.view.png)
+            job.notes.append(f"exterior gate {record['decision']}: the exterior views keep the Cycles render ({why})")
+        self._warn(f"exterior gate {record['decision']}: {len(jobs)} exterior views keep the Cycles render")
+        self.write_manifest()
+
     def _room_rule(self) -> None:
         """§3.6 room rule over the run's candidates (runs missing rungs when a room disagrees)."""
         by_room: dict = {}
@@ -851,7 +922,7 @@ class PolishRun:
         attempts = sorted(job.attempts + extra, key=lambda r: r["k"])
         entry = {
             "camera": job.view.camera, "room_id": job.view.room_id, "level_id": job.view.level_id,
-            "source_png": relpath(job.view.png, self.out_dir), "source_sha256": job.source_sha256,
+            "view_kind": job.kind, "source_png": relpath(job.view.png, self.out_dir), "source_sha256": job.source_sha256,
             "render_key": job.view.render_key, "prompt": job.prompt or None,
             "prompt_words": {k: v for k, v in job.prompt_info.items() if k not in ("prompt", "warnings")},
             "expected_source": job.expected_source or None,
@@ -893,7 +964,7 @@ class PolishRun:
             "deadline": self.deadline, "polish_allowed": getattr(self, "polish_allowed", True),
             "attempt_list": self.attempts,
             "views": [self._view_entry(j) for j in self.jobs],
-            "rooms": self.rooms, "warnings": list(self.warnings),
+            "rooms": self.rooms, "exterior_gate": self.exterior_gate, "warnings": list(self.warnings),
         }
 
     def write_manifest(self) -> dict:
@@ -933,8 +1004,10 @@ class PolishRun:
 
     def _determinism(self) -> Optional[dict]:
         """``determinism.json``: the determinism view's first ladder rung polished twice with one seed."""
-        cam = self.cfg.get("determinism_view") or (self.jobs[0].view.camera if self.jobs else None)
-        job = next((j for j in self.jobs if j.view.camera == cam), None)
+        first = next((j for j in self.jobs if j.kind == "interior" and not j.held), None) or \
+            next((j for j in self.jobs if not j.held), None)
+        cam = self.cfg.get("determinism_view") or (first.view.camera if first else None)
+        job = next((j for j in self.jobs if j.view.camera == cam and not j.held), None)
         path = self.out_dir / DETERMINISM_NAME
         if job is None:
             self._warn(f"determinism view {cam} is not in this run; determinism.json not written")
@@ -1003,8 +1076,12 @@ class PolishRun:
         self._load_previous()
         for job in self.jobs:
             self._prepare_job(job)
+        if self.kind == "run":
+            self._exterior_rule()
         try:
             for job in self.jobs:
+                if job.held:
+                    continue
                 if self.past_deadline():
                     # No gate reference can be made any more, so nothing of this view can be gated.
                     job.complete = False

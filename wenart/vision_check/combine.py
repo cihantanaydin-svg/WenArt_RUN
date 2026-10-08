@@ -30,7 +30,15 @@ Per element (passes A = qwen, B = glm, independent):
   confirmed non-decor extra or a count mismatch), ``info`` (disputed,
   unverified, unreliable, unconfirmed extras), else ``ok``.
 - added_by_ai elements with a mismatch carry the note "added_by_ai:
-  render/polish issue, not a document conflict".
+  render/polish issue, not a document conflict"; so do drawn pieces the AI
+  changed (``modified_by_ai``, Milestone 10: "modified_by_ai (drawn <type>)").
+- Milestone 10: an exterior view (``view_kind`` ``exterior``) is combined like a room view
+  (its expected elements are the outer windows and doors); a roof that the
+  cross-check finds missing (``roof_not_rendered``) makes the view
+  ``needs_review``. Each visible facade also carries the advisory window and
+  door count of its crop (``facades``: ``combine_facade``, never a mismatch
+  of the view and never a polish reason). The manifest holds the drawn-piece
+  check (``drawn_check``) and the elevation check (``elevation_check``).
 
 Polish decision (differential, active even when the check is advisory):
 the polished candidate is rejected (``vision_check``) when an element ok or
@@ -82,6 +90,9 @@ from wenart.vision_check.project import Project, rel
 MISMATCH_RESULTS = ("missing", "changed", "missing_or_changed")
 CONFIRMED_GONE = MISMATCH_RESULTS
 ADDED_BY_AI_NOTE = "added_by_ai: render/polish issue, not a document conflict"
+# Milestone 10, Feature 1: a drawn piece the AI changed is expected as it stands now (its new type and size); a
+# mismatch is then a render issue about the changed piece, never a conflict between documents.
+MODIFIED_NOTE = "modified_by_ai (drawn {drawn}): render/polish issue, not a document conflict"
 UNVERIFIED_TYPE_NOTE = "type unverified: 'different' counted as present (info)"
 DEFAULT_MODELS = ("qwen", "glm")
 
@@ -261,6 +272,52 @@ def combine_counts(datas: dict, keys: list, reliable: list, single_pass: bool, e
 
 
 # --------------------------------------------------------------------------
+# Facade counts of exterior views (Milestone 10, advisory)
+# --------------------------------------------------------------------------
+
+def _facade_judge(passes: dict, field: str, lo: int, hi: int, single_pass: bool) -> str:
+    vals = {k: (None if p is None else p[field]) for k, p in passes.items()}
+    if any(v is None for v in vals.values()):
+        return "not_computed"
+    sides = {k: ("fewer" if v < lo else "more" if v > hi else "ok") for k, v in vals.items()}
+    uniq = set(sides.values())
+    if single_pass:
+        return "ok" if uniq == {"ok"} else "unverified"
+    return next(iter(uniq)) if len(uniq) == 1 else "unverified"
+
+
+def combine_facade(spec: "C.CallSpec", recs: dict, keys: list) -> dict:
+    """The advisory window and door count of one facade crop against the openings expected in it.
+
+    The expected range is ``[openings seen in full, + openings seen in part]`` (``exterior.facade_records``).
+    A count out of the range on the same side in both passes is ``fewer`` / ``more``; passes that disagree are
+    ``unverified``; a missing pass is ``not_computed``. Advisory: never a polish reason and never a Cycles
+    mismatch (a facade is judged on a crop, the model counts small shapes badly)."""
+    fac = (spec.expected or {}).get("facade") or {}
+    passes = {}
+    for k in keys:
+        d = _pass_data(recs.get(k))
+        passes[k] = None if d is None else {"window_count": int(d["window_count"]), "door_count": int(d["door_count"]),
+                                            "confidence": d.get("confidence")}
+    single = len(keys) == 1
+    w_lo, d_lo = int(fac.get("windows", 0)), int(fac.get("doors", 0))
+    w_hi, d_hi = w_lo + int(fac.get("partial_windows", 0)), d_lo + int(fac.get("partial_doors", 0))
+    windows = _facade_judge(passes, "window_count", w_lo, w_hi, single)
+    doors = _facade_judge(passes, "door_count", d_lo, d_hi, single)
+    if "not_computed" in (windows, doors):
+        result = "not_computed"
+    elif windows in ("fewer", "more") or doors in ("fewer", "more"):
+        result = "mismatch"
+    elif windows == "ok" and doors == "ok":
+        result = "ok"
+    else:
+        result = "unverified"
+    return {"side": fac.get("side"), "advisory": True, "expected": {"windows": [w_lo, w_hi], "doors": [d_lo, d_hi],
+                                                                    "ids": list(fac.get("ids") or [])},
+            "box_px": fac.get("box_px"), "passes": passes, "windows": windows, "doors": doors, "result": result}
+
+
+# --------------------------------------------------------------------------
 # One image
 # --------------------------------------------------------------------------
 
@@ -314,8 +371,14 @@ def combine_check(spec: "C.CallSpec", recs: dict, keys: list, cfg: dict, index_m
                  "passes": passes, "result": result, "single": single_status}
         if it.get("swapped_from"):
             entry["swapped_from"] = it["swapped_from"]
+        if it.get("modified_by_ai"):
+            entry.update(modified_by_ai=True, drawn_type=it.get("drawn_type"))
+        if it.get("completes_room"):
+            entry["completes_room"] = True
         if it["source"] == "added_by_ai" and result in MISMATCH_RESULTS:
             notes.append(ADDED_BY_AI_NOTE)
+        elif it.get("modified_by_ai") and result in MISMATCH_RESULTS:
+            notes.append(MODIFIED_NOTE.format(drawn=it.get("drawn_type") or "?"))
         if notes:
             entry["notes"] = notes
         elements[it["wenart_id"]] = entry
@@ -437,7 +500,7 @@ def review_reasons(cycles: Optional[dict], crosscheck: dict) -> list[str]:
         for kind, c in cycles["counts"].items():
             if c["result"] in ("fewer", "more"):
                 reasons.append(f"{kind} count {c['result']} than expected {c['expected']}: {c['passes']}")
-    for key in ("in_json_not_rendered", "misplaced", "rendered_not_in_json"):
+    for key in ("in_json_not_rendered", "misplaced", "rendered_not_in_json", "roof_not_rendered"):
         for item in (crosscheck or {}).get(key) or []:
             reasons.append(f"json cross-check {key}: {item.get('id')}")
     return reasons
@@ -628,7 +691,26 @@ def combine_project(project: Project, keys: list) -> dict:
              if ("preference", cam, kind) in answered]
 
     views_out: dict[str, dict] = {cam: {} for cam in project.views()}
+    facades_out: dict[str, dict] = {}
     for cam, kind in wanted:
+        if kind.startswith("facade:"):
+            recs, spec = {}, None
+            for k in keys:
+                spec_k = C.check_spec(project, cam, kind, stores[k].data.get("model") or "")
+                if spec_k is None:
+                    break
+                spec = spec_k
+                rec = stores[k].valid(spec_k)
+                if rec is None and stores[k].get(spec_k.key) is not None and \
+                        stores[k].get(spec_k.key).get("input_sha256") != spec_k.input_sha256:
+                    warnings.append(f"{k}: stale answer for {spec_k.key} (inputs changed); not used")
+                recs[k] = rec
+            if spec is not None and len(recs) == len(keys):
+                entry = combine_facade(spec, recs, keys)
+                entry["image"] = rel(spec.images[0], project.check_dir)
+                entry["image_sha256"] = project.file_sha(spec.images[0])
+                facades_out.setdefault(cam, {})[kind.split(":", 1)[1]] = entry
+            continue
         recs, spec = {}, None
         for k in keys:
             spec_k = C.check_spec(project, cam, kind, stores[k].data.get("model") or "")
@@ -695,6 +777,14 @@ def combine_project(project: Project, keys: list) -> dict:
                              "needs_review_reasons": reasons})
         if det is not None:
             cameras[cam]["detector"] = det
+        cameras[cam]["view_kind"] = exp.get("view_kind") or "interior"
+        if exp.get("view_kind") == "exterior":
+            ex = exp.get("exterior") or {}
+            cameras[cam]["exterior"] = {k: ex.get(k) for k in ("variant", "view", "sides", "region_id", "roof",
+                                                                 "planned_not_seen", "seen_not_planned",
+                                                                 "outer_openings")}
+            if facades_out.get(cam):
+                cameras[cam]["facades"] = facades_out[cam]
     models = {k: {"id": cfg["models"][k]["id"], "slug": cfg["models"][k]["slug"],
                   "revision": cfg["models"][k].get("revision"), "licence": cfg["models"][k].get("licence"),
                   "served": stores[k].data.get("model") or None, "incomplete": bool(stores[k].data.get("incomplete"))}
@@ -709,6 +799,9 @@ def combine_project(project: Project, keys: list) -> dict:
                 "views": sorted(cam for cam, v in cameras.items() if (v.get("detector") or {}).get("computed")),
                 "not_computed": sorted(cam for cam, v in cameras.items()
                                        if v.get("detector") is not None and not v["detector"]["computed"])}
-    return {"schema_version": "0.1", "project": project.project, "advisory": True,
+    return {"schema_version": "0.1", "project": project.project, "variant": project.variant(), "advisory": True,
             "advisory_reason": advisory_reason, "single_pass": single, "model_keys": list(keys), "models": models,
-            "detector": detector, "views": cameras, "warnings": list(project.warnings) + warnings + dv.warnings}
+            "detector": detector, "views": cameras,
+            # Milestone 10: the drawn pieces against the source plan (Feature 1) and the elevation check.
+            "drawn_check": project.drawn_check(), "elevation_check": project.elevation_check(),
+            "warnings": list(project.warnings) + warnings + dv.warnings}

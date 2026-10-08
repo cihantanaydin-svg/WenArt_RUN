@@ -32,6 +32,46 @@ roles:
   furniture_min_visibility: 0.35  # furniture with a smaller visible share of its box -> optional
   border_openings_required: false # doors/windows touching the image border -> optional
 
+# Exterior views (docs/milestone10.md §3.3 item 4). A window of a whole house fills 0.1-0.7 % of a 1920 x 1080
+# frame (1.2 m wide at 12 m, 20 mm lens: about 107 x 124 px = 0.64 %), so the interior thresholds (2 % ignored,
+# 3 % required) would ignore every one. Keys not named here are the interior ones above.
+roles_exterior:
+  ignore_area_frac: 0.0004        # < about 830 px at 1920 x 1080 -> ignore
+  required_area_frac: 0.003       # outer door/window with area_frac >= 0.003 -> required (about 6,200 px) ...
+  required_min_area_frac: 0.0015  # ... or >= 0.0015 and (visibility unknown or >= 0.35)
+  required_min_visibility: 0.35
+  border_openings_required: false
+
+crosscheck_exterior:
+  min_area_frac: 0.0004           # in_json_not_rendered: an outer opening in view, index absent, from 0.04 % of the frame
+  misplaced_min_pixels: 20
+
+exterior:
+  min_visible_share: 0.35         # an outer opening counts as seen in full (the VLM facade count) from this share
+  facade_min_area_frac: 0.02      # a facade is counted by the VLM when its projected outer wall faces fill 2 % of the frame
+  facade_crop_margin_frac: 0.03   # the crop sent to the model: the facade's box + 3 % of the longer side
+  facade_crop_max_side: 1600
+  roof:                           # the roof check: samples of the roof planes against the rendered depth
+    sample_m: 0.4
+    tolerance_m: 0.25
+    min_samples: 25
+    min_area_frac: 0.01
+    ok_share: 0.6
+    missing_share: 0.2
+
+# Elevation check (docs/milestone10.md §3.3 item 4): the building's outer openings per facade against the drawn
+# elevation, and the built roof heights against the section. Deterministic.
+elevation:
+  tolerance_x_m: 0.35             # position along the facade after the common offset
+  tolerance_z_m: 0.25             # sill and head
+  max_offset_m: 1.0               # the elevation's left end may differ from the wall's by the roof overhang, not more
+  roof_height_tolerance_m: 0.05   # built eaves / ridge against the section (5 cm, as the level marks)
+
+# Drawn pieces against the source plan (docs/milestone10.md §2.8, CLAUDE.md furniture rules).
+drawn:
+  anchor_tolerance_m: 0.05
+  front_tolerance_deg: 1.0
+
 # Building-JSON cross-check, projected with a depth test (§5.1).
 crosscheck:
   depth_tolerance_m: 0.05         # a projected sample is visible within 5 cm of the rendered depth

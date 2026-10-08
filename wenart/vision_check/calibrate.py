@@ -2,11 +2,15 @@
 
 From ``check_manifest.json`` (written by ``combine``):
 
-- baseline on every Cycles view: combined ``fa_missing`` (required elements
+- baseline on every Cycles view of a room: combined ``fa_missing`` (required elements
   confirmed missing/changed on a render that shows them), ``fa_extra`` (views
   with a confirmed non-decor extra), ``count_error`` (views with a confirmed
   door/window count mismatch); per model the single-pass false "missing"
   rate and the decoy acceptance;
+- Milestone 10: the exterior views (``view_kind`` ``exterior``) are kept apart: the targets, the per-model rates
+  and the advisory flag are computed over the room views only, so a facade the models count badly cannot switch
+  the check of the rooms to advisory; the same rates over the exterior views are recorded as ``exterior``
+  (information, never a target);
 - controls: ``removal_flagged`` (a pass says absent/different on the
   render without the element), ``removal_confirmed`` (every pass does),
   ``insertion`` (a confirmed extra covers >= 50 % of the element's box),
@@ -175,7 +179,10 @@ def calibrate(manifest: dict, cfg: dict) -> dict:
     keys = list(manifest.get("model_keys") or [])
     single = bool(manifest.get("single_pass"))
     views_out = manifest.get("views") or {}
-    cycles = [kinds.get("cycles") for kinds in views_out.values() if kinds.get("cycles")]
+    cycles = [kinds.get("cycles") for kinds in views_out.values()
+              if kinds.get("cycles") and kinds.get("view_kind") != "exterior"]
+    exterior = [kinds.get("cycles") for kinds in views_out.values()
+                if kinds.get("cycles") and kinds.get("view_kind") == "exterior"]
     base = baseline(cycles, single)
     models = per_model(cycles, keys)
     removal = control_rates(views_out, "removal:")
@@ -191,6 +198,8 @@ def calibrate(manifest: dict, cfg: dict) -> dict:
                "swap_flagged": swap["flagged"], "swap_confirmed": None if single else swap["confirmed"],
                "detector_insertion": detector_insertion(views_out),
                "controls": {"removal": removal, "insertion": insertion, "swap": swap}}
+    if exterior:
+        metrics["exterior"] = baseline(exterior, single)
     targets = dict(cfg["targets"])
     missed = []
     for tkey, metric, op in TARGETS:

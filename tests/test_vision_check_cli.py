@@ -106,7 +106,8 @@ def test_plan_crop_view_cone_is_the_cameras_own_lens(tmp_path, lens):
     def cone_colour_near(angle: float) -> bool:
         x, y = (int(round(v)) for v in mapping.to_crop((cx + 1.2 * math.cos(angle), cy + 1.2 * math.sin(angle))))
         patch = rgb[y - 2:y + 3, x - 2:x + 3].reshape(-1, 3)
-        return any(r < 110 and g < 150 and b > 170 for r, g, b in patch)    # PC.CAMERA_COLOUR over the plan
+        cr, cg, cb = PC.CAMERA_COLOUR       # purple since Milestone 10: blue is the colour of a changed drawn piece
+        return any(abs(r - cr) + abs(g - cg) + abs(b - cb) < 90 for r, g, b in patch)
 
     assert cone_colour_near(heading - half) and cone_colour_near(heading + half)
     if lens != 24.0:

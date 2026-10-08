@@ -159,14 +159,34 @@ def parse_args(argv) -> argparse.Namespace:
 # --------------------------------------------------------------------------
 
 def cmd_expected(project: Project, args) -> int:
+    from wenart.vision_check import drawn as DR
+    from wenart.vision_check import elevation as EL
     exp = project.expected_all()
-    data = {"schema_version": "0.1", "project": project.project,
-            "render_dir": rel(project.render_dir, project.check_dir), "views": exp, "warnings": list(project.warnings)}
+    drawn = project.drawn_check()
+    elev = project.elevation_check()
+    # Milestone 10: the drawn pieces against the source plan (Feature 1) and the elevation check (exterior views)
+    # ride in the same file, so the stage keeps its one output.
+    data = {"schema_version": "0.1", "project": project.project, "variant": project.variant(),
+            "render_dir": rel(project.render_dir, project.check_dir), "views": exp, "drawn_check": drawn,
+            "elevation_check": elev, "warnings": list(project.warnings)}
     path = write_json(project.check_dir / EXPECTED_JSON, data)
     req = sum(1 for v in exp.values() for e in v["elements"] if e["role"] == "required")
     cc = sum(len(v["json_crosscheck"].get(k) or []) for v in exp.values()
-             for k in ("in_json_not_rendered", "misplaced", "rendered_not_in_json"))
-    print(f"vision_check expected: {len(exp)} views, {req} required elements, {cc} cross-check finding(s) -> {path}")
+             for k in ("in_json_not_rendered", "misplaced", "rendered_not_in_json", "roof_not_rendered"))
+    exterior = sum(1 for v in exp.values() if v.get("view_kind") == "exterior")
+    print(f"vision_check expected: {len(exp)} views ({exterior} exterior), {req} required elements, {cc} "
+          f"cross-check finding(s) -> {path}")
+    if drawn is not None:
+        print(f"vision_check expected: drawn pieces {drawn['ok']} of {drawn['checked']} checked keep anchor and front "
+              f"({len(drawn['modified'])} changed by the AI, {len(drawn['violations'])} locked violation(s))")
+        for line in DR.lines(drawn):
+            print(f"vision_check expected: drawn piece: {line}")
+    if elev is not None and elev["facades"]:
+        s = elev["summary"]
+        print(f"vision_check expected: elevation check: {s['ok']} of {s['facades']} facade(s) agree, {s['mismatch']} "
+              f"differ, {s['not_checked']} not checked; roof {s['roof']}")
+        for line in EL.lines(elev):
+            print(f"vision_check expected: elevation: {line}")
     for w in project.warnings:
         print(f"vision_check expected: warning: {w}")
     return 0 if exp else 1

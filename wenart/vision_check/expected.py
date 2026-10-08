@@ -54,8 +54,24 @@ How:
   mattress or a seat, and a library height the scene did not build.)
   These are mismatches of the Cycles render, never fixed.
 
-Imports only stdlib, numpy, yaml (lazily), ``wenart.views`` and
-``wenart.geometry`` at import time; the pure Blender helpers named above are
+Milestone 10 (docs/milestone10.md §2.8, §3.3 item 4):
+
+- Feature 1: the building is ``building_final.json`` (the scene manifest names it), so a drawn piece the AI
+  changed (``modified_by_ai``: its new type and size) and a piece the AI added to a furnished room
+  (``completes_room``) are expected as they stand, never a mismatch or an insertion. Each furniture element
+  carries ``modified_by_ai``, ``drawn_type``, ``completes_room`` and ``type_proposal`` (from the building JSON)
+  so the check, the plan crop and the report can say "was a sofa, now a corner sofa" and label the piece as a
+  render issue rather than a document conflict. ``collect_drawn_check`` (``wenart.vision_check.drawn``) checks
+  the anchor (5 cm) and the front (1 degree) of every drawn piece against the source plan.
+- Exterior views (a camera of kind ``exterior``, ``wenart.vision_check.exterior``): the expected elements are the
+  doors and windows on the outer walls of the camera's variant (required when they fill enough of the frame,
+  thresholds ``check.yaml: roles_exterior``); furniture and decor seen through glass are ``ignore``. The
+  cross-check tests the outer openings of the variant (depth test on the wall rectangle, as for a room) and the
+  roof; the record ``exterior`` lists the facades in view with their openings (the advisory VLM count) and the
+  roof check. ``json_crosscheck(..., scope=)`` takes the exterior scope.
+
+Imports only stdlib, numpy, yaml (lazily), ``wenart.views``, ``wenart.geometry`` and
+``wenart.vision_check.exterior`` at import time; the pure Blender helpers named above are
 imported lazily inside the functions that need them (no ``bpy``).
 """
 from __future__ import annotations
@@ -68,10 +84,16 @@ from typing import Optional
 import numpy as np
 
 from wenart import geometry, views
+from wenart.vision_check import exterior as EXT
 
 CONFIG_PATH = Path(__file__).resolve().parent / "check.yaml"
 
 REQUIRED_KINDS = ("door", "window", "furniture")
+# Scene-manifest kinds of the whole building (docs/milestone10.md §1.6b row 11): never furniture, never "rendered,
+# not in the JSON" (they have no pass index; a stray one is a shell part, not an element).
+NON_ELEMENT_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_area", "site_decor", "light_well",
+                     "railing")
+FEATURE1_KEYS = ("modified_by_ai", "drawn_type", "completes_room", "type_proposal")
 TYPE_UNVERIFIED_TEXT = "furniture piece (type unverified)"
 NEAR_M = 0.05                 # camera clip_start of wenart/blender/cameras.py
 # Only for a camera dict without lens_mm / sensor_mm (every scene manifest camera has both; a camera
@@ -352,7 +374,8 @@ def opening_rooms(building: dict) -> dict[str, list[str]]:
 
 
 def building_ids(building: dict) -> set:
-    """Every element id of the building JSON that can carry a pass index."""
+    """Every element id of the building JSON that can carry a pass index (Milestone 10: also the slabs and the
+    site's walls, areas, decor, paving, grass and parking, whose ids a stray index could name)."""
     ids = set()
     for key in ("furniture", "openings", "decor"):
         for item in building.get(key) or []:
@@ -363,7 +386,27 @@ def building_ids(building: dict) -> set:
                 for d in piece.get("decor") or []:
                     if isinstance(d, dict) and d.get("id"):
                         ids.add(d["id"])
+    for slab in building.get("slabs") or []:
+        if isinstance(slab, dict) and slab.get("id"):
+            ids.add(slab["id"])
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    for key in ("boundary_walls", "areas", "decor", "paving", "grass", "parking", "openings"):
+        for item in site.get(key) or []:
+            if isinstance(item, dict) and item.get("id"):
+                ids.add(item["id"])
     return ids
+
+
+def piece_flags(building: dict) -> dict[str, dict]:
+    """``{furniture id: {"modified_by_ai", "drawn_type", "completes_room", "type_proposal"}}`` of the building
+    JSON (Feature 1: the AI changed a drawn piece, added a piece to a furnished room, or proposed a type)."""
+    out = {}
+    for f in building.get("furniture") or []:
+        if f.get("id"):
+            out[f["id"]] = {"modified_by_ai": bool(f.get("modified_by_ai")), "drawn_type": f.get("drawn_type"),
+                            "completes_room": bool(f.get("completes_room")),
+                            "type_proposal": bool(f.get("type_proposal"))}
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -378,24 +421,30 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
     """Expected elements of one view and its building-JSON cross-check (§5.1).
 
     Returns ``{"camera", "room_id", "room_type", "level_id", "size": [W, H],
-    "elements": [...], "json_crosscheck": {...}, "warnings": [...]}``;
+    "elements": [...], "json_crosscheck": {...}, "warnings": [...]}`` plus
+    ``view_kind`` (``interior`` / ``exterior``) and, for an exterior view, the
+    ``exterior`` record (``wenart.vision_check.exterior.block``);
     elements sorted by descending pixels (then pass index). Element keys:
     ``index, wenart_id, kind, type, type_unverified, source, status,
     room_id, room_ids, own_room, pixels, area_frac, box_px, box_1000,
     touches_border, visibility, in_frame, unoccluded, evidence, host_decor,
-    role``.
+    role`` and (Milestone 10) ``modified_by_ai, drawn_type, completes_room,
+    type_proposal`` (Feature 1) and ``side`` (an opening of an exterior view).
     """
     cfg = load_cfg(cfg)
-    roles = cfg["roles"]
     W, H = int(view.size[0]), int(view.size[1])
     n_px = float(W * H)
     table = views.index_table(scene_manifest)
     camera = camera_of(view, scene_manifest)
     cam_room = view.room_id or (camera or {}).get("room_id")
     level_id = view.level_id or (camera or {}).get("level_id")
+    exterior = EXT.is_exterior(camera, view)
+    sc = EXT.scope(camera, scene_manifest, building) if exterior else None
+    roles = EXT.roles_for(cfg, exterior)
+    flags = piece_flags(building)
     rooms = {r["id"]: r for r in building.get("rooms") or []}
     room = rooms.get(cam_room) or {}
-    warnings: list[str] = []
+    warnings: list[str] = list(sc["warnings"]) if sc else []
     if camera is None:
         warnings.append(f"{view.camera}: camera not in the scene manifest; no visibility and no cross-check")
 
@@ -414,7 +463,14 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
             entry = {"wenart_id": f"index:{index}", "kind": "unknown", "type": "unknown", "room_id": None,
                      "room_ids": [], "host_decor": [], "evidence": [], "status": None, "source": None, "box3d": None}
         kind = entry["kind"]
-        if kind in ("door", "window"):
+        outer = None
+        if sc is not None:
+            # An exterior view: the outer openings of the camera's variant are "own"; nothing else is (rooms
+            # and their furniture are not what the view is about).
+            outer = sc["openings"].get(entry["wenart_id"]) if kind in ("door", "window") else None
+            room_ids = list(entry.get("room_ids") or ([entry["room_id"]] if entry.get("room_id") else []))
+            own = outer is not None
+        elif kind in ("door", "window"):
             room_ids = list(entry.get("room_ids") or [])
             if entry["wenart_id"] not in explicit:
                 if fallback_rooms is None:
@@ -430,6 +486,10 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
             vis = box_visibility(entry.get("box3d"), camera, (W, H), pixels)
         visibility = None if vis is None else vis["visibility"]
         etype = entry.get("type") or kind
+        role = role_of(kind, bool(own), area_frac, visibility, roles, touches_border=_touches_border(box, W, H))
+        if sc is not None and kind in ("furniture", "decor") and role != "ignore":
+            role = "ignore"                       # seen through a window: not what an exterior view is judged on
+        flag = flags.get(entry["wenart_id"]) if kind == "furniture" else None
         elements.append({
             "index": int(index),
             "wenart_id": entry["wenart_id"],
@@ -451,13 +511,20 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
             "unoccluded": None if vis is None else vis["unoccluded"],
             "evidence": entry.get("evidence") or [],
             "host_decor": list(entry.get("host_decor") or []),
-            "role": role_of(kind, bool(own), area_frac, visibility, roles, touches_border=_touches_border(box, W, H)),
+            "role": role,
+            # Milestone 10, Feature 1: what the AI did to a drawn piece (from building_final.json).
+            "modified_by_ai": bool((flag or {}).get("modified_by_ai")),
+            "drawn_type": (flag or {}).get("drawn_type"),
+            "completes_room": bool((flag or {}).get("completes_room")),
+            "type_proposal": bool((flag or {}).get("type_proposal")),
+            "side": None if outer is None else outer["side"],
         })
     elements.sort(key=lambda e: (-e["pixels"], e["index"]))
 
-    crosscheck = json_crosscheck(view, camera, building, table, cfg, level_id)
-    return {
+    crosscheck = json_crosscheck(view, camera, building, table, cfg, level_id, scope=sc)
+    result = {
         "camera": view.camera,
+        "view_kind": "exterior" if exterior else "interior",
         "room_id": cam_room,
         "room_type": room.get("room_type"),
         "room_label": room.get("label"),
@@ -469,6 +536,15 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
         "json_crosscheck": crosscheck,
         "warnings": warnings,
     }
+    if sc is not None and camera is not None:
+        result["exterior"] = EXT.block(view, camera, sc, crosscheck, cfg)
+        roof = result["exterior"]["roof"]
+        if roof.get("result") == "missing":
+            crosscheck["roof_not_rendered"].append({
+                "id": "roof", "kind": "roof", "type": (sc["building"].get("roof") or {}).get("type"),
+                "source": "building", "present_share": roof.get("present_share"), "sky": roof.get("sky"),
+                "behind": roof.get("behind"), "samples": roof.get("in_frame")})
+    return result
 
 
 # --------------------------------------------------------------------------
@@ -674,13 +750,22 @@ def placement(mask: np.ndarray, depth_m: np.ndarray, camera: dict, size, extent:
 
 
 def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, cfg: dict,
-                    level_id: Optional[str] = None) -> dict:
-    """The §5.1 building-JSON cross-check of one view (see the module docstring)."""
-    cc = cfg["crosscheck"]
+                    level_id: Optional[str] = None, scope: Optional[dict] = None) -> dict:
+    """The §5.1 building-JSON cross-check of one view (see the module docstring).
+
+    ``scope`` (Milestone 10, ``exterior.scope``): an exterior view. It tests the outer openings of the camera's
+    variant (each on its own level, thresholds ``check.yaml: crosscheck_exterior``) and no furniture; the result
+    has ``roof_not_rendered`` (filled by ``expected_view``) next to the other findings."""
+    cc = dict(cfg["crosscheck"])
+    if scope is not None:
+        cc.update(cfg.get("crosscheck_exterior") or {})
+        building = scope["building"]
     tol = float(cc["depth_tolerance_m"])
     W, H = int(view.size[0]), int(view.size[1])
     result = {"level_id": level_id, "tested": 0, "in_json_not_rendered": [], "rendered_not_in_json": [],
               "misplaced": [], "projected": {}, "error": None}
+    if scope is not None:
+        result["roof_not_rendered"] = []
     # Index ids present in the view (wenart id -> pass index) and ids without a building element.
     ids_in_view: dict[str, int] = {}
     known = building_ids(building)
@@ -688,7 +773,7 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
         entry = table.get(int(index))
         wid = entry["wenart_id"] if entry else f"index:{index}"
         ids_in_view.setdefault(wid, int(index))
-        if wid not in known:
+        if wid not in known and (entry is None or entry.get("kind") not in NON_ELEMENT_KINDS):
             result["rendered_not_in_json"].append({"id": wid, "index": int(index),
                                                    "kind": entry["kind"] if entry else "unknown",
                                                    "pixels": int(view.index_stats[index]["pixels"])})
@@ -696,7 +781,7 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
         result["error"] = "camera not in the scene manifest"
         return result
     level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), None)
-    if level is None:
+    if level is None and scope is None:
         result["error"] = f"level {level_id!r} not in the building JSON"
         return result
     try:
@@ -721,16 +806,25 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
     built_height = {e["wenart_id"]: e["box3d"]["size"][2] for e in table.values()
                     if e.get("kind") == "furniture" and (e.get("box3d") or {}).get("size")}
     elements = []
+    levels_by_id = {lv["id"]: lv for lv in building.get("levels") or []}
     for o in building.get("openings") or []:
-        if o.get("level_id") != level_id or o.get("type") not in ("door", "window"):
+        if o.get("type") not in ("door", "window"):
             continue
-        shape = opening_shape(o, building, level)
+        if scope is not None:
+            o_level = levels_by_id.get(o.get("level_id"))
+            if o_level is None or o["id"] not in scope["openings"]:
+                continue
+        elif o.get("level_id") != level_id:
+            continue
+        else:
+            o_level = level
+        shape = opening_shape(o, building, o_level)
         if shape is None:
             continue
         hull = projected_hull(shape["corners"], camera, (W, H), edges=shape["edges"])
         elements.append((o["id"], o["type"], o["type"], "from_documents", o.get("status"), shape["samples"], hull,
                          shape["extent"]))
-    for piece in building.get("furniture") or []:
+    for piece in ([] if scope is not None else building.get("furniture") or []):
         if piece.get("level_id") != level_id or not piece.get("footprint"):
             continue
         if piece.get("build") is False:
@@ -812,9 +906,32 @@ def required_count(expected: dict) -> int:
     return sum(1 for e in expected.get("elements") or [] if e.get("role") == "required")
 
 
+def is_exterior_view(expected: dict) -> bool:
+    return expected.get("view_kind") == "exterior"
+
+
+def sweep_exterior_views(expected_views: dict, n: int) -> list:
+    """Up to ``n`` exterior cameras with the most required elements (one of each view kind first: corner,
+    aerial, elevation), ties by camera name: the exterior views of the gate calibration."""
+    order = sorted((c for c, e in expected_views.items() if is_exterior_view(e)),
+                   key=lambda cam: (-required_count(expected_views[cam]), cam))
+    out, kinds = [], set()
+    for cam in order:                                         # a new view kind first ...
+        kind = (expected_views[cam].get("exterior") or {}).get("view")
+        if len(out) < int(n) and kind not in kinds:
+            kinds.add(kind)
+            out.append(cam)
+    for cam in order:                                         # ... then the rest by required elements
+        if len(out) < int(n) and cam not in out:
+            out.append(cam)
+    return out
+
+
 def sweep_views(expected_views: dict, n: int) -> list:
-    """Up to ``n`` cameras with the most required elements, at most one per room, ties by camera name."""
-    order = sorted(expected_views, key=lambda cam: (-required_count(expected_views[cam]), cam))
+    """Up to ``n`` interior cameras with the most required elements, at most one per room, ties by camera name
+    (exterior views are chosen by ``sweep_exterior_views``)."""
+    order = sorted((c for c, e in expected_views.items() if not is_exterior_view(e)),
+                   key=lambda cam: (-required_count(expected_views[cam]), cam))
     out, rooms = [], set()
     for cam in order:
         if len(out) >= int(n):

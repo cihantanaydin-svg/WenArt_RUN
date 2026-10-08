@@ -113,6 +113,30 @@ scene manifest and the check manifest (nothing is recomputed):
 - ``NEEDS_REVIEW_HINTS`` for DWG (LibreDWG 0.14), raster pages (no page
   quadrilateral, no dimension readable, photo aspect unknown), text drawn as
   geometry, untitled plan pages and an uncorroborated scale.
+
+Milestone 10 (docs/milestone10.md §3.3 item 6; the sections are built by ``wenart/report/m10.py``):
+
+- a project that stopped at the ``sheets`` stage (``sheets.json`` lists ``needs_review[]``, no ``building.json``,
+  no ``report.md``) gets the needs-review report too: the sheets reasons, a Sheets section (regions, strays, unit
+  check, conflicts, debug images as JPEG under ``final/debug/``) and ``sheets_report.md`` copied next to it (a
+  private project's stays on the volume);
+- a rendered project gets a ``Sheets`` section (``sheets.json``), a ``Building`` section (levels, variants, every
+  height drawn or assumed, slabs, roof, facade, site, levels left out), the Feature 1 section per room (drawn
+  type and size -> new type and size, added pieces, refused proposals; ``completion.json``) with the drawn-piece
+  check against the source plan, an ``Exterior views`` section (outside looks, views, dropped cameras, the
+  elevation check, roof and advisory facade counts, the exterior gate) and a ``Variants`` section that reads
+  ``variants/<id>/final/final_manifest.json`` of each alternative; every assumed value is listed under
+  ``Assumed values``;
+- an exterior view (``view_kind: exterior``, a camera without a room) is held to the exterior gate decision
+  (``wenart.gate.calibrate.exterior_polish``, next to the project's own): one that does not allow the polish
+  makes the view Cycles with reason ``gate_validation`` and leaves the rooms alone;
+- contact sheets: ``contact_<level>.jpg`` for the rooms as before, ``contact_exterior_<variant>.jpg`` for the
+  exterior views of a variant, ``contact_variant_<id>.jpg`` for the interior views of an alternative (tiles from
+  its own ``final/``); an alternative whose outside is unchanged lists the base exterior views instead;
+- a drawn piece the AI changed (``modified_by_ai``) carries the note ``modified_by_ai (drawn <type>)`` next to a
+  mismatch, as an added piece carries ``added_by_ai``: a render issue, never a conflict between documents;
+- an alternative's sub-output ``outputs/<p>/variants/<id>`` reads the base project's gate calibration, sheets and
+  ``completion.json`` and is private when its project is.
 """
 from __future__ import annotations
 
@@ -123,6 +147,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from wenart.report import common as C
+from wenart.report import m10 as M
 
 FINAL_DIR = "final"
 MANIFEST_NAME = "final_manifest.json"
@@ -178,15 +203,25 @@ NEEDS_REVIEW_HINTS = (
                              "not be told), or upload a scan or the CAD file"),
     ("text drawn as geometry", "export the PDF with real text (or upload the DWG/DXF): the texts of this page are "
                                "drawn as lines"),
+    # The sheets stage (docs/milestone10.md §3.1).
+    ("no readable plan region", "add a floor plan the sheets stage can read: a DXF/DWG or vector PDF with closed "
+                                "walls and room labels, or a sharp scan"),
+    ("missing scale", "set the drawing unit of the CAD file (or add a scale note such as ÖLÇEK 1/50 to the plan)"),
+    ("unit check", "check the drawing unit of the CAD file ($INSUNITS) against the room-area labels, the level "
+                   "marks and the door widths"),
 )
 MISMATCH_RESULTS = ("missing", "changed", "missing_or_changed")
 NON_DECOR_CLASSES = ("door", "window", "furniture", "fixture")
-CROSSCHECK_KEYS = ("in_json_not_rendered", "rendered_not_in_json", "misplaced")
+CROSSCHECK_KEYS = ("in_json_not_rendered", "rendered_not_in_json", "misplaced", "roof_not_rendered")
 # Keys of a check-manifest camera entry that are not image kinds (§5.7; M7 §8.1: the detector's per-view record and
 # its added_by_polish flag).
 CHECK_VIEW_KEYS = {"room_id", "json_crosscheck", "polished_rejected", "polished_reason", "polished_reasons",
-                   "needs_review", "needs_review_reasons", "preference", "added_by_polish", "detector"}
+                   "needs_review", "needs_review_reasons", "preference", "added_by_polish", "detector",
+                   # Milestone 10: the exterior view's roof check, the advisory facade counts and the view kind
+                   "facades", "exterior", "view_kind"}
 ADDED_BY_AI_NOTE = "added_by_ai: render/polish issue, not a document conflict"
+# Milestone 10, Feature 1: a drawn piece the AI changed (= wenart.vision_check.combine.MODIFIED_NOTE).
+MODIFIED_NOTE = "modified_by_ai (drawn {drawn}): render/polish issue, not a document conflict"
 # Milestone 7 (§9.4).
 SBS_PREFIX = "contact_sbs_"          # side-by-side sheets (the copy rule takes contact_*.jpg up to 300 KB)
 SBS_LABEL_HEIGHT = 44                # two label lines under each tile
@@ -210,6 +245,7 @@ FINAL_VIEW = {
                  "unverified", "mismatches", "needs_review"],
     "properties": {
         "camera": {"type": "string"},
+        "view_kind": {"enum": ["interior", "exterior"]},
         "final": {"enum": ["polished", "cycles"]},
         "reason": {"enum": [None, *REASONS]},
         "image": STR, "preview": STR, "plan": STR,
@@ -265,6 +301,17 @@ FINAL_MANIFEST = {
         # Milestone 9 (docs/milestone9.md §4, user request of 4 Oct 2026)
         "decor_ai": {"type": ["object", "null"]},
         "files_3d": {"type": ["object", "null"]},
+        # Milestone 10 (docs/milestone10.md §3.3 item 6; wenart/report/m10.py)
+        "variant": {"type": "string"},
+        "sheets": {"type": ["object", "null"]},
+        "building_detail": {"type": ["object", "null"]},
+        "completion": {"type": ["object", "null"]},
+        "drawn_check": {"type": ["object", "null"]},
+        "exterior": {"type": ["object", "null"]},
+        "exterior_sheets": {"type": "object", "additionalProperties": {"type": "string"}},
+        "variants": {"type": ["object", "null"]},
+        "variant_sheets": {"type": "object", "additionalProperties": {"type": "object"}},
+        "base_exterior_views": {"type": "array"},
     },
 }
 
@@ -341,6 +388,25 @@ class Inputs:
     side_by_side: dict = field(default_factory=dict)     # room id -> side-by-side sheet (M7 §9.4)
     side_by_side_note: Optional[str] = None              # why there is none
     style: Optional[dict] = None                         # style.json of the style stage (assumed default style)
+    # Milestone 10
+    sheets: Optional[dict] = None                        # sheets.json (the project's, for a variant sub-output the base's)
+    completion: Optional[dict] = None                    # completion.json of the layout stage (Feature 1)
+    exterior_gate: Optional[dict] = None                 # the exterior polish decision (gate.calibrate.exterior_polish)
+    variant: str = "base"                                # the variant of this output (outputs/<p>/variants/<id>: <id>)
+    root: Optional[Path] = None                          # the project output (= project_out; a variant's: its base)
+    variant_manifests: dict = field(default_factory=dict)    # variant id -> its final/final_manifest.json
+    base_manifest: Optional[dict] = None                 # a variant sub-output: the base project's final manifest
+    exterior_sheets: dict = field(default_factory=dict)  # variant -> contact_exterior_<variant>.jpg (write_images)
+    variant_sheets: dict = field(default_factory=dict)   # variant id -> {"interior": name, "exterior": name}
+    sheets_block: Optional[dict] = None                  # the Sheets block of the report (m10.sheets_block)
+
+    @property
+    def gate_dir(self) -> Path:
+        """``gate/`` of this output, else of its base project (an alternative reuses the base calibration)."""
+        own = self.project_out / "gate"
+        if (own / "gate_calibration.json").is_file() or (own / "gate_validation.json").is_file() or self.root is None:
+            return own
+        return self.root / "gate"
 
     @property
     def render_dir(self) -> Path:
@@ -368,6 +434,16 @@ def _building_path(scene: dict, project_out: Path) -> Optional[Path]:
     return fallback if fallback.is_file() else None
 
 
+def variant_root(project_out: Path) -> tuple[Path, str]:
+    """``(project output, variant id)`` of an output folder: an alternative's sub-output
+    ``outputs/<p>/variants/<id>`` is ``(outputs/<p>, <id>)``, any other folder ``(itself, "base")``
+    (docs/milestone10.md §1.6b row 9)."""
+    out = Path(project_out).resolve()
+    if out.parent.name == "variants" and out.parent.parent != out:
+        return out.parent.parent, out.name
+    return out, "base"
+
+
 def is_private(project_out: Path, explicit: bool = False) -> bool:
     """True for a private project (§7.1): asked for, staged by ``wenart.intake`` (its
     ``intake_manifest.json``), under the private outputs root, or named like a private alias.
@@ -382,7 +458,12 @@ def is_private(project_out: Path, explicit: bool = False) -> bool:
         return True
     except ValueError:
         pass
-    return bool(ALIAS_RE.match(out.name)) or out.name in RESERVED_ALIASES
+    if bool(ALIAS_RE.match(out.name)) or out.name in RESERVED_ALIASES:
+        return True
+    # Milestone 10: an alternative's sub-output ``outputs/<p>/variants/<id>`` is as private as its project.
+    if out.parent.name == "variants" and out.parent.parent != out:
+        return is_private(out.parent.parent)
+    return False
 
 
 def load_stage_records(project_out: Path, warnings: Optional[list] = None) -> list[dict]:
@@ -484,8 +565,9 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
     for e in (inp.render_manifest or {}).get("renders") or []:
         if isinstance(e, dict) and e.get("camera"):
             inp.entries[e["camera"]] = e
-    inp.gate_calibration = C.read_json(inp.project_out / "gate" / "gate_calibration.json", w)
-    inp.gate_validation = C.read_json(inp.project_out / "gate" / "gate_validation.json", w)
+    inp.root, inp.variant = variant_root(out)
+    inp.gate_calibration = C.read_json(inp.gate_dir / "gate_calibration.json", w)
+    inp.gate_validation = C.read_json(inp.gate_dir / "gate_validation.json", w)
     inp.gate = gate_validation_summary(inp)
     inp.polish = C.read_json(inp.polish_dir / "polish_manifest.json", w)
     if inp.polish is not None and inp.polish.get("kind") not in (None, "run"):
@@ -512,7 +594,41 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
             inp.answers.append(data)
     inp.stage_records, inp.earlier_records, inp.run_id = split_runs(load_stage_records(out, w))
     inp.intake = C.read_json(out / "intake_manifest.json", w)
+    load_m10_inputs(inp)
     return inp
+
+
+def load_m10_inputs(inp: Inputs) -> None:
+    """The Milestone 10 inputs: ``sheets.json``, ``completion.json``, the exterior polish decision and the final
+    manifests of the variants (each may be missing)."""
+    w = inp.warnings
+    root = inp.root or inp.project_out
+    sheets = C.read_json(root / "sheets.json", w)
+    inp.sheets = sheets if isinstance(sheets, dict) and sheets.get("kind") in (None, "sheets") else None
+    folders = [inp.building_path.parent] if inp.building_path else []
+    for folder in folders + [inp.project_out, root]:
+        completion = C.read_json(folder / "completion.json") if (folder / "completion.json").is_file() else None
+        if isinstance(completion, dict):
+            inp.completion = completion
+            break
+    if any(isinstance(c, dict) and c.get("kind") == "exterior" for c in (inp.scene or {}).get("cameras") or []):
+        try:
+            from wenart.gate.calibrate import exterior_polish
+            inp.exterior_gate = exterior_polish(inp.project_out)
+        except Exception as exc:  # noqa: BLE001 - an unreadable decision never allows the exterior polish
+            inp.exterior_gate = {"decision": "not_validated", "polish_allowed": False,
+                                 "reasons": [f"the exterior validation could not be read ({type(exc).__name__}: {exc})"]}
+            w.append(f"exterior gate decision not readable ({type(exc).__name__}: {exc}); exterior views stay Cycles")
+    if inp.variant == "base":
+        for v in (inp.building or {}).get("variants") or []:
+            vid = v.get("id") if isinstance(v, dict) else None
+            if vid and vid != "base":
+                m = C.read_json(root / "variants" / vid / FINAL_DIR / MANIFEST_NAME)
+                if isinstance(m, dict) and m.get("kind") == "final":
+                    inp.variant_manifests[vid] = m
+    else:
+        base = C.read_json(root / FINAL_DIR / MANIFEST_NAME)
+        inp.base_manifest = base if isinstance(base, dict) and base.get("kind") == "final" else None
 
 
 def gate_validation_summary(inp: Inputs) -> Optional[dict]:
@@ -532,7 +648,7 @@ def gate_validation_summary(inp: Inputs) -> Optional[dict]:
     sha = (v.get("calibration") or {}).get("sha256")
     if sha:
         from wenart.canonical import canonical_sha256
-        if canonical_sha256(inp.project_out / "gate" / "gate_calibration.json") != sha:
+        if canonical_sha256(inp.gate_dir / "gate_calibration.json") != sha:
             decision = "not_validated"
             reasons.append("gate_calibration.json changed after the validation (run gate validate again)")
     return {"decision": decision, "recorded_decision": recorded, "benign_accept": v.get("benign_accept"),
@@ -561,6 +677,15 @@ def level_of(inp: Inputs, camera: str) -> str:
     exp = inp.expected.get(camera) or {}
     lvl = (exp.get("json_crosscheck") or {}).get("level_id")
     return str(lvl) if lvl else "unknown"
+
+
+def view_kind_of(inp: Inputs, camera: str, cview: Optional[dict] = None) -> str:
+    """``interior`` or ``exterior``: the scene manifest's camera ``kind``, else the check manifest's ``view_kind``,
+    else a camera named ``ext_<n>`` that has no room (Milestone 10)."""
+    for kind in ((inp.cameras.get(camera) or {}).get("kind"), (cview or {}).get("view_kind")):
+        if kind in ("interior", "exterior"):
+            return kind
+    return "exterior" if camera.startswith("ext_") and not room_of(inp, camera) else "interior"
 
 
 def room_of(inp: Inputs, camera: str) -> Optional[str]:
@@ -626,7 +751,8 @@ def element_info(inp: Inputs, elements: dict, wid: Optional[str]) -> dict:
         else:                               # decor and AI pieces carry method + reason instead of evidence
             text = ": ".join(str(x) for x in (el.get("method"), el.get("reason")) if x) or "-"
         return {"type": el.get("type") or el.get("room_type"), "kind": coll, "source": source,
-                "status": el.get("status"), "evidence": text}
+                "status": el.get("status"), "evidence": text, "modified_by_ai": bool(el.get("modified_by_ai")),
+                "drawn_type": el.get("drawn_type"), "completes_room": bool(el.get("completes_room"))}
     for t in inp.table.values():
         if t.get("wenart_id") == wid:
             return {"type": t.get("type"), "kind": t.get("kind"), "source": t.get("source"),
@@ -817,19 +943,26 @@ def _cycles(reason: Optional[str], detail: Optional[str], candidate: Optional[di
 
 def decide(pview: Optional[dict], cview: Optional[dict], *, polish_ran: bool, check_ran: bool,
            allowed: bool = True, polish_dir: Optional[Path] = None, source_sha256: Optional[str] = None,
-           gate_decision: Optional[str] = None) -> dict:
+           gate_decision: Optional[str] = None, exterior_gate: Optional[dict] = None) -> dict:
     """``{"final", "reason", "detail", "candidate"}`` of one view (see the module docstring; pure but for file checks).
 
     ``pview``: the view's polish-manifest entry; ``cview``: its
     check-manifest camera entry; ``polish_dir``: where the attempt PNGs are
     (None skips the file check); ``source_sha256``: the current render PNG's
     hash (None skips the staleness check); ``gate_decision``: the project's
-    effective gate validation decision (None = not recorded, M5 outputs).
+    effective gate validation decision (None = not recorded, M5 outputs);
+    ``exterior_gate``: for an exterior view (Milestone 10) the exterior polish decision
+    (``wenart.gate.calibrate.exterior_polish``); one that does not allow the polish keeps the view Cycles
+    (``gate_validation``), whatever the rooms' decision is.
     """
     if not allowed:
         return _cycles("brief", "brief.yaml polish: false")
     if gate_decision in NO_POLISH_DECISIONS:
         return _cycles("gate_validation", f"gate validation {gate_decision}: no polish for this project")
+    if exterior_gate is not None and not exterior_gate.get("polish_allowed"):
+        why = "; ".join(str(r) for r in (exterior_gate.get("reasons") or [])[:2])
+        return _cycles("gate_validation", f"exterior gate validation {exterior_gate.get('decision')}: the exterior "
+                       f"views stay the Cycles render" + (f" ({why})" if why else ""))
     if not polish_ran:
         return _cycles("not_run", "polish not run")
     if pview is None:
@@ -966,9 +1099,11 @@ def build_views(inp: Inputs) -> list[dict]:
         cview = check_views.get(cam)
         src_png = inp.render_dir / entry["png"] if entry.get("png") else None
         src_sha = C.sha256_file(src_png) if src_png is not None and src_png.is_file() else None
+        view_kind = view_kind_of(inp, cam, cview)
         dec = decide(pview, cview, polish_ran=inp.polish is not None, check_ran=inp.check is not None,
                      allowed=allowed, polish_dir=inp.polish_dir, source_sha256=src_sha,
-                     gate_decision=(inp.gate or {}).get("decision"))
+                     gate_decision=(inp.gate or {}).get("decision"),
+                     exterior_gate=inp.exterior_gate if view_kind == "exterior" else None)
         cand = dec["candidate"]
         if dec["final"] == "polished":
             image = inp.polish_dir / cand["png"]
@@ -991,6 +1126,12 @@ def build_views(inp: Inputs) -> list[dict]:
             if it.get("source") == "added_by_ai" and it["what"] in ("element", "crosscheck") \
                     and ADDED_BY_AI_NOTE not in it["notes"]:
                 it["notes"].append(ADDED_BY_AI_NOTE)
+            elif info.get("modified_by_ai") and it["what"] in ("element", "crosscheck") \
+                    and not any(str(n).startswith("modified_by_ai") for n in it["notes"]):
+                it["notes"].append(MODIFIED_NOTE.format(drawn=info.get("drawn_type") or "?"))
+            if info.get("modified_by_ai") or info.get("completes_room"):
+                it["modified_by_ai"] = bool(info.get("modified_by_ai"))
+                it["completes_room"] = bool(info.get("completes_room"))
         final_image = "polished" if dec["final"] == "polished" else "cycles"
         final_items = [i for i in items if i["image"] == final_image and i["what"] != "crosscheck"]
         pol_entry = kinds.get("polished") or {}
@@ -1003,10 +1144,18 @@ def build_views(inp: Inputs) -> list[dict]:
                   "polished_reasons": list(cview.get("polished_reasons") or []),
                   "needs_review": bool(cview.get("needs_review")),
                   "needs_review_reasons": list(cview.get("needs_review_reasons") or [])}
+            if view_kind == "exterior":
+                # Milestone 10: the roof check and the advisory facade counts of an exterior view.
+                vc["exterior"] = cview.get("exterior")
+                vc["facades"] = cview.get("facades")
         needs_review = bool((cview or {}).get("needs_review")) or bool(confirmed_items(
             [i for i in items if i["image"] == "cycles"]))
+        camera = inp.cameras.get(cam) or {}
         out.append({
             "camera": cam,
+            "view_kind": view_kind,
+            "variant": camera.get("variant") if view_kind == "exterior" else None,
+            "exterior_view": camera.get("view") if view_kind == "exterior" else None,
             "room_id": room_of(inp, cam),
             "room_type": rtypes.get(room_of(inp, cam)),
             "level_id": level_of(inp, cam),
@@ -1204,6 +1353,14 @@ def polish_on(inp: Inputs) -> tuple[bool, Optional[str]]:
     return True, None
 
 
+def sbs_group(view: dict, variant: str = "base") -> str:
+    """The side-by-side sheet of a view: its room, or ``exterior_<variant>`` for an exterior view (no room), else
+    ``-``."""
+    if view.get("room_id"):
+        return view["room_id"]
+    return f"exterior_{view.get('variant') or variant}" if view.get("view_kind") == "exterior" else "-"
+
+
 def write_side_by_side(inp: Inputs, views: list[dict]) -> dict:
     """``contact_sbs_<room>.jpg`` per room with rendered views when the polish is on (§9.4); ``{room: name}``."""
     on, why = polish_on(inp)
@@ -1212,7 +1369,7 @@ def write_side_by_side(inp: Inputs, views: list[dict]) -> dict:
         return {}
     by_room: dict[str, list] = {}
     for view in views:
-        by_room.setdefault(view["room_id"] or "-", []).append(view)
+        by_room.setdefault(sbs_group(view, inp.variant), []).append(view)
     sheets = {}
     for room, room_views in sorted(by_room.items()):
         rows = []
@@ -1245,6 +1402,7 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
     out = inp.out_dir
     out.mkdir(parents=True, exist_ok=True)
     tiles: dict[str, list] = {}
+    exterior_tiles: dict[str, list] = {}
     for view in views:
         cam = view["camera"]
         src = _final_source(inp, view)
@@ -1260,7 +1418,10 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
             view["preview"] = name
             img = Image.fromarray(rgb)
             img.thumbnail((TILE_WIDTH * 2, TILE_WIDTH * 2))
-            tiles.setdefault(view["level_id"], []).append((tile_label(view), img))
+            if view.get("view_kind") == "exterior":
+                exterior_tiles.setdefault(view.get("variant") or inp.variant, []).append((tile_label(view), img))
+            else:
+                tiles.setdefault(view["level_id"], []).append((tile_label(view), img))
         plan = inp.check_dir / f"{cam}_plan.jpg"
         if plan.is_file() and inp.private:
             # A crop of the user's plan: named, never copied into final/ (§7.4); it stays on the volume.
@@ -1278,15 +1439,83 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
         name = f"contact_{level}.jpg"
         C.save_jpeg_under(contact_sheet(tiles[level]), out / name)
         sheets[level] = name
+    inp.exterior_sheets = {}
+    for variant in sorted(exterior_tiles):
+        name = f"contact_exterior_{re.sub(r'[^A-Za-z0-9_.-]+', '_', variant)}.jpg"
+        C.save_jpeg_under(contact_sheet(exterior_tiles[variant], columns=3), out / name)
+        inp.exterior_sheets[variant] = name
+    inp.variant_sheets = write_variant_sheets(inp)
     inp.side_by_side = write_side_by_side(inp, views)
     # Files of an earlier run that this run did not write are listed, not deleted.
     written = ({v["preview"] for v in views} | {v["plan"] for v in views} | set(sheets.values())
-               | set(inp.side_by_side.values()))
+               | set(inp.side_by_side.values()) | set(inp.exterior_sheets.values())
+               | {n for sheet in inp.variant_sheets.values() for n in sheet.values()})
     for pattern in ("*_final_preview.jpg", "*_plan.jpg", "contact_*.jpg"):
         for f in sorted(out.glob(pattern)):
             if f.name not in written:
                 inp.warnings.append(f"final/{f.name} is from an earlier run (not part of this report)")
+    inp.sheets_block = write_sheets_block(inp)
     return sheets
+
+
+def _safe_name(text: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", text)
+
+
+def write_variant_sheets(inp: Inputs) -> dict:
+    """Per alternative with its own final manifest: ``contact_variant_<id>.jpg`` (its interior views) and, when it
+    rendered exterior views of its own (its outside changed), ``contact_exterior_<id>.jpg``. The tiles are the
+    previews of the alternative's own ``variants/<id>/final/``. ``{variant id: {"interior": name, "exterior":
+    name}}``; an alternative with an unchanged outside has no exterior sheet (the report lists the base views)."""
+    from PIL import Image
+
+    out: dict = {}
+    for vid, manifest in sorted(inp.variant_manifests.items()):
+        folder = (inp.root or inp.project_out) / "variants" / vid / FINAL_DIR
+        tiles: dict[str, list] = {"interior": [], "exterior": []}
+        for v in manifest.get("views") or []:
+            if not isinstance(v, dict):
+                continue
+            kind = "exterior" if v.get("view_kind") == "exterior" else "interior"
+            rgb = _load_rgb(folder / v["preview"]) if v.get("preview") else None
+            if rgb is None:
+                inp.warnings.append(f"variant {vid}: {v.get('camera')}: final preview not found; no tile")
+                continue
+            img = Image.fromarray(rgb)
+            img.thumbnail((TILE_WIDTH * 2, TILE_WIDTH * 2))
+            label = tile_label(v) if "final" in v and "unverified" in v else str(v.get("camera"))
+            tiles[kind].append((label, img))
+        names = {}
+        for kind, prefix, columns in (("interior", "contact_variant_", CONTACT_COLUMNS),
+                                      ("exterior", "contact_exterior_", 3)):
+            if tiles[kind]:
+                names[kind] = f"{prefix}{_safe_name(vid)}.jpg"
+                C.save_jpeg_under(contact_sheet(tiles[kind], columns=columns), inp.out_dir / names[kind])
+        if names:
+            out[vid] = names
+    return out
+
+
+def write_sheets_block(inp: Inputs) -> Optional[dict]:
+    """The Sheets block of the report (``m10.sheets_block``) with the debug images as JPEG <= 300 KB under
+    ``final/debug/`` (a private project's are named only) and ``sheets_report.md`` copied (a private project's
+    stays on the volume). None without ``sheets.json`` and for an alternative's sub-output (the base report has it)."""
+    sh = inp.sheets
+    if not isinstance(sh, dict) or inp.variant != "base":
+        return None
+    root = inp.root or inp.project_out
+    rows = sheet_image_rows(sh, inp.private)
+    write_debug_previews(root, inp.out_dir, inp.private, inp.warnings, rows)
+    block = M.sheets_block(sh, inp.private, sheet_names(sh, inp.private),
+                           {r["debug_image"]: r.get("debug_preview") for r in rows})
+    report = root / SHEETS_REPORT
+    if report.is_file():
+        if inp.private:
+            block["report_kept_on_volume"] = SHEETS_REPORT
+        else:
+            shutil.copyfile(report, inp.out_dir / SHEETS_REPORT)
+            block["report"] = SHEETS_REPORT
+    return block
 
 
 # --------------------------------------------------------------------------
@@ -1605,8 +1834,9 @@ def recognition_summary(inp: Inputs) -> Optional[dict]:
 
 
 def site_summary(building: Optional[dict]) -> Optional[dict]:
-    """The site of the building (§2.5): plot and other boundary walls, exterior areas, decor, openings; recorded,
-    never built. None when the building has no site block."""
+    """The site of the building (§2.5): plot and other boundary walls, exterior areas, decor, openings, with the
+    ``build`` flag of each (Milestone 10: a drawn plot, paving, grass, parking and boundary wall is built; a
+    label-only area is recorded, not built). None when the building has no site block."""
     site = (building or {}).get("site") if isinstance(building, dict) else None
     if not isinstance(site, dict) or not any(site.get(k) for k in ("boundary_walls", "areas", "decor", "openings")):
         return None
@@ -1614,7 +1844,8 @@ def site_summary(building: Optional[dict]) -> Optional[dict]:
 
     walls = [{"id": w.get("id"), "kind": w.get("kind"), "level_id": w.get("level_id"),
               "length_m": round(G.distance(w["start"], w["end"]), 3) if w.get("start") and w.get("end") else None,
-              "thickness_m": w.get("thickness")} for w in site.get("boundary_walls") or [] if isinstance(w, dict)]
+              "thickness_m": w.get("thickness"), "build": w.get("build")}
+             for w in site.get("boundary_walls") or [] if isinstance(w, dict)]
     areas = []
     for a in site.get("areas") or []:
         if not isinstance(a, dict):
@@ -1622,7 +1853,7 @@ def site_summary(building: Optional[dict]) -> Optional[dict]:
         ls = a.get("label_size") if isinstance(a.get("label_size"), dict) else {}
         areas.append({"id": a.get("id"), "label": a.get("label"), "label_size": ls.get("text"),
                       "measured": ls.get("measured"), "status": ls.get("status"),
-                      "closed": a.get("polygon") is not None})
+                      "closed": a.get("polygon") is not None, "kind": a.get("kind"), "build": a.get("build")})
     decor: dict[str, int] = {}
     for d in site.get("decor") or []:
         if isinstance(d, dict):
@@ -1630,7 +1861,9 @@ def site_summary(building: Optional[dict]) -> Optional[dict]:
     openings = [{"id": o.get("id"), "type": o.get("type"), "width_m": o.get("width"),
                  "boundary_wall_id": o.get("boundary_wall_id")}
                 for o in site.get("openings") or [] if isinstance(o, dict)]
-    return {"boundary_walls": walls, "areas": areas, "decor": dict(sorted(decor.items())), "openings": openings}
+    built_known = any(x.get("build") is not None for x in walls + areas)
+    return {"boundary_walls": walls, "areas": areas, "decor": dict(sorted(decor.items())), "openings": openings,
+            "built_known": built_known}
 
 
 def separators_summary(building: Optional[dict]) -> list[dict]:
@@ -1705,7 +1938,8 @@ def assumed_summary(inp: Inputs) -> dict:
             scene.setdefault((str(a.get("field")), str(a.get("reason") or "-")), []).append(str(a.get("object")))
     scene_rows = [{"field": f, "reason": r, "count": len(objs), "examples": objs[:3]}
                   for (f, r), objs in sorted(scene.items())]
-    return {"brief": brief, "style": style, "building": building, "scene": scene_rows}
+    m10 = M.assumed_lines(b, inp.scene, lambda v: length_text(v, system))
+    return {"brief": brief, "style": style, "building": building, "scene": scene_rows, "m10": m10}
 
 
 def _dotted(values: dict, key: str):
@@ -1777,6 +2011,67 @@ def detector_summary(inp: Inputs, views: list[dict]) -> Optional[dict]:
 # Manifest and report
 # --------------------------------------------------------------------------
 
+def m10_blocks(inp: Inputs, views: list[dict]) -> dict:
+    """The Milestone 10 blocks of the final manifest (``wenart/report/m10.py``): sheets, whole building, Feature 1
+    (completion and drawn-piece check), exterior views and the variants."""
+    own_exterior = [v["camera"] for v in views if v.get("view_kind") == "exterior"]
+    if inp.variant == "base":
+        manifests = dict(inp.variant_manifests)
+        manifests["base"] = {"status": "ok", "views": views}
+        variants = M.variants_block(inp.building, manifests, own_exterior, "base")
+    else:
+        variants = None
+    return {
+        "variant": inp.variant,
+        "sheets": inp.sheets_block,
+        "building_detail": M.building_block(inp.building),
+        "completion": M.completion_block(inp.completion),
+        "drawn_check": M.drawn_block(inp.check),
+        "exterior": M.exterior_block(inp.scene, inp.check, views, inp.exterior_gate, inp.variant),
+        "exterior_sheets": dict(inp.exterior_sheets),
+        "variants": variants,
+        "variant_sheets": {vid: dict(names) for vid, names in inp.variant_sheets.items()},
+        "base_exterior_views": own_exterior if inp.variant == "base" else [
+            v.get("camera") for v in (inp.base_manifest or {}).get("views") or []
+            if isinstance(v, dict) and v.get("view_kind") == "exterior"],
+    }
+
+
+def m10_flags(blocks: dict) -> list[str]:
+    """Open items of Milestone 10: levels left out, exterior views that were dropped or held back, a mismatch of
+    the elevation check, a roof the render does not show, drawn pieces that moved, refused proposals."""
+    flags = []
+    left_out = ((blocks.get("building_detail") or {}).get("levels_left_out")) or []
+    if left_out:
+        flags.append(f"{len(left_out)} level(s) left out of the building: "
+                     + "; ".join(f"{x['label']} ({x['reason']})" for x in left_out[:4]))
+    ext = blocks.get("exterior") or {}
+    if ext.get("dropped"):
+        flags.append(f"{len(ext['dropped'])} exterior view(s) dropped, no camera place worked: "
+                     + ", ".join(str(d["name"]) for d in ext["dropped"][:6]))
+    gate = ext.get("gate")
+    if ext.get("views") and gate is not None and not gate.get("polish_allowed"):
+        flags.append(f"exterior gate {gate.get('decision')}: the exterior views are the Cycles render "
+                     f"({'; '.join(str(r) for r in (gate.get('reasons') or [])[:2]) or 'no reason recorded'})")
+    elev = ext.get("elevation") or {}
+    summary = elev.get("summary") or {}
+    if summary.get("mismatch") or summary.get("roof") == "mismatch":
+        flags.append(f"elevation check: {summary.get('mismatch', 0)} facade(s) differ from the drawn elevation; "
+                     f"roof heights {summary.get('roof')}")
+    missing_roof = [v["camera"] for v in ext.get("views") or [] if v.get("roof") == "missing"]
+    if missing_roof:
+        flags.append("the roof of the building JSON is not in the render: " + ", ".join(missing_roof))
+    drawn = blocks.get("drawn_check") or {}
+    if drawn.get("failed") or drawn.get("violations"):
+        flags.append(f"drawn-piece check: {len(drawn.get('failed') or [])} piece(s) moved beyond the tolerance, "
+                     f"{len(drawn.get('violations') or [])} locked-rule violation(s)")
+    comp = blocks.get("completion") or {}
+    refused = sum(len(r["refused"]) + len(r["dropped"]) for r in comp.get("rooms") or [])
+    if refused:
+        flags.append(f"AI completion: {refused} proposal(s) refused, reverted or not placed (listed per room)")
+    return flags
+
+
 def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
     by_reason: dict[str, int] = {}
     for v in views:
@@ -1789,6 +2084,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
     attribution = attribution_summary(inp.building)
     detector = detector_summary(inp, views)
     flags.extend(m7_flags(recognition, attribution, detector))
+    blocks = m10_blocks(inp, views)
+    flags.extend(m10_flags(blocks))
     stages = {
         "render": "run" if inp.render_manifest is not None else "not_run",
         "polish": ("not_run" if inp.polish is None else "incomplete" if inp.polish.get("incomplete") else "run"),
@@ -1796,6 +2093,7 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "check_calibration": "not_run" if inp.check_calibration is None else "run",
         "gate_calibration": "not_run" if inp.gate_calibration is None else "run",
         "gate_validation": "not_run" if inp.gate is None else inp.gate["decision"],
+        "exterior_gate": "not_applicable" if inp.exterior_gate is None else inp.exterior_gate.get("decision"),
         "expected": "run" if inp.expected else "not_run",
     }
     files = {"render_manifest": inp.render_dir / "render_manifest.json",
@@ -1804,8 +2102,10 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
              "check_manifest": inp.check_dir / "check_manifest.json",
              "check_calibration": inp.check_dir / "check_calibration.json",
              "expected_views": inp.check_dir / "expected_views.json",
-             "gate_calibration": inp.project_out / "gate" / "gate_calibration.json",
-             "gate_validation": inp.project_out / "gate" / "gate_validation.json"}
+             "gate_calibration": inp.gate_dir / "gate_calibration.json",
+             "gate_validation": inp.gate_dir / "gate_validation.json",
+             "sheets": (inp.root or inp.project_out) / "sheets.json",
+             "completion": (inp.root or inp.project_out) / "completion.json"}
     inputs = {k: (C.rel(p, inp.out_dir) if p.is_file() else None) for k, p in files.items()}
     inputs["building"] = C.rel(inp.building_path, inp.out_dir) if inp.building_path and inp.building_path.is_file() \
         else None
@@ -1844,6 +2144,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
             "views_per_room": views_per_room(rooms),
             "seconds": stage_seconds(inp),
             "rooms_mixed": sum(r["mixed"] for r in rooms.values()),
+            "interior_views": sum(v.get("view_kind") != "exterior" for v in views),
+            "exterior_views": sum(v.get("view_kind") == "exterior" for v in views),
         },
         "views": views,
         "rooms": rooms,
@@ -1867,6 +2169,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         # Milestone 9
         "decor_ai": decor_ai_summary(inp.project_out),
         "files_3d": None if inp.private else files_3d_summary(inp.project_out),
+        # Milestone 10
+        **blocks,
         "warnings": list(inp.warnings),
     }
 
@@ -1914,8 +2218,10 @@ def m9_lines(manifest: dict) -> list[str]:
     if decor:
         lines += ["", "## AI decor", "",
                   f"{decor['items_ai']} decor items chosen by the AI ({decor.get('model') or '-'}; both passes "
-                  f"agreeing) in {decor['rooms_ai']} rooms; {decor['items_rule']} items by the rules. No furniture "
-                  "was moved, added or removed (`furniture/<project>/decor_report.md` has every room)."]
+                  f"agreeing) in {decor['rooms_ai']} rooms; {decor['items_rule']} items by the rules. The decor "
+                  "stage places decor only: it moves, adds and removes no furniture (the AI completion of furnished "
+                  "rooms has its own section, `AI completion of furnished rooms`; "
+                  "`furniture/<project>/decor_report.md` has every room)."]
         if decor["fallbacks"]:
             lines += [""] + C.bullets([f"{f['room_id']}: rules ({f['reason']})" for f in decor["fallbacks"]])
     return lines
@@ -2171,6 +2477,35 @@ def intake_lines(intake: Optional[dict]) -> list[str]:
     return lines
 
 
+def exterior_gate_lines(manifest: dict) -> list[str]:
+    """The exterior part of the "Gate validation" section (Milestone 10): the exterior views are calibrated with
+    their own negatives and validated apart; a failed exterior validation keeps them Cycles only and leaves the
+    rooms alone. Nothing for a project without exterior views."""
+    ext = manifest.get("exterior") or {}
+    g = ext.get("gate")
+    if g is None or not ext.get("views"):
+        return []
+    lim = g.get("limits") or {}
+
+    def rate(value, limit) -> str:
+        if value is None:
+            return "-"
+        return f"{100.0 * float(value):.1f} %" + (f" (limit {100.0 * float(limit):.0f} %)" if limit is not None else "")
+
+    lines = ["", "### Exterior views", "",
+             f"Exterior decision: **{g.get('decision')}**. "
+             + ("The exterior views may be polished (the same gate, per view)." if g.get("polish_allowed") else
+                "The exterior views are the Cycles render; the rooms are not affected.")]
+    rows = [["benign exterior comparisons accepted", f"{rate(g.get('benign_accept'), lim.get('benign_accept_min'))}, "
+                                                     f"{g.get('n_benign') or 0} comparisons"],
+            ["negative exterior comparisons rejected",
+             f"{rate(g.get('negative_reject'), lim.get('negative_reject_min'))}, {g.get('n_negative') or 0} comparisons"]]
+    lines += [""] + C.table(["item", "value"], rows)
+    if g.get("reasons"):
+        lines += ["", "Reasons:", ""] + C.bullets([str(r) for r in g["reasons"]])
+    return lines
+
+
 def side_by_side_lines(manifest: dict) -> list[str]:
     """The "Side-by-side sheets" section (§9.4): per room the sheet and the decisions of each view."""
     sbs = manifest.get("side_by_side") or {}
@@ -2183,7 +2518,7 @@ def side_by_side_lines(manifest: dict) -> list[str]:
                  "last attempt the gate saw) with the gate decision, both check verdicts and the final decision.")
     by_room: dict = {}
     for v in manifest["views"]:
-        by_room.setdefault(v["room_id"] or "-", []).append(v)
+        by_room.setdefault(sbs_group(v, manifest.get("variant") or "base"), []).append(v)
     rows = []
     for room, name in sheets.items():
         lines += ["", f"- {room}: [{name}]({name})"]
@@ -2202,6 +2537,11 @@ def _answer_text(a: dict) -> str:
     conf = f" {float(a['confidence']):.2f}" if isinstance(a.get("confidence"), (int, float)) else ""
     front = f", front {a['front']}" if a.get("front") not in (None, "none") else ""
     return f"pass {a.get('pass')} {a.get('model') or '?'}: {a.get('type')}{front}{conf}"
+
+
+def _built_text(build: Any) -> str:
+    """``, built`` / ``, recorded only (not built)`` for a site element's ``build`` flag (nothing when unknown)."""
+    return "" if build is None else (", built" if build else ", recorded only (not built)")
 
 
 def m7_building_lines(manifest: dict) -> list[str]:
@@ -2253,14 +2593,20 @@ def m7_building_lines(manifest: dict) -> list[str]:
                                  [[r["id"], r["label"], r["label_raw"] or "—", r["room_type"], r["status"],
                                    LABEL_PATHS.get(r["path"], r["path"])] for r in rec["raster_rooms"]])
     site = manifest.get("site")
-    lines += ["", "## Site", "", "Recorded, not built."]
+    built_text = ("The plot, paving, grass, parking and boundary walls marked built are built in the 3D scene and "
+                  "show in the exterior views; an area that is only a label (not built) is recorded, not built."
+                  if (site or {}).get("built_known") else "Recorded, not built.")
+    lines += ["", "## Site", "", built_text]
     if site:
         rows = [[w["id"], f"boundary wall ({w['kind']})", f"{length_text(w['length_m'], system)} long, "
-                 f"{length_text(w['thickness_m'], system)} thick"] for w in site["boundary_walls"]]
+                 f"{length_text(w['thickness_m'], system)} thick" + _built_text(w.get("build"))]
+                for w in site["boundary_walls"]]
         for a in site["areas"]:
             measured = " x ".join(length_text(x, system) for x in a.get("measured") or []) or "-"
-            rows.append([a["id"], f"area '{a['label']}'", f"label size {a.get('label_size') or '-'}, measured "
-                         f"{measured} ({a.get('status') or '-'})" + ("" if a["closed"] else ", no closed outline")])
+            rows.append([a["id"], f"area '{a['label']}'" + (f" ({a['kind']})" if a.get("kind") else ""),
+                         f"label size {a.get('label_size') or '-'}, measured "
+                         f"{measured} ({a.get('status') or '-'})" + ("" if a["closed"] else ", no closed outline")
+                         + _built_text(a.get("build"))])
         rows += [[o["id"], f"{o['type']} in {o.get('boundary_wall_id') or '-'}", f"{length_text(o['width_m'], system)} "
                   "wide"] for o in site["openings"]]
         if site["decor"]:
@@ -2283,6 +2629,7 @@ def m7_building_lines(manifest: dict) -> list[str]:
     items = list(assumed.get("style") or [])
     items += [f"brief {a['key']}: {a['value']} (default, not in brief.yaml)" for a in assumed.get("brief") or []]
     items += list(assumed.get("building") or [])
+    items += list(assumed.get("m10") or [])
     lines += C.bullets(items)
     if assumed.get("scene"):
         lines += ["", "Scene (build) assumptions:", ""]
@@ -2337,6 +2684,61 @@ def m7_model_lines(manifest: dict) -> list[str]:
     return lines
 
 
+def m10_lines(manifest: dict) -> list[str]:
+    """The Milestone 10 sections: Sheets, Building, AI completion of furnished rooms (Feature 1), Exterior views and
+    Variants (``wenart/report/m10.py``). A block that was not recorded leaves its section out."""
+    system = (manifest.get("units") or {}).get("system") or "metric"
+
+    def fmt(value: Any) -> str:
+        return length_text(value, system)
+
+    lines: list[str] = []
+    variant = manifest.get("variant") or "base"
+    if variant != "base":
+        lines += ["", f"## This report: variant `{variant}`", "",
+                  "An alternative's sub-output: it renders the rooms its plan changes, and its exterior views only "
+                  "when its outside differs from the base. The sheets and the other variants are in the base "
+                  "project's report (`../../final/final_report.md`). The list of base exterior "
+                  "views: " + (", ".join(manifest.get("base_exterior_views") or []) or "none") + "."]
+    if manifest.get("sheets"):
+        lines += M.sheets_lines(manifest["sheets"], manifest["private"], stopped=False)
+    detail = manifest.get("building_detail")
+    if detail:
+        lines += M.building_lines(detail, fmt)
+    comp, drawn = manifest.get("completion"), manifest.get("drawn_check")
+    if comp:
+        lines += M.completion_lines(comp, fmt)
+    elif drawn:
+        lines += ["", "## AI completion of furnished rooms (Feature 1)", "",
+                  "No `completion.json`: the layout stage did not run the completion for this project."]
+    if drawn:
+        lines += M.drawn_lines(drawn)
+    ext = manifest.get("exterior")
+    if ext:
+        sheets_map = dict(manifest.get("exterior_sheets") or {})
+        for vid, names in (manifest.get("variant_sheets") or {}).items():
+            if names.get("exterior"):
+                sheets_map[vid] = names["exterior"]
+        lines += M.exterior_lines(ext, sheets_map, fmt)
+        if variant == "base":
+            base = manifest.get("base_exterior_views") or []
+            unchanged = [v["id"] for v in (manifest.get("variants") or {}).get("variants") or []
+                         if not v["base"] and not v["exterior_changed"]]
+            if unchanged and base:
+                lines += ["", "Alternatives with an unchanged outside (" + ", ".join(unchanged) + ") use the base "
+                          "views above: " + ", ".join(base) + "."]
+    elif detail:
+        lines += ["", "## Exterior views", "", "None rendered: the scene has no exterior camera (brief "
+                  "`render.exterior_views: false`, or no place worked for any view)."]
+    if manifest.get("variants"):
+        vsheets = {}
+        for vid, names in (manifest.get("variant_sheets") or {}).items():
+            if names.get("interior"):
+                vsheets[f"{vid}: interior views"] = names["interior"]
+        lines += M.variants_lines(manifest["variants"], vsheets)
+    return lines
+
+
 def report_markdown(manifest: dict) -> str:
     """``final_report.md`` from the final manifest (links only to files in ``final/``)."""
     s = manifest["summary"]
@@ -2372,6 +2774,8 @@ def report_markdown(manifest: dict) -> str:
                 else f"{exp['min']:+.2f} .. {exp['max']:+.2f} EV ({exp['at_limit']} at a limit)")
     rows = [
         ["views", s["views"]],
+        ["interior / exterior views", f"{s.get('interior_views', s['views'])} / {s.get('exterior_views', 0)}"],
+        ["variant", manifest.get("variant") or "base"],
         ["polished", s["polished"]],
         ["Cycles", f"{s['cycles']} ({reasons})"],
         ["confirmed mismatches on the final image", f"{s['final_mismatches']} in {s['views_with_final_mismatch']} "
@@ -2404,6 +2808,7 @@ def report_markdown(manifest: dict) -> str:
     lines += C.bullets(manifest["advisory_flags"])
     lines += gate_validation_lines(manifest["gate_validation"], manifest["polish_allowed"],
                                    manifest["stages"]["polish"] != "not_run")
+    lines += exterior_gate_lines(manifest)
     if manifest["contact_sheets"]:
         lines += ["", "## Contact sheets", ""]
         lines.append("Tiles: camera, `P` polished / `C` Cycles, `U<n>` unverified pieces in view.")
@@ -2487,6 +2892,7 @@ def report_markdown(manifest: dict) -> str:
                           for c in b["conflicts"]])
     else:
         lines.append("None.")
+    lines += m10_lines(manifest)
     lines += m7_building_lines(manifest)
     lines += ["", "## Rooms mixing polished and Cycles views", ""]
     mixed = [(rid, r) for rid, r in manifest["rooms"].items() if r["mixed"]]
@@ -2549,24 +2955,34 @@ class ReviewInputs:
     warnings: list
     earlier: list = field(default_factory=list)
     run_id: Optional[str] = None
+    sheets: Optional[dict] = None            # sheets.json of a project that stopped at the sheets stage (M10)
 
 
 def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[ReviewInputs]:
     """The inputs of the needs-review report, or None when the project does not need review.
 
     Sources, in order: ``intake_manifest.json`` (status ``needs_review``: its reasons; the pipeline did not
-    run, so an older ``building.json`` is ignored), ``building.json`` (status ``needs_review``: its
-    ``needs review: ...`` warnings, plus a failed schema validation), then this run's stage records with status
-    ``needs_review`` of stages no manifest covers (their note). Records of earlier runs (``split_runs``) are
-    only listed.
+    run, so an older ``building.json`` is ignored), ``sheets.json`` (Milestone 10: the sheets stage stopped the
+    project, ``wenart.sheets`` exit 1: its ``needs_review[]`` reasons; no ``building.json`` was written, an
+    older one is ignored), ``building.json`` (status ``needs_review``: its ``needs review: ...`` warnings, plus
+    a failed schema validation), then this run's stage records with status ``needs_review`` of stages no
+    manifest covers (their note). Records of earlier runs (``split_runs``) are only listed.
+
+    The sheets stage stopped the project when this run's ``sheets`` record says ``needs_review``, or, without
+    stage records (a hand run), when there is no ``building.json`` and ``sheets.json`` lists reasons. A
+    ``sheets.json`` with reasons next to a ``building.json`` of this run (a level left out with
+    ``failed_levels: leave_out``) is not a stop.
     """
     out = Path(project_out).resolve()
     w: list = []
     records, earlier, run_id = split_runs(load_stage_records(out, w))
     intake = C.read_json(out / "intake_manifest.json", w)
     building = C.read_json(out / "building.json", w)
+    sheets = C.read_json(out / "sheets.json", w)
+    sheets = sheets if isinstance(sheets, dict) and sheets.get("kind") in (None, "sheets") else None
     reasons: list[str] = []
     covered = set()
+    sheets_stopped = False
     if isinstance(intake, dict):
         covered.add("intake")
         if intake.get("status") == "needs_review":
@@ -2575,7 +2991,23 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
                 w.append("building.json is from an earlier run (the pipeline did not run after the intake); "
                          "ignored")
             building = None
+            sheets = None
             covered.update(r["stage"] for r in records)
+    if sheets is not None:
+        listed = [n for n in sheets.get("needs_review") or [] if isinstance(n, dict) and n.get("reason")]
+        record = next((r for r in records if r["stage"] == "sheets"), None)
+        stopped = (record is not None and record["status"] == "needs_review") or \
+            (record is None and building is None and bool(listed))
+        if stopped:
+            sheets_stopped = True
+            covered.add("sheets")
+            reasons += [f"sheets: {n['reason']}" for n in listed] or \
+                [f"sheets: {(record or {}).get('note') or 'the sheets stage needs review'}"]
+            if building is not None:
+                w.append("building.json is from an earlier run (the sheets stage stopped the project); ignored")
+            building = None
+    if not sheets_stopped:
+        sheets = None
     if isinstance(building, dict):
         covered.add("pipeline")
         if building.get("status") == "needs_review":
@@ -2595,9 +3027,10 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
     project = (building or {}).get("project")
     name = project.get("id") if isinstance(project, dict) else None
     return ReviewInputs(project_out=out, out_dir=Path(out_dir).resolve() if out_dir else out / FINAL_DIR,
-                        project=str(name or out.name), private=is_private(out, private), reasons=reasons,
+                        project=str(name or (sheets or {}).get("project") or out.name),
+                        private=is_private(out, private), reasons=reasons,
                         building=building, report_md=report_md, intake=intake if isinstance(intake, dict) else None,
-                        records=records, warnings=w, earlier=earlier, run_id=run_id)
+                        records=records, warnings=w, earlier=earlier, run_id=run_id, sheets=sheets)
 
 
 def review_hints(reasons: list[str]) -> list[str]:
@@ -2644,9 +3077,10 @@ def report_md_documents(text: Optional[str]) -> list[str]:
     return lines
 
 
-def write_review_images(ri: ReviewInputs, docs: list[dict]) -> list[dict]:
-    """Debug images of the pages as JPEG <= 300 KB under ``final/debug/`` (public projects); a private
-    project's debug images are only named (paths relative to the project output)."""
+def write_debug_previews(project_out: Path, out_dir: Path, private: bool, warnings: list, docs: list[dict]) -> list[dict]:
+    """Debug images of the rows in ``docs`` (``debug_image`` = path relative to the project output) as JPEG
+    <= 300 KB under ``out_dir/debug/`` (public projects); a private project's debug images are only named. Sets
+    ``debug_preview`` on every row; returns ``[{source, preview, bytes}]``."""
     out = []
     seen = set()
     for row in docs:
@@ -2654,24 +3088,31 @@ def write_review_images(ri: ReviewInputs, docs: list[dict]) -> list[dict]:
         if not rel_src or rel_src in seen:
             continue
         seen.add(rel_src)
-        src = ri.project_out / rel_src
+        src = Path(project_out) / rel_src
         entry = {"source": rel_src, "preview": None, "bytes": None}
-        if ri.private:
+        if private:
             entry["kept_on_volume"] = True
         elif not src.is_file():
-            ri.warnings.append(f"debug image {rel_src} not found")
+            warnings.append(f"debug image {rel_src} not found")
         else:
             rgb = _load_rgb(src)
             if rgb is None:
-                ri.warnings.append(f"debug image {rel_src} unreadable")
+                warnings.append(f"debug image {rel_src} unreadable")
             else:
                 name = f"{DEBUG_DIR}/{Path(rel_src).stem}.jpg"
-                info = C.save_jpeg_under(rgb, ri.out_dir / name)
+                info = C.save_jpeg_under(rgb, Path(out_dir) / name)
                 entry.update(preview=name, bytes=info["bytes"])
         out.append(entry)
         for r in docs:
             if r.get("debug_image") == rel_src:
                 r["debug_preview"] = entry["preview"]
+    return out
+
+
+def write_review_images(ri: ReviewInputs, docs: list[dict]) -> list[dict]:
+    """Debug images of the pages as JPEG <= 300 KB under ``final/debug/`` (public projects); a private
+    project's debug images are only named (paths relative to the project output)."""
+    out = write_debug_previews(ri.project_out, ri.out_dir, ri.private, ri.warnings, docs)
     written = {e["preview"] for e in out if e["preview"]}
     for pattern in (f"{DEBUG_DIR}/*.jpg", "*_final_preview.jpg", "*_plan.jpg", "contact_*.jpg"):
         for f in sorted(ri.out_dir.glob(pattern)):
@@ -2690,7 +3131,41 @@ def building_summary(building: Optional[dict]) -> Optional[dict]:
             "warnings": [w for w in building.get("warnings") or [] if isinstance(w, str)]}
 
 
-def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]) -> dict:
+SHEETS_REPORT = "sheets_report.md"
+
+
+def sheet_image_rows(sheets: Optional[dict], private: bool) -> list[dict]:
+    """One row per sheet of ``sheets.json`` that has a debug image (``sheets_debug/<file>_<sheet>.png``, relative
+    to the project output), shaped like ``document_rows`` so ``write_review_images`` handles both."""
+    rows = []
+    docs = [d for d in (sheets or {}).get("documents") or [] if isinstance(d, dict)]
+    for i, d in enumerate(docs, start=1):
+        for s in d.get("sheets") or []:
+            if isinstance(s, dict) and s.get("debug_image"):
+                rows.append({"file": _doc_name(d.get("file"), i, private), "page": s.get("id"), "class": "sheet",
+                             "debug_image": s["debug_image"], "debug_preview": None})
+    return rows
+
+
+def sheet_names(sheets: Optional[dict], private: bool) -> dict:
+    """``{file: shown name}`` of the documents of ``sheets.json`` (a private project's are numbered)."""
+    docs = [d for d in (sheets or {}).get("documents") or [] if isinstance(d, dict)]
+    return {d.get("file"): _doc_name(d.get("file"), i, private) for i, d in enumerate(docs, start=1)}
+
+
+def sheets_summary(ri: ReviewInputs, sheet_rows: list[dict]) -> Optional[dict]:
+    """The Sheets block of a needs-review report (None when the project did not stop at the sheets stage):
+    regions with class, how it was decided, level, variant and use; strays; unit checks; the stop reasons;
+    conflicts and warnings; the debug images. A private project's documents are numbered, never named."""
+    sh = ri.sheets
+    if not isinstance(sh, dict):
+        return None
+    return M.sheets_block(sh, ri.private, sheet_names(sh, ri.private),
+                          {r["debug_image"]: r.get("debug_preview") for r in sheet_rows})
+
+
+def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict],
+                          sheets: Optional[dict] = None) -> dict:
     stale = ri.project_out / "renders" / "render_manifest.json"
     if stale.is_file():
         ri.warnings.append("renders/ holds an earlier run's renders: ignored (the project needs review)")
@@ -2705,6 +3180,7 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
         "hints": review_hints(ri.reasons),
         "documents": docs,
         "debug_images": images,
+        "sheets": sheets,
         "building": building_summary(ri.building),
         "intake": intake,
         "run_id": ri.run_id,
@@ -2717,6 +3193,11 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
     }
 
 
+def sheets_lines(sheets: dict, private: bool) -> list[str]:
+    """The "Sheets" section of a needs-review report (a project the sheets stage stopped)."""
+    return M.sheets_lines(sheets, private, stopped=True)
+
+
 def review_markdown(manifest: dict, report_md_table: list[str]) -> str:
     """``final_report.md`` of a needs-review project (links only to files in ``final/``)."""
     lines = [f"# Final report: {manifest['project']} (needs review)", ""]
@@ -2726,9 +3207,15 @@ def review_markdown(manifest: dict, report_md_table: list[str]) -> str:
     lines += ["", "## Reasons", ""] + C.bullets(manifest["reasons"])
     if manifest["hints"]:
         lines += ["", "## What to do", ""] + C.bullets(manifest["hints"])
+    sheets = manifest.get("sheets")
+    if sheets:
+        lines += sheets_lines(sheets, manifest["private"])
     lines += ["", "## Documents and pages", ""]
     docs = manifest["documents"]
-    if docs:
+    if sheets and not docs:
+        lines.append("The project stopped at the sheets stage: no document page was read as a plan yet "
+                     "(see Sheets above).")
+    elif docs:
         rows = []
         for d in docs:
             if d["debug_preview"]:
@@ -2773,8 +3260,19 @@ def write_needs_review(ri: ReviewInputs) -> dict:
     """Write the needs-review ``final_report.md``, then ``final_manifest.json`` (last); returns the manifest."""
     ri.out_dir.mkdir(parents=True, exist_ok=True)
     docs = document_rows(ri.building)
-    images = write_review_images(ri, docs)
-    manifest = build_review_manifest(ri, docs, images)
+    sheet_rows = sheet_image_rows(ri.sheets, ri.private)
+    images = write_review_images(ri, docs + sheet_rows)
+    sheets = sheets_summary(ri, sheet_rows)
+    if sheets is not None:
+        report = ri.project_out / SHEETS_REPORT
+        if not report.is_file():
+            ri.warnings.append(f"{SHEETS_REPORT} not found next to sheets.json")
+        elif ri.private:
+            sheets["report_kept_on_volume"] = SHEETS_REPORT
+        else:
+            shutil.copyfile(report, ri.out_dir / SHEETS_REPORT)
+            sheets["report"] = SHEETS_REPORT
+    manifest = build_review_manifest(ri, docs, images, sheets)
     errors = validate_final_manifest(manifest)
     if errors:
         manifest["warnings"].extend(f"final manifest schema: {e}" for e in errors[:20])

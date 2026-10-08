@@ -11,6 +11,7 @@ import pytest
 
 from wenart.building import load_schema
 from wenart.furniture.decor import DECOR_TYPES
+from wenart.furniture.schemas import ALLOWED_TYPES
 from wenart.recognition.vlm_client import grammar_of, schema_errors
 from wenart.vision_check import preference as R
 from wenart.vision_check import prompts as P
@@ -25,16 +26,47 @@ def test_categories_are_generated_from_the_enums():
     furniture = load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"]
     assert S.FURNITURE_TYPES == tuple(t for t in furniture if t != "unknown") and "unknown" not in S.CATEGORIES
     assert S.OPENING_TYPES == ("door", "window")
-    assert S.CATEGORIES == ("door", "window") + S.FURNITURE_TYPES + tuple(DECOR_TYPES) + (
+    # Milestone 10: the decor categories are the decor module's types plus the building schema's decor enum
+    # (12 new types), so the categories do not wait for the decor module.
+    decor_enum = tuple(load_schema()["$defs"]["decor"]["properties"]["type"]["enum"])
+    assert S.DECOR_CATEGORIES == tuple(dict.fromkeys(tuple(DECOR_TYPES) + decor_enum))
+    assert set(DECOR_TYPES) <= set(S.DECOR_CATEGORIES) and set(decor_enum) <= set(S.DECOR_CATEGORIES)
+    assert S.CATEGORIES == ("door", "window") + S.FURNITURE_TYPES + S.DECOR_CATEGORIES + (
         "lamp", "textile", "other_furniture", "other_object")
     assert S.SEEN_AS == S.CATEGORIES + ("nothing",) and len(set(S.CATEGORIES)) == len(S.CATEGORIES)
-    # Milestone 8 (docs/milestone8.md §4): the decor stage adds rugs and wall art.
-    assert set(DECOR_TYPES) == {"plant", "cushion", "book_set", "rug", "wall_art",
-                                "vase", "bowl", "plant_small", "table_lamp", "mirror"}     # Milestone 9
+    # Milestone 8 (docs/milestone8.md §4): the decor stage adds rugs and wall art; Milestone 9 vase ... mirror.
+    assert {"plant", "cushion", "book_set", "rug", "wall_art", "vase", "bowl", "plant_small", "table_lamp",
+            "mirror"} <= set(DECOR_TYPES)
 
 
 def test_every_category_has_a_hint():
     assert set(P.HINTS) == set(S.CATEGORIES)
+
+
+def test_the_new_m10_types_have_their_own_hint_and_are_categories():
+    """The 14 furniture types and 12 decor types of docs/milestone10.md §1.1 are categories with a sentence of
+    their own (never the raw slug), so the VLM is asked in words."""
+    new_furniture = ("sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table",
+                     "crib", "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet",
+                     "wall_cabinet")
+    new_decor = ("curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture",
+                 "plant_large", "pendant_light", "ceiling_light")
+    for t in new_furniture + new_decor:
+        assert t in S.CATEGORIES, t
+        assert P.HINTS[t] != t and len(P.HINTS[t].split()) >= 3, t
+    assert all(S.category_class(t) == "furniture" for t in new_furniture)
+    assert all(S.category_class(t) == "decor" for t in new_decor)
+
+
+@pytest.mark.parametrize("expected, seen", [
+    ("sofa_corner", "sofa"), ("sofa", "sofa_corner"), ("office_chair", "chair"), ("bunk_bed", "bed_single"),
+    ("plant_large", "potted_plant"), ("pendant_light", "lamp"), ("curtain", "textile"), ("books", "book_set")])
+def test_a_near_neighbour_is_the_same_object(expected, seen):
+    """Feature 1 may change a drawn type to a neighbour; a model that names the neighbour has seen the object."""
+    out, changed = S.normalise_answer({"status": "different", "seen_as": seen, "confidence": 0.9}, expected)
+    assert out["status"] == "present" and changed
+    out, _ = S.normalise_answer({"status": "present", "seen_as": seen, "confidence": 0.9}, expected)
+    assert out["status"] == "present"
 
 
 @pytest.mark.parametrize("category, box, cls", [
@@ -169,7 +201,11 @@ def test_place_decoy_over_bare_structure_lowest_then_central():
 def test_decoy_type_first_allowed_absent_then_fallback():
     assert P.decoy_type("living", {"sofa", "armchair"}, ["armchair", "desk"]) == "table_coffee"
     living = {"sofa", "armchair", "table_coffee", "tv_unit", "bookshelf", "table_dining", "chair"}
-    assert P.decoy_type("living", living, ["armchair", "desk", "bookshelf", "bathtub"]) == "desk"
+    # Milestone 10: console_table is an allowed living type now, so it is the first one absent.
+    assert P.decoy_type("living", living, ["armchair", "desk", "bookshelf", "bathtub"]) == "console_table"
+    assert P.decoy_type("living", living | {"console_table"}, ["armchair", "desk"]) == "sideboard"
+    every = set(ALLOWED_TYPES["living"])
+    assert P.decoy_type("living", every, ["armchair", "desk", "bookshelf", "bathtub"]) == "desk"
     assert P.decoy_type("storage", set(), ["armchair", "desk", "bookshelf", "bathtub"]) == "armchair"
     assert P.decoy_type("balcony", {"armchair"}, ["armchair", "desk"]) == "desk"
     assert P.decoy_type(None, {"armchair", "desk"}, ["armchair", "desk"]) is None
@@ -221,9 +257,10 @@ def test_new_furniture_types_have_photo_hints_and_plant_stays_decor():
     # Both ways round (review vision-2): the decor plant seen as potted_plant is the same object too.
     # Milestone 8: the decor rug may be seen as a "textile" (its hint: "curtain or rug").
     # Milestone 9: the decor table lamp may be seen as a "lamp", the small plant as a "plant".
-    assert S.EQUIVALENT == {"potted_plant": ("plant",), "plant": ("potted_plant", "plant_small"),
-                            "floor_lamp": ("lamp",), "lamp": ("floor_lamp", "table_lamp"), "rug": ("textile",),
-                            "textile": ("rug",), "table_lamp": ("lamp",), "plant_small": ("plant",)}
+    # Milestone 10 adds pairs (tests below); the M7-M9 ones stay, symmetric.
+    for a, b in (("potted_plant", "plant"), ("floor_lamp", "lamp"), ("rug", "textile"), ("table_lamp", "lamp"),
+                 ("plant_small", "plant")):
+        assert b in S.EQUIVALENT[a] and a in S.EQUIVALENT[b], (a, b)
     for t in ("vase", "bowl", "plant_small", "table_lamp", "mirror"):
         assert t in S.DECOR_CATEGORIES and S.category_class(t) == "decor" and P.HINTS[t] != t
     line = P.element_line({"label": "E1", "type": "stair", "box_1000": [1, 2, 3, 4]})

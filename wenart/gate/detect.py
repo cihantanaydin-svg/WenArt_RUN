@@ -52,6 +52,12 @@ other_object today); a lamp is a ``fixture`` or ``furniture`` by its box.
 Milestone 8: the decor ``rug`` and ``wall_art`` of the building are
 compatible with the rug and picture frame groups (a box on them is covered,
 not added; decor either way, never a rejection).
+Milestone 10 (docs/milestone10.md §2.8, §3.3 item 4): the element table is the scene's, built from
+``building_final.json``, so a piece the AI added to a furnished room or changed from the drawn one is a drawn
+element (a box on it is covered, never an added object); the 14 new furniture types are in ``FAMILIES``, the
+decor ``pendant_light`` / ``ceiling_light`` lie under the lamp group, ``plant_large`` / ``plant_small`` under the
+potted plant, ``throw`` under the cushion. The detection file says its ``view_kind`` (``exterior`` for a camera
+without a room); an exterior view is detected like any other (its windows and doors are the elements).
 Images go to the model at 960 px on the long side (``IMAGE_LONG_SIDE``; the
 OWLv2 processor pads to a square and works at 960 x 960). Per box and group
 the score is the sigmoid of the group's best query logit; boxes below
@@ -146,7 +152,7 @@ FAMILIES: tuple[tuple[str, ...], ...] = (
      "tall_cabinet"),
     ("washbasin", "toilet", "shower", "bathtub", "washing_machine"),
     ("floor_lamp",),
-    ("potted_plant", "plant"),
+    ("potted_plant", "plant", "plant_large", "plant_small"),
     ("stair",),
 )
 DECOR_FURNITURE = ("potted_plant",)      # a furniture type the detector treats as decor (as the VLM's "plant")
@@ -178,12 +184,15 @@ def _groups() -> tuple[Group, ...]:
     groups += [
         Group("door", ("door",), "door", ("door",)),
         Group("window", ("window",), "window", ("window",)),
-        Group("lamp", ("lamp",), LAMP, ("floor_lamp", "table_lamp")),       # Milestone 9: the decor table lamp
+        # Milestone 9: the decor table lamp; Milestone 10: the pendant and the ceiling light (decor)
+        Group("lamp", ("lamp",), LAMP, ("floor_lamp", "table_lamp", "pendant_light", "ceiling_light")),
         # Milestone 8: a picture frame / rug box lying on the decor wall art / rug of the building is not added.
         Group("picture_frame", ("picture frame",), "decor", ("wall_art",)),
         Group("rug", ("rug",), "decor", ("rug",)),
         Group("vase", ("vase",), "decor", ("vase",)),                       # Milestone 9: the decor vase
-        Group("cushion", ("cushion",), "decor", ("cushion", "sofa", "armchair", "bed_single", "bed_double")),
+        # Milestone 10: a throw lies on a sofa, an armchair or a bed, as a cushion does.
+        Group("cushion", ("cushion",), "decor", ("cushion", "throw", "sofa", "armchair", "bed_single", "bed_double",
+                                                 "sofa_corner", "chaise", "bunk_bed")),
         Group("mirror", ("mirror",), "decor", ("mirror",)),                 # Milestone 9: the decor mirror
         Group("television", ("television",), "decor", ("tv_unit",)),
     ]
@@ -604,6 +613,7 @@ def run_detect(out, manifest_path, det_dir, detector, *, controls: bool = True, 
             old = None
         old_images = (old or {}).get("images") or {}
         rec = {"schema_version": "0.1", "kind": "detect_view", "camera": cam, "room_id": view.room_id,
+               "view_kind": "interior" if view.room_id else "exterior",
                "model": model, "settings": settings_record(), "queries": queries_record(), "images": {},
                "controls": {}}
         pol = chosen.get(cam)
