@@ -512,7 +512,7 @@ def agree_changes(answers: dict[int, Optional[dict]], drawn_order: list[str]) ->
 def check_change_rules(agreed: list[dict], drawn: list[Drawn], plan: dict) -> tuple[list[dict], list[dict]]:
     """``(kept, refused)``: the main piece stays a main piece type, nothing else becomes one; a change may not
     take a type over its count (``plan["maxima"]``, at least what the documents draw)."""
-    anchors = set(plan["anchors"])
+    anchors = set(plan.get("anchor_roles", plan["anchors"]))   # any bed is the bed (review #18)
     by_id = {d.id: d for d in drawn}
     counts = Counter(t for t, _ in _present(drawn))
     drawn_counts = Counter(counts)
@@ -543,7 +543,7 @@ def filter_added(items: list[dict], plan: dict, room_type: str) -> tuple[list[di
     """``(kept, refused)`` of one pass's added pieces: types the room may still get, at most their count, one main
     piece."""
     left = dict(plan["addable"])
-    anchors = set(plan["anchors"])
+    anchors = set(plan.get("anchor_roles", plan["anchors"]))   # any bed is the bed (review #18)
     anchor_taken = plan["has_anchor"]
     kept, refused = [], []
     for item in items:

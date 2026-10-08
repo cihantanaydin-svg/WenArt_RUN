@@ -400,7 +400,8 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     """What a room with drawn furniture holds, misses and may get (§2.3), from its pieces ``(type, size)``
     after the agreed changes.
 
-    Returns ``anchors`` (the room's anchor types), ``has_anchor``, ``maxima`` (type -> the most the room may
+    Returns ``anchors`` (the anchor types the room may get), ``anchor_roles`` (every type that is the room's main
+    piece when drawn: all bed types of a bedroom), ``has_anchor``, ``maxima`` (type -> the most the room may
     hold; an anchor type 1 while no anchor is present, the group counting as one), ``expected`` (type -> count),
     ``missing`` (expected type -> how many are missing), ``anchor_missing``, ``addable`` (type -> how many the
     AI may add: ``maxima`` minus what is present; never a fixed, rule-only, change-only or documented-only
@@ -410,7 +411,10 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     items = [(t, tuple(float(v) for v in size)) for t, size in present]
     counts = Counter(t for t, _ in items)
     anchors = anchor_types(rtype, subtype)
-    has_anchor = any(counts[a] for a in anchors)
+    # Any bed type counts as the room's bed (code review #18: a double bed drawn in a child's room, a bunk bed in
+    # another bedroom); the subtype only narrows what may be added.
+    roles = tuple(dict.fromkeys(ANCHOR_TYPES.get(rtype, ()) + anchors))
+    has_anchor = any(counts[a] for a in roles)
     expected = dict(EXPECTED_TYPES.get(rtype, {}))
     extra = dict(EXTRA_TYPES.get(rtype, {}))
     beds = [t for t, _ in items if t in NIGHTSTANDS_PER_BED]
@@ -439,7 +443,8 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     addable = {t: n - counts[t] for t, n in maxima.items() if n > counts[t] and t not in blocked}
     if rtype in NOTHING_ADDED_ROOM_TYPES or rtype not in ALLOWED_TYPES:
         missing, addable, anchor_missing = {}, {}, False
-    return {"anchors": anchors, "has_anchor": has_anchor, "maxima": maxima, "expected": expected,
+    return {"anchors": anchors, "anchor_roles": roles, "has_anchor": has_anchor, "maxima": maxima,
+            "expected": expected,
             "missing": missing, "anchor_missing": anchor_missing, "addable": addable, "counts": dict(counts)}
 
 

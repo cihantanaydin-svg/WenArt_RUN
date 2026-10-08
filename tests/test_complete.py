@@ -241,6 +241,25 @@ def test_change_rules_main_piece_and_counts():
     assert kept                                                           # a bed may become another bed type
 
 
+@pytest.mark.parametrize("subtype, bed, size", [("child", "bed_double", (1.6, 2.0)), (None, "bunk_bed", (1.0, 2.05)),
+                                                (None, "crib", (1.36, 0.7))])
+def test_any_drawn_bed_is_the_rooms_main_piece(subtype, bed, size):
+    """Code review #18: a double bed drawn in a child's room, or a bunk bed / crib in another bedroom, is the room's
+    bed: no second bed is asked for or added, and the drawn bed never becomes a wardrobe."""
+    plan = schemas.completion_plan("bedroom", subtype, [(bed, size)])
+    assert plan["has_anchor"] and not plan["anchor_missing"]
+    assert not {"bed_double", "bed_single", "bunk_bed", "crib"} & set(plan["addable"])
+    drawn = _drawn([_item("bed", bed, size)], "bedroom")
+    kept, refused = C.check_change_rules([{"id": "bed", "type": "wardrobe", "size": (2.4, 0.6)}], drawn, plan)
+    assert not kept and "main piece" in refused[0]["reason"]
+    other = next(t for t in schemas.anchor_types("bedroom", subtype) if t != bed)
+    kept, _ = C.check_change_rules([{"id": "bed", "type": other, "size": schemas.default_size(other)}], drawn, plan)
+    assert kept                                                           # another bed type of the room's list
+    kept, refused = C.filter_added([pc(t, (1, 1), 0, schemas.default_size(t))
+                                    for t in schemas.anchor_types("bedroom", subtype)], plan, "bedroom")
+    assert kept == [] and refused
+
+
 def test_filter_added_counts_and_one_main_piece():
     plan = schemas.completion_plan("bedroom", None, [("wardrobe", (1.8, 0.6))])
     items = [pc("bed_double", (1, 1), 0, (1.6, 2.0)), pc("bed_single", (3, 1), 0, (0.9, 2.0)),
