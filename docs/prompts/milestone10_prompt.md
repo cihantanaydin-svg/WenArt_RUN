@@ -152,15 +152,57 @@ is listed with a reason; a coverage table (types, models, style families, colour
 
 ## Order of work (proposal, change it in the spec if you see a better one)
 
-1. Spec `docs/milestone10.md`, my answers, `CLAUDE.md` change for Feature 1 after my OK.
-2. Feature 2.1 sheet analysis + `synthetic-07` (CPU), because it unblocks real02.
-3. Feature 1 (CPU + placer tests).
-4. Feature 3 vocabulary and textures (CPU), then one library pod for new models and judging.
-5. Feature 2.2 + 2.3 building, roof, facade, exterior cameras (CPU tests, then GPU tests).
-6. Code review of the milestone (several lenses, adversarial verifiers, a failing-then-passing test per
-   confirmed finding), as in earlier milestones.
-7. Full runs: real02 (all variants), real01, synthetic-03, synthetic-07; GPU tests green.
-8. Commit and push after every step; update `docs/progress.md` and `docs/gpu-log.md`.
+1. Spec `docs/milestone10.md`, my answers, `CLAUDE.md` change for Feature 1 after my OK. Freeze the contracts
+   first: building JSON schema changes (`levels.variant*`, `variants`, `roof`, `facade`, `slabs`, buildable
+   `site`, `completes_room`), `sheets.json` format, new brief keys, new vocabulary slugs.
+2. Then in parallel (see "Parallel work with subagents"):
+   - Track A: Feature 2.1 sheet analysis + `synthetic-07` (CPU), because it unblocks real02.
+   - Track B: Feature 1 (CPU + placer tests).
+   - Track C: Feature 3 vocabulary, colours and textures (CPU).
+   - Track D: Feature 3 library survey configs (ABO, Objaverse, TRELLIS.2 prompts) for the new types.
+   - Track E: Feature 2.2 + 2.3 building, roof, facade, exterior cameras (CPU tests on synthetic-07 data from
+     the frozen contract, real data after Track A merges).
+3. One library pod for new models and judging, which also runs the AI passes of the sheet analysis.
+4. Code review of the milestone (several lenses, adversarial verifiers, a failing-then-passing test per
+   confirmed finding), as in earlier milestones, with parallel finders.
+5. Full runs: real02 (all variants), real01, synthetic-03, synthetic-07; GPU tests green.
+6. Commit and push after every merged track; update `docs/progress.md` and `docs/gpu-log.md`.
+
+## Parallel work with subagents (option, default: on)
+
+Goal: build faster by running independent tracks at the same time, and spend fewer tokens by giving routine
+work to cheaper models. I can turn this off with "parallel: off"; then you work through the tracks one by one.
+
+1. **You are the lead.** You write the spec and the contracts, split the work, launch the subagents, review and
+   merge their work, run the full test suite, own git (commit, push) and own every pod. Subagents never push,
+   never start, stop or create pods, never call `scripts/gpu_run.py` with a cost, and never read or print secrets.
+2. **Show me the plan first**: a table of tracks with the subagent, its model, the files it owns, the tests it
+   must pass and the expected size. Launch after my OK.
+3. **Isolation**: each code-writing subagent works in its own git worktree (Agent tool `isolation: "worktree"`)
+   on a branch `m10-<track>` made from `opus_branch_03`. You merge each finished track into `opus_branch_03`,
+   run `pytest -m "not gpu"` after every merge, then push. One owner per shared file (`building.schema.json`,
+   `defaults.yaml`, `vocabulary.py`, `wenart/run/scheduler.py`, `CLAUDE.md`): only the lead edits them; a
+   subagent that needs a change asks the lead in its report.
+4. **Model per task** (cheapest model that does the job well; move a task up a level if its result fails review):
+
+| Model | Use for |
+|---|---|
+| Opus (lead and hard tracks) | spec, contracts, merges, sheet split and registration (Track A), Blender building, roof and stairs (Track E), placer changes (Track B), adversarial verifiers in the code review, anything touching the no-hallucination rules |
+| Sonnet | vocabulary and colour tables with cited sources, texture id checks against the live APIs, library survey configs, synthetic-07 generator and ground truth, CPU tests, report and docs sections, review finders |
+| Haiku | read-only searches (or the `Explore` agent), listing files, reading logs and pod output, counting coverage, checking that ids and paths exist |
+
+5. **At most 4 subagents at a time.** Each prompt you give a subagent contains: the `CLAUDE.md` rules that
+   apply, the frozen contract, the files it owns, what it must not touch, the tests to pass, and the report
+   format: files changed, tests run with pass/fail counts, open issues, anything `unverified` or `assumed`.
+   Background agents by default; do not wait idle while they run.
+6. **Trust but check**: a subagent's report is a claim. Before a merge, read its diff, run its tests yourself,
+   and check that nothing changed outside its files. Rejected work goes back to the same subagent with the reason.
+7. **Workflows**: you may use the Workflow tool for the code review (finders in parallel, verifiers per finding)
+   and for repeated batch checks (for example texture id checks), under 10 agents per workflow.
+8. **GPU stays serial**: one pod at a time (`CLAUDE.md`). Parallel speed on the GPU comes from batching inside
+   the pod (several projects and AI passes per pod), not from more pods. If you think two pods at once would save
+   real time, show me the saving and the cost; that needs a `CLAUDE.md` change and my OK.
+9. Report per track in `docs/milestone10.md` §"As built": who built it (model), time, result.
 
 ## Limits (from `CLAUDE.md`)
 
