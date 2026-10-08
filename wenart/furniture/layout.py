@@ -29,6 +29,20 @@ Qwen/Qwen3-VL-8B-Instruct --out outputs/<p>/building_furnished.json --debug
 outputs/<p>/layout_debug/`` writes the furnished building, ``layout.json``
 and ``layout_report.md`` next to it and one PNG + JSON per room in the debug
 folder.
+
+Milestone 10 (docs/milestone10.md §1.6a, §2): the same run, with the same
+client, also completes the rooms with drawn furniture
+(``wenart.furniture.complete``; ``LayoutClient.complete`` asks with the
+room's own schema). The brief keys ``furnished_rooms``,
+``furnished_rooms_keep``, ``furnished_rooms_keep_size`` and
+``render.twin_rooms`` come from ``wenart.brief.load_brief`` of
+``--project-dir`` (default: the building's ``project.source_folder``). An
+empty room whose partner (``same_as``, or ``twin_of`` with ``twin_rooms:
+one``) is an empty room too takes the partner's layout (copied, mirrored for
+twins) instead of being asked. The CLI also writes ``completion.json`` and
+``completion_report.md`` and runs ``locked.check(source, final, mode)``: a
+violation writes no furnished building and exits 1 (the reports list it); a
+transport error in either part still exits 3 with no output.
 """
 from __future__ import annotations
 
@@ -115,11 +129,27 @@ class LayoutClient:
         return self._model
 
     def propose(self, prompt: str, pass_no: int) -> Proposal:
+        """An empty room's layout (the Milestone 4 schema)."""
+        return self._ask(prompt, pass_no, schemas.grammar_schema(), schemas.validation_errors, prompts.SYSTEM_PROMPT)
+
+    def complete(self, prompt: str, schema: dict, pass_no: int) -> Proposal:
+        """Milestone 10: the completion of a room with drawn furniture (the room's own strict schema)."""
+        import jsonschema
+
+        def errors(data) -> list[str]:
+            validator = jsonschema.Draft202012Validator(schema)
+            return [f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
+                    for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))]
+
+        return self._ask(prompt, pass_no, schema, errors, prompts.COMPLETION_SYSTEM_PROMPT)
+
+    def _ask(self, prompt: str, pass_no: int, schema: dict, validation_errors, system_prompt: str) -> Proposal:
         try:
             model = self.model
         except vlm_client.VLMError as exc:
             return Proposal(pass_no, None, error=str(exc), prompt=prompt, model="?", transport_error=True)
-        body = build_text_request(model, prompt, schemas.grammar_schema(), seed=pass_no, max_tokens=self.max_tokens)
+        body = build_text_request(model, prompt, schema, seed=pass_no, max_tokens=self.max_tokens,
+                                  system_prompt=system_prompt)
         url = self.base_url + "/chat/completions"
         t0 = time.monotonic()
         raw_text, error, parsed = "", None, None
@@ -143,7 +173,7 @@ class LayoutClient:
         latency = time.monotonic() - t0
         data = None
         if parsed is not None:
-            problems = schemas.validation_errors(parsed)
+            problems = validation_errors(parsed)
             if problems:
                 error = "schema: " + "; ".join(problems[:5])
             else:
@@ -167,6 +197,8 @@ class RoomLayout:
     pieces: list[dict] = field(default_factory=list)     # building furniture dicts
     skipped: Optional[str] = None                        # why the room got nothing
     context: Optional[placer.RoomContext] = None
+    copied_from: Optional[dict] = None                   # Milestone 10: the partner whose layout this room took
+    copy_dropped: list = field(default_factory=list)     # Milestone 10: copies that failed a check here
 
     @property
     def latency_s(self) -> float:
@@ -183,10 +215,14 @@ class RoomLayout:
                               "anchor_first": placement.anchor_first})
             entry["rejected_types"] = list(p.rejected_types)
             passes.append(entry)
-        return {"room_id": self.room_id, "label": self.label, "room_type": self.room_type, "passes": passes,
-                "chosen_pass": self.chosen_pass, "latency_s": round(self.latency_s, 3), "skipped": self.skipped,
-                "pieces": [{"id": f["id"], "type": f["type"], "confidence": f["evidence"][0]["confidence"],
-                            "checks": f["checks"]} for f in self.pieces]}
+        out = {"room_id": self.room_id, "label": self.label, "room_type": self.room_type, "passes": passes,
+               "chosen_pass": self.chosen_pass, "latency_s": round(self.latency_s, 3), "skipped": self.skipped,
+               "pieces": [{"id": f["id"], "type": f["type"], "confidence": f["evidence"][0]["confidence"],
+                           "checks": f["checks"]} for f in self.pieces]}
+        if self.copied_from is not None:
+            out["copied_from"] = self.copied_from
+            out["copy_dropped"] = list(self.copy_dropped)
+        return out
 
 
 def style_text_of(style: Optional[dict], building: dict) -> str:
@@ -262,8 +298,10 @@ def propose_layouts(room: dict, building: dict, style_text: str, client, passes:
         result.proposals.append(proposal)
         if proposal.data is not None:
             # AI proposes, checks decide: a type the room type does not allow (a toilet in a
-            # bedroom) is removed before placement and listed in the proposal record.
-            allowed = schemas.ALLOWED_TYPES.get(result.room_type)
+            # bedroom; Milestone 10: a crib outside a child's room) is removed before placement
+            # and listed in the proposal record.
+            allowed = (schemas.layout_types(result.room_type, room.get("room_subtype"))
+                       if result.room_type in schemas.ALLOWED_TYPES else None)
             pieces = proposal.data["pieces"]
             if allowed is not None:
                 proposal.rejected_types = [p["type"] for p in pieces if p["type"] not in allowed]
@@ -294,8 +332,13 @@ def propose_layouts(room: dict, building: dict, style_text: str, client, passes:
 # --------------------------------------------------------------------------
 
 def furnish_building(building: dict, style_text: str, client, passes: int = 2,
-                     debug_dir: Optional[Path] = None) -> tuple[dict, list[RoomLayout]]:
-    """Add AI furniture to every empty room (new dict; the input is not changed)."""
+                     debug_dir: Optional[Path] = None,
+                     partners: Optional[dict] = None) -> tuple[dict, list[RoomLayout]]:
+    """Add AI furniture to every empty room (new dict; the input is not changed).
+
+    ``partners`` (Milestone 10): room id -> ``(partner room id, "same_as" | "twin")``; an empty room whose
+    partner is an empty room too takes the partner's layout (``complete.copy_empty_layout``) instead of
+    being asked; a partner that does not map is reported and the room is asked itself."""
     out = json.loads(json.dumps(building))
     layouts: list[RoomLayout] = []
     brief = (out.get("project") or {}).get("brief") or {}
@@ -304,21 +347,65 @@ def furnish_building(building: dict, style_text: str, client, passes: int = 2,
         layouts.append(RoomLayout(room["id"], room["label"], room.get("room_type", "other"),
                                   skipped=f"{room.get('room_type')} room: never furnished by AI "
                                           f"(docs/milestone7.md §0)"))
-    for room in empty_rooms(out):
+    empties = empty_rooms(out)
+    ids = {r["id"] for r in empties}
+    copies = {rid: p for rid, p in (partners or {}).items() if rid in ids and p[0] in ids and rid != p[0]}
+    done: dict[str, RoomLayout] = {}
+    for room in empties:
         if mode != "ai":
-            layouts.append(RoomLayout(room["id"], room["label"], room.get("room_type", "other"),
-                                      skipped=f"brief.empty_rooms is {mode!r}"))
+            done[room["id"]] = RoomLayout(room["id"], room["label"], room.get("room_type", "other"),
+                                          skipped=f"brief.empty_rooms is {mode!r}")
             continue
-        layout = propose_layouts(room, out, style_text, client, passes)
+        if room["id"] in copies:
+            continue
+        done[room["id"]] = layout = propose_layouts(room, out, style_text, client, passes)
         out["furniture"].extend(layout.pieces)
+    pending = [r for r in empties if r["id"] in copies and r["id"] not in done]
+    while pending:
+        ready = [r for r in pending if copies[r["id"]][0] in done]
+        room = ready[0] if ready else pending[0]               # no partner ready: a cycle, ask the first
+        pending.remove(room)
+        if ready:
+            done[room["id"]] = _copy_layout(room, copies[room["id"]], done, out, style_text, client, passes)
+        else:
+            done[room["id"]] = layout = propose_layouts(room, out, style_text, client, passes)
+            out["furniture"].extend(layout.pieces)
+    for room in empties:
+        layout = done[room["id"]]
         layouts.append(layout)
-        if debug_dir is not None:
+        if debug_dir is not None and mode == "ai":
             write_room_debug(room, layout, Path(debug_dir))
     out["warnings"] = list(out.get("warnings", []))
     for layout in layouts:
         if layout.skipped:
             out["warnings"].append(f"{layout.room_id}: no AI furniture, {layout.skipped}")
     return out, layouts
+
+
+def _copy_layout(room: dict, partner: tuple[str, str], done: dict, out: dict, style_text: str, client,
+                 passes: int) -> RoomLayout:
+    """The partner's layout mapped into ``room`` (Milestone 10), else the room is asked itself."""
+    from wenart.furniture import complete as C   # lazy: complete imports this module
+
+    pid, kind = partner
+    source = done[pid]
+    rooms = {r["id"]: r for r in out["rooms"]}
+    record = RoomLayout(room["id"], room["label"], room.get("room_type", "other"),
+                        context=placer.room_context(out, room))
+    if not source.pieces:
+        record.skipped = f"partner {pid} ({kind}) got no AI furniture: {source.skipped or 'nothing placed'}"
+        record.copied_from = {"room": pid, "kind": kind}
+        return record
+    added, dropped, info = C.copy_empty_layout(room, rooms[pid], kind, source.pieces, out, out)
+    if added is None:
+        layout = propose_layouts(room, out, style_text, client, passes)
+        out["furniture"].extend(layout.pieces)
+        layout.copied_from = dict(info, used=False)
+        return layout
+    record.pieces, record.copy_dropped, record.copied_from = added, dropped, info
+    if not added:
+        record.skipped = f"every piece copied from {pid} fails a check here"
+    return record
 
 
 def layout_summary(layouts: list[RoomLayout], building: dict, server: str, model: str) -> dict:
@@ -349,6 +436,9 @@ def layout_report(layouts: list[RoomLayout], building: dict) -> str:
                 cells.append(f"{len(prop.data['pieces'])}/{len(pl.pieces)}/{len(pl.dropped)} ({prop.latency_s:.1f} s)")
         added = ", ".join(f"{f['type']} ({f['evidence'][0]['confidence']})" for f in l.pieces) or "-"
         result = l.skipped and f"room stays empty: {l.skipped}" or "ok"
+        if l.copied_from and l.copied_from.get("used", True) and not l.skipped:
+            result = f"copied from {l.copied_from['room']} ({l.copied_from['kind']})" + (
+                f", {len(l.copy_dropped)} copies dropped" if l.copy_dropped else "")
         lines.append(f"| {l.label} ({l.room_id}) | {l.room_type} | {cells[0]} | {cells[1]} | "
                      f"{l.chosen_pass or '-'} | {added} | {result} |")
     repairs = [(l, entry) for l in layouts if l.chosen_pass for entry in l.placements[l.chosen_pass].log]
@@ -444,7 +534,8 @@ def draw_room_png(room: dict, layout: RoomLayout, path: Path) -> None:
 # --------------------------------------------------------------------------
 
 def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
-    parser = argparse.ArgumentParser(description="AI furniture layout for rooms without documented furniture")
+    parser = argparse.ArgumentParser(description="AI furniture layout for rooms without documented furniture and "
+                                                 "the completion of rooms with drawn furniture (Milestone 10)")
     parser.add_argument("building", help="building.json (or building_fitted.json)")
     parser.add_argument("--style", help="style.json from python -m wenart.style")
     parser.add_argument("--server", default=DEFAULT_SERVER, help=f"vLLM server base URL (default {DEFAULT_SERVER})")
@@ -453,7 +544,12 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     parser.add_argument("--debug", help="folder for one PNG + JSON per room")
     parser.add_argument("--passes", type=int, default=2)
     parser.add_argument("--timeout", type=float, default=600.0, help="seconds per model call")
+    parser.add_argument("--project-dir", help="project folder with brief.yaml (default: the building's "
+                                              "project.source_folder)")
     args = parser.parse_args(argv)
+
+    from wenart.furniture import complete as C   # lazy: complete imports this module
+    from wenart.furniture import locked as LK
 
     building = B.load(args.building)
     style = json.loads(Path(args.style).read_text(encoding="utf-8")) if args.style else None
@@ -463,11 +559,21 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     if building.get("status") != "ok":
         print(f"layout: building status {building.get('status')!r}, nothing furnished", file=sys.stderr)
         return 2
+    project_dir = args.project_dir or (building.get("project") or {}).get("source_folder") or "."
+    settings = C.load_settings(project_dir)
+    for warning in settings.warnings:
+        print(f"layout: brief: {warning}", file=sys.stderr)
+    partners = {r["id"]: p for r in building["rooms"] for p in [C.partner_of(r, settings)] if p}
     rooms = empty_rooms(building)
-    print(f"layout: {len(rooms)} empty room(s) in {building['project']['id']}, style '{style_text}'")
-    furnished, layouts = furnish_building(building, style_text, client, args.passes,
-                                          Path(args.debug) if args.debug else None)
+    print(f"layout: {len(rooms)} empty room(s), {len(C.furnished_rooms(building))} furnished room(s) "
+          f"(furnished_rooms: {settings.mode}) in {building['project']['id']}, style '{style_text}'")
+    debug = Path(args.debug) if args.debug else None
+    furnished, layouts = furnish_building(building, style_text, client, args.passes, debug, partners=partners)
+    profile = style[0] if isinstance(style, list) and style else style
+    family = profile.get("family") if isinstance(profile, dict) else None
+    completed, records = C.complete_building(furnished, style_text, client, settings, args.passes, debug, family)
     failed = [(l.room_id, p.pass_no, p.error) for l in layouts for p in l.proposals if p.transport_error]
+    failed += [(r.room_id, k, e) for r in records for k, e in r.transport_errors]
     if failed:
         # The server was not reachable: no answer is not "nothing to add" (the job must not reuse an
         # empty layout), so no furnished building is written and the exit code says why.
@@ -476,17 +582,41 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
         print(f"layout: {len(failed)} call(s) could not reach {args.server}: no output written (exit 3)",
               file=sys.stderr)
         return 3
+    keep_rooms = [r.room_id for r in records if r.state == "kept"]
+    violations = LK.check(building, completed, "keep" if settings.mode == "keep" else "complete", keep_rooms)
     out = Path(args.out)
-    B.save(furnished, out)
+    out.parent.mkdir(parents=True, exist_ok=True)
     # The model as the proposals recorded it (asking the client could raise when the server is down).
-    model = next((p.model for l in layouts for p in l.proposals if p.model and p.model != "?"), args.model or "?")
-    summary = layout_summary(layouts, furnished, args.server, str(model))
+    model = next((p.model for l in layouts for p in l.proposals if p.model and p.model != "?"), None)
+    model = model or next((p["model"] for r in records for p in r.passes if p.get("model") not in (None, "?")),
+                          args.model or "?")
+    completion = C.summary(records, completed, settings, args.server, str(model), violations)
+    (out.parent / "completion.json").write_text(json.dumps(completion, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out.parent / "completion_report.md").write_text(C.report(records, completed, settings, violations),
+                                                     encoding="utf-8")
+    if violations:
+        for v in violations:
+            print(f"layout: locked check: {v}", file=sys.stderr)
+        print(f"layout: {len(violations)} locked violation(s): no furnished building written (exit 1)",
+              file=sys.stderr)
+        return 1
+    B.save(completed, out)
+    summary = layout_summary(layouts, completed, args.server, str(model))
+    summary["completion"] = {k: completion[k] for k in ("rooms_completed", "rooms_copied", "changes_applied",
+                                                         "pieces_added", "wall_cabinets", "latency_s")}
     (out.parent / "layout.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
-    (out.parent / "layout_report.md").write_text(layout_report(layouts, furnished), encoding="utf-8")
+    (out.parent / "layout_report.md").write_text(layout_report(layouts, completed), encoding="utf-8")
     for l in layouts:
         state = f"{len(l.pieces)} added, pass {l.chosen_pass}" if l.chosen_pass else f"empty ({l.skipped})"
+        if l.copied_from and l.copied_from.get("used", True) and l.pieces:
+            state = f"{len(l.pieces)} copied from {l.copied_from['room']}"
         print(f"layout: {l.room_id} [{l.room_type}] {state}, {l.latency_s:.1f} s")
-    print(f"layout: {summary['pieces_added']} pieces added -> {out}")
+    for r in records:
+        changed = sum(c["status"] == "applied" for c in r.changes)
+        print(f"layout: {r.room_id} [{r.room.get('room_type')}] {r.state}: {changed} changed, {len(r.added)} added, "
+              f"{len(r.wall_cabinets)} wall cabinet(s), {r.latency_s:.1f} s" + (f" ({r.reason})" if r.reason else ""))
+    print(f"layout: {summary['pieces_added']} pieces added to empty rooms, {completion['pieces_added']} added and "
+          f"{completion['changes_applied']} changed in furnished rooms, locked check passed -> {out}")
     return 0
 
 
