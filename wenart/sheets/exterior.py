@@ -46,23 +46,15 @@ MATERIAL_WORDS = [
     ("render", r"\bSIVA\b|\bRENDER\b|\bPUTZ\b|\bENDUIT\b|\bSTUCCO\b"),
     ("fibre_cement", r"\bKOMPOZIT\b|\bFIBRE CEMENT\b|\bFIBER CEMENT\b"),
 ]
-AREA_WORDS = [
-    ("parking", r"\bOTOPARK\b|\bPARK\b|\bPARKING\b|\bGARAGE\b|\bCARPORT\b|\bSTELLPLATZ\b"),
-    ("garden", r"\bBAHCE\b|\bGARDEN\b|\bGARTEN\b|\bJARDIN\b|\bCIM\b|\bLAWN\b|\bYESIL\b"),
-    ("paving", r"\bKALDIRIM\b|\bPAVING\b|\bPFLASTER\b|\bTERAS\b|\bTERRACE\b|\bAVLU\b|\bPATIO\b"),
-    ("pool", r"\bHAVUZ\b|\bPOOL\b|\bPISCINE\b"),
-]
 WINDOW_M = ((0.4, 3.0), (0.4, 2.6))
 DOOR_M = ((0.7, 3.0), (1.9, 2.8))
 
 
 def area_kind(label: str) -> Optional[str]:
-    """What a site label names: parking, garden, paving, pool (None = not a site word)."""
-    folded = T.fold(label)
-    for kind, pattern in AREA_WORDS:
-        if re.search(pattern, folded):
-            return kind
-    return None
+    """What a site label names (``wenart.ingest.generic.labels.area_kind``: parking, garden, paving, pool, terrace;
+    None = not a site word)."""
+    from wenart.ingest.generic.labels import area_kind as kind_of
+    return kind_of(label)
 
 
 def side_of(title: Optional[str]) -> Optional[str]:

@@ -42,3 +42,12 @@ def test_gable_ridge_runs_across_the_cut():
     assert EX.ridge_lines(roof, heights, None) == [[[4.125, -0.5], [4.125, 8.75]]]
     heights["cut_axis"] = None
     assert EX.ridge_lines(roof, heights, None) == []
+
+
+@pytest.mark.parametrize("label, kind", [
+    ("OTOPARK", "parking"), ("Car porch", "parking"), ("BAHÇE", "garden"), ("Lawn", "garden"), ("TERAS", "terrace"),
+    ("KALDIRIM", "paving"), ("Courtyard", "paving"), ("HAVUZ", "pool"), ("SALON", None), ("Yatak Odası", None),
+])
+def test_area_kinds_of_site_labels(label, kind):
+    # building.schema site.areas[].kind: the labels.py site words (Turkish, English, German, French).
+    assert EX.area_kind(label) == kind

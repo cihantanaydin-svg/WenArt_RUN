@@ -49,6 +49,26 @@ EXTERIOR_KEYWORDS = ("parking", "car porch", "porch", "garden", "lawn", "sit out
                      "courtyard", "drive", "driveway", "gate")
 _EXTERIOR_PATTERNS = [B.english_keyword_re(k) for k in EXTERIOR_KEYWORDS]
 
+# Milestone 10 (building.schema site.areas[].kind): what a site label names, on fold_ascii text. Turkish, English,
+# German and French words; the first kind that matches wins (a terrace before paving, parking before garden).
+AREA_KIND_WORDS = (
+    ("pool", r"\b(havuz|pool|schwimmbad|piscine)\b"),
+    ("terrace", r"\b(teras|terrace|sit out|otla|terrasse)\b"),
+    ("parking", r"\b(otopark|park yeri|garaj|parking|car porch|carport|garage|stellplatz|parkplatz)\b"),
+    ("paving", r"\b(kaldirim|avlu|patio|paving|drive|driveway|court|courtyard|pflaster|hof|allee|pave|cour)\b"),
+    ("garden", r"\b(bahce|cim|yesil alan|garden|lawn|setback|garten|rasen|jardin|pelouse)\b"),
+)
+_AREA_KIND_RE = [(kind, re.compile(pattern)) for kind, pattern in AREA_KIND_WORDS]
+
+
+def area_kind(label: str) -> Optional[str]:
+    """What a site label names: ``parking``, ``garden``, ``paving``, ``pool`` or ``terrace`` (None = no site word)."""
+    folded = " ".join(B.fold_ascii(label or "").lower().split())
+    for kind, pattern in _AREA_KIND_RE:
+        if pattern.search(folded):
+            return kind
+    return None
+
 # label_size check (§2.7.3)
 SIZE_TOL_REL = 0.05
 SIZE_TOL_ABS_M = 0.15

@@ -173,8 +173,12 @@ class ProjectBuild:
         # provisional scale waiting for the room-size labels, §3.4), and the review reasons those answers decide.
         self.question_only: list[LevelExtraction] = []
         self.review_after_answers: list[str] = []
-        # Milestone 10: the sheets.json of a multi-region project (None: one drawing per page, M2-M9).
+        # Milestone 10: the sheets.json of a multi-region project (None: one drawing per page, M2-M9), its
+        # reference region, and how far the core's origin (the reference's outer wall faces, step 8) lies from the
+        # sheets outline corner (page metres; every region and every sheets coordinate moves by it).
         self.sheets: Optional[dict] = None
+        self.reference_region: Optional[str] = None
+        self.frame_shift: tuple[float, float] = (0.0, 0.0)
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -886,6 +890,11 @@ def _documents(records: list[PageRecord], works: dict, out_dir: Path, project_di
                 entry["to_original"] = work.extraction.report["to_original"]
             if work.extraction.report.get("aspect"):
                 entry["aspect"] = dict(work.extraction.report["aspect"])     # photos: the sheet ratio (§4.1)
+        if work is None and record.region_id is not None and entry.get("transform_to_building") \
+                and any(build.frame_shift):
+            tf = list(entry["transform_to_building"])              # a registered site plan, in the core's frame
+            tf[2], tf[5] = tf[2] - build.frame_shift[0], tf[5] - build.frame_shift[1]
+            entry["transform_to_building"] = tf
         kind = _source_kind(record, work)
         if kind is not None and "source_kind" not in doc:
             doc["source_kind"] = kind
@@ -1291,14 +1300,15 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
 
 def _m10_sections(b: dict) -> list[str]:
     """Report sections of a multi-region project (docs/milestone10.md §3.1): the levels by region and variant, the
-    levels left out, the variants, slabs and roof (values from the section or assumed)."""
+    levels left out, the variants, slabs and roof (values from the section or assumed), the drawn facade faces and
+    elevations (with their plan check) and the site."""
     def val(v) -> str:
         if not v or v.get("value") is None:
             return "-"
         return f"{v['value']:.2f}" + (" (assumed)" if v.get("method") == "assumed" else "")
 
-    lines = ["", "## Building (sheets)", "", "| Level | Kind | Variant | Region | Elevation | Source | Ceiling | Source |",
-             "|---|---|---|---|---|---|---|---|"]
+    lines = ["", "## Building (sheets)", "",
+             "| Level | Kind | Variant | Region | Elevation | Source | Ceiling | Source |", "|---|---|---|---|---|---|---|---|"]
     for lv in b["levels"]:
         lines.append(f"| {lv['id']} | {lv.get('kind') or '-'} | {lv.get('variant') or '-'} | "
                      f"{lv.get('region_id') or '-'} | {lv['elevation']:.2f} | {lv.get('elevation_source') or '-'} | "
@@ -1306,10 +1316,10 @@ def _m10_sections(b: dict) -> list[str]:
     left = b.get("levels_left_out") or []
     lines += ["", "Levels left out (failed_levels: leave_out):", ""]
     lines += [f"- {x['label']} ({x.get('region_id') or '-'}): {_cell(x['reason'])}" for x in left] or ["- none"]
-    lines += ["", "| Variant | Label | Levels | Rooms changed |", "|---|---|---|---|"]
+    lines += ["", "| Variant | Label | Levels | Rooms changed | Exterior changed |", "|---|---|---|---|---|"]
     for v in b.get("variants") or []:
         lines.append(f"| {v['id']} | {_cell(v['label'])} | {', '.join(v['levels'])} | "
-                     f"{', '.join(v.get('rooms_changed') or []) or '-'} |")
+                     f"{', '.join(v.get('rooms_changed') or []) or '-'} | {v.get('exterior_changed')} |")
     lines += ["", "| Slab | Top z | Thickness | Source | Stair voids |", "|---|---|---|---|---|"]
     for s in b.get("slabs") or []:
         lines.append(f"| {s['id']} | {s['z_top']:.2f} | {s['thickness']:.2f} | {s['thickness_source']} | "
@@ -1323,6 +1333,24 @@ def _m10_sections(b: dict) -> list[str]:
                       f"{', '.join(roof.get('assumed') or []) or 'none'}"]
     else:
         lines += ["", "Roof: not drawn."]
+    facade = b.get("facade") or {}
+    lines += ["", "Facade (drawn faces only; every other look is resolved by the build):", ""]
+    lines += [f"- {f['side']}: {f['material']}" + (f" z {f['z_range'][0]:.2f} to {f['z_range'][1]:.2f} m"
+                                                    if f.get("z_range") else " (whole height)")
+              for f in facade.get("faces") or []] or ["- none drawn"]
+    for e in facade.get("elevations") or []:
+        check = e.get("plan_check")
+        text = (f"plan check: {check['matched']} matched, {check['missing']} on the plans only, {check['extra']} on "
+                f"the elevation only" if check else "not checked against the plans (side not placed)")
+        lines.append(f"- elevation {e['region_id']} ({e['side']}): {e['windows']} windows, {e['doors']} doors; {text}")
+    site = b.get("site") or {}
+    if site:
+        north = site.get("north_deg")
+        north_text = f"north {north['value']:.1f} deg" if north else "north unknown"
+        lines += ["", f"Site: plot {'drawn' if site.get('plot') else 'not drawn'}; "
+                      f"{len(site.get('paving') or [])} paving, {len(site.get('grass') or [])} grass, "
+                      f"{len(site.get('parking') or [])} parking surfaces; {len(site.get('areas') or [])} labels; "
+                      f"{north_text}"]
     return lines
 
 
@@ -1404,12 +1432,15 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str],
 # Entry point
 # --------------------------------------------------------------------------
 
-def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool) -> LevelExtraction:
+def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
+                     build: Optional[ProjectBuild] = None) -> LevelExtraction:
     """A page for the generic core: the page the classifier already read, else read now by its adapter.
 
     Milestone 10: a region record reads only its region (``dxf_generic.clip_page``), a CAD region at the drawing
     unit of the unit check, and lands in the registered frame of the sheets stage (``origin`` from the region's
-    ``transform_to_building`` when it is a pure scale and shift at the core's scale)."""
+    ``transform_to_building`` when it is a pure scale and shift at the core's scale). The reference region keeps the
+    core's own origin (the min corner of its outer wall faces, docs/milestone10.md §1.6b row 1); how far that lies
+    from the sheets outline corner (``build.frame_shift``) moves every other region with it."""
     from wenart.ingest import dxf_generic
     from wenart.ingest.generic import core
 
@@ -1425,8 +1456,18 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool) ->
                                          units_to_m_override=record.units_override)
     record.generic_page = None                   # the page model is large; the extraction keeps what is needed
     origin = _region_origin(record)
+    is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
+    if origin is not None and build is not None and not is_reference:
+        origin = (origin[0] + build.frame_shift[0], origin[1] + build.frame_shift[1])
     ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
-                      rec_dir=out_dir / RECOGNITION_DIR, origin=origin)
+                      rec_dir=out_dir / RECOGNITION_DIR, origin=None if is_reference else origin)
+    if is_reference and origin is not None and ex.walls and ex.report.get("origin_m"):
+        core_origin = ex.report["origin_m"]
+        build.frame_shift = (round(core_origin[0] - origin[0], 6) + 0.0, round(core_origin[1] - origin[1], 6) + 0.0)
+        if max(abs(v) for v in build.frame_shift) > 0.005:
+            build.warn(f"building frame: the outer wall faces of the reference {record.region_id} start "
+                       f"({build.frame_shift[0]:+.3f}, {build.frame_shift[1]:+.3f}) m from the sheets outline corner; "
+                       f"every region and the sheets coordinates move with them")
     if record.region_id is not None:
         if record.region_transform is not None and origin is None:
             ex.warnings.append(f"{record.file} {record.region_id}: the registered transform "
@@ -1741,11 +1782,11 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
                                 b["variants"])
-    b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"])
+    b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift)
     b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)
-    b["site"] = TB.site_block(site, sheets, SE.area_kind, ground)
+    b["site"] = TB.site_block(site, sheets, SE.area_kind, ground, build.frame_shift)
     b["project"]["datum"] = (sheets.get("heights") or {}).get("datum")
     for c in sheets.get("conflicts") or []:
         # The sheet analysis's conflicts name drawing regions (sheets.json ids), not building elements.
@@ -1772,6 +1813,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
 
     sheets = _sheets_for(project_dir, out_dir, build)
     build.sheets = sheets if sheets and sheets.get("multi_region") else None
+    if build.sheets is not None:
+        build.reference_region = next((r["id"] for r in build.sheets.get("regions") or []
+                                       if (r.get("registration") or {}).get("method") == "reference"), None)
     records = classify_pages(project_dir, work_dir=out_dir / "converted", ocr=ocr, sheets=sheets)
     evidence_only = _evidence_only_pages(records)
     works: dict[tuple, PageWork] = {}
@@ -1779,7 +1823,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     failed: dict[str, list[str]] = {}           # Milestone 10: level id -> why its region could not be read
     not_selected: list[PageRecord] = []         # Milestone 10: alternatives the brief's variants leave out
     selected_alts = {lid for v in (build.sheets or {}).get("variants") or [] if not v["base"] for lid in v["levels"]}
-    for record in records:
+    # M10: the reference region is read first: its outer wall faces fix the building origin for every region.
+    for record in sorted(records, key=lambda r: 0 if r.region_id is not None and r.region_id ==
+                         build.reference_region else 1):
         if record.region_id is not None and record.skip_reason:
             # Milestone 10: a region that is no plan (title block, section, ...) is listed, never a review.
             build.warn(f"{record.file} {record.region_id}: {record.skip_reason}")
@@ -1832,7 +1878,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             extraction = _extract_raster(record, out_dir, answers, no_ai, secondary)
             extraction.level_assumed = record.label_source == "assumed"
         elif record.extractor == "generic":
-            extraction = _extract_generic(record, out_dir, answers, no_ai)
+            extraction = _extract_generic(record, out_dir, answers, no_ai, build)
             extraction.level_assumed = record.label_source == "assumed"
         elif record.format in ("dxf", "dwg"):
             extraction = extract_dxf(record.source_path, record.level_id, record.file)

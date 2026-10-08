@@ -124,9 +124,12 @@ def test_pipeline_reads_one_record_per_region(real02):
 
     building, build = P.run_project(PROJECTS / "real02", real02["out"], no_ai=True)
     pages = building["documents"][0]["pages"]
-    assert [p["region_id"] for p in pages] == [r["id"] for r in real02["doc"]["regions"]]
+    # §1.6b row 2: records for the regions read, used for the heights or the exterior (not the title box).
+    assert [p["region_id"] for p in pages] == [r["id"] for r in real02["doc"]["regions"]
+                                               if r["use"] in ("read", "heights", "exterior")]
     plans = [p for p in pages if p["region_class"] in ("floor_plan", "alternative_floor_plan")]
-    assert all(p["scale"]["metres_per_unit"] == 0.01 for p in plans)
+    # $INSUNITS 4 (mm) but the drawing is in cm: the unit check decided (§1.6b row 3).
+    assert all(p["scale"]["metres_per_unit"] == 0.01 and p["scale"]["method"] == "unit_check" for p in plans)
     left = {x["region_id"] for x in building.get("levels_left_out") or []}
     built = {lv["region_id"] for lv in building["levels"]}
     assert left | built == {p["region_id"] for p in plans}

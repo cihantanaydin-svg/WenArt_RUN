@@ -256,3 +256,29 @@ def test_debug_raster_of_a_region_renders_only_its_box(tmp_path):
     x1, y1 = raster.to_pixels((box[2], box[1]))
     assert 0 < x0 < 20 and 0 < y0 < 20 and w - 20 < x1 < w and h - 20 < y1 < h
     assert raster.image.convert("L").getextrema()[0] < 128                # something is drawn
+
+
+def test_the_building_origin_is_the_reference_walls_not_the_sheets_outline(tmp_path):
+    # §1.6b row 1: the reference's outer wall faces (the core's step 8) fix the origin; the sheets outline starts at
+    # an entrance step 0.3 m further out: every level, the roof outline and the profile move with the walls.
+    building, build, _ = _build(tmp_path, step=True)
+    assert build.frame_shift == pytest.approx((0.3, 0.0), abs=0.01)
+    assert any(w.startswith("building frame:") for w in building["warnings"])
+    for level_id in ("L-1", "L-1b", "L0", "L1"):
+        walls = [w for w in building["walls"] if w["level_id"] == level_id]
+        xs = [p[0] for w in walls for p in (w["start"], w["end"])]
+        ys = [p[1] for w in walls for p in (w["start"], w["end"])]
+        assert (min(xs), min(ys), max(xs), max(ys)) == pytest.approx((0.0, 0.1, 10.0, 7.9), abs=0.02), level_id
+    xs = [p[0] for p in building["roof"]["outline"]]
+    assert (min(xs), max(xs)) == pytest.approx((-0.5, 10.5), abs=0.02)
+    assert building["roof"]["profile"]["points"][0][0] == pytest.approx(-0.5, abs=0.02)
+
+
+def test_a_copy_of_a_level_is_cross_checked_not_an_alternative(tmp_path):
+    # §1.6b row 4: the same level drawn twice with the same title is one level (the M7 master / secondary check).
+    building, build, _ = _build(tmp_path, alternative_title="BODRUM KAT PLANI")
+    assert [lv["id"] for lv in building["levels"]] == ["L-1", "L0", "L1"]
+    assert [v["id"] for v in building["variants"]] == ["base"]
+    pages = [p for p in building["documents"][0]["pages"] if p.get("level_id") == "L-1"]
+    assert [p["region_id"] for p in pages] == ["r3", "r4"]
+    assert building["status"] == "ok"

@@ -30,6 +30,17 @@ SURFACE_PREFIX = {"paving": "sp", "grass": "sg", "parking": "spk"}
 DUPLICATE_M = 0.10             # site plan vs ground-floor plan: duplicates within 0.1 m merge
 
 
+Shift = tuple[float, float]
+
+
+def moved(points: Optional[list], shift: Shift) -> Optional[list]:
+    """Sheets building metres -> the pipeline's frame: minus ``shift`` (how far the reference's outer wall faces lie
+    from the sheets outline corner, ``ProjectBuild.frame_shift``)."""
+    if not points or not (shift[0] or shift[1]):
+        return points
+    return [[round(p[0] - shift[0], 4) + 0.0, round(p[1] - shift[1], 4) + 0.0] for p in points]
+
+
 def _heights_by_level(sheets: dict) -> dict[str, dict]:
     return {h["level_id"]: h for h in (sheets.get("heights") or {}).get("levels") or []}
 
@@ -256,8 +267,8 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
 # Roof
 # ----------------------------------------------------------------------------------------------------------------
 
-def roof_block(sheets: dict, levels: list[dict], rooms: list[dict],
-               walls: Optional[list[dict]] = None) -> Optional[dict]:
+def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optional[list[dict]] = None,
+               shift: Shift = (0.0, 0.0)) -> Optional[dict]:
     """The roof over the top level, or None when neither a section nor a plan draws it (the build then makes a flat
     roof over the top level, assumed)."""
     heights = sheets.get("heights") or {}
@@ -270,15 +281,18 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict],
     assumed = list((ex or {}).get("assumed") or [])
     profile = None
     if hroof.get("profile"):
-        profile = {"region_id": (heights.get("section_regions") or [None])[0], "cut_axis": heights.get("cut_axis"),
-                   "points": [list(p) for p in hroof["profile"]], "method": "vector"}
+        axis = heights.get("cut_axis")
+        ds = shift[0] if axis == "x" else shift[1] if axis == "y" else 0.0
+        profile = {"region_id": (heights.get("section_regions") or [None])[0], "cut_axis": axis,
+                   "points": [[round(p[0] - ds, 4) + 0.0, p[1]] for p in hroof["profile"]], "method": "vector"}
     roof = {"type": (ex or {}).get("type") or "other", "type_source": (ex or {}).get("type_source") or "assumed",
             "over_level_id": top["id"] if top else None,
             "eaves_height": hroof.get("eaves_z"), "ridge_height": hroof.get("ridge_z"),
             "pitches_deg": list(hroof.get("pitches_deg") or []), "overhang": hroof.get("overhang"),
             "thickness": hroof.get("thickness"), "knee_wall": hroof.get("knee_wall"), "profile": profile,
-            "outline": (ex or {}).get("outline"), "break_line": (ex or {}).get("break_line"),
-            "ridge_lines": list((ex or {}).get("ridge_lines") or []), "planes": [], "openings": [],
+            "outline": moved((ex or {}).get("outline"), shift),
+            "break_line": moved((ex or {}).get("break_line"), shift),
+            "ridge_lines": [moved(r, shift) for r in (ex or {}).get("ridge_lines") or []], "planes": [], "openings": [],
             "covering": (ex or {}).get("covering"), "covering_colour": None,
             "covering_source": (ex or {}).get("covering_source") if (ex or {}).get("covering") else None,
             "assumed": assumed, "evidence": list((ex or {}).get("evidence") or [])}
@@ -417,12 +431,25 @@ def _ground_levels(sheets: dict, north: Optional[float]) -> list[dict]:
     return out
 
 
+def _moved_site(sp: dict, shift: Shift) -> dict:
+    if not (shift[0] or shift[1]) or not sp:
+        return sp
+    out = dict(sp, plot=moved(sp.get("plot"), shift))
+    for key in ("paving", "grass", "parking"):
+        out[key] = [dict(x, polygon=moved(x["polygon"], shift)) for x in sp.get(key) or []]
+    out["trees"] = [dict(x, points=moved(x["points"], shift)) for x in sp.get("trees") or []]
+    out["labels"] = [dict(x, point=moved([x["point"]], shift)[0] if x.get("point") else None)
+                     for x in sp.get("labels") or []]
+    return out
+
+
 def _surface(prefix: str, n: int, polygon: list, area_id: Optional[str], source: str, evidence: list) -> dict:
     return {"id": f"{prefix}_{n:03d}", "polygon": [list(p) for p in polygon], "z": None, "material": None,
             "colour": None, "area_id": area_id, "source": source, "build": True, "evidence": list(evidence)}
 
 
-def site_block(site: dict, sheets: dict, area_kind: Callable, ground_level_id: Optional[str] = None) -> dict:
+def site_block(site: dict, sheets: dict, area_kind: Callable, ground_level_id: Optional[str] = None,
+               shift: Shift = (0.0, 0.0)) -> dict:
     """The M10 site additions on top of the M7 ``site`` block (mutated and returned): drawn ground levels (one
     assumed ``all 0.0`` when none is drawn), the north (null when no arrow is drawn), every area a label record
     (``build: false``) and the surfaces built from drawn outlines (``plot``, ``paving``, ``grass``, ``parking`` with
@@ -443,7 +470,7 @@ def site_block(site: dict, sheets: dict, area_kind: Callable, ground_level_id: O
     level_id = ground_level_id or next((a.get("level_id") for a in site.get("areas") or []), None) or "L0"
 
     # Site-plan labels become area records (the site plan wins over the ground-floor plan's duplicates).
-    sp = ex.get("site") or {}
+    sp = _moved_site(ex.get("site") or {}, shift)
     areas = site.setdefault("areas", [])
     for lab in sp.get("labels") or []:
         if lab.get("point") is None:

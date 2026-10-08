@@ -108,8 +108,10 @@ def write_report(doc: dict, path: Path, pending: list[str]) -> Path:
                      (f"; {roof_ex['note']}" if roof_ex.get("note") else ""))
     else:
         lines.append("Roof: nothing drawn.")
+    site = ex.get("site")
+    site_text = "no" if not site else "registered (site_outline)" if site.get("registered") else "not registered"
     lines.append(f"Facade entries: {len(ex.get('facade') or [])}; elevations: {len(ex.get('openings_seen') or [])}; "
-                 f"site plan: {'yes' if ex.get('site') else 'no'}; north: {_val(ex.get('north'))}")
+                 f"site plan: {site_text}; north: {_val(ex.get('north'))}")
     lines += ["", "## Conflicts", ""]
     if doc["conflicts"]:
         lines += ["| Id | Kind | Regions | Description | Resolution |", "|---|---|---|---|---|"]
