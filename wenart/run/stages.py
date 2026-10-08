@@ -52,6 +52,10 @@ CATALOG_OBJAVERSE = "wenart/furniture/catalog_objaverse.json"
 CATALOG_LIBRARY = "wenart/furniture/catalog_library.json"
 CHECK_YAML = "wenart/vision_check/check.yaml"
 RECOGNITION_DIR = "recognition"            # <out>/recognition: requests.json, answers_<slug>.json, crops/
+# Milestone 10 (§1.6b row 9): an alternative's sub-output outputs/<p>/variants/<variant id>/ (a project output's
+# layout; the downstream CLIs run on it with --project-out).
+VARIANTS_DIR = "variants"
+BASE_VARIANT = "base"
 SHEETS_DIR = "sheets"                      # <out>/sheets: the sheet_region questions in the same format (M10 §1.6a)
 QUESTION_DIRS = (SHEETS_DIR, RECOGNITION_DIR)   # every folder of AI questions the recognition sessions answer
 EXIT_QUESTIONS = 4                         # wenart.ingest.pipeline: questions written, answers missing (§1.4)
@@ -377,12 +381,18 @@ def preview_samples(tools: Tools) -> str:
     return str(SMOKE_PREVIEW_SAMPLES if tools.smoke else PREVIEW_SAMPLES)
 
 
-def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[float] = None) -> list[str]:
+def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[float] = None,
+          variant: str = BASE_VARIANT, base_out: Optional[Path] = None) -> list[str]:
     """``lens_mm``: the brief's ``render.lens_mm`` (Milestone 8; ``wenart.brief.lens_mm``), None for the automatic
-    18 / 16 mm rule of the camera search."""
-    cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", _out(ref, "building_final.json"),
-           "--style", _out(ref, "style.json"), "--assets", t(tools.assets), "--out", _out(ref, "scene"),
+    18 / 16 mm rule of the camera search. ``variant`` (Milestone 10, §1.6b row 9): an alternative builds the base
+    project's ``building_final.json`` and ``style.json`` (in ``base_out``) into its own output ``ref``
+    (``outputs/<p>/variants/<id>``) with ``--variant <id>``."""
+    src = Path(base_out) if variant != BASE_VARIANT and base_out is not None else ref.out_dir
+    cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", t(src / "building_final.json"),
+           "--style", t(src / "style.json"), "--assets", t(tools.assets), "--out", _out(ref, "scene"),
            "--preview-samples", preview_samples(tools), "--camera-policy", "search", "--brief", t(ref.project_dir)]
+    if variant != BASE_VARIANT:
+        cmd += ["--variant", variant]
     if lens_mm is not None:
         cmd += ["--lens-mm", f"{float(lens_mm):g}"]
     return cmd if force else cmd + ["--reuse"]
@@ -407,11 +417,13 @@ def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = 
     return cmd + (["--force"] if force else [])
 
 
-def export(tools: Tools, ref: ProjectRef) -> list[str]:
+def export(tools: Tools, ref: ProjectRef, variant: str = BASE_VARIANT) -> list[str]:
     """The 3D files of the final scene (Milestone 9): ``<p>.blend`` (textures packed, cameras with their metered
-    exposure) and ``<p>.glb`` in ``<out>/export``."""
-    return [tools.py, "-m", "wenart.blender.cli", "export", "--scene", _out(ref, "scene/scene.blend"), "--renders",
-            _out(ref, "renders/render_manifest.json"), "--out", _out(ref, "export"), "--name", ref.name]
+    exposure) and ``<p>.glb`` in ``<out>/export``; an alternative (Milestone 10): ``<p>-<variant id>.blend/.glb``
+    in its own ``export`` folder."""
+    cmd = [tools.py, "-m", "wenart.blender.cli", "export", "--scene", _out(ref, "scene/scene.blend"), "--renders",
+           _out(ref, "renders/render_manifest.json"), "--out", _out(ref, "export"), "--name", ref.name]
+    return cmd + (["--variant", variant] if variant != BASE_VARIANT else [])
 
 
 def select_controls(tools: Tools, ref: ProjectRef) -> list[str]:

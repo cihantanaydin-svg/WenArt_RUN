@@ -88,7 +88,8 @@ TERMINAL = ("failed", "needs_review", "incomplete")
 REUSABLE = ("ok", "warning", "reused", "pending")
 SKIP_REASONS = ("private only", "no style photos", "polish off", "no empty or completable room", "smoke profile",
                 "gate not validated", "not in this phase", "no questions",
-                "no decor questions")                     # Milestone 9: no room for the AI decor to ask about
+                "no decor questions",                     # Milestone 9: no room for the AI decor to ask about
+                "no view in this variant")                # Milestone 10: an alternative with no changed room
 PROJECT_STATES = ("ok", "needs_review", "failed", "incomplete")
 # Stages whose own needs_review makes the whole project needs_review (§1.2; pipeline_final: M7 §9.1).
 REVIEW_STAGES = ("intake", "sheets", "pipeline", "pipeline_final")   # sheets: Milestone 10

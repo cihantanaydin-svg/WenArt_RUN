@@ -345,10 +345,16 @@ class ProjectRun:
     polish_ran: bool = False
     archived: Optional[str] = None      # where the out_dir of an earlier, non-wenart.run job was moved (§2.3)
     archive_note: Optional[str] = None  # that move, for the note of the project's first stage record of this run
+    # Milestone 10 (§1.6b row 9): an alternative of ``base`` (its ref's out_dir is outputs/<p>/variants/<id>);
+    # label: ``<p>/<id>`` (a private alias: ``<a>/variant-<n>``, no title text in the job log).
+    variant: str = S.BASE_VARIANT
+    base: Optional[ProjectRun] = None
+    label: Optional[str] = None
+    no_views: bool = False              # an alternative whose scene has no camera: build and export only
 
     @property
     def name(self) -> str:
-        return self.ref.name
+        return self.label or self.ref.name
 
     @property
     def out(self) -> Path:
@@ -356,7 +362,7 @@ class ProjectRun:
 
     @property
     def active(self) -> bool:
-        return self.full and self.terminal is None
+        return self.full and self.terminal is None and not self.no_views
 
     @property
     def ab_active(self) -> bool:
@@ -1625,11 +1631,42 @@ class Orchestrator:
         line = last_line(scene_dir / "build.log") or last_line(ST.log_path(pr.out, "build"))
         return f"exit {rc}: {line}" if line else f"exit {rc}"
 
+    def add_variant_runs(self) -> None:
+        """Milestone 10 (§1.5, §1.6, §1.6b row 9): one run per alternative of a project's ``building_final.json``
+        (``variants[]`` without ``base``) once its refit is done, placed right after its base project, so the
+        build, render, export and every later stage run on ``outputs/<p>/variants/<id>`` like on a project."""
+        from wenart.building import alternative_ids
+
+        runs: list[ProjectRun] = []
+        for pr in self.runs:
+            runs.append(pr)
+            if pr.base is not None or not pr.active or self.status_of(pr, "refit") not in ST.GOING_ON:
+                continue
+            if any(r.base is pr for r in self.runs):
+                continue
+            for n, vid in enumerate(alternative_ids(read_json(pr.out / "building_final.json")), 1):
+                ref = replace(pr.ref, out_dir=pr.out / S.VARIANTS_DIR / vid)
+                label = f"{pr.name}/variant-{n}" if pr.ref.private else f"{pr.name}/{vid}"
+                runs.append(ProjectRun(ref=ref, variant=vid, base=pr, label=label))
+        added = len(runs) - len(self.runs)
+        self.runs = runs
+        if added:
+            self.out(f"variants: {added} alternative(s) after refit: "
+                     f"{' '.join(r.name for r in runs if r.base is not None)}")
+
     def phase5(self) -> None:
+        self.add_variant_runs()
         for pr in self.runs:
             if not pr.active:
                 continue
             self.stage_build(pr)
+            if pr.active and pr.base is not None and self.status_of(pr, "build") == "ok" \
+                    and not self.scene_views(pr):
+                # An alternative with no changed room and the base's outside: its 3D files only (§1.6).
+                self.skip(pr, "render", "no view in this variant")
+                self.stage_export(pr)
+                pr.no_views = True
+                continue
             if pr.active:
                 self.stage_render(pr)
             if pr.active:
@@ -1655,7 +1692,8 @@ class Orchestrator:
             self.not_started(pr, "build")
             return
         rc = self.run_step(pr, "build", "build", S.build(self.tools, pr.ref, force=self.forced("build"),
-                                                          lens_mm=self.brief_lens(pr)))
+                                                          lens_mm=self.brief_lens(pr), variant=pr.variant,
+                                                          base_out=pr.base.out if pr.base is not None else None))
         if rc == 0:
             self.finish(pr, "build", "ok")
         elif rc == TIMEOUT_RC:
@@ -1692,7 +1730,7 @@ class Orchestrator:
         if not self.can_start(S.EST_EXPORT_S):
             self.not_started(pr, "export")
             return
-        rc = self.run_step(pr, "export", "export", S.export(self.tools, pr.ref))
+        rc = self.run_step(pr, "export", "export", S.export(self.tools, pr.ref, variant=pr.variant))
         if rc == 0:
             self.finish(pr, "export", "ok")
         elif rc == TIMEOUT_RC:
@@ -1875,7 +1913,36 @@ class Orchestrator:
         return isinstance(cal, dict) and cal.get("kind") == "gate_calibration" and cal.get("incomplete") is False \
             and isinstance(cal.get("rates"), dict)
 
+    def variant_gate(self, pr: ProjectRun) -> None:
+        """Milestone 10 (§1.6b row 9): an alternative uses its base project's gate calibration (copied into its
+        ``gate`` folder, never calibrated again) and validates it; no complete base calibration -> not_validated."""
+        src = pr.base.out / "gate" / "gate_calibration.json"
+        cal = read_json(src)
+        complete = isinstance(cal, dict) and cal.get("kind") == "gate_calibration" and cal.get("incomplete") is False
+        if pr.base.gate_decision is None or not complete:
+            pr.gate_decision = None
+            self.finish(pr, "gate", "warning", "gate decision not_validated (no calibration of the base project)",
+                        outputs=[])
+            return
+        dst = pr.out / "gate" / "gate_calibration.json"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dst)
+        rc = self.run_step(pr, "gate", "validate", S.gate_validate(self.tools, pr.ref))
+        validation = read_json(pr.out / "gate" / "gate_validation.json")
+        pr.gate_decision = validation.get("decision") if isinstance(validation, dict) and rc == 0 else None
+        decision = pr.gate_decision or "not_validated"
+        if rc == 0:
+            self.finish(pr, "gate", "ok", f"gate decision {decision} (the base project's calibration)")
+        elif rc == TIMEOUT_RC:
+            self.finish(pr, "gate", "incomplete", "timeout in gate validate")
+        else:
+            self.finish(pr, "gate", "warning", f"gate decision {decision} (validate exit {rc}; the base project's "
+                                               "calibration)")
+
     def stage_gate(self, pr: ProjectRun) -> None:
+        if pr.base is not None:
+            self.variant_gate(pr)
+            return
         cmd = S.gate_calibrate(self.tools, pr.ref)
         ins = self.gate_inputs(pr)
         fp = ST.fingerprint("gate", S.STAGE_VERSION["gate"], cmd[1:], ins, self.code("gate"))
@@ -2094,7 +2161,7 @@ class Orchestrator:
             return
         steps = [(f"run {key}", S.check_run(self.tools, pr.ref, key, url, seqs)),
                  (f"preference {key}", S.preference(self.tools, pr.ref, key, url, seqs))]
-        if not pr.ref.private:
+        if not pr.ref.private and pr.base is None:      # the style photo test once per project, not per variant
             steps.append((f"style-photo test {key}", S.style_photo_test(self.tools, pr.ref, key, url)))
         slug = self.tools.model_slug(key)
         answers = pr.out / "check" / f"answers_{slug}.json"
@@ -2161,7 +2228,11 @@ class Orchestrator:
                     combined.append(pr)
             if any(pr.look_alt for pr in combined):
                 self.realism_summary(combined)
-        for pr in self.runs:
+        # Milestone 10: the alternatives' reports first, so the base project's report reads them (Variants).
+        for pr in sorted(self.runs, key=lambda r: r.base is None):
+            if pr.no_views:
+                self.skip(pr, "report", "no view in this variant")
+                continue
             self.stage_report(pr)
 
     def stage_report(self, pr: ProjectRun) -> None:
@@ -2219,7 +2290,7 @@ class Orchestrator:
         return ST.project_state(rec for stage, rec in pr.records.items() if stage in S.PROJECT_STAGES)
 
     def test_lists(self) -> dict:
-        public_full = [pr for pr in self.runs if not pr.ref.private]
+        public_full = [pr for pr in self.runs if not pr.ref.private and pr.base is None]   # M10: no variant runs
         state = {pr.name: self.project_state(pr) for pr in self.runs}
         ok = [pr for pr in public_full if state[pr.name] == "ok"]
 
@@ -2278,7 +2349,8 @@ class Orchestrator:
         private allow-list under ``results-private/<alias>/`` and ``full.sh``'s copy loop runs only every 300 s.
         Under the job's copy lock (``WENART_COPY_LOCK``); prints only file counts (§1.1)."""
         from wenart.run import copy as CP
-        refs = [pr.ref for pr in self.runs] + [pr.ref for pr in self.ab_runs if not pr.full]
+        # Milestone 10: a variant's files are copied with its base project (copy.copy_project).
+        refs = [pr.ref for pr in self.runs if pr.base is None] + [pr.ref for pr in self.ab_runs if not pr.full]
         try:
             with CP.copy_lock(os.environ.get("WENART_COPY_LOCK")):
                 counts = CP.copy_results(refs)
@@ -2324,12 +2396,18 @@ class Orchestrator:
 
     def project_entry(self, pr: ProjectRun, details: bool) -> dict:
         entry = {"name": pr.name, "private": pr.ref.private, "state": self.project_state(pr)}
+        if pr.base is not None:
+            entry["variant"] = pr.variant if details else None
         if details:
             entry.update(out_dir=S.t(pr.out),
                          stages=[pr.records[s].brief() for s in S.PROJECT_STAGES if s in pr.records],
                          gate_decision=pr.gate_decision, views=pr.views or None)
             if pr.archived:
                 entry["archived_outputs"] = pr.archived
+        variants = [r for r in self.runs if r.base is pr]
+        if variants:
+            # Milestone 10: the project's alternatives (their state counts in the exit code, not in the totals).
+            entry["variants"] = [self.project_entry(r, details) for r in variants]
         return entry
 
     def ab_entry(self, pr: ProjectRun) -> dict:
@@ -2345,7 +2423,7 @@ class Orchestrator:
         # Public manifest: public projects with every detail, private aliases with their state only.
         # Private manifest ($JOB_DIR/results-private/): the private projects' details.
         projects = [self.project_entry(pr, details=private or not pr.ref.private)
-                    for pr in self.runs if pr.ref.private or not private]
+                    for pr in self.runs if (pr.ref.private or not private) and pr.base is None]
         states = [p["state"] for p in projects]
         data = {"schema_version": "0.1", "kind": "private_run_manifest" if private else "run_manifest",
                 "run_id": self.run_id, "job": self.opts.job_id, "git_commit": self.commit,

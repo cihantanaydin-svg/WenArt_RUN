@@ -107,14 +107,16 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX, clip_box=None) -> 
     window is that box grown by ``DXF_MARGIN``."""
     import matplotlib
     matplotlib.use("Agg")
-    import ezdxf
     import matplotlib.pyplot as plt
     from ezdxf import bbox
     from ezdxf.addons.drawing import Frontend, RenderContext
     from ezdxf.addons.drawing.config import BackgroundPolicy, Configuration
     from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
 
-    doc = ezdxf.readfile(str(path))
+    # recover.readfile, as the pipeline reads: it decodes the \U+XXXX escapes of R2000 files (synthetic-07's
+    # Turkish texts), which plain ezdxf.readfile leaves as they are.
+    from ezdxf import recover
+    doc, _auditor = recover.readfile(str(path))
     msp = doc.modelspace()
     filter_func = None
     if clip_box is not None:

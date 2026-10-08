@@ -102,26 +102,27 @@ def test_golden_plan_of_the_committed_projects(golden):
     by = {e["project"]: e for e in plan["projects"]}
     assert plan["gpu"]["name"] == GPU and plan["gpu"]["memory_mib"] == 96 * 1024
     s1, s3 = by["synthetic-01"], by["synthetic-03"]
-    assert (s1["status"], s1["levels"], s1["rooms"], s1["empty_rooms"], s1["views"]) == ("ok", 2, 10, 7, 29)
-    assert P.project_minutes(29, 7) == 23.92                          # the PRO 4500 time, divided by the speed
-    assert s1["minutes"] == P.project_minutes(29, 7, speed=SPEED) == 14.64
+    assert (s1["status"], s1["levels"], s1["rooms"], s1["empty_rooms"], s1["views"]) == ("ok", 2, 10, 7, 34)
+    # Milestone 10: + 5 exterior views (4 corners, 1 aerial; no drawn elevation) of every project (29 before).
+    assert P.project_minutes(34, 7) == 27.15                          # the PRO 4500 time, divided by the speed
+    assert s1["minutes"] == P.project_minutes(34, 7, speed=SPEED) == 16.62
     assert s1["server_starts"] == 3 and s1["photos"] == 0
     # §6.2: rooms that stay without furniture (a bath, a hall) get one view before the layout too.
-    assert (s3["status"], s3["levels"], s3["rooms"], s3["empty_rooms"], s3["views"]) == ("ok", 3, 19, 11, 44)
-    assert s3["minutes"] == P.project_minutes(44, 11, speed=SPEED) and s3["server_starts"] == 3
+    assert (s3["status"], s3["levels"], s3["rooms"], s3["empty_rooms"], s3["views"]) == ("ok", 3, 19, 11, 49)
+    assert s3["minutes"] == P.project_minutes(49, 11, speed=SPEED) and s3["server_starts"] == 3
     if "synthetic-04" in by:
         s4 = by["synthetic-04"]
-        assert (s4["status"], s4["views"], s4["empty_rooms"]) == ("ok", 14, 2)
-        assert s4["minutes"] == P.project_minutes(14, 2, speed=SPEED) and s4["server_starts"] == 3
+        assert (s4["status"], s4["views"], s4["empty_rooms"]) == ("ok", 19, 2)
+        assert s4["minutes"] == P.project_minutes(19, 2, speed=SPEED) and s4["server_starts"] == 3
     if "synthetic-05" in by:
         s5 = by["synthetic-05"]
-        assert (s5["status"], s5["views"], s5["empty_rooms"], s5["photos"]) == ("ok", 25, 3, 1)
+        assert (s5["status"], s5["views"], s5["empty_rooms"], s5["photos"]) == ("ok", 30, 3, 1)
         assert s5["server_starts"] == 4 and s5["photos_cached"] is False
     if "synthetic-06" in by:                                          # the DWG project (read through its DXF here
         s6 = by["synthetic-06"]                                       # only when LibreDWG is installed)
         assert s6["status"] in ("ok", "needs_review")
         if s6["status"] == "ok":
-            assert (s6["levels"], s6["rooms"], s6["empty_rooms"], s6["views"]) == (1, 6, 2, 17)
+            assert (s6["levels"], s6["rooms"], s6["empty_rooms"], s6["views"]) == (1, 6, 2, 22)
             assert s6["server_starts"] == 3 and s6["questions"] is None
     r1 = by["real01"]
     # real01 writes 17 recognition questions (exit 4): pod time from the pre-answer building. The prep pod's answers
@@ -129,15 +130,19 @@ def test_golden_plan_of_the_committed_projects(golden):
     # recognition server start (without the seeds: 34 calls, 4 starts).
     assert (r1["status"], r1["stage_status"], r1["levels"], r1["rooms"]) == ("pending", "pending", 1, 9)
     seeded = (REPO_ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
-    want = (17, 0, 3, False) if seeded else (17, 34, 4, False)
+    # Milestone 10: the 14 new furniture types change the choices (and so the input hashes) of 16 of the 17
+    # questions; their committed answers match again once a pod has answered them and its seeds are committed.
+    want = (17, 32, 4, False) if seeded else (17, 34, 4, False)
     assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == want
-    calls = P.recognition_minutes({} if seeded else {"qwen": 17, "glm": 17}, plan["gpu"]["seqs"])
+    calls = P.recognition_minutes({"qwen": 16, "glm": 16} if seeded else {"qwen": 17, "glm": 17},
+                                  plan["gpu"]["seqs"])
     assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"], calls, speed=SPEED)
-    assert r1["views"] == 20 and r1["pod"] is not None
+    assert r1["views"] == 25 and r1["pod"] is not None
     rv = by["review-01"]
     assert rv["status"] == "needs_review" and rv["views"] is None and rv["minutes"] == 0.0 and rv["pod"] is None
-    assert rv["report"].endswith("review-01/report.md") and (out / "review-01" / "report.md").is_file()
-    assert "cannot order untitled plan pages" in (out / "review-01" / "report.md").read_text()
+    # Milestone 10: the sheet analysis stops it before the pipeline (two plans without a level title).
+    assert rv["report"].endswith("review-01/sheets_report.md") and (out / "review-01" / "sheets_report.md").is_file()
+    assert "plan without a level title" in (out / "review-01" / "sheets_report.md").read_text()
     pod_of_real01 = next(pod for pod in plan["pods"] if "real01" in pod["projects"])
     # A pod starts the servers of its most demanding project: without LibreDWG (synthetic-06 needs review) real01
     # joins the first pod, with the style photo of synthetic-05 (4 starts).
@@ -158,7 +163,7 @@ def test_plan_reuses_stage_1_and_writes_records(golden):
     assert rec["stage"] == "pipeline" and rec["status"] in ("ok", "reused") and rec["fingerprint"]
     again = P.make_plan(["synthetic-01", "real01"], outputs=out, gpu=GPU)
     assert json.loads((out / "synthetic-01" / "run" / "pipeline.json").read_text())["status"] == "reused"
-    assert again["projects"][0]["views"] == 29
+    assert again["projects"][0]["views"] == 34
     # A reused pending pipeline stays pending (its questions still need the answers).
     assert json.loads((out / "real01" / "run" / "pipeline.json").read_text())["status"] == "pending"
     assert again["projects"][1]["status"] == "pending" and again["projects"][1]["questions"] == 17
@@ -173,7 +178,7 @@ def test_gpu_speed_and_sequences_change_the_minutes(golden, monkeypatch):
     assert r_slow["minutes"] > r_fast["minutes"]                     # speed 1.0 (and, unseeded, 34 calls at 2)
     monkeypatch.setitem(P.GPU_SPEED, "RTX PRO 6000", 2.0)
     fast = P.make_plan(["synthetic-01"], outputs=out, gpu=GPU)
-    assert fast["projects"][0]["minutes"] == round(P.project_minutes(29, 7, speed=2.0), 2) == 11.96
+    assert fast["projects"][0]["minutes"] == round(P.project_minutes(34, 7, speed=2.0), 2) == 13.58
     assert "speed 2" in P.plan_text(fast)
 
 
@@ -195,9 +200,34 @@ def test_plan_cli(golden, tmp_path, capsys):
                    str(tmp_path / "run_plan.json")])
     assert rc == 0
     text = capsys.readouterr().out
-    assert "| synthetic-01 | ok | 2 | 10 | 7 | 29 | - | - | 14.64 | 3 | 1 |" in text
+    assert "| synthetic-01 | ok | 2 | 10 | 7 | 34 | - | - | 16.62 | 3 | 1 |" in text
     assert "- review-01: needs_review, no pod time" in text
     assert any(line.startswith("GPU: RTX PRO 6000 (speed 1.634;") for line in text.splitlines())
     data = json.loads((tmp_path / "run_plan.json").read_text())
     assert data["kind"] == "run_plan" and data["schema_version"] == "0.1" and data["gpu"]["name"] == GPU
     assert run_main(["plan", "--projects", "../etc"]) == 2
+
+
+def test_m10_views_per_variant_twins_and_exterior_sets():
+    """Milestone 10: the base's rooms without the second twin, an alternative's changed rooms, and one exterior set
+    (4 corners, 1 aerial, 1 per drawn elevation) for the base and for an alternative whose outside changed."""
+    def rm(rid, level, **kw):
+        return dict({"id": rid, "level_id": level, "polygon": [[0, 0], [4, 0], [4, 3], [0, 3]],
+                     "area_computed": 12.0}, **kw)
+    building = {
+        "levels": [{"id": "L0"}, {"id": "L-1"}, {"id": "L-1b", "base_level_id": "L-1"}],
+        "rooms": [rm("a", "L0"), rm("b", "L0", twin_of="a"), rm("c", "L-1"), rm("d", "L-1b"), rm("e", "L-1b")],
+        "furniture": [], "openings": [], "walls": [],
+        "variants": [{"id": "base", "levels": ["L-1", "L0"], "base": True, "changes": [], "rooms_changed": [],
+                      "exterior_changed": False},
+                     {"id": "l-1b-x", "levels": ["L-1b", "L0"], "base": False,
+                      "changes": [{"replaces": "L-1", "level_id": "L-1b"}], "rooms_changed": ["d"],
+                      "exterior_changed": True}],
+        "facade": {"elevations": [{"region_id": "r7", "side": "front"}]},
+    }
+    rendered, sets = P.variant_rooms(building)
+    assert rendered == ["a", "c", "d"] and sets == 2
+    assert P.exterior_view_count(building) == 6
+    from wenart.blender.camsearch import room_view_count
+    per_room = room_view_count(building["rooms"][0], building)
+    assert P.building_views(building) == 3 * per_room + 2 * 6

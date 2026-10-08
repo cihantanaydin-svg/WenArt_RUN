@@ -303,6 +303,12 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
             out["shape"] = piece.details["shape"]
             if piece.details.get("circle_fit"):
                 out["circle_fit"] = dict(piece.details["circle_fit"])
+        lo = piece.details.get("l_outline")
+        if lo and piece.type == "sofa_corner":
+            # Milestone 10 (§1.6b row 15): the drawn L of a corner sofa (generic/symbols.l_shape); never on another
+            # type (schema conditional: shape L -> sofa_corner).
+            out.update(shape="L", chaise_side=lo["chaise_side"], chaise_depth=lo["chaise_depth"],
+                       seat_depth=lo["seat_depth"], chaise_width=lo["chaise_width"])
         run = piece.details.get("counter_run")
         if run:
             index = run.get("wall_index")

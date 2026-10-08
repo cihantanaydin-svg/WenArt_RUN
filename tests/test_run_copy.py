@@ -371,3 +371,33 @@ def test_library_files_leave_model_files_out(tmp_path):
     got = sorted(f.relative_to(lib).as_posix() for f in CP.library_files(lib))
     assert got == ["generate/images/x.png", "generate/plan.json", "judge/sheets/abo_X.jpg", "survey_abo.json"]
     assert CP.library_files(tmp_path / "nowhere") == []
+
+
+def test_m10_variants_are_copied_with_their_project(tmp_path):
+    """Milestone 10 (§1.6b row 9): an alternative's sub-output goes to variants/<id>/ of each area folder; only
+    the alternatives that building_final.json lists now."""
+    results, pub, priv = refs(tmp_path)
+    vid = "l-1b-acik-mutfak"
+    for ref in (pub, priv):
+        out = ref.out_dir
+        put(out / "building_final.json", {"rooms": [], "variants": [{"id": "base"}, {"id": vid}]})
+        put(out / "renders" / "render_manifest.json", {"renders": []})
+        v = out / "variants" / vid
+        put(v / "renders" / "cam_r1_1_preview.jpg", size=10 * KB)
+        put(v / "renders" / "render_manifest.json", {"renders": []})
+        put(v / "export" / f"p-{vid}.glb", size=10 * KB)
+        put(v / "final" / "final_report.md", "# variant")
+        put(v / "run" / "build.json", {"kind": "stage_record", "status": "ok", "inputs": {"a": "b"}})
+        put(out / "variants" / "l-1c-old" / "final" / "final_report.md", "# an older run's variant")
+    CP.copy_project(pub)
+    got = files(results)
+    assert {f"renders/p/variants/{vid}/cam_r1_1_preview.jpg", f"renders/p/variants/{vid}/render_manifest.json",
+            f"final/p/variants/{vid}/3d/p-{vid}.glb", f"final/p/variants/{vid}/final_report.md",
+            f"run/p/variants/{vid}/build.json"} <= got
+    assert not any("l-1c-old" in f for f in got)
+    CP.copy_project(priv)
+    got = files(tmp_path / "pr" / "real-01")
+    assert {f"final/variants/{vid}/final_report.md", f"run/variants/{vid}/build.json"} <= got
+    assert not any(f.endswith(".glb") or "renders" in f for f in got)
+    assert "inputs" not in json.loads((tmp_path / "pr" / "real-01" / "run" / "variants" / vid / "build.json")
+                                      .read_text())

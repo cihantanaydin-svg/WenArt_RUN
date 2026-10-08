@@ -1,8 +1,8 @@
 """Pod plan of a full run (docs/milestone6.md §2.1 ``plan``, §8.1 time rule; docs/milestone7.md §9.3).
 
 What: ``python -m wenart.run plan --projects synthetic-01,synthetic-03 [--gpu NAME] [--out run_plan.json]``
-runs stage 1 (the pipeline, with the same stage record and fingerprint reuse
-as the pod) for each project on the CPU and writes per project: status,
+runs stages 1 and 2 (the sheet analysis and the pipeline, Milestone 10; with the same stage records and
+fingerprint reuse as the pod) for each project on the CPU and writes per project: status,
 levels, rooms, empty rooms (the rooms the AI layout furnishes), views,
 recognition questions, minutes, server starts, and a suggested pod split.
 
@@ -55,6 +55,7 @@ MIN_PER_PROJECT = 4.0
 MIN_PER_VIEW = 0.63
 MIN_WINDOW_PULL_PER_VIEW = 1.0 / 60.0      # M7 §9.3: + 1 s per view
 MIN_PER_AI_ROOM = 10.0 / 60.0
+EXTERIOR_FIXED_VIEWS = 5                   # Milestone 10 (§3.3): 4 corner views and 1 aerial view
 FIXED_BASE_MIN = 7.7
 SERVER_START_MIN = {"qwen": 4.5, "glm": 2.3}
 DEADLINE_MIN = 100.0
@@ -119,20 +120,51 @@ def views_for_area(area: float) -> int:
     return rule(float(area or 0.0))
 
 
+def exterior_view_count(building: dict) -> int:
+    """Milestone 10 (§3.3): the 4 corner views, the aerial view and 1 view per drawn elevation
+    (``exterior.elevation_views``) of one exterior set."""
+    from wenart.blender.exterior import elevation_views   # lazy: numpy
+    return EXTERIOR_FIXED_VIEWS + len(elevation_views(building)[0])
+
+
+def variant_rooms(building: dict) -> tuple[list, int]:
+    """Milestone 10: ``(ids of the rooms rendered, exterior sets)`` over the base and every alternative
+    (``views.views_for``: the base's rooms without the second twins of ``render.twin_rooms: one``, an alternative's
+    changed rooms; one exterior set for the base and one for an alternative whose outside changed, with
+    ``render.exterior_views``; the building's stored brief). A building without levels: every room, no set."""
+    if not building.get("levels"):
+        return [r.get("id") for r in building.get("rooms") or []], 0
+    from wenart.building import alternative_ids
+    from wenart.views import views_for
+    ids: list = []
+    sets = 0
+    for vid in [S.BASE_VARIANT] + alternative_ids(building):
+        plan = views_for(building, vid)
+        ids += [rid for rid in plan["rooms"] if rid not in ids]
+        sets += 1 if plan["exterior"] else 0
+    return ids, sets
+
+
 def building_views(building: dict, ai_rooms: Optional[list] = None) -> int:
     """Views of a building before the layout (M7 §6.2, the camera search's own rule): the rooms in ``ai_rooms``
     (the layout furnishes them) by the area of their polygon, every other room by
-    ``camsearch.room_view_count(room, building)`` (its furniture decides: none -> 1 view, or 0 below 2.5 m²)."""
+    ``camsearch.room_view_count(room, building)`` (its furniture decides: none -> 1 view, or 0 below 2.5 m²).
+    Milestone 10: only the rooms the variants render (``variant_rooms``) plus the exterior views."""
     from wenart.blender.camsearch import room_polygon, room_view_count   # lazy: numpy
     from wenart.geometry import polygon_area
     furnished = {r.get("id") for r in ai_rooms or []}
+    rendered, sets = variant_rooms(building)
+    by_id = {r.get("id"): r for r in building.get("rooms") or []}
     total = 0
-    for room in building.get("rooms") or []:
-        if room.get("id") in furnished:
+    for rid in rendered:
+        room = by_id.get(rid)
+        if room is None:
+            continue
+        if rid in furnished:
             total += views_for_area(polygon_area(room_polygon(room)))
         else:
             total += room_view_count(room, building)
-    return total
+    return total + (sets * exterior_view_count(building) if sets else 0)
 
 
 def recognition_minutes(calls: dict, seqs: dict) -> float:
@@ -196,20 +228,28 @@ def split(projects: list[dict]) -> list[dict]:
 def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[dict] = None) -> dict:
     """Stage 1 for one project and its numbers (``gpu``: ``{"speed", "seqs": {key: n}}``)."""
     gpu = gpu or {"speed": 1.0, "seqs": {}}
-    orch.stage_pipeline(pr)
-    status = orch.status_of(pr, "pipeline")
+    # Milestone 10: the sheet analysis first, as on the pod (the pipeline's fingerprint includes sheets.json).
+    orch.stage_sheets(pr)
+    if orch.status_of(pr, "sheets") in ("ok", "reused", "pending"):
+        orch.stage_pipeline(pr)
+        status = orch.status_of(pr, "pipeline")
+    else:
+        status = orch.status_of(pr, "sheets")
     planned = "ok" if status in ("ok", "reused") else status
     entry = {"project": pr.name, "status": planned, "stage_status": status, "levels": None, "rooms": None,
              "empty_rooms": None, "views": None, "questions": None, "recognition_calls": None, "photos": 0,
              "photos_cached": None, "minutes": 0.0, "server_starts": 0, "pod": None, "verified": planned == "ok",
-             "report": None, "note": (pr.records.get("pipeline").note if pr.records.get("pipeline") else None)}
+             "report": None, "note": next((pr.records[s].note for s in ("pipeline", "sheets") if pr.records.get(s)),
+                                          None)}
     building = SC.read_json(pr.out / "building.json")
     if isinstance(building, dict):
         entry["levels"] = len(building.get("levels") or [])
         entry["rooms"] = len(building.get("rooms") or [])
     if planned not in PLANNED or not isinstance(building, dict):
-        if (pr.out / "report.md").is_file():
-            entry["report"] = S.t(pr.out / "report.md")
+        for name in ("report.md", "sheets_report.md"):        # the pipeline's report, else the sheets report
+            if (pr.out / name).is_file():
+                entry["report"] = S.t(pr.out / name)
+                break
         return entry
     mode = ((building.get("project") or {}).get("brief") or {}).get("empty_rooms", "ai")
     from wenart.furniture.layout import empty_rooms

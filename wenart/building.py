@@ -246,6 +246,21 @@ def variant_id(level_id: str, slug: str) -> str:
     return "base" if slug == "base" else f"{level_id.lower()}-{slug}"
 
 
+# building.schema.json $defs/variant id (filesystem-safe: a folder name under outputs/<p>/variants/).
+VARIANT_ID_RE = re.compile(r"^(base|l-?[0-9]+[b-z]-[a-z0-9]+(-[a-z0-9]+)*)$")
+
+
+def alternative_ids(building: Optional[dict]) -> list[str]:
+    """Milestone 10: the ids of the building's alternatives (``variants[]`` without ``base``), in file order; an id
+    that does not match the schema pattern is left out (it names a folder)."""
+    out: list[str] = []
+    for v in (building or {}).get("variants") or []:
+        vid = v.get("id") if isinstance(v, dict) else None
+        if isinstance(vid, str) and vid != "base" and VARIANT_ID_RE.match(vid) and vid not in out:
+            out.append(vid)
+    return out
+
+
 # --------------------------------------------------------------------------
 # Room and level labels
 # --------------------------------------------------------------------------

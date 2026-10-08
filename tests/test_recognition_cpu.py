@@ -918,7 +918,7 @@ def test_dwg_roundtrip_bookkeeping_with_stand_in_converters(tmp_path):
     _write_tool(bin_dir / "dwg2dxf", 'if [ "$1" = "--version" ]; then echo "dwg2dxf stand-in 0.0"; exit 0; fi\n' + copier)
     dxfs = sorted(PROJECTS.glob("*/*.dxf"))
     report = bakeoff.dwg_roundtrip(dxfs, tmp_path / "dwg_roundtrip.json", bin_dir, tmp_path / "work")
-    assert report["all_ok"] and len(report["files"]) == len(dxfs) == 5
+    assert report["all_ok"] and len(report["files"]) == len(dxfs) == 6        # synthetic-07 (M10): sheet.dxf
     first = report["files"][0]
     assert first["counts_in"] == first["counts_back"] and "LWPOLYLINE@DUVAR" in first["counts_in"]
     assert first["dwg_bytes"] > 0 and first["missing"] == {} and first["extra"] == {}

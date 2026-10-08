@@ -234,6 +234,8 @@ class FakeCLI:
         building = {"project": {"id": project, "brief": spec.get("brief", {})}, "status": status,
                     "levels": [{"id": "L0"}], "rooms": rooms if status == "ok" else [], "furniture": [],
                     "stage": "first"}
+        if spec.get("variants"):                                # Milestone 10: the base and its alternatives
+            building["variants"] = spec["variants"]
         questions = int(spec.get("questions", 0)) if status == "ok" else 0
         if questions:
             items = [{"key": f"sym_L0_{i:03d}", "task": "symbol_type", "page": 1,
@@ -367,6 +369,8 @@ class FakeCLI:
             return rc
         b = json.loads(Path(opt(cmd, "--building")).read_text())
         cams = [{"name": c, "position": [1.0, 1.0, 1.25], "target": [2.0, 1.0, 1.25]} for c in views_of(b)]
+        if opt(cmd, "--variant") in self.flags.get("no_view_variants", ()):
+            cams = []                                           # Milestone 10: an alternative with no changed room
         if "ab" in out.parts:
             cams = [{"name": c, "position": [1.0, 1.0, 1.4], "target": [2.0, 1.0, 1.3]}
                     for c in ("cam_a_1", "cam_a_2", "cam_b_1")]
@@ -1986,3 +1990,80 @@ def test_photos_and_questions_need_at_most_four_server_starts(tmp_path):
     glm_phase = [c["name"] for c in r.cli.calls if c["name"] in ("recognize", "photos read")][:2]
     assert glm_phase == ["recognize", "photos read"]                 # recognition first in each session
     assert names.index("pipeline_final") < names.index("layout")
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: variant runs (docs/milestone10.md §1.5, §1.6, §1.6b row 9)
+# --------------------------------------------------------------------------
+
+VID = "l-1b-acik-mutfak"
+VARIANTS = [{"id": "base", "levels": ["L0"], "base": True, "rooms_changed": [], "exterior_changed": False},
+            {"id": VID, "levels": ["L-1b"], "base": False, "rooms_changed": ["r1"], "exterior_changed": False},
+            {"id": "../escape", "levels": [], "base": False}]          # not a schema id: never a folder
+
+
+def test_m10_an_alternative_runs_after_refit_in_its_own_output(tmp_path):
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"variants": VARIANTS}}, projects=["p1"])
+    assert r.run() == 0
+    vout = tmp_path / "outputs" / "p1" / "variants" / VID
+    builds = r.cli.find("build")
+    assert [c["project"] for c in builds] == ["p1", VID]
+    cmd = builds[1]["cmd"]
+    assert Path(opt(cmd, "--building")) == tmp_path / "outputs" / "p1" / "building_final.json"
+    assert Path(opt(cmd, "--style")) == tmp_path / "outputs" / "p1" / "style.json"
+    assert Path(opt(cmd, "--out")) == vout / "scene" and opt(cmd, "--variant") == VID
+    assert "--variant" not in builds[0]["cmd"]
+    exports = r.cli.find("export")
+    assert opt(exports[1]["cmd"], "--name") == "p1" and opt(exports[1]["cmd"], "--variant") == VID
+    assert Path(opt(exports[1]["cmd"], "--out")) == vout / "export" and "--variant" not in exports[0]["cmd"]
+    # Every later stage runs on the variant's output; the gate calibration is the base project's (validated only).
+    assert [c["project"] for c in r.cli.find("gate calibrate")] == ["p1"]
+    assert [c["project"] for c in r.cli.find("gate validate")] == ["p1", VID]
+    assert json.loads((vout / "gate" / "gate_calibration.json").read_text())["kind"] == "gate_calibration"
+    assert r.record(f"p1/variants/{VID}", "gate")["note"] == "gate decision ok (the base project's calibration)"
+    for name in ("render", "polish", "expected", "combine"):
+        assert [c["project"] for c in r.cli.find(name)] == ["p1", VID], name
+    assert {c["project"] for c in r.cli.find("style-photo")} == {"p1"}      # once per project, not per variant
+    assert [c["project"] for c in r.cli.find("report")] == [VID, "p1"]       # the base report reads the variants
+    assert r.record(f"p1/variants/{VID}", "build")["project"] == f"p1/{VID}"
+    assert not (tmp_path / "outputs" / "p1" / "variants" / "escape").exists()
+    m = r.manifest()
+    assert [p["name"] for p in m["projects"]] == ["p1"] and m["totals"]["ok"] == 1
+    (v,) = m["projects"][0]["variants"]
+    assert (v["name"], v["variant"], v["state"]) == (f"p1/{VID}", VID, "ok")
+    assert {s["stage"] for s in v["stages"]} >= {"build", "render", "export", "gate", "report"}
+    assert m["test_lists"]["RUN_TEST_PROJECTS"] == "p1"
+    assert f"variants: 1 alternative(s) after refit: p1/{VID}" in r.lines
+
+
+def test_m10_a_failed_variant_fails_the_run_and_its_base_stays_ok(tmp_path):
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"variants": VARIANTS}}, rc={("render", VID): 1}, projects=["p1"])
+    assert r.run() == 1
+    (v,) = r.manifest()["projects"][0]["variants"]
+    assert r.manifest()["projects"][0]["state"] == "ok" and v["state"] == "failed"
+    assert [c["project"] for c in r.cli.find("export")] == ["p1"]             # a failed render stops the variant
+
+
+def test_m10_a_variant_without_views_builds_and_exports_only(tmp_path):
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"variants": VARIANTS}}, flags={"no_view_variants": (VID,)},
+            projects=["p1"])
+    assert r.run() == 0
+    assert r.cli.names(VID) == ["build", "export"]
+    for stage in ("render", "report"):
+        rec = r.record(f"p1/variants/{VID}", stage)
+        assert (rec["status"], rec["note"]) == ("skipped", "no view in this variant")
+    assert r.manifest()["projects"][0]["variants"][0]["state"] == "ok"
+
+
+def test_m10_a_private_variant_is_named_by_number(tmp_path):
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"], private=["real-01"],
+            buildings={"real-01": {"variants": VARIANTS}})
+    write(tmp_path / "pp" / "real-01" / "a.dxf", "x")
+    assert r.run() == 0
+    assert (tmp_path / "po" / "real-01" / "variants" / VID / "scene" / "scene.blend").is_file()
+    assert not any(VID in line for line in r.lines) and "variants: 1 alternative(s) after refit: real-01/variant-1" \
+        in r.lines
+    public = r.manifest()
+    assert VID not in json.dumps(public)
+    entry = next(p for p in public["projects"] if p["name"] == "real-01")
+    assert entry["variants"] == [{"name": "real-01/variant-1", "private": True, "state": "ok", "variant": None}]

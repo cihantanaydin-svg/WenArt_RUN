@@ -22,6 +22,12 @@ What: ``python -m wenart.run copy --projects ... [--private ...] [--ab ...]
 | ``detect/*.json`` | ``check/<p>/detect/`` |
 | ``decor_debug/*.png`` (<= 3 MB), ``decor_debug/*.json`` (Milestone 9) | ``furniture/<p>/decor_debug/`` |
 | ``export/<p>.blend``, ``export/<p>.glb``, ``export/export_manifest.json`` (Milestone 9) | ``final/<p>/3d/`` |
+| ``variants/<id>/<the rows above>`` (Milestone 10, an alternative) | ``<area>/<p>/variants/<id>/...`` |
+
+Milestone 10 (docs/milestone10.md §1.6b row 9): an alternative's sub-output ``variants/<id>/`` has a project
+output's layout and is copied by the same rules into ``variants/<id>/`` of each area folder (private: the same
+allow-list into ``<area>/variants/<id>/``); only the alternatives that ``building_final.json`` lists now
+(``wenart.building.alternative_ids``): an older run's variant folder stays on the volume, never copied.
 
 Public filter (as ``polish.sh copy_files``): ``*.json`` and ``*.md`` below
 8 MB; ``*_preview.jpg``, ``*_alt_preview.jpg``, ``*_gate.jpg``,
@@ -99,6 +105,7 @@ LIBRARY_SOURCES = ("objaverse", "abo", "generated")   # = wenart.furniture.catal
 # sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
 LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fbx", ".part", ".tmp")
 IMAGE_AREAS = ("renders", "polish", "gate", "check", "realism", "final")   # folders that show a project's images
+VARIANTS_DIR = "variants"          # = wenart.run.stages.VARIANTS_DIR (Milestone 10)
 LOG_TAIL_LINES = 400
 STAMP_OVERLAP_S = 2
 PREVIEW_PATTERNS = ("*_preview.jpg", "*_alt_preview.jpg", "*_gate.jpg", "*_check.jpg", "*_plan.jpg", "contact_*.jpg")
@@ -216,14 +223,38 @@ def tail_text(path: Path, n: int = LOG_TAIL_LINES) -> str:
 
 
 def copy_project(ref: ProjectRef, since: Optional[float] = None) -> int:
-    """Copy one project's files (public layout or private allow-list); the number of files written."""
-    rules = PRIVATE_RULES if ref.private else PUBLIC_RULES
+    """Copy one project's files (public layout or private allow-list) and those of its alternatives (Milestone
+    10); the number of files written."""
     out_dir = Path(ref.out_dir)
-    count = 0
     if not out_dir.is_dir():
         return 0
+    count = _copy_tree(ref, out_dir, "", since)
+    for vid in variant_folders(out_dir):
+        count += _copy_tree(ref, out_dir / VARIANTS_DIR / vid, f"{VARIANTS_DIR}/{vid}", since)
+    count += write_attributions(ref)
+    return count
+
+
+def variant_folders(out_dir: Path) -> list[str]:
+    """The alternatives of ``<out>/building_final.json`` that have a folder ``<out>/variants/<id>`` (Milestone 10)."""
+    from wenart.building import alternative_ids
+
+    try:
+        building = json.loads((Path(out_dir) / "building_final.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    root = Path(out_dir) / VARIANTS_DIR
+    return [vid for vid in alternative_ids(building if isinstance(building, dict) else None)
+            if (root / vid).is_dir() and not (root / vid).is_symlink()]
+
+
+def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float]) -> int:
+    """The rules over one output folder: the project's (``prefix`` "") or an alternative's (``variants/<id>``)."""
+    rules = PRIVATE_RULES if ref.private else PUBLIC_RULES
+    count = 0
     for rule in rules:
         for folder, sub in _sources(out_dir, rule):
+            sub = "/".join(p for p in (prefix, sub) if p)
             dst_dir = ref.results_area(rule.area) / sub if sub else ref.results_area(rule.area)
             taken = 0
             for path in sorted(folder.iterdir()):
@@ -252,7 +283,6 @@ def copy_project(ref: ProjectRef, since: Optional[float] = None) -> int:
                     target.write_text(json.dumps(private_record(data), indent=1, ensure_ascii=False) + "\n",
                                       encoding="utf-8")
                 count += 1
-    count += write_attributions(ref)
     return count
 
 
