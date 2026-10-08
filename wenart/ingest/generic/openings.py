@@ -41,8 +41,10 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   sabit) wins (``block_name``); else the drawing (``geometry``): one swing arc = swing, two half arcs = double, and a
   gap with no swing arc but one or two thin closed leaves parallel to the wall, overlapping it, in the band or within
   0.10 m of a face, either shorter than 0.85 x the gap or drawn half open (off the gap centre), is a sliding door (a
-  window's glass spans its gap, centred). Windows get an operation only from a block name (else null: swing,
-  assumed).
+  window's glass spans its gap, centred). A door block whose name says a door that opens without a swing arc
+  (KAPI/DOOR with sliding, pocket or folding; no window word) is that door whatever its leaf looks like, checked
+  before the window rule (drawn closed, a leaf's two sides would read as glass). Windows get an operation only from
+  a block name (else null: swing, assumed).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -108,6 +110,9 @@ OPERATION_WORDS: tuple[tuple[str, str], ...] = (
 )
 _FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "ğ": "g", "Ü": "U", "ü": "u", "Ö": "O",
                        "ö": "o", "Ç": "C", "ç": "c", " ": "_", "-": "_"})
+DOOR_WORDS = ("KAPI", "DOOR")   # a block named for a door (folded) ...
+WINDOW_WORDS = ("PENCERE", "WINDOW")
+NO_SWING_OPERATIONS = ("sliding", "pocket", "folding")   # ... that opens without a swing arc: a door by its name
 SLIDING_LEAF = (0.45, 1.10)     # x gap width: a sliding leaf, overlapping the gap by >= 40 % of it ...
 SLIDING_OVERLAP = 0.4
 SLIDING_SHORT = 0.85            # ... shorter than 0.85 x the gap, or drawn half open (its centre >= 0.2 x the gap
@@ -580,6 +585,16 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
                    "leaf": len(leaves) == len(parts), "swing": 1.0 if swing_across >= 0 else -1.0,
                    "radius": mid["radius"], "double": len(parts) == 2}
         return
+    # A door block whose name says it opens without a swing arc (sliding, pocket, folding) is that door, however
+    # its leaf is drawn (review #16: drawn closed, its leaf's two sides read as window glass; drawn longer than the
+    # gap, it reads as nothing). Before the window rule.
+    named = _named_door(g, zone)
+    if named is not None:
+        leaves, op = named
+        g.cls = "door"
+        g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
+                   "radius": None, "double": False, "sliding": True, "by_name": op}
+        return
     # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap.
     band = g.rect(grow_face=BAND_SLACK_M)
     band_items = [it for it in zone if _inside_rect_part(it, band)]
@@ -648,6 +663,40 @@ def _sliding_leaves(g: Gap, zone: list) -> list:
             continue
         out.append(it)
     return out
+
+
+def _named_door(g: Gap, zone: list) -> Optional[tuple[list, str]]:
+    """(strokes, operation) of the door block instance in this gap whose name holds a door word (``DOOR_WORDS``, no
+    window word) and a no-swing operation (``NO_SWING_OPERATIONS``: KAPI_SURME_90, SLIDING_DOOR, katlanır kapı): its
+    strokes in the zone overlap the gap by >= 40 % of its width and their middle lies in the wall band (+-
+    ``SLIDING_REACH_M``). None when no such block is drawn there."""
+    groups: dict[str, list] = {}
+    ops: dict[str, str] = {}
+    for it in zone:
+        if not it.st.block:
+            continue
+        names = it.st.block.split("/")
+        op = operation_word(names)
+        if op not in NO_SWING_OPERATIONS:
+            continue
+        for i, name in enumerate(names):
+            folded = name.translate(_FOLD).upper()
+            if any(w in folded for w in DOOR_WORDS) and not any(w in folded for w in WINDOW_WORDS):
+                parts = it.st.id.split("/")
+                key = "/".join(parts[:i + 1]) if len(parts) > len(names) else it.st.block
+                groups.setdefault(key, []).append(it)
+                ops[key] = op
+                break
+    best = None
+    for key, items in groups.items():
+        along = [g.along(p) for it in items for p in it.pts]
+        across = [g.across(p) for it in items for p in it.pts]
+        overlap = min(max(along), g.b) - max(min(along), g.a)
+        if overlap < SLIDING_OVERLAP * g.width or abs((min(across) + max(across)) / 2.0) > g.t / 2.0 + SLIDING_REACH_M:
+            continue
+        if best is None or overlap > best[0]:
+            best = (overlap, key)
+    return None if best is None else (sorted(groups[best[1]], key=lambda it: it.st.id), ops[best[1]])
 
 
 def operation_word(names) -> Optional[str]:
@@ -1165,7 +1214,11 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
     if g.cls == "door" and g.found.get("sliding"):
         ids = [it.st.id for it in g.found["leaves"]]
         ev = ctx.evidence("vector", CONF_DOOR, ",".join(ids), box_units=box)
-        ev["note"] = f"{len(ids)} leaf/leaves drawn parallel to the wall without a swing arc: a sliding door"
+        if g.found.get("by_name"):
+            chain = g.found["leaves"][0].st.block
+            ev["note"] = f"door by its block name '{chain}' ({g.found['by_name']}, no swing arc)"
+        else:
+            ev["note"] = f"{len(ids)} leaf/leaves drawn parallel to the wall without a swing arc: a sliding door"
         item = OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(axis_deg % 360.0, 3),
                            box=box, entity=ids[0], evidence=ev, height=DOOR_HEIGHT_M, assumed=["height"])
         _door_operation(item, [it.st for it in g.found["leaves"]], False, sliding=True)
@@ -1238,7 +1291,7 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["hinges"] = [_out(h, theta) for h in g.found["hinges"]]
         entry["radius"] = round(g.found["radius"], 4) if g.found.get("radius") is not None else None
         if g.found.get("sliding"):
-            entry["operation"] = "sliding"
+            entry["operation"] = g.found.get("by_name") or "sliding"
         entry["leaf"] = g.found["leaf"]
     if g.cls == "unclassified":
         entry["strokes"] = [it.st.id for it in g.found.get("content", [])]

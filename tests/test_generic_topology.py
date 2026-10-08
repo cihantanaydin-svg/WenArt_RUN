@@ -89,6 +89,19 @@ def test_room_label_outside_the_building_is_a_warning():
     labels = [LB("Living", (3, 2), "living"), LB("Store", (30, 30), "storage")]
     _, _, warnings = TP.split_plot(_box_walls(0, 0, 6, 4), [], labels)
     assert any("'Store'" in w and "outside the building" in w for w in warnings)
+    assert not [w for w in warnings if w.startswith(TP.REVIEW_PREFIX)]
+
+
+def test_room_label_inside_the_walls_hull_but_in_no_face_is_a_review_reason():
+    # Review #10: the outer walls are open on the west (the face line was not read), only the bathroom block closes;
+    # the Salon label lies inside the hull of the walls taken as the building: the walls do not close.
+    outer = [R.wall((0, 0), (10, 0)), R.wall((10, 0), (10, 8)), R.wall((10, 8), (0, 8))]
+    bath = _box_walls(7, 5, 10, 8)
+    labels = [LB("Banyo", (8.5, 6.5), "bathroom"), LB("Salon", (4, 3), "living"), LB("Depo", (40, 40), "storage")]
+    _, _, warnings = TP.split_plot(outer + bath, [], labels)
+    review = [w for w in warnings if w.startswith(TP.REVIEW_PREFIX)]
+    assert len(review) == 1 and "outer walls do not close: room label 'Salon'" in review[0]
+    assert any("'Depo'" in w and "outside the building" in w for w in warnings if w not in review)
 
 
 def test_outer_loop_problem():

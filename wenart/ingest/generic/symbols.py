@@ -156,6 +156,8 @@ FALLBACK_SIZE_TABLE: dict[str, tuple[tuple[float, float], tuple[float, float]]] 
 # MASA (table) are tried after BLOCK_KEYWORDS (YATAK_TEK, YEMEK_MASASI say more), and BLOCK_KEYWORDS' KOLTUK
 # (armchair in M7) is read as a seat: armchair or sofa by the size table, the corner sofa for an L outline.
 BLOCK_KEYWORDS_M10: tuple[tuple[str, str], ...] = (
+    # A TV console is the M7 TV unit, not a console table (review #15: "TV konsolu" is the Turkish name of a TV unit).
+    ("TV_KONSOL", "tv_unit"), ("TVKONSOL", "tv_unit"), ("TV_CONSOLE", "tv_unit"), ("TVCONSOLE", "tv_unit"),
     ("KOSE_KOLTUK", "sofa_corner"), ("KOSEKOLTUK", "sofa_corner"), ("CORNER_SOFA", "sofa_corner"),
     ("SECTIONAL", "sofa_corner"), ("CHAISE", "chaise"), ("SEZLONG", "chaise"), ("OTTOMAN", "ottoman"),
     ("PUF", "ottoman"), ("POUF", "ottoman"), ("BENCH", "bench"), ("BANK", "bench"), ("BAR_STOOL", "bar_stool"),
@@ -422,11 +424,13 @@ class Cluster:
 
 
 def _id_key(sid: str):
+    """Numeric ids in numeric order; the id itself breaks ties (DXF ids such as ``INSERT:2DE26/3`` all had key
+    ``(head, 0)``, so their order followed Python's per-process string hashing and varied from run to run)."""
     head, _, tail = sid.partition(":")
     try:
-        return (head, int(tail.split("#")[0]))
+        return (head, int(tail.split("#")[0]), sid)
     except ValueError:
-        return (head, 0)
+        return (head, 0, sid)
 
 
 def clusters_of(segs: list[Seg], dist: float = CLUSTER_M) -> list[Cluster]:
@@ -1694,7 +1698,11 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         if short_side(cl.segs) < LINE_DETAIL_M:
             line_ids.extend(cl.stroke_ids())
             continue
-        lsh = l_shape(cl, ctx.theta) if max(w, h) <= MAX_SIDE_M else None
+        # A stair is read before the L outline: a quarter-turn stair drawn as a closed L with its treads inside is
+        # a stair, not a corner sofa (review #11).
+        small = max(w, h) <= MAX_SIDE_M
+        stair = stair_rule(cl, ctx.theta) if small else None
+        lsh = l_shape(cl, ctx.theta) if small and stair is None else None
         if lsh is not None:
             # An L outline is one piece (its rotated minimum rectangle is no footprint): the corner sofa (§1.1).
             l_parts[id(cl)] = lsh
@@ -1711,7 +1719,10 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
                          f"{MAX_SIDE_M} m: unknown, unverified, not asked")
             continue
-        stair = stair_rule(cl, ctx.theta) if not oversize else None
+        if oversize:
+            stair = None
+        elif not small:
+            stair = stair_rule(cl, ctx.theta)
         if stair is not None:
             pieces.append(_stair_item(cl, stair, fp, ctx, raster_page, notes))
             continue

@@ -377,6 +377,14 @@ def test_m10_block_name_words():
     assert "sofa_corner" in SY.fitting_types(TABLE, (2.6, 1.6), "L")
 
 
+def test_a_tv_console_block_is_a_tv_unit():
+    # Review #15: KONSOL (console table) must not shadow the M7 TV word in a TV console's name.
+    for name in ("TV_KONSOL", "TV KONSOLU", "tv-konsol", "TV_CONSOLE", "TVKONSOL"):
+        assert SY.keyword_type(name) == "tv_unit", name
+    assert SY.block_type(["TV KONSOLU"], (1.8, 0.45), TABLE) == "tv_unit"
+    assert SY.keyword_type("KONSOL") == "console_table"
+
+
 def _l_sofa(notch="bottom-left"):
     """An L outline in the box x 1.0-3.6, y 2.4-4.0: the main seat 0.9 m deep along y 4.0, the chaise 0.9 m wide."""
     if notch == "bottom-left":
@@ -413,6 +421,18 @@ def test_a_corner_sofa_block_takes_its_l_front():
     assert p.type_method == "block_name" and p.status == "verified" and p.front_deg == 270.0
     assert p.size == pytest.approx((2.6, 1.6)) and p.rotation_deg == 0.0     # front_deg = (270 + rotation) mod 360
     assert p.details["l_outline"]["chaise_side"] == "right"
+
+
+def test_an_l_shaped_stair_outline_stays_a_stair():
+    # Review #11: a quarter-turn stair drawn as a closed L outline with its treads inside (20 mm short of the outline)
+    # is read by the stair rule before the L-outline (corner sofa) path.
+    def p(x, y):
+        return (x + 1.0, y + 1.0)
+    outline = R.stroke([p(0, 1.6), p(2, 1.6), p(2, 0), p(3, 0), p(3, 2.6), p(0, 2.6)], closed=True)
+    treads = [R.stroke([p(0.28 * k + 0.2, 1.62), p(0.28 * k + 0.2, 2.58)]) for k in range(6)] + \
+        [R.stroke([p(2.02, 0.28 * k + 0.2), p(2.98, 0.28 * k + 0.2)]) for k in range(5)]
+    pieces, cands, _ = _furn([outline] + treads)
+    assert [(x.type, x.type_method) for x in pieces] == [("stair", "rule")] and cands == []
 
 
 def test_rectangles_and_u_shapes_are_no_l():
@@ -465,6 +485,51 @@ def test_stair_with_nosing_strips_and_no_divider():
 def test_id_ranges_keep_non_numeric_ids_sorted():
     assert SY.id_ranges(["INSERT:FF/3/1", "INSERT:FF/0", "LINE:2F", "INSERT:FF/3/0"]) == \
         "INSERT:FF/0,INSERT:FF/3/0,INSERT:FF/3/1,LINE:2F"
+
+
+def test_stroke_id_order_does_not_depend_on_the_input_order():
+    # DXF ids are not numeric: they sort by the id itself, not by set iteration (real02's counter_run strokes
+    # changed order from run to run).
+    ids = ["INSERT:2DE26/3", "INSERT:2DE26/12", "INSERT:2DE26/1", "path:12", "path:3"]
+    expected = ["INSERT:2DE26/1", "INSERT:2DE26/12", "INSERT:2DE26/3", "path:3", "path:12"]
+    assert sorted(ids, key=SY._id_key) == sorted(reversed(ids), key=SY._id_key) == expected
+
+
+_COUNTER_SCRIPT = """
+import _real01_page as R
+import test_generic_symbols as T
+from shapely.geometry import box as sbox
+from wenart.ingest.model import OpeningItem
+chain = [R.stroke([(0.8, 3.9), (0.8, 3.3)]), R.stroke([(0.8, 3.3), (3.3, 3.3)]),
+         R.stroke([(3.3, 3.3), (3.3, 2.0)]), R.stroke([(3.3, 2.0), (3.9, 2.0)])]
+for st, k in zip(chain, (3, 12, 1, 2)):
+    st.id = f"INSERT:2DE26/{k}"
+window = OpeningItem(kind="window", width=1.2, center=(2.0, 4.0), rotation_deg=0.0, box=[], entity="w", evidence={})
+faces = [{"polygon": sbox(0.1, 0.1, 3.9, 3.9), "room_type": "kitchen", "label": "Kitchen"}]
+pieces, _, _ = T._furn(chain, walls=T._room(0, 0, 4, 4), openings=[window], faces=faces)
+print(sorted([p.entity] + p.details["counter_run"]["strokes"] for p in pieces if p.type == "kitchen_counter"))
+"""
+
+
+def test_counter_run_strokes_do_not_depend_on_the_hash_seed():
+    # Lead item (track A1 found it on real02): the counter_run strokes of DXF ids followed Python's string hashing.
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    tests = Path(__file__).resolve().parent
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(tests.parent), str(tests)]))
+    outs = set()
+    for seed in ("1", "2", "3", "4"):
+        run = subprocess.run([sys.executable, "-c", _COUNTER_SCRIPT], cwd=tests.parent, capture_output=True,
+                             text=True, env=dict(env, PYTHONHASHSEED=seed), timeout=120)
+        assert run.returncode == 0, run.stderr
+        outs.add(run.stdout.strip())
+    assert len(outs) == 1, outs
+    import ast
+    rows = ast.literal_eval(outs.pop())
+    assert len(rows) == 2 and all(row[1:] == sorted(row[1:]) and row[0] == row[1] for row in rows)  # by id
 
 
 def test_round_pieces_record_their_shape():
