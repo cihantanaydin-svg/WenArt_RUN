@@ -336,8 +336,8 @@ COLOUR_SURFACE_WORDS: dict[str, str] = {
     "microcement": "microcement",
     "venetian_plaster": "polished Venetian plaster",
 }
-LAMPS_TAIL = ("light from the lit lamps and the last daylight outside the windows, soft natural shadows, realistic "
-              "materials and textures, sharp focus")
+LAMPS_TAIL = ("light with the lamps switched on and the last daylight outside the windows, soft natural shadows, "
+              "realistic materials and textures, sharp focus")
 
 
 def colour_phrase(colour) -> Optional[str]:

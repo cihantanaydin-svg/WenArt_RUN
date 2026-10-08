@@ -84,6 +84,23 @@ def test_a_position_off_by_more_than_the_tolerance_is_a_mismatch():
     assert f["result"] == "mismatch" and len(f["positions"]["missing_in_building"]) == 1
 
 
+def test_a_common_vertical_offset_of_the_drawn_ground_is_listed_not_a_mismatch():
+    # The drawn z rests on a ground taken as z 0.00 (assumed) while the finished floor is 0.3 m above it.
+    raised = [dict(p, sill=p["sill"] + 0.3, head=p["head"] + 0.3) for p in south_elevation()["positions_m"]]
+    f = south(check([south_elevation(positions_m=raised)]))
+    assert f["result"] == "ok" and f["positions"]["offset_z_m"] == pytest.approx(0.3)
+    assert any("heights are" in n and "0.30 m" in n for n in f["notes"])
+    # One window 0.5 m higher than the rest is still a mismatch; a shift larger than a floor is not trusted.
+    off = [dict(p, sill=p["sill"] + 0.3, head=p["head"] + 0.3) for p in south_elevation()["positions_m"]]
+    off[0] = dict(off[0], sill=off[0]["sill"] + 0.5, head=off[0]["head"] + 0.5)
+    g = south(check([south_elevation(positions_m=off)]))
+    assert g["result"] == "mismatch" and len(g["positions"]["missing_in_building"]) == 1
+    storey = [dict(p, sill=p["sill"] + 3.0, head=p["head"] + 3.0) for p in south_elevation()["positions_m"]]
+    h = south(check([south_elevation(positions_m=storey)]))
+    assert h["result"] == "mismatch" and any("more than the" in n and "heights" in n for n in h["notes"])
+    assert south(check([south_elevation()]))["positions"]["offset_z_m"] == 0.0
+
+
 def test_match_openings_tries_the_mirrored_order():
     built = [{"kind": "window", "x": x, "sill": 0.9, "head": 2.1, "id": f"w{i}"} for i, x in enumerate((0.5, 1.0, 4.0))]
     drawn = [{"kind": "window", "x": x, "sill": 0.9, "head": 2.1} for x in (0.5, 3.5, 4.0)]      # 4.5 - x
@@ -133,19 +150,38 @@ def test_a_facade_no_outer_wall_faces_is_not_checked():
 
 
 def test_the_built_roof_heights_are_compared_with_the_section():
-    sheets = {"heights": {"roof": {"eaves": {"value": 2.7, "method": "vector"},
-                                   "ridge": {"value": 4.5, "method": "vector"}}}}
+    # sheets.json writes heights.roof.eaves_z / ridge_z (wenart/schema/sheets.schema.json).
+    sheets = {"heights": {"roof": {"eaves_z": {"value": 2.7, "method": "vector"},
+                                   "ridge_z": {"value": 4.5, "method": "vector"}}}}
     ok = check([], sheets=sheets)["roof"]
     assert ok["result"] == "ok" and ok["built"]["eaves"] == 2.7 and ok["built"]["ridge"] == 4.5
     assert ok["deltas"] == {"eaves": 0.0, "ridge": 0.0}
-    high = {"heights": {"roof": {"eaves": {"value": 2.7, "method": "vector"},
-                                 "ridge": {"value": 4.2, "method": "vector"}}}}
+    high = {"heights": {"roof": {"eaves_z": {"value": 2.7, "method": "vector"},
+                                 "ridge_z": {"value": 4.2, "method": "vector"}}}}
     bad = check([], sheets=high)
     assert bad["roof"]["result"] == "mismatch" and bad["roof"]["deltas"]["ridge"] == pytest.approx(0.3)
     assert EL.lines(bad) == ["roof: built eaves +0.00 m, ridge +0.30 m from the section"]
-    within = {"heights": {"roof": {"eaves": {"value": 2.73, "method": "vector"},
-                                   "ridge": {"value": 4.46, "method": "vector"}}}}
+    within = {"heights": {"roof": {"eaves_z": {"value": 2.73, "method": "vector"},
+                                   "ridge_z": {"value": 4.46, "method": "vector"}}}}
     assert check([], sheets=within)["roof"]["result"] == "ok"                          # 5 cm
+
+
+def test_the_section_value_of_sheets_json_wins_over_a_building_roof_that_changed_since():
+    b = E.toy_building()
+    b["roof"]["ridge_height"] = {"value": 4.2, "method": "vector", "confidence": 1.0, "evidence": []}   # was 4.5
+    sheets = {"heights": {"roof": {"eaves_z": {"value": 2.7, "method": "vector"},
+                                   "ridge_z": {"value": 4.2, "method": "vector"}}}}
+    # The building agrees with itself (4.2) but not with the built roof (4.5): compared with the section's 4.2.
+    roof = EL.elevation_check(b, E.toy_scene("x"), sheets, CFG)["roof"]
+    assert roof["result"] == "mismatch" and roof["deltas"]["ridge"] == pytest.approx(0.3)
+    assert roof["drawn_source"] == {"eaves": "sheets.json heights.roof", "ridge": "sheets.json heights.roof"}
+    # Without a sheets value the building's own roof is the reference and the report says so.
+    own = EL.elevation_check(b, E.toy_scene("x"), None, CFG)["roof"]
+    assert own["drawn_source"] == {"eaves": "building.json roof", "ridge": "building.json roof"}
+    # Older sheets.json spelling (eaves / ridge) still reads.
+    old = {"heights": {"roof": {"eaves": {"value": 2.7, "method": "vector"},
+                                "ridge": {"value": 4.5, "method": "vector"}}}}
+    assert EL.elevation_check(E.toy_building(), E.toy_scene("x"), old, CFG)["roof"]["result"] == "ok"
 
 
 def test_an_assumed_roof_height_is_not_checked_against_nothing():

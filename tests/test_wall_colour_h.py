@@ -105,7 +105,7 @@ def test_a_lamps_on_mood_says_the_light_comes_from_the_lamps(monkeypatch):
     monkeypatch.setitem(PR.VOC.LIGHTING, "interior evening", {"lamps_on": True, "sun_strength": 0.0})
     monkeypatch.setitem(PR.MOOD_WORDS, "interior evening", "Warm evening")
     out = PR.build_prompt(profile(lighting={"mood": "interior evening"}), "living", [], 18.0)
-    assert out["lamps_on"] is True and "Warm evening light from the lit lamps and the last daylight" in out["prompt"]
+    assert out["lamps_on"] is True and "Warm evening light with the lamps switched on and the last daylight" in out["prompt"]
     assert "light through the windows" not in out["prompt"] and out["prompt"].endswith("sharp focus, 18 mm lens.")
     day = PR.build_prompt(profile(), "living", [], 18.0)
     assert day["lamps_on"] is False and "light through the windows" in day["prompt"]
@@ -157,18 +157,22 @@ def test_a_textured_accent_wall_makes_the_walls_of_its_room_texture(colours):
     accent = {"material": "wood_slat", "asset": None, "colour": None, "room_types": ["living"], "rule": "r"}
     prof = profile(walls={"material": "plaster_white", "asset": None, "colour": None}, wall_accent=accent)
     materials = {"wood_slat__a": {"slug": "wood_slat", "albedo_mode": "texture", "textured": True}}
-    walls_here = {"kind": "wall", "name": "w_1", "wenart_id": "w_1", "material": "wood_slat__a", "room_ids": ["r1"]}
-    walls_there = {"kind": "wall", "name": "w_2", "wenart_id": "w_2", "material": "wood_slat__a", "room_ids": ["r2"]}
+    # Track F's manifest: the accent wall object is flagged, lists the rooms that carry the face and its slot.
+    walls_here = {"kind": "wall", "name": "w_1", "wenart_id": "w_1", "material": "plaster_white__x", "accent": True,
+                  "room_ids": ["r1"], "accent_material": "wood_slat__a", "accent_reason": "behind the sofa"}
+    walls_there = dict(walls_here, name="w_2", wenart_id="w_2", room_ids=["r2"])
     here = GC.structure_albedo(scene(prof, [walls_here, walls_there], materials), "r1")[GC.WALL_REGION]
     assert here["albedo_mode"] == "texture" and here["accent"]["in_room"] is True
-    assert here["source"].startswith("wall_accent in this room")
+    assert here["accent"]["slot"] == "wood_slat__a" and here["source"].startswith("wall_accent in this room")
     there = GC.structure_albedo(scene(prof, [walls_there], materials), "r1")[GC.WALL_REGION]
     assert there["albedo_mode"] == "flat" and there["accent"]["in_room"] is False
-    flagged = GC.structure_albedo(scene(prof, [dict(walls_there, accent=True)], materials), "r1")[GC.WALL_REGION]
-    assert flagged["albedo_mode"] == "texture"               # a wall object flagged `accent` counts for the room
+    # A plain wall object of the accent's material is not the accent: only the flagged object counts.
+    plain = dict(walls_here, accent=False)
+    assert GC.structure_albedo(scene(prof, [plain], materials), "r1")[GC.WALL_REGION]["albedo_mode"] == "flat"
     # A flat accent colour keeps the walls flat; a wet room has no accent wall.
     flat_acc = dict(accent, material="paint", colour="terracotta")
-    flat = GC.structure_albedo(scene(profile(wall_accent=flat_acc), [walls_here], {}), "r1")[GC.WALL_REGION]
+    flat_here = dict(walls_here, accent_material="paint__terracotta")
+    flat = GC.structure_albedo(scene(profile(wall_accent=flat_acc), [flat_here], {}), "r1")[GC.WALL_REGION]
     assert flat["albedo_mode"] == "flat" and flat["accent"]["albedo_mode"] == "flat"
     wet = scene(prof, [walls_here, {"kind": "floor", "element_id": "r1", "wet": True, "name": "f", "wenart_id": "f"}],
                 materials)
