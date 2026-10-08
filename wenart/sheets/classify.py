@@ -19,6 +19,7 @@ How (geometry rules, first that holds):
 from __future__ import annotations
 
 import dataclasses
+import math
 import re
 from typing import Optional
 
@@ -128,6 +129,13 @@ def features(region: Region, mpu: Optional[float]) -> dict:
     f["north_arrow"] = any(T.fold(t.text) in ("N", "K", "KUZEY", "NORTH", "NORD") for t in region.texts)
     f["stairs"] = len(stairs_of(region))
     f["columns"] = len(columns_of(region, mpu))
+    if not f["room_labels"] and region.class_method != "title":
+        from wenart.sheets import register as RG
+        f["roof_outline"] = bool(RG.enclosing_outlines(region, mpu))
+        f["hip_lines"] = sum(1 for a, b, _ in UC.segments(region.strokes())
+                             if 20.0 <= abs(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))) % 90.0 <= 70.0
+                             and math.dist(a, b) >= 0.1 * max(b_ - a_ for a_, b_ in zip(region.geometry_box[:2],
+                                                                                         region.geometry_box[2:])))
     return f
 
 
@@ -219,6 +227,8 @@ def by_geometry(region: Region, f: dict, frames: list, gap: float) -> bool:
         cls, rule = "site_plan", "north_arrow_or_street_words"
     elif f.get("room_labels", 0) >= 2 and (f.get("wall_test") or f.get("wall_pairs", 0) >= 4):
         cls, rule = "floor_plan", "room_labels_and_walls"
+    elif not f.get("room_labels") and f.get("roof_outline") and f.get("hip_lines", 0) >= 2:
+        cls, rule = "roof_plan", "outline_with_hip_lines"
     if cls is None:
         return False
     region.cls, region.class_method, region.status = cls, "geometry", "verified"
