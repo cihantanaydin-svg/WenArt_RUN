@@ -49,12 +49,12 @@ def run(request):
 
 
 def _mode(completion: dict) -> str:
-    return "keep" if completion["settings"]["furnished_rooms"] == "keep" else "complete"
+    return LK.mode_of(completion)
 
 
 def test_the_locked_check_passes(run):
     project, source, furnished, completion = run
-    keep = [r["room_id"] for r in completion["rooms"] if r["state"] == "kept"]
+    keep = LK.keep_rooms_of(completion)
     assert completion["locked_violations"] == [], completion["locked_violations"]
     assert LK.check(source, furnished, _mode(completion), keep) == []
     final = _load(project, "building_final.json")

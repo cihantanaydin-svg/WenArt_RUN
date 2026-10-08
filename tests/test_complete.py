@@ -697,6 +697,8 @@ def test_cli_furnishes_empty_rooms_and_completes_furnished_ones(tmp_path):
     completion = json.loads((out.parent / "completion.json").read_text())
     assert completion["locked_violations"] == [] and completion["changes_applied"] == 1
     assert completion["settings"]["furnished_rooms"] == "complete" and completion["model"] == MODEL
+    assert LK.mode_of(completion) == "complete" and LK.keep_rooms_of(completion) == []   # what refit passes on
+    assert LK.check(source, final, LK.mode_of(completion), LK.keep_rooms_of(completion)) == []
     layout = json.loads((out.parent / "layout.json").read_text())
     assert layout["completion"]["pieces_added"] == completion["pieces_added"] == 7
     assert (out.parent / "completion_report.md").read_text().startswith("# AI completion of furnished rooms")
@@ -712,7 +714,9 @@ def test_cli_keep_brief_changes_nothing_drawn(tmp_path):
     assert L.main([str(src), "--out", str(out), "--project-dir", str(project)], client_factory=lambda: client) == 0
     final = B.load(out)
     assert client.calls == [] and LK.check(source, final, "keep") == []
-    assert json.loads((tmp_path / "completion.json").read_text())["rooms_completed"] == 0
+    completion = json.loads((tmp_path / "completion.json").read_text())
+    assert completion["rooms_completed"] == 0 and LK.mode_of(completion) == "keep"
+    assert set(LK.keep_rooms_of(completion)) == {r["id"] for r in source["rooms"] if r["has_documented_furniture"]}
 
 
 def test_cli_exits_3_when_the_completion_cannot_reach_the_server(tmp_path, capsys):

@@ -161,6 +161,18 @@ def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> 
     return out
 
 
+def keep_rooms_of(completion: Optional[dict]) -> list[str]:
+    """The rooms the layout kept as drawn (``completion.json`` rooms with ``state: kept``: ``furnished_rooms_keep``
+    and partners of kept rooms), for ``check(..., keep_rooms=...)`` after a later stage (refit)."""
+    return [r["room_id"] for r in (completion or {}).get("rooms", []) if r.get("state") == "kept"]
+
+
+def mode_of(completion: Optional[dict]) -> str:
+    """``keep`` or ``complete`` from ``completion.json`` (``complete`` when it is missing: the default)."""
+    value = ((completion or {}).get("settings") or {}).get("furnished_rooms", "complete")
+    return "keep" if value == "keep" else "complete"
+
+
 def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[str]] = None) -> list[str]:
     """Violations of the locked rules (see the module docstring); ``keep_rooms``: room ids that stay ``keep``
     in ``complete`` mode (``furnished_rooms_keep``)."""
