@@ -842,7 +842,10 @@ SAME_ROT_DEG = 1.0           # ... and drawn pieces turned the same within 1 deg
 # The brief keys of the whole-building build (wenart/defaults.yaml ``brief:``; Blender has no PyYAML, so
 # wenart.brief.load_brief cannot run there). tests/test_views_variants.py keeps this copy equal to the file.
 BRIEF_DEFAULTS = {"site": "full", "slab_thickness": 0.20, "render.exterior_views": True,
-                  "render.twin_rooms": "one", "variants": "all"}
+                  "render.twin_rooms": "one", "variants": "all",
+                  "exterior": {"facade": "", "roof": "", "window_frame": "", "door": "", "paving": "", "garden": ""}}
+# The brief keys the whole-building build reads (build.brief_args puts their values into the build fingerprint).
+BUILD_BRIEF_KEYS = ("site", "slab_thickness", "exterior", "render.exterior_views", "render.twin_rooms")
 
 
 def brief_setting(building: dict, key: str) -> tuple[object, bool]:
@@ -853,7 +856,7 @@ def brief_setting(building: dict, key: str) -> tuple[object, bool]:
     cur: object = brief.get("values") if isinstance(brief.get("values"), dict) else brief
     for part in key.split("."):
         if not isinstance(cur, dict) or part not in cur:
-            return BRIEF_DEFAULTS.get(key), True
+            return json.loads(json.dumps(BRIEF_DEFAULTS.get(key))), True       # a copy (the exterior block)
         cur = cur[part]
     listed = brief.get("assumed") if isinstance(brief.get("assumed"), list) else []
     return cur, key in listed
@@ -949,8 +952,9 @@ def variant_building(building: dict, variant: str = BASE_VARIANT) -> dict:
         walls = {w["id"]: w for w in building.get("walls") or []}
         faces = []
         for f in facade.get("faces") or []:
-            if not f.get("wall_id"):
-                faces.append(f)                  # a whole side (§1.6b row 12): the build finds its walls
+            if not f.get("wall_id"):             # a whole side (§1.6b row 12): the build finds its walls
+                lid = f.get("level_id")
+                faces.append(dict(f, level_id=repl[lid], level_moved_from=lid) if lid in repl else f)
                 continue
             wall = walls.get(f.get("wall_id"))
             if wall is not None and wall.get("level_id") in keep:
@@ -1126,7 +1130,7 @@ def variant_changes(building: dict, variant: str = BASE_VARIANT) -> dict:
     return out
 
 
-def _brief_value(building: dict, brief, key: str) -> tuple[object, bool]:
+def brief_value(building: dict, brief, key: str) -> tuple[object, bool]:
     """``(value, assumed)`` of a brief key from ``brief`` (a ``wenart.brief.load_brief`` result or a plain
     values dict), else the building's stored brief and the defaults (``brief_setting``)."""
     if isinstance(brief, dict):
@@ -1164,11 +1168,11 @@ def views_for(building: dict, variant: str = BASE_VARIANT, brief=None, twin_room
     rec = variant_record(building, variant)
     assumed: list[str] = []
     if twin_rooms is None:
-        twin_rooms, was_assumed = _brief_value(building, brief, "render.twin_rooms")
+        twin_rooms, was_assumed = brief_value(building, brief, "render.twin_rooms")
         if was_assumed:
             assumed.append("render.twin_rooms")
     if exterior_views is None:
-        exterior_views, was_assumed = _brief_value(building, brief, "render.exterior_views")
+        exterior_views, was_assumed = brief_value(building, brief, "render.exterior_views")
         if was_assumed:
             assumed.append("render.exterior_views")
     levels = [str(i) for i in rec.get("levels") or []]
