@@ -127,15 +127,15 @@ have furniture plans), `section`, `elevation`, `roof_plan`, `site_plan`, `detail
 
 | Key | Default | Values |
 |---|---|---|
-| `furnished_rooms` | **question 1** | `keep` (today) / `complete` |
+| `furnished_rooms` | `complete` (user, 8 Oct 2026) | `keep` (M9's behaviour) / `complete` |
 | `furnished_rooms_keep` | `[]` | room ids or labels that always stay `keep` |
 | `furnished_rooms_keep_size` | `false` | `true`: drawn type and size stay, only the look changes |
-| `variants` | **question 2** | `all` / `base` / a list of alternative names |
-| `failed_levels` | **question 3** | `leave_out` / `stop` |
-| `site` | **question 4** | `full` (plot, paving, grass, plot wall, parking as drawn) / `ground` (neutral ground plane) |
-| `exterior` | `{}` | words for `facade`, `roof`, `window_frame`, `door`, `paving`, `garden`; empty = the interior style's words where they fit, the rest assumed (**question 5**) |
+| `variants` | `all` (user) | `all` / `base` / a list of alternative names |
+| `failed_levels` | `leave_out` (user) | `leave_out` / `stop` |
+| `site` | `full` (user) | `full` (plot, paving, grass, plot wall, parking as drawn) / `ground` (neutral ground plane) |
+| `exterior` | `{}` | words for `facade`, `roof`, `window_frame`, `door`, `paving`, `garden`; empty = the interior style's words where they fit (window frames, the wall colour as smooth render), the rest assumed: roof covering anthracite concrete tiles, paving grey concrete pavers, garden grass (question 5 not answered: these defaults, listed as assumed) |
 | `render.exterior_views` | `true` | exterior cameras on/off |
-| `render.twin_rooms` | **question 7** | `one` / `all` |
+| `render.twin_rooms` | `one` (user) | `one` / `all` |
 
 ### 1.4 New vocabulary slugs (`wenart/style/vocabulary.py` re-exports; tables in new modules, §4)
 
@@ -167,7 +167,7 @@ writes `outputs/<p>/variants/<slug>/{scene,renders,export}/` with only the rooms
 outside differs, its exterior views. 3D files: `<p>.blend` / `<p>.glb` (base, the whole building) and
 `<p>-<slug>.blend` / `<p>-<slug>.glb`.
 
-### 1.7 `CLAUDE.md` furniture rules (proposal; edited only after the user's OK)
+### 1.7 `CLAUDE.md` furniture rules (the user's OK of 8 Oct 2026; `CLAUDE.md` edited)
 
 Today:
 > - Furniture and fixed equipment drawn in the documents are treated like walls: same type, position, orientation
@@ -201,7 +201,7 @@ take the answer of their partner (copied, mirrored for twins), so they stay iden
 
 | Kind | Types | What AI may do |
 |---|---|---|
-| Fixed equipment | `stair`, `kitchen_counter`, `sink_kitchen`, `stove`, `fridge`, `washing_machine`, `kitchen_island`, `toilet`, `washbasin`, `shower`, `bathtub` (**question 6**: the user named stairs, counter runs and sanitary ware; appliances and the island are proposed fixed too) | nothing but the look (cabinet fronts, colours, §4.4) |
+| Fixed equipment | `stair`, `kitchen_counter`, `sink_kitchen`, `stove`, `fridge`, `washing_machine`, `kitchen_island`, `toilet`, `washbasin`, `shower`, `bathtub` (user, 8 Oct 2026) | nothing but the look (cabinet fronts, colours, §4.4) |
 | Not furniture (`build: false`) | drawn symbols both AI passes call not furniture | nothing (obstacle) |
 | Changeable furniture | every other drawn type | type (within the room type's allowed types), width, depth, height, model, design, materials, colours |
 
@@ -334,7 +334,7 @@ the plan crop draws the three colours of §2.6.
    m, inch, ft) scored by room-area labels vs region areas, section level marks vs slab spacing, door arcs (0.6–1.2
    m), wall thicknesses (0.08–0.6 m) and text heights; `$INSUNITS` is used when the checks agree with it; when ≥ 2
    independent checks agree on another unit and none supports the header, that unit is used and the conflict
-   `unit_mismatch` is listed (**question 8**); no agreement → `needs review` with the region named.
+   `unit_mismatch` is listed (user, 8 Oct 2026); no agreement → `needs review` with the region named.
 7. **Heights** (`heights.py`) from the section and elevations (vector): slab bands (thickness, top), floor to floor,
    ceiling heights (floor to the underside above; the attic to the roof underside), level marks (`±0.00`, `+3.00`,
    `43.00` next to a mark triangle) as cross-checks (a mismatch over 5 cm is listed, geometry wins), ground lines per
@@ -353,7 +353,7 @@ the plan crop draws the three colours of §2.6.
    entities by box, PDF pages cropped, raster images cropped). A project whose sheets are one region per page
    (synthetic-01 … -06, real01) gives today's page records unchanged.
 10. **Stop rules**: missing scale or no closed outer walls on a needed plan → `needs review` with the region named,
-   or, with `failed_levels: leave_out` (**question 3**), that level is left out, listed as missing, and the
+   or, with `failed_levels: leave_out` (the default, user), that level is left out, listed as missing, and the
    building above it is not built floating (levels above a missing level are left out too).
 11. **Walls drawn as face lines** (`wenart/ingest/generic/walls.py`, track A3; found on real02, §0.4): a new wall
    primitive for DXF/DWG and vector PDF: straight strokes of one layer that pair up as parallel faces 0.05–0.60 m
@@ -387,7 +387,7 @@ the plan crop draws the three colours of §2.6.
    no base room equals it (polygon within 2 cm, the same openings, the same drawn furniture); the alternative renders
    only those (`variants[].rooms_changed`) and its exterior views only when its outer walls or outer openings differ
    (`exterior_changed`); otherwise the base images are listed for it.
-7. Twins (semi-detached pairs, `twin_of`, **question 7**): with `render.twin_rooms: one` only the first twin of
+7. Twins (semi-detached pairs, `twin_of`, user: `one`): with `render.twin_rooms: one` only the first twin of
    each mirrored pair is rendered; the AI completion and decor of the first twin are mirrored onto the second, so the
    exterior and the 3D files show both dwellings the same.
 8. 3D files per variant (`<p>.blend` / `.glb`, `<p>-<slug>.blend` / `.glb`), packed and split as in M9.
@@ -616,26 +616,19 @@ $33.80 of $100). real02 without twin rooms rendered once would need about twice 
 | real02 render time | twin rooms once (question 7), alternatives only render the rooms that differ |
 | 3D files of a whole building | `.glb` per variant may pass 300 MB: M9's 24 MiB zip parts |
 
-## 9. Open questions (answers needed before code)
+## 9. Decisions (user, 8 Oct 2026)
 
-1. Feature 1 default: `furnished_rooms: complete` for every project, or `keep` unless the brief says `complete`?
-2. Variants: render every alternative, or only the base plus the alternatives the brief names? (An alternative
-   renders only its changed rooms; its exterior views only when its outside differs, else the base views are
-   listed for it. Say if you want ≥ 5 exterior views rendered per variant even when the outside is the same.)
-3. A level that fails (no scale, open walls): leave it out and list it (levels above it too), or stop the whole
-   project?
-4. Site: build plot, garden and parking for exterior views (`site: full`), or only a neutral ground plane?
-5. real02 exterior: tell me the facade, roof covering and window frame look, or should the defaults apply (window
-   frames dark bronze from the brief; facade smooth render in the brief's greige; roof covering anthracite
-   concrete tiles; all listed as assumed)?
-6. Fixed equipment: you named stairs, counter runs and sanitary ware. Should the kitchen appliances (fridge, stove,
-   kitchen sink, washing machine) and a drawn kitchen island also stay as drawn? (Proposed: yes.)
-7. real02 is a semi-detached pair: render each mirrored twin room once and mirror the AI furniture and decor onto
-   the other dwelling (`render.twin_rooms: one`), or render both? (Proposed: once; both doubles the render time.)
-8. real02's header says millimetres but the drawing is in centimetres: may the unit check (section level marks,
-   area labels, door widths; ≥ 2 must agree) override `$INSUNITS`, with the conflict listed? (Proposed: yes; with
-   no agreement the project stops with `needs review`.)
-9. `CLAUDE.md` furniture rules: OK to replace them with the wording of §1.7?
+| # | Question | Answer |
+|---|---|---|
+| 1 | Feature 1 default | `furnished_rooms: complete` for every project |
+| 2 | Variants | `all`: every alternative is built and rendered (its changed rooms; its exterior views when its outside differs, else the base views are listed for it) |
+| 3 | A level that fails | `leave_out`: left out and listed (levels above it too) |
+| 4 | Site | `full`: plot, garden, paving and parking as drawn |
+| 5 | real02 exterior look | not answered: the defaults apply, listed as assumed (window frames dark bronze from the brief; facade smooth render in the brief's greige; roof covering anthracite concrete tiles; paving grey concrete pavers; garden grass) |
+| 6 | Kitchen appliances and a drawn island | fixed, as drawn |
+| 7 | real02 twin rooms | rendered once; the AI furniture and decor mirrored onto the other dwelling (`render.twin_rooms: one`) |
+| 8 | Unit check may override `$INSUNITS` | yes, when ≥ 2 independent checks agree; the conflict is listed; no agreement → `needs review` |
+| 9 | `CLAUDE.md` furniture rules | replaced with the wording of §1.7 |
 
 ## 10. As built
 

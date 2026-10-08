@@ -44,13 +44,21 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - Batch GPU work: several tests per pod session, not one pod per small check.
 
 ## Furniture rules
-- Furniture and fixed equipment drawn in the documents are treated like walls:
-  same type, position, orientation and footprint size as drawn. Style changes only
-  the look (materials, colors, design details).
+- Fixed equipment drawn in the documents (stairs, kitchen counter runs, kitchen island
+  and appliances, sanitary ware) is treated like walls: same type, position, orientation
+  and footprint size as drawn. Style changes only the look.
+- Drawn furniture is never removed. Its location (footprint centre ± 5 cm; against a
+  wall: the back-edge midpoint on the same wall line) and position (front ± 1°, the same
+  wall) are locked. With `furnished_rooms: complete` (default) AI may change its type
+  (within the room type's types), size, height and look: it stays `from_documents`, gets
+  `modified_by_ai: true` and keeps `drawn_type`, `drawn_footprint`, `drawn_height`. With
+  `keep` or `furnished_rooms_keep_size` only the look changes.
 - Footprint clear but type unclear → keep the footprint, mark `unverified`, show it
   in debug images. Never guess silently.
-- Rooms that have furniture in the documents: never add, remove or move furniture.
-  Small decor (cushions, plants, books) only if the brief allows it (default: yes).
+- Rooms that have furniture in the documents: with `furnished_rooms: complete` AI may add
+  the pieces the room type misses (`added_by_ai`, `completes_room: true`) through the same
+  placer checks as empty rooms; never a second anchor piece. Small decor (cushions,
+  plants, books) only if the brief allows it (default: yes).
 - Rooms with no furniture in the documents: furnish with AI in the project style
   (default), with real clearances; never block doors or windows.
 - Every piece is labelled `from_documents` (with evidence) or `added_by_ai`.
