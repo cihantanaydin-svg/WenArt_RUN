@@ -556,7 +556,9 @@ def _fp_files(tmp_path: Path) -> dict:
     building["created_utc"] = "2026-10-02T10:00:00Z"
     (tmp_path / "building.json").write_text(json.dumps(building), encoding="utf-8")
     (tmp_path / "style.json").write_text(STYLE.read_text(encoding="utf-8"), encoding="utf-8")
-    return B.fingerprint_args(str(tmp_path / "building.json"), str(tmp_path / "style.json"), None, None)
+    # Milestone 10: the brief values the build reads enter the fingerprint (the defaults when no brief is given).
+    return B.fingerprint_args(str(tmp_path / "building.json"), str(tmp_path / "style.json"), None, None,
+                              brief=B.brief_args(building))
 
 
 def test_fingerprint_ignores_volatile_keys_and_follows_the_camera_policy(tmp_path):
