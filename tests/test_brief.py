@@ -152,3 +152,14 @@ def test_lens_range_is_the_camera_rule():
     from wenart.blender.cameras import LENS_RANGE_MM
 
     assert B.LENS_RANGE_MM == LENS_RANGE_MM
+
+
+@pytest.mark.parametrize("key,bad", [("slab_thickness", 20), ("slab_thickness", 0.01), ("ceiling_height", 270),
+                                     ("ceiling_height", "high")])
+def test_lengths_outside_their_range_are_reported_and_not_used(tmp_path, key, bad):
+    """Milestone 10 (review, low): a slab thickness or ceiling height in centimetres (or nonsense) is a warning and
+    the default is used, never a 20 m slab."""
+    (tmp_path / "brief.yaml").write_text(f"{key}: {bad!r}\n", encoding="utf-8")
+    brief = B.load_brief(tmp_path)
+    assert brief["values"][key] == B.brief_defaults()[key]
+    assert any(w.startswith(f"brief.yaml {key}: expected a length from") for w in brief["warnings"]), brief["warnings"]

@@ -136,7 +136,8 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/decor_ai.py", "wena
               "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/brief.py",
               "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
               "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**",
-              "wenart/views.py")                         # M10: render.twin_rooms through views.brief_value
+              "wenart/views.py",                         # M10: render.twin_rooms through views.brief_value
+              "wenart/ingest/**", "wenart/sheets/**")    # M10: complete.py's size-table check (as the layout's)
 DECOR_ANSWERS = "decor_ai_answers.json"
 
 
@@ -176,7 +177,10 @@ STAGE_LIST = (
            "wenart/furniture/schemas.py", "wenart/furniture/complete.py", "wenart/furniture/locked.py",
            "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/brief.py", "wenart/defaults.yaml",
            "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**",
-           "wenart/blender/**"),
+           "wenart/blender/**",
+           # M10 review fix #20: a type proposal must fit its drawn footprint (recognition.symbols' size table; its
+           # answers module reaches the sheet questions, so the sheets and ingest packages are in the closure).
+           "wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**"),
           ("building_furnished.json", "layout.json", "completion.json", "completion_report.md"), heavy=True),
     # Milestone 9 (docs/milestone9.md §4): the AI decor's two passes per room, asked in the layout's Qwen session
     # (answers stored by key in decor_ai_answers.json); a failure is a warning: the decor stage then falls back to
