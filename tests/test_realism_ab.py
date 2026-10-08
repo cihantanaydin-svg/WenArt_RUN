@@ -1082,16 +1082,21 @@ def smart_score2(path, aspect: str) -> int:
 class FakeJudge2:
     """v2 judge: reads the aspect from the question and the enum from the schema; equal scores pick image 1
     (shown first: T); ``named_first``: equal scores pick the image the question names first (enum[0]: L).
-    Records the calls in flight per set."""
+    Records the calls in flight per set. ``overlap``: the first call of these sets waits (at most 5 s) for a second
+    call in flight, so a set run two at a time shows 2 even when the runner's answer-file writes are slower than
+    ``delay`` (a loaded test machine)."""
 
-    def __init__(self, model="fake/judge", blind=False, score=smart_score2, delay=0.0, named_first=False):
+    def __init__(self, model="fake/judge", blind=False, score=smart_score2, delay=0.0, named_first=False,
+                 overlap=()):
         self.model = model
         self.blind = blind
         self.score = score
         self.delay = delay
         self.named_first = named_first
+        self.overlap = set(overlap)
         self.calls = []
         self.lock = threading.Lock()
+        self.joined = threading.Condition(self.lock)
         self.active = 0
         self.max_active: dict = {}
 
@@ -1103,6 +1108,9 @@ class FakeJudge2:
             self.max_active[set_name] = max(self.max_active.get(set_name, 0), self.active)
             self.calls.append({"images": [str(i) for i in images], "prompt": prompt, "task": task, "labels": labels,
                                "system_prompt": system_prompt, "enum": schema["properties"]["winner"]["enum"]})
+            self.joined.notify_all()
+            if set_name in self.overlap and self.max_active[set_name] < 2:
+                self.joined.wait_for(lambda: self.max_active[set_name] >= 2, timeout=5.0)
         try:
             if self.delay:
                 time.sleep(self.delay)
@@ -1144,7 +1152,8 @@ def run_all2(tmp_path, judges, workers="2"):
 
 
 def test_v2_end_to_end_with_fake_judges(tmp_path):
-    judges = {"qwen": FakeJudge2("fake/qwen", delay=0.003), "glm": FakeJudge2("fake/glm", blind=True)}
+    judges = {"qwen": FakeJudge2("fake/qwen", delay=0.003, overlap=("ctl_flat",)),
+              "glm": FakeJudge2("fake/glm", blind=True)}
     ctl, ab3, ab5, dest = run_all2(tmp_path, judges)
     calls = judges["qwen"].calls
     assert len(calls) == 8 * (7 * 8 + 16 + 16)                   # 8 calls per pair; 32 look_alt pairs in all
