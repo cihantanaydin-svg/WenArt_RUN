@@ -96,6 +96,10 @@ class OpeningItem:
     sill: Optional[float] = None                        # windows: sill height, metres
     assumed: list[str] = field(default_factory=list)    # names of values that are assumed ("height", "sill")
     type_raw: Optional[str] = None                      # e.g. "unclassified gap content"
+    # Milestone 10 (docs/milestone10.md §1.6b row 17): how it opens, written by the opening / symbol readers (A3);
+    # None = not read (the building JSON leaves the key out: swing, assumed).
+    operation: Optional[str] = None                     # swing | double | sliding | pocket | folding | fixed | unknown
+    operation_source: Optional[str] = None              # block_name | geometry | ai | assumed
 
 
 @dataclass

@@ -264,6 +264,9 @@ def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: l
         out["assumed"] = list(opening.assumed)
     if opening.type_raw:
         out["type_raw"] = opening.type_raw
+    if opening.operation is not None:                    # M10: kept through the pipeline (§1.6b row 17)
+        out["operation"] = opening.operation
+        out["operation_source"] = opening.operation_source
     return out
 
 
@@ -872,7 +875,10 @@ def _documents(records: list[PageRecord], works: dict, out_dir: Path, project_di
         entry = record.to_json()
         work = works.get(record.key)
         if work is not None:
-            entry["scale"] = work.extraction.scale
+            # M10: a CAD region's unit comes from the sheets unit check (method unit_check when it overrode the
+            # header, §1.6b row 3); the extractor used that unit.
+            entry["scale"] = record.scale if record.units_override is not None and record.scale else \
+                work.extraction.scale
             entry["transform_to_building"] = work.extraction.transform_to_building
             doc["unit_system"] = work.extraction.units_system or "metric"
             if work.extraction.report.get("rectified_image"):
@@ -1627,13 +1633,20 @@ def _sheets_for(project_dir: Path, out_dir: Path, build: ProjectBuild) -> Option
         return None
 
 
+def _brief_value(project_dir: Path, key: str, default):
+    """A brief value through ``wenart.brief.load_brief`` (Milestone 10 keys: §1.6b row 7)."""
+    from wenart import brief as BR
+    return BR.value(BR.load_brief(project_dir), key, default)
+
+
 def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, failed: dict,
                project_dir: Path) -> None:
     """``failed_levels`` (brief; user decision 3): ``leave_out`` leaves a level whose region could not be read out of
     the building and lists it in ``levels_left_out`` with the levels above it (a missing level never leaves the
     building above it floating; a basement that fails leaves only the basements below it, the levels from the
-    ground floor up stand on the terrain); an alternative level that fails drops only its variant. ``stop``, or no
-    base level left, ends the project ``needs_review`` with every region's reason."""
+    ground floor up stand on the terrain); an alternative level that fails drops only its variant. The status stays
+    ``ok`` while at least one level remains (docs/milestone10.md §1.6b row 7); ``stop``, or no level left, ends the
+    project ``needs_review`` with every region's reason."""
     from wenart import brief as BR
 
     if not failed:
@@ -1666,13 +1679,33 @@ def _leave_out(build: ProjectBuild, records: list[PageRecord], by_level: dict, f
                      "reason": reason})
         build.warn(f"level {lid} left out (failed_levels: leave_out): {reason}")
         by_level.pop(lid, None)
-    if not any(not works[0].record.base_level_id for works in by_level.values()):
+    if not by_level:
         for reasons in failed.values():
             for r in reasons:
                 build.review(r)
-        if by_level:
-            build.review(f"no base level could be read; only alternative levels remain "
-                         f"({', '.join(sorted(by_level))})")
+    elif not any(not works[0].record.base_level_id for works in by_level.values()):
+        build.warn(f"no base level could be read; only alternative levels remain ({', '.join(sorted(by_level))})")
+
+
+def _tag_regions(build: ProjectBuild) -> None:
+    """Every element's evidence from a region page names that region (``region_id``, §1.6b row 19)."""
+    region_of = {}
+    for work in build.generic:
+        rec = work.record
+        if rec.region_id is not None:
+            region_of[(rec.level_id, rec.file, rec.page or 1)] = rec.region_id
+    if not region_of:
+        return
+    b = build.building
+    items = [x for key in ("walls", "openings", "rooms", "furniture", "levels") for x in b.get(key) or []]
+    site = b.get("site") or {}
+    items += [x for key in ("boundary_walls", "areas", "decor", "openings") for x in site.get(key) or []]
+    for x in items:
+        level_id = x.get("level_id") or x.get("id")
+        for ev in x.get("evidence") or []:
+            rid = region_of.get((level_id, ev.get("file"), ev.get("page") or 1))
+            if rid is not None and "region_id" not in ev:
+                ev["region_id"] = rid
 
 
 def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
@@ -1686,12 +1719,17 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
 
     b = build.building
     sheets = build.sheets
+    _tag_regions(build)
     for room in b["rooms"]:
         room["room_subtype"] = SC.room_subtype(room.get("label_raw") or room["label"])
         room["twin_of"] = None
+        room["twin_transform"] = None
+        room["twin_residual_m"] = None
         room["same_as"] = None
-    for second, first in TW.mirror_twins(b["rooms"], b["openings"], b["furniture"]).items():
-        next(r for r in b["rooms"] if r["id"] == second)["twin_of"] = first
+    for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
+        room = next(r for r in b["rooms"] if r["id"] == second)
+        room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],
+                                                                            info["residual_m"])
     for lv in b["levels"]:
         if not lv.get("base_level_id"):
             continue
@@ -1699,13 +1737,16 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         base = [r for r in b["rooms"] if r["level_id"] == lv["base_level_id"]]
         for a_id, b_id in TW.same_as(alt, base, b["openings"], b["furniture"]).items():
             next(r for r in b["rooms"] if r["id"] == a_id)["same_as"] = b_id
-    b["variants"] = TB.variants_block(sheets, b["levels"], b["rooms"])
+    b["variants"] = TB.variants_block(sheets, b["levels"], b["rooms"], b["walls"], b["openings"])
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
-    b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn)
-    b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"])
-    b["facade"] = TB.facade_block(sheets, b["walls"], build.warn)
+    b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
+                                b["variants"])
+    b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"])
+    b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
-    b["site"] = TB.site_block(site, sheets, SE.area_kind)
+    ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)
+    b["site"] = TB.site_block(site, sheets, SE.area_kind, ground)
+    b["project"]["datum"] = (sheets.get("heights") or {}).get("datum")
     for c in sheets.get("conflicts") or []:
         # The sheet analysis's conflicts name drawing regions (sheets.json ids), not building elements.
         build.conflict(c["kind"], list(c.get("regions") or []), f"sheets.json {c['id']}: {c['description']}",
@@ -1736,6 +1777,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     works: dict[tuple, PageWork] = {}
     by_level: dict[str, list[PageWork]] = {}
     failed: dict[str, list[str]] = {}           # Milestone 10: level id -> why its region could not be read
+    not_selected: list[PageRecord] = []         # Milestone 10: alternatives the brief's variants leave out
+    selected_alts = {lid for v in (build.sheets or {}).get("variants") or [] if not v["base"] for lid in v["levels"]}
     for record in records:
         if record.region_id is not None and record.skip_reason:
             # Milestone 10: a region that is no plan (title block, section, ...) is listed, never a review.
@@ -1780,6 +1823,10 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         if record.extractor == "generic" and getattr(record, "extractor_note", None):
             # A DXF/DWG with the synthetic layer names read by the generic adapter: the choice is listed.
             build.warn(f"{record.file}: {record.extractor_note}")
+        if build.sheets is not None and record.region_id is not None and record.base_level_id \
+                and record.level_id not in selected_alts:
+            not_selected.append(record)
+            continue
         secondary = record.key in evidence_only
         if record.extractor == "raster":
             extraction = _extract_raster(record, out_dir, answers, no_ai, secondary)
@@ -1846,6 +1893,13 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
 
     if build.sheets is not None:
         _leave_out(build, records, by_level, failed, project_dir)
+        for rec in not_selected:
+            reason = (f"alternative read, not built: the brief's variants "
+                      f"({_brief_value(project_dir, 'variants', 'all')}) do not select it")
+            build.building.setdefault("levels_left_out", []).append(
+                {"label": rec.level_label or rec.level_id, "order": rec.level_order, "region_id": rec.region_id,
+                 "variant": rec.variant, "reason": reason})
+            build.warn(f"level {rec.level_id} ({rec.region_id}) not built: {reason}")
     if not by_level:
         build.review(NO_PLAN_REASON)
 

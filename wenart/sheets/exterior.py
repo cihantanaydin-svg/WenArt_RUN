@@ -254,6 +254,13 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
                 entry["note"] = "z range unknown (no level mark or ground line on the elevation): whole height"
             entries.append(entry)
     windows, doors, positions = 0, 0, []
+
+    def zy(y: float) -> float:
+        """Building z of a drawing y (metres above the drawing's ground without a level mark or ground line)."""
+        if zmap is not None:
+            return round((y - zmap["y_ref"]) * mpu + zmap["z_ref"], 3) + 0.0
+        return round((y - region.geometry_box[1]) * mpu, 3) + 0.0
+
     if mpu:
         ground = zmap["y_ref"] if zmap is not None and zmap["method"] == "derived" else region.geometry_box[1]
         outlines = [st.bbox() for e in region.ents for st in e.strokes if st.closed and len(st.pts) >= 4]
@@ -268,12 +275,12 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
                 at_ground = (b[1] - ground) * mpu <= 0.3
                 if at_ground and DOOR_M[0][0] <= w <= DOOR_M[0][1] and DOOR_M[1][0] <= h <= DOOR_M[1][1]:
                     doors += 1
-                    positions.append({"kind": "door", "x": round((b[0] - x_left) * mpu, 3), "sill": 0.0,
-                                      "head": round((b[3] - ground) * mpu, 3)})
+                    positions.append({"kind": "door", "x": round((b[0] - x_left) * mpu, 3), "sill": zy(b[1]),
+                                      "head": zy(b[3])})
                 elif not at_ground and WINDOW_M[0][0] <= w <= WINDOW_M[0][1] and WINDOW_M[1][0] <= h <= WINDOW_M[1][1]:
                     windows += 1
-                    positions.append({"kind": "window", "x": round((b[0] - x_left) * mpu, 3),
-                                      "sill": round((b[1] - ground) * mpu, 3), "head": round((b[3] - ground) * mpu, 3)})
+                    positions.append({"kind": "window", "x": round((b[0] - x_left) * mpu, 3), "sill": zy(b[1]),
+                                      "head": zy(b[3])})
     seen = {"region": region.id, "side": side, "view_bearing_deg": view_bearing_deg(side, north_deg),
             "windows": windows, "doors": doors, "positions_m": sorted(positions, key=lambda p: (p["x"], p["sill"])),
             "plan_check": None}

@@ -98,9 +98,13 @@ def raster_from_pdf(path: Path, page: int, dpi: int = PDF_DPI) -> PageRaster:
     return PageRaster(image=image, to_pixels=to_pixels)
 
 
-def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX) -> PageRaster:
+def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX, clip_box=None) -> PageRaster:
     """Render the DXF model space into an image whose pixel mapping is known:
-    the figure is sized to the extents' aspect ratio so the axes fill it."""
+    the figure is sized to the extents' aspect ratio so the axes fill it.
+
+    ``clip_box`` (Milestone 10, docs/milestone10.md §1.6b row 2): ``(x0, y0, x1, y1)`` in drawing units, a region of a
+    multi-drawing sheet (``documents[].pages[].region_box``): only the entities whose box meets it are drawn and the
+    window is that box grown by ``DXF_MARGIN``."""
     import matplotlib
     matplotlib.use("Agg")
     import ezdxf
@@ -112,12 +116,25 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX) -> PageRaster:
 
     doc = ezdxf.readfile(str(path))
     msp = doc.modelspace()
-    extents = bbox.extents(msp)
-    if not extents.has_data:
-        image = Image.new("RGB", (width_px, width_px // 2), "white")
-        return PageRaster(image=image, to_pixels=lambda p: (p[0], p[1]), note="empty DXF")
-    x0, y0 = extents.extmin.x, extents.extmin.y
-    x1, y1 = extents.extmax.x, extents.extmax.y
+    filter_func = None
+    if clip_box is not None:
+        x0, y0, x1, y1 = (float(v) for v in clip_box)
+        cache = bbox.Cache()
+
+        def filter_func(entity) -> bool:
+            try:
+                b = bbox.extents([entity], fast=True, cache=cache)
+            except Exception:          # an entity ezdxf cannot measure: drawn (clipped by the window)
+                return True
+            return bool(b.has_data) and not (b.extmax.x < x0 or b.extmin.x > x1 or b.extmax.y < y0
+                                             or b.extmin.y > y1)
+    else:
+        extents = bbox.extents(msp)
+        if not extents.has_data:
+            image = Image.new("RGB", (width_px, width_px // 2), "white")
+            return PageRaster(image=image, to_pixels=lambda p: (p[0], p[1]), note="empty DXF")
+        x0, y0 = extents.extmin.x, extents.extmin.y
+        x1, y1 = extents.extmax.x, extents.extmax.y
     mx, my = (x1 - x0) * DXF_MARGIN, (y1 - y0) * DXF_MARGIN
     x0, y0, x1, y1 = x0 - mx, y0 - my, x1 + mx, y1 + my
     height_px = max(200, int(round(width_px * (y1 - y0) / (x1 - x0))))
@@ -125,7 +142,8 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX) -> PageRaster:
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_axis_off()
     config = Configuration(background_policy=BackgroundPolicy.WHITE)
-    Frontend(RenderContext(doc), MatplotlibBackend(ax), config=config).draw_layout(msp, finalize=True)
+    Frontend(RenderContext(doc), MatplotlibBackend(ax), config=config).draw_layout(msp, finalize=True,
+                                                                                    filter_func=filter_func)
     # ezdxf's finalize step resizes the figure; restore our size and window so
     # the pixel mapping below stays exact.
     fig.set_size_inches(width_px / 100.0, height_px / 100.0)

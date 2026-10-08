@@ -236,6 +236,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     for r in regions:
         if r.kind != "raster":
             CL.use_of(r)
+        for e in r.evidence:
+            e.setdefault("region_id", r.id)                 # §1.6b row 19
 
     # Levels, variants, registration.
     plans = [r for r in regions if r.use == "read" and r.cls in CL.PLAN_CLASSES]

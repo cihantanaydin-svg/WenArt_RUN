@@ -36,6 +36,17 @@ def test_mirrored_pair_is_found_and_the_second_twin_points_at_the_first():
     assert TW.mirror_twins(rooms, openings, furniture) == {"r_L0_yatak_2": "r_L0_yatak", "r_L0_hol_2": "r_L0_hol"}
 
 
+def test_twin_transform_is_the_mirror_and_maps_the_first_twin_onto_the_second():
+    rooms, openings, furniture = pair()
+    info = TW.twin_transforms(rooms, openings, furniture)["r_L0_yatak_2"]
+    assert info["twin_of"] == "r_L0_yatak" and info["residual_m"] <= 0.02
+    a, b, c, d, e, f = info["transform"]
+    assert (a, b, d, e) == (-1.0, 0.0, 0.0, 1.0) and c == 2 * 7.585 and f == 0.0
+    first = next(r for r in rooms if r["id"] == "r_L0_yatak")["polygon"]
+    moved = sorted((round(a * x + b * y + c, 6), round(d * x + e * y + f, 6)) for x, y in first)
+    assert moved == sorted((x, y) for x, y in next(r for r in rooms if r["id"] == "r_L0_yatak_2")["polygon"])
+
+
 def test_a_moved_door_or_piece_breaks_the_twin():
     rooms, openings, furniture = pair()
     openings[1]["center"] = [13.0, 4.5]

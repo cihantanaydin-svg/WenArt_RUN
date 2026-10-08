@@ -166,6 +166,8 @@ class PageRecord:
         if self.region_id is not None:
             out.update({"region_id": self.region_id, "region_box": self.region_box,
                         "region_class": self.region_class, "variant": self.variant})
+            if self.skip_reason is not None and self.region_transform is not None:
+                out["transform_to_building"] = list(self.region_transform)      # a registered site plan
         return out
 
 
@@ -702,12 +704,18 @@ REGION_SKIP = {"heights": "{cls}: read for the heights by the sheets stage (shee
                "exterior": "{cls}: read for the exterior by the sheets stage (sheets.json {rid})"}
 
 
+UNIT_NAMES = {0.001: "mm", 0.01: "cm", 0.1: "dm", 1.0: "m", 0.0254: "in", 0.3048: "ft"}
+INSUNITS_NAMES = {1: "in", 2: "ft", 4: "mm", 5: "cm", 6: "m", 14: "dm"}
+
+
 def region_records(records: list[PageRecord], sheets: Optional[dict]) -> list[PageRecord]:
     """In a multi-region project (``sheets["multi_region"]``: a sheet with >= 2 plans, or a section, elevation, roof
     or site plan), every vector page (DXF/DWG model space, vector PDF page) with a plan region to read is replaced by
-    one record per region of that page: the region's class, level (alternatives ``L-1b``), variant, box, registered
-    transform and, for a CAD document, the drawing unit of the unit check. Other pages, and every page of a project
-    that is one drawing per page, keep their M2-M9 record unchanged."""
+    one record per region of that page with use ``read``, ``heights`` or ``exterior`` (ignored regions live in
+    ``sheets.json`` only, docs/milestone10.md §1.6b row 2): the region's class, level (alternatives ``L-1b``),
+    variant, box, registered transform and, for a CAD document, the drawing unit of the unit check (scale method
+    ``unit_check`` when the check overrode the header). Other pages, and every page of a project that is one drawing
+    per page, keep their M2-M9 record unchanged."""
     if not sheets or not sheets.get("multi_region"):
         return records
     by_page: dict[tuple, list[dict]] = {}
@@ -728,8 +736,30 @@ def region_records(records: list[PageRecord], sheets: Optional[dict]) -> list[Pa
             out.append(rec)
             continue
         for r in sorted(regions, key=lambda r: int(r["id"][1:]) if r["id"][1:].isdigit() else 0):
-            out.append(_region_record(rec, r, units.get(rec.file) or {}, base_of))
+            if r["use"] in ("read", "heights", "exterior"):
+                out.append(_region_record(rec, r, units.get(rec.file) or {}, base_of))
     return out
+
+
+def unit_scale(file: str, units: dict, region_id: Optional[str] = None) -> Optional[dict]:
+    """The page ``scale`` of a CAD region from the sheets unit check: ``dxf_insunits`` when the header unit holds,
+    ``unit_check`` (evidence naming the agreeing checks) when the checks overrode it."""
+    mpu = units.get("metres_per_unit")
+    if not mpu:
+        return None
+    unit = UNIT_NAMES.get(round(float(mpu), 6), f"{mpu:g} m")
+    header = INSUNITS_NAMES.get(units.get("insunits"), f"code {units.get('insunits')}")
+    agree = [c["check"].replace("_", " ") for c in units.get("checks") or [] if c.get("unit") == unit]
+    if units.get("method") == "unit_check":
+        text = f"header {header}; {', '.join(agree) or 'the checks'} agree on {unit}"
+        return {"metres_per_unit": float(mpu), "method": "unit_check", "confidence": 0.95,
+                "evidence": B.evidence(file, "vector", 1.0, entity=f"$INSUNITS={units.get('insunits')}", text=text,
+                                       region_id=region_id, rule="unit_check")}
+    text = f"$INSUNITS {units.get('insunits')} ({header}): {mpu:g} m per unit" + \
+        (f"; {', '.join(agree)} agree" if agree else "")
+    return {"metres_per_unit": float(mpu), "method": "dxf_insunits", "confidence": 1.0,
+            "evidence": B.evidence(file, "vector", 1.0, entity=f"$INSUNITS={units.get('insunits')}", text=text,
+                                   region_id=region_id, rule="dxf_insunits")}
 
 
 def _region_record(rec: PageRecord, r: dict, units: dict, base_of: dict) -> PageRecord:
@@ -758,12 +788,7 @@ def _region_record(rec: PageRecord, r: dict, units: dict, base_of: dict) -> Page
     mpu = units.get("metres_per_unit")
     if rec.format in ("dxf", "dwg") and mpu:
         new.units_override = float(mpu)
-        how = units.get("method")
-        text = (f"unit check: {mpu:g} m per unit ({units.get('conflict')})" if how == "unit_check" else
-                f"$INSUNITS {units.get('insunits')}: {mpu:g} m per unit (unit check agrees)")
-        new.scale = {"metres_per_unit": float(mpu), "method": "dxf_insunits", "confidence": 1.0,
-                     "evidence": B.evidence(rec.file, "vector", 1.0, entity=f"$INSUNITS={units.get('insunits')}",
-                                            text=text)}
+        new.scale = unit_scale(rec.file, units, r["id"])
     elif rec.format == "pdf":
         new.scale = rec.scale
     return new

@@ -8,7 +8,8 @@ rectangles on layer ``DUVAR``), two labelled rooms, a door block (quarter arc + 
 
 Why: real02 needs LibreDWG; this sheet tests the same rules in a second, with known answers (``EXPECTED``).
 Options vary one thing at a time: the header unit, where the 40.00 mark points, the alternative's title, a plan
-without walls, the plans' positions; ``exterior=True`` widens the frame and adds a site plan and a south elevation.
+without walls, the plans' positions; ``exterior=True`` widens the frame and adds a site plan and a south elevation;
+``step=True`` draws an entrance step's edge outside the ground plan's walls.
 """
 from __future__ import annotations
 
@@ -166,7 +167,8 @@ def _section(msp, origin, mark40_at_bottom: bool) -> None:
 
 def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
                 alternative_title: str = PLANS["alternative"][1], walls: dict | None = None, titles: dict | None = None,
-                stray: bool = True, section: bool = True, frame: bool = True, exterior: bool = False) -> Path:
+                stray: bool = True, section: bool = True, frame: bool = True, exterior: bool = False,
+                step: bool = False) -> Path:
     """Write the sheet (DXF R2013) and return its path."""
     doc = ezdxf.new("R2013")
     doc.header["$INSUNITS"] = insunits
@@ -188,6 +190,11 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
     for key, (origin, title) in PLANS.items():
         t = alternative_title if key == "alternative" else (titles or {}).get(key, title)
         _plan(msp, origin, t, labels[key], walls=walls.get(key, True))
+    if step:
+        # An entrance step's edge 30 cm outside the ground plan's west wall (1.2 m long): the sheets outline starts
+        # there, the building frame at the outer wall faces.
+        gx, gy = PLANS["ground"][0]
+        msp.add_line((gx - 30.0, gy + 200.0), (gx - 30.0, gy + 320.0), dxfattribs={"layer": "0"})
     ax, ay = PLANS["attic"][0]
     _rect(msp, ax - 50.0, ay - 50.0, ax + W + 50.0, ay + D + 50.0, "CATI")          # roof outline
     _rect(msp, ax + 150.0, ay + 120.0, ax + W - 150.0, ay + D - 120.0, "CATI")       # break line

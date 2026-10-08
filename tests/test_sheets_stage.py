@@ -158,7 +158,9 @@ def test_mansard_from_the_attic_plan_lines(result):
 
 
 def test_report_and_debug_image_are_written(result, tmp_path_factory):
-    out = next(p for p in tmp_path_factory.getbasetemp().rglob("sheets_report.md"))
+    # The module fixture's output (basetemp/stage<n>/p_out): other tests of this worker write reports too.
+    out = next(p for p in tmp_path_factory.getbasetemp().rglob("sheets_report.md")
+               if p.parent.parent.name.startswith("stage"))
     text = out.read_text(encoding="utf-8")
     assert "unit_mismatch" in text and "| r4 |" in text and "mansard" in text
     debug = result.doc["documents"][0]["sheets"][0]["debug_image"]
@@ -228,7 +230,8 @@ def test_one_drawing_per_page_is_not_multi_region(tmp_path):
 
 
 def test_load_reads_what_run_wrote(result, tmp_path_factory):
-    out = next(p for p in tmp_path_factory.getbasetemp().rglob("sheets.json") if "stage" in str(p))
+    out = next(p for p in tmp_path_factory.getbasetemp().rglob("sheets.json")
+               if p.parent.parent.name.startswith("stage"))
     assert SH.load(out.parent) == json.loads(out.read_text(encoding="utf-8"))
 
 

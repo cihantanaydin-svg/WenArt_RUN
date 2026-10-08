@@ -2,7 +2,9 @@
 §3.2 items 6-7).
 
 What: ``mirror_twins(rooms, openings, furniture) -> {room id: twin id}`` finds, per level, the rooms that mirror an
-other room of the same level about one axis (the party wall of a semi-detached pair); ``same_as(alt_rooms,
+other room of the same level about one axis (the party wall of a semi-detached pair); ``twin_transforms`` gives the
+same pairs with the mirror as an affine ``[a, b, c, d, e, f]`` (first twin -> this room, ``rooms[].twin_transform``)
+and the Hausdorff distance it leaves (``twin_residual_m``, docs/milestone10.md §1.6b row 18); ``same_as(alt_rooms,
 base_rooms, openings, furniture) -> {alternative room id: base room id}`` finds the rooms of an alternative level
 that equal a base room.
 
@@ -86,8 +88,20 @@ def _equal(a: dict, b: dict, openings: list[dict], furniture: list[dict], transf
                   _piece_same, transform)
 
 
+def mirror_affine(axis: tuple[str, float]) -> list[float]:
+    """The mirror about a vertical (``x = c``) or horizontal (``y = c``) axis as ``[a, b, c, d, e, f]``."""
+    kind, c = axis
+    m = round(2.0 * c, 6) + 0.0
+    return [-1.0, 0.0, m, 0.0, 1.0, 0.0] if kind == "x" else [1.0, 0.0, 0.0, 0.0, -1.0, m]
+
+
 def mirror_twins(rooms: list[dict], openings: list[dict], furniture: list[dict]) -> dict[str, str]:
-    out: dict[str, str] = {}
+    return {second: info["twin_of"] for second, info in twin_transforms(rooms, openings, furniture).items()}
+
+
+def twin_transforms(rooms: list[dict], openings: list[dict], furniture: list[dict]) -> dict[str, dict]:
+    """``{second twin id: {twin_of, transform, residual_m}}``."""
+    out: dict[str, dict] = {}
     by_level: dict[str, list[dict]] = {}
     for r in rooms:
         if r.get("label_raw") and len(r.get("polygon") or []) >= 3:
@@ -127,7 +141,9 @@ def mirror_twins(rooms: list[dict], openings: list[dict], furniture: list[dict])
             ca, cb = _poly(a).centroid, _poly(b).centroid
             first, second = (a, b) if (ca.x if axis[0] == "x" else ca.y) < (cb.x if axis[0] == "x" else cb.y) \
                 else (b, a)
-            out[second["id"]] = first["id"]
+            residual = _mirror_poly(_poly(first), axis).hausdorff_distance(_poly(second))
+            out[second["id"]] = {"twin_of": first["id"], "transform": mirror_affine(axis),
+                                 "residual_m": round(float(residual), 4) + 0.0}
     return out
 
 
