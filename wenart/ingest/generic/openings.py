@@ -33,7 +33,14 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   hinged inside a wall band or within 0.08 m of a face (the end-point rule of ``pdf_extract._door_from_arc``: the leaf
   runs from the hinge to one arc end, the other arc end lies one radius from the hinge; a leaf drawn as a thin
   rectangle passes the classifier's leaf rule instead), radius 0.6-1.2 m, is a door cut into that wall; >= 3
-  parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window.
+  parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window, and so are >= 2 strictly
+  inside it (walls drawn as face lines: the faces are the wall primitive, not strokes here; docs/milestone10.md
+  §3.1 item 11).
+- Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
+  gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
+  that perpendicular walls split is one wall with openings only when every part holds a door or window symbol (or
+  is < 0.25 m); a part that is empty or unclassified makes all parts ``open`` (no wall across), and the free ends
+  cast their own end gaps.
 
 Everything is in page metres (y up). Walls at other angles than the plan's dominant pair pass through untouched.
 """
@@ -668,15 +675,28 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     gaps.append(Gap("run" if len(subs) == 1 else "split", p.axis, p.c, _run_t(run), a, b, [p, q],
                                     cls="open"))
                 continue
-            merge_after[ri].add(i)
+            trial = set(owned)
+            found = []
             for a, b in subs:
                 g = Gap("run" if len(subs) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q])
                 if g.width < GAP_MIN_M:
                     g.cls = "closed"
                 else:
-                    classify_gap(g, index, owned)
-                    _own(g, index, owned)
-                gaps.append(g)
+                    classify_gap(g, index, trial)
+                    _own(g, index, trial)
+                found.append(g)
+            if len(subs) > 1 and any(g.cls in ("empty", "unclassified") for g in found):
+                # Perpendicular walls cross the gap and one part holds no door or window symbol: the pieces are two
+                # walls on one line (real02: the bedroom walls of both dwellings, the corridor and a bathroom
+                # between them), never one wall across; free ends cast their own end gaps (b).
+                for g in found:
+                    g.found = {"split_reason": "a split part holds no door or window: the pieces are not one wall"}
+                    g.cls = "open"
+                gaps.extend(found)
+                continue
+            merge_after[ri].add(i)
+            owned.update(trial)
+            gaps.extend(found)
 
     # (b): end gaps from free ends.
     end_log: list[dict] = []
@@ -1099,6 +1119,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["leaf"] = g.found["leaf"]
     if g.cls == "unclassified":
         entry["strokes"] = [it.st.id for it in g.found.get("content", [])]
+    if g.found.get("split_reason"):
+        entry["note"] = g.found["split_reason"]
     if g.kind == "end":
         p, which = g.free
         entry["free_wall"] = piece_out.get(p.k)
@@ -1197,7 +1219,8 @@ def _shape_leaf(it: _S, arc: dict, index: StrokeIndex, owned: set):
 
 def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
                         existing: list[OpeningItem]) -> list[OpeningItem]:
-    """>= 3 distinct parallel stroke offsets inside a wall band, one strictly inside it, over >= 0.4 m."""
+    """>= 3 distinct parallel stroke offsets inside a wall band, one strictly inside it, or >= 2 strictly inside it,
+    over >= 0.4 m."""
     out = []
     taken = [(_rot(o.center, -theta), o.width) for o in existing]
     for p in pieces:
@@ -1225,8 +1248,10 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
         for u, v in zip(cuts, cuts[1:]):
             m = (u + v) / 2
             offs = {s[2] for s in segs if s[0] <= m <= s[1]}
-            inner = any(abs(o) < p.t / 2 - BAND_SLACK_M for o in offs)
-            if len(offs) >= 3 and inner:
+            inner = {o for o in offs if abs(o) < p.t / 2 - BAND_SLACK_M}
+            # Three offsets with one inside the band; or two inside it where the wall's faces are no strokes here
+            # (walls drawn as face lines: the faces are the wall primitive, real02's glass lines lie between them).
+            if (len(offs) >= 3 and inner) or len(inner) >= 2:
                 if intervals and abs(intervals[-1][1] - u) < 1e-6:
                     intervals[-1][1] = v
                 else:

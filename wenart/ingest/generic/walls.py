@@ -47,6 +47,7 @@ from typing import Optional
 import cv2
 import numpy as np
 from shapely.geometry import Point, Polygon
+from shapely.ops import unary_union
 from shapely.strtree import STRtree
 
 from wenart import building as B
@@ -85,6 +86,26 @@ THICKNESS_CLASS_M = 0.015
 ANGLED_DEG = 3.0
 SEGMENT_ANGLE_TOL_DEG = 1.0
 
+# Walls drawn as face lines (docs/milestone10.md §3.1 item 11, found on real02)
+PAIR_WIDTH_M = (0.05, 0.60)    # two parallel faces of one layer this far apart ...
+PAIR_OVERLAP_M = 0.4           # ... overlapping this much make a wall piece on their own (a primary pair)
+PAIR_MIN_M = 0.02              # shorter overlaps are noise; a secondary pair (< 0.4 m) must touch the wall network
+PAIR_ANGLE_DEG = 1.0
+PAIR_SAME_M = 0.001            # face pieces of one line closer than this are one face (duplicates, split lines)
+PAIR_TOUCH_M = 0.01
+PAIR_EXTEND_M = 0.6            # a face running on past its partner fills the band up to wall material this far
+PAIR_CONFIDENCE = 0.8
+CLOSED_ENDS_M = 0.001          # a polyline whose ends meet this close counts as closed
+COLUMN_SIDE_M = (0.15, 0.80)
+COLUMN_RECT_SHARE = 0.95       # a column outline fills >= 95 % of its minimum rectangle
+COLUMN_BAND_SHARE = 0.8        # ... and a wall piece ends on it across >= 80 % of its thickness
+LAYER_EXPLAINS = 0.70          # the wall layer must close around >= 70 % of the labelled rooms
+RAY_COUNT = 32                 # a label is closed in when >= 75 % of 32 rays from it hit wall within 30 m
+RAY_HIT_SHARE = 0.75
+RAY_REACH_M = 30.0
+NEVER_PLOTTED_LAYERS = ("DEFPOINTS",)
+FACE_KINDS = ("face_pair", "face_join", "column")
+
 
 @dataclass
 class WallPrim:
@@ -99,6 +120,9 @@ class WallPrim:
     mask: Optional[MaskLayer] = None            # raster: the page's own mask, page metres
     direction_deg: Optional[float] = None       # hatch direction
     step_m: Optional[float] = None              # hatch comb step
+    layer: Optional[str] = None                 # face pairs: the wall layer chosen by evidence
+    faces: list = field(default_factory=list)   # face pairs: the two face lines (snap targets), page metres
+    note: Optional[str] = None                  # face pairs: the layer choice (and the runner-up)
 
     def describe(self) -> dict:
         out = {"entity": self.entity, "kind": self.kind, "method": self.method, "confidence": self.confidence,
@@ -106,6 +130,8 @@ class WallPrim:
         if self.direction_deg is not None:
             out["direction_deg"] = round(self.direction_deg, 1)
             out["step_mm"] = round(self.step_m * 1000.0, 1)
+        if self.layer is not None:
+            out["layer"] = self.layer
         return out
 
 
@@ -186,6 +212,8 @@ def wall_primitives(page: GenericPage, units_to_m: float) -> list[WallPrim]:
     prims.extend(_hatch_groups(page, s, used))
     prims.extend(_dark_fills(page, s, used))
     prims.extend(_outline_walls(page, s, used))
+    if page.wall_mask is None and not page.source_kind.startswith("raster"):
+        prims = face_pair_walls(page, s, prims)[0]
     return prims
 
 
@@ -409,6 +437,491 @@ def _rect_sides(rect) -> tuple[float, float]:
 
 
 # --------------------------------------------------------------------------
+# 1b. Walls drawn as face lines (docs/milestone10.md §3.1 item 11)
+# --------------------------------------------------------------------------
+#
+# real02 draws every wall face as its own open line on one layer (``DBM_w_sld``: inner walls 10 cm, outer 15-20 cm),
+# the columns as closed 40 cm squares on another (``A-BA``), and no hatch, fill or closed wall outline: none of the
+# primitives above fires. Here the straight strokes of each layer are paired: two parallel face lines 0.05-0.60 m
+# apart with nothing of their layer between them are a wall piece where they overlap (>= 0.4 m alone; a shorter
+# piece only when it touches the wall network: the stub beside a door). A face that runs on past its partner fills
+# the band up to the next wall material within 0.6 m (corners, T-junctions, a face hidden behind a wardrobe), never
+# across a wider opening: door and window gaps stay gaps for ``openings``. Columns are small closed rectangles or
+# fills of any layer (0.15-0.80 m) on which a wall piece ends.
+#
+# The wall layer is chosen by evidence, never by its name: per layer the pieces are built and the room labels are
+# tested (32 rays from each label; a label is closed in when >= 75 % of them hit the layer's walls within 30 m and
+# it does not lie in wall material). The layer closing in the most labels wins when that is >= 70 % of the labelled
+# rooms; ties go to the larger share of long strokes that pair. Floor tiles fill their rooms (a label inside), stair
+# treads and furniture close in no room, so such layers never win. The primitive only runs when the primitives above
+# close in fewer than 70 % of the labels (real01 and the synthetic pages are unchanged), and a page without room
+# labels gives no evidence for a layer: no face pairs. The chosen layer, its numbers and the runner-up go into every
+# primitive's ``note`` (the wall evidence) and ``face_pair_choice`` (the report).
+
+@dataclass
+class _Line:
+    """One face line of a layer in a direction frame: offset across, extent [s0, s1] along, the stroke ids."""
+    off: float
+    s0: float
+    s1: float
+    ids: list[str]
+
+
+@dataclass
+class _Pair:
+    """Two face lines of one layer that bound a wall piece over [lo, hi] (direction frame, offsets o0 < o1)."""
+    layer: str
+    u: tuple[float, float]
+    n: tuple[float, float]
+    lo: float
+    hi: float
+    lines: tuple[_Line, _Line]
+
+    @property
+    def width(self) -> float:
+        return self.lines[1].off - self.lines[0].off
+
+    @property
+    def primary(self) -> bool:
+        return self.hi - self.lo >= PAIR_OVERLAP_M - 1e-9
+
+    def point(self, s: float, o: float) -> tuple[float, float]:
+        return (s * self.u[0] + o * self.n[0], s * self.u[1] + o * self.n[1])
+
+    def polygon(self, lo: Optional[float] = None, hi: Optional[float] = None) -> Polygon:
+        lo, hi = (self.lo if lo is None else lo), (self.hi if hi is None else hi)
+        o0, o1 = self.lines[0].off, self.lines[1].off
+        return Polygon([self.point(lo, o0), self.point(hi, o0), self.point(hi, o1), self.point(lo, o1)])
+
+    def ids(self) -> list[str]:
+        return sorted(set(self.lines[0].ids) | set(self.lines[1].ids))
+
+    def faces(self, lo: Optional[float] = None, hi: Optional[float] = None) -> list:
+        lo, hi = (self.lo if lo is None else lo), (self.hi if hi is None else hi)
+        return [(self.point(lo, ln.off), self.point(hi, ln.off)) for ln in self.lines]
+
+
+@dataclass
+class _Element:
+    """A piece of the face-pair wall network: a pair, a column or a join (a face running on to wall material)."""
+    kind: str                       # face_pair | column | face_join
+    polygon: Polygon
+    ids: list[str]
+    faces: list = field(default_factory=list)
+    left_out: float = 0.0           # columns: the area outside the wall bands (m²), not modelled
+
+
+def ends_meet(st: Stroke, units_to_m: float = 1.0) -> bool:
+    """A stroke drawn closed, or an open polyline whose ends meet within ``CLOSED_ENDS_M`` (real02's outlines)."""
+    if st.closed:
+        return True
+    return len(st.pts) > 3 and math.dist(st.pts[0], st.pts[-1]) * units_to_m <= CLOSED_ENDS_M
+
+
+def _layer_key(st: Stroke) -> str:
+    """DXF layer; PDF strokes have none, their drawing style stands in for it."""
+    if st.layer:
+        return st.layer
+    colour = tuple(round(c, 2) for c in st.colour) if st.colour is not None else None
+    return f"style {colour} {round(st.width, 3)}"
+
+
+def _straight_pieces(page: GenericPage, s: float) -> dict[str, list[tuple[str, tuple, tuple]]]:
+    """Straight pieces (page metres) of every unfilled, non-curved stroke per layer; layers that never plot are
+    left out. A polyline whose ends meet gets its closing piece."""
+    out: dict[str, list] = {}
+    for st in page.strokes:
+        if st.fill is not None or st.arc is not None or st.kind not in ("line", "polyline") or len(st.pts) < 2:
+            continue
+        if st.layer and st.layer.upper() in NEVER_PLOTTED_LAYERS:
+            continue
+        pts = _scale_pts(st.pts, s)
+        if (st.closed or ends_meet(st, s)) and len(pts) > 2:
+            pts = pts + [pts[0]]
+        key = _layer_key(st)
+        for a, b in zip(pts, pts[1:]):
+            if math.dist(a, b) >= PAIR_MIN_M:
+                out.setdefault(key, []).append((st.id, a, b))
+    return out
+
+
+def _direction_groups(pieces: list) -> list[tuple[tuple, tuple, list]]:
+    """Pieces grouped by direction (mod 180 deg, within ``PAIR_ANGLE_DEG``): ``[(u, n, pieces)]``."""
+    items = sorted(((_angle_mod180(a, b), sid, a, b) for sid, a, b in pieces), key=lambda it: it[0])
+    groups: list[list] = []
+    for it in items:
+        if groups and it[0] - groups[-1][-1][0] <= PAIR_ANGLE_DEG / 2.0:
+            groups[-1].append(it)
+        else:
+            groups.append([it])
+    if len(groups) > 1 and groups[0][0][0] + 180.0 - groups[-1][-1][0] <= PAIR_ANGLE_DEG / 2.0:
+        groups[0] = [(ang - 180.0, sid, a, b) for ang, sid, a, b in groups.pop()] + groups[0]
+    out = []
+    for g in groups:
+        total = sum(math.dist(a, b) for _, _, a, b in g)
+        ang = math.radians(sum(it[0] * math.dist(it[2], it[3]) for it in g) / total)
+        u = (math.cos(ang), math.sin(ang))
+        out.append((u, (-u[1], u[0]), [(sid, a, b) for _, sid, a, b in g]))
+    return out
+
+
+def _merge_lines(pieces: list, u: tuple, n: tuple) -> list[_Line]:
+    """Collinear pieces (offsets within 1 mm) that overlap or touch are one face line; sorted by offset."""
+    rows = []
+    for sid, a, b in pieces:
+        off = (a[0] + b[0]) / 2.0 * n[0] + (a[1] + b[1]) / 2.0 * n[1]
+        s0, s1 = sorted((a[0] * u[0] + a[1] * u[1], b[0] * u[0] + b[1] * u[1]))
+        rows.append((off, s0, s1, sid))
+    rows.sort()
+    lines: list[_Line] = []
+    band: list = []
+
+    def flush():
+        band.sort(key=lambda r: r[1])
+        off = sum(r[0] for r in band) / len(band)
+        cur = None
+        for r in band:
+            if cur is not None and r[1] <= cur.s1 + PAIR_SAME_M:
+                cur.s1 = max(cur.s1, r[2])
+                if r[3] not in cur.ids:
+                    cur.ids.append(r[3])
+            else:
+                cur = _Line(off, r[1], r[2], [r[3]])
+                lines.append(cur)
+
+    for r in rows:
+        if band and r[0] - band[0][0] > PAIR_SAME_M:
+            flush()
+            band = []
+        band.append(r)
+    if band:
+        flush()
+    lines.sort(key=lambda ln: (ln.off, ln.s0))
+    return lines
+
+
+def _subtract(lo: float, hi: float, spans: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    out = [(lo, hi)]
+    for a, b in sorted(spans):
+        nxt = []
+        for x, y in out:
+            if b <= x or a >= y:
+                nxt.append((x, y))
+                continue
+            if a > x:
+                nxt.append((x, a))
+            if b < y:
+                nxt.append((b, y))
+        out = nxt
+    return out
+
+
+def _pairs_of(lines: list[_Line], layer: str, u: tuple, n: tuple) -> list[_Pair]:
+    """Wall pieces between parallel face lines 0.05-0.60 m apart with no line of the layer between them."""
+    out = []
+    for i, a in enumerate(lines):
+        for j in range(i + 1, len(lines)):
+            b = lines[j]
+            d = b.off - a.off
+            if d > PAIR_WIDTH_M[1] + 1e-9:
+                break
+            if d < PAIR_WIDTH_M[0] - 1e-9:
+                continue
+            lo, hi = max(a.s0, b.s0), min(a.s1, b.s1)
+            if hi - lo < PAIR_MIN_M:
+                continue
+            between = [(c.s0, c.s1) for c in lines[i + 1:j]
+                       if a.off + PAIR_SAME_M < c.off < b.off - PAIR_SAME_M and c.s1 > lo and c.s0 < hi]
+            for x, y in _subtract(lo, hi, between):
+                if y - x >= PAIR_MIN_M:
+                    out.append(_Pair(layer, u, n, x, y, (a, b)))
+    return out
+
+
+def _column_candidates(page: GenericPage, s: float) -> list[tuple[Polygon, str]]:
+    """Small closed rectangles (or ends that meet) and fills of any layer, 0.15-0.80 m on both sides."""
+    out = []
+    for st in page.strokes:
+        if st.arc is not None or len(st.pts) < 3 or not (ends_meet(st, s) or st.fill is not None):
+            continue
+        if st.layer and st.layer.upper() in NEVER_PLOTTED_LAYERS:
+            continue
+        try:
+            poly = Polygon(_scale_pts(st.pts, s))
+        except ValueError:
+            continue
+        if not poly.is_valid or poly.area <= 0:
+            continue
+        rect = poly.minimum_rotated_rectangle
+        sides = _rect_sides(rect)
+        if not all(COLUMN_SIDE_M[0] - 1e-9 <= v <= COLUMN_SIDE_M[1] + 1e-9 for v in sides):
+            continue
+        if poly.area < COLUMN_RECT_SHARE * rect.area:
+            continue
+        out.append((poly, st.id))
+    return out
+
+
+def _ends_on(pair: _Pair, column: Polygon) -> bool:
+    """Whether a wall piece ends on a column: the piece's band, run on by ``PAIR_TOUCH_M`` past either end, enters
+    the column across >= 80 % of the piece's thickness (a nightstand beside a wall face does not)."""
+    for lo, hi in ((pair.lo - PAIR_TOUCH_M, pair.lo + PAIR_TOUCH_M), (pair.hi - PAIR_TOUCH_M, pair.hi + PAIR_TOUCH_M)):
+        cut = pair.polygon(lo, hi).intersection(column)
+        if cut.is_empty or cut.area <= 0:
+            continue
+        o = [p[0] * pair.n[0] + p[1] * pair.n[1] for p in cut.exterior.coords] if cut.geom_type == "Polygon" else []
+        if o and max(o) - min(o) >= COLUMN_BAND_SHARE * pair.width:
+            return True
+    return False
+
+
+def _runs_through(pair: _Pair, column: Polygon) -> bool:
+    """Whether a wall piece runs through a column: across its whole thickness and along the column's whole extent
+    (real02: the party wall through the columns of both dwellings)."""
+    cut = pair.polygon().intersection(column)
+    if cut.is_empty or cut.area <= 0:
+        return False
+    pts = _coords(cut) or []
+    col = list(column.exterior.coords)
+    s_cut = [q[0] * pair.u[0] + q[1] * pair.u[1] for q in pts]
+    o_cut = [q[0] * pair.n[0] + q[1] * pair.n[1] for q in pts]
+    s_col = [q[0] * pair.u[0] + q[1] * pair.u[1] for q in col]
+    return (max(o_cut) - min(o_cut) >= COLUMN_BAND_SHARE * pair.width and
+            max(s_cut) - min(s_cut) >= COLUMN_BAND_SHARE * (max(s_col) - min(s_col)))
+
+
+def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_Element]:
+    """The wall network of one layer: primary pairs, the columns they end on, secondary pairs touching the network
+    and the joins where a face of a primary pair runs on to wall material (see the section comment).
+
+    A column joins the network only inside the bands of the wall pieces that end on it, run on through it (the
+    corner, T or cross it makes), or that run through it; what stands out of the walls into a room (real02: 40 cm columns in 20 cm outer
+    walls) is no wall piece of its own, or ``openings`` would chain the column stubs along a wall into a second,
+    thicker wall across the windows. A column ``_Element`` keeps that left-out area in ``left_out``."""
+    prim_pairs = [p for p in pairs if p.primary]
+    elems = [_Element("face_pair", p.polygon(), p.ids(), p.faces()) for p in prim_pairs]
+    cols = [(poly, sid) for poly, sid in columns
+            if any(_ends_on(p, poly) or _runs_through(p, poly) for p in prim_pairs)]
+    # A short piece shorter than it is thick is a wall end's cap line paired with the face of the wall it meets
+    # (real02: the cap of a stub beside a door and the corridor wall's face), not a wall piece.
+    rest = [p for p in pairs if not p.primary and p.hi - p.lo >= p.width - 1e-9]
+    while rest and elems:
+        tree = STRtree([e.polygon for e in elems] + [c for c, _ in cols])
+        keep = [p for p in rest if len(tree.query(p.polygon().buffer(PAIR_TOUCH_M, join_style=2),
+                                                  predicate="intersects"))]
+        if not keep:
+            break
+        elems.extend(_Element("face_pair", p.polygon(), p.ids(), p.faces()) for p in keep)
+        rest = [p for p in rest if p not in keep]
+    accepted = prim_pairs + [p for p in pairs if not p.primary and p.hi - p.lo >= p.width - 1e-9 and p not in rest]
+    # Joins first, against the whole columns (a face hidden behind a wardrobe runs on to a column's side) ...
+    work = elems + [_Element("column", poly, [sid]) for poly, sid in cols]
+    seen: set = set()
+    joins: list[tuple[_Element, _Pair]] = []
+    for _ in range(2):
+        new = []
+        tree = STRtree([e.polygon for e in work])
+        for p in prim_pairs:
+            for line in p.lines:
+                for side in (-1, 1):
+                    j = _join(p, line, side, work, tree)
+                    key = tuple(round(v, 4) for v in j[0].polygon.bounds) if j is not None else None
+                    if j is not None and key not in seen:
+                        seen.add(key)
+                        new.append(j)
+        if not new:
+            break
+        joins.extend(new)
+        work.extend(e for e, _ in new)
+    elems.extend(e for e, _ in joins)
+    # ... then each column cut to the bands of the pieces and joins that end on it.
+    ending = accepted + [jp for _, jp in joins]
+    for poly, sid in cols:
+        reach = math.dist(poly.bounds[:2], poly.bounds[2:])
+        bands = [p.polygon(p.lo - reach, p.hi + reach) for p in ending if _ends_on(p, poly)]
+        bands += [p.polygon() for p in accepted if _runs_through(p, poly)]
+        part = poly.intersection(unary_union(bands)) if bands else Polygon()
+        left = poly.area - part.area
+        for g in (getattr(part, "geoms", [part]) if not part.is_empty else []):
+            if g.geom_type == "Polygon" and g.area > 1e-8:
+                elems.append(_Element("column", g, [sid], [], left_out=left))
+                left = 0.0
+    return elems
+
+
+def _join(p: _Pair, line: _Line, side: int, elems: list[_Element], tree) -> Optional[tuple[_Element, _Pair]]:
+    """The band of ``p`` where ``line`` runs on past the pair end on ``side`` (-1: below lo, +1: above hi): up to the
+    first wall material inside the band within ``PAIR_EXTEND_M``, or, when no material is in the band, the whole
+    run-on when the face ends within ``PAIR_EXTEND_M`` and the run-on touches other wall material (a corner, a
+    column). Returns the join and its band as a pair (columns are cut to the bands that end on them)."""
+    start = p.lo if side < 0 else p.hi
+    run = (start - line.s0) if side < 0 else (line.s1 - start)
+    if run < PAIR_MIN_M:
+        return None
+    reach = min(run, PAIR_EXTEND_M)
+    a, b = (start - reach, start) if side < 0 else (start, start + reach)
+    probe = p.polygon(a, b)
+    own = p.polygon()
+    near = None
+    touched = False
+    for k in tree.query(probe.buffer(PAIR_TOUCH_M, join_style=2), predicate="intersects"):
+        e = elems[int(k)].polygon
+        if e.equals(own):
+            continue
+        cut = e.intersection(probe)
+        if not cut.is_empty and cut.area > 1e-8:
+            s_vals = [q[0] * p.u[0] + q[1] * p.u[1] for q in _coords(cut)]
+            first = max(s_vals) if side < 0 else min(s_vals)
+            if near is None or (first > near if side < 0 else first < near):
+                near = first
+        else:
+            touched = True
+    if near is not None:
+        a, b = (near, start) if side < 0 else (start, near)
+        if b - a < PAIR_MIN_M / 2.0:
+            return None
+    elif not (touched and run <= PAIR_EXTEND_M + 1e-9):
+        return None
+    return (_Element("face_join", p.polygon(a, b), list(line.ids), [f for f in p.faces(a, b)]),
+            _Pair(p.layer, p.u, p.n, a, b, p.lines))
+
+
+def _coords(geom) -> list:
+    if geom.geom_type == "Polygon":
+        return list(geom.exterior.coords)
+    return [q for g in getattr(geom, "geoms", []) for q in _coords(g)]
+
+
+def _labels_m(page: GenericPage, s: float) -> list:
+    """Indoor room-label anchors (page metres) by the generic label blocks."""
+    from wenart.ingest.generic import labels as LB
+    from wenart.ingest.generic.model import TextRun
+
+    texts = [TextRun(id=t.id, text=t.text, box=tuple(v * s for v in t.box), height=t.height * s,
+                     rotation_deg=t.rotation_deg, source=t.source) for t in page.texts]
+    return [b for b in LB.merge_label_blocks(texts) if not b.exterior]
+
+
+def closed_in(anchors: list[tuple[float, float]], geoms: list) -> list[bool]:
+    """Per anchor: not inside wall material and >= ``RAY_HIT_SHARE`` of ``RAY_COUNT`` rays hit ``geoms`` within
+    ``RAY_REACH_M`` (door gaps let a few rays through, an open-ended layer most)."""
+    if not geoms or not anchors:
+        return [False] * len(anchors)
+    from shapely.geometry import LineString
+
+    tree = STRtree(geoms)
+    out = []
+    for x, y in anchors:
+        pt = Point(x, y)
+        inside = [k for k in tree.query(pt, predicate="intersects") if geoms[int(k)].geom_type == "Polygon"]
+        if inside:
+            out.append(False)
+            continue
+        rays = []
+        for k in range(RAY_COUNT):
+            t = 2.0 * math.pi * (k + 0.5) / RAY_COUNT
+            rays.append(LineString([(x, y), (x + RAY_REACH_M * math.cos(t), y + RAY_REACH_M * math.sin(t))]))
+        hit_ray, _ = tree.query(rays, predicate="intersects")
+        out.append(len(set(hit_ray.tolist())) >= RAY_HIT_SHARE * RAY_COUNT)
+    return out
+
+
+def _prim_geoms(prims: list[WallPrim]) -> list:
+    from shapely.geometry import LineString
+
+    out = []
+    for p in prims:
+        for poly in p.polygons:
+            g = Polygon(poly)
+            if g.is_valid and g.area > 0:
+                out.append(g)
+        out.extend(LineString([a, b]) for a, b in p.lines if a != b)
+    return out
+
+
+def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim]) -> tuple[list[WallPrim], dict]:
+    """``(prims, choice)``: the page's primitives with the face-pair walls of the layer chosen by evidence added
+    (the other primitives kept only where they touch them), or unchanged; ``choice`` says why (see the section
+    comment above)."""
+    s = float(units_to_m)
+    labels = _labels_m(page, s)
+    choice: dict = {"used": False, "labels": len(labels), "layers": []}
+    if not labels:
+        choice["reason"] = "no room labels: no evidence to choose a wall layer"
+        return prims, choice
+    anchors = [b.anchor for b in labels]
+    need = LAYER_EXPLAINS * len(labels)
+    existing = sum(closed_in(anchors, _prim_geoms(prims))) if prims else 0
+    choice["existing_closed_in"] = existing
+    if existing >= need:
+        choice["reason"] = f"the other wall primitives close in {existing} of {len(labels)} labels"
+        return prims, choice
+    columns = _column_candidates(page, s)
+    rows = []
+    for layer, pieces in _straight_pieces(page, s).items():
+        pairs: list[_Pair] = []
+        long_lines = paired = 0
+        for u, n, group in _direction_groups(pieces):
+            lines = _merge_lines(group, u, n)
+            found = _pairs_of(lines, layer, u, n)
+            pairs.extend(found)
+            in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
+            for ln in lines:
+                if ln.s1 - ln.s0 >= PAIR_OVERLAP_M:
+                    long_lines += 1
+                    paired += id(ln) in in_pairs
+        if not any(p.primary for p in pairs):
+            continue
+        elems = _network(pairs, columns)
+        hits = closed_in(anchors, [e.polygon for e in elems])
+        widths = sorted({round(p.width, 3) for p in pairs if p.primary})
+        rows.append({"layer": layer, "closed_in": sum(hits), "pair_share": round(paired / max(long_lines, 1), 3),
+                     "pairs": sum(1 for p in pairs if p.primary), "widths_m": widths[:8],
+                     "_elems": elems})
+    rows.sort(key=lambda r: (-r["closed_in"], -r["pair_share"], -r["pairs"], r["layer"]))
+    choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
+    if not rows or rows[0]["closed_in"] < need:
+        best = rows[0] if rows else None
+        choice["reason"] = (f"no layer's face pairs close in >= {LAYER_EXPLAINS:.0%} of the {len(labels)} labels"
+                            + (f" (best: '{best['layer']}' {best['closed_in']})" if best else ""))
+        return prims, choice
+    win = rows[0]
+    runner = rows[1] if len(rows) > 1 else None
+    note = (f"walls drawn as face lines: layer '{win['layer']}' chosen by evidence (closes in {win['closed_in']} of "
+            f"{len(labels)} labelled rooms, {win['pair_share']:.0%} of its long strokes pair, widths "
+            f"{', '.join(f'{w:.2f}' for w in win['widths_m'])} m); runner-up "
+            + (f"'{runner['layer']}' ({runner['closed_in']} of {len(labels)})" if runner else "none"))
+    cols = [e for e in win["_elems"] if e.kind == "column"]
+    if cols:
+        left = sum(e.left_out for e in cols)
+        note += (f"; {len({e.ids[0] for e in cols})} columns join the walls ({left:.2f} m² of them standing out of "
+                 f"the wall bands not modelled)")
+    choice.update(used=True, layer=win["layer"], runner_up=runner["layer"] if runner else None, note=note,
+                  reason="face pairs close in the labelled rooms")
+    face = []
+    for k, e in enumerate(win["_elems"]):
+        entity = "+".join(e.ids) if e.kind == "face_pair" else (e.ids[0] if e.kind == "column" else
+                                                              f"join:{'+'.join(e.ids)}")
+        ring = list(e.polygon.exterior.coords)
+        # Every edge of the network is a snap target (a T-junction's end face lies on a column edge, not a line).
+        edges = [(ring[i], ring[i + 1]) for i in range(len(ring) - 1)]
+        face.append(WallPrim(kind=e.kind, entity=entity, stroke_ids=list(e.ids), method="vector",
+                             confidence=PAIR_CONFIDENCE, polygons=[ring[:-1]], layer=win["layer"], faces=edges,
+                             note=note))
+    # The other primitives closed in too few rooms: only those drawn on the chosen layer (or a wall-layer hatch) stay;
+    # the rest (furniture outlines, the column squares the outline rule took) go back to the ordinary strokes.
+    layer_of = {st.id: _layer_key(st) for st in page.strokes}
+    kept = [p for p in prims if p.kind == "dxf_hatch" or
+            (p.stroke_ids and all(layer_of.get(i) == win["layer"] for i in p.stroke_ids))]
+    if len(kept) < len(prims):
+        choice["released"] = len(prims) - len(kept)
+        for p in face:
+            p.note += f"; {len(prims) - len(kept)} other wall primitives off that layer left out"
+        choice["note"] = face[0].note if face else note
+    return kept + face, choice
+
+
+# --------------------------------------------------------------------------
 # 2. Mask
 # --------------------------------------------------------------------------
 
@@ -560,7 +1073,13 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
         index = np.zeros(m.shape, np.int32)
     index = np.asarray(index)
     grid = _Grid(mask.origin[0], mask.origin[1], mask.px, m.shape[0], m.shape[1])
-    segments = _outline_segments(outline_strokes_m)
+    # Face-pair walls are their own outline: their face lines are snap targets too (the core passes only the strokes
+    # that are no primitive).
+    segments = _outline_segments(outline_strokes_m) + [f for p in prims for f in p.faces if math.dist(*f) >= 0.02]
+    face_notes = sorted({p.note for p in prims if p.kind in FACE_KINDS and p.note})
+    if face_notes:
+        info["face_pairs"] = face_notes[0]
+        info["warnings"].append(face_notes[0])
     theta = _dominant_angle(segments, m, grid)
     info["dominant_deg"] = round(theta, 2)
     rot_m, rot_index, rot_grid, to_page = (m, index, grid, None)
@@ -599,6 +1118,12 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
         _round_thickness(r)
     info["faces_snapped"] = snapped
     info["faces_unsnapped"] = unsnapped
+    face_ids = {k for k, p in enumerate(prims, start=1) if p.kind in FACE_KINDS}
+    if face_ids:
+        moved = _close_face_joints([r for r in rects if r.prims & face_ids], JOINT_PX * rot_grid.px)
+        if moved:
+            info["notes"].append(f"{moved} face-pair wall ends moved onto the perpendicular wall face they stopped "
+                                 f"short of by <= {JOINT_PX:g} mask pixels")
     if not segments and rects:
         info["notes"].append("no outline strokes: wall faces from the eroded mask")
 
@@ -1035,6 +1560,38 @@ def _covered(spans: list[tuple[float, float]]) -> float:
     return total
 
 
+JOINT_PX = 1.5
+
+
+def _close_face_joints(rects: list[_Rect], tol: float) -> int:
+    """Face-pair walls: an end face that stops short of a perpendicular wall's face by at most ``tol`` (the mask's
+    pixel grid: the junction cell's boundary is a pixel line, the wall faces are snapped to the drawn face lines)
+    is moved onto that face, so the room faces close. Returns the number of moved ends."""
+    moved = 0
+    for r in rects:
+        for hi_end in (False, True):
+            best = None
+            for q in rects:
+                if q is r or q.axis == r.axis:
+                    continue
+                if r.axis == "v":
+                    overlap = min(r.x1, q.x1) - max(r.x0, q.x0)
+                    gap = (q.y0 - r.y1) if hi_end else (r.y0 - q.y1)
+                else:
+                    overlap = min(r.y1, q.y1) - max(r.y0, q.y0)
+                    gap = (q.x0 - r.x1) if hi_end else (r.x0 - q.x1)
+                if overlap >= 0.5 * r.thickness and 1e-9 < gap <= tol and (best is None or gap < best):
+                    best = gap
+            if best is None:
+                continue
+            if r.axis == "v":
+                r.y1, r.y0 = (r.y1 + best, r.y0) if hi_end else (r.y1, r.y0 - best)
+            else:
+                r.x1, r.x0 = (r.x1 + best, r.x0) if hi_end else (r.x1, r.x0 - best)
+            moved += 1
+    return moved
+
+
 def _round_thickness(r: _Rect) -> None:
     """Thickness to the nearest 5 mm about the centre line."""
     t = r.thickness
@@ -1060,10 +1617,16 @@ def _wall_item(r: _Rect, prims: list[WallPrim], theta: float, file_rel: str, pag
         start, end = _rot(start, theta), _rot(end, theta)
         corners = [_rot(p, theta) for p in corners]
     used = [prims[k - 1] for k in sorted(r.prims) if 0 < k <= len(prims)]
+    layer = note = None
     if used:
         method = "raster" if all(p.method == "raster" for p in used) else "vector"
         confidence = min(p.confidence for p in used)
-        entity = ",".join(p.entity for p in used)
+        if all(p.kind in FACE_KINDS for p in used):
+            # Face-pair walls name their strokes (each once) and the layer chosen by evidence.
+            entity = ",".join(sorted({i for p in used for i in p.stroke_ids}))
+            layer, note = used[0].layer, used[0].note
+        else:
+            entity = ",".join(p.entity for p in used)
     else:
         method, confidence, entity = "vector", 0.5, "mask"
     xs = [p[0] for p in corners]
@@ -1073,7 +1636,10 @@ def _wall_item(r: _Rect, prims: list[WallPrim], theta: float, file_rel: str, pag
         box = [v / units_to_m for v in box]
     box = [round(v, 3) for v in box]
     pixel_box = box if (method == "raster" and units_to_m) else None
-    ev = B.evidence(file_rel, method, round(confidence, 3), page=page_no, entity=entity, pixel_box=pixel_box)
+    ev = B.evidence(file_rel, method, round(confidence, 3), page=page_no, entity=entity, pixel_box=pixel_box,
+                    layer=layer)
+    if note:
+        ev["note"] = note
     start = (round(start[0], 4), round(start[1], 4))
     end = (round(end[0], 4), round(end[1], 4))
     return WallItem(start=start, end=end, thickness=round(r.thickness, 4), box=box, entity=entity, evidence=ev)
