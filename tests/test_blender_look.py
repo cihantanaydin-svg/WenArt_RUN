@@ -217,6 +217,11 @@ def test_whitepoint_keeps_the_mood_residual():
     assert R.wb_residual("night")[0] == 0.5
     residual, note = R.wb_residual(None)
     assert residual == 0.0 and "residual" in note
+    # review #37: every mood of the vocabulary (Milestone 10's from wenart/style/finishes.py) keeps its residual
+    from wenart.style.vocabulary import LIGHTING
+    for mood, entry in LIGHTING.items():
+        assert R.wb_residual(mood) == (pytest.approx(float(entry["wb_residual"])), None), mood
+    assert R.wb_residual("interior evening")[0] == 0.5 and R.wb_residual("Blue Hour")[0] == 0.5
 
 
 def test_window_clip_fraction():

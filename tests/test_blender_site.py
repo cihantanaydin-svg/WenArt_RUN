@@ -198,3 +198,40 @@ def test_area_looks_drawn_first_then_the_resolved_ones():
     assert S.area_look({"kind": "parking", "material": None}, looks)["source"] == "brief"
     own = S.area_look({"kind": "paving", "id": "sp_1", "material": "gravel", "colour": "sand"}, looks)
     assert (own["material"], own["colour"], own["source"]) == ("gravel", "sand", "documents")
+
+
+def _inset_basement(inset: float = 0.4) -> dict:
+    """The example with the basement's east wall moved ``inset`` m in (real02's basement is 0.40 m narrower than
+    its ground floor), a low window and a door on it."""
+    b = copy.deepcopy(EXAMPLE)
+    x = 10.125 - inset
+    for w in b["walls"]:
+        if w["level_id"] in ("L-1", "L-1b"):
+            for k in ("start", "end"):
+                if abs(w[k][0] - 10.125) < 1e-6:
+                    w[k][0] = x
+    win = copy.deepcopy(next(o for o in b["openings"] if o["id"] == "win_L-1_002"))
+    door = copy.deepcopy(next(o for o in b["openings"] if o["id"] == "d_L-1_001"))
+    b["openings"] += [dict(win, id="win_t", wall_id="w_L-1_002", center=[x, 2.0]),
+                      dict(door, id="d_t", wall_id="w_L-1_002", center=[x, 6.0])]
+    return b
+
+
+def test_a_set_back_basement_wall_gets_its_light_well_and_door_terrain():
+    # review #27: the outward side of a basement wall is judged on its own level's outline, not the ground hole
+    from wenart.blender import build as B
+
+    prep = B.prepare(_inset_basement(0.4), "base")
+    site = prep["site"]
+    assert G.bbox(prep["outlines"]["L-1"])[2] == pytest.approx(9.85) and G.bbox(prep["ground_outline"])[2] == 10.25
+    assert site["terrain"]["z"]["+x"] == -3.0 and any(c["opening_ids"] == ["d_t"] for c in site["terrain"]["changes"])
+    assert any("L-1: its outline" in w and "gap between its walls and the terrain is open" in w
+               for w in site["warnings"])
+    plain = _inset_basement(0.0)
+    plain["openings"] = [o for o in plain["openings"] if o["id"] != "d_t"]
+    wells = B.prepare(plain, "base")["site"]["wells"]
+    assert [w["opening_id"] for w in wells] == ["win_t"]                     # the window without the door's terrain
+    flat = _inset_basement(0.4)
+    flat["openings"] = [o for o in flat["openings"] if o["id"] != "d_t"]
+    wells = B.prepare(flat, "base")["site"]["wells"]
+    assert [w["opening_id"] for w in wells] == ["win_t"] and wells[0]["outward"] == pytest.approx([1.0, 0.0])

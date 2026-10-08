@@ -162,6 +162,29 @@ def test_trim_wall_overlaps_keeps_the_union_and_removes_overlaps(building):
             assert a.intersection(b).area < 1e-6
 
 
+@pytest.mark.parametrize("chamfer", [True, False])
+def test_wall_outline_is_exact_for_walls_at_any_angle(chamfer):
+    # review #24: one 45-degree wall on an L-shaped level no longer makes the outline a convex hull (the notch
+    # stays open: ground, slab and roof follow the walls)
+    pts = [(1, 0), (10, 0), (10, 5), (5, 5), (5, 10), (0, 10), (0, 1)] if chamfer else \
+        [(0, 0), (10, 0), (10, 5), (5, 5), (5, 10), (0, 10)]
+    walls = [{"id": f"w{i}", "start": list(pts[i]), "end": list(pts[(i + 1) % len(pts)]), "thickness": 0.3}
+             for i in range(len(pts))]
+    outline, method = geom2d.wall_outline(walls)
+    assert method == "wall_union" and G.polygon_signed_area(outline) > 0
+    assert any(G.distance(p, (5.15, 5.15)) < 1e-6 for p in outline)                # the notch corner
+    assert not G.point_in_polygon((7.0, 7.0), outline)
+    caps = []
+    for w in walls:                                     # the quads wall_outline unites (square end caps)
+        length = G.distance(w["start"], w["end"])
+        s = G.point_at_distance(w["start"], w["end"], -0.15)
+        e = G.point_at_distance(w["start"], w["end"], length + 0.15)
+        caps.append(Polygon(G.centerline_to_rectangle(s, e, 0.3)))
+    exact = Polygon(unary_union(caps).exterior)
+    assert G.polygon_area(outline) == pytest.approx(exact.area, abs=1e-4)
+    assert Polygon(outline).symmetric_difference(exact).area < 1e-4
+
+
 def test_opening_defaults_are_recorded_as_assumed():
     level = {"elevation": 3.0, "ceiling_height": 2.7}
     b, t, a = shell.opening_vertical({"type": "door", "width": 0.9, "height": None, "sill_height": None}, level, True)

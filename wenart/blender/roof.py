@@ -39,6 +39,13 @@ direction in degrees counter-clockwise from +X (downhill -Y = 270), not a compas
 openings reach over the outer walls to the outline, and their ``parapet_wall_ids`` (else the outer walls under
 the opening) end at the parapet height there (``parapet_cuts``). Without any roof evidence the pipeline writes
 ``roof: null`` and the build makes an assumed flat roof over the top level (``flat_roof``).
+
+The drawn section (``roof.profile``, review #22): when it peaks inside, the ridge runs across the cut through
+its peak (``section_profile``; assumed ``ridge_direction``: one section), and a mansard or gambrel takes its tiers
+from it (``_profile_tiers``: the drawn slopes, break and ridge heights; a mansard's two uncut sides take the lower
+pitch and run up to the ridge, assumed ``mansard_ends``); the plan's break line, pitches and eaves are
+cross-checks (warnings), and every derived roof is compared with its section (``profile_check``). Without
+ridge line or section the long-axis ridge of a gable or gambrel is assumed (``ridge_direction``).
 """
 from __future__ import annotations
 
@@ -134,6 +141,8 @@ def _region_polygons(planes: Sequence[Plane], outline: Sequence[Sequence[float]]
             if j == i or not poly:
                 continue
             poly = geom2d.clip_half_plane(poly, pi[0] - pj[0], pi[1] - pj[1], pi[2] - pj[2] - (1e-9 if j < i else 0.0))
+        # clipping through a corner can repeat it: drop repeated points (closing one included)
+        poly = [p for k, p in enumerate(poly) if G.distance(p, poly[k - 1]) > 1e-6] if len(poly) > 1 else poly
         poly = geom2d._drop_collinear(poly, 1e-7) if len(poly) > 3 else poly
         out.append(poly if len(poly) >= 3 and G.polygon_area(poly) > MIN_PIECE_AREA else [])
     return out
@@ -217,10 +226,35 @@ def over_level(roof: dict, building: dict) -> Optional[dict]:
     return found
 
 
+def section_profile(roof: dict, rect: dict) -> Optional[dict]:
+    """The drawn section of the roof (``roof.profile``, §1.6b row 13: ``cut_axis`` and the top surface as ``[s,
+    z]`` points, ``s`` the building coordinate along the cut) read for its ridge and tiers (pure), or None
+    when it gives no single ridge: fewer than 3 points, a cut not along an axis of the outline rectangle, the
+    highest point at an end, or a flat top. Returns ``{"cut": unit vector of the cut, "ridge_dir": the
+    ridge direction (across the cut), "eaves": [(s, z) of both ends], "peak": (s, z), "sides": [[(s, z), ...]
+    from each eaves point to the peak], "cut_at"}``."""
+    prof = roof.get("profile") if isinstance(roof.get("profile"), dict) else None
+    if not prof or prof.get("cut_axis") not in ("x", "y"):
+        return None
+    pts = sorted((float(p[0]), float(p[1])) for p in prof.get("points") or []
+                 if isinstance(p, (list, tuple)) and len(p) >= 2)
+    if len(pts) < 3:
+        return None
+    cut = (1.0, 0.0) if prof["cut_axis"] == "x" else (0.0, 1.0)
+    if max(abs(rect["u"][0] * cut[0] + rect["u"][1] * cut[1]), abs(rect["v"][0] * cut[0] + rect["v"][1] * cut[1])) < 0.999:
+        return None
+    k = max(range(len(pts)), key=lambda i: pts[i][1])
+    if k in (0, len(pts) - 1) or any(abs(p[1] - pts[k][1]) < 1e-3 for i, p in enumerate(pts) if i != k):
+        return None
+    return {"cut": cut, "ridge_dir": (-cut[1], cut[0]), "eaves": [pts[0], pts[-1]], "peak": pts[k],
+            "sides": [pts[:k + 1], pts[k:][::-1]], "cut_at": prof.get("cut_at")}
+
+
 def _ridge_axis(rect: dict, roof: dict) -> tuple[tuple[float, float], tuple[float, float], float, float,
                                                   Optional[float], str]:
     """``(r, across, half_along, half_across, ridge_half_length, source)`` of a rectangle: the ridge
-    direction from the longest drawn ridge line (snapped to the nearer rectangle axis), else the long axis."""
+    direction from the longest drawn ridge line (snapped to the nearer rectangle axis), else across the cut of
+    the drawn section when it peaks inside (``section_profile``: source ``profile``), else the long axis."""
     u, v = rect["u"], rect["v"]
     a, b = rect["half"]
     lines = [ln for ln in roof.get("ridge_lines") or [] if isinstance(ln, (list, tuple)) and len(ln) == 2]
@@ -233,7 +267,71 @@ def _ridge_axis(rect: dict, roof: dict) -> tuple[tuple[float, float], tuple[floa
                 return u, v, a, b, length / 2.0, "ridge_lines"
             return v, (-v[1], v[0]), b, a, length / 2.0, "ridge_lines"
         return u, v, a, b, 0.0, "ridge_lines"
+    prof = section_profile(roof, rect)
+    if prof is not None:
+        d = prof["ridge_dir"]
+        if abs(d[0] * u[0] + d[1] * u[1]) >= abs(d[0] * v[0] + d[1] * v[1]):
+            return u, v, a, b, None, "profile"
+        return v, (-v[1], v[0]), b, a, None, "profile"
     return u, v, a, b, None, "long axis"
+
+
+def _profile_tiers(prof: dict, outline: Sequence[Sequence[float]], rtype: str, eaves: Optional[float],
+                   ) -> tuple[list[Plane], list[str], dict]:
+    """The mansard or gambrel tiers of a drawn section (``section_profile``; pure): on both sides of the cut the
+    lower plane from the eaves point to the break point and the upper plane from the break point to the peak,
+    their slopes as drawn; the upper planes meet in the ridge across the cut at the peak. A mansard also gets
+    the two lower planes on the sides the section does not cut (``eaves`` at the outline edges, the mean drawn
+    lower slope; assumed): with no drawn upper slopes there, they run up to the ridge. Returns ``(planes, tier
+    names, info)`` with ``info`` = ``{"breaks": [(s, z) per side], "lower_deg", "upper_deg", "notes"}``."""
+    cut, ridge_dir = prof["cut"], prof["ridge_dir"]
+    s_p, z_p = prof["peak"]
+    planes, names, notes, breaks, lower_deg, upper_deg = [], [], [], [], [], []
+    for side, pts in zip((1.0, -1.0), prof["sides"]):
+        (s_e, z_e), (s_b, z_b) = pts[0], pts[1] if len(pts) > 2 else pts[-1]
+        if len(pts) > 3:
+            notes.append(f"the section has {len(pts) - 2} slope breaks on one side: the lower slope to the first, the "
+                         f"upper slope from the last")
+        inward = (cut[0] * side, cut[1] * side)
+        base = (cut[0] * s_e, cut[1] * s_e)
+        tan_low = (z_b - z_e) / abs(s_b - s_e) if abs(s_b - s_e) > 1e-6 else 0.0
+        planes.append(_ramp(base, inward, z_e, tan_low))
+        names.append("lower")
+        lower_deg.append(math.degrees(math.atan(tan_low)))
+        if len(pts) > 2:
+            s_u, z_u = pts[-2]
+            tan_up = (z_p - z_u) / abs(s_p - s_u) if abs(s_p - s_u) > 1e-6 else 0.0
+            planes.append(_ramp((cut[0] * s_u, cut[1] * s_u), inward, z_u, tan_up))
+            names.append("upper")
+            upper_deg.append(math.degrees(math.atan(tan_up)))
+        breaks.append((s_b, z_b))
+    if rtype == "mansard":
+        t_side = math.tan(math.radians(sum(lower_deg) / len(lower_deg)))
+        z0 = eaves if eaves is not None else sum(e[1] for e in prof["eaves"]) / 2.0
+        proj = [x * ridge_dir[0] + y * ridge_dir[1] for x, y in outline]
+        for side, w in ((1.0, min(proj)), (-1.0, max(proj))):
+            planes.append(_ramp((ridge_dir[0] * w, ridge_dir[1] * w), (ridge_dir[0] * side, ridge_dir[1] * side),
+                                z0, t_side))
+            names.append("lower")
+    return planes, names, {"breaks": breaks, "lower_deg": lower_deg, "upper_deg": upper_deg, "notes": notes}
+
+
+def profile_check(planes: Sequence[Plane], prof: dict, outline: Sequence[Sequence[float]],
+                  tol: float = 0.05) -> list[str]:
+    """Where the roof surface of ``planes`` differs from the drawn section by more than ``tol`` (pure): the
+    surface along the cut line (``cut_at``, else the middle of the outline across the cut) at every profile
+    point. Returns warnings (empty when the roof matches its section)."""
+    cut, ridge_dir = prof["cut"], prof["ridge_dir"]
+    proj = [x * ridge_dir[0] + y * ridge_dir[1] for x, y in outline]
+    at = float(prof["cut_at"]) if prof.get("cut_at") is not None else (min(proj) + max(proj)) / 2.0
+    out = []
+    for s, z in prof["sides"][0] + prof["sides"][1][::-1][1:]:
+        x, y = cut[0] * s + ridge_dir[0] * at, cut[1] * s + ridge_dir[1] * at
+        got = surface_z(planes, x, y)
+        if abs(got - z) > tol:
+            out.append(f"roof vs the drawn section at s {s:.2f} m: {got:.3f} m built, {z:.3f} m drawn "
+                       f"({(got - z) * 100:+.0f} cm)")
+    return out
 
 
 def _rect_planes(centre, r, across, half_along: float, half_across: float, z0: float, tan_side: float,
@@ -272,10 +370,6 @@ def _named(planes: Sequence[Plane], names: Sequence[str]) -> list[str]:
     return [f"rp_{side_name(slope_aspect(p)[1])}" + (f"_{n}" if n else "") for p, n in zip(planes, names)]
 
 
-def _offset_outline(rect: dict, grow: float) -> list[tuple[float, float]]:
-    return geom2d.rectangle_corners(rect, grow)
-
-
 def derive(roof: dict, building: dict) -> dict:
     """The derivation behind ``planes_for``: ``{"planes": [...], "equations": [(a, b, c)], "outline",
     "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes"}``."""
@@ -302,8 +396,9 @@ def derive(roof: dict, building: dict) -> dict:
             return {"planes": [], "equations": [], "outline": [], "eaves_z": None, "ridge_z": None, "pitches": [],
                     "assumed": assumed, "warnings": ["no roof outline and no walls under the roof: no roof"],
                     "notes": notes}
-        rect = geom2d.oriented_rectangle(wall_line)
-        outline = _offset_outline(rect, overhang) if rtype != "flat" or overhang > 0 else geom2d.ccw(wall_line)
+        # The walls' own outline grown by the overhang (review #26: an L-shaped level keeps its notch open; the
+        # planes are derived on the enclosing rectangle and cut to it, listed as outline_rectangle below).
+        outline = geom2d.ccw(geom2d.offset_polygon(wall_line, -overhang) if overhang > 0 else wall_line)
         assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
                         "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
                                   f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"})
@@ -351,7 +446,7 @@ def derive(roof: dict, building: dict) -> dict:
     t1 = math.tan(math.radians(p1))
     if eaves is None:
         if knee is not None:
-            eaves = floor_z + knee - (0.0 if overhang_used else overhang) * t1
+            eaves = floor_z + knee - overhang * t1      # the eaves edge is `overhang` outside the wall face
             notes.append(f"eaves {eaves:.3f} m from the knee wall {knee:.2f} m at the outer wall face and the "
                          f"overhang {overhang:.2f} m")
             if overhang_assumed and not overhang_used:
@@ -362,7 +457,7 @@ def derive(roof: dict, building: dict) -> dict:
             notes.append(f"eaves {eaves:.3f} m from the ridge height and the pitch")
         else:
             knee_a = DEFAULTS["knee_wall"]
-            eaves = floor_z + knee_a - (0.0 if overhang_used else overhang) * t1
+            eaves = floor_z + knee_a - overhang * t1
             assumed.append({"field": "eaves_height", "value": round(eaves, 4),
                             "reason": f"no eaves height, knee wall or ridge height drawn: an assumed knee wall of "
                                       f"{knee_a} m at the outer wall face"})
@@ -378,7 +473,13 @@ def derive(roof: dict, building: dict) -> dict:
                                         ridge_half, "")
         notes += more
         if ridge_source == "long axis" and rtype != "hip":
-            notes.append("ridge along the long side of the outline (no ridge line drawn)")
+            assumed.append({"field": "ridge_direction", "value": "along the long side",
+                            "reason": "no ridge line and no section peak drawn: the ridge along the long side of the "
+                                      "outline"})
+        elif ridge_source == "profile" and rtype != "hip":
+            assumed.append({"field": "ridge_direction", "value": "across the section cut",
+                            "reason": f"read from one section profile (cut along {roof['profile']['cut_axis']}): the "
+                                      f"ridge runs across the cut"})
         top = eaves + half_across * t1
     elif rtype == "shed":
         lines = [ln for ln in roof.get("ridge_lines") or [] if isinstance(ln, (list, tuple)) and len(ln) == 2]
@@ -393,9 +494,51 @@ def derive(roof: dict, building: dict) -> dict:
         low = (cx - across[0] * half_across * side, cy - across[1] * half_across * side)
         eqs, tiers = [_ramp(low, (across[0] * side, across[1] * side), eaves, t1)], [""]
         top = eaves + 2.0 * half_across * t1
+    elif rtype in ("mansard", "gambrel") and section_profile(roof, rect) is not None:
+        # The drawn section gives the tiers along its cut (slopes, break and ridge heights, the ridge across the
+        # cut at its peak: real02's party wall); the plan's break line is a cross-check (§1.6b row 13).
+        prof = section_profile(roof, rect)
+        eaves_drawn = sum(z for _s, z in prof["eaves"]) / 2.0
+        if any(abs(z - eaves) > 0.05 for _s, z in prof["eaves"]):
+            warnings.append(f"eaves height {eaves:.3f} m vs the section's "
+                            f"{', '.join(f'{z:.3f}' for _s, z in prof['eaves'])} m: the section is kept")
+        eaves = eaves_drawn
+        eqs, tiers, info = _profile_tiers(prof, outline, rtype, eaves)
+        notes += info["notes"]
+        top = prof["peak"][1]
+        notes.append(f"tiers from the drawn section ({rtype}): lower "
+                     f"{', '.join(f'{d:.1f}' for d in info['lower_deg'])} degrees, upper "
+                     f"{', '.join(f'{d:.1f}' for d in info['upper_deg'])} degrees, break at z "
+                     f"{', '.join(f'{z:.3f}' for _s, z in info['breaks'])} m, ridge {top:.3f} m across the cut at "
+                     f"s {prof['peak'][0]:.3f} m")
+        assumed.append({"field": "ridge_direction", "value": "across the section cut",
+                        "reason": f"read from one section profile (cut along {roof['profile']['cut_axis']}): the ridge "
+                                  f"runs across the cut through its highest point"})
+        if rtype == "mansard":
+            assumed.append({"field": "mansard_ends", "value": round(sum(info["lower_deg"]) / len(info["lower_deg"]), 2),
+                            "reason": "the section does not cut the two other sides: their lower slopes take the "
+                                      "section's lower pitch from the eaves height and, with no upper slope drawn "
+                                      "there, run up to the ridge"})
+        for drawn, got, what in ((pitches[0] if pitches else None, info["lower_deg"], "lower"),
+                                 (pitches[1] if len(pitches) > 1 else None, info["upper_deg"], "upper")):
+            if drawn is not None and got and max(abs(g - drawn) for g in got) > 0.5:
+                warnings.append(f"{what} pitch {drawn:.1f} degrees vs the section's "
+                                f"{', '.join(f'{g:.1f}' for g in got)}: the section is kept")
+        brk = geom2d.ccw(roof.get("break_line") or [])
+        if len(brk) >= 3:
+            proj = [x * prof["cut"][0] + y * prof["cut"][1] for x, y in brk]
+            for (s_b, _z), s_d in zip(info["breaks"], (min(proj), max(proj))):
+                if abs(s_b - s_d) > 0.05:
+                    warnings.append(f"break line: the section breaks at s {s_b:.2f} m, the plan's break line at "
+                                    f"{s_d:.2f} m ({(s_b - s_d) * 100:+.0f} cm): the section is kept")
+        pitches = pitches or [info["lower_deg"][0], *info["upper_deg"][:1]]
     elif rtype in ("mansard", "gambrel"):
         brk = geom2d.ccw(roof.get("break_line") or [])
         p2 = pitches[1] if len(pitches) > 1 else None
+        if rtype == "gambrel" and ridge_source == "long axis":
+            assumed.append({"field": "ridge_direction", "value": "along the long side",
+                            "reason": "no ridge line and no section peak drawn: the gambrel's ridge along the long "
+                                      "side of the outline"})
         if len(brk) < 3:
             inset = min(half_across, half_along) * 0.3
             brk = geom2d.rectangle_corners(rect, -inset)
@@ -447,6 +590,9 @@ def derive(roof: dict, building: dict) -> dict:
                 "assumed": assumed, "warnings": [f"unknown roof type {rtype!r}: no roof"], "notes": notes}
 
     planes = planes_from_equations(eqs, outline, _named(eqs, tiers))
+    prof = section_profile(roof, rect)
+    if prof is not None:                     # the derived roof against its drawn section (conflicts listed)
+        warnings += profile_check(eqs, prof, outline)
     if ridge is not None and abs(top - ridge) > 0.05:
         warnings.append(f"derived ridge {top:.3f} m vs the drawn ridge height {ridge:.3f} m "
                         f"({(top - ridge) * 100:+.0f} cm): the pitches are kept")
