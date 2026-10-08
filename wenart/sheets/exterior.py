@@ -281,6 +281,13 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
     for e in region.ents:
         if e.kind == "HATCH" and mpu:
             b = e.box
+            band = zr(b[1], b[3])
+            if band is not None and band[1] <= 0.01:
+                # Below the ground floor's level: terrain or a foundation, not a facade (listed).
+                if warnings is not None:
+                    warnings.append(f"elevation {region.id}: hatch {e.id} lies below the ground floor's level "
+                                    f"(z {band[0]:.2f} to {band[1]:.2f} m): terrain or foundation, not a facade")
+                continue
             label = _label_in(region, b) or _label_by_leader(region, b, segs)
             entry = {"region": region.id, "side": side, "z_range": zr(b[1], b[3]), "colour": None,
                      "material": label[0] if label else "hatched", "source": "hatch",
@@ -300,7 +307,9 @@ def facade_of(region, zmap: Optional[dict] = None, north_deg: Optional[float] = 
         return round((y - region.geometry_box[1]) * mpu, 3) + 0.0
 
     if mpu:
-        ground = zmap["y_ref"] if zmap is not None and zmap["method"] == "derived" else region.geometry_box[1]
+        # The drawing y of the ground floor's level (building z 0) when the z mapping is known: a terrain hatch or a
+        # foundation drawn below the ground line never moves it.
+        ground = zmap["y_ref"] - zmap["z_ref"] / mpu if zmap is not None else region.geometry_box[1]
         # The facade's left end (seen from outside, as drawn): the widest closed outline standing on the ground (the
         # wall outline; the roof's eaves reach further out but start above the ground).
         g_tol = 0.05 / mpu

@@ -119,7 +119,7 @@ def _site(msp, origin) -> None:
     msp.add_text("VAZİYET PLANI", height=50, dxfattribs={"insert": (ox, oy - 150.0), "layer": "0"})
 
 
-def _elevation(msp, origin, mark: str = "±0.00") -> None:
+def _elevation(msp, origin, mark: str = "±0.00", earth: bool = False) -> None:
     """South elevation (cm): ground line at y 315 with a ±0.00 mark, the facade 10 x 6.30 m, a stone plinth (solid
     hatch, 1 m, labelled), a render label, three 1.20 x 1.50 m windows (sill 1.00 m) and a 0.90 x 2.10 m door."""
     ox, oy = origin
@@ -133,6 +133,9 @@ def _elevation(msp, origin, mark: str = "±0.00") -> None:
         _rect(msp, ox + x, oy + y, ox + x + 120.0, oy + y + 150.0, "CEPHE")
     _rect(msp, ox + 450.0, oy + 315.0, ox + 540.0, oy + 525.0, "CEPHE")
     _mark(line, msp, ox, oy, 1150.0, 315.0, mark)
+    if earth:
+        # An earth hatch 60 cm deep under the ground line (terrain, not facade).
+        _rect(msp, ox - 100.0, oy + 255.0, ox + 1100.0, oy + 315.0, "TARAMA", hatch=True)
     msp.add_text("GÜNEY GÖRÜNÜŞÜ", height=50, dxfattribs={"insert": (ox, oy + 165.0), "layer": "0"})
 
 
@@ -186,7 +189,7 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
                 alternative_title: str = PLANS["alternative"][1], walls: dict | None = None, titles: dict | None = None,
                 stray: bool = True, section: bool = True, frame: bool = True, exterior: bool = False,
                 step: bool = False, detail: bool = False, roof: str = "gable",
-                break_line: bool | None = None, elevation_mark: str = "±0.00") -> Path:
+                break_line: bool | None = None, elevation_mark: str = "±0.00", earth: bool = False) -> Path:
     """Write the sheet (DXF R2013) and return its path. ``roof``: the section's roof, ``gable`` (one slope per side)
     or ``mansard`` (two per side); ``break_line``: the attic plan draws a closed line inside the roof outline (default:
     with a mansard)."""
@@ -227,7 +230,7 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
         _section(msp, SECTION, mark40_at_bottom, roof)
     if exterior:
         _site(msp, SITE)
-        _elevation(msp, ELEVATION, elevation_mark)
+        _elevation(msp, ELEVATION, elevation_mark, earth)
     if stray:
         msp.add_line((100000.0, 100000.0), (100050.0, 100000.0), dxfattribs={"layer": "0"})
     doc.saveas(path)

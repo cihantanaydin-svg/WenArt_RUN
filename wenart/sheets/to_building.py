@@ -449,6 +449,11 @@ def facade_block(sheets: dict, walls: list[dict], warn, levels: Optional[list[di
             warn(f"facade: {entry['material']} ({entry['source']} in {entry.get('region')}) on an elevation without "
                  f"a side: not written")
             continue
+        if entry["material"] == "hatched":
+            # An unlabelled hatch names no material: listed (unverified), not a face.
+            warn(f"facade: an unlabelled hatch on the {entry['side']} side ({entry.get('region')}, z "
+                 f"{entry.get('z_range')}) names no material: not written (unverified)")
+            continue
         faces.append({"side": entry["side"], "wall_id": None, "level_id": _level_of_band(entry.get("z_range"), levels),
                       "z_range": entry.get("z_range"), "material": entry["material"], "colour": entry.get("colour"),
                       "source": "elevation", "evidence": list(entry.get("evidence") or [])})

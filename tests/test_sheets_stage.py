@@ -388,3 +388,15 @@ def test_an_absolute_elevation_mark_without_a_section_datum(tmp_path):
     seen = ex["openings_seen"][0]
     assert sorted(p["sill"] for p in seen["positions_m"] if p["kind"] == "window")[0] == pytest.approx(1.0)
     assert any("no section datum" in w and "+43.00" in w for w in res.doc["warnings"])
+
+
+def test_an_earth_hatch_under_the_elevation_is_no_facade(tmp_path):
+    # Review finding 7: the ground comes from the z mapping, not from the lowest thing drawn: the door stays a door
+    # and the earth hatch below the ground line is no facade entry (listed).
+    res = _run(tmp_path, exterior=True, earth=True)
+    ex = res.doc["exterior"]
+    seen = ex["openings_seen"][0]
+    assert (seen["windows"], seen["doors"]) == (3, 1)
+    assert all((f["z_range"] or [0.0, 1.0])[1] > 0.0 for f in ex["facade"])
+    assert [f["material"] for f in ex["facade"] if f["source"] == "hatch"] == ["stone_cladding"]
+    assert any("below the ground floor's level" in w for w in res.doc["warnings"])
