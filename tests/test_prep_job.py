@@ -2262,8 +2262,6 @@ def test_results_are_copied_after_every_step_once_the_deadline_has_passed(tmp_pa
     assert not (w2.results / "library").exists() and not (w3.results / "library").exists()
 
 
-@pytest.mark.xfail(reason="track D adds --types to both surveys (lead message of 8 Oct 2026); the prep passes it as "
-                          "soon as PREP_SURVEY_TYPES is set, so L1b must not start before this passes", strict=False)
 def test_the_real_surveys_take_the_types_flag_the_prep_passes(tmp_path):
     from wenart.assets import abo as ABO
     from wenart.assets import objaverse as OV
