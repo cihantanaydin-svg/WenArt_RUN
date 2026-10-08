@@ -86,7 +86,7 @@ TERMINAL = ("failed", "needs_review", "incomplete")
 # run that made the outputs, so it can be reused again (a third run of an unchanged project). A "pending"
 # pipeline is reused as "pending" (its questions still need pipeline_final; §9.1).
 REUSABLE = ("ok", "warning", "reused", "pending")
-SKIP_REASONS = ("private only", "no style photos", "polish off", "no empty room", "smoke profile",
+SKIP_REASONS = ("private only", "no style photos", "polish off", "no empty or completable room", "smoke profile",
                 "gate not validated", "not in this phase", "no questions",
                 "no decor questions")                     # Milestone 9: no room for the AI decor to ask about
 PROJECT_STATES = ("ok", "needs_review", "failed", "incomplete")

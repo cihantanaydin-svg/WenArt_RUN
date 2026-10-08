@@ -36,13 +36,15 @@ style:
   # Milestone 10 (docs/milestone10.md §1.3, §4.8): exterior slots used when neither the brief's exterior: block
   # nor the style text names them; every use is listed as assumed. The user left real02's exterior look open
   # (8 Oct 2026), so these apply there too.
+  # A slug never carries a colour: {material, colour} (docs/milestone10.md §1.4); colour "walls" = the interior wall
+  # colour of the style; "interior" = the interior slot's look, seen from outside.
   exterior_fallback:
-    facade: render_wall_colour        # smooth render in the interior wall colour of the style
-    roof: concrete_tiles_anthracite
-    window_frame: interior            # the interior window frame material, seen from outside
-    door: interior                    # the entrance door takes the interior door look
-    paving: paving_concrete_grey
-    garden: grass
+    facade: {material: render, colour: walls}
+    roof: {material: concrete_tiles, colour: anthracite}
+    window_frame: interior
+    door: interior
+    paving: {material: paving, colour: grey}
+    garden: {material: grass, colour: null}
 
 # Brief keys and their defaults; wenart.brief.load_brief merges brief.yaml
 # over this block and lists every key it took from here as assumed.

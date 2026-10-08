@@ -6,6 +6,24 @@
   "created_utc": "2026-10-08T12:00:00Z",
   "pipeline_commit": "abc1234",
   "unit_system": "metric",
+  "datum": {
+   "value": 0.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:KOT0",
+     "method": "vector",
+     "confidence": 1.0,
+     "text": "±0.00",
+     "region_id": "r6",
+     "rule": "level_mark"
+    }
+   ]
+  },
   "brief": {
    "furnished_rooms": "complete",
    "variants": "all",
@@ -45,24 +63,26 @@
      "variant": "base",
      "scale": {
       "metres_per_unit": 0.01,
-      "method": "dxf_insunits",
-      "confidence": 1.0,
+      "method": "unit_check",
+      "confidence": 0.95,
       "evidence": {
        "file": "ornek_bina.dxf",
        "page": 1,
        "layer": null,
-       "entity": "$INSUNITS=5",
+       "entity": "$INSUNITS=4",
        "method": "vector",
-       "confidence": 1.0
+       "confidence": 1.0,
+       "text": "header mm; area labels, level marks and door widths agree on cm",
+       "rule": "unit_check"
       }
      },
      "transform_to_building": [
       0.01,
       0.0,
-      -0.5,
+      -0.375,
       0.0,
       0.01,
-      -30.5
+      -30.375
      ],
      "confidence": 0.99,
      "evidence": [
@@ -97,24 +117,26 @@
      "variant": "Açık mutfak",
      "scale": {
       "metres_per_unit": 0.01,
-      "method": "dxf_insunits",
-      "confidence": 1.0,
+      "method": "unit_check",
+      "confidence": 0.95,
       "evidence": {
        "file": "ornek_bina.dxf",
        "page": 1,
        "layer": null,
-       "entity": "$INSUNITS=5",
+       "entity": "$INSUNITS=4",
        "method": "vector",
-       "confidence": 1.0
+       "confidence": 1.0,
+       "text": "header mm; area labels, level marks and door widths agree on cm",
+       "rule": "unit_check"
       }
      },
      "transform_to_building": [
       0.01,
       0.0,
-      -13.5,
+      -13.375,
       0.0,
       0.01,
-      -30.5
+      -30.375
      ],
      "confidence": 0.99,
      "evidence": [
@@ -149,24 +171,26 @@
      "variant": "base",
      "scale": {
       "metres_per_unit": 0.01,
-      "method": "dxf_insunits",
-      "confidence": 1.0,
+      "method": "unit_check",
+      "confidence": 0.95,
       "evidence": {
        "file": "ornek_bina.dxf",
        "page": 1,
        "layer": null,
-       "entity": "$INSUNITS=5",
+       "entity": "$INSUNITS=4",
        "method": "vector",
-       "confidence": 1.0
+       "confidence": 1.0,
+       "text": "header mm; area labels, level marks and door widths agree on cm",
+       "rule": "unit_check"
       }
      },
      "transform_to_building": [
       0.01,
       0.0,
-      -0.5,
+      -0.375,
       0.0,
       0.01,
-      -18.5
+      -18.375
      ],
      "confidence": 0.99,
      "evidence": [
@@ -201,24 +225,26 @@
      "variant": "base",
      "scale": {
       "metres_per_unit": 0.01,
-      "method": "dxf_insunits",
-      "confidence": 1.0,
+      "method": "unit_check",
+      "confidence": 0.95,
       "evidence": {
        "file": "ornek_bina.dxf",
        "page": 1,
        "layer": null,
-       "entity": "$INSUNITS=5",
+       "entity": "$INSUNITS=4",
        "method": "vector",
-       "confidence": 1.0
+       "confidence": 1.0,
+       "text": "header mm; area labels, level marks and door widths agree on cm",
+       "rule": "unit_check"
       }
      },
      "transform_to_building": [
       0.01,
       0.0,
-      -13.5,
+      -13.375,
       0.0,
       0.01,
-      -18.5
+      -18.375
      ],
      "confidence": 0.99,
      "evidence": [
@@ -243,7 +269,12 @@
      "level_label_raw": null,
      "classifier": "title",
      "region_id": "r6",
-     "region_box": null,
+     "region_box": [
+      0,
+      600,
+      1300,
+      1500
+     ],
      "region_class": "section",
      "variant": null,
      "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
@@ -261,7 +292,12 @@
      "level_label_raw": null,
      "classifier": "title",
      "region_id": "r7",
-     "region_box": null,
+     "region_box": [
+      1400,
+      600,
+      2600,
+      1300
+     ],
      "region_class": "elevation",
      "variant": null,
      "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
@@ -279,7 +315,12 @@
      "level_label_raw": null,
      "classifier": "title",
      "region_id": "r8",
-     "region_box": null,
+     "region_box": [
+      2700,
+      600,
+      3700,
+      1300
+     ],
      "region_class": "elevation",
      "variant": null,
      "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
@@ -297,7 +338,12 @@
      "level_label_raw": null,
      "classifier": "title",
      "region_id": "r9",
-     "region_box": null,
+     "region_box": [
+      2600,
+      1800,
+      3900,
+      3900
+     ],
      "region_class": "site_plan",
      "variant": null,
      "skip_reason": "read by the sheets stage (heights / exterior), not a plan",
@@ -481,12 +527,12 @@
    "id": "w_L-1_001",
    "level_id": "L-1",
    "start": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "end": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -508,12 +554,12 @@
    "id": "w_L-1_002",
    "level_id": "L-1",
    "start": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "end": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -535,12 +581,12 @@
    "id": "w_L-1_003",
    "level_id": "L-1",
    "start": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "end": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -562,12 +608,12 @@
    "id": "w_L-1_004",
    "level_id": "L-1",
    "start": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "end": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -589,12 +635,12 @@
    "id": "w_L-1_005",
    "level_id": "L-1",
    "start": [
-    6.0,
-    0.0
+    6.125,
+    0.125
    ],
    "end": [
-    6.0,
-    8.0
+    6.125,
+    8.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -616,12 +662,12 @@
    "id": "w_L-1_006",
    "level_id": "L-1",
    "start": [
-    6.0,
-    4.0
+    6.125,
+    4.125
    ],
    "end": [
-    10.0,
-    4.0
+    10.125,
+    4.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -643,12 +689,12 @@
    "id": "w_L-1b_001",
    "level_id": "L-1b",
    "start": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "end": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -670,12 +716,12 @@
    "id": "w_L-1b_002",
    "level_id": "L-1b",
    "start": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "end": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -697,12 +743,12 @@
    "id": "w_L-1b_003",
    "level_id": "L-1b",
    "start": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "end": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -724,12 +770,12 @@
    "id": "w_L-1b_004",
    "level_id": "L-1b",
    "start": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "end": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -751,12 +797,12 @@
    "id": "w_L-1b_005",
    "level_id": "L-1b",
    "start": [
-    6.0,
-    4.0
+    6.125,
+    4.125
    ],
    "end": [
-    6.0,
-    8.0
+    6.125,
+    8.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -778,12 +824,12 @@
    "id": "w_L-1b_006",
    "level_id": "L-1b",
    "start": [
-    6.0,
-    4.0
+    6.125,
+    4.125
    ],
    "end": [
-    10.0,
-    4.0
+    10.125,
+    4.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -805,12 +851,12 @@
    "id": "w_L0_001",
    "level_id": "L0",
    "start": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "end": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -832,12 +878,12 @@
    "id": "w_L0_002",
    "level_id": "L0",
    "start": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "end": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -859,12 +905,12 @@
    "id": "w_L0_003",
    "level_id": "L0",
    "start": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "end": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -886,12 +932,12 @@
    "id": "w_L0_004",
    "level_id": "L0",
    "start": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "end": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -913,12 +959,12 @@
    "id": "w_L0_005",
    "level_id": "L0",
    "start": [
-    6.0,
-    0.0
+    6.125,
+    0.125
    ],
    "end": [
-    6.0,
-    8.0
+    6.125,
+    8.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -940,12 +986,12 @@
    "id": "w_L0_006",
    "level_id": "L0",
    "start": [
-    6.0,
-    4.0
+    6.125,
+    4.125
    ],
    "end": [
-    10.0,
-    4.0
+    10.125,
+    4.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -967,12 +1013,12 @@
    "id": "w_L1_001",
    "level_id": "L1",
    "start": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "end": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -994,12 +1040,12 @@
    "id": "w_L1_002",
    "level_id": "L1",
    "start": [
-    10.0,
-    0.0
+    10.125,
+    0.125
    ],
    "end": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -1021,12 +1067,12 @@
    "id": "w_L1_003",
    "level_id": "L1",
    "start": [
-    10.0,
-    8.0
+    10.125,
+    8.125
    ],
    "end": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -1048,12 +1094,12 @@
    "id": "w_L1_004",
    "level_id": "L1",
    "start": [
-    0.0,
-    8.0
+    0.125,
+    8.125
    ],
    "end": [
-    0.0,
-    0.0
+    0.125,
+    0.125
    ],
    "thickness": 0.25,
    "height": null,
@@ -1075,12 +1121,12 @@
    "id": "w_L1_005",
    "level_id": "L1",
    "start": [
-    6.0,
-    0.0
+    6.125,
+    0.125
    ],
    "end": [
-    6.0,
-    8.0
+    6.125,
+    8.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -1102,12 +1148,12 @@
    "id": "w_L1_006",
    "level_id": "L1",
    "start": [
-    6.0,
-    4.0
+    6.125,
+    4.125
    ],
    "end": [
-    10.0,
-    4.0
+    10.125,
+    4.125
    ],
    "thickness": 0.1,
    "height": null,
@@ -1133,14 +1179,16 @@
    "level_id": "L-1",
    "wall_id": "w_L-1_001",
    "center": [
-    2.0,
-    0.0
+    2.125,
+    0.125
    ],
    "width": 1.0,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L-1_salon",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1161,14 +1209,16 @@
    "level_id": "L-1",
    "wall_id": "w_L-1_001",
    "center": [
-    4.5,
-    0.0
+    4.625,
+    0.125
    ],
    "width": 2.0,
    "height": 1.2,
    "sill_height": 0.9,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1189,14 +1239,16 @@
    "level_id": "L-1",
    "wall_id": "w_L-1_001",
    "center": [
-    8.0,
-    0.0
+    8.125,
+    0.125
    ],
    "width": 1.2,
    "height": 1.2,
    "sill_height": 0.9,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1217,14 +1269,16 @@
    "level_id": "L-1",
    "wall_id": "w_L-1_005",
    "center": [
-    6.0,
-    6.0
+    6.125,
+    6.125
    ],
    "width": 0.9,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
-   "swing_side": "r_L-1_salon",
+   "swing_side": null,
+   "operation": "sliding",
+   "operation_source": "block_name",
    "status": "verified",
    "evidence": [
     {
@@ -1245,14 +1299,16 @@
    "level_id": "L-1",
    "wall_id": "w_L-1_006",
    "center": [
-    7.0,
-    4.0
+    7.125,
+    4.125
    ],
    "width": 0.8,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L-1_mutfak",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1273,14 +1329,16 @@
    "level_id": "L-1b",
    "wall_id": "w_L-1b_001",
    "center": [
-    2.0,
-    0.0
+    2.125,
+    0.125
    ],
    "width": 1.0,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L-1b_salon_acik_mutfak",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1301,14 +1359,16 @@
    "level_id": "L-1b",
    "wall_id": "w_L-1b_001",
    "center": [
-    4.5,
-    0.0
+    4.625,
+    0.125
    ],
    "width": 2.0,
    "height": 1.2,
    "sill_height": 0.9,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1329,14 +1389,16 @@
    "level_id": "L-1b",
    "wall_id": "w_L-1b_001",
    "center": [
-    8.0,
-    0.0
+    8.125,
+    0.125
    ],
    "width": 1.2,
    "height": 1.2,
    "sill_height": 0.9,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1357,14 +1419,16 @@
    "level_id": "L-1b",
    "wall_id": "w_L-1b_005",
    "center": [
-    6.0,
-    6.0
+    6.125,
+    6.125
    ],
    "width": 0.9,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L-1b_salon_acik_mutfak",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1385,14 +1449,16 @@
    "level_id": "L-1b",
    "wall_id": "w_L-1b_006",
    "center": [
-    7.0,
-    4.0
+    7.125,
+    4.125
    ],
    "width": 0.8,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L-1b_salon_acik_mutfak",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1413,14 +1479,16 @@
    "level_id": "L0",
    "wall_id": "w_L0_003",
    "center": [
-    7.0,
-    8.0
+    7.125,
+    8.125
    ],
    "width": 1.0,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L0_hol",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1441,14 +1509,16 @@
    "level_id": "L0",
    "wall_id": "w_L0_001",
    "center": [
-    3.0,
-    0.0
+    3.125,
+    0.125
    ],
    "width": 1.6,
    "height": 1.4,
    "sill_height": 0.9,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1469,14 +1539,16 @@
    "level_id": "L0",
    "wall_id": "w_L0_004",
    "center": [
-    0.0,
-    4.0
+    0.125,
+    4.125
    ],
    "width": 1.2,
    "height": 1.2,
    "sill_height": 0.9,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1497,14 +1569,16 @@
    "level_id": "L0",
    "wall_id": "w_L0_001",
    "center": [
-    8.0,
-    0.0
+    8.125,
+    0.125
    ],
    "width": 0.6,
    "height": 0.6,
    "sill_height": 1.5,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1525,14 +1599,16 @@
    "level_id": "L0",
    "wall_id": "w_L0_005",
    "center": [
-    6.0,
-    6.0
+    6.125,
+    6.125
    ],
    "width": 0.9,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L0_yatak_odasi",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1553,14 +1629,16 @@
    "level_id": "L0",
    "wall_id": "w_L0_006",
    "center": [
-    7.0,
-    4.0
+    7.125,
+    4.125
    ],
    "width": 0.8,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L0_banyo",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1581,14 +1659,16 @@
    "level_id": "L1",
    "wall_id": "w_L1_005",
    "center": [
-    6.0,
-    6.0
+    6.125,
+    6.125
    ],
    "width": 0.9,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L1_oyun_odasi",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1609,14 +1689,16 @@
    "level_id": "L1",
    "wall_id": "w_L1_006",
    "center": [
-    8.0,
-    4.0
+    8.125,
+    4.125
    ],
    "width": 0.9,
    "height": 2.1,
    "sill_height": 0.0,
    "assumed": [],
    "swing_side": "r_L1_teras",
+   "operation": "swing",
+   "operation_source": "geometry",
    "status": "verified",
    "evidence": [
     {
@@ -1637,14 +1719,16 @@
    "level_id": "L1",
    "wall_id": "w_L1_004",
    "center": [
-    0.0,
-    4.0
+    0.125,
+    4.125
    ],
    "width": 1.2,
    "height": 1.0,
    "sill_height": 0.6,
    "assumed": [],
    "swing_side": null,
+   "operation": null,
+   "operation_source": null,
    "status": "verified",
    "evidence": [
     {
@@ -1669,20 +1753,20 @@
    "room_type": "living",
    "polygon": [
     [
-     0.125,
-     0.125
+     0.25,
+     0.25
     ],
     [
-     5.95,
-     0.125
+     6.075,
+     0.25
     ],
     [
-     5.95,
-     7.875
+     6.075,
+     8.0
     ],
     [
-     0.125,
-     7.875
+     0.25,
+     8.0
     ]
    ],
    "area_computed": 45.14,
@@ -1722,20 +1806,20 @@
    "room_type": "kitchen",
    "polygon": [
     [
-     6.05,
-     0.125
+     6.175,
+     0.25
     ],
     [
-     9.875,
-     0.125
+     10.0,
+     0.25
     ],
     [
-     9.875,
-     3.95
+     10.0,
+     4.075
     ],
     [
-     6.05,
-     3.95
+     6.175,
+     4.075
     ]
    ],
    "area_computed": 14.63,
@@ -1775,20 +1859,20 @@
    "room_type": "hall",
    "polygon": [
     [
-     6.05,
-     4.05
+     6.175,
+     4.175
     ],
     [
-     9.875,
-     4.05
+     10.0,
+     4.175
     ],
     [
-     9.875,
-     7.875
+     10.0,
+     8.0
     ],
     [
-     6.05,
-     7.875
+     6.175,
+     8.0
     ]
    ],
    "area_computed": 14.63,
@@ -1828,28 +1912,28 @@
    "room_type": "living",
    "polygon": [
     [
-     0.125,
-     0.125
+     0.25,
+     0.25
     ],
     [
-     9.875,
-     0.125
+     10.0,
+     0.25
     ],
     [
-     9.875,
-     3.95
+     10.0,
+     4.075
     ],
     [
-     5.95,
-     3.95
+     6.075,
+     4.075
     ],
     [
-     5.95,
-     7.875
+     6.075,
+     8.0
     ],
     [
-     0.125,
-     7.875
+     0.25,
+     8.0
     ]
    ],
    "area_computed": 60.16,
@@ -1889,20 +1973,20 @@
    "room_type": "hall",
    "polygon": [
     [
-     6.05,
-     4.05
+     6.175,
+     4.175
     ],
     [
-     9.875,
-     4.05
+     10.0,
+     4.175
     ],
     [
-     9.875,
-     7.875
+     10.0,
+     8.0
     ],
     [
-     6.05,
-     7.875
+     6.175,
+     8.0
     ]
    ],
    "area_computed": 14.63,
@@ -1942,20 +2026,20 @@
    "room_type": "bedroom",
    "polygon": [
     [
-     0.125,
-     0.125
+     0.25,
+     0.25
     ],
     [
-     5.95,
-     0.125
+     6.075,
+     0.25
     ],
     [
-     5.95,
-     7.875
+     6.075,
+     8.0
     ],
     [
-     0.125,
-     7.875
+     0.25,
+     8.0
     ]
    ],
    "area_computed": 45.14,
@@ -1995,20 +2079,20 @@
    "room_type": "bathroom",
    "polygon": [
     [
-     6.05,
-     0.125
+     6.175,
+     0.25
     ],
     [
-     9.875,
-     0.125
+     10.0,
+     0.25
     ],
     [
-     9.875,
-     3.95
+     10.0,
+     4.075
     ],
     [
-     6.05,
-     3.95
+     6.175,
+     4.075
     ]
    ],
    "area_computed": 14.63,
@@ -2048,20 +2132,20 @@
    "room_type": "hall",
    "polygon": [
     [
-     6.05,
-     4.05
+     6.175,
+     4.175
     ],
     [
-     9.875,
-     4.05
+     10.0,
+     4.175
     ],
     [
-     9.875,
-     7.875
+     10.0,
+     8.0
     ],
     [
-     6.05,
-     7.875
+     6.175,
+     8.0
     ]
    ],
    "area_computed": 14.63,
@@ -2101,20 +2185,20 @@
    "room_type": "other",
    "polygon": [
     [
-     0.125,
-     0.125
+     0.25,
+     0.25
     ],
     [
-     5.95,
-     0.125
+     6.075,
+     0.25
     ],
     [
-     5.95,
-     7.875
+     6.075,
+     8.0
     ],
     [
-     0.125,
-     7.875
+     0.25,
+     8.0
     ]
    ],
    "area_computed": 45.14,
@@ -2154,20 +2238,20 @@
    "room_type": "balcony",
    "polygon": [
     [
-     6.05,
-     0.125
+     6.175,
+     0.25
     ],
     [
-     9.875,
-     0.125
+     10.0,
+     0.25
     ],
     [
-     9.875,
-     3.95
+     10.0,
+     4.075
     ],
     [
-     6.05,
-     3.95
+     6.175,
+     4.075
     ]
    ],
    "area_computed": 14.63,
@@ -2207,20 +2291,20 @@
    "room_type": "hall",
    "polygon": [
     [
-     6.05,
-     4.05
+     6.175,
+     4.175
     ],
     [
-     9.875,
-     4.05
+     10.0,
+     4.175
     ],
     [
-     9.875,
-     7.875
+     10.0,
+     8.0
     ],
     [
-     6.05,
-     7.875
+     6.175,
+     8.0
     ]
    ],
    "area_computed": 14.63,
@@ -2264,8 +2348,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     9.35,
-     6.0
+     9.475,
+     6.125
     ],
     "size": [
      1.0,
@@ -2292,16 +2376,16 @@
     "flights": [
      {
       "start": [
-       9.35,
-       4.5
+       9.475,
+       4.625
       ],
       "end": [
-       9.35,
-       7.5
+       9.475,
+       7.625
       ],
       "width": 1.0,
       "lines": 16,
-      "spacing": 0.25
+      "spacing": 0.2
      }
     ],
     "landing": null,
@@ -2314,7 +2398,7 @@
     "turn_assumed": false,
     "void_assumed": true,
     "riser_m": 0.1875,
-    "riser_source": "floor to floor 3.00 m / 16 risers"
+    "riser_source": "derived: floor to floor 3.00 m / 16 risers"
    }
   },
   {
@@ -2327,8 +2411,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     9.35,
-     6.0
+     9.475,
+     6.125
     ],
     "size": [
      1.0,
@@ -2355,16 +2439,16 @@
     "flights": [
      {
       "start": [
-       9.35,
-       4.5
+       9.475,
+       4.625
       ],
       "end": [
-       9.35,
-       7.5
+       9.475,
+       7.625
       ],
       "width": 1.0,
       "lines": 16,
-      "spacing": 0.25
+      "spacing": 0.2
      }
     ],
     "landing": null,
@@ -2377,7 +2461,7 @@
     "turn_assumed": false,
     "void_assumed": true,
     "riser_m": 0.1875,
-    "riser_source": "floor to floor 3.00 m / 16 risers"
+    "riser_source": "derived: floor to floor 3.00 m / 16 risers"
    }
   },
   {
@@ -2390,8 +2474,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     9.35,
-     6.0
+     9.475,
+     6.125
     ],
     "size": [
      1.0,
@@ -2418,16 +2502,16 @@
     "flights": [
      {
       "start": [
-       9.35,
-       4.5
+       9.475,
+       4.625
       ],
       "end": [
-       9.35,
-       7.5
+       9.475,
+       7.625
       ],
       "width": 1.0,
       "lines": 16,
-      "spacing": 0.25
+      "spacing": 0.2
      }
     ],
     "landing": null,
@@ -2440,7 +2524,7 @@
     "turn_assumed": false,
     "void_assumed": true,
     "riser_m": 0.1875,
-    "riser_source": "floor to floor 3.00 m / 16 risers"
+    "riser_source": "derived: floor to floor 3.00 m / 16 risers"
    }
   },
   {
@@ -2453,8 +2537,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     3.0,
-     7.05
+     3.125,
+     7.175
     ],
     "size": [
      2.6,
@@ -2502,12 +2586,14 @@
    "shape": "L",
    "chaise_side": "right",
    "chaise_depth": 1.6,
+   "seat_depth": 0.9,
+   "chaise_width": 0.9,
    "modified_by_ai": true,
    "drawn_type": "sofa",
    "drawn_footprint": {
     "center": [
-     3.0,
-     7.4
+     3.125,
+     7.525
     ],
     "size": [
      2.2,
@@ -2519,8 +2605,8 @@
    "anchor": {
     "kind": "back_edge",
     "point": [
-     3.0,
-     7.85
+     3.125,
+     7.975
     ],
     "wall_id": "w_L-1_003"
    },
@@ -2541,8 +2627,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     2.6,
-     5.6
+     2.725,
+     5.725
     ],
     "size": [
      1.0,
@@ -2590,16 +2676,16 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     8.0,
-     3.6
+     9.68,
+     2.125
     ],
     "size": [
      3.0,
      0.6
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 270.0,
+   "front_deg": 180.0,
    "height": 0.9,
    "asset": null,
    "status": "verified",
@@ -2615,7 +2701,7 @@
     }
    ],
    "counter_run": {
-    "wall_id": "w_L-1_006",
+    "wall_id": "w_L-1_002",
     "strokes": [
      "LINE:C1",
      "LINE:C2"
@@ -2637,16 +2723,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     8.0,
-     3.775
+     9.805,
+     2.125
     ],
     "size": [
      2.4,
      0.35
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 270.0,
+   "front_deg": 180.0,
    "height": 0.7,
    "asset": null,
    "status": "verified",
@@ -2660,6 +2746,15 @@
    ],
    "completes_room": true,
    "method": "rule",
+   "mount_bottom_m": 1.45,
+   "rule": {
+    "run": "f_L-1_004",
+    "z": [
+     1.45,
+     2.15
+    ],
+    "excluded": []
+   },
    "design": {
     "front_style": "shaker",
     "colour": "sage",
@@ -2676,16 +2771,16 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     8.0,
-     3.6
+     9.68,
+     2.125
     ],
     "size": [
      3.0,
      0.6
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 270.0,
+   "front_deg": 180.0,
    "height": 0.9,
    "asset": null,
    "status": "verified",
@@ -2701,7 +2796,7 @@
     }
    ],
    "counter_run": {
-    "wall_id": "w_L-1b_006",
+    "wall_id": "w_L-1b_002",
     "strokes": [
      "LINE:C5",
      "LINE:C6"
@@ -2718,8 +2813,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     3.0,
-     6.85
+     3.125,
+     6.975
     ],
     "size": [
      1.6,
@@ -2745,8 +2840,8 @@
    "anchor": {
     "kind": "back_edge",
     "point": [
-     3.0,
-     7.85
+     3.125,
+     7.975
     ],
     "wall_id": "w_L0_003"
    }
@@ -2760,8 +2855,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.9,
-     7.65
+     2.025,
+     7.775
     ],
     "size": [
      0.5,
@@ -2811,8 +2906,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     4.1,
-     7.65
+     4.225,
+     7.775
     ],
     "size": [
      0.5,
@@ -2862,14 +2957,14 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     0.425,
-     2.5
+     0.571,
+     2.625
     ],
     "size": [
      1.8,
      0.6
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 90.0
    },
    "front_deg": 0.0,
    "height": 2.1,
@@ -2914,14 +3009,14 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     9.4,
-     2.5
+     9.629,
+     2.625
     ],
     "size": [
      0.4,
      0.7
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 270.0
    },
    "front_deg": 180.0,
    "height": 0.8,
@@ -2949,14 +3044,14 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     9.6,
-     1.2
+     9.725,
+     1.325
     ],
     "size": [
      0.6,
      0.5
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 270.0
    },
    "front_deg": 180.0,
    "height": 0.85,
@@ -2990,8 +3085,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     6.6,
-     0.7
+     6.725,
+     0.825
     ],
     "size": [
      0.9,
@@ -3014,6 +3109,59 @@
      "region_id": "r4"
     }
    ]
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_hol",
+   "type": "console_table",
+   "type_raw": null,
+   "type_method": "none",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.325,
+     7.805
+    ],
+    "size": [
+     0.9,
+     0.35
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "ornek_bina.dxf",
+     "page": 1,
+     "layer": "MOBILYA",
+     "entity": "INSERT:f_L0_009",
+     "method": "vector",
+     "confidence": 1.0,
+     "region_id": "r4"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.6,
+     "text": "a narrow table against the hall wall: console table (proposal)"
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "confidence": 0.6,
+     "text": "a narrow table against the hall wall: console table (proposal)"
+    }
+   ],
+   "type_proposal": true,
+   "drawn_type": "unknown"
   }
  ],
  "decor": [
@@ -3024,8 +3172,8 @@
    "level_id": "L0",
    "room_id": "r_L0_yatak_odasi",
    "center": [
-    3.0,
-    0.3,
+    3.125,
+    0.425,
     0.0
    ],
    "rotation_deg": 180.0,
@@ -3069,8 +3217,8 @@
    "level_id": "L-1",
    "room_id": "r_L-1_salon",
    "center": [
-    0.5,
-    0.6
+    0.625,
+    0.725
    ],
    "rotation_deg": 0.0,
    "size": [
@@ -3117,8 +3265,8 @@
    "level_id": "L-1",
    "room_id": "r_L-1_salon",
    "center": [
-    2.6,
-    5.6,
+    2.725,
+    5.725,
     2.1
    ],
    "rotation_deg": 0.0,
@@ -3168,11 +3316,22 @@
    ],
    "description": "Level mark of the attic reads +3.10 in the elevation r7; the section's slab lines give +3.00",
    "resolution": "geometry wins: +3.00 kept"
+  },
+  {
+   "id": "c_002",
+   "kind": "unit_mismatch",
+   "element_ids": [
+    "doc_dxf"
+   ],
+   "description": "$INSUNITS = 4 (mm) but area labels, level marks and door widths agree on cm",
+   "resolution": "cm used (unit check, 3 of 3 checks agree)"
   }
  ],
- "unverified": [],
+ "unverified": [
+  "f_L0_009"
+ ],
  "warnings": [
-  "roof covering assumed (no elevation names it): concrete_tiles anthracite"
+  "f_L0_009: type proposal console_table (AI, both passes) kept unverified"
  ],
  "variants": [
   {
@@ -3233,20 +3392,20 @@
    "thickness_source": "section",
    "outline": [
     [
-     -0.125,
-     -0.125
+     0.0,
+     0.0
     ],
     [
-     10.125,
-     -0.125
+     10.25,
+     0.0
     ],
     [
-     10.125,
-     8.125
+     10.25,
+     8.25
     ],
     [
-     -0.125,
-     8.125
+     0.0,
+     8.25
     ]
    ],
    "openings": [],
@@ -3274,20 +3433,20 @@
    "thickness_source": "section",
    "outline": [
     [
-     -0.125,
-     -0.125
+     0.0,
+     0.0
     ],
     [
-     10.125,
-     -0.125
+     10.25,
+     0.0
     ],
     [
-     10.125,
-     8.125
+     10.25,
+     8.25
     ],
     [
-     -0.125,
-     8.125
+     0.0,
+     8.25
     ]
    ],
    "openings": [
@@ -3297,20 +3456,20 @@
      "furniture_id": "f_L-1_001",
      "polygon": [
       [
-       8.8,
-       4.45
+       8.925,
+       4.575
       ],
       [
-       9.9,
-       4.45
+       10.025,
+       4.575
       ],
       [
-       9.9,
-       7.55
+       10.025,
+       7.675
       ],
       [
-       8.8,
-       7.55
+       8.925,
+       7.675
       ]
      ],
      "source": "derived"
@@ -3340,20 +3499,20 @@
    "thickness_source": "section",
    "outline": [
     [
-     -0.125,
-     -0.125
+     0.0,
+     0.0
     ],
     [
-     10.125,
-     -0.125
+     10.25,
+     0.0
     ],
     [
-     10.125,
-     8.125
+     10.25,
+     8.25
     ],
     [
-     -0.125,
-     8.125
+     0.0,
+     8.25
     ]
    ],
    "openings": [
@@ -3363,20 +3522,20 @@
      "furniture_id": "f_L0_001",
      "polygon": [
       [
-       8.8,
-       4.45
+       8.925,
+       4.575
       ],
       [
-       9.9,
-       4.45
+       10.025,
+       4.575
       ],
       [
-       9.9,
-       7.55
+       10.025,
+       7.675
       ],
       [
-       8.8,
-       7.55
+       8.925,
+       7.675
       ]
      ],
      "source": "derived"
@@ -3496,32 +3655,32 @@
   },
   "outline": [
    [
-    -0.625,
-    -0.625
+    -0.5,
+    -0.5
    ],
    [
-    10.625,
-    -0.625
+    10.75,
+    -0.5
    ],
    [
-    10.625,
-    8.625
+    10.75,
+    8.75
    ],
    [
-    -0.625,
-    8.625
+    -0.5,
+    8.75
    ]
   ],
   "break_line": null,
   "ridge_lines": [
    [
     [
-     -0.625,
-     4.0
+     -0.5,
+     4.125
     ],
     [
-     10.625,
-     4.0
+     10.75,
+     4.125
     ]
    ]
   ],
@@ -3530,23 +3689,23 @@
     "id": "rp_south",
     "points": [
      [
-      -0.625,
-      -0.625,
+      -0.5,
+      -0.5,
       3.65
      ],
      [
-      10.625,
-      -0.625,
+      10.75,
+      -0.5,
       3.65
      ],
      [
-      10.625,
-      4.0,
+      10.75,
+      4.125,
       6.888
      ],
      [
-      -0.625,
-      4.0,
+      -0.5,
+      4.125,
       6.888
      ]
     ],
@@ -3558,23 +3717,23 @@
     "id": "rp_north",
     "points": [
      [
-      10.625,
-      8.625,
+      10.75,
+      8.75,
       3.65
      ],
      [
-      -0.625,
-      8.625,
+      -0.5,
+      8.75,
       3.65
      ],
      [
-      -0.625,
-      4.0,
+      -0.5,
+      4.125,
       6.888
      ],
      [
-      10.625,
-      4.0,
+      10.75,
+      4.125,
       6.888
      ]
     ],
@@ -3590,20 +3749,20 @@
     "room_id": "r_L1_teras",
     "polygon": [
      [
-      6.05,
-      0.125
+      6.125,
+      -0.5
      ],
      [
-      9.875,
-      0.125
+      10.75,
+      -0.5
      ],
      [
-      9.875,
-      3.95
+      10.75,
+      4.125
      ],
      [
-      6.05,
-      3.95
+      6.125,
+      4.125
      ]
     ],
     "parapet_height": {
@@ -3613,16 +3772,38 @@
      "evidence": [],
      "note": "parapet not drawn"
     },
+    "parapet_wall_ids": [
+     "w_L1_001",
+     "w_L1_002"
+    ],
     "source": "derived"
    }
   ],
-  "covering": "concrete_tiles",
-  "covering_colour": "anthracite",
-  "covering_source": "assumed",
+  "profile": {
+   "region_id": "r6",
+   "cut_axis": "y",
+   "method": "vector",
+   "points": [
+    [
+     -0.5,
+     3.65
+    ],
+    [
+     4.125,
+     6.888
+    ],
+    [
+     8.75,
+     3.65
+    ]
+   ]
+  },
+  "covering": null,
+  "covering_colour": null,
+  "covering_source": null,
   "assumed": [
    "roof thickness",
-   "gable ends (no roof plan)",
-   "covering"
+   "gable ends (no roof plan)"
   ],
   "status": "verified",
   "evidence": [
@@ -3649,16 +3830,11 @@
   ]
  },
  "facade": {
-  "default": {
-   "material": "render",
-   "colour": "greige",
-   "source": "brief"
-  },
   "faces": [
    {
-    "wall_id": "w_L-1_001",
-    "level_id": "L-1",
     "side": "south",
+    "wall_id": null,
+    "level_id": "L-1",
     "z_range": [
      -3.0,
      -2.0
@@ -3680,21 +3856,31 @@
     ]
    }
   ],
-  "window_frame": "dark_bronze",
-  "sills": {
-   "material": "stone",
-   "depth": 0.3,
-   "projection": 0.04,
-   "source": "assumed"
-  },
-  "openings_seen": [
+  "elevations": [
    {
-    "region": "r7",
+    "region_id": "r7",
+    "title": "GÜNEY GÖRÜNÜŞÜ",
     "side": "south",
-    "windows": 5,
+    "view_bearing_deg": 90.0,
+    "windows": 4,
     "doors": 1,
+    "positions_m": [],
     "plan_check": {
-     "matched": 6,
+     "matched": 5,
+     "missing": 0,
+     "extra": 0
+    }
+   },
+   {
+    "region_id": "r8",
+    "title": "DOĞU GÖRÜNÜŞÜ",
+    "side": "east",
+    "view_bearing_deg": 180.0,
+    "windows": 0,
+    "doors": 0,
+    "positions_m": [],
+    "plan_check": {
+     "matched": 0,
      "missing": 0,
      "extra": 0
     }
@@ -3718,12 +3904,12 @@
     "id": "sw_L0_001",
     "level_id": "L0",
     "start": [
-     -6.0,
-     -8.0
+     -5.875,
+     -7.875
     ],
     "end": [
-     16.0,
-     -8.0
+     16.125,
+     -7.875
     ],
     "thickness": 0.2,
     "kind": "plot",
@@ -3751,12 +3937,12 @@
     "id": "sw_L0_002",
     "level_id": "L0",
     "start": [
-     16.0,
-     -8.0
+     16.125,
+     -7.875
     ],
     "end": [
-     16.0,
-     14.0
+     16.125,
+     14.125
     ],
     "thickness": 0.2,
     "kind": "plot",
@@ -3784,12 +3970,12 @@
     "id": "sw_L0_003",
     "level_id": "L0",
     "start": [
-     16.0,
-     14.0
+     16.125,
+     14.125
     ],
     "end": [
-     -6.0,
-     14.0
+     -5.875,
+     14.125
     ],
     "thickness": 0.2,
     "kind": "plot",
@@ -3817,12 +4003,12 @@
     "id": "sw_L0_004",
     "level_id": "L0",
     "start": [
-     -6.0,
-     14.0
+     -5.875,
+     14.125
     ],
     "end": [
-     -6.0,
-     -8.0
+     -5.875,
+     -7.875
     ],
     "thickness": 0.2,
     "kind": "plot",
@@ -3855,28 +4041,28 @@
     "label_raw": "OTOPARK",
     "polygon": [
      [
-      11.0,
-      8.5
+      11.125,
+      8.625
      ],
      [
-      15.5,
-      8.5
+      15.625,
+      8.625
      ],
      [
-      15.5,
-      13.5
+      15.625,
+      13.625
      ],
      [
-      11.0,
-      13.5
+      11.125,
+      13.625
      ]
     ],
     "anchor": [
-     13.2,
-     11.0
+     13.325,
+     11.125
     ],
     "kind": "parking",
-    "build": true,
+    "build": false,
     "evidence": [
      {
       "file": "ornek_bina.dxf",
@@ -3897,11 +4083,11 @@
     "label_raw": "BAHÇE",
     "polygon": null,
     "anchor": [
-     3.0,
-     -5.0
+     3.125,
+     -4.875
     ],
     "kind": "garden",
-    "build": true,
+    "build": false,
     "evidence": [
      {
       "file": "ornek_bina.dxf",
@@ -3922,8 +4108,8 @@
     "level_id": "L0",
     "kind": "tree",
     "center": [
-     -3.0,
-     -4.0
+     -2.875,
+     -3.875
     ],
     "size": [
      3.0,
@@ -3947,61 +4133,8 @@
   "ground": {
    "levels": [
     {
-     "side": "south",
-     "azimuth_deg": 180.0,
-     "z": {
-      "value": -3.0,
-      "method": "assumed",
-      "confidence": 0.0,
-      "evidence": [],
-      "note": "basement garden door d_L-1_001 on the south wall: terrain at the basement floor (assumed)"
-     }
-    },
-    {
-     "side": "north",
-     "azimuth_deg": 0.0,
-     "z": {
-      "value": 0.0,
-      "method": "vector",
-      "confidence": 1.0,
-      "evidence": [
-       {
-        "file": "ornek_bina.dxf",
-        "page": 1,
-        "layer": null,
-        "entity": "LINE:GL1",
-        "method": "vector",
-        "confidence": 1.0,
-        "region_id": "r6",
-        "rule": "ground_line"
-       }
-      ]
-     }
-    },
-    {
-     "side": "east",
-     "azimuth_deg": 90.0,
-     "z": {
-      "value": 0.0,
-      "method": "vector",
-      "confidence": 1.0,
-      "evidence": [
-       {
-        "file": "ornek_bina.dxf",
-        "page": 1,
-        "layer": null,
-        "entity": "LINE:GL1",
-        "method": "vector",
-        "confidence": 1.0,
-        "region_id": "r6",
-        "rule": "ground_line"
-       }
-      ]
-     }
-    },
-    {
-     "side": "west",
-     "azimuth_deg": 270.0,
+     "side": "all",
+     "azimuth_deg": null,
      "z": {
       "value": 0.0,
       "method": "vector",
@@ -4021,7 +4154,7 @@
      }
     }
    ],
-   "terrain": "sides",
+   "terrain": "flat",
    "light_wells": []
   },
   "north_deg": {
@@ -4046,24 +4179,26 @@
     "id": "sp_001",
     "polygon": [
      [
-      6.5,
-      8.125
+      6.625,
+      8.25
      ],
      [
-      7.5,
-      8.125
+      7.625,
+      8.25
      ],
      [
-      7.5,
-      14.0
+      7.625,
+      14.125
      ],
      [
-      6.5,
-      14.0
+      6.625,
+      14.125
      ]
     ],
     "z": 0.0,
-    "material": "paving_concrete_grey",
+    "material": null,
+    "colour": null,
+    "area_id": null,
     "source": "site_plan",
     "build": true,
     "evidence": [
@@ -4084,24 +4219,26 @@
     "id": "sg_001",
     "polygon": [
      [
-      -6.0,
-      -8.0
+      -5.875,
+      -7.875
      ],
      [
-      16.0,
-      -8.0
+      16.125,
+      -7.875
      ],
      [
-      16.0,
-      14.0
+      16.125,
+      14.125
      ],
      [
-      -6.0,
-      14.0
+      -5.875,
+      14.125
      ]
     ],
     "z": null,
-    "material": "grass",
+    "material": null,
+    "colour": null,
+    "area_id": "sa_L0_bahce",
     "source": "assumed",
     "build": true,
     "evidence": []
@@ -4112,24 +4249,26 @@
     "id": "spk_001",
     "polygon": [
      [
-      11.0,
-      8.5
+      11.125,
+      8.625
      ],
      [
-      15.5,
-      8.5
+      15.625,
+      8.625
      ],
      [
-      15.5,
-      13.5
+      15.625,
+      13.625
      ],
      [
-      11.0,
-      13.5
+      11.125,
+      13.625
      ]
     ],
     "z": 0.0,
-    "material": "paving_concrete_grey",
+    "material": null,
+    "colour": null,
+    "area_id": "sa_L0_otopark",
     "source": "site_plan",
     "build": true,
     "evidence": [
@@ -4150,20 +4289,20 @@
    "id": "plot",
    "polygon": [
     [
-     -6.0,
-     -8.0
+     -5.875,
+     -7.875
     ],
     [
-     16.0,
-     -8.0
+     16.125,
+     -7.875
     ],
     [
-     16.0,
-     14.0
+     16.125,
+     14.125
     ],
     [
-     -6.0,
-     14.0
+     -5.875,
+     14.125
     ]
    ],
    "z": null,

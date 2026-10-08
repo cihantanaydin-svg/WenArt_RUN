@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://wenart.run/schema/building.schema.json",
   "title": "WenArt building model",
-  "description": "One merged building model per project. Every element carries evidence. Units: metres, degrees. Coordinates: building-local XY, Z up; each level has its own elevation.",
+  "description": "One merged building model per project. Every element carries evidence. Units: metres, degrees. Coordinates: building-local XY, Z up; each level has its own elevation. Milestone 10 (docs/milestone10.md §1.1): building z = 0 at the finished floor of the level with order 0 (the ±0.00 mark); fields named 'building z' are absolute in that frame (slab z_top, roof heights and planes, site z, ground levels, facade z_range), the others are above their level's floor (opening sill and height, decor center[2], mount_bottom_m). The building XY frame is the reference plan's frame (docs/milestone10.md §3.1 item 5). Angles: front_deg, rotation_deg and aspect_deg are degrees counter-clockwise from +X (front = local -Y at rotation 0, so front_deg = (270 + rotation_deg) mod 360); compass bearings (azimuth_deg, north_deg) are clockwise from north.",
   "type": "object",
   "required": ["schema_version", "project", "status", "documents", "levels", "walls", "openings", "rooms", "furniture", "conflicts", "unverified", "warnings"],
   "properties": {
@@ -16,7 +16,8 @@
         "created_utc": {"type": "string", "format": "date-time"},
         "pipeline_commit": {"type": "string"},
         "brief": {"type": "object", "description": "Parsed brief.yaml or defaults"},
-        "unit_system": {"enum": ["imperial", "metric"], "description": "The unit system of the master pages (docs/milestone7.md §1.1); reports show imperial projects in feet-inches with metres"}
+        "unit_system": {"enum": ["imperial", "metric"], "description": "The unit system of the master pages (docs/milestone7.md §1.1); reports show imperial projects in feet-inches with metres"},
+        "datum": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Milestone 10: the printed absolute level at building z 0 (e.g. 43.00 from a section mark); null when no mark is drawn"}
       }
     },
     "status": {"enum": ["ok", "needs_review"], "description": "needs_review = something critical is missing (scale, closed outer walls). The pipeline stops after the report."},
@@ -30,14 +31,14 @@
     "conflicts": {"type": "array", "items": {"$ref": "#/$defs/conflict"}},
     "unverified": {"type": "array", "items": {"type": "string"}, "description": "IDs of elements with status=unverified (copied here for the report)"},
     "warnings": {"type": "array", "items": {"type": "string"}},
-    "variants": {"type": "array", "items": {"$ref": "#/$defs/variant"}, "description": "Milestone 10 (docs/milestone10.md §1.1): one entry per buildable combination: base plus one per alternative plan (only that level differs). Absent or empty = one base variant of every level without a variant"},
+    "variants": {"type": "array", "items": {"$ref": "#/$defs/variant"}, "description": "Milestone 10 (docs/milestone10.md §1.1): one entry per buildable combination: base plus one per alternative plan (only that level differs), written by the pipeline (brief variants: all | base | names). Absent or empty = one base variant of every level without a variant"},
     "levels_left_out": {"type": "array", "items": {"type": "object", "required": ["label", "reason"], "properties": {
       "label": {"type": "string"},
       "order": {"type": ["integer", "null"]},
       "region_id": {"type": ["string", "null"]},
       "variant": {"type": ["string", "null"]},
       "reason": {"type": "string"}
-    }}, "description": "Milestone 10 (failed_levels: leave_out): plan levels that were not built (no scale, open outer walls) and the levels above them"},
+    }}, "description": "Milestone 10 (failed_levels: leave_out): plan levels that were not built (no scale, open outer walls) and the levels above them; a failed alternative removes only its variant. The building status stays ok while at least one level remains"},
     "slabs": {"type": "array", "items": {"$ref": "#/$defs/slab"}, "description": "Milestone 10: the slabs under every level (between levels, and under the lowest level); absent = the M3-M9 floors and ceilings only"},
     "roof": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/roof"}], "description": "Milestone 10: the roof over the top level"},
     "facade": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/facade"}], "description": "Milestone 10: the outside faces of the outer walls"},
@@ -62,8 +63,8 @@
         "polygon": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}, "description": "null unless a closed face exists"},
         "extent_m": {"type": "array", "items": {"type": "number"}, "description": "Open extent around the label (x, y) to the nearest wall or the plot hull, metres"},
         "anchor": {"$ref": "#/$defs/point"},
-        "kind": {"enum": ["parking", "garden", "paving", "pool", "terrace", "other"], "description": "Milestone 10: what the label names (wenart.building keyword table)"},
-        "build": {"type": "boolean"},
+        "kind": {"enum": ["parking", "garden", "paving", "pool", "terrace", "other"], "description": "Milestone 10: what the label names (wenart/ingest/generic/labels.py exterior keywords)"},
+        "build": {"type": "boolean", "description": "Milestone 10: always false: areas are label records (evidence); the built surfaces are site.plot, paving, grass, parking, boundary_walls and site.decor"},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }}},
       "decor": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "center", "size", "evidence"], "properties": {
@@ -76,16 +77,16 @@
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }}},
       "openings": {"type": "array", "items": {"type": "object", "description": "Doors, windows and gaps in site boundary walls"}},
-      "ground": {"type": "object", "description": "Milestone 10: the terrain levels around the building (section ground lines, elevations, the site plan; else assumed)", "properties": {
+      "ground": {"type": "object", "description": "Milestone 10: the DRAWN terrain levels around the building (section ground lines, elevations, the site plan); one assumed level {side all, z 0.0} only when nothing is drawn. The build adds its own assumed terrain changes (basement doors, light wells) to the scene manifest, never here", "properties": {
         "levels": {"type": "array", "items": {"type": "object", "required": ["side", "z"], "properties": {
-          "side": {"enum": ["all", "north", "east", "south", "west", "front", "back", "left", "right"], "description": "Side of the building (compass when north is known, else drawing-relative)"},
-          "azimuth_deg": {"type": ["number", "null"], "description": "Outward normal of that side, compass degrees (0 = north = +Y unless north_deg says otherwise)"},
+          "side": {"$ref": "#/$defs/side"},
+          "azimuth_deg": {"type": ["number", "null"], "description": "Compass bearing of the side's outward normal (building bearing + north_deg); null when north is unknown"},
           "z": {"$ref": "#/$defs/value"}
         }}},
         "terrain": {"enum": ["flat", "sides"], "description": "flat = one ground level; sides = per side (a sloped site)"},
-        "light_wells": {"type": "array", "items": {"type": "object", "properties": {"opening_id": {"type": "string"}, "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}}, "depth": {"type": "number"}, "source": {"enum": ["drawn", "assumed"]}}}}
+        "light_wells": {"type": "array", "description": "Drawn light wells only (assumed ones live in the scene manifest)", "items": {"type": "object", "properties": {"opening_id": {"type": "string"}, "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}}, "depth": {"type": "number"}, "source": {"enum": ["drawn", "assumed"]}}}}
       }},
-      "north_deg": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Milestone 10: compass bearing of the building's +Y axis (site plan north arrow; else 0, assumed)"},
+      "north_deg": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Milestone 10: compass bearing of the building's +Y axis (site plan north arrow, after the site plan's registration); null = unknown (the build assumes 0 and lists it)"},
       "paving": {"type": "array", "items": {"$ref": "#/$defs/site_area"}},
       "grass": {"type": "array", "items": {"$ref": "#/$defs/site_area"}},
       "parking": {"type": "array", "items": {"$ref": "#/$defs/site_area"}},
@@ -110,13 +111,19 @@
         "pass": {"type": ["integer", "null"], "description": "AI pass number (1 or 2) for two-pass agreement"},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "text": {"type": ["string", "null"], "description": "Raw text read, e.g. 'Salon 24,50 m²' or '3,45'"},
-        "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json drawing region the fact was read from"}
+        "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json drawing region the fact was read from"},
+        "rule": {"type": ["string", "null"], "description": "Milestone 10: the deterministic rule that decided (title_keyword, slab_bands, face_pairs, unit_check, ...)"}
       }
     },
+    "side": {"enum": ["all", "north", "east", "south", "west", "front", "back", "left", "right"], "description": "Milestone 10: a side of the building: compass when north is known, else drawing-relative (front = -Y, back = +Y, left = -X, right = +X); a wall's side is its outward normal within ±45°"},
     "value": {
       "type": "object",
-      "description": "Milestone 10: a measured or assumed number with its evidence (heights, pitches, terrain levels). method assumed = no drawing gives it (listed in the report)",
+      "description": "Milestone 10: a measured or assumed number with its evidence (heights, pitches, terrain levels). method assumed = no drawing gives it (listed in the report; confidence 0 and a note); method ai never builds geometry (treated as assumed); vector, raster, ocr and derived carry at least one evidence entry",
       "required": ["value", "method"],
+      "allOf": [
+        {"if": {"properties": {"method": {"const": "assumed"}}, "required": ["method"]}, "then": {"required": ["note"], "properties": {"confidence": {"const": 0}}}},
+        {"if": {"properties": {"method": {"enum": ["vector", "raster", "ocr", "derived"]}}, "required": ["method"]}, "then": {"required": ["evidence"], "properties": {"evidence": {"minItems": 1}}}}
+      ],
       "properties": {
         "value": {"type": ["number", "null"]},
         "method": {"enum": ["vector", "raster", "ocr", "ai", "derived", "assumed"]},
@@ -132,7 +139,9 @@
         "id": {"type": "string"},
         "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
         "z": {"type": ["number", "null"], "description": "Surface height (building z); null = the ground level of its side"},
-        "material": {"type": ["string", "null"], "description": "Exterior vocabulary slug (docs/milestone10.md §1.4)"},
+        "material": {"type": ["string", "null"], "description": "Exterior vocabulary slug (docs/milestone10.md §1.4; a slug never carries a colour); null = the build resolves it from the style (assumed, scene manifest)"},
+        "colour": {"type": ["string", "null"], "description": "Vocabulary colour name (wenart/style/colours.py), or null"},
+        "area_id": {"type": ["string", "null"], "description": "The site.areas label record this surface was built from, if any"},
         "source": {"enum": ["site_plan", "plan", "brief", "assumed"]},
         "build": {"type": "boolean"},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
@@ -157,8 +166,8 @@
             "page": {"type": "integer"},
             "class": {"enum": ["floor_plan", "furniture_plan", "section", "elevation", "site_plan", "roof_plan", "detail", "3d_view", "title_block", "legend", "photo_of_plan", "photo_of_room", "other"]},
             "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json region this page record reads (one record per region; null = the whole page, M2-M9)"},
-            "region_box": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "[x0, y0, x1, y1] of the region in source units (DXF drawing units, PDF points, image pixels)"},
-            "region_class": {"type": ["string", "null"], "description": "The sheets.json class of the region (floor_plan, alternative_floor_plan, section, ...)"},
+            "region_box": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "[x0, y0, x1, y1] of the region in source units: DXF model space drawing units (y up); PDF points in the cad_pdf GenericPage frame (origin bottom-left, y up); raster: original image pixels (y down). Debug images and plan crops of a region page render only this box (+ margin)"},
+            "region_class": {"type": ["string", "null"], "description": "The sheets.json class of the region (floor_plan, alternative_floor_plan, section, ...); pages[].class is floor_plan for an alternative_floor_plan region. One page record per region with use read, heights or exterior; ignored regions only in sheets.json"},
             "variant": {"type": ["string", "null"], "description": "base or the alternative's name (plan regions of a variant group)"},
             "skip_reason": {"type": ["string", "null"]},
             "kind": {"enum": ["vector", "scan", "photo"]},
@@ -169,7 +178,7 @@
             "to_original": {"type": ["array", "null"], "description": "Raster pages: 3x3 matrix, page units -> original image pixels"},
             "scale": {"type": ["object", "null"], "properties": {
               "metres_per_unit": {"type": "number"},
-              "method": {"enum": ["dxf_insunits", "pdf_scale_text", "dimension_text", "area_label", "fallback_door_width", "room_size_label"]},
+              "method": {"enum": ["dxf_insunits", "pdf_scale_text", "dimension_text", "area_label", "fallback_door_width", "room_size_label", "unit_check"], "description": "unit_check (Milestone 10): the sheets stage's unit check decided the unit (sheets.json documents[].units); the evidence names the agreeing checks and a unit_mismatch conflict names the header value"},
               "confidence": {"type": "number"},
               "evidence": {"$ref": "#/$defs/evidence"}
             }},
@@ -190,13 +199,13 @@
         "label": {"type": "string", "description": "Normalised: Bodrum Kat, Zemin Kat, 1. Kat, Çatı Katı ..."},
         "order": {"type": "integer"},
         "elevation": {"type": "number"},
-        "ceiling_height": {"type": "number"},
+        "ceiling_height": {"type": "number", "description": "Floor to ceiling. Milestone 10, kind attic: the height above the floor of the flat ceiling part (the roof underside is cut flat there); with no flat part drawn, the roof underside at the ridge. Attic walls are never clipped by it: they end at the roof underside"},
         "ceiling_height_source": {"enum": ["section", "elevation_drawing", "assumed_default"]},
         "label_source": {"enum": ["title", "assumed", "section_order"], "description": "assumed = no level title on the only plan page: L0 Ground floor (docs/milestone7.md §2.1); evidence = the room labels. section_order (Milestone 10) = an untitled plan placed in the one free level slot (listed as assumed)"},
         "kind": {"enum": ["basement", "floor", "attic"], "description": "Milestone 10: attic = the top level under a pitched roof (sloped ceilings from the roof)"},
         "variant_group": {"type": ["string", "null"], "description": "Milestone 10: vg_<base level id> when the level has alternative plans"},
         "variant": {"type": ["string", "null"], "description": "Milestone 10: base, or the alternative's name as titled (Açık mutfak); alternative levels get the id <base id>b, <base id>c ..."},
-        "variant_slug": {"type": ["string", "null"], "description": "ASCII slug of variant (acik-mutfak)"},
+        "variant_slug": {"type": ["string", "null"], "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "ASCII slug of variant, hyphens (wenart.building.variant_slug: acik-mutfak); base levels: base"},
         "base_level_id": {"type": ["string", "null"], "description": "Alternative levels: the base level they replace"},
         "region_id": {"type": ["string", "null"], "description": "Milestone 10: the sheets.json region the level was read from"},
         "elevation_source": {"enum": ["section", "elevation_drawing", "level_mark", "assumed_default"], "description": "Milestone 10: where the elevation comes from"},
@@ -208,15 +217,15 @@
       "type": "object",
       "required": ["id", "label", "levels", "base"],
       "properties": {
-        "id": {"type": "string", "description": "base, or <alternative level id lower case>-<variant_slug> (l-1b-acik-mutfak): filesystem-safe, used in outputs/<p>/variants/<id>/"},
+        "id": {"type": "string", "pattern": "^(base|l-?[0-9]+[b-z]-[a-z0-9]+(-[a-z0-9]+)*)$", "description": "base, or <alternative level id lower case>-<variant_slug> (wenart.building.variant_id: l-1b-acik-mutfak): filesystem-safe, used in outputs/<p>/variants/<id>/ and <p>-<id>.blend/.glb"},
         "label": {"type": "string", "description": "Readable name: Base, Bodrum Kat: Açık mutfak (open kitchen)"},
         "levels": {"type": "array", "items": {"type": "string"}, "minItems": 1, "description": "The level ids this variant builds, bottom up"},
         "base": {"type": "boolean"},
         "changes": {"type": "array", "items": {"type": "object", "required": ["variant_group", "level_id", "replaces"], "properties": {
           "variant_group": {"type": "string"}, "level_id": {"type": "string"}, "replaces": {"type": "string"}
         }}},
-        "rooms_changed": {"type": "array", "items": {"type": "string"}, "description": "Rooms of the alternative level that no base room equals (rendered for this variant); filled by the build"},
-        "exterior_changed": {"type": ["boolean", "null"], "description": "true = outer walls or outer openings differ from the base (exterior views rendered for this variant); null = not decided yet"},
+        "rooms_changed": {"type": ["array", "null"], "items": {"type": "string"}, "description": "Written by the pipeline: the rooms of the alternative level with same_as null (rendered for this variant); empty for base; null = not computed (wenart.views.variant_changes derives it)"},
+        "exterior_changed": {"type": ["boolean", "null"], "description": "Written by the pipeline: true when an exterior wall (start/end within 2 cm, thickness) or an opening on one (type, centre, width, height, sill within 2 cm) of the alternative level has no base match (its exterior views are rendered); false for base; null = not computed"},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }
     },
@@ -224,10 +233,10 @@
       "type": "object",
       "required": ["id", "z_top", "thickness", "thickness_source", "outline", "evidence"],
       "properties": {
-        "id": {"type": "string", "description": "sl_<level id of the level above>"},
+        "id": {"type": "string", "description": "sl_<level id of the level above>; a slab whose outline or void differs for an alternative is written again as sl_<above>__<variant id> with variants [<variant id>]. Level and furniture ids name base ids; a variant reads them through variants[].changes (replaces -> level_id) and the alternative's stair at the same position (within 0.1 m)"},
         "below_level_id": {"type": ["string", "null"]},
         "above_level_id": {"type": ["string", "null"], "description": "The level whose floor this slab carries"},
-        "z_top": {"type": "number", "description": "Top of the slab = floor of the level above (building z, metres)"},
+        "z_top": {"type": "number", "description": "Top of the slab = floor of the level above (building z)"},
         "thickness": {"type": "number"},
         "thickness_source": {"enum": ["section", "elevation_drawing", "assumed_default"]},
         "outline": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3, "description": "Outer face of the outer walls of the level above (the level below when larger)"},
@@ -250,33 +259,40 @@
         "type": {"enum": ["flat", "gable", "hip", "mansard", "gambrel", "shed", "other"]},
         "type_source": {"enum": ["roof_plan", "section", "elevation", "plan_roof_lines", "assumed"], "description": "plan_roof_lines = the roof outline and break lines drawn on the top plan"},
         "over_level_id": {"type": ["string", "null"], "description": "The level the roof covers (the attic or the top floor)"},
-        "eaves_height": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Building z of the eaves edge"},
-        "ridge_height": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Building z of the ridge"},
+        "eaves_height": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Building z of the roof's top surface at the eaves edge (absolute, not above the attic floor)"},
+        "ridge_height": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Building z of the roof's top surface at the ridge"},
         "pitches_deg": {"type": "array", "items": {"$ref": "#/$defs/value"}, "description": "One per slope from the eaves up (mansard: steep then shallow)"},
-        "overhang": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
-        "thickness": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
-        "knee_wall": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Attic: outer wall height above the attic floor up to the roof underside"},
+        "overhang": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Horizontal distance from the outer wall face to the eaves; used only when no outline is drawn (the outline wins)"},
+        "thickness": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Measured perpendicular to the slope (underside z = top z - thickness / cos(slope))"},
+        "knee_wall": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Attic: the roof's top surface at the outer face of the outer wall minus the attic floor; a cross-check only: wall tops and attic ceilings are cut from the planes' underside"},
+        "profile": {"type": ["object", "null"], "description": "The section's roof line copied from sheets.json heights.roof.profile", "properties": {
+          "region_id": {"type": ["string", "null"]},
+          "cut_axis": {"enum": ["x", "y", null]},
+          "points": {"type": "array", "items": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}, "description": "[s, z]: s = building metres along cut_axis, z = building z of the top surface"},
+          "method": {"enum": ["vector", "raster", "assumed"]}
+        }},
         "outline": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}, "description": "Eaves outline in plan (drawn on the top plan or the roof plan; else the walls + overhang, assumed)"},
         "break_line": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}, "description": "Mansard / gambrel: the closed line where the slope changes"},
         "ridge_lines": {"type": "array", "items": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 2, "maxItems": 2}},
-        "planes": {"type": "array", "items": {"type": "object", "required": ["id", "points"], "properties": {
+        "planes": {"type": "array", "description": "May be empty from the pipeline: the build derives them (wenart.blender.roof.planes_for)", "items": {"type": "object", "required": ["id", "points"], "properties": {
           "id": {"type": "string"},
-          "points": {"type": "array", "items": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}, "minItems": 3, "description": "Outer roof surface polygon, building x, y, z"},
+          "points": {"type": "array", "items": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}, "minItems": 3, "description": "Top (outer) roof surface polygon, building x, y, z"},
           "slope_deg": {"type": "number"},
-          "aspect_deg": {"type": ["number", "null"], "description": "Downhill direction in the building frame (0 = -Y ... counter-clockwise), null for flat"},
+          "aspect_deg": {"type": ["number", "null"], "description": "Downhill direction, degrees counter-clockwise from +X (downhill -Y = 270); not a compass bearing; null for flat"},
           "source": {"enum": ["drawn", "derived", "assumed"]}
         }}},
         "openings": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "polygon"], "properties": {
           "id": {"type": "string"},
           "kind": {"enum": ["terrace", "skylight", "stair", "chimney", "other"]},
           "room_id": {"type": ["string", "null"]},
-          "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
+          "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3, "description": "The plan area removed from the roof surface: the room polygon extended over the outer walls to the roof outline where the room touches an outer wall, else to the centre line of the bounding wall"},
           "parapet_height": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}]},
+          "parapet_wall_ids": {"type": "array", "items": {"type": "string"}},
           "source": {"enum": ["drawn", "derived", "assumed"]}
         }}},
-        "covering": {"type": ["string", "null"], "description": "Exterior vocabulary slug (clay_tiles, concrete_tiles, slate, standing_seam, green_roof, ...)"},
+        "covering": {"type": ["string", "null"], "description": "Drawn covering only (elevation / roof plan label or hatch): exterior vocabulary slug without colour (clay_tiles, concrete_tiles, slate, standing_seam, green_roof); null = the build resolves it from brief > style > style.exterior_fallback (assumed, scene manifest)"},
         "covering_colour": {"type": ["string", "null"]},
-        "covering_source": {"enum": ["elevation", "roof_plan", "brief", "style", "assumed"]},
+        "covering_source": {"enum": ["elevation", "roof_plan", null]},
         "assumed": {"type": "array", "items": {"type": "string"}, "description": "What no drawing gives (e.g. 'hip/gable choice across the section', 'overhang')"},
         "status": {"enum": ["verified", "unverified", "assumed"]},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
@@ -284,25 +300,28 @@
     },
     "facade": {
       "type": "object",
+      "description": "Milestone 10: what the DRAWINGS say about the outside (written by the pipeline from sheets.json exterior evidence). Brief, style and assumed looks are resolved by the build (wenart.blender.exterior.resolve_looks: documents > brief exterior words > style.json exterior > style.exterior_fallback), recorded in the scene manifest, never written back here",
       "properties": {
-        "default": {"type": "object", "required": ["material", "source"], "properties": {
-          "material": {"type": "string", "description": "Exterior vocabulary slug (render:<colour>, brick_red, stone_cladding, ...)"},
-          "colour": {"type": ["string", "null"]},
-          "source": {"enum": ["elevation", "brief", "style", "assumed"]}
-        }},
-        "faces": {"type": "array", "items": {"type": "object", "required": ["wall_id", "material", "source"], "properties": {
-          "wall_id": {"type": "string"},
+        "faces": {"type": "array", "items": {"type": "object", "required": ["side", "material", "source", "evidence"], "properties": {
+          "side": {"$ref": "#/$defs/side"},
+          "wall_id": {"type": ["string", "null"], "description": "Optional: one wall only; null = every outward wall face of that side"},
           "level_id": {"type": ["string", "null"]},
-          "side": {"type": ["string", "null"], "description": "Facade the face belongs to (north, south, ... or front/back/left/right)"},
-          "z_range": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2, "description": "Part of the face (e.g. a stone plinth); null = the whole face"},
-          "material": {"type": "string"},
+          "z_range": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2, "description": "Building z band of the face (e.g. a stone plinth); null = the whole height"},
+          "material": {"type": "string", "description": "Exterior vocabulary slug without colour"},
           "colour": {"type": ["string", "null"]},
-          "source": {"enum": ["elevation", "brief", "style", "assumed"]},
-          "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+          "source": {"enum": ["elevation"], "description": "elevation = hatched or labelled on a drawn elevation"},
+          "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
         }}},
-        "window_frame": {"type": ["string", "null"], "description": "Window frame slug seen from outside (same as inside unless the brief says otherwise)"},
-        "sills": {"type": "object", "properties": {"material": {"type": ["string", "null"]}, "depth": {"type": "number"}, "projection": {"type": "number"}, "source": {"enum": ["elevation", "assumed"]}}},
-        "openings_seen": {"type": "array", "items": {"type": "object", "description": "Per drawn elevation: windows and doors seen from outside, cross-checked against the plans (count, positions)"}},
+        "elevations": {"type": "array", "description": "One entry per drawn elevation region", "items": {"type": "object", "required": ["region_id", "side", "windows", "doors"], "properties": {
+          "region_id": {"type": "string"},
+          "title": {"type": ["string", "null"]},
+          "side": {"$ref": "#/$defs/side"},
+          "view_bearing_deg": {"type": ["number", "null"], "description": "Direction the viewer of the elevation looks, degrees counter-clockwise from +X (the camera of §3.3 looks the same way)"},
+          "windows": {"type": "integer", "minimum": 0},
+          "doors": {"type": "integer", "minimum": 0},
+          "positions_m": {"type": "array", "items": {"type": "object"}, "description": "Per opening: kind, x from the facade's left end seen from outside, sill, head (building z)"},
+          "plan_check": {"type": ["object", "null"], "description": "Filled by the pipeline after reading the plans: matched, missing, extra; null in sheets.json"}
+        }}},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }
     },
@@ -338,6 +357,8 @@
         "assumed": {"type": "array", "items": {"enum": ["height", "sill_height"]}, "description": "Values that are defaults, not drawn (door and doorless height 2.10 m, window sill 0.90 m and height 1.20 m)"},
         "type_raw": {"type": ["string", "null"], "description": "e.g. 'unclassified gap content' for a gap whose strokes are no door, window or empty gap"},
         "swing_side": {"type": ["string", "null"], "description": "Room id the door opens into, if drawn"},
+        "operation": {"enum": ["swing", "double", "sliding", "pocket", "folding", "fixed", "unknown", null], "description": "Milestone 10: how the drawn door or window opens (the drawn type always wins over the style's door look); null = swing, assumed"},
+        "operation_source": {"enum": ["block_name", "geometry", "ai", "assumed", null]},
         "status": {"enum": ["verified", "unverified"]},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
       }
@@ -357,7 +378,9 @@
         "label_size": {"$ref": "#/$defs/label_size"},
         "has_documented_furniture": {"type": "boolean"},
         "room_subtype": {"enum": ["child", null], "description": "Milestone 10: child = a child's room (Çocuk Odası, kid, nursery): cribs and bunk beds allowed"},
-        "twin_of": {"type": ["string", "null"], "description": "Milestone 10: the room this one mirrors in a semi-detached pair (same label, mirrored polygon, openings and drawn furniture within 2 cm); set on the second twin only"},
+        "twin_of": {"type": ["string", "null"], "description": "Milestone 10: the room this one mirrors in a semi-detached pair (same label, mirrored polygon, openings and drawn furniture within 2 cm); set on the second twin only (the one later in reading order)"},
+        "twin_transform": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a, b, c, d, e, f] mapping the first twin onto this room (a mirror), fitted by the pipeline from polygons, openings and drawn furniture"},
+        "twin_residual_m": {"type": ["number", "null"]},
         "same_as": {"type": ["string", "null"], "description": "Milestone 10: on an alternative level, the base room this room equals (polygon within 2 cm, same openings, same drawn furniture)"},
         "style_override": {"type": ["string", "null"]},
         "status": {"enum": ["verified", "unverified"]},
@@ -431,8 +454,11 @@
           "reason": {"type": "string", "description": "Why direction and turn are assumed"}
         }},
         "shape": {"enum": ["round", "L"], "description": "round = a circle fits >= 90 % of the drawn outline (docs/milestone7.md §6.4: a round side table); L = the corner sofa (Milestone 10: chaise_side, chaise_depth); absent = the footprint rectangle"},
-        "chaise_side": {"enum": ["left", "right"], "description": "L shape: the side of the long seat, seen from the front"},
-        "chaise_depth": {"type": "number", "description": "L shape: depth of the long seat (metres, along the piece's depth axis)"},
+        "chaise_side": {"enum": ["left", "right"], "description": "L shape: the side of the chaise; right = local +X = the right of a viewer facing the sofa's front. In the piece frame (front = local -Y, back edge at y = +D/2): main seat x in [-W/2, W/2], y in [D/2 - seat_depth, D/2]; chaise x in [W/2 - chaise_width, W/2] (right) or [-W/2, -W/2 + chaise_width] (left), y in [-D/2, D/2]. A mirrored twin flips it. wenart.furniture.schemas.l_parts gives both rectangles"},
+        "chaise_depth": {"type": "number", "description": "L shape: = the footprint depth D (kept for readers of the first M10 contract)"},
+        "seat_depth": {"type": "number", "description": "L shape: depth of the main seat along the back (default 0.9)"},
+        "chaise_width": {"type": "number", "description": "L shape: width of the chaise (default 0.9)"},
+        "mount_bottom_m": {"type": ["number", "null"], "minimum": 0, "description": "Milestone 10: bottom of a wall-hung piece above the level floor (wall_cabinet 1.45, by rule); null or absent = stands on the floor. Wall-hung pieces are not floor obstacles: exempt from no_overlap with floor pieces, the door approach strip and the walkways"},
         "circle_fit": {"type": "object", "description": "The circle fitted to the drawn outline: share of the outline on it, radius in metres", "properties": {
           "share": {"type": "number"},
           "radius": {"type": "number"}
@@ -455,27 +481,36 @@
         "completes_room": {"type": "boolean", "description": "Milestone 10: added_by_ai in a room with drawn furniture (furnished_rooms: complete)"},
         "method": {"enum": ["ai", "rule"], "description": "Milestone 10: how an added piece was placed (rule: wall cabinets along a counter run)"},
         "mirrored_from": {"type": ["string", "null"], "description": "Milestone 10: the AI decision copied (mirrored) from this piece of the twin room, or copied from the same_as base room"},
-        "design": {"type": "object", "description": "Milestone 10 looks (docs/milestone10.md §4.4-§4.7)", "properties": {
+        "design": {"type": "object", "description": "Milestone 10 looks (docs/milestone10.md §4.4-§4.7), written by the layout stage (track B) for every piece of a completed or kept room from style.json and the agreed answers; the fit and the build only read it", "properties": {
           "front_style": {"enum": ["flat", "shaker", "slatted", "glass", null]},
           "colour": {"type": ["string", "null"], "description": "Vocabulary colour name"},
           "fabric_colour": {"type": ["string", "null"]},
-          "wood": {"type": ["string", "null"], "description": "Wood or veneer slug"},
+          "wood": {"type": ["string", "null"], "description": "Furniture wood: a FURNITURE_MATERIALS wood_veneer_* slug"},
           "handle": {"enum": ["brushed_steel", "black", "brass", null]},
           "worktop": {"enum": ["stone", "wood", "terrazzo", "steel", null]},
-          "material_tags": {"type": "array", "items": {"type": "string"}, "description": "glass, wood, metal, fabric, rattan, marble: what the brief asks for (the fit honours them)"},
+          "material_tags": {"type": "array", "items": {"enum": ["glass", "wood", "metal", "fabric", "rattan", "marble"]}, "description": "What the brief asks for (the fit prefers library models with these judged tags)"},
           "built_in": {"type": "boolean"},
           "vanity": {"type": "boolean"},
           "style_family": {"type": ["string", "null"]}
         }},
         "footprint": {"$ref": "#/$defs/footprint"},
-        "front_deg": {"type": ["number", "null"], "description": "Direction the piece faces (e.g. away from a bed headboard, out of a sofa back). null = not determinable"},
+        "rule": {"type": "object", "description": "Milestone 10: how a rule-placed piece (method rule) was placed, e.g. a wall cabinet's counter run and band"},
+        "checks": {"type": "object", "description": "Placer checks of an AI-placed piece (inside_room, no_overlap, clearance_ok, doors_free, windows_free, wall_contact)"},
+        "front_deg": {"type": ["number", "null"], "description": "Direction the piece faces (e.g. away from a bed headboard, out of a sofa back), degrees counter-clockwise from +X; = (270 + footprint.rotation_deg) mod 360 when known. null = not determinable"},
         "height": {"type": ["number", "null"]},
         "asset": {"type": ["object", "null"], "description": "Chosen 3D asset: library, id, license, fit scale", "properties": {
           "library": {"type": "string"}, "asset_id": {"type": "string"}, "license": {"type": "string"}, "fit_scale": {"type": "array", "items": {"type": "number"}}
         }},
         "status": {"enum": ["verified", "unverified"]},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
-      }
+      },
+      "allOf": [
+        {"if": {"properties": {"modified_by_ai": {"const": true}}, "required": ["modified_by_ai"]}, "then": {"required": ["drawn_type", "drawn_footprint", "drawn_height", "anchor"], "properties": {"source": {"const": "from_documents"}}}},
+        {"if": {"properties": {"completes_room": {"const": true}}, "required": ["completes_room"]}, "then": {"properties": {"source": {"const": "added_by_ai"}}}},
+        {"if": {"properties": {"type_proposal": {"const": true}}, "required": ["type_proposal"]}, "then": {"properties": {"status": {"const": "unverified"}}}},
+        {"if": {"properties": {"shape": {"const": "L"}}, "required": ["shape"]}, "then": {"required": ["chaise_side"], "properties": {"type": {"const": "sofa_corner"}}}},
+        {"if": {"properties": {"type": {"const": "wall_cabinet"}}, "required": ["type"]}, "then": {"required": ["mount_bottom_m"]}}
+      ]
     },
     "footprint": {
       "type": "object",

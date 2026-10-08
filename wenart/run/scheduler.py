@@ -1278,21 +1278,24 @@ class Orchestrator:
     # ----- phase 3: Qwen photos + layout -----------------------------------
 
     def layout_needed(self, pr: ProjectRun) -> int:
-        """Rooms the layout furnishes (0 when there is none or the brief switches AI furnishing off)."""
+        """Rooms the layout asks the model about: the empty rooms (0 when the brief switches AI furnishing off) and,
+        Milestone 10 (docs/milestone10.md §2.1), the furnished rooms it completes (``furnished_rooms: complete``)."""
         building = read_json(pr.out / "building_fitted.json")
         if not isinstance(building, dict):
             return 0
         mode = ((building.get("project") or {}).get("brief") or {}).get("empty_rooms", "ai")
-        if mode != "ai":
-            return 0
         from wenart.furniture.layout import empty_rooms
-        return len(empty_rooms(building))
+        n = len(empty_rooms(building)) if mode == "ai" else 0
+        from wenart.furniture import complete as C
+        settings = C.load_settings(pr.ref.project_dir)
+        return n + sum(1 for r in C.furnished_rooms(building) if C.completion_skip_reason(r, settings) is None)
 
     def layout_fp(self, pr: ProjectRun) -> tuple[str, dict, list]:
         cmd = S.layout(self.tools, pr.ref, "<server>")
         args = list(cmd[1:])
         args[args.index("<server>")] = f"{self.tools.model_id('qwen')}@{self.tools.model_revision('qwen')}"
-        ins = ST.file_hashes([pr.out / "building_fitted.json", pr.out / "style.json"])
+        ins = ST.file_hashes([pr.out / "building_fitted.json", pr.out / "style.json",
+                              pr.ref.project_dir / "brief.yaml"])         # M10: furnished_rooms keys
         return ST.fingerprint("layout", S.STAGE_VERSION["layout"], args, ins, self.code("layout")), ins, args
 
     def layout_reusable(self, pr: ProjectRun) -> bool:
@@ -1417,12 +1420,12 @@ class Orchestrator:
         return bool(pr.decor_rooms) and "decor_ask" not in pr.records and not self.decor_ask_reusable(pr)
 
     def layout_prepare(self, pr: ProjectRun) -> None:
-        """The rooms the layout furnishes, or the layout skipped (``no empty room``); once per project."""
+        """The rooms the layout furnishes, or the layout skipped (``no empty or completable room``, M10); once per project."""
         if "layout" in pr.records or pr.layout_rooms:
             return
         pr.layout_rooms = self.layout_needed(pr)
         if not pr.layout_rooms:
-            self.skip(pr, "layout", "no empty room")
+            self.skip(pr, "layout", "no empty or completable room")
 
     # ----- Milestone 9: the AI decor's questions (docs/milestone9.md §4) ---------------------------------------
 

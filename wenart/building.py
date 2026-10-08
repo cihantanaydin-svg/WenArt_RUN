@@ -165,7 +165,8 @@ def empty_building(project_id: str, source_folder: str, pipeline_commit: str,
 def evidence(file: str, method: str, confidence: float, *, page: Optional[int] = None,
              layer: Optional[str] = None, entity: Optional[str] = None, block: Optional[str] = None,
              pixel_box: Optional[list] = None, dpi: Optional[float] = None, model: Optional[str] = None,
-             pass_: Optional[int] = None, text: Optional[str] = None) -> dict:
+             pass_: Optional[int] = None, text: Optional[str] = None, region_id: Optional[str] = None,
+             rule: Optional[str] = None) -> dict:
     """Build an evidence object. Only the keys that are given are written, so
     JSON stays short; the schema treats missing and null the same.
 
@@ -180,6 +181,7 @@ def evidence(file: str, method: str, confidence: float, *, page: Optional[int] =
     optional = {
         "page": page, "layer": layer, "entity": entity, "block": block,
         "pixel_box": pixel_box, "dpi": dpi, "model": model, "pass": pass_, "text": text,
+        "region_id": region_id, "rule": rule,          # Milestone 10: the sheets.json region, the deciding rule
     }
     for key, value in optional.items():
         if value is not None:
@@ -230,6 +232,18 @@ def slugify(text: str) -> str:
     folded = fold_ascii(text)
     slug = re.sub(r"[^a-z0-9]+", "_", folded).strip("_")
     return slug or "room"
+
+
+def variant_slug(text: str) -> str:
+    """Milestone 10: the ASCII slug of an alternative plan's name, hyphens (``( Açık mutfak)`` -> ``acik-mutfak``;
+    the base: ``base``); building.schema ``levels[].variant_slug``."""
+    return slugify(str(text).strip(" ()")).replace("_", "-")
+
+
+def variant_id(level_id: str, slug: str) -> str:
+    """Milestone 10: the variant id of an alternative level (``L-1b``, ``acik-mutfak`` -> ``l-1b-acik-mutfak``);
+    ``base`` for the base. Used in outputs/<p>/variants/<id>/ and <p>-<id>.blend/.glb."""
+    return "base" if slug == "base" else f"{level_id.lower()}-{slug}"
 
 
 # --------------------------------------------------------------------------

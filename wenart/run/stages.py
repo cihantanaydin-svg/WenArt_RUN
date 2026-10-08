@@ -116,10 +116,9 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
 # parametric.piece_bbox, its question the layout's style text).
 DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py",
               "wenart/furniture/schemas.py", "wenart/furniture/layout.py", "wenart/furniture/prompts.py",
+              "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/brief.py",
               "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
-              "wenart/schema/**", "wenart/style/**", "wenart/recognition/**",
-              "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
-              "wenart/blender/common.py")
+              "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**")
 DECOR_ANSWERS = "decor_ai_answers.json"
 
 
@@ -151,9 +150,11 @@ STAGE_LIST = (
     Stage(7, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
     Stage(8, "layout", "vlm", "fingerprint", "failed",
           ("wenart/furniture/layout.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
-           "wenart/furniture/schemas.py", "wenart/recognition/**", "wenart/style/**", "wenart/building.py",
-           "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**"),
-          ("building_furnished.json", "layout.json"), heavy=True),
+           "wenart/furniture/schemas.py", "wenart/furniture/complete.py", "wenart/furniture/locked.py",
+           "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/brief.py", "wenart/defaults.yaml",
+           "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**",
+           "wenart/blender/**"),
+          ("building_furnished.json", "layout.json", "completion.json", "completion_report.md"), heavy=True),
     # Milestone 9 (docs/milestone9.md §4): the AI decor's two passes per room, asked in the layout's Qwen session
     # (answers stored by key in decor_ai_answers.json); a failure is a warning: the decor stage then falls back to
     # the rules for the rooms without both answers.
@@ -314,9 +315,13 @@ def fit(tools: Tools, ref: ProjectRef) -> list[str]:
 
 
 def layout(tools: Tools, ref: ProjectRef, url: str) -> list[str]:
+    """The empty-room layout (M4) and the completion of furnished rooms (M10 §2) in one run; ``--project-dir``: the
+    brief keys furnished_rooms, furnished_rooms_keep(_size), render.twin_rooms (its brief.yaml is in the
+    fingerprint through the project folder)."""
     return [tools.py, "-m", "wenart.furniture.layout", _out(ref, "building_fitted.json"), "--style",
             _out(ref, "style.json"), "--server", url, "--model", tools.model_id("qwen"), "--out",
-            _out(ref, "building_furnished.json"), "--debug", _out(ref, "layout_debug"), "--passes", "2"]
+            _out(ref, "building_furnished.json"), "--debug", _out(ref, "layout_debug"), "--passes", "2",
+            "--project-dir", t(ref.project_dir)]
 
 
 def decor_ask(tools: Tools, ref: ProjectRef, furnished: bool, url: str) -> list[str]:

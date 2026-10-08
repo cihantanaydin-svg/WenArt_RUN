@@ -59,6 +59,14 @@ def test_building_m10_example_covers_feature_1_labels():
 
 @pytest.mark.parametrize("mutate, where", [
     (lambda b: b["variants"][1].pop("levels"), "variants"),
+    (lambda b: b["variants"][1].update(id="L-1b open"), "variants"),
+    (lambda b: b["furniture"][next(i for i, f in enumerate(b["furniture"]) if f.get("modified_by_ai"))].pop("drawn_type"),
+     "furniture"),
+    (lambda b: b["furniture"][next(i for i, f in enumerate(b["furniture"]) if f["type"] == "wall_cabinet")].pop(
+        "mount_bottom_m"), "furniture"),
+    (lambda b: b["furniture"][next(i for i, f in enumerate(b["furniture"]) if f.get("completes_room"))].update(
+        source="from_documents"), "furniture"),
+    (lambda b: b["roof"]["thickness"].pop("note"), "roof"),
     (lambda b: b["slabs"][0].update(thickness_source="guess"), "slabs"),
     (lambda b: b["roof"].update(type="dome"), "roof"),
     (lambda b: b["furniture"][0].update(anchor={"kind": "corner", "point": [0, 0]}), "furniture"),
@@ -71,6 +79,56 @@ def test_building_m10_broken_copies_fail(mutate, where):
     mutate(broken)
     errors = B.validation_errors(broken)
     assert errors and any(where in e for e in errors), errors
+
+
+def test_example_furniture_follows_the_front_convention_and_its_checks():
+    """front_deg = (270 + rotation_deg) mod 360 for every piece with a front; every AI-placed piece that records its
+    placer checks passes them in the example (docs/milestone10.md §1.1; review of 8 Oct 2026)."""
+    from wenart.furniture import placer as P
+
+    example = json.loads(EXAMPLE.read_text(encoding="utf-8"))
+    for f in example["furniture"]:
+        if f.get("front_deg") is not None:
+            assert f["front_deg"] == pytest.approx((270 + f["footprint"]["rotation_deg"]) % 360), f["id"]
+    rooms = {r["id"]: r for r in example["rooms"]}
+    for f in example["furniture"]:
+        if "checks" not in f:
+            continue
+        room = rooms[f["room_id"]]
+        ctx = P.room_context(example, room)
+        others = [P.piece_from_furniture(g, i) for i, g in enumerate(example["furniture"])
+                  if g["room_id"] == room["id"] and g["id"] != f["id"] and g.get("mount_bottom_m") is None]
+        piece = P.piece_from_furniture(f, len(others))
+        piece.against_wall = f.get("front_deg") is not None
+        checks = P.check_all(others + [piece], ctx)[-1]
+        assert not P.failed_checks(checks), (f["id"], checks)
+
+
+def test_examples_agree_with_each_other():
+    """The building example and the sheets example describe the same project."""
+    building = json.loads(EXAMPLE.read_text(encoding="utf-8"))
+    sheets = json.loads(SHEETS_EXAMPLE.read_text(encoding="utf-8"))
+    assert [v["id"] for v in building["variants"]] == [v["id"] for v in sheets["variants"]]
+    regions = {r["id"]: r for r in sheets["regions"]}
+    assert len(regions) == len(sheets["regions"])                          # unique in the project
+    for lv in building["levels"]:
+        assert regions[lv["region_id"]]["use"] == "read", lv["id"]
+    for page in building["documents"][0]["pages"]:
+        assert regions[page["region_id"]]["use"] in ("read", "heights", "exterior")
+        assert page["region_box"] == regions[page["region_id"]]["box"]
+    sheet_kinds = set(json.loads(SHEETS_SCHEMA.read_text(encoding="utf-8"))["$defs"]["conflict"]["properties"]["kind"]["enum"])
+    building_kinds = set(B.load_schema()["$defs"]["conflict"]["properties"]["kind"]["enum"])
+    assert sheet_kinds <= building_kinds
+    b_value = B.load_schema()["$defs"]["value"]
+    s_value = json.loads(SHEETS_SCHEMA.read_text(encoding="utf-8"))["$defs"]["value"]
+    assert b_value["properties"]["method"] == s_value["properties"]["method"] and b_value["allOf"] == s_value["allOf"]
+    b_ev = set(B.load_schema()["$defs"]["evidence"]["properties"])
+    s_ev = set(json.loads(SHEETS_SCHEMA.read_text(encoding="utf-8"))["$defs"]["evidence"]["properties"])
+    assert {"region_id", "rule"} <= b_ev and {"region_id", "rule"} <= s_ev
+    # The reference plan's transform puts the outer wall faces' min corner on the building origin.
+    walls = [w for w in building["walls"] if w["level_id"] == "L0" and w["exterior"]]
+    assert min(min(w["start"][0], w["end"][0]) - w["thickness"] / 2 for w in walls) == pytest.approx(0.0)
+    assert min(min(w["start"][1], w["end"][1]) - w["thickness"] / 2 for w in walls) == pytest.approx(0.0)
 
 
 def test_schema_has_the_new_types():
@@ -94,14 +152,20 @@ def test_sheets_example_validates_and_broken_copy_fails():
     broken = copy.deepcopy(doc)
     broken["heights"]["levels"][0]["floor_z"]["method"] = "guess"
     assert _sheets_errors(broken)
+    broken = copy.deepcopy(doc)                                    # an AI-only class never makes a plan
+    broken["regions"][1].update(class_method="ai")
+    assert _sheets_errors(broken)
+    broken = copy.deepcopy(doc)                                    # an assumed value needs its note and confidence 0
+    broken["heights"]["roof"]["thickness"].pop("note")
+    assert _sheets_errors(broken)
 
 
-def test_examples_are_reproducible():
+def test_examples_are_reproducible(tmp_path):
     """The committed examples are what docs/examples/make_m10_examples.py writes."""
-    before = (EXAMPLE.read_bytes(), SHEETS_EXAMPLE.read_bytes())
-    subprocess.run([sys.executable, str(ROOT / "docs" / "examples" / "make_m10_examples.py")], cwd=ROOT, check=True,
-                   env={"PYTHONPATH": str(ROOT), "PATH": "/usr/bin:/bin"}, capture_output=True)
-    assert (EXAMPLE.read_bytes(), SHEETS_EXAMPLE.read_bytes()) == before
+    subprocess.run([sys.executable, str(ROOT / "docs" / "examples" / "make_m10_examples.py"), "--out-dir", str(tmp_path)],
+                   cwd=ROOT, check=True, env={"PYTHONPATH": str(ROOT), "PATH": "/usr/bin:/bin"}, capture_output=True)
+    assert (tmp_path / EXAMPLE.name).read_bytes() == EXAMPLE.read_bytes()
+    assert (tmp_path / SHEETS_EXAMPLE.name).read_bytes() == SHEETS_EXAMPLE.read_bytes()
 
 
 def test_brief_m10_defaults():
