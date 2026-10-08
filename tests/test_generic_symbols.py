@@ -362,11 +362,24 @@ def test_an_l_outline_is_a_corner_sofa_candidate():
     assert sorted(c["footprint"]["size"]) == pytest.approx([1.6, 2.6])
     assert c["front_candidates"] == [{"front_deg": 270.0, "rule": "L outline: the open inner corner is the front"}]
     d = c["item"].details
-    assert (d["shape"], d["chaise_side"]) == ("L", "right")         # the contract example: chaise on local +X
-    assert (d["chaise_depth"], d["seat_depth"], d["chaise_width"]) == pytest.approx((1.6, 0.9, 0.9))
+    assert "shape" not in d                                          # shape L only once the type is sofa_corner
+    assert d["l_outline"]["chaise_side"] == "right"                  # the contract example: chaise on local +X
+    lo = d["l_outline"]
+    assert (lo["chaise_depth"], lo["seat_depth"], lo["chaise_width"]) == pytest.approx((1.6, 0.9, 0.9))
     assert c["item"].evidence["note"].startswith("L outline 2.60 x 1.60 m: main seat 0.90 m deep")
     _, cands2, _ = _furn(_l_sofa("bottom-right"))
-    assert cands2[0]["item"].details["chaise_side"] == "left"        # the mirrored twin
+    assert cands2[0]["item"].details["l_outline"]["chaise_side"] == "left"       # the mirrored twin
+
+
+def test_a_corner_sofa_block_takes_its_l_front():
+    sofa = [Stroke(id=f"INSERT:S1/{k}", kind=s.kind, pts=s.pts, closed=s.closed, block="KÖŞE KOLTUK")
+            for k, s in enumerate(_l_sofa())]
+    pieces, cands, _ = _furn(sofa)
+    assert not cands and [p.type for p in pieces] == ["sofa_corner"]
+    p = pieces[0]
+    assert p.type_method == "block_name" and p.status == "verified" and p.front_deg == 270.0
+    assert p.size == pytest.approx((2.6, 1.6)) and p.rotation_deg == 0.0     # front_deg = (270 + rotation) mod 360
+    assert p.details["l_outline"]["chaise_side"] == "right"
 
 
 def test_rectangles_and_u_shapes_are_no_l():

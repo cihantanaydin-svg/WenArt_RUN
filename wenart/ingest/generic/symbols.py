@@ -1957,10 +1957,12 @@ def l_shape(cl: Cluster, theta: float) -> Optional[dict]:
 
 
 def l_details(lsh: dict) -> dict:
-    """``FurnitureItem.details`` of an L-shaped piece (the building fields ``shape``, ``chaise_side``,
-    ``chaise_depth``; the measured seat depth and chaise width as well, for the evidence)."""
-    return {"shape": "L", "chaise_side": lsh["chaise_side"], "chaise_depth": lsh["chaise_depth"],
-            "seat_depth": lsh["seat_depth"], "chaise_width": lsh["chaise_width"]}
+    """``FurnitureItem.details`` of an L-shaped piece: ``l_outline`` = the building fields of a corner sofa
+    (``chaise_side``, ``chaise_depth``, ``seat_depth``, ``chaise_width``; docs/milestone10.md §1.6b row 15). Not
+    ``shape`` itself: the schema allows ``shape: L`` only on a ``sofa_corner``, and a candidate's type is decided
+    later (the pipeline writes ``shape: L`` and these fields when the piece is a ``sofa_corner``)."""
+    return {"l_outline": {"chaise_side": lsh["chaise_side"], "chaise_depth": lsh["chaise_depth"],
+                          "seat_depth": lsh["seat_depth"], "chaise_width": lsh["chaise_width"]}}
 
 
 def _instance_key(part: Cluster) -> Optional[str]:

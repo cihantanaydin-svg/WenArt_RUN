@@ -209,7 +209,7 @@ def test_basement_corner_sofas_are_l_shaped_candidates(extractions):
         assert "sofa_corner" in c["fits"] and "sofa_corner" in c["request"]["question"]["choices"]
         assert c["request"]["question"]["shape"] == "L"
         assert [f["rule"] for f in c["front_candidates"]] == ["L outline: the open inner corner is the front"]
-    sides = sorted(f.details["chaise_side"] for f in ex.furniture if f.details.get("shape") == "L")
+    sides = sorted(f.details["l_outline"]["chaise_side"] for f in ex.furniture if f.details.get("l_outline"))
     assert sides == ["left", "right"]                                      # mirrored twins
 
 
@@ -226,10 +226,10 @@ def test_corner_sofas_with_agreeing_answers(pages, extractions):
     allowed = "sofa_corner" in (RS.allowed_types("living") or set())
     for f in sofas:
         assert f.status == ("verified" if allowed else "unverified") and f.type_method == "ai_two_pass"
-        assert f.details["shape"] == "L" and f.details["chaise_depth"] == pytest.approx(1.97, abs=0.02)
+        assert f.details["l_outline"]["chaise_depth"] == pytest.approx(1.97, abs=0.02)
         assert f.size == pytest.approx((4.38, 1.97), abs=0.02)             # width along the back, depth = chaise
         assert f.front_deg in (0.0, 180.0) and f.details.get("front_rule", "").startswith("L outline")
     # Facing each other across the party wall: the left dwelling's sofa faces west, its twin east.
     left, right = sorted(sofas, key=lambda f: f.center[0])
     assert (left.front_deg, right.front_deg) == (180.0, 0.0)
-    assert (left.details["chaise_side"], right.details["chaise_side"]) == ("right", "left")
+    assert (left.details["l_outline"]["chaise_side"], right.details["l_outline"]["chaise_side"]) == ("right", "left")
