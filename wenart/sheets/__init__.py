@@ -206,9 +206,13 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                 s["distance_m"] = round(s["distance_m"] * mpu, 2) if mpu else None
                 s["_m"] = True
 
-        # Classes: title, then geometry.
+        # Classes: a title block first (its field texts never make it a plan), then the title, then geometry.
         for r in doc_regions:
             if r.kind == "raster":
+                continue
+            if CL.is_title_block(r, mpu, r.sheet.frames, r.sheet.gap or 0.0):
+                r.features = CL.features(r, mpu)
+                CL.by_geometry(r, r.features, r.sheet.frames, r.sheet.gap or 0.0)
                 continue
             titled = CL.by_title(r)
             r.features = CL.features(r, mpu)

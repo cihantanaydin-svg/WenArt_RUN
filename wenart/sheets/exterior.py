@@ -519,6 +519,16 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
            "chimneys": []}
     plan_roof = roof_from_plan(top_plan, warnings, section)
     sec_type = roof_from_section(section)
+    if plan_roof is not None and plan_roof["type"] == "mansard" and sec_type is not None and sec_type[0] == "gable":
+        # The section shows one slope per side: the closed line inside the roof outline is no slope break (an outer
+        # wall face, a room outline). The section wins; the line is listed.
+        line = next((e["entity"] for e in plan_roof["evidence"] if e.get("rule") == "roof_break_line"), None)
+        conflict("other", [top_plan.id, section.region.id],
+                 f"roof type: the closed line {line} inside the roof outline on {top_plan.id} reads as a mansard "
+                 f"break line, the section {section.region.id} shows one slope per side (gable)",
+                 "the section wins: gable; the closed line is not used as a break line")
+        plan_roof = dict(plan_roof, type=None, break_line=None,
+                         evidence=[e for e in plan_roof["evidence"] if e.get("rule") != "roof_break_line"])
     roof = None
     if plan_roof is not None and plan_roof["type"]:
         roof = {"type": plan_roof["type"], "type_source": "plan_roof_lines", "outline": plan_roof["outline"],

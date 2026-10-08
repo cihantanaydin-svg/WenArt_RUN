@@ -49,8 +49,9 @@ def text_runs(region: Region) -> list[TextRun]:
 
 
 def by_title(region: Region) -> bool:
-    """Class from the region's own title (``title`` keywords); True when a title decided."""
-    t = T.pick_title(region.texts, region.geometry_box)
+    """Class from the region's own title (``title`` keywords); True when a title decided. A keyword text inside a
+    region at label size counts only for a drawing (not for a lone box or a text block)."""
+    t = T.pick_title(region.texts, region.geometry_box, fallback=region.kind == "drawing")
     if t is None:
         return False
     hit = T.class_of(t.text)
@@ -209,26 +210,53 @@ def columns_of(region: Region, mpu: Optional[float]) -> list[tuple[float, float]
     return out
 
 
+def is_title_block(region: Region, mpu: Optional[float], frames: list, gap: float) -> bool:
+    """A title block, decided before any title is read (docs/milestone10.md §3.1 item 1): a lone rectangle with its
+    texts, or a frame-edge block of short texts whose keyword text (``PAFTA: ZEMİN KAT PLANI``) is a field inside it
+    and that no drawing rule claims. Its keyword text never makes it a plan."""
+    if region.kind == "box":
+        return True
+    if region.kind != "drawing" or not _frame_edge_texts(region, frames, gap):
+        return False
+    b = region.geometry_box
+    fields = [t for t in region.texts if (T.class_of(t.text) or T.level_of(t.text))
+              and b[0] <= t.point[0] <= b[2] and b[1] <= t.point[1] <= b[3]]
+    if not fields:
+        return False                         # a drawing's own title sits outside it: the title decides
+    return geometry_rule(region, features(region, mpu), frames, gap)[0] == "title_block"
+
+
+def _frame_edge_texts(region: Region, frames: list, gap: float) -> bool:
+    return _at_frame_edge(region, frames, gap) and len(region.texts) >= 4 \
+        and all(len(t.text.split()) <= 4 for t in region.texts)
+
+
+def geometry_rule(region: Region, f: dict, frames: list, gap: float) -> tuple[Optional[str], Optional[str]]:
+    """(class, rule) from geometry, or (None, None). A lone rectangle is a title block first; the drawing rules
+    (section, elevation, site plan, floor plan, roof plan) come before the frame-edge title-block rule, which only
+    takes a region no drawing rule claims and that shows no drawing evidence."""
+    if f.get("title_box"):
+        return "title_block", "lone_rectangle_with_texts" if region.texts else "lone_rectangle"
+    if f.get("slab_bands", 0) >= 2 and (f.get("roof_lines", 0) >= 1 or f.get("level_marks", 0) >= 1):
+        return "section", "slab_bands"
+    if not f.get("slab_bands") and f.get("ground_lines") and f.get("window_rows", 0) >= 1:
+        return "elevation", "window_rows"
+    if (f.get("north_arrow") or f.get("street_words")) and f.get("closed_rectangles", 0) >= 2 \
+            and not f.get("room_labels"):
+        return "site_plan", "north_arrow_or_street_words"
+    if f.get("room_labels", 0) >= 2 and (f.get("wall_test") or f.get("wall_pairs", 0) >= 4):
+        return "floor_plan", "room_labels_and_walls"
+    if not f.get("room_labels") and f.get("roof_outline") and f.get("hip_lines", 0) >= 2:
+        return "roof_plan", "outline_with_hip_lines"
+    drawn = f.get("slab_bands") or f.get("window_rows") or f.get("wall_pairs", 0) >= 4 or f.get("roof_outline")
+    if _frame_edge_texts(region, frames, gap) and not f.get("room_labels") and not drawn:
+        return "title_block", "frame_edge_short_texts"
+    return None, None
+
+
 def by_geometry(region: Region, f: dict, frames: list, gap: float) -> bool:
     """Class from geometry for an untitled region; True when a rule decided."""
-    rule = None
-    cls = None
-    if f.get("title_box"):
-        cls, rule = "title_block", "lone_rectangle_with_texts" if region.texts else "lone_rectangle"
-    elif _at_frame_edge(region, frames, gap) and len(region.texts) >= 4 and not f.get("room_labels") \
-            and all(len(t.text.split()) <= 4 for t in region.texts):
-        cls, rule = "title_block", "frame_edge_short_texts"
-    elif f.get("slab_bands", 0) >= 2 and (f.get("roof_lines", 0) >= 1 or f.get("level_marks", 0) >= 1):
-        cls, rule = "section", "slab_bands"
-    elif not f.get("slab_bands") and f.get("ground_lines") and f.get("window_rows", 0) >= 1:
-        cls, rule = "elevation", "window_rows"
-    elif (f.get("north_arrow") or f.get("street_words")) and f.get("closed_rectangles", 0) >= 2 \
-            and not f.get("room_labels"):
-        cls, rule = "site_plan", "north_arrow_or_street_words"
-    elif f.get("room_labels", 0) >= 2 and (f.get("wall_test") or f.get("wall_pairs", 0) >= 4):
-        cls, rule = "floor_plan", "room_labels_and_walls"
-    elif not f.get("room_labels") and f.get("roof_outline") and f.get("hip_lines", 0) >= 2:
-        cls, rule = "roof_plan", "outline_with_hip_lines"
+    cls, rule = geometry_rule(region, f, frames, gap)
     if cls is None:
         return False
     region.cls, region.class_method, region.status = cls, "geometry", "verified"

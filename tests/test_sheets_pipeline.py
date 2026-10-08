@@ -127,7 +127,8 @@ def test_slabs_roof_and_site(built):
     assert stair["type"] == "stair" and stair["level_id"] == "L-1"
     assert all(s["variants"] == [] for s in slabs.values())
     roof = building["roof"]
-    assert roof["type"] == "mansard" and roof["type_source"] == "plan_roof_lines" and roof["planes"] == []
+    assert roof["type"] == "gable" and roof["type_source"] == "section" and roof["planes"] == []
+    assert roof["ridge_lines"] == [[[5.0, -0.5], [5.0, 8.5]]]
     assert roof["over_level_id"] == "L1" and roof["eaves_height"]["value"] == pytest.approx(3.65, abs=0.01)
     assert roof["profile"]["region_id"] == "r6" and roof["profile"]["cut_axis"] == "x"
     assert roof["profile"]["points"][0] == pytest.approx([-0.5, 3.65], abs=0.01) and roof["covering"] is None

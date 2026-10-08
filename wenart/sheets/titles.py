@@ -160,10 +160,11 @@ def language_of(text: str) -> Optional[str]:
     return level.language if level else None
 
 
-def pick_title(texts, geometry_box, region_height: Optional[float] = None):
+def pick_title(texts, geometry_box, region_height: Optional[float] = None, fallback: bool = True):
     """The region's title: among its texts with a class or level word, the tallest (ties: the lowest, then the
     leftmost). Texts inside the drawing count only when they are clearly larger than its labels (>= 2 x the median
-    text height); below or above the drawing (within 0.3 x its height) any keyword text counts."""
+    text height); below or above the drawing (within 0.3 x its height) any keyword text counts. ``fallback``: a
+    keyword text inside at label size counts when nothing else does (drawings only, not a title block's field)."""
     import statistics
 
     if not texts:
@@ -179,7 +180,7 @@ def pick_title(texts, geometry_box, region_height: Optional[float] = None):
         near = (geometry_box[1] - 0.3 * h - t.height <= p[1] <= geometry_box[3] + 0.3 * h + t.height)
         if outside and near or (not outside and t.height >= 2.0 * median_h) or len(texts) == 1:
             cands.append(t)
-    if not cands:
+    if not cands and fallback:
         # A drawing whose only keyword text sits inside it at label size (a synthetic title inside the frame).
         cands = [t for t in texts if class_of(t.text) is not None]
     if not cands:

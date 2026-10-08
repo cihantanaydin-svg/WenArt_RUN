@@ -1,8 +1,9 @@
 """A small multi-drawing CAD sheet for the sheets-stage tests (docs/milestone10.md §3.1), written with ezdxf.
 
 What: ``write_sheet(path, ...)`` draws, in centimetres, one frame with a title box (``PLANLAR``, 16 fields), four
-plans (ground floor, basement, the basement's alternative ``( Açık mutfak)``, an attic with its roof outline and break
-line), a section (three slab bands, level marks 43.00 / 40.00, a roof of two slopes, ground lines) and one stray
+plans (ground floor, basement, the basement's alternative ``( Açık mutfak)``, an attic with its roof outline), a
+section (three slab bands, level marks 43.00 / 40.00, a gable roof (``roof="mansard"``: two slopes per side and the
+break line on the attic plan), ground lines) and one stray
 line far away. Every plan is a 10 x 8 m dwelling with 20 cm outer walls and a 10 cm inner wall (closed solid-hatched
 rectangles on layer ``DUVAR``), two labelled rooms, a door block (quarter arc + leaf) and a stair block.
 
@@ -135,7 +136,10 @@ def _elevation(msp, origin) -> None:
     msp.add_text("GÜNEY GÖRÜNÜŞÜ", height=50, dxfattribs={"insert": (ox, oy + 165.0), "layer": "0"})
 
 
-def _section(msp, origin, mark40_at_bottom: bool) -> None:
+MANSARD_TOP = [(-50.0, 680.0), (150.0, 880.0), (W / 2, 960.0), (W - 150.0, 880.0), (W + 50.0, 680.0)]
+
+
+def _section(msp, origin, mark40_at_bottom: bool, roof: str = "gable") -> None:
     ox, oy = origin
     line = lambda a, b: msp.add_line((ox + a[0], oy + a[1]), (ox + b[0], oy + b[1]), dxfattribs={"layer": "0"})  # noqa: E731
     for x in (0.0, OUTER, W - OUTER, W):
@@ -145,14 +149,26 @@ def _section(msp, origin, mark40_at_bottom: bool) -> None:
     # Roof: eaves 50 cm outside the walls and 50 cm above the attic floor (630), ridge 350 cm above it.
     line((-50.0, 630.0), (-50.0, 680.0))
     line((W + 50.0, 630.0), (W + 50.0, 680.0))
+    import math
+    if roof == "mansard":
+        # Steep 45 deg slopes up to the break line 1.5 m inside the walls (as on the attic plan), then shallow ones
+        # up to the ridge 3.30 m above the attic floor; each underside 20 cm below its slope (perpendicular).
+        for a, b in zip(MANSARD_TOP, MANSARD_TOP[1:]):
+            line(a, b)
+            drop = 20.0 / math.cos(math.atan2(abs(b[1] - a[1]), b[0] - a[0]))
+            line((a[0], a[1] - drop), (b[0], b[1] - drop))
+        return _section_rest(line, msp, ox, oy, mark40_at_bottom)
     line((-50.0, 680.0), (W / 2, 980.0))
     line((W / 2, 980.0), (W + 50.0, 680.0))
     # The underside 20 cm below the outer line (perpendicular), parallel to it.
-    import math
     ang = math.atan2(300.0, W / 2 + 50.0)
     dx, dy = 20.0 * math.sin(ang), -20.0 * math.cos(ang)
     line((-50.0 + dx, 680.0 + dy), (W / 2, 980.0 - 20.0 / math.cos(ang)))
     line((W / 2, 980.0 - 20.0 / math.cos(ang)), (W + 50.0 - dx, 680.0 + dy))
+    _section_rest(line, msp, ox, oy, mark40_at_bottom)
+
+
+def _section_rest(line, msp, ox, oy, mark40_at_bottom: bool) -> None:
     # Ground lines at the ground floor's level on both sides.
     line((-600.0, 315.0), (-10.0, 315.0))
     line((W + 10.0, 315.0), (W + 600.0, 315.0))
@@ -169,8 +185,11 @@ def _section(msp, origin, mark40_at_bottom: bool) -> None:
 def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
                 alternative_title: str = PLANS["alternative"][1], walls: dict | None = None, titles: dict | None = None,
                 stray: bool = True, section: bool = True, frame: bool = True, exterior: bool = False,
-                step: bool = False, detail: bool = False) -> Path:
-    """Write the sheet (DXF R2013) and return its path."""
+                step: bool = False, detail: bool = False, roof: str = "gable",
+                break_line: bool | None = None) -> Path:
+    """Write the sheet (DXF R2013) and return its path. ``roof``: the section's roof, ``gable`` (one slope per side)
+    or ``mansard`` (two per side); ``break_line``: the attic plan draws a closed line inside the roof outline (default:
+    with a mansard)."""
     doc = ezdxf.new("R2013")
     doc.header["$INSUNITS"] = insunits
     for name in ("DUVAR", "KAPI", "MERDIVEN", "VAZIYET", "AGAC", "CEPHE", "TARAMA"):
@@ -202,9 +221,10 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
         msp.add_line((gx - 30.0, gy + 200.0), (gx - 30.0, gy + 320.0), dxfattribs={"layer": "0"})
     ax, ay = PLANS["attic"][0]
     _rect(msp, ax - 50.0, ay - 50.0, ax + W + 50.0, ay + D + 50.0, "CATI")          # roof outline
-    _rect(msp, ax + 150.0, ay + 120.0, ax + W - 150.0, ay + D - 120.0, "CATI")       # break line
+    if break_line if break_line is not None else roof == "mansard":
+        _rect(msp, ax + 150.0, ay + 120.0, ax + W - 150.0, ay + D - 120.0, "CATI")   # break line
     if section:
-        _section(msp, SECTION, mark40_at_bottom)
+        _section(msp, SECTION, mark40_at_bottom, roof)
     if exterior:
         _site(msp, SITE)
         _elevation(msp, ELEVATION)
