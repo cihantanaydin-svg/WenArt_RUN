@@ -9,8 +9,8 @@ and area within 0.05 m²; openings: type, centre and width within 2 cm.
 
 Track A3 fixed the two gaps listed here before: the basement plan L-1 is built (a ray through a door or window gap of
 one wall band counts as a hit, so the Salon is closed in) and ``KAPI_SURME_90`` is a sliding door (a leaf as long as
-its gap, drawn half open). Known gap, xfail: with L-1 built, the elevation check counts the basement windows that stand
-below the ground line (the elevations do not draw them; ``sheets/to_building.plan_check``, track A1)."""
+its gap, drawn half open). The elevation check leaves out the openings whose head is below the ground line (the elevations
+do not draw them; ``sheets/to_building.plan_check``)."""
 from __future__ import annotations
 
 import json
@@ -310,9 +310,6 @@ def test_pipeline_roof_facade_and_site(built):
         pytest.approx(flat(sorted(t["center"] for t in ext["site"]["trees"])), abs=0.01)
 
 
-@pytest.mark.xfail(reason="track A1: plan_check counts the basement windows below the ground line, which the "
-                          "elevations do not draw (exterior_truth: 'basement openings stand below the ground line')",
-                   strict=False)
 def test_elevation_openings_match_the_plans(built):
     building, _ = built
     # The elevations' openings match the plans' (elevation_opening_mismatch stays empty).

@@ -398,8 +398,14 @@ def plan_check(seen: dict, north_deg: Optional[float], levels: list[dict], walls
             if out is not None and _angle_gap(out, normal) <= SIDE_ANGLE_DEG:
                 facing[w["id"]] = w
     plan = {"window": 0, "door": 0}
+    floor = {lv["id"]: lv["elevation"] for lv in levels}
+    grounds = [g["z"]["value"] for g in seen.get("ground") or [] if (g.get("z") or {}).get("value") is not None]
+    ground_z = min(grounds) if grounds else None
     for o in openings:
         if o.get("wall_id") in facing and o["type"] in plan:
+            head = floor.get(o["level_id"], 0.0) + (o.get("sill_height") or 0.0) + (o.get("height") or 0.0)
+            if ground_z is not None and head <= ground_z + MATCH_M:
+                continue                          # below the ground line: an elevation does not draw it
             plan[o["type"]] += 1
     seen_n = {"window": int(seen.get("windows") or 0), "door": int(seen.get("doors") or 0)}
     matched = sum(min(plan[k], seen_n[k]) for k in plan)
@@ -438,8 +444,10 @@ def facade_block(sheets: dict, walls: list[dict], warn, levels: Optional[list[di
                       "z_range": entry.get("z_range"), "material": entry["material"], "colour": entry.get("colour"),
                       "source": "elevation", "evidence": list(entry.get("evidence") or [])})
     elevations = []
+    ground = (sheets.get("heights") or {}).get("ground") or []
     for seen in ex.get("openings_seen") or []:
-        check = plan_check(seen, north, levels, walls, openings or [], unions or {}) if levels else None
+        check = plan_check(dict(seen, ground=ground), north, levels, walls, openings or [], unions or {}) \
+            if levels else None
         if check is None:
             warn(f"elevation {seen['region']} ({seen['side']}): its openings are not checked against the plans "
                  f"(the side needs the north arrow)")

@@ -19,12 +19,9 @@ What the plans draw, per dwelling (two mirrored dwellings on every plan, the 0.4
   (glass lines on layer 0 between the columns), L-1b's Oda there has plain side walls. Every outer wall and every
   other opening matches the base.
 
-Known gap, xfail (track A1): ``sheets.json`` region boxes are rounded to 3 decimals (``sheets.model.round_box``) and
-``dxf_generic.clip_page`` keeps an entity only when the centre of its bbox lies in the box, so a plan's outer face
-line lying on the box edge is cut off by < 0.0005 units (L-1's west face, x = 725362.846612 vs the box's 725362.847;
-L-1b's west and east faces). The basement outer walls then pair only where a column closes them (0.2-1.9 m), one
-dwelling's rooms do not close, every wall reads as exterior and the variant compares open outlines. The fix (a
-tolerance of 0.001 units in ``clip_page``) makes every xfail test here pass.
+The basement outer face lines lie on their 3-decimal region box (``sheets.model.round_box``):
+``dxf_generic.clip_page`` keeps them with its 0.001-unit tolerance (``BOX_TOL``), else the basement outer walls are
+read only 0.2-1.9 m and one dwelling's rooms do not close.
 """
 from __future__ import annotations
 
@@ -39,9 +36,6 @@ from wenart.ingest import pipeline as P
 
 pytestmark = pytest.mark.skipif(not dwg.available_converters(), reason="LibreDWG dwg2dxf not installed")
 TOL = 0.02
-CLIP_XFAIL = pytest.mark.xfail(
-    reason="track A1: dxf_generic.clip_page drops the outer face lines on the edge of the 3-decimal region box "
-           "(needs a 0.001-unit tolerance), so the basement outer walls are read only 0.2-1.9 m", strict=False)
 
 
 @pytest.fixture(scope="module")
@@ -113,7 +107,6 @@ def test_attic_rooms_and_twins(building):
     assert _twins(building, "L1") == {k: 1 for k in labels}
 
 
-@CLIP_XFAIL
 def test_basement_rooms_twins_and_openings(building):
     labels = {"Banyo": 2, "Mutfak": 2, "Koridor": 2, "Salon": 2}
     assert Counter(r["label"] for r in _rooms(building, "L-1")) == labels
@@ -121,7 +114,6 @@ def test_basement_rooms_twins_and_openings(building):
     assert _openings(building, "L-1") == {"door": 4, "window": 4, "opening": 2}
 
 
-@CLIP_XFAIL
 def test_alternative_basement_rooms_twins_and_same_as(building):
     labels = {"Banyo": 2, "Oda": 2, "Koridor": 2, "Açık Mutfak": 2}
     rooms = _rooms(building, "L-1b")
@@ -138,7 +130,6 @@ def test_alternative_basement_rooms_twins_and_same_as(building):
     assert sorted(variant["rooms_changed"]) == sorted(r["id"] for r in rooms if r["id"] not in same)
 
 
-@CLIP_XFAIL
 def test_exterior_changed_only_by_the_kitchen_side_windows(building):
     variant = building["variants"][1]
     alt_w, alt_o = _exterior(building, "L-1b")

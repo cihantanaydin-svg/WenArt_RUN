@@ -82,6 +82,7 @@ DESCENT = 0.25                     # text box estimate: depth below the baseline
 MTEXT_LINE_SPACING = 5.0 / 3.0     # AutoCAD's MTEXT baseline distance at line spacing factor 1.0
 MAX_BLOCK_DEPTH = 16
 ROUND = 6                          # decimals of page coordinates (DWG and DXF runs give the same numbers)
+BOX_TOL = 1e-3                     # sheets.json region boxes are rounded to 3 decimals (sheets.model.round_box)
 BLACK = (0.0, 0.0, 0.0)
 CURVE_TYPES = ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "CIRCLE", "ELLIPSE", "SPLINE")
 FILLED_TYPES = ("SOLID", "TRACE", "3DFACE")
@@ -207,7 +208,8 @@ def clip_page(page: GenericPage, box) -> GenericPage:
     x0, y0, x1, y1 = (float(v) for v in box)
 
     def inside(p) -> bool:
-        return x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+        # A plan's outer face lines lie on its region box: the 3-decimal rounding of the box must not cut them off.
+        return x0 - BOX_TOL <= p[0] <= x1 + BOX_TOL and y0 - BOX_TOL <= p[1] <= y1 + BOX_TOL
 
     boxes: dict[str, list[float]] = {}
     for st in page.strokes:
