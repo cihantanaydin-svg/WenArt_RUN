@@ -145,7 +145,10 @@ SOURCES: tuple[str, ...] = tuple(SURVEY_FILES)
 REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan follows their accepted models
 SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")   # rank order of docs/milestone8.md §2
 DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",             # = catalog.DECOR_TYPES
-                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9 (§3)
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9 (§3)
+                                 # Milestone 10 (docs/milestone10.md §1.1: the building schema's decor types, bar book_set)
+                                 "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
+                                 "sculpture", "plant_large", "pendant_light", "ceiling_light")
 BED_TYPES: tuple[str, ...] = ("bed_single", "bed_double")
 DOCUMENTED_RULE = "documented"                        # a front only the source's documented convention decides
 THUMBS_JSON = "thumbnails.json"
@@ -283,12 +286,27 @@ def load_size_table(path: Optional[Path] = None) -> tuple[dict, float]:
 
 
 def library_size_table(cfg: dict, path: Optional[Path] = None) -> tuple[dict, float]:
-    """``load_size_table`` plus the decor footprints of ``objaverse.yaml`` ``decor_sizes`` (docs/milestone8.md §4)."""
+    """``load_size_table`` plus the decor footprints of ``objaverse.yaml`` ``decor_sizes`` (docs/milestone8.md §4) and,
+    Milestone 10, the footprints of ``furniture_sizes`` (the new furniture types; they win over the size table)."""
     table, tol = load_size_table(path)
-    for name, spec in (cfg.get("decor_sizes") or {}).items():
-        w, d = spec["width"], spec["depth"]
-        table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
+    for block in ("furniture_sizes", "decor_sizes"):
+        for name, spec in (cfg.get(block) or {}).items():
+            w, d = spec["width"], spec["depth"]
+            table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
     return table, tol
+
+
+def furniture_types() -> tuple[str, ...]:
+    """The furniture types of the library: ``catalog.FURNITURE_TYPES`` plus the types of the building schema it has
+    not learned yet. Milestone 10 adds 14 types to the schema (the frozen contract); the catalogue module follows with
+    track F. Until it does, the library steps (survey, thumbnails, judging, plan) already know them; the order is the
+    catalogue's, then the schema's (``unknown`` last)."""
+    from wenart import building as B
+    from wenart.furniture import catalog as C
+    schema = tuple(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"])
+    extra = tuple(t for t in schema if t not in C.FURNITURE_TYPES)
+    base = tuple(C.FURNITURE_TYPES)
+    return base[:-1] + extra + base[-1:] if extra and base[-1:] == ("unknown",) else base + extra
 
 
 def heights_of(cfg: dict) -> dict:
@@ -556,6 +574,30 @@ def _load_shards(hub, shards: list[str], wanted: dict[str, set], workers: int, l
     return records
 
 
+def lvis_name(cat: str, categories: dict) -> str:
+    """The LVIS category name a ``categories`` entry reads: its ``lvis`` field, else its own key. Several entries may
+    read one LVIS category (Milestone 10: ``cabinet`` holds sideboards, shoe cabinets, wall cabinets ...)."""
+    return str(categories[cat].get("lvis") or cat)
+
+
+def new_counts() -> dict:
+    return {"lvis": 0, "metadata": 0, "licence_ok": 0, "flagged": 0, "prefilter_ok": 0, "tried": 0, "candidates": 0,
+            "not_selected": 0}
+
+
+def resolve_categories(cats: list[str], meta: dict, categories: dict, fields: dict) -> list[str]:
+    """The categories of an object whose entries have ``require_words`` (Milestone 10), on its metadata:
+    - an entry with ``require_words`` stays only when its title or a tag holds one of the words (``prefer_hit``);
+    - a matching entry takes precedence over the plain entries of the same LVIS category (a "sectional" in LVIS
+      ``sofa`` is a corner sofa, not a sofa).
+    Two matching entries of different types leave two type sets: the survey refuses the object ``several_types``
+    (never guessed). The words select the candidates; both judges still decide ``matches_type``."""
+    kept = [c for c in cats if not categories[c].get("require_words")
+            or prefer_hit(meta, fields, categories[c]["require_words"])]
+    specific = {lvis_name(c, categories) for c in kept if categories[c].get("require_words")}
+    return [c for c in kept if categories[c].get("require_words") or lvis_name(c, categories) not in specific]
+
+
 def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, workers: int = 8,
            log: Callable = print) -> dict:
     """§7.1: LVIS categories -> types, licence (any, flagged: docs/milestone8.md §2), credit, prefilter, rank,
@@ -574,16 +616,16 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     paths = read_json_gz(hub.path(ds["paths_file"]))
     if not isinstance(lvis, dict) or not isinstance(paths, dict):
         raise ValueError("lvis-annotations / object-paths are not JSON objects (format changed?)")
-    found = {c: len(lvis.get(c) or []) for c in categories if c in lvis}
-    missing_cats = sorted(c for c in categories if c not in lvis)
-    near = {c: lvis_near_names(c, lvis) for c in missing_cats}
+    found = {c: len(lvis.get(lvis_name(c, categories)) or []) for c in categories if lvis_name(c, categories) in lvis}
+    missing_cats = sorted(c for c in categories if lvis_name(c, categories) not in lvis)
+    near = {c: lvis_near_names(lvis_name(c, categories), lvis) for c in missing_cats}
     for c in missing_cats:
-        log(f"objaverse survey: LVIS category {c!r} not in {ds['lvis_file']}: its types stay parametric (a "
-            f"warning, not a failure); names in the file that share a word: {near[c] or 'none'}")
+        log(f"objaverse survey: LVIS category {lvis_name(c, categories)!r} not in {ds['lvis_file']}: its types stay "
+            f"parametric (a warning, not a failure); names in the file that share a word: {near[c] or 'none'}")
 
     uid_cats: dict[str, list[str]] = {}
     for cat in categories:
-        for uid in lvis.get(cat) or []:
+        for uid in lvis.get(lvis_name(cat, categories)) or []:
             if cat not in uid_cats.setdefault(str(uid), []):
                 uid_cats[str(uid)].append(cat)
 
@@ -591,18 +633,22 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     counts: dict[str, dict] = {}
     pools: dict[str, list[dict]] = {}
     wanted: dict[str, set] = {}
-    staged: list[tuple[str, str, list[str], list[str]]] = []
+    word_filtered = 0
+    staged: list[tuple[str, str, list[str], Optional[list[str]]]] = []
     for uid in sorted(uid_cats):
         cats = uid_cats[uid]
-        type_sets = {tuple(categories[c]["types"]) for c in cats}
-        if len(type_sets) > 1:
-            refused.append(_refusal(uid, "several_types", ", ".join(cats), categories=cats))
-            continue
-        types = list(next(iter(type_sets)))
-        group = group_key(types)
-        c = counts.setdefault(group, {"lvis": 0, "metadata": 0, "licence_ok": 0, "flagged": 0, "prefilter_ok": 0,
-                                      "tried": 0, "candidates": 0, "not_selected": 0})
-        c["lvis"] += 1
+        types = None                    # categories with require_words: the type is resolved on the metadata
+        if not any(categories[c].get("require_words") for c in cats):
+            type_sets = {tuple(categories[c]["types"]) for c in cats}
+            if len(type_sets) > 1:
+                refused.append(_refusal(uid, "several_types", ", ".join(cats), categories=cats))
+                continue
+            types = list(next(iter(type_sets)))
+            group = group_key(types)
+            c = counts.setdefault(group, new_counts())
+            c["lvis"] += 1
+        else:
+            group = None
         if not _UID_RE.fullmatch(uid):
             refused.append(_refusal(uid, "bad_uid", "", categories=cats, group=group))
             continue
@@ -626,10 +672,24 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     missing_fields: dict[str, int] = {}
     max_bytes = float(pre["max_glb_mb"]) * 1024 * 1024
     for uid, opath, cats, types in staged:
+        meta = records.get(uid)
+        if types is None:
+            if meta is None:
+                refused.append(_refusal(uid, "no_metadata", "", categories=cats))
+                continue
+            kept = resolve_categories(cats, meta, categories, fields)
+            if not kept:
+                word_filtered += 1                      # none of its words is in the title or tags: no type
+                continue
+            type_sets = {tuple(categories[c]["types"]) for c in kept}
+            if len(type_sets) > 1:
+                refused.append(_refusal(uid, "several_types", ", ".join(kept), categories=kept))
+                continue
+            cats, types = kept, list(next(iter(type_sets)))
+            counts.setdefault(group_key(types), new_counts())["lvis"] += 1
         group = group_key(types)
         c = counts[group]
         face_lo, face_hi = (int(v) for v in category_prefilter(pre, cats)["face_count"])
-        meta = records.get(uid)
         if meta is None:
             refused.append(_refusal(uid, "no_metadata", "", categories=cats, group=group))
             continue
@@ -677,7 +737,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             "source": SOURCE, "licence_flag": flag, "licence_url": licence_url(licence, cfg),
             "via": cfg["attribution"]["via"],
             "attribution": attribution_line(credit["title"], credit["author"], credit["source_url"], licence, cfg),
-            "style_hint": None, "kind": "furniture", "decor_type": None, "units_known": False,
+            "style_hint": None, "kind": "decor" if types[0] in DECOR_TYPES else "furniture",
+            "decor_type": types[0] if types[0] in DECOR_TYPES else None, "units_known": False,
             "extents_raw": None,
         })
         if category_prefilter(pre, cats).get("allow_flat_colours"):
@@ -727,7 +788,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
         "dataset": {k: ds[k] for k in ("repo", "revision", "licence", "licence_url", "page") if k in ds},
         "hub": hub.describe() if hasattr(hub, "describe") else str(hub), "downloaded": bool(download),
         "config_sha256": config_sha256(cfg), "licences_verified": bool(cfg["licences"].get("verified")),
-        "lvis": {"found": found, "missing": missing_cats, "categories_in_file": len(lvis), "near_missing": near},
+        "lvis": {"found": found, "missing": missing_cats, "categories_in_file": len(lvis), "near_missing": near,
+                 "word_filtered": word_filtered},
         "licence_values": dict(sorted(licence_values.items(), key=lambda kv: (-kv[1], kv[0]))),
         "metadata_keys": sorted(metadata_keys), "missing_fields": dict(sorted(missing_fields.items())),
         "counts": counts, "refused_counts": dict(sorted(refused_counts.items())),
@@ -1638,9 +1700,45 @@ DECOR_WORDS: dict[str, tuple[str, str, str]] = {
                    "one table or desk lamp with its shade or head (not a floor lamp, not a wall or ceiling light)"),
     "mirror": ("wall mirror", "a mirror that hangs on a wall",
                "one wall mirror with or without a frame (not a floor or leaner mirror, not a mirror cabinet)"),
+    # Milestone 10 decor types (docs/milestone10.md §1.1, §4.6): what each one is and is not.
+    "curtain": ("curtain", "a window curtain or drape on a rod, closed or tied back",
+                "one curtain panel, or one pair of curtains, with or without its rod (not a shower curtain, not a "
+                "blind or shade, not a bed canopy, not a theatre curtain)"),
+    "blind": ("window blind", "a roller, venetian, roman or pleated blind or shade for a window",
+              "one window blind, roller shade or shutter (not a curtain, not a lamp shade, not an awning)"),
+    "throw": ("throw blanket", "a soft throw blanket or plaid, folded or draped over a sofa, a chair or a bed",
+              "one throw blanket, folded or draped (not a bed sheet, not a duvet or quilt on a bed, not a cushion, "
+              "not a rug)"),
+    "books": ("books", "a stack or a short row of decorative books for a table, a shelf or a sideboard",
+              "a stack or a short row of books (not a bookshelf or bookcase, not a magazine rack, not one notebook)"),
+    "candle": ("candle", "a candle, a candlestick or a candle holder or lantern with a candle",
+               "one candle, candlestick or candle lantern (not an electric lamp, not a lamp shade, not a chandelier, "
+               "not a vase)"),
+    "basket": ("basket", "a woven, wire or fabric basket for the floor or a shelf",
+               "one basket, with or without handles (not a bin with a lid, not a flower pot, not a bag, not a "
+               "waste bin)"),
+    "tray": ("tray", "a decorative serving or table tray",
+             "one flat tray with a low rim, with or without handles (not a bowl, not a plate, not a tray table)"),
+    "clock": ("wall clock", "a clock that hangs on a wall",
+              "one wall clock (not a floor or grandfather clock, not an alarm clock, not a table clock)"),
+    "sculpture": ("sculpture", "a decorative sculpture, statue or figurine for a table, a shelf or the floor",
+                  "one sculpture, statue, bust or figurine (not a vase, not a toy, not a lamp, not a plant)"),
+    "plant_large": ("large floor plant", "a tall indoor plant in a floor pot, such as a palm, a monstera, a "
+                    "fiddle-leaf fig, an olive tree or a fern, about 1 to 2 m tall",
+                    "a large leafy plant in a pot that stands on the floor, about 1 m tall or taller; a small "
+                    "tabletop plant, an empty pot or a hanging planter is not one"),
+    "pendant_light": ("pendant light", "a light that hangs from the ceiling on a cord, a chain or a rod: a pendant "
+                      "lamp or a chandelier",
+                      "one pendant lamp or chandelier hanging from a cord, chain or rod (not a flush ceiling "
+                      "light, not a wall light, not a floor or table lamp)"),
+    "ceiling_light": ("ceiling light", "a light fixed flat or close to the ceiling: a flush or semi-flush ceiling "
+                      "light or ceiling lamp",
+                      "one flush or semi-flush ceiling light (not a hanging pendant or chandelier, not a wall "
+                      "light, not a recessed spot)"),
 }
 # The side a front-facing decor type shows (the M8 wall art question keeps its words, so its answers stay current).
-DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side"}
+DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side",
+                                     "clock": "the clock face"}
 TYPE_WORDS.update({
     "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
     "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
@@ -1649,6 +1747,44 @@ TYPE_WORDS.update({
     "sink_kitchen": ("kitchen sink unit", "a kitchen base cabinet with a sink and a tap"),
     "shower": ("shower enclosure", "a walk-in or framed shower enclosure on its tray"),
 })
+# Milestone 10 furniture types (docs/milestone10.md §1.1, §4.5): what each one is. A new type gets its own words; the
+# words of the 27 older types stay as they were (their stored judge answers hash the question text).
+TYPE_WORDS.update({
+    "sofa_corner": ("corner sofa", "an L-shaped corner or sectional sofa, a sofa with a chaise or a return, for three "
+                                   "or more people"),
+    "chaise": ("chaise longue", "a long upholstered chair or couch for lying back with the legs raised, for one "
+                                "person"),
+    "ottoman": ("ottoman", "a low padded seat, pouf or footstool without a back, with or without storage"),
+    "bench": ("bench", "a seat for two or more people without a high back: a hall bench, a dining bench or a "
+                       "bench for the foot of a bed"),
+    "bar_stool": ("bar stool", "a tall stool for a kitchen counter, island or bar, with the seat about 0.6 to 0.8 m "
+                               "above the floor"),
+    "office_chair": ("office chair", "a desk chair with a back, usually swivelling on a base with castors"),
+    "console_table": ("console table", "a long narrow table for a hall or behind a sofa, about 0.2 to 0.5 m deep"),
+    "crib": ("baby crib", "a baby's cot with high slatted or barred sides"),
+    "bunk_bed": ("bunk bed", "two beds stacked one above the other, with a ladder"),
+    "sideboard": ("sideboard", "a long, waist-high cabinet with doors and drawers for a dining or living room"),
+    "shoe_cabinet": ("shoe cabinet", "a narrow cabinet, rack or bench that stores shoes, for a hall"),
+    "display_cabinet": ("display cabinet", "a tall cabinet with glass doors for showing china or a collection"),
+    "tall_cabinet": ("tall cabinet", "a tall narrow storage cabinet or pantry cabinet with doors, higher than a "
+                                     "person's chest"),
+    "wall_cabinet": ("wall cabinet", "a cabinet that hangs on a wall, for a kitchen, a bathroom or a hall"),
+})
+# The front of a new type, in the words of the question (judge_prompt); the older types use FRONT_WORDS.
+FRONT_WORDS_BY_TYPE: dict[str, str] = {
+    "sofa_corner": "the side people face when they sit on the long seat, opposite its back",
+    "chaise": "the long open side people sit down from, opposite the backrest",
+    "bench": "the side people face when they sit, opposite the backrest (a backless bench: a long side)",
+    "bar_stool": "the side the sitter faces, opposite the backrest",
+    "office_chair": "the side the sitter faces, opposite the backrest",
+    "crib": "a long side of the crib",
+    "bunk_bed": "the long open side where people climb in, with the ladder",
+    "sideboard": "the side with the doors or drawers",
+    "shoe_cabinet": "the side with the doors, drawers or the open shoe shelves",
+    "display_cabinet": "the side with the glass doors",
+    "tall_cabinet": "the side with the doors",
+    "wall_cabinet": "the side with the doors",
+}
 
 
 def item_kind(item: dict) -> str:
@@ -1731,8 +1867,9 @@ def judge_prompt(ftype: str, dims_m, has_front: bool, normalised: bool = False) 
     is_bed = ftype in BED_TYPES
     mattress = ("true when the bed has a mattress on it, false for a bare frame or base" if is_bed
                 else "null (this is not a bed)")
-    front = (f"the number of the tile that looks straight at the front of the piece ({FRONT_WORDS}); null when you "
-             "cannot tell" if has_front else "null (this type has no front)")
+    front = (f"the number of the tile that looks straight at the front of the piece "
+             f"({FRONT_WORDS_BY_TYPE.get(ftype, FRONT_WORDS)}); null when you cannot tell" if has_front
+             else "null (this type has no front)")
     return "\n\n".join([
         "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey "
         "background. Each tile shows the model from one side, 30 degrees from above, and carries its number: "

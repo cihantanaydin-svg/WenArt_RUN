@@ -56,7 +56,7 @@ def test_config_follows_the_spec():
         for t in rule["types"]:
             for real in (OV.BED_TYPES if t == "bed" else [t]):
                 assert real in table and real in heights, (rule["name"], real)
-                assert real in C.FURNITURE_TYPES or real in C.DECOR_TYPES, real
+                assert real in OV.furniture_types() or real in C.DECOR_TYPES or real in OV.DECOR_TYPES, real
     names = [r["name"] for r in CFG["rules"]]
     assert len(names) == len(set(names))
     # The ABO files never land in the repository (CLAUDE.md: caches on the container disk).
@@ -83,7 +83,7 @@ def mapped(ptype, name, dims):
     ("TABLE", "Mid-Century End Table", [0.5, 0.45, 0.6], "side_table"),
     ("TABLE", "Round Accent Table", [0.45, 0.45, 0.55], "side_table"),
     ("TABLE", "Hayes Solid Wood Dining Table", [1.3, 0.9, 0.75], "table_dining"),
-    ("TABLE", "Console Table", [1.2, 0.35, 0.8], None),                          # no rule
+    ("TABLE", "Console Table", [1.2, 0.35, 0.8], "console_table"),               # Milestone 10
     ("CABINET", "Corona Wardrobe, 3 Door", [1.5, 0.57, 1.87], "wardrobe"),
     ("CABINET", "Tall Armoire", [1.0, 0.6, 1.9], "wardrobe"),
     ("CABINET", "2-Door TV Stand, White", [1.5, 0.41, 0.44], "tv_unit"),
@@ -111,10 +111,10 @@ def mapped(ptype, name, dims):
     ("CHAIR", "Channel-Back Dining Chair", [0.48, 0.59, 0.9], "chair"),
     ("CHAIR", "Armless Accent Chair", [0.5, 0.6, 0.85], "chair"),               # armless: the chair rule
     ("CHAIR", "Emerly Living Room Chair", [1.04, 0.89, 0.86], "armchair"),       # chair rule, armchair by size
-    ("CHAIR", "Velvet Swivel Office Chair", [0.6, 0.6, 1.0], None),
+    ("CHAIR", "Velvet Swivel Office Chair", [0.6, 0.6, 1.0], "office_chair"),     # Milestone 10
     ("CHAIR", "Lawson Angled Loveseat", [1.52, 0.8, 0.95], "sofa"),
     ("SOFA", "Revolve Upholstered Sofa", [1.98, 0.94, 0.92], "sofa"),
-    ("SOFA", "L-Shape Sectional", [2.98, 1.94, 0.88], None),                     # outside the sofa range
+    ("SOFA", "L-Shape Sectional", [2.98, 1.94, 0.88], "sofa_corner"),             # Milestone 10: was out of range
     ("DESK", "Compact Desk", [0.70, 0.45, 0.76], None),                         # 0.70 m: below the desk width
     ("DESK", "Writing Desk", [1.2, 0.6, 0.76], "desk"),
     ("DRESSER", "6-Drawer Dresser", [1.54, 0.46, 0.81], "dresser"),
@@ -126,7 +126,7 @@ def mapped(ptype, name, dims):
     ("PLANTER", "Stoneware Planter", [0.22, 0.22, 0.2], "plant"),
     ("HOME", "Botanical Print in Gold Frame Wall Art", [0.45, 0.02, 0.55], "wall_art"),
     ("HOME", "Iron Decorative Hanging Mirror Wall Art", [0.77, 0.03, 0.98], "mirror"),   # Milestone 9 mirror_named
-    ("OTTOMAN", "Round Ottoman", [1.0, 1.0, 0.45], None),
+    ("OTTOMAN", "Round Ottoman", [1.0, 1.0, 0.45], "ottoman"),                    # Milestone 10
 ])
 def test_mapping_table(ptype, name, dims, expect):
     if expect is None and A.match_rule(ptype, name, dims[2], CFG["rules"]) is not None:
@@ -161,21 +161,22 @@ def test_survey_counts_dedup_and_refusals(surveyed):
     assert all(len(f["sha256"]) == 64 for f in doc["metadata"]["files"].values())
     # 38 listings, 37 models: one model (a mouse pad) is listed twice and counted once.
     assert doc["listings"] == {"listings_with_model": 38, "models": 37, "listed_twice": 1, "no_english_name": 1}
-    # Milestone 9: the table lamp of the fixture maps to table_lamp (it was unmapped in M8).
-    assert doc["unmapped_product_types"] == {"BED": 1, "CHAIR": 1, "MOUSE_PAD": 1, "PILLOW": 1, "SHELF": 1}
+    # Milestone 9: the table lamp of the fixture maps to table_lamp (it was unmapped in M8). Milestone 10: the office
+    # chair maps to office_chair, the L-shape sectional to sofa_corner (it was out of the sofa range).
+    assert doc["unmapped_product_types"] == {"BED": 1, "MOUSE_PAD": 1, "PILLOW": 1, "SHELF": 1}
     refused = {r["uid"]: r["code"] for r in doc["refused"]}
     assert refused == {"abo_B075X61WKJ": "no_model_row",              # the ottoman: its csv row is left out
-                       "abo_B07BWK7JWZ": "size_range",                # an L-shape sectional, 2.98 x 1.94 m
                        "abo_B07DYJPF4G": "size_range"}                # the air bed without an English name
     counts = doc["counts"]
-    assert counts["sofa"] == {"mapped": 3, "in_size": 2, "tried": 0, "candidates": 2, "not_selected": 0}
+    assert counts["sofa"] == {"mapped": 2, "in_size": 2, "tried": 0, "candidates": 2, "not_selected": 0}
+    assert counts["sofa_corner"] == {"mapped": 1, "in_size": 1, "tried": 0, "candidates": 1, "not_selected": 0}
     assert counts["bed_double"]["candidates"] == 4 and counts["bed_single"]["candidates"] == 1
-    assert counts["rug"]["candidates"] == 4 and len(doc["candidates"]) == 29
-    assert counts["table_lamp"]["candidates"] == 1
+    assert counts["rug"]["candidates"] == 4 and len(doc["candidates"]) == 31
+    assert counts["table_lamp"]["candidates"] == 1 and counts["office_chair"]["candidates"] == 1
     types = {c["group"] for c in doc["candidates"]}
     assert types == {"armchair", "bed_double", "bed_single", "bookshelf", "chair", "cushion", "desk", "dresser",
-                     "floor_lamp", "nightstand", "plant", "rug", "side_table", "sofa", "table_coffee",
-                     "table_dining", "table_lamp", "tv_unit", "wall_art", "wardrobe"}
+                     "floor_lamp", "nightstand", "office_chair", "plant", "rug", "side_table", "sofa", "sofa_corner",
+                     "table_coffee", "table_dining", "table_lamp", "tv_unit", "wall_art", "wardrobe"}
     lamp = next(c for c in doc["candidates"] if c["group"] == "table_lamp")
     assert lamp["kind"] == "decor" and lamp["decor_type"] == "table_lamp"
 
@@ -299,7 +300,7 @@ def test_metadata_is_downloaded_into_the_cache_once(tmp_path):
         return dest
     meta = A.Metadata(CFG, cache=tmp_path / "cache", fetcher=fetcher)
     doc = A.survey(meta, tmp_path / "lib", CFG, OCFG, download_glbs=False, log=quiet)
-    assert len(doc["candidates"]) == 29 and len(got) == 18
+    assert len(doc["candidates"]) == 31 and len(got) == 18
     assert f"{CFG['dataset']['base_url']}/3dmodels/metadata/3dmodels.csv.gz" in got
     assert (tmp_path / "cache" / "metadata" / "listings_f.json.gz").is_file()
     A.survey(A.Metadata(CFG, cache=tmp_path / "cache", fetcher=fetcher), tmp_path / "lib", CFG, OCFG,
@@ -317,7 +318,7 @@ def test_no_download_needs_the_metadata(tmp_path, capsys):
     out = tmp_path / "lib2"
     assert A.main(["survey", "--out", str(out), "--metadata", str(FIXTURE), "--no-download"]) == A.EXIT_OK
     doc = json.loads((out / "survey_abo.json").read_text())
-    assert len(doc["candidates"]) == 29 and not any("glb" in c for c in doc["candidates"])
+    assert len(doc["candidates"]) == 31 and not any("glb" in c for c in doc["candidates"])
 
 
 def test_a_broken_csv_row_and_a_readme_without_the_licence_are_recorded(tmp_path):

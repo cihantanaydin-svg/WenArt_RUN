@@ -110,6 +110,29 @@ prefilter:
     bathtub: *fixture
     refrigerator: *fixture
     stove: *fixture
+    # Milestone 10 (docs/milestone10.md §7 pod L1): the decor categories and the two types Objaverse mostly fills
+    # (cribs and bunk beds: painted wood, often flat-coloured) take flat-coloured models, a wider face count (candles,
+    # books and trays are low-poly) and 40 candidates, like the fixtures. The judges still need quality >= 4.
+    crib: &m10_decor {face_count: [500, 400000], allow_flat_colours: true, per_type_limit: 40,
+                      max_downloads_per_type: 80}
+    bunk_bed: *m10_decor
+    curtain: *m10_decor
+    curtain_blind: *m10_decor
+    blanket: *m10_decor
+    book: *m10_decor
+    candle: *m10_decor
+    candle_holder: *m10_decor
+    basket: *m10_decor
+    tray: *m10_decor
+    clock: *m10_decor
+    wall_clock: *m10_decor
+    sculpture: *m10_decor
+    statue_(sculpture): *m10_decor
+    figurine: *m10_decor
+    flowerpot_plant_large: *m10_decor
+    chandelier: *m10_decor
+    lamp_pendant: *m10_decor
+    lamp_ceiling: *m10_decor
 
 # LVIS category -> furniture type(s) (§7.1 step 2). Checked on the 3 Oct 2026 prep pod against
 # lvis-annotations.json.gz: all found except `nightstand` and `chest_of_drawers_(furniture)` (kept: a missing name
@@ -139,6 +162,68 @@ categories:
   lamp: {types: [floor_lamp], prefer_words: [floor, standing]}   # floor lamp by height; titles/tags with these
                                                                  # words rank first (a ranking hint, never a decision)
   flowerpot: {types: [potted_plant]}
+
+  # ---- Milestone 10 (docs/milestone10.md §4.5, §4.6, §7 pod L1). The LVIS names below are all in the official LVIS v1
+  # category list (lvis_v1_val.json `categories`, read 8 Oct 2026 from detectron2/data/datasets/lvis_v1_categories.py,
+  # which is generated from it); the Objaverse file holds LVIS v1 names (M7: only `nightstand` and
+  # `chest_of_drawers_(furniture)` were missing, and neither is a v1 name), but a name missing from the file is only
+  # listed by the survey (lvis.near_missing). LVIS has no category for pendant or ceiling lights, console tables,
+  # sideboards, shoe, display, tall and wall cabinets, office chairs, corner sofas, blinds or plant species: those
+  # entries read a broader LVIS category (`lvis:`) and keep the objects whose title or tags hold one of
+  # `require_words` (whole words from the start; an entry with words wins over the plain entries of its LVIS
+  # category; two entries of different types matching one object refuse it `several_types`). `prefer_words` only
+  # ranks. Both judges still decide `matches_type`. Objaverse has no LVIS category for palms, monsteras or ferns:
+  # plant_large reads `flowerpot` for those words; the species come from the generated models (generate.yaml).
+  dresser: {types: [dresser]}                  # LVIS v1 `dresser` (the M7 name `chest_of_drawers_(furniture)` is not in v1)
+  crib: {types: [crib]}
+  bunk_bed: {types: [bunk_bed]}
+  ottoman: {types: [ottoman]}
+  footstool: {types: [ottoman]}
+  bench: {types: [bench]}
+  chaise_longue: {types: [chaise]}
+  stool: {types: [bar_stool], prefer_words: [bar, counter, barstool, high, tall]}   # LVIS `stool`: every stool; the
+                                                                                    # height range keeps tall ones
+  sofa_corner: {lvis: sofa, types: [sofa_corner], require_words: [sectional, corner, l-shaped, l-shape, l shaped,
+                                                                 "l shape", chaise]}
+  chair_office: {lvis: chair, types: [office_chair], require_words: [office, desk chair, swivel, task chair, gaming,
+                                                                    computer chair, executive, ergonomic]}
+  table_console: {lvis: table, types: [console_table], require_words: [console, entryway, hallway, "hall table",
+                                                                       "sofa table", "entry table"]}
+  cabinet_sideboard: {lvis: cabinet, types: [sideboard], require_words: [sideboard, buffet, credenza]}
+  cabinet_shoe: {lvis: cabinet, types: [shoe_cabinet], require_words: [shoe, shoes]}
+  cabinet_display: {lvis: cabinet, types: [display_cabinet], require_words: [display, curio, china, vitrine,
+                                                                            "glass door", "glass doors"]}
+  cabinet_tall: {lvis: cabinet, types: [tall_cabinet], require_words: [tall, pantry, linen, "storage tower"]}
+  cabinet_wall: {lvis: cabinet, types: [wall_cabinet], require_words: [wall, hanging, medicine]}
+  cupboard_sideboard: {lvis: cupboard, types: [sideboard], require_words: [sideboard, buffet, credenza]}
+  cupboard_shoe: {lvis: cupboard, types: [shoe_cabinet], require_words: [shoe, shoes]}
+  cupboard_display: {lvis: cupboard, types: [display_cabinet], require_words: [display, curio, china, vitrine,
+                                                                              "glass door", "glass doors"]}
+  cupboard_tall: {lvis: cupboard, types: [tall_cabinet], require_words: [tall, pantry, linen, "storage tower"]}
+  cupboard_wall: {lvis: cupboard, types: [wall_cabinet], require_words: [wall, hanging, medicine]}
+  bookcase_display: {lvis: bookcase, types: [display_cabinet], require_words: [display, curio, china, vitrine,
+                                                                              "glass door", "glass doors"]}
+  # decor (kind decor by the type; the catalogue's decor section)
+  curtain: {types: [curtain]}
+  curtain_blind: {lvis: curtain, types: [blind], require_words: [blind, blinds, roller, venetian, shade, shutter]}
+  blanket: {types: [throw], prefer_words: [throw, plaid, knit]}
+  book: {types: [books]}
+  candle: {types: [candle]}
+  candle_holder: {types: [candle]}
+  basket: {types: [basket]}
+  tray: {types: [tray]}
+  clock: {types: [clock], prefer_words: [wall]}
+  wall_clock: {types: [clock]}
+  sculpture: {types: [sculpture]}
+  statue_(sculpture): {types: [sculpture]}
+  figurine: {types: [sculpture]}
+  flowerpot_plant_large: {lvis: flowerpot, types: [plant_large], require_words: [palm, monstera, fern, ficus, fiddle,
+                                                                                olive, "rubber plant", bamboo, banana,
+                                                                                areca, yucca, "floor plant"]}
+  chandelier: {types: [pendant_light]}
+  lamp_pendant: {lvis: lamp, types: [pendant_light], require_words: [pendant, hanging, chandelier]}
+  lamp_ceiling: {lvis: lamp, types: [ceiling_light], require_words: [flush, semi-flush, "ceiling light", "ceiling lamp",
+                                                                     "ceiling mount"]}
 
 # Unit guess (§7.2): the factors tried on the GLB's measured box; the one that puts the box in the type's size
 # range is taken; more than one -> refused (never guessed). None (the model's units are unknown: 86 of 127
@@ -202,6 +287,64 @@ types:
   table_lamp:   {height: [0.20, 0.95], front: none}
   mirror:       {height: [0.25, 1.40], front: documented}
 
+  # Milestone 10 furniture types (docs/milestone10.md §1.1, §4.5). Heights are the product ranges of the ABO listings
+  # read on 8 Oct 2026 (results/library/survey_m10_session.json), widened a little. Fronts: seating by its back
+  # (back_taller; a backless piece is refused for Objaverse, ABO documents its front), cabinets by their doors
+  # (detail_side), tables and ottomans have none; the crib and the bunk bed have a front only the source documents or
+  # both judges agree on (documented: their geometry cannot tell the open side from the closed ones).
+  sofa_corner:  {height: [0.55, 1.20], front: back_taller}
+  chaise:       {height: [0.55, 1.20], front: back_taller}
+  ottoman:      {height: [0.25, 0.65], front: none}
+  bench:        {height: [0.35, 1.00], front: back_taller}
+  bar_stool:    {height: [0.55, 1.25], front: back_taller}
+  office_chair: {height: [0.70, 1.40], front: back_taller}
+  console_table: {height: [0.55, 1.10], front: none}
+  crib:         {height: [0.70, 1.30], front: documented}
+  bunk_bed:     {height: [1.00, 2.10], front: documented}   # a floor bunk bed for children is 1.2 m high
+  sideboard:    {height: [0.60, 1.20], front: detail_side}
+  shoe_cabinet: {height: [0.30, 1.80], front: detail_side}
+  display_cabinet: {height: [1.20, 2.40], front: detail_side}
+  tall_cabinet: {height: [1.20, 2.40], front: detail_side}
+  wall_cabinet: {height: [0.30, 1.00], front: detail_side}
+  # Milestone 10 decor types (docs/milestone10.md §1.1, §4.6). Product sizes: curtain panels 0.5 to 1.5 m wide and
+  # 2.0 to 3.0 m long, blinds 0.4 to 2.5 m wide, throws folded or draped 0.4 to 1.9 m, book stacks 5 to 40 cm,
+  # candles and holders 4 to 80 cm, baskets 0.15 to 0.9 m, trays 15 to 80 cm, wall clocks 15 to 130 cm, sculptures
+  # and figurines 10 to 120 cm, large floor plants 0.9 to 2.6 m, pendants (with their drop) and ceiling lights.
+  curtain:      {height: [0.80, 3.20], front: none}
+  blind:        {height: [0.40, 3.00], front: none}
+  throw:        {height: [0.02, 0.80], front: none}
+  books:        {height: [0.03, 0.50], front: none}
+  candle:       {height: [0.04, 0.80], front: none}
+  basket:       {height: [0.10, 0.80], front: none}
+  tray:         {height: [0.01, 0.15], front: none}
+  clock:        {height: [0.12, 1.30], front: documented}
+  sculpture:    {height: [0.08, 1.30], front: none}
+  plant_large:  {height: [0.90, 2.60], front: none}
+  pendant_light: {height: [0.10, 2.20], front: none}
+  ceiling_light: {height: [0.03, 0.60], front: none}
+
+# Footprints of the Milestone 10 furniture types (the size table format of wenart/recognition/size_table.yaml: width /
+# depth in metres, either orientation, + its 15 % tolerance). The library's own plausibility ranges, from the ABO
+# product boxes read on 8 Oct 2026 (sofa chaise 2.44 x 1.62, sectionals to 3.6 m, chaise lounges 0.7 x 1.4-2.0, bar
+# stools 0.4-0.7, office chairs 0.5-0.8, console tables 1.0-1.8 x 0.3-0.45, storage benches 0.9-1.5 x 0.35-0.45);
+# crib 0.7 x 1.3 m (US 28 x 52 in), bunk bed 0.9 x 2.0 m. They win over wenart/recognition/size_table.yaml for these
+# types (the drawn-footprint ranges of track A3 may differ: a drawn L-shaped sofa is its bounding rectangle).
+furniture_sizes:
+  sofa_corner:  {width: [1.60, 4.00], depth: [1.30, 3.20]}
+  chaise:       {width: [0.55, 1.05], depth: [1.15, 2.20]}
+  ottoman:      {width: [0.35, 1.40], depth: [0.35, 1.05]}
+  bench:        {width: [0.70, 2.00], depth: [0.28, 0.70]}
+  bar_stool:    {width: [0.30, 0.70], depth: [0.30, 0.70]}
+  office_chair: {width: [0.45, 0.90], depth: [0.45, 0.90]}
+  console_table: {width: [0.70, 2.00], depth: [0.20, 0.55]}
+  crib:         {width: [0.55, 0.85], depth: [1.00, 1.55]}
+  bunk_bed:     {width: [0.80, 1.30], depth: [1.80, 2.30]}
+  sideboard:    {width: [1.00, 2.40], depth: [0.28, 0.55]}
+  shoe_cabinet: {width: [0.40, 1.60], depth: [0.20, 0.50]}
+  display_cabinet: {width: [0.55, 1.60], depth: [0.25, 0.60]}
+  tall_cabinet: {width: [0.30, 1.30], depth: [0.25, 0.65]}
+  wall_cabinet: {width: [0.30, 1.40], depth: [0.12, 0.45]}
+
 # Footprints of the decor types (the size table format: width / depth in metres, either orientation, + the size
 # table's 15 % tolerance). Common product sizes (rugs 2 x 3 ft to 9 x 12 ft and runners; framed art 8 x 10 in to
 # 60 x 60 in; throw pillows 12 x 20 in to 26 x 26 in; planters 4 in to 3 ft), widened; checked against the ABO
@@ -216,6 +359,19 @@ decor_sizes:
   plant_small: {width: [0.06, 0.50], depth: [0.06, 0.50]}
   table_lamp:  {width: [0.10, 0.60], depth: [0.10, 0.60]}
   mirror:      {width: [0.25, 1.50], depth: [0.004, 0.15]}      # wall mirrors only (floor and leaner mirrors are deeper)
+  # Milestone 10 (docs/milestone10.md §4.6)
+  curtain:     {width: [0.30, 3.50], depth: [0.01, 0.50]}
+  blind:       {width: [0.30, 3.00], depth: [0.01, 0.35]}
+  throw:       {width: [0.25, 2.00], depth: [0.15, 1.70]}
+  books:       {width: [0.08, 0.60], depth: [0.06, 0.45]}
+  candle:      {width: [0.03, 0.45], depth: [0.03, 0.45]}
+  basket:      {width: [0.15, 0.95], depth: [0.15, 0.95]}
+  tray:        {width: [0.15, 0.85], depth: [0.10, 0.65]}
+  clock:       {width: [0.12, 1.35], depth: [0.008, 0.25]}          # wall clocks only (floor clocks are deeper)
+  sculpture:   {width: [0.05, 0.90], depth: [0.05, 0.90]}
+  plant_large: {width: [0.25, 1.30], depth: [0.25, 1.30]}
+  pendant_light: {width: [0.08, 1.30], depth: [0.08, 1.30]}
+  ceiling_light: {width: [0.12, 1.15], depth: [0.12, 1.15]}
 
 front_rules:
   top_fraction: 0.30            # back_taller: vertices in the top 30 % of the height (as models.measure_gltf)

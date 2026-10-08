@@ -125,22 +125,37 @@ def test_config_tables_follow_the_spec():
     assert CFG["accept"] == {"min_quality": 4, "per_type_max": 20, "decor_per_type_max": 20, "per_family_max": 5,
                              "style_fill": True, "source_order": ["abo", "polyhaven", "objaverse", "generated"]}
     # docs/milestone9.md §2.2: the fixture categories take flat-coloured models, a wider face count, 40 candidates.
-    assert set(pre["overrides"]) == {"toilet", "sink", "bathtub", "refrigerator", "stove"}
-    for spec in pre["overrides"].values():
-        assert spec == {"face_count": [800, 400000], "allow_flat_colours": True, "per_type_limit": 40,
-                        "max_downloads_per_type": 80}
+    fixtures = {"toilet", "sink", "bathtub", "refrigerator", "stove"}
+    m10 = {"crib", "bunk_bed", "curtain", "curtain_blind", "blanket", "book", "candle", "candle_holder", "basket",
+           "tray", "clock", "wall_clock", "sculpture", "statue_(sculpture)", "figurine", "flowerpot_plant_large",
+           "chandelier", "lamp_pendant", "lamp_ceiling"}
+    assert set(pre["overrides"]) == fixtures | m10
+    for name, spec in pre["overrides"].items():
+        if name in fixtures:
+            assert spec == {"face_count": [800, 400000], "allow_flat_colours": True, "per_type_limit": 40,
+                            "max_downloads_per_type": 80}
+        else:                                               # Milestone 10 (docs/milestone10.md §7 pod L1)
+            assert spec == {"face_count": [500, 400000], "allow_flat_colours": True, "per_type_limit": 40,
+                            "max_downloads_per_type": 80}
     assert CFG["survey_files"] == OV.SURVEY_FILES and OV.CATALOG_NAME == "catalog_library.json"
     assert CFG["bed_frame"] == {"ray_offset": 0.2, "min_hits": 3, "deck_range_m": [0.08, 0.90]}
     table, _tol = OV.load_size_table()
     mapped = {t for spec in CFG["categories"].values() for t in spec["types"]}
-    for t in mapped:
-        assert t in C.FURNITURE_TYPES and t in CFG["types"] and t in table and t in OV.TYPE_WORDS
+    furniture_mapped = {t for t in mapped if t not in OV.DECOR_TYPES}
+    full_table, _ = OV.library_size_table(CFG)
+    for t in furniture_mapped:                              # Milestone 10: the schema's types before the catalogue has them
+        assert t in OV.furniture_types() and t in CFG["types"] and t in full_table and t in OV.TYPE_WORDS
+    for t in mapped - furniture_mapped:
+        assert t in CFG["types"] and t in full_table and t in OV.DECOR_WORDS
     for name in ("tv_unit", "kitchen_counter", "stair"):            # no LVIS category: parametric
         assert name not in mapped
     frontless = {t for t, spec in CFG["types"].items() if spec["front"] == "none"}
     assert frontless == {"table_dining", "table_coffee", "floor_lamp", "potted_plant", "side_table", "rug",
                          "cushion", "plant", "shower",       # shower: added after pod L2 (generated gaps)
-                         "vase", "bowl", "plant_small", "table_lamp"}   # Milestone 9 tabletop decor
+                         "vase", "bowl", "plant_small", "table_lamp",   # Milestone 9 tabletop decor
+                         # Milestone 10 (docs/milestone10.md §1.1): tables and ottomans, and the decor without a front
+                         "ottoman", "console_table", "curtain", "blind", "throw", "books", "candle", "basket", "tray",
+                         "sculpture", "plant_large", "pendant_light", "ceiling_light"}
     # Decor (docs/milestone8.md §4): a size range, a height range, a question each; wall art only by a documented front.
     full, _ = OV.library_size_table(CFG)
     for d in C.DECOR_TYPES:
@@ -1451,8 +1466,9 @@ def test_load_candidates_merges_every_survey_file(mixed):
     for c in cands:
         by_source.setdefault(c["source"], []).append(c["uid"])
     assert set(by_source) == {"objaverse", "abo", "generated"}
-    # 29 ABO candidates: the fixture's table lamp maps to table_lamp since Milestone 9 (28 before).
-    assert by_source["generated"] == [GEN_UID] and len(by_source["abo"]) == 29 and len(by_source["objaverse"]) == 2
+    # 31 ABO candidates: the fixture's table lamp maps to table_lamp since Milestone 9 (28 before); since Milestone 10
+    # its office chair and its L-shape sectional (out of the sofa range) are candidates too.
+    assert by_source["generated"] == [GEN_UID] and len(by_source["abo"]) == 31 and len(by_source["objaverse"]) == 2
     assert [c["source"] for c in cands] == sorted((c["source"] for c in cands), key=list(OV.SURVEY_FILES).index)
     gen = next(c for c in cands if c["source"] == "generated")
     assert gen["decor_type"] is None and gen["extents_raw"] is None and gen["categories"] == []
@@ -1664,7 +1680,7 @@ def test_report_of_every_source(mixed):
                     "## ABO mapping", "## Licence flags (catalogue)", "## Style coverage", "## Beds", "## Catalogue",
                     "## Attribution", "## Refused after judging"):
         assert heading in text, heading
-    assert "| abo | survey_abo.json | 29 | 29 |" in text and "| generated | survey_generated.json | 1 | 1 |" in text
+    assert "| abo | survey_abo.json | 31 | 31 |" in text and "| generated | survey_generated.json | 1 | 1 |" in text
     assert "| CC-BY-NC-4.0 | non_commercial | 1 |" in text and "(licence flag: non_commercial)" in text
     assert OV.odc_by_notice(CFG) in text and "Amazon Berkeley Objects" in text and OV.GENERATED_NOTICE in text
     assert "| accept | no_deck |" in text and "| thumbnails | size_range |" in text
