@@ -25,8 +25,9 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
 3. Agreement (§2.4): a change is kept only when both passes change the same piece to the same type (the
    smaller of the two size options; the style and colour both name, else the project's); then the main
    piece rule (a bed stays a bed type, nothing becomes a second one) and the type counts. An unverified
-   drawn piece keeps its footprint and status: an agreed type becomes its ``type`` with
-   ``type_proposal: true``. With ``furnished_rooms_keep_size`` no change is asked.
+   drawn piece keeps its footprint, front and status: an agreed type becomes its ``type`` with
+   ``type_proposal: true`` and ``drawn_type``, never ``modified_by_ai`` (§1.6b row 15; its AI evidence at
+   confidence 0.6, as the example). With ``furnished_rooms_keep_size`` no change is asked.
 4. ``placer.place_changes`` places the changes at their anchors (shrink, then revert); the added pieces of
    each pass are filtered (types the room may still get, one main piece, the counts), placed with the
    full M4 repairs around the drawn pieces (``placer.place(..., obstacles=...)``) and checked for their
@@ -34,15 +35,22 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
    with the fewest dropped pieces wins (ties: pass 1); a piece the other pass also proposed (same type,
    centre within 0.5 m) gets confidence 0.9 and both passes' evidence, the rest 0.6.
 5. Kitchens (and open kitchens of a living room): ``wall_cabinets_for`` hangs ``wall_cabinet`` pieces
-   (``method: rule``) along every drawn counter run against a wall, 1.45-2.15 m, never over or within 0.3 m
-   of a window (measured along the wall), never over or within 0.15 m of a door (assumed: the frame), never
-   over the stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs shorter than 0.3 m are
-   left out.
+   (``method: rule``, ``mount_bottom_m`` 1.45, ``rule: {run, z, excluded}``) along every drawn counter run
+   against a wall, 1.45-2.15 m, never over or within 0.3 m of a window or a door opening (measured along the
+   wall, §1.6b row 15), never over the stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs
+   shorter than 0.3 m are left out. Their backs are on the wall face behind the counter.
+6. Looks (§1.6b row 15, ``apply_designs``): every piece of a completed or kept room gets ``design`` keys by
+   rule under what it already holds: cabinet fronts, colour, handle and worktop from ``style.json``
+   ``cabinets`` (absent: none), ``vanity`` for a washbasin at least 0.45 m deep, ``built_in`` for a wardrobe
+   touching walls at both ends, ``material_tags`` from ``style.json`` ``furniture.by_type``; an agreed change
+   adds ``style_family`` and its colour (``fabric_colour`` for upholstered types). A corner sofa always
+   carries ``seat_depth`` and ``chaise_width`` (0.9 m unless drawn).
 
 Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's room equal to a base room) takes
 its partner's decisions as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them
-mirrored about the party-wall axis (``partner_transform``: the perpendicular bisector of the two room
-centroids, verified on the polygons and the drawn pieces within ``PARTNER_TOL_M``). Copied pieces carry
+mirrored (``partner_transform``: the pipeline's ``rooms[].twin_transform`` when present, else the mirror about
+the perpendicular bisector of the two room centroids; verified on the polygons and the drawn pieces within
+``PARTNER_TOL_M``). Copied pieces carry
 ``mirrored_from``; a copy that fails a check here is dropped and listed; a partner that cannot be verified
 is reported and the room is asked itself. ``copy_empty_layout`` does the same for the Milestone 4 layout of
 empty rooms (user decision 7: the AI furniture of the first twin mirrored onto the second).
@@ -78,7 +86,7 @@ PARTNER_FRONT_TOL_DEG = 2.0
 WALL_CABINET_DEPTH_M = 0.35
 WALL_CABINET_MIN_M = 0.30
 WALL_CABINET_WINDOW_GAP_M = 0.30
-WALL_CABINET_DOOR_GAP_M = 0.15       # assumed: a door's frame; the spec names windows only
+WALL_CABINET_DOOR_GAP_M = 0.30       # §4.4 (contract amendment 1): never over a door opening or within 0.3 m
 WALL_CABINET_STEP_M = 0.01
 WALL_FACE_REACH_M = 0.10             # the wall face behind a counter's back edge is looked for this far
 STATES = ("completed", "copied", "mirrored", "kept", "skipped")
@@ -182,42 +190,71 @@ def partner_of(room: dict, settings: Settings) -> Optional[tuple[str, str]]:
 
 @dataclass
 class Transform:
-    """The map from a partner room onto this room: identity (``same_as``) or a mirror about an axis (twins)."""
-    kind: str                                   # identity | mirror
-    origin: tuple[float, float] = (0.0, 0.0)    # a point on the mirror axis
-    axis_deg: float = 0.0                       # direction of the mirror axis
+    """The map from a partner room onto this room as an affine ``[a, b, c, d, e, f]`` (``x' = a x + b y + c``,
+    ``y' = d x + e y + f``, as ``wenart.geometry.apply_affine``): the identity (``same_as``), a mirror about an
+    axis (twins, derived here) or the pipeline's ``rooms[].twin_transform``."""
+    kind: str                                   # identity | mirror | given
+    m6: tuple = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    origin: Optional[tuple[float, float]] = None   # mirror: a point on the axis
+    axis_deg: Optional[float] = None               # mirror: the direction of the axis
     deviation_m: float = 0.0                    # the largest polygon / piece distance after the map
 
+    @classmethod
+    def mirror(cls, origin, axis_deg: float) -> "Transform":
+        a = math.radians(2.0 * axis_deg)
+        c2, s2 = math.cos(a), math.sin(a)          # reflection matrix [[c2, s2], [s2, -c2]] about the axis
+        ox, oy = float(origin[0]), float(origin[1])
+        m6 = (c2, s2, ox - (c2 * ox + s2 * oy), s2, -c2, oy - (s2 * ox - c2 * oy))
+        return cls("mirror", m6, (ox, oy), G.normalise_angle(axis_deg))
+
+    @property
+    def flips(self) -> bool:
+        a, b, _c, d, e, _f = self.m6
+        return a * e - b * d < 0
+
     def point(self, p) -> tuple[float, float]:
-        if self.kind == "identity":
-            return float(p[0]), float(p[1])
-        a = math.radians(self.axis_deg)
-        d = (math.cos(a), math.sin(a))
-        v = (float(p[0]) - self.origin[0], float(p[1]) - self.origin[1])
-        t = v[0] * d[0] + v[1] * d[1]
-        foot = (self.origin[0] + d[0] * t, self.origin[1] + d[1] * t)
-        return 2 * foot[0] - float(p[0]), 2 * foot[1] - float(p[1])
+        return G.apply_affine(self.m6, (float(p[0]), float(p[1])))
 
     def direction(self, deg: Optional[float]) -> Optional[float]:
-        if deg is None or self.kind == "identity":
-            return deg
-        return G.normalise_angle(2.0 * self.axis_deg - float(deg))
+        if deg is None:
+            return None
+        a, b, _c, d, e, _f = self.m6
+        r = math.radians(float(deg))
+        x, y = math.cos(r), math.sin(r)
+        return G.normalise_angle(round(math.degrees(math.atan2(d * x + e * y, a * x + b * y)), 9))
 
     def rotation(self, rotation_deg: float) -> float:
         """Footprint rotation of the mapped piece (front = local -Y: the front direction maps, the width axis
         follows)."""
-        if self.kind == "identity":
-            return G.normalise_angle(rotation_deg)
-        return G.normalise_angle(2.0 * self.axis_deg - float(rotation_deg) - 180.0)
+        return G.normalise_angle(self.direction(G.front_direction_deg(rotation_deg)) - 270.0)
 
     def side(self, side: Optional[str]) -> Optional[str]:
-        if side is None or self.kind == "identity":
+        if side is None or not self.flips:
             return side
         return {"left": "right", "right": "left"}[side]
 
     def to_dict(self) -> dict:
-        return {"kind": self.kind, "origin": [round(self.origin[0], 4), round(self.origin[1], 4)],
-                "axis_deg": round(self.axis_deg, 3), "deviation_m": round(self.deviation_m, 4)}
+        out = {"kind": self.kind, "affine": [round(v, 6) for v in self.m6], "deviation_m": round(self.deviation_m, 4)}
+        if self.origin is not None:
+            out.update(origin=[round(self.origin[0], 4), round(self.origin[1], 4)], axis_deg=round(self.axis_deg, 3))
+        return out
+
+
+def given_transform(room: dict) -> Optional[Transform]:
+    """The pipeline's ``rooms[].twin_transform`` (first twin -> this room) as a ``Transform``, else None. Taken as
+    a 6-number affine, a 3x3 matrix or ``{"affine" | "matrix": ...}``."""
+    value = room.get("twin_transform")
+    if isinstance(value, dict):
+        value = value.get("affine") or value.get("m6") or value.get("matrix")
+    if value is None:
+        return None
+    try:
+        if len(value) == 3 and all(isinstance(r, (list, tuple)) for r in value):
+            value = G.matrix_to_affine(value)
+        m6 = tuple(float(v) for v in value)
+    except (TypeError, ValueError):
+        return None
+    return Transform("given", m6) if len(m6) == 6 else None
 
 
 def _hausdorff(a: list, b: list) -> float:
@@ -264,13 +301,15 @@ def partner_transform(room: dict, partner: dict, kind: str, building: dict) -> t
     """The map partner -> room, verified on the polygons and the drawn pieces; ``(None, reason)`` when it fails."""
     if kind == "same_as":
         t = Transform("identity")
+    elif given_transform(room) is not None:
+        t = given_transform(room)                       # the pipeline's twin_transform wins over the derivation
     else:
         ca, cb = G.polygon_centroid(partner["polygon"]), G.polygon_centroid(room["polygon"])
         if G.distance(ca, cb) < 1e-6:
             return None, "twin rooms with the same centroid: no mirror axis"
         n = math.atan2(cb[1] - ca[1], cb[0] - ca[0])
         mid = ((ca[0] + cb[0]) / 2.0, (ca[1] + cb[1]) / 2.0)
-        t = Transform("mirror", origin=mid, axis_deg=G.normalise_angle(math.degrees(n) + 90.0))
+        t = Transform.mirror(mid, math.degrees(n) + 90.0)
     mapped = [t.point(p) for p in partner["polygon"]]
     dev = _hausdorff(mapped, room["polygon"])
     if dev > PARTNER_TOL_M:
@@ -613,6 +652,14 @@ class RoomCompletion:
         }
 
 
+def _l_fields(piece: placer.Piece) -> dict:
+    """The corner sofa's L fields as the building JSON holds them (docs/milestone10.md §1.6b)."""
+    return {"shape": "L", "chaise_side": piece.chaise_side,
+            "chaise_depth": float(piece.chaise_depth if piece.chaise_depth else piece.size[1]),
+            "seat_depth": float(piece.seat_depth or schemas.L_SEAT_DEPTH_M),
+            "chaise_width": float(piece.chaise_width or schemas.L_CHAISE_WIDTH_M)}
+
+
 def _ai_evidence(model: str, reasons: dict, confidence: float) -> list[dict]:
     return [B.evidence(EVIDENCE_FILE, "ai", confidence, model=model, pass_=k, text=str(r or "changed by the AI"))
             for k, r in sorted(reasons.items())]
@@ -629,7 +676,11 @@ def _design(item: dict, ftype: str, style: Optional[str], colour: Optional[str],
 def _apply_change(item: dict, anchor: dict, final: placer.Piece, record: dict, evidence: list[dict],
                   design: dict, unverified: bool, mirrored_from: Optional[str] = None) -> dict:
     """The changed drawn piece (§2.6): ``from_documents``, ``modified_by_ai``, the drawn values, the anchor and
-    the AI evidence. The footprint changes only with the type or size (an unverified piece keeps it)."""
+    the AI evidence. The footprint changes only with the type or size. An unverified piece (§1.6b row 15) gets
+    a type proposal instead: the agreed type, ``type_proposal: true``, ``drawn_type``, its drawn footprint,
+    front and status, no ``modified_by_ai``."""
+    if unverified:
+        return _type_proposal(item, final, record, evidence, design, mirrored_from)
     new = copy.deepcopy(item)
     new["modified_by_ai"] = True
     new["drawn_type"] = item["type"]
@@ -646,12 +697,26 @@ def _apply_change(item: dict, anchor: dict, final: placer.Piece, record: dict, e
             if unverified:
                 new["type_proposal"] = True
         if final.shape == "L":
-            new.update(shape="L", chaise_side=final.chaise_side, chaise_depth=final.chaise_depth)
+            new.update(_l_fields(final))
         elif item.get("shape") == "L":
-            for key in ("shape", "chaise_side", "chaise_depth"):
+            for key in ("shape", "chaise_side", "chaise_depth", "seat_depth", "chaise_width"):
                 new.pop(key, None)
     new["design"] = design
     new["evidence"] = list(item["evidence"]) + evidence
+    if mirrored_from:
+        new["mirrored_from"] = mirrored_from
+    return new
+
+
+def _type_proposal(item: dict, final: placer.Piece, record: dict, evidence: list[dict], design: dict,
+                   mirrored_from: Optional[str]) -> dict:
+    new = copy.deepcopy(item)
+    if record["status"] == "applied" and final.type != item["type"]:
+        new.update(type=final.type, type_proposal=True, drawn_type=item["type"],
+                   height=schemas.HEIGHTS.get(final.type))
+        new["evidence"] = list(item["evidence"]) + [dict(e, confidence=CONFIDENCE_SINGLE) for e in evidence]
+    if design:
+        new["design"] = design
     if mirrored_from:
         new["mirrored_from"] = mirrored_from
     return new
@@ -783,7 +848,7 @@ def place_added(rec: RoomCompletion, answers: dict[int, Optional[dict]], ctx: pl
             f["evidence"].append(B.evidence(EVIDENCE_FILE, "ai", confidence, model=model, pass_=other_pass,
                                             text=match.get("reason") or f"{piece.type} proposed by the other pass"))
         if piece.shape == "L":
-            f.update(shape="L", chaise_side=piece.chaise_side, chaise_depth=piece.chaise_depth)
+            f.update(_l_fields(piece))
         out["furniture"].append(f)
         rec.added.append(f)
         number += 1
@@ -887,7 +952,7 @@ def add_wall_cabinets(rec: RoomCompletion, building: dict, out: dict) -> None:
              "room_id": room["id"], "type": "wall_cabinet", "type_raw": None, "source": "added_by_ai",
              "footprint": {"center": spec["center"], "size": spec["size"], "rotation_deg": spec["rotation_deg"]},
              "front_deg": G.front_direction_deg(spec["rotation_deg"]), "height": round(hi - lo, 3), "asset": None,
-             "status": "verified", "completes_room": True, "method": "rule",
+             "status": "verified", "completes_room": True, "method": "rule", "mount_bottom_m": lo,
              "evidence": [B.evidence(EVIDENCE_FILE, "derived", 1.0, text=(
                  f"wall cabinets along the counter run {spec['run']} (rule, docs/milestone10.md §4.4), {lo:.2f}-"
                  f"{hi:.2f} m" + (f"; left free: {', '.join(spec['excluded'])}" if spec["excluded"] else "")))],
@@ -976,6 +1041,7 @@ def copy_added(room: dict, partner_added: list[dict], t: Transform, obstacles: l
                              bool((f.get("layout") or {}).get("against_wall", False)))
         if f.get("shape") == "L":
             piece.shape, piece.chaise_side, piece.chaise_depth = "L", t.side(f.get("chaise_side")), f.get("chaise_depth")
+            piece.seat_depth, piece.chaise_width = f.get("seat_depth"), f.get("chaise_width")
         copies.append((f, fp, piece))
     dropped = []
     while True:
@@ -1059,14 +1125,91 @@ def copy_empty_layout(room: dict, partner: dict, kind: str, partner_pieces: list
 
 
 # --------------------------------------------------------------------------
+# Looks (furniture.design, docs/milestone10.md §1.6b row 15, §4.4)
+# --------------------------------------------------------------------------
+
+def _slot(style: Optional[dict], *keys):
+    cur = style
+    for key in keys:
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(key)
+    return cur
+
+
+def spans_wall_to_wall(item: dict, building: dict) -> bool:
+    """A wardrobe whose two ends (the midpoints of its side edges) touch a wall or the room outline within 5 cm:
+    a built-in wardrobe (§4.4)."""
+    rot, size = placer.front_frame(item["footprint"], item.get("front_deg"))
+    c = (float(item["footprint"]["center"][0]), float(item["footprint"]["center"][1]))
+    ends = [Point(G.rotate_point((c[0] + sx * size[0] / 2.0, c[1]), rot, c)) for sx in (-1.0, 1.0)]
+    shapes = [shape for _id, shape in LK._wall_shapes(building, item.get("level_id"))]
+    room = next((r for r in building.get("rooms", []) if r["id"] == item.get("room_id")), None)
+    if room is not None and len(room.get("polygon") or []) >= 3:
+        shapes.append(Polygon(room["polygon"]).exterior)
+    return bool(shapes) and all(min(sh.distance(e) for sh in shapes) <= placer.WALL_TOUCH_M + 1e-9 for e in ends)
+
+
+def rule_design(item: dict, building: dict, style: Optional[dict]) -> dict:
+    """The look keys a piece gets by rule: cabinet fronts, colour, handle and worktop from ``style.json``
+    ``cabinets`` (absent: none); ``vanity`` for a washbasin at least 0.45 m deep; ``built_in`` for a wardrobe
+    from wall to wall; ``material_tags`` from ``style.json`` ``furniture.by_type.<type>.material_tags`` (the
+    schema's tags only). Values of the wrong kind are left out, never guessed."""
+    out: dict = {}
+    ftype = item["type"]
+    cab = _slot(style, "cabinets")
+    if ftype in schemas.CABINET_TYPES and isinstance(cab, dict):
+        front = cab.get("front_style", cab.get("front"))
+        if front in schemas.FRONT_STYLES:
+            out["front_style"] = front
+        if isinstance(cab.get("colour"), str) and cab["colour"].strip():
+            out["colour"] = cab["colour"].strip()
+        if cab.get("handle") in schemas.HANDLES:
+            out["handle"] = cab["handle"]
+        if ftype in schemas.WORKTOP_TYPES and cab.get("worktop") in schemas.WORKTOPS:
+            out["worktop"] = cab["worktop"]
+    if ftype == "washbasin":
+        _rot, size = placer.front_frame(item["footprint"], item.get("front_deg"))
+        if size[1] >= schemas.VANITY_MIN_DEPTH_M - 1e-9:
+            out["vanity"] = True
+    if ftype == "wardrobe" and spans_wall_to_wall(item, building):
+        out["built_in"] = True
+    tags = _slot(style, "furniture", "by_type", ftype, "material_tags")
+    if isinstance(tags, list):
+        clean = [t for t in dict.fromkeys(str(v) for v in tags) if t in schemas.MATERIAL_TAGS]
+        if clean:
+            out["material_tags"] = clean
+    return out
+
+
+def apply_designs(out: dict, records: list[RoomCompletion], style: Optional[dict]) -> int:
+    """``design`` for every piece of a completed, copied, mirrored or kept room: the rule keys under what the piece
+    already holds (the agreed AI style and colour win). Returns the number of pieces given a look."""
+    rooms = {r.room_id for r in records if r.state in ("completed", "copied", "mirrored", "kept")}
+    n = 0
+    for f in out["furniture"]:
+        if f.get("room_id") not in rooms:
+            continue
+        extra = rule_design(f, out, style)
+        if extra:
+            f["design"] = {**extra, **(f.get("design") or {})}
+            n += 1
+    return n
+
+
+# --------------------------------------------------------------------------
 # Whole building
 # --------------------------------------------------------------------------
 
 def complete_building(building: dict, style_text: str, client, settings: Settings, passes: int = PASSES,
-                      debug_dir: Optional[Path] = None, family: Optional[str] = None) -> tuple[dict, list[RoomCompletion]]:
+                      debug_dir: Optional[Path] = None, family: Optional[str] = None,
+                      style: Optional[dict] = None) -> tuple[dict, list[RoomCompletion]]:
     """Complete every furnished room (new dict; the input is not changed). Rooms whose partner is completed take
-    the partner's decisions; a partner that does not map is reported and the room is asked itself."""
+    the partner's decisions; a partner that does not map is reported and the room is asked itself. ``style``
+    (the ``style.json`` profile) gives the looks (``apply_designs``) and, without ``family``, the style family."""
     out = copy.deepcopy(building)
+    if family is None and isinstance(style, dict):
+        family = style.get("family")
     records: dict[str, RoomCompletion] = {}
     order: list[str] = []
     pending: list[tuple[dict, tuple[str, str]]] = []
@@ -1111,6 +1254,7 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
             rec.reason = f"partner {pid} ({kind}) is itself waiting (a cycle): asked itself"
             records[room["id"]] = rec
     result = [records[rid] for rid in order]
+    apply_designs(out, result, style)
     out["warnings"] = list(out.get("warnings", []))
     for rec in result:
         if rec.state == "completed" and rec.reason and not rec.added and not rec.changes and not rec.wall_cabinets:

@@ -103,6 +103,21 @@ def test_corner_sofa_is_an_l_polygon_with_the_main_seat_front_zone():
     assert P.piece_from_furniture(item).polygon().equals(left.polygon())
 
 
+def test_corner_sofa_seat_depth_and_chaise_width_are_read():
+    """§1.6b row 15: ``seat_depth`` and ``chaise_width`` (default 0.9) shape the L; ``l_parts`` is the one source."""
+    item = drawn("f1", "sofa_corner", (2.5, 3.0), (2.6, 1.6), shape="L", chaise_side="right", chaise_depth=1.6,
+                 seat_depth=1.0, chaise_width=0.8)
+    p = P.piece_from_furniture(item)
+    assert (p.seat_depth, p.chaise_width) == (1.0, 0.8)
+    assert p.polygon().area == pytest.approx(2.6 * 1.0 + 0.8 * 0.6)
+    assert p.front_zone().bounds == pytest.approx((1.2, 2.2, 3.0, 2.8))
+    assert schemas.l_parts((2.6, 1.6), "right", 1.6) == schemas.l_parts((2.6, 1.6), "right", 1.6, 0.9, 0.9)
+    sofa = drawn("f2", "sofa", (2.5, 3.53), (2.2, 0.9))
+    _b, ctx, pieces, anchors = setup([sofa], "living")
+    final, results, _base = P.place_changes(pieces, [P.ChangeRequest(0, "sofa_corner", (2.6, 1.6), anchors[0])], ctx)
+    assert results[0].applied and (final[0].seat_depth, final[0].chaise_width) == (0.9, 0.9)
+
+
 def test_the_inner_corner_of_a_corner_sofa_can_hold_a_coffee_table():
     """A coffee table inside the L's bounding box but out of the main seat's clearance passes every check."""
     sofa = drawn("f1", "sofa_corner", (2.5, 3.18), (2.6, 1.6), shape="L", chaise_side="right", chaise_depth=1.6)
