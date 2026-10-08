@@ -16,7 +16,8 @@ from wenart.blender import geom2d
 
 KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "furniture", "decor",
          "camera", "light",
-         "slab", "roof", "site")          # Milestone 10: the whole building (slabs, the roof, the site)
+         # Milestone 10 (docs/milestone10.md §1.6b row 11): the whole building and its site
+         "slab", "roof", "facade", "terrain", "site_wall", "site_area", "site_decor", "light_well", "railing")
 STATUSES = ("verified", "unverified", "assumed")
 
 

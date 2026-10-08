@@ -883,7 +883,7 @@ def clip_solid_below(verts: Sequence[Sequence[float]], faces: Sequence[Sequence[
     for plane in planes:
         a, b, c = plane
 
-        def d(p):
+        def d(p, a=a, b=b, c=c):
             return p[2] - (a * p[0] + b * p[1] + c)
 
         if not any(d(p) > PLANE_TOL for poly in polys for p in poly):

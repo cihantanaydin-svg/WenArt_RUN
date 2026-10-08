@@ -80,6 +80,15 @@ Milestone 7 (docs/milestone7.md §6.4):
   false`` are not built and listed;
 - dining and prayer rooms take the living-room slots (``slot_room_type``):
   dry floor, plain walls, skirting.
+
+Milestone 10 (docs/milestone10.md §3.2, §1.6b rows 12, 13, 20), the whole building (``whole`` arguments; None
+keeps the M3-M9 shell): slabs (``slab_plan`` / ``build_slabs``), walls to the next floor or cut by the roof
+underside and the terrace parapets, closed L-joins, the facade look and the drawn facade parts on the outward
+faces, sills and balcony railings (``build_outside_details``, kind ``railing``), floors and ceilings with the
+stair voids and the sloped attic ceilings. The inside and opening looks go through track F's functions
+(``wall_face_material``, ``wet_wall_look``, ``accent_walls``, ``door_look``, ``window_frame_look``,
+``facade_look``; thin wrappers with the M9 looks until ``wenart/blender/looks.py`` exists) and the outside
+materials through ``exterior_material`` / ``look_material``.
 """
 from __future__ import annotations
 
@@ -483,12 +492,14 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     """Create the wall objects of a level with their openings cut.
 
     ``whole`` (Milestone 10, the whole building; None = the M3-M9 walls): ``{"slab_above": slab record or
-    None, "roof_cut": {"planes", "top"} or None (the level under the roof: ``roof.wall_cut``), "looks":
-    exterior_looks(...), "outline": the level's outline, "faces": {wall id: [facade face]}}``. Walls then
-    run to the next floor (the slab above) instead of the ceiling + the assumed 0.30 m slab, walls under the
-    roof are cut by its underside (knee walls, gable ends), L-joins are closed (``corner_extensions``), the
-    outward faces take the facade look and a drawn facade part (``z_range``) its own material; end faces on
-    the outline count as outside."""
+    None, "roof_cut": {"planes", "top", "parapets"} or None (the level under the roof: ``roof.wall_cut`` and
+    ``roof.parapet_cuts``), "looks": ``exterior.resolve_looks(...)``, "outline": the level's outline, "faces":
+    {wall id: [drawn facade face with its side "direction"]}, "open_rooms"}``. Walls then run to the next
+    floor (the slab above) instead of the ceiling + the assumed 0.30 m slab, walls under the roof are cut by
+    its underside (knee walls, gable ends) and under a roof terrace at the parapet top, L-joins are closed
+    (``corner_extensions``), the outward faces take the facade look and a drawn facade part (its side, its
+    ``z_range``) its own material; end faces on the outline count as outside. The inside looks come from
+    track F's functions (``wall_face_material``, ``wet_wall_look``, ``accent_walls``; today the style)."""
     import bpy
 
     from wenart.blender import common
@@ -499,25 +510,42 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     walls = [w for w in building["walls"] if w["level_id"] == level_id]
     openings = [o for o in building["openings"] if o["level_id"] == level_id]
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
-    wall_by_id = {w["id"]: w for w in walls}
 
     # No walls.tint since Milestone 5 (§2.2): the flat albedo mode gives the wall colour;
-    # build.load_style warns when an old style file still carries one.
-    wall_mat = library.get(style["walls"]["material"], style["walls"].get("asset"))
-    ext_mat = look_material(library, whole["looks"]["facade"]) if whole else library.get("plaster_exterior")
-    wet = style.get("wet_walls") or style["walls"]
-    wet_mat = library.get(wet["material"], wet.get("asset"))
+    # build.load_style warns when an old style file still carries one. The looks come from track F's
+    # functions (wall_face_material, wet_wall_look, accent_walls, facade_look; today the style slots).
+    wall_mat = look_material(library, wall_face_material(style, None))
+    ext_mat = look_material(library, facade_look(whole["looks"])) if whole else library.get("plaster_exterior")
+    wet_mat = look_material(library, wet_wall_look(style, None))
     slots = [wall_mat, ext_mat, wet_mat]
-    face_slots: dict[str, list[tuple[float, float, int]]] = {}
+
+    def slot_of(look) -> int:
+        mat = look_material(library, look)
+        if mat not in slots:
+            slots.append(mat)
+        return slots.index(mat)
+
+    # Rooms whose inside or wet look differs from the level's: [(polygon, inside slot, wet slot)].
+    room_slots = []
+    for r in rooms:
+        if len(r["polygon"]) >= 3:
+            inside_slot, wet_slot = slot_of(wall_face_material(style, r)), slot_of(wet_wall_look(style, r))
+            if (inside_slot, wet_slot) != (0, 2):
+                room_slots.append((r["polygon"], inside_slot, wet_slot))
+    rooms_by_id = {r["id"]: r for r in rooms}
+    accents: dict[str, list] = {}
+    for wid, per_room in accent_walls(building, level, style).items():
+        for rid, look in (per_room or {}).items():
+            if rid in rooms_by_id and len(rooms_by_id[rid]["polygon"]) >= 3:
+                accents.setdefault(wid, []).append((rooms_by_id[rid]["polygon"], slot_of(look)))
+    face_slots: dict[str, list[tuple]] = {}
     if whole:
+        # Drawn facade parts (prepared per wall by build.prepare: side direction, optional z band).
         for wid, faces in (whole.get("faces") or {}).items():
             for face in faces:
-                mat = look_material(library, {"slug": face["material"], "colour": face.get("colour"),
-                                              "source": face.get("source")})
-                if mat not in slots:
-                    slots.append(mat)
+                slot = slot_of({"material": face["material"], "colour": face.get("colour")})
                 zr = face.get("z_range") or [-1e9, 1e9]
-                face_slots.setdefault(wid, []).append((float(zr[0]), float(zr[1]), slots.index(mat)))
+                face_slots.setdefault(wid, []).append((float(zr[0]), float(zr[1]), slot, face.get("direction")))
     roof_cut = whole.get("roof_cut") if whole else None
     cut_planes = roof_cut["planes"] if roof_cut else None
     slab_above = whole.get("slab_above") if whole else None
@@ -629,7 +657,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                 if entry.get("kind") == "wall" and entry.get("wenart_id") == wall["id"]:
                     entry["split_at_m"] = cuts
         if face_slots.get(wall["id"]):
-            changed = split_wall_at_heights(ob, sorted({z for z0, z1, _ in face_slots[wall["id"]]
+            changed = split_wall_at_heights(ob, sorted({z for z0, z1, *_ in face_slots[wall["id"]]
                                                          for z in (z0, z1) if abs(z) < 1e8})) or changed
         if changed:
             common.assign_box_uvs(ob.data)
@@ -638,7 +666,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             warnings.append(f"{wall['id']}: exterior wall with rooms on both sides or on neither; "
                             f"outward side taken from the level centre")
         _assign_wall_face_materials(ob, wall, rooms, outward, outline=whole.get("outline") if whole else None,
-                                    face_slots=face_slots.get(wall["id"]), open_polys=open_polys)
+                                    face_slots=face_slots.get(wall["id"]), open_polys=open_polys,
+                                    room_slots=room_slots, accents=accents.get(wall["id"]))
     for cutter in cutters:
         common.delete_object(cutter)
     bpy.context.view_layer.update()
@@ -749,7 +778,7 @@ OUTDOOR_ROOM_TYPES = {"balcony"}
 
 
 def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outline=None, face_slots=None,
-                                open_polys=()) -> None:
+                                open_polys=(), room_slots=(), accents=None) -> None:
     """Slot 0 interior, 1 exterior (faces of exterior walls whose normal
     points ``outward``, see ``wall_outward_normal``, and that look into no
     indoor room), 2 wet-room faces: ``wall_face_slot`` per face.
@@ -757,19 +786,30 @@ def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outl
     Milestone 10 (``outline``: the building outline): a vertical face whose probe lies outside the outline
     is outside too (the end faces of a closed L-join at the building corner), and so is one looking into a
     room open to the sky (``open_polys``: roof terraces); ``face_slots``: drawn facade parts ``[(z0, z1,
-    slot)]`` replace the exterior slot of the faces whose centre lies in their z range."""
+    slot, direction)]`` replace the exterior slot of the faces whose centre lies in their z range and whose
+    normal lies within 45 degrees of the part's side (``direction``; None = every side). The looks of track F
+    (``room_slots``: ``[(room polygon, inside slot, wet slot)]``; ``accents``: ``[(room polygon, slot)]`` of this
+    wall) replace slots 0 and 2 of the faces looking into those rooms."""
     mesh = ob.data
     polys = [r for r in rooms if len(r["polygon"]) >= 3]
     indoor = [r["polygon"] for r in polys if r.get("room_type") not in OUTDOOR_ROOM_TYPES]
     wet_polys = [r["polygon"] for r in polys if slot_room_type(r.get("room_type")) in WET_ROOM_TYPES]
+    probe = DEFAULTS["face_probe"]
     for poly in mesh.polygons:
         c = poly.center  # wall meshes are built in world coordinates (identity transform)
-        slot = wall_face_slot(wall, (c.x, c.y), tuple(poly.normal), outward, indoor, wet_polys)
-        if outline and slot == 0 and (outside_face(c, tuple(poly.normal), outline)
-                                      or open_face(c, tuple(poly.normal), open_polys)):
+        normal = tuple(poly.normal)
+        slot = wall_face_slot(wall, (c.x, c.y), normal, outward, indoor, wet_polys)
+        if outline and slot == 0 and (outside_face(c, normal, outline) or open_face(c, normal, open_polys)):
             slot = 1
+        if slot in (0, 2) and (room_slots or accents) and abs(normal[2]) <= 0.5:
+            p = (c.x + normal[0] * probe, c.y + normal[1] * probe)
+            accent = next((s for pg, s in accents or () if slot == 0 and G.point_in_polygon(p, pg)), None)
+            if accent is not None:
+                slot = accent
+            else:
+                slot = next((i if slot == 0 else w for pg, i, w in room_slots if G.point_in_polygon(p, pg)), slot)
         if face_slots and slot == 1:
-            slot = facade_face_slot(c.z, face_slots, slot)
+            slot = facade_face_slot(c.z, face_slots, slot, normal)
         poly.material_index = slot
 
 
@@ -790,11 +830,19 @@ def open_face(centre, normal, open_polys, probe: float = DEFAULTS["face_probe"])
     return any(G.point_in_polygon(p, poly) for poly in open_polys)
 
 
-def facade_face_slot(z: float, face_slots, default: int) -> int:
-    """The slot of a drawn facade part (``[(z0, z1, slot)]``) whose z range holds ``z``, else ``default``."""
-    for z0, z1, slot in face_slots:
-        if z0 - 1e-6 <= float(z) <= z1 + 1e-6:
-            return slot
+def facade_face_slot(z: float, face_slots, default: int, normal=None) -> int:
+    """The slot of a drawn facade part (``[(z0, z1, slot[, direction])]``) whose z range holds ``z`` and, when
+    the part has a side ``direction`` (a unit vector in the building frame) and ``normal`` is given, whose
+    side the face normal lies within 45 degrees of; else ``default``."""
+    for part in face_slots:
+        z0, z1, slot = part[0], part[1], part[2]
+        direction = part[3] if len(part) > 3 else None
+        if not z0 - 1e-6 <= float(z) <= z1 + 1e-6:
+            continue
+        if direction is not None and normal is not None:
+            if float(normal[0]) * direction[0] + float(normal[1]) * direction[1] < math.cos(math.radians(45.0)) - 1e-9:
+                continue
+        return slot
     return default
 
 
@@ -836,12 +884,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
     walls = {w["id"]: w for w in building["walls"] if w["level_id"] == level_id}
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
     trim = style.get("trim") or {"material": "painted_wood_white"}
-    door_style = style.get("door") or {"material": "wood_oak_light"}
-    win_style = style.get("window_frame") or {"material": "painted_metal_white"}
     frame_mat = library.get(trim["material"], trim.get("asset"), trim.get("tint"))
-    leaf_slug, leaf_asset = door_leaf_material(door_style)
-    leaf_mat = library.get(leaf_slug, leaf_asset, door_style.get("tint"))
-    win_mat = library.get(win_style["material"], win_style.get("asset"), win_style.get("tint"))
     glass_mat = library.glass()
     steel_mat = library.get("steel_brushed")
 
@@ -897,6 +940,9 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         height = top - bottom
         index = len(pass_indices) + 1
         pass_indices[opening["id"]] = index
+        # The door leaf and window frame looks (track F's door_look / window_frame_look; today the style slots).
+        leaf_mat = look_material(library, door_look(style, opening)) if opening["type"] == "door" else None
+        win_mat = look_material(library, window_frame_look(style, opening)) if opening["type"] != "door" else None
 
         if opening["type"] == "door":
             # Frame: two jambs and a head, as deep as the wall.
@@ -1161,7 +1207,7 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
         if planes:
             holes = []
             for i, loops in enumerate(room_voids):
-                rv, rf, c = ceiling_faces(room["polygon"], [loops], ceil_z)
+                _rv, _rf, c = ceiling_faces(room["polygon"], [loops], ceil_z)
                 if c:
                     holes.extend(loops)
             cv, cf = geom2d.sloped_faces(room["polygon"], holes, planes, facing_up=False)
@@ -1682,10 +1728,84 @@ def build_slabs(plan: dict, collections: dict, library, style: dict, manifest_ob
     return created
 
 
-# --- the outside looks -----------------------------------------------------
+# --- the looks: track F's functions and the outside materials ------------------
+#
+# docs/milestone10.md §1.6b row 20: track F owns ``wenart/blender/looks.py`` (pure functions this module calls:
+# ``wall_face_material``, ``accent_walls``, ``wet_wall_look``, ``door_look``, ``window_frame_look``,
+# ``facade_look``) and ``materials.exterior_material(library, slug, colour=None)``. Until they land, the
+# wrappers below give the looks of Milestone 9 (the style slots as they are); each hands over to F's function of
+# the same name and signature as soon as the module has it. A look is a dict ``{"material": slug, "asset",
+# "tint", "colour", "rgb", "source", "reason"}`` (only ``material`` required).
 
-# Linear RGB of the colour words the outside looks use when the style vocabulary has no colour table yet
-# (track C adds wenart/style/colours.py); sRGB values converted with the IEC 61966-2-1 transfer function.
+def _f_looks(name: str):
+    """Track F's function ``name`` of ``wenart.blender.looks``, None while F's module or function is missing."""
+    try:
+        from wenart.blender import looks as F  # track F (Milestone 10)
+    except ImportError:
+        return None
+    return getattr(F, name, None)
+
+
+def _slot_look(entry, default: str) -> dict:
+    entry = entry if isinstance(entry, dict) else {}
+    return {"material": entry.get("material") or default, "asset": entry.get("asset"), "tint": entry.get("tint")}
+
+
+def wall_face_material(style: dict, room: dict | None = None) -> dict:
+    """The look of the inside wall faces of ``room`` (None = the level's default). Today: the style's
+    ``walls`` slot for every room."""
+    f = _f_looks("wall_face_material")
+    if f is not None:
+        return f(style, room)
+    return dict(_slot_look(style.get("walls"), "plaster_white"), tint=None)     # no walls.tint since M5
+
+
+def wet_wall_look(style: dict, room: dict | None = None) -> dict:
+    """The look of the wall faces of a wet room. Today: the style's ``wet_walls`` slot, else ``walls``."""
+    f = _f_looks("wet_wall_look")
+    if f is not None:
+        return f(style, room)
+    return dict(_slot_look(style.get("wet_walls") or style.get("walls"), "tiles_white"), tint=None)
+
+
+def accent_walls(building: dict, level: dict, style: dict) -> dict:
+    """``{wall id: {room id: look}}``: the inside faces of a wall towards a room that take an accent look
+    (the style's ``wall_accent``). Today: none."""
+    f = _f_looks("accent_walls")
+    if f is not None:
+        return f(building, level, style) or {}
+    return {}
+
+
+def door_look(style: dict, opening: dict | None = None) -> dict:
+    """The look of a door leaf. Today: the style's ``door`` slot (a wood door's veneer, ``door_leaf_material``)."""
+    f = _f_looks("door_look")
+    if f is not None:
+        return f(style, opening)
+    door_style = style.get("door") or {"material": "wood_oak_light"}
+    slug, asset = door_leaf_material(door_style)
+    return {"material": slug, "asset": asset, "tint": door_style.get("tint")}
+
+
+def window_frame_look(style: dict, opening: dict | None = None) -> dict:
+    """The look of a window frame (seen from inside). Today: the style's ``window_frame`` slot."""
+    f = _f_looks("window_frame_look")
+    if f is not None:
+        return f(style, opening)
+    return _slot_look(style.get("window_frame"), "painted_metal_white")
+
+
+def facade_look(looks: dict, wall: dict | None = None) -> dict:
+    """The outside look of an outer wall: the resolved facade look (``exterior.resolve_looks``). Today: the
+    same for every wall."""
+    f = _f_looks("facade_look")
+    if f is not None:
+        return f(looks, wall)
+    return looks["facade"]
+
+
+# Linear RGB of the colour words the outside looks use while wenart/style/colours.py (track C) has no values;
+# sRGB values converted with the IEC 61966-2-1 transfer function.
 _SRGB = {"white": "#F4F4F2", "off-white": "#EDEAE3", "ivory": "#FFFFF0", "cream": "#F2E8D5", "greige": "#B8AFA3",
          "beige": "#D8C8AE", "sand": "#C9B48F", "taupe": "#8B7D6B", "light grey": "#C8C8C6", "grey": "#9A9A98",
          "mid grey": "#808080", "dark grey": "#5A5A5A", "anthracite": "#383E42", "charcoal": "#36393B",
@@ -1697,19 +1817,27 @@ LOOK_RGB = {"render": (0.62, 0.60, 0.56), "stone_cladding": (0.36, 0.33, 0.29), 
             "wood_cladding": (0.25, 0.15, 0.08), "fibre_cement": (0.40, 0.40, 0.39),
             "concrete_tiles": (0.17, 0.17, 0.17), "clay_tiles": (0.38, 0.13, 0.07), "slate": (0.07, 0.08, 0.09),
             "standing_seam": (0.15, 0.16, 0.17), "green_roof": (0.08, 0.15, 0.04),
-            "paving_concrete_grey": (0.33, 0.33, 0.32), "paving": (0.33, 0.33, 0.32), "gravel": (0.40, 0.38, 0.34),
+            "paving": (0.33, 0.33, 0.32), "gravel": (0.40, 0.38, 0.34),
             "grass": (0.07, 0.17, 0.03), "decking": (0.30, 0.18, 0.10), "stone": (0.50, 0.48, 0.44),
             "concrete": (0.38, 0.38, 0.37), "bark": (0.10, 0.07, 0.05), "foliage": (0.04, 0.12, 0.02),
-            "soil": (0.15, 0.11, 0.08), "dark_bronze": (0.065, 0.045, 0.03), "soffit": (0.75, 0.74, 0.72)}
-# The roof covering words of wenart/defaults.yaml style.exterior_fallback.
-COMPOUND_SLUGS = {"concrete_tiles_anthracite": ("concrete_tiles", "anthracite")}
+            "soil": (0.15, 0.11, 0.08), "dark_bronze": (0.065, 0.045, 0.03), "soffit": (0.75, 0.74, 0.72),
+            "pvc": (0.85, 0.85, 0.84), "aluminium": (0.45, 0.46, 0.47), "steel": (0.12, 0.12, 0.12),
+            "oak": (0.40, 0.26, 0.14), "wood_walnut": (0.20, 0.11, 0.06), "glass": (0.60, 0.65, 0.65)}
 
 
 def colour_rgb(name: str | None) -> tuple[float, float, float] | None:
-    """Linear RGB of a colour word (``_SRGB``), None for an unknown word."""
+    """Linear RGB of a colour name: ``wenart.style.colours.linear_rgb`` when track C's table knows it, else
+    ``_SRGB``; None for an unknown word."""
     if not name:
         return None
-    hexv = _SRGB.get(str(name).strip().lower().replace("_", " "))
+    word = str(name).strip().lower().replace("_", " ")
+    try:
+        from wenart.style import colours as C
+        if word in getattr(C, "NAMES", ()) and hasattr(C, "linear_rgb"):
+            return tuple(round(float(v), 4) for v in C.linear_rgb(word))
+    except Exception:  # noqa: BLE001 - the local table stands in
+        pass
+    hexv = _SRGB.get(word)
     if hexv is None:
         return None
 
@@ -1719,92 +1847,35 @@ def colour_rgb(name: str | None) -> tuple[float, float, float] | None:
     return tuple(round(lin(int(hexv[i:i + 2], 16) / 255.0), 4) for i in (1, 3, 5))
 
 
-def _look(slug, colour, source, reason, asset=None) -> dict:
-    return {"slug": slug, "colour": colour, "source": source, "assumed": source == "assumed", "reason": reason,
-            "asset": asset}
-
-
-def exterior_looks(building: dict, style: dict) -> dict:
-    """The outside looks of the whole building, one place for the slot -> slug choice (tracks C and F extend
-    the vocabulary behind it): ``{"facade", "roof", "window_frame", "door", "paving", "garden", "sill",
-    "plot_wall", "light_well", "railing", "soffit", "bark", "foliage", "ground"}``, each ``{"slug", "colour",
-    "source", "assumed", "reason", "asset"}``.
-
-    Order: what the building's documents say (``facade.default``, ``facade.window_frame``,
-    ``facade.sills``, ``roof.covering``), then the style profile's ``exterior`` slots (track C), then the
-    fallbacks of ``wenart/defaults.yaml`` ``style.exterior_fallback`` (assumed): ``plaster_exterior`` for the
-    facade, anthracite concrete tiles, grey concrete pavers, grass."""
-    facade = building.get("facade") if isinstance(building.get("facade"), dict) else {}
-    roof = building.get("roof") if isinstance(building.get("roof"), dict) else {}
-    ext = style.get("exterior") if isinstance(style.get("exterior"), dict) else {}
-    out: dict = {}
-
-    def from_style(slot):
-        e = ext.get(slot)
-        if isinstance(e, dict) and (e.get("slug") or e.get("material")):
-            src = "assumed" if e.get("assumed") else (e.get("source") or "style")
-            return _look(e.get("slug") or e.get("material"), e.get("colour"), src if src in ("brief", "style", "assumed")
-                         else "style", f"style profile exterior.{slot}", e.get("asset"))
-        return None
-
-    d = facade.get("default") if isinstance(facade.get("default"), dict) else None
-    if d and d.get("material"):
-        out["facade"] = _look(d["material"], d.get("colour"), d.get("source") or "elevation", "facade.default")
-    else:
-        out["facade"] = from_style("facade") or _look("plaster_exterior", None, "assumed",
-                                                      "no facade material in the building or the style")
-    if roof.get("covering"):
-        out["roof"] = _look(roof["covering"], roof.get("covering_colour"), roof.get("covering_source") or "assumed",
-                            "roof.covering")
-    else:
-        slug, colour = COMPOUND_SLUGS["concrete_tiles_anthracite"]
-        out["roof"] = from_style("roof") or _look(slug, colour, "assumed", "no roof covering in the building or the "
-                                                                         "style (defaults: anthracite concrete tiles)")
-    frame = (style.get("window_frame") or {}).get("material")
-    if facade.get("window_frame"):
-        out["window_frame"] = _look(facade["window_frame"], None, "brief", "facade.window_frame")
-    else:
-        out["window_frame"] = from_style("window_frame") or _look(frame or "painted_metal_white", None, "assumed",
-                                                                  "the interior window frame, seen from outside")
-    door = (style.get("door") or {}).get("material")
-    out["door"] = from_style("door") or _look(door or "wood_oak_light", None, "assumed", "the interior door look")
-    out["paving"] = from_style("paving") or _look("paving_concrete_grey", None, "assumed",
-                                                  "defaults: grey concrete pavers")
-    out["garden"] = from_style("garden") or _look("grass", None, "assumed", "defaults: grass")
-    sills = facade.get("sills") if isinstance(facade.get("sills"), dict) else {}
-    out["sill"] = _look(sills.get("material") or SILL["material"], None, "assumed" if sills.get("source") != "elevation"
-                        else "elevation", "facade.sills" if sills else "exterior sill not drawn")
-    out["plot_wall"] = dict(out["facade"], source="assumed", assumed=True,
-                            reason="plot wall finish not drawn: the facade's")
-    out["light_well"] = _look("concrete", None, "assumed", "light well: concrete (not drawn)")
-    out["railing"] = _look("steel_brushed", None, "assumed", "railing not drawn: steel rail and glass panel")
-    out["soffit"] = _look("soffit", None, "assumed", "roof soffit: painted (not drawn)")
-    out["bark"] = _look("bark", None, "assumed", "parametric tree")
-    out["foliage"] = _look("foliage", None, "assumed", "parametric tree")
-    out["ground"] = _look("soil", None, "assumed", "neutral ground (brief site: ground)")
-    return out
-
-
-def look_material(library, look: dict):
-    """The Blender material of an outside look: a vocabulary slug as the library makes it (tinted to the
-    look's colour when it names one), else a flat material of ``LOOK_RGB`` / the colour (the slug keeps its
-    name, so the scene manifest's material record names it)."""
+def exterior_material(library, slug: str, colour=None, rgb=None):
+    """The Blender material of an outside slug in a colour (track F's ``materials.exterior_material`` once it
+    exists): a vocabulary slug as the library makes it (tinted to the colour), else a flat material of
+    ``rgb`` / the colour / ``LOOK_RGB`` (the slug keeps its name, so the manifest's material record names it)."""
     from wenart.blender import materials as M
 
-    slug, colour = str(look.get("slug") or "unknown"), look.get("colour")
-    if slug in COMPOUND_SLUGS:
-        slug, colour = COMPOUND_SLUGS[slug][0], colour or COMPOUND_SLUGS[slug][1]
-    if ":" in slug:
-        slug, word = slug.split(":", 1)
-        colour = colour or word
-    rgb = colour_rgb(colour)
+    f = getattr(M, "exterior_material", None)
+    if f is not None and rgb is None:
+        return f(library, slug, colour)
+    rgb = tuple(rgb) if rgb else colour_rgb(colour)
     if slug in M.FLAT_COLOURS:
         base = M.flat_colour(slug)
         tint = [r / max(b, 1e-4) for r, b in zip(rgb, base)] if rgb else None
-        return library.get(slug, look.get("asset"), tint)
+        return library.get(slug, None, tint)
     target = rgb or LOOK_RGB.get(slug) or M.flat_colour("unknown")
     grey = M.flat_colour("unknown")
     return library.get(slug, None, [t / max(g, 1e-4) for t, g in zip(target, grey)])
+
+
+def look_material(library, look: dict):
+    """The Blender material of a look (``exterior.resolve_looks`` entry or a slot look): a slot look without a
+    colour (a vocabulary slug or one with an ``asset``) as the library makes it (M9), any other through
+    ``exterior_material`` in its ``colour`` / ``rgb``."""
+    from wenart.blender import materials as M
+
+    slug = str(look.get("material") or look.get("slug") or "unknown")
+    if not look.get("colour") and not look.get("rgb") and (look.get("asset") or slug in M.FLAT_COLOURS):
+        return library.get(slug, look.get("asset"), look.get("tint"))
+    return exterior_material(library, slug, look.get("colour"), look.get("rgb"))
 
 
 # --- sills and railings ------------------------------------------------------
@@ -1911,13 +1982,14 @@ def recolour_outside(name: str, outward, material) -> bool:
 
 def build_outside_details(building: dict, level: dict, collection, library, looks: dict, outline,
                           pass_indices: dict, manifest_objects: list, assumed: list,
-                          inside_frame: str | None = None) -> dict:
+                          style: dict | None = None) -> dict:
     """The outside details of a level (Milestone 10, §3.2 item 4): a sill under every window on an outer
     wall (``sill_box``; its window's id and pass index, status assumed), a railing (steel rail and glass
-    panel) along the edges of every balcony that no wall carries (``railing_edges``; kind wall, the room as
-    parent, status assumed), and, when the documents or the style give the window frames another look
-    outside than ``inside_frame`` (the style's window frame slug), that look on the frame faces turned
-    outwards (``recolour_outside``). Returns ``{"sills": n, "railings": n, "frames_outside": n}``."""
+    panel) along the edges of every balcony that no wall carries (``railing_edges``; kind ``railing``, the
+    room as parent, status assumed), and, when the documents, the brief or the style give the window frames
+    another look outside (``looks["window_frame"]`` of ``exterior.resolve_looks`` with a source other than the
+    fallback) than inside (``window_frame_look(style, window)``), that look on the frame faces turned outwards
+    (``recolour_outside``). Returns ``{"sills": n, "railings": n, "frames_outside": n}``."""
     from wenart.blender import common
 
     floor_z = float(level["elevation"])
@@ -1932,9 +2004,7 @@ def build_outside_details(building: dict, level: dict, collection, library, look
             cfg[key] = float(sills_cfg[key])
     counts = {"sills": 0, "railings": 0, "frames_outside": 0}
     frame_look = looks.get("window_frame") or {}
-    outside_frame = look_material(library, frame_look) \
-        if frame_look.get("slug") and frame_look.get("slug") != (inside_frame or "") and not frame_look.get("assumed") \
-        else None
+    own_outside = bool(frame_look.get("material")) and frame_look.get("source") in ("documents", "brief", "style")
     for o in building["openings"]:
         wall = walls.get(o.get("wall_id"))
         if o["level_id"] != level["id"] or o.get("type") != "window" or wall is None:
@@ -1943,6 +2013,9 @@ def build_outside_details(building: dict, level: dict, collection, library, look
         out = outward_side(wall, outline, (cx, cy))
         if out is None:
             continue
+        inside = window_frame_look(style or {}, o)
+        outside_frame = look_material(library, frame_look) if own_outside and (
+            frame_look["material"] != inside.get("material") or frame_look.get("colour")) else None
         if outside_frame is not None and recolour_outside(f"{o['id']}_frame", out, outside_frame):
             counts["frames_outside"] += 1
             for entry in manifest_objects:
@@ -1966,7 +2039,7 @@ def build_outside_details(building: dict, level: dict, collection, library, look
         assumed.append({"object": ob.name, "field": "sill", "value": info["width"], "reason": reason,
                         "parent": o["id"], "kind": "sill"})
         counts["sills"] += 1
-    rail_mat = library.get("steel_brushed")
+    rail_mat = look_material(library, looks.get("railing") or {"material": "steel_brushed"})
     glass = library.thin_glass()
     for room in building["rooms"]:
         if room["level_id"] != level["id"] or room.get("room_type") != "balcony" or len(room["polygon"]) < 3:
@@ -1981,12 +2054,12 @@ def build_outside_details(building: dict, level: dict, collection, library, look
             slots += [0] * len(rail[1]) + [1] * len(panel[1])
         verts, faces = geom2d.merge(parts)
         name = f"railing_{room['id']}"
-        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="wall",
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
                                     status="assumed", materials=[rail_mat, glass], face_material_indices=slots)
         ob.pass_index = 0
         reason = f"balcony edge without a wall: a {RAILING['height']} m railing (height not drawn: assumed)"
         manifest_objects.append({
-            "name": ob.name, "wenart_id": name, "kind": "wall", "status": "assumed", "level_id": level["id"],
+            "name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed", "level_id": level["id"],
             "element_id": room["id"], "parent": room["id"], "evidence": [], "material": rail_mat.name,
             "textured": False, "pass_index": 0,
             "assumed": {"detail": "railing", "height_m": RAILING["height"], "edges": len(edges), "reason": reason},

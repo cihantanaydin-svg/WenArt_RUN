@@ -405,7 +405,6 @@ def derive(roof: dict, building: dict) -> dict:
         # Offsets of the break line from the outline, per side of the outline rectangle.
         offs = []
         cx, cy = rect["center"]
-        bx, by = brect["center"]
         for axis, half in ((r, half_along), (across, half_across)):
             proj = [(x - cx) * axis[0] + (y - cy) * axis[1] for x, y in brk]
             offs.append((half - max(proj), half + min(proj)))
