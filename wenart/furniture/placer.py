@@ -146,6 +146,8 @@ class Piece:
     shape: Optional[str] = None
     chaise_side: Optional[str] = None
     chaise_depth: Optional[float] = None
+    seat_depth: Optional[float] = None
+    chaise_width: Optional[float] = None
     excused: frozenset = frozenset()
 
     @classmethod
@@ -178,13 +180,15 @@ class Piece:
     def polygon(self) -> Polygon:
         if self.shape == "L":
             parts = [_local_box(self.center, self.rotation_deg, *box)
-                     for box in schemas.l_parts(self.size, self.chaise_side, self.chaise_depth)]
+                     for box in schemas.l_parts(self.size, self.chaise_side, self.chaise_depth, self.seat_depth,
+                                                self.chaise_width)]
             return orient(unary_union(parts).buffer(0), 1.0)
         return _rect(self.center, self.size, self.rotation_deg, -self.size[1] / 2.0, self.size[1] / 2.0)
 
     def front_zone(self, depth: float = CLEARANCE_FRONT_M) -> Polygon:
         if self.shape == "L":
-            x0, x1, y_front = schemas.l_seat_front(self.size, self.chaise_side, self.chaise_depth)
+            x0, x1, y_front = schemas.l_seat_front(self.size, self.chaise_side, self.chaise_depth, self.seat_depth,
+                                                   self.chaise_width)
             return _local_box(self.center, self.rotation_deg, x0, x1, y_front - depth, y_front)
         d = self.size[1] / 2.0
         return _rect(self.center, self.size, self.rotation_deg, -d - depth, -d)
@@ -221,9 +225,11 @@ def piece_from_furniture(item: dict, index: int = 0) -> Piece:
 def _shape_fields(item: dict) -> dict:
     if item.get("shape") != "L":
         return {}
-    depth = item.get("chaise_depth")
-    return {"shape": "L", "chaise_side": item.get("chaise_side") or "right",
-            "chaise_depth": float(depth) if depth is not None else None}
+    def num(key: str) -> Optional[float]:
+        return float(item[key]) if item.get(key) is not None else None
+
+    return {"shape": "L", "chaise_side": item.get("chaise_side") or "right", "chaise_depth": num("chaise_depth"),
+            "seat_depth": num("seat_depth"), "chaise_width": num("chaise_width")}
 
 
 def front_frame(footprint: dict, front_deg: Optional[float]) -> tuple[float, tuple[float, float]]:
@@ -972,7 +978,11 @@ def _changed_piece(drawn: Piece, req: ChangeRequest, size, side: Optional[str]) 
         center, size = drawn.center, drawn.size
     else:
         center = anchored_center(req.anchor, drawn.rotation_deg, size)
-    shape = {"shape": "L", "chaise_side": side, "chaise_depth": float(size[1])} if req.type == "sofa_corner" else {}
+    shape = {}
+    if req.type == "sofa_corner":                  # a drawn corner sofa keeps its seat; a new one gets the defaults
+        shape = {"shape": "L", "chaise_side": side, "chaise_depth": float(size[1]),
+                 "seat_depth": drawn.seat_depth or schemas.L_SEAT_DEPTH_M,
+                 "chaise_width": drawn.chaise_width or schemas.L_CHAISE_WIDTH_M}
     return Piece(type=req.type, center=center, rotation_deg=drawn.rotation_deg, size=(float(size[0]), float(size[1])),
                  against_wall=drawn.against_wall, index=drawn.index, **shape)
 

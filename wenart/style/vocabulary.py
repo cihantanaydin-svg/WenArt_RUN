@@ -29,6 +29,8 @@ unknown).
 """
 from __future__ import annotations
 
+from wenart.style import finishes as _finishes      # Milestone 10 tables (track C), merged below
+
 # --------------------------------------------------------------------------
 # Material slugs -> asset + flat colour
 # --------------------------------------------------------------------------
@@ -72,6 +74,8 @@ MATERIALS: dict[str, dict] = {
     # luminance detail. No real-world size on the API -> 1 m.
     "painted_metal_white": {"source": "ambientcg", "asset": "Metal032",          "kind": "metal",   "flat": [0.85, 0.85, 0.85], "roughness": 0.35, "albedo_mode": "flat", "detail": 0.15},
 }
+# Milestone 10 (docs/milestone10.md §4.3, §4.8): wall finishes, wet-wall tiles, floors, exterior materials.
+MATERIALS.update(_finishes.MATERIALS)
 
 ALBEDO_MODES = ("flat", "texture")
 
@@ -122,6 +126,7 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",
                            "asset": "walnut_veneer", "size_m": [1.8, 1.8], "albedo_mode": "texture"},
 }
+FURNITURE_MATERIALS.update(_finishes.FURNITURE_MATERIALS)     # Milestone 10: fabrics, woods, worktops, handles, ...
 # The style slot the parametric fabric comes from; the Milestone 3 profile
 # has no such slot, so this is the slug used (recorded as assumed).
 DEFAULT_TEXTILE_MATERIAL = "fabric_linen"
@@ -283,6 +288,11 @@ LIGHTING: dict[str, dict] = {
     "night": {"hdri": "dikhololo_night", "sun_elevation_deg": -10, "sun_azimuth_deg": 0,
               "sun_strength": 0.0, "colour_temperature_k": 3800, "hdri_strength": 0.6},
 }
+
+LIGHTING.update(_finishes.LIGHTING)                          # Milestone 10: bright noon, blue hour, ...
+LIGHT_WORDS = list(_finishes.LIGHT_WORDS) + LIGHT_WORDS
+FLOOR_WORDS = list(_finishes.FLOOR_WORDS) + FLOOR_WORDS
+WALL_WORDS = list(_finishes.WALL_WORDS) + WALL_WORDS
 
 HDRIS: dict[str, dict] = {entry["hdri"]: {"source": "polyhaven", "mood": mood} for mood, entry in LIGHTING.items()}
 

@@ -10,7 +10,8 @@ $WENART_OUTPUTS (default /workspace/repo/outputs) for the projects in $COMPLETIO
 - every furnished bedroom and living room that misses an expected type (or its main piece) got at least one
   added piece (``completes_room``), itself or through its twin / same_as partner;
 - every change is listed: each ``modified_by_ai`` piece has its entry in ``completion.json`` with the drawn type
-  and size and appears in ``completion_report.md``; each ``completes_room`` piece is listed too;
+  and size and appears in ``completion_report.md``; each type proposal keeps its drawn footprint and status;
+  each ``completes_room`` piece is listed too; rule wall cabinets hang at ``mount_bottom_m`` 1.45;
 - 0 placer violations by AI changes or additions: every added piece passes the six checks in its room with the
   drawn pieces as obstacles; a changed piece fails no check its drawn layout did not already fail.
 """
@@ -101,9 +102,15 @@ def test_every_change_and_every_added_piece_is_listed(run):
             assert c["drawn_type"] == drawn[f["id"]]["type"] == f["drawn_type"], (project, f["id"])
             assert f["drawn_footprint"] == drawn[f["id"]]["footprint"], (project, f["id"])
             assert f"| {f['id']} |" in report, (project, f["id"])
+        if f.get("type_proposal"):                    # §1.6b row 15: an unverified piece's agreed type
+            assert f["id"] in changes and changes[f["id"]]["type_proposal"], (project, f["id"])
+            assert f["status"] == "unverified" and f["drawn_type"] == drawn[f["id"]]["type"], (project, f["id"])
+            assert f["footprint"] == drawn[f["id"]]["footprint"] and f["id"] in furnished["unverified"]
         if f.get("completes_room"):
             assert f["source"] == "added_by_ai" and f["id"] in listed, (project, f["id"])
             assert f"| {f['id']} |" in report, (project, f["id"])
+        if f["type"] == "wall_cabinet" and f["source"] == "added_by_ai":
+            assert f.get("mount_bottom_m") == 1.45 and f.get("method") == "rule", (project, f["id"])
 
 
 def test_no_placer_violation_by_ai_changes_or_additions(run):

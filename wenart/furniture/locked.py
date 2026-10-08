@@ -18,8 +18,10 @@ How, mode ``complete`` (per drawn piece):
 - fixed equipment (``schemas.FIXED_TYPES``), pieces that are not built
   (``build: false``) and the other types that never change
   (``schemas.UNCHANGEABLE_TYPES``): type and footprint byte-equal;
-- an unverified drawn piece stays ``unverified`` with its drawn footprint
-  (only an agreed type proposal may change its type);
+- an unverified drawn piece stays ``unverified`` with its drawn footprint;
+  only an agreed type proposal may change its type (and the type's height):
+  ``type_proposal: true`` with ``drawn_type`` = the source type, no
+  ``modified_by_ai`` (§1.6b row 15);
 - every other piece: the anchor within ``ANCHOR_TOL_M`` (5 cm: the footprint
   centre of a free piece, the back-edge midpoint of a piece against a wall),
   the same wall, ``front_deg`` within ``FRONT_TOL_DEG`` (1 degree); a changed
@@ -152,7 +154,12 @@ def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> 
         out.append(f"{pid}: front {src.get('front_deg')} -> {fin.get('front_deg')} (more than {FRONT_TOL_DEG} deg)")
     changed = (src["type"] != fin["type"] or _dump(src["footprint"]) != _dump(fin["footprint"])
                or src.get("height") != fin.get("height"))
-    if changed:
+    proposal = (fin.get("type_proposal") is True and src.get("status") == "unverified"
+                and _dump(src["footprint"]) == _dump(fin["footprint"]))
+    if changed and proposal and fin.get("modified_by_ai") is not True:
+        if fin.get("drawn_type") != src["type"]:
+            out.append(f"{pid}: type proposal without the drawn type ({fin.get('drawn_type')} != {src['type']})")
+    elif changed:
         if fin.get("modified_by_ai") is not True:
             out.append(f"{pid}: type, footprint or height changed without modified_by_ai")
         elif (fin.get("drawn_type") != src["type"] or _dump(fin.get("drawn_footprint")) != _dump(src["footprint"])

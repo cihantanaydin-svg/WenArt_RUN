@@ -43,13 +43,14 @@ has no chaise side: a corner sofa is only reached by changing a drawn sofa),
 by the §4.4 rule only); ``bunk_bed`` and ``crib`` only in a child's room
 (``rooms[].room_subtype: child``), where ``bed_double`` is not proposed.
 
-The corner sofa (``sofa_corner``, ``shape: L``): the footprint is the
-bounding box ``[width, depth]`` (front = -Y at rotation 0) and
-``chaise_depth`` the depth of the long seat (= the footprint depth); the main
-seat runs along the back over the whole width with depth ``L_SEAT_DEPTH_M``;
-the long seat (chaise) is ``L_CHAISE_WIDTH_M`` wide on ``chaise_side`` seen
-from the front (a viewer facing the sofa: ``right`` = local +X). ``l_parts``
-gives the two rectangles; the placer uses them in every check.
+The corner sofa (``sofa_corner``, ``shape: L``, docs/milestone10.md §1.6b):
+the footprint is the bounding box ``[width, depth]`` (front = -Y at rotation
+0) and ``chaise_depth`` the depth of the long seat (= the footprint depth);
+the main seat runs along the back over the whole width, ``seat_depth`` deep;
+the long seat (chaise) is ``chaise_width`` wide on ``chaise_side`` seen from
+the front (a viewer facing the sofa: ``right`` = local +X); both default to
+0.9 m (``L_SEAT_DEPTH_M``, ``L_CHAISE_WIDTH_M``). ``l_parts`` gives the two
+rectangles; the placer uses them in every check.
 """
 from __future__ import annotations
 
@@ -203,12 +204,20 @@ FIXED_TYPES: tuple[str, ...] = ("stair", "kitchen_counter", "kitchen_island", "s
                                 "washing_machine", "toilet", "washbasin", "shower", "bathtub")
 # Drawn pieces of these types keep their type and size (no room type lists a type to change them into).
 UNCHANGEABLE_TYPES: tuple[str, ...] = FIXED_TYPES + DOCUMENTED_ONLY_TYPES + RULE_ONLY_TYPES
-# Hung on the wall above the floor: not a floor obstacle for the placer.
+# Hung on the wall above the floor (``furniture.mount_bottom_m``): not a floor obstacle for the placer.
 MOUNTED_TYPES: tuple[str, ...] = ("wall_cabinet",)
 WALL_CABINET_Z: tuple[float, float] = (1.45, 2.15)          # §4.4: bottom and top above the floor, metres
-# Corner sofa geometry (see the module docstring): the main seat depth and the long seat width (assumed).
+# Corner sofa geometry (see the module docstring): the defaults of ``seat_depth`` and ``chaise_width`` (assumed).
 L_SEAT_DEPTH_M = 0.9
 L_CHAISE_WIDTH_M = 0.9
+# The looks the completion writes into ``furniture.design`` (docs/milestone10.md §1.6b row 15, §4.4).
+CABINET_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "wall_cabinet", "tall_cabinet")
+WORKTOP_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
+FRONT_STYLES: tuple[str, ...] = ("flat", "shaker", "slatted", "glass")
+HANDLES: tuple[str, ...] = ("brushed_steel", "black", "brass")
+WORKTOPS: tuple[str, ...] = ("stone", "wood", "terrazzo", "steel")
+MATERIAL_TAGS: tuple[str, ...] = ("glass", "wood", "metal", "fabric", "rattan", "marble")
+VANITY_MIN_DEPTH_M = 0.45                                   # a washbasin this deep gets the vanity look (§4.4)
 # Bathrooms and WCs: sanitary ware hangs on the plumbing, nothing is added (§2.3).
 NOTHING_ADDED_ROOM_TYPES: tuple[str, ...] = ("bathroom", "wc")
 # Room type -> expected type -> count (missing ones are asked for, §2.3).
@@ -240,8 +249,8 @@ COMPANIONS: dict[str, tuple[str, ...]] = {"office_chair": ("desk",), "bar_stool"
                                           "chair": ("table_dining",)}
 COMPANION_REACH_M = 0.6
 # Upholstered types: the AI's colour is the fabric colour (``design.fabric_colour``), else ``design.colour``.
-FABRIC_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single", "bed_double",
-                                 "bunk_bed")
+FABRIC_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bench", "bed_single",
+                                 "bed_double")
 
 LAYOUT: dict[str, Any] = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -432,14 +441,16 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
             "missing": missing, "anchor_missing": anchor_missing, "addable": addable, "counts": dict(counts)}
 
 
-def l_parts(size, chaise_side: Optional[str], chaise_depth: Optional[float]) -> list[tuple[float, float, float, float]]:
+def l_parts(size, chaise_side: Optional[str], chaise_depth: Optional[float], seat_depth: Optional[float] = None,
+            chaise_width: Optional[float] = None) -> list[tuple[float, float, float, float]]:
     """The corner sofa's two rectangles in its local frame as ``(x0, x1, y0, y1)``: the main seat along the back
-    (+Y) over the whole width, then the long seat (chaise) on ``chaise_side`` (``right`` = +X) over
-    ``chaise_depth`` from the back."""
+    (+Y) over the whole width, ``seat_depth`` deep, then the long seat (chaise) ``chaise_width`` wide on
+    ``chaise_side`` (``right`` = +X) over ``chaise_depth`` from the back (defaults: ``L_SEAT_DEPTH_M``,
+    ``L_CHAISE_WIDTH_M``, the footprint depth)."""
     w, d = float(size[0]), float(size[1])
     depth = min(float(chaise_depth), d) if chaise_depth else d
-    seat = min(L_SEAT_DEPTH_M, depth)
-    cw = min(L_CHAISE_WIDTH_M, w / 2.0)
+    seat = min(float(seat_depth) if seat_depth else L_SEAT_DEPTH_M, depth)
+    cw = min(float(chaise_width) if chaise_width else L_CHAISE_WIDTH_M, w / 2.0)
     main = (-w / 2.0, w / 2.0, d / 2.0 - seat, d / 2.0)
     if chaise_side == "left":
         chaise = (-w / 2.0, -w / 2.0 + cw, d / 2.0 - depth, d / 2.0)
@@ -448,10 +459,11 @@ def l_parts(size, chaise_side: Optional[str], chaise_depth: Optional[float]) -> 
     return [main, chaise]
 
 
-def l_seat_front(size, chaise_side: Optional[str], chaise_depth: Optional[float]) -> tuple[float, float, float]:
+def l_seat_front(size, chaise_side: Optional[str], chaise_depth: Optional[float], seat_depth: Optional[float] = None,
+                 chaise_width: Optional[float] = None) -> tuple[float, float, float]:
     """``(x0, x1, y_front)`` of the corner sofa's main seat in front of which the clearance zone lies (the part
     of the seat not covered by the chaise)."""
-    main, chaise = l_parts(size, chaise_side, chaise_depth)
+    main, chaise = l_parts(size, chaise_side, chaise_depth, seat_depth, chaise_width)
     if chaise_side == "left":
         return chaise[1], main[1], main[2]
     return main[0], chaise[0], main[2]

@@ -158,7 +158,7 @@ furniture[-1]["checks"] = {k: True for k in ("inside_room", "no_overlap", "clear
 piece("f_L-1_004", "L-1", mutfak, "kitchen_counter", [9.555, 2.0], [3.0, 0.6], 270.0, 180.0, h=0.9,
       counter_run={"wall_id": "w_L-1_002", "strokes": ["LINE:C1", "LINE:C2"]},
       design={"front_style": "shaker", "colour": "sage", "handle": "brass", "worktop": "stone"})
-piece("f_L-1_005", "L-1", mutfak, "wall_cabinet", [9.68, 2.0], [2.4, 0.35], 270.0, 180.0, src="added_by_ai", h=0.7,
+piece("f_L-1_005", "L-1", mutfak, "wall_cabinet", [9.7, 2.0], [3.0, 0.35], 270.0, 180.0, src="added_by_ai", h=0.7,
       completes_room=True, method="rule", mount_bottom_m=1.45,
       rule={"run": "f_L-1_004", "z": [1.45, 2.15], "excluded": []},
       design={"front_style": "shaker", "colour": "sage", "handle": "brass"})
