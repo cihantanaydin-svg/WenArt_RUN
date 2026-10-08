@@ -595,6 +595,12 @@ lights emit; HDRI at dusk), each with a verified Poly Haven HDRI.
    `Explore` for read-only searches, log reading and coverage counts. Every subagent prompt holds the `CLAUDE.md`
    rules that apply, the frozen contract, its files, what it must not touch, its tests and the report format.
    Subagents never push, never touch pods or secrets.
+   Tests that fail on the frozen contracts (new enums) and who fixes them: B `test_layout.py` (sizes vs schema
+   types); A3 `test_recognition_cpu.py` (symbol prompt vs schema, 2), `test_symbols.py` (size table); F
+   `test_polish_parts.py` (word tables), `test_decor_m8.py` (schema decor types), `test_blender_furniture.py`
+   (parametric types); H `test_vision_check_prompts.py` (category hints). The detector's import-time `KeyError`
+   (`wenart/gate/detect.py` words) was fixed by the lead with the contracts (commit 623bf30). The lead's scheduler
+   wiring of the `sheets` stage waits on a local branch `m10-lead` until A1's package is merged.
 3. Library pod L1 (needs A1, C, D merged), then L2 (generation).
 4. Code review (Workflow: parallel finders per lens, an adversarial verifier per finding, a failing-then-passing
    test per confirmed finding; < 10 agents).
