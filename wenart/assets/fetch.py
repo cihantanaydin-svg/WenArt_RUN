@@ -428,7 +428,7 @@ def verify_vocabulary() -> list[dict]:
 CHECKS_PATH = Path(__file__).resolve().parents[1] / "style" / "asset_checks_m10.json"
 CHECKS_SCHEMA = "wenart-asset-checks-m10/1"
 PH_MAPS = ("Diffuse", "nor_gl", "Rough", "Displacement", "AO", "arm")
-PH_TEXTURE_TYPE = 1                    # ``type`` of /info: 0 = HDRI, 1 = texture, 2 = model
+PH_TEXTURE_TYPE = polyhaven.TYPE_TEXTURE
 REQUIRED_PH_MAPS = ("Diffuse", "nor_gl", "Rough")
 REQUIRED_ACG_MAPS = ("color", "normal", "roughness")
 MEASURE_SIDE = 64

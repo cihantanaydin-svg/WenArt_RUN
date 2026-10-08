@@ -311,6 +311,11 @@ def test_procedural_looks_have_nothing_to_fetch(tmp_path, monkeypatch):
     assert len(calls) == len(set(calls))
 
 
+def test_poly_haven_record_types():
+    assert (polyhaven.TYPE_HDRI, polyhaven.TYPE_TEXTURE, polyhaven.TYPE_MODEL) == (0, 1, 2) and fetch.PH_TEXTURE_TYPE == 1
+    assert polyhaven.is_texture({"type": 1}) and not polyhaven.is_texture({"type": 0}) and not polyhaven.is_texture({})
+
+
 def test_source_of_texture_knows_the_new_ids():
     assert fetch.source_of_texture("oak_wood_planks") == "polyhaven" and fetch.source_of_texture("Cork002") == "ambientcg"
     assert fetch.source_of_texture("WoodFloor034") == "ambientcg" and fetch.source_of_texture("PaintedBricks004") == "ambientcg"

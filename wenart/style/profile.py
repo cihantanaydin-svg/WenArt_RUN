@@ -1216,10 +1216,10 @@ def material_slugs(profile: dict) -> list[str]:
     wood, cabinet wood and worktop, pots, exterior looks). A slug of neither vocabulary table (a worktop word) is
     not listed."""
     slots = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame")
-    found: list[str] = [profile[slot]["material"] for slot in slots]
+    found: list[str] = [(profile.get(slot) or {}).get("material") for slot in slots]      # a partial (older) profile has fewer slots
     accent = profile.get("wall_accent")
     if accent:
-        found.append(accent["material"])
+        found.append(accent.get("material"))
     outside = (profile.get("window_frame") or {}).get("outside") or {}
     found.append(outside.get("material"))
     furniture = profile.get("furniture") or {}
@@ -1249,8 +1249,8 @@ def assets_in_profile(profile: dict) -> dict:
         if asset_id and asset_id not in seen:
             seen.add(asset_id)
             textures.append((source_of(slug), asset_id, slug))
-    hdri = profile["lighting"]["hdri"]
-    return {"textures": textures, "hdris": [(V.HDRIS.get(hdri, {}).get("source", "polyhaven"), hdri)]}
+    hdri = (profile.get("lighting") or {}).get("hdri")
+    return {"textures": textures, "hdris": [(V.HDRIS.get(hdri, {}).get("source", "polyhaven"), hdri)] if hdri else []}
 
 
 def write_profiles(profiles: list[dict], out_path: Path) -> list[Path]:

@@ -441,6 +441,18 @@ def test_assets_in_profile_skip_procedural_looks_and_find_the_new_slots():
     assert P.material_slugs(real02())[:3] == ["wood_oak_light", "paint", "plaster_white"]
 
 
+def test_a_partial_older_profile_still_lists_its_assets():
+    """A style.json of Milestone 3-9 has none of the new slots (and may lack some old ones): material_slugs and
+    assets_in_profile read what is there."""
+    old = {"floor": {"material": "wood_oak_light", "asset": "WoodFloor051"}, "walls": {"material": "plaster_white", "asset": "white_plaster_02"},
+           "lighting": {"hdri": "kloppenheim_06"}}
+    assert P.material_slugs(old) == ["wood_oak_light", "plaster_white"]
+    assert P.assets_in_profile(old) == {"textures": [("ambientcg", "WoodFloor051", "wood_oak_light"),
+                                                     ("polyhaven", "white_plaster_02", "plaster_white")],
+                                        "hdris": [("polyhaven", "kloppenheim_06")]}
+    assert P.assets_in_profile({}) == {"textures": [], "hdris": []}
+
+
 def test_helpers_colourable_and_wet_safe():
     assert P.is_colourable("paint") and P.is_colourable("plaster_white") and P.is_colourable("tiles_subway") and P.is_colourable("render")
     assert not P.is_colourable("brick") and not P.is_colourable("wood_oak_light") and not P.is_colourable("wood_oak_whitewashed")
