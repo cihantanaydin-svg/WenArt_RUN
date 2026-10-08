@@ -80,6 +80,27 @@ Milestone 8 (docs/milestone8.md §2, §4):
   closer than ``WALL_ART_CEILING_M`` to the ceiling; without a model it is
   not built (``summary.decor_skipped`` says why).
 
+Milestone 10 (docs/milestone10.md §4.4-§4.7, §1.6b rows 15, 18; track F):
+
+- Designs: every piece is built with ``looks.design_for`` (its ``furniture.design``, or ``style.json``
+  ``cabinets`` / ``furniture`` and the vanity / built-in rules when the layout stage wrote none): cabinet fronts
+  (flat, shaker, slatted, glass) in the design colour or wood, handles (brushed steel, black, brass), worktops,
+  the fabric colour of upholstered pieces, the furniture wood, glass or marble table tops; the manifest entry
+  records ``design`` and its sources. Material keys ``front``, ``handle``, ``worktop``, ``fabric``, ``wood`` take
+  the design (``design_overrides``).
+- Wall-hung pieces (``wall_cabinet``) stand ``mount_bottom_m`` above the floor; the corner sofa is built from
+  ``schemas.l_parts`` (``chaise_side``, ``seat_depth``, ``chaise_width``).
+- Recolour (§4.5): a library model whose fit carries ``asset.recolour`` (the brief's fabric / wood colour and the
+  material slots that may take it, ``wenart.furniture.fit``) gets copies of those materials in that colour (the
+  texture's luminance detail on the colour, ``materials`` flat mode); a slot whose material is not found is listed
+  and left as it is.
+- Decor: the 12 new types (curtains and blinds at their window, throws, books, candles, baskets, trays, wall
+  clocks, sculptures, large plants of their species in their pot, pendant and ceiling lights reaching the
+  ceiling); ``colour_*`` part keys take the item's colour name, ``pot`` the plant's pot.
+- Lights (§4.9): in a mood with ``lamps_on`` (interior evening) and for decor with ``light_on``, lamp bulbs and
+  shades glow and a warm point light (``LAMP_LIGHTS``, assumed wattage) sits in each lamp; recorded as ``light``
+  on the entry and in ``assumed``.
+
 The glTF importer of Blender 5.2.2 (checked with ``get_rna_type``):
 ``filepath``, ``import_shading`` (NORMALS/FLAT/SMOOTH), ``merge_vertices``,
 ``import_pack_images``, ``import_scene_as_collection`` (default True: a new
@@ -97,7 +118,7 @@ from typing import Sequence
 from wenart import geometry as G
 from wenart.blender import parametric as P
 from wenart.blender import proxies
-from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, proxy_height
+from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, mount_bottom, proxy_height
 
 CC0 = "CC0"
 CC_BY = "CC-BY-4.0"
@@ -118,6 +139,17 @@ WALL_ART_MIN_WIDTH_M = 0.3                    # scaled down for the ceiling belo
 WALL_DECOR_TYPES = ("wall_art", "mirror")     # Milestone 9: hung by wall_art_placement over their anchor piece
 SURFACE_RAY_STEPS = 4                          # Milestone 9: a missed ray tries 4 points towards the host centre
 MIRROR_ASPECT = 1.25                           # the parametric mirror's height / width (portrait)
+# Milestone 10: wall decor of a parametric shape when no library model is fitted (the mirror since Milestone 9).
+PARAMETRIC_WALL_DECOR = ("mirror", "clock")
+CLOCK_DEPTH_M = 0.045
+# Lamps that light up in a ``lamps_on`` mood (or with ``light_on``): kind -> (watts, temperature K, radius m,
+# where: "below_shade" / "bulb"); designer values (assumed), recorded per light.
+LAMP_LIGHTS: dict[str, tuple[float, float, float, str]] = {
+    "floor_lamp": (25.0, 2700.0, 0.05, "below_shade"), "table_lamp": (15.0, 2700.0, 0.04, "below_shade"),
+    "pendant_light": (35.0, 2700.0, 0.04, "bulb"), "ceiling_light": (50.0, 3000.0, 0.08, "bulb"),
+    "candle": (0.5, 1900.0, 0.01, "bulb"),
+}
+LIT_SHADE_STRENGTH = 1.5
 NOT_BUILT_REASON = "build false: a drawn symbol both recognition passes call not_furniture; kept as an obstacle, not built"
 # A fitted box may differ from the footprint by this much before a warning.
 FIT_TOLERANCE_M = 0.01
@@ -328,6 +360,11 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         assumed.append({"object": "furniture", "field": "fabric", "value": default_textile,
                         "reason": "style profile has no textiles slot; default fabric for sofas and chairs"})
     trim = (style.get("trim") or {}).get("material") or "painted_wood_white"
+    # Milestone 10: the style's furniture wood (a wood_veneer_* slug) wins over the floor's tone.
+    furniture_wood = (style.get("furniture") or {}).get("wood") if isinstance(style.get("furniture"), dict) else None
+    if furniture_wood and furniture_wood in furniture_materials:
+        wood = (furniture_wood, asset_of(furniture_wood), None)
+        assumed[:] = [a for a in assumed if a.get("field") != "wood"]
     keys = {
         "wood": wood, "fabric": fabric, "duvet": fabric, "painted": (trim, None, None),
         "bedding": ("fabric_white", asset_of("fabric_white"), None), "ceramic": ("ceramic_white", None, None),
@@ -335,8 +372,92 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "dark": ("lacquer_dark", None, None), "green": ("plant_green", None, None),
         "terracotta": ("terracotta", None, None), "glass": ("glass", None, None),
         "mirror": ("mirror", None, None),                     # Milestone 9: the parametric mirror's glass
+        # Milestone 10: cabinet fronts (the trim's paint unless a design says otherwise), handles, a marble table
+        # top, plant pots, lamp bulbs (frosted when off), rattan.
+        "front": (trim, None, None), "handle": ("steel_brushed", None, None), "marble": ("marble", None, None),
+        "pot": ("terracotta", None, None), "bulb": ("ceramic_white", None, None),
+        "rattan": ("rattan", None, None),
     }
     return keys, assumed
+
+
+def design_overrides(design: dict, ftype: str) -> tuple[dict, list[str]]:
+    """``({key: {"slug", "asset", "colour"}}, notes)``: the material keys a piece's design changes (pure).
+    ``front``: painted (the trim's paint, ``painted_wood_white``) in the design colour, else the design wood's
+    veneer; ``handle``: ``finishes.CABINET_HANDLES``; ``worktop``: ``finishes.CABINET_WORKTOPS``; ``fabric`` and
+    ``duvet``: the fabric colour on the linen; ``wood``: the design's veneer, or for a piece that is not upholstered
+    and has a ``colour`` the painted look in that colour."""
+    try:
+        from wenart.style import finishes as FIN
+        from wenart.style import vocabulary as V
+        handles, worktops, furniture_materials = FIN.CABINET_HANDLES, FIN.CABINET_WORKTOPS, V.FURNITURE_MATERIALS
+        all_materials = {**V.MATERIALS, **V.FURNITURE_MATERIALS}
+    except Exception:  # noqa: BLE001 - without the tables the style keys stay
+        return {}, ["design not applied: the style tables cannot be imported"]
+
+    def asset(slug):
+        return (all_materials.get(slug) or {}).get("asset")
+
+    out: dict[str, dict] = {}
+    notes: list[str] = []
+    wood = design.get("wood") if design.get("wood") in furniture_materials else None
+    upholstered = ftype in _looks().FABRIC_TYPES
+    if design.get("colour"):
+        out["front"] = {"slug": "painted_wood_white", "asset": asset("painted_wood_white"), "colour": design["colour"]}
+        notes.append(f"fronts painted {design['colour']}")
+        if not upholstered and ftype not in _looks().CABINET_TYPES + _looks().STORAGE_TYPES and not wood:
+            out["wood"] = {"slug": "painted_wood_white", "asset": asset("painted_wood_white"), "colour": design["colour"]}
+            notes.append(f"wood parts painted {design['colour']}")
+    elif wood:
+        out["front"] = {"slug": wood, "asset": asset(wood), "colour": None}
+        notes.append(f"fronts {wood}")
+    if wood:
+        out["wood"] = {"slug": wood, "asset": asset(wood), "colour": None}
+    if design.get("handle") in handles:
+        out["handle"] = {"slug": handles[design["handle"]], "asset": None, "colour": None}
+        notes.append(f"handles {design['handle']}")
+    if design.get("worktop") in worktops:
+        slug = worktops[design["worktop"]]
+        out["worktop"] = {"slug": slug, "asset": asset(slug), "colour": None}
+        notes.append(f"worktop {design['worktop']}")
+    fabric = design.get("fabric_colour") or (design.get("colour") if upholstered else None)
+    if fabric:
+        for key in ("fabric", "duvet"):
+            out[key] = {"slug": "fabric_linen", "asset": asset("fabric_linen"), "colour": fabric}
+        notes.append(f"fabric {fabric}")
+    return out, notes
+
+
+def _looks():
+    from wenart.blender import looks
+    return looks
+
+
+def lamps_on(style: dict) -> bool:
+    """True when the style's lighting mood turns the lamps on (``vocabulary.LIGHTING[mood]["lamps_on"]``: the
+    interior evening mood, docs/milestone10.md §4.9)."""
+    mood = str(((style or {}).get("lighting") or {}).get("mood") or "")
+    try:
+        from wenart.style import vocabulary as V
+        return bool((V.LIGHTING.get(mood) or {}).get("lamps_on"))
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def pot_override(item: dict) -> dict:
+    """The ``pot`` key of a plant (pure): ``item.pot.material`` through ``finishes.POT_MATERIALS`` (a colour alone:
+    white ceramic in that colour, assumed), its colour; the terracotta default without a pot."""
+    pot = item.get("pot") if isinstance(item.get("pot"), dict) else {}
+    try:
+        from wenart.style import finishes as FIN
+        from wenart.style import vocabulary as V
+        slug = FIN.POT_MATERIALS.get(str(pot.get("material") or "").lower())
+        all_materials = {**V.MATERIALS, **V.FURNITURE_MATERIALS}
+    except Exception:  # noqa: BLE001
+        slug, all_materials = None, {}
+    if slug is None:
+        slug = "ceramic_white" if pot.get("colour") else "terracotta"
+    return {"slug": slug, "asset": (all_materials.get(slug) or {}).get("asset"), "colour": pot.get("colour")}
 
 
 def design_details(piece_type: str, parts: list[dict]) -> list[dict]:
@@ -352,10 +473,16 @@ def design_details(piece_type: str, parts: list[dict]) -> list[dict]:
                  "reason": "design detail of the bed (soft bedding inside the bed's own box); "
                            "the documents show only the footprint"}]
     if piece_type in P.COUNTER_TYPES:
-        fronts = sum(1 for p in parts if p["role"] == "front")
+        fronts = sum(1 for p in parts if p["role"] == "handle")       # one handle per front, whatever its style
         return [{"field": "counter_fronts", "kind": "counter_fronts",
                  "value": f"{fronts} front(s) {P.FRONT_GAP * 1000:g} mm proud of the carcass with handles",
                  "reason": "design detail of the counter (fronts and handles inside its own box); "
+                           "the documents show only the footprint"}]
+    if piece_type in P.CABINET_LOOK_TYPES:
+        fronts = sum(1 for p in parts if p["role"] == "handle")
+        return [{"field": "cabinet_fronts", "kind": "cabinet_fronts",
+                 "value": f"{fronts} front(s) with handles",
+                 "reason": "design detail of the cabinet (fronts and handles inside its own box); "
                            "the documents show only the footprint"}]
     return []
 
@@ -597,17 +724,33 @@ class _Materials:
         assumed.extend(extra)
         self._cache: dict = {}
 
-    def get(self, key: str, unverified: bool = False, accent=None):
+    def get(self, key: str, unverified: bool = False, accent=None, colour=None, overrides: dict | None = None,
+            lit: bool = False):
         """The material of a parametric key; an ``accent_<key>`` part (Milestone 9 decor) takes ``accent`` (an RGB
-        tint, the item's colour) on the ``<key>`` material, or the plain ``<key>`` material without one."""
+        tint, the item's colour) on the ``<key>`` material, or the plain ``<key>`` material without one. Milestone
+        10: a ``colour_<key>`` part takes ``colour`` (a ``colours.py`` name) as its base colour; ``overrides``
+        (``design_overrides``, ``pot_override``) replace a key's slug, asset and colour for one piece; ``lit``
+        makes the ``bulb`` key a light (``materials.light_material``)."""
         if key.startswith(P.ACCENT_PREFIX):
             key = key[len(P.ACCENT_PREFIX):]
-        else:
+            colour = None
+        elif key.startswith(P.COLOUR_PREFIX):
+            key = key[len(P.COLOUR_PREFIX):]
             accent = None
-        ck = (key, unverified, tuple(accent) if accent else None)
+        else:
+            accent, colour = None, None
+        if key == "bulb" and lit:
+            from wenart.blender import materials as M
+            return M.light_material("lamp_light")
+        over = (overrides or {}).get(key)
+        if over:
+            slug, asset, tint = over["slug"], over.get("asset"), None
+            colour = colour or over.get("colour")
+        else:
+            slug, asset, tint = self.keys[key]
+        ck = (slug, asset, unverified, tuple(accent) if accent else None, colour or None)
         if ck in self._cache:
             return self._cache[ck]
-        slug, asset, tint = self.keys[key]
         if asset and self.library.texture_set(asset)[0] is None:
             asset = None  # no usable texture: share the flat material of the same slug
         if accent:
@@ -615,12 +758,16 @@ class _Materials:
         if slug == "glass":
             mat = self.library.thin_glass()  # shower panels: the index pass must see the piece behind
         else:
-            mat = self.library.get(slug, asset, tint, unverified=unverified)
+            mat = self.library.get(slug, asset, tint, unverified=unverified, colour=colour)
         self._cache[ck] = mat
         return mat
 
-    def slug(self, key: str) -> str:
-        return self.keys[key[len(P.ACCENT_PREFIX):] if key.startswith(P.ACCENT_PREFIX) else key][0]
+    def slug(self, key: str, overrides: dict | None = None) -> str:
+        for prefix in (P.ACCENT_PREFIX, P.COLOUR_PREFIX):
+            if key.startswith(prefix):
+                key = key[len(prefix):]
+        over = (overrides or {}).get(key)
+        return over["slug"] if over else self.keys[key][0]
 
 
 def create_furniture(building: dict, level: dict, collection, library, style: dict, assets_dir: str | None,
@@ -631,6 +778,8 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     ``proxies``, ``decor``)."""
     floor_z = float(level["elevation"])
     mats = _Materials(library, style, assumed)
+    mats.lamps_on = lamps_on(style)                   # Milestone 10: the interior evening mood lights the lamps
+    mats.collection = collection
     on_level = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
     pieces = [p for p in on_level if is_built(p)]
     not_built = [{"id": p["id"], "type": p["type"], "reason": NOT_BUILT_REASON} for p in on_level if not is_built(p)]
@@ -663,7 +812,8 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         if piece["id"] in proxy_ids:
             continue
         entry = _create_piece(piece, level, floor_z, height, height_assumed, lift, collection, library, mats,
-                              assets_dir, pass_indices, assumed, warnings, unverified_cache, geo_cache)
+                              assets_dir, pass_indices, assumed, warnings, unverified_cache, geo_cache,
+                              style=style, building=building)
         manifest_objects.append(entry)
         entries[piece["id"]] = entry
         method = "library" if entry["method"] == "library" else "parametric"
@@ -690,7 +840,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                      built, on_level, warnings, geo_cache, summary["decor_skipped"], mats=mats)
         else:
             entry = _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices,
-                                  host_entry, warnings, geo_cache, skipped=summary["decor_skipped"])
+                                  host_entry, warnings, geo_cache, skipped=summary["decor_skipped"], assumed=assumed)
         if entry is None:
             continue
         manifest_objects.append(entry)
@@ -711,7 +861,13 @@ def _base_entry(piece: dict, name: str, wenart_id: str, kind: str, status: str, 
 
 
 def _create_piece(piece, level, floor_z, height, height_assumed, lift, collection, library, mats, assets_dir,
-                  pass_indices, assumed, warnings, unverified_cache, geo_cache) -> dict:
+                  pass_indices, assumed, warnings, unverified_cache, geo_cache, style=None, building=None) -> dict:
+    # Milestone 10: a wall-hung piece stands mount_bottom_m above the floor; the design (or the style's fallback).
+    base, base_assumed = mount_bottom(piece)
+    floor_z = floor_z + base
+    design, design_notes = _looks().design_for(piece, style or {}, building)
+    overrides, override_notes = design_overrides(design, piece["type"])
+    piece = dict(piece, design=design)
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])
     rot = float(fp["rotation_deg"])
@@ -727,6 +883,19 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
                   "asset": piece.get("asset"), "fit_scale": [1.0, 1.0, 1.0], "method": None, "bbox_m": None,
                   "fallback_reason": None, "materials": [], "material": None, "textured": False})
 
+    if base > 0:
+        entry["mount_bottom_m"] = round(base, 4)
+        if base_assumed:
+            entry["assumed"]["mount_bottom_m"] = base
+            assumed.append({"object": name, "field": "mount_bottom_m", "value": base,
+                            "reason": f"{piece['type']} without mount_bottom_m: hung at the rule's {base} m"})
+    if design or override_notes:
+        entry["design"] = dict(design, sources=design_notes, materials=override_notes)
+    if piece.get("shape") == "L" or piece["type"] == "sofa_corner":
+        entry["l_shape"] = P.sofa_corner_parts_info(piece)
+        if entry["l_shape"]["chaise_side_assumed"]:
+            assumed.append({"object": name, "field": "chaise_side", "value": "right",
+                            "reason": "corner sofa without chaise_side: the chaise on the right (assumed)"})
     file, reason = resolve_asset(piece.get("asset"), assets_dir)
     if file is None and (piece.get("asset") or {}).get("method") == "library":
         warnings.append(f"{piece['id']}: {reason}; parametric mesh used")  # a fit was made but cannot be built
@@ -740,7 +909,8 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
             warnings.append(f"{piece['id']}: {reason}; parametric mesh used")
             ob = None
     if ob is None:
-        ob = _parametric_object(piece, name, status, floor_z, height + lift, collection, mats, entry)
+        ob = _parametric_object(piece, name, status, floor_z, height + lift, collection, mats, entry,
+                                overrides=overrides)
         entry["method"] = f"parametric (fallback: {reason})"
         entry["fallback_reason"] = reason
         for detail in entry.pop("_details", []):
@@ -756,12 +926,103 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
         entry["assumed"]["height"] = height
         assumed.append({"object": name, "field": "height", "value": height,
                         "reason": f"no height in the JSON; type height for {piece['type']}"})
+    if piece["type"] in LAMP_LIGHTS and getattr(mats, "lamps_on", False):
+        parts = P.build_parts(piece["type"], w, d, height, piece=piece) if entry["method"] != "library" else None
+        _lamp_light(piece["type"], name, ob, (cx, cy), floor_z, entry, getattr(mats, "collection", None), assumed,
+                    piece["id"], parts=parts, rotation_deg=rot)
     ob["wenart_type"] = piece["type"]
     ob["wenart_room"] = piece.get("room_id") or ""
     ob["wenart_source"] = piece.get("source") or "from_documents"
     ob["wenart_asset"] = (piece.get("asset") or {}).get("asset_id") if entry["method"] == "library" else "parametric"
     ob.pass_index = index
     return entry
+
+
+RECOLOUR_DETAIL = 0.6                  # recoloured texture slots keep this share of their luminance detail
+
+
+def _base_name(name: str) -> str:
+    """A material name without Blender's ``.001`` suffix of a second import."""
+    import re
+
+    return re.sub(r"\.\d{3}$", "", str(name))
+
+
+def recolour_plan(names: list, recolour: dict) -> tuple[dict, list[str]]:
+    """``({material name: (part, colour, rgb)}, missing slots)`` (pure): the imported materials (``names``, by
+    glTF name, ``.001`` suffixes ignored) the fit's ``asset.recolour`` (``{part: {"colour", ["rgb"], "slots":
+    [{"index", "name"}]}}``; ``rgb``: linear, a wood's flat colour) recolours; a model with one material takes it
+    whatever its name when the slot is index 0."""
+    plan: dict = {}
+    missing: list[str] = []
+    real = [n for n in names if n]
+    for part, spec in sorted((recolour or {}).items()):
+        if not isinstance(spec, dict) or not spec.get("colour"):
+            continue
+        for slot in spec.get("slots") or []:
+            hits = [n for n in real if _base_name(n) == str(slot.get("name"))]
+            if not hits and len(real) == 1 and slot.get("index") == 0:
+                hits = real
+            if not hits:
+                missing.append(f"{part} slot {slot.get('index')} ({slot.get('name')})")
+            for n in hits:
+                plan[n] = (part, spec["colour"], spec.get("rgb"))
+    return plan, missing
+
+
+def recolour_materials(mats_list: list, recolour: dict, cache: dict, library) -> tuple[list, dict]:
+    """Copies of the asset materials of ``recolour_plan`` in their colour (the base colour replaced; a texture's
+    luminance keeps ``RECOLOUR_DETAIL`` of its detail, ``materials`` flat albedo mode), the others as they are;
+    returns the list and the manifest record (``applied``, ``missing``)."""
+    from wenart.blender import materials as M
+
+    plan, missing = recolour_plan([m.name if m is not None else None for m in mats_list], recolour)
+    out, applied = [], []
+    for mat in mats_list:
+        if mat is None or mat.name not in plan:
+            out.append(mat)
+            continue
+        part, colour, given = plan[mat.name]
+        rgb = tuple(given) if given else M.colour_linear(colour)
+        if rgb is None:
+            out.append(mat)
+            missing.append(f"{part}: colour {colour!r} unknown")
+            continue
+        key = (mat.name, colour)
+        if key not in cache:
+            cache[key] = _recoloured_copy(mat, rgb, colour)
+        out.append(cache[key])
+        applied.append({"material": mat.name, "part": part, "colour": colour, "copy": cache[key].name})
+    return out, {"applied": applied, "missing": missing}
+
+
+def _recoloured_copy(mat, rgb, colour: str):
+    from wenart.blender import materials as M
+
+    copy = mat.copy()
+    copy.name = f"{mat.name}__{M._tag(colour)}"
+    if not copy.use_nodes or copy.node_tree is None:
+        copy.diffuse_color = (*rgb, 1.0)
+        return copy
+    nodes, links = copy.node_tree.nodes, copy.node_tree.links
+    bsdf = next((n for n in nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None)
+    if bsdf is None:
+        return copy
+    base = bsdf.inputs["Base Color"]
+    capped = tuple(min(M.MAX_ALBEDO, float(c)) for c in rgb)
+    if base.links:
+        src = base.links[0].from_socket
+        image = getattr(src.node, "image", None)
+        mean = M.texture_mean_luminance(image) if image is not None else None
+        links.remove(base.links[0])
+        if mean and mean > 1e-4:
+            M._flat_detail_albedo(nodes, links, src, bsdf, capped, RECOLOUR_DETAIL, mean)
+        else:
+            base.default_value = (*capped, 1.0)
+    else:
+        base.default_value = (*capped, 1.0)
+    copy["wenart_recolour"] = str(colour)
+    return copy
 
 
 def _library_object(piece, file: Path, name, status, floor_z, collection, library, entry, warnings,
@@ -772,6 +1033,12 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
         raise ValueError("file has no mesh faces")
     verts, info = fit_vertices(geo["verts"], asset, piece["footprint"], floor_z)
     mats_list = geo["materials"]
+    if asset.get("recolour"):
+        mats_list, record = recolour_materials(mats_list, asset["recolour"], unverified_cache, library)
+        entry["recolour"] = record
+        for missing in record.get("missing") or []:
+            warnings.append(f"{piece['id']}: recolour slot {missing} not found in {asset.get('asset_id')}; left as "
+                            "it is")
     if status == "unverified":
         mats_list = _unverified_copies(mats_list, unverified_cache)
     fallback = library.proxy("proxy_unverified" if status == "unverified" else "proxy")
@@ -831,23 +1098,103 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
     return ob
 
 
-def _parametric_object(piece, name, status, floor_z, height, collection, mats, entry):
+def _parametric_object(piece, name, status, floor_z, height, collection, mats, entry, overrides=None):
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])
     parts = P.build_parts(piece["type"], w, d, height, piece=piece)
+    lit = bool(getattr(mats, "lamps_on", False)) and piece["type"] in LAMP_LIGHTS
+    if lit:                                           # Milestone 10: a lit lamp's shade glows
+        parts = [dict(part, key=f"{LIT_KEY}{part['key']}") if part["role"] == "shade" else part for part in parts]
     verts, faces, keys = P.world_mesh(parts, fp["center"], float(fp["rotation_deg"]), floor_z)
     unverified = status == "unverified"
     used_keys = sorted(set(keys), key=keys.index)
-    slots = [mats.get(k, unverified and k != "glass") for k in used_keys]
+    slots = [_part_material(mats, k, unverified and k != "glass", overrides=overrides, lit=lit) for k in used_keys]
     indices = [used_keys.index(k) for k in keys]
     ob = _mesh_object(name, verts, faces, slots, indices, collection, piece["id"], "furniture", status)
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     entry.update({"bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                   "materials": [m.name for m in slots], "material": slots[0].name,
                   "textured": any(mats.library.textured(m) for m in slots),
-                  "material_keys": {k: mats.slug(k) for k in used_keys},
+                  "material_keys": {k.removeprefix(LIT_KEY): mats.slug(k.removeprefix(LIT_KEY), overrides)
+                                    for k in used_keys},
                   "bevel": add_bevel(ob, parts), "_details": design_details(piece["type"], parts)})
     return ob
+
+
+LIT_KEY = "lit:"                     # a part key prefix: the key's material with a glow (a lit lamp's shade)
+
+
+def _part_material(mats, key: str, unverified: bool, accent=None, colour=None, overrides=None, lit: bool = False):
+    """The material of one parametric part key (``_Materials.get``); a ``lit:`` key the glowing copy."""
+    if key.startswith(LIT_KEY):
+        return glow_copy(mats.get(key[len(LIT_KEY):], unverified, accent=accent, colour=colour, overrides=overrides))
+    return mats.get(key, unverified, accent=accent, colour=colour, overrides=overrides, lit=lit)
+
+
+def glow_copy(mat, strength: float = LIT_SHADE_STRENGTH):
+    """A copy of a material whose Principled BSDF emits its base colour, warm (a lamp shade lit from inside)."""
+    import bpy
+
+    name = f"{mat.name}__lit"
+    found = bpy.data.materials.get(name)
+    if found is not None:
+        return found
+    copy = mat.copy()
+    copy.name = name
+    bsdf = next((n for n in copy.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None) \
+        if copy.use_nodes else None
+    if bsdf is not None:
+        bsdf.inputs["Emission Color"].default_value = (1.0, 0.8, 0.6, 1.0)
+        bsdf.inputs["Emission Strength"].default_value = float(strength)
+    copy["wenart_light"] = float(strength)
+    return copy
+
+
+def lamp_light_point(kind: str, parts: list, center, rotation_deg: float, floor_z: float) -> tuple[float, float, float]:
+    """Where a lamp's point light sits (pure): ``below_shade`` lamps 5 cm under the shade's lowest point (the shade
+    is a closed solid), ``bulb`` lamps at the bulb's centre; on the piece's centre line otherwise."""
+    where = LAMP_LIGHTS[kind][3]
+    roles = ("shade",) if where == "below_shade" else ("bulb", "flame")
+    zs = [v[2] for p in parts if p["role"] in roles for v in p["verts"]]
+    if not zs:
+        zs = [v[2] for p in parts for v in p["verts"]]
+    if where == "below_shade":
+        z = min(zs) - 0.05
+    else:
+        z = (min(zs) + max(zs)) / 2.0
+    return (float(center[0]), float(center[1]), floor_z + z)
+
+
+def _lamp_light(kind: str, name: str, ob, center, floor_z: float, entry: dict, collection, assumed: list,
+                parent: str, parts: list | None = None, rotation_deg: float = 0.0) -> None:
+    """A warm point light in a lamp (``LAMP_LIGHTS``; assumed wattage and colour), linked to ``collection`` and
+    recorded on the entry (``light``) and in ``assumed`` (kind ``light``, parent the piece or item)."""
+    import bpy
+
+    watts, temp, radius, _where = LAMP_LIGHTS[kind]
+    if parts is None:                                 # a library lamp: in its upper part, on its centre line
+        top = float((entry.get("bbox_m") or entry.get("size") or [0.0, 0.0, 1.0])[2])
+        loc = (float(center[0]), float(center[1]), floor_z + top * 0.8)
+    else:
+        loc = lamp_light_point(kind, parts, center, rotation_deg, floor_z)
+    light = bpy.data.lights.new(f"{name}_light", "POINT")
+    light.energy = watts
+    light.shadow_soft_size = radius
+    try:
+        light.use_temperature = True
+        light.temperature = temp
+    except AttributeError:
+        light.color = (1.0, 0.78, 0.55)
+    lob = bpy.data.objects.new(f"{name}_light", light)
+    lob.location = loc
+    (collection or bpy.context.scene.collection).objects.link(lob)
+    lob["wenart_kind"] = "light"
+    lob["wenart_id"] = parent
+    entry["light"] = {"name": lob.name, "energy_w": watts, "temperature_k": temp, "radius_m": radius,
+                      "location": [round(v, 4) for v in loc]}
+    assumed.append({"object": lob.name, "field": "lamp_light", "value": f"{watts:g} W point light at {temp:g} K",
+                    "reason": "the lighting mood turns the lamps on (interior evening) or the item says light_on; "
+                              "wattage and colour assumed", "parent": parent, "kind": "light"})
 
 
 # Edges whose two faces turn by less than this keep weight 0 (cylinder sides, superellipsoid grids).
@@ -950,8 +1297,21 @@ def _surface_hit(host_entry: dict | None, center, host_center, floor_z: float, a
     return None
 
 
+# Decor whose fabric takes the item's colour name (the brief's cushion and rug colours, the AI's choice).
+BRIEF_COLOURED_DECOR: tuple[str, ...] = ("cushion", "rug")
+
+
+def decor_lit(item: dict, lamps_on_mood: bool) -> bool:
+    """A lamp-type decor item emits light: its ``light_on`` when set, else the mood's ``lamps_on`` (pure)."""
+    if item.get("type") not in LAMP_LIGHTS:
+        return False
+    if isinstance(item.get("light_on"), bool):
+        return item["light_on"]
+    return lamps_on_mood
+
+
 def _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices, host_entry,
-                  warnings, geo_cache, skipped: list | None = None) -> dict | None:
+                  warnings, geo_cache, skipped: list | None = None, assumed: list | None = None) -> dict | None:
     dtype = item.get("type")
     where = f"on {host['id']}" if host is not None else f"{item.get('id')} (no host)"
     if dtype not in P.DECOR_TYPES:
@@ -984,6 +1344,11 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         center = [hit[1][0], hit[1][1]]
         z_how = f"on the built top of {host['type']} {host['id']} (ray" + (", moved towards its centre)" if moved
                                                                              else ")")
+    ceiling = float(level.get("ceiling_height") or 2.7)
+    if dtype == "ceiling_light" and z_how != "center[2]":
+        z_above, z_how = round(ceiling - h, 4), "ceiling (flush)"       # Milestone 10: at the level's ceiling
+    if dtype == "pendant_light" and ceiling - z_above > h:
+        h = round(ceiling - z_above, 4)                 # Milestone 10: the cord reaches the ceiling
     if host is not None:
         owner_id, room_id = host["id"], host.get("room_id")
         name = f"decor_{host['id']}_{n}"
@@ -1044,12 +1409,20 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
             warnings.append(f"decor {dtype} {where}: {reason}; parametric mesh used")
             ob = None
+    lit = decor_lit(item, bool(getattr(mats, "lamps_on", False)))
     if ob is None:
-        parts = P.decor_parts(dtype, w, d, h)
+        parts = P.decor_parts(dtype, w, d, h, item)
+        if dtype in BRIEF_COLOURED_DECOR:                # Milestone 10: the cushion and rug colour (brief, AI)
+            parts = [dict(part, key=P.COLOUR_PREFIX + part["key"]) if part["key"] == "fabric" else part
+                     for part in parts]
+        if lit:
+            parts = [dict(part, key=f"{LIT_KEY}{part['key']}") if part["role"] == "shade" else part for part in parts]
         verts, faces, keys = P.world_mesh(parts, footprint["center"], rot, floor_z + z_above)
         used_keys = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
-        slots = [mats.get(k, accent=accent) for k in used_keys]
+        overrides = {"pot": pot_override(item)} if dtype == "plant_large" else None
+        slots = [_part_material(mats, k, False, accent=accent, colour=item.get("colour"), overrides=overrides,
+                                lit=lit) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
                           "decor", status)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
@@ -1057,6 +1430,20 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                       "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                       "materials": [m.name for m in slots], "material": slots[0].name,
                       "textured": any(mats.library.textured(m) for m in slots), "bevel": add_bevel(ob, parts)})
+        if dtype == "plant_large":
+            entry["species"] = item.get("species")
+            entry["pot"] = dict(overrides["pot"])
+        if lit and dtype in LAMP_LIGHTS:
+            _lamp_light(dtype, name, ob, footprint["center"], floor_z + z_above, entry,
+                        getattr(mats, "collection", None), assumed if assumed is not None else [], owner_id,
+                        parts=parts, rotation_deg=rot)
+    elif lit and dtype in LAMP_LIGHTS:
+        _lamp_light(dtype, name, ob, footprint["center"], floor_z + z_above, entry, getattr(mats, "collection", None),
+                    assumed if assumed is not None else [], owner_id)
+    if item.get("window_id"):
+        entry["window_id"] = item["window_id"]
+    if item.get("mirrored_from"):
+        entry["mirrored_from"] = item["mirrored_from"]
     ob["wenart_type"] = dtype
     ob["wenart_room"] = room_id or ""
     ob["wenart_source"] = "added_by_ai"
@@ -1080,6 +1467,12 @@ def mirror_box(item: dict) -> list[float]:
     return [w, P.MIRROR_FRAME_M, h]
 
 
+def clock_box(item: dict) -> list[float]:
+    """The box of a parametric wall clock (pure): a round face as wide as the item, ``CLOCK_DEPTH_M`` deep."""
+    w = float(item["size"][0])
+    return [w, CLOCK_DEPTH_M, w]
+
+
 def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, pass_indices, entries, on_level,
                      warnings, geo_cache, skipped: list, mats=None) -> dict | None:
     """One wall art piece (Milestone 8) or mirror (Milestone 9): hostless decor with its own ``wenart_id`` (the
@@ -1094,14 +1487,14 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
     anchors = [str(a) for a in item.get("anchor_ids") or []]
     asset = item.get("asset") or None
     file, reason = resolve_asset(asset, assets_dir)
-    parametric = file is None and dtype == "mirror" and mats is not None
+    parametric = file is None and dtype in PARAMETRIC_WALL_DECOR and mats is not None
     if file is None and not parametric:
         if asset and asset.get("method") == "library":
             warnings.append(f"decor {dtype} {owner_id}: {reason}; not built ({label} has no parametric shape)")
         skipped.append({"id": owner_id, "type": dtype, "room_id": room_id,
                         "reason": f"no library {label} model ({reason}); {label} has no parametric shape"})
         return None
-    box = mirror_box(item) if parametric else asset.get("bbox_m")
+    box = (mirror_box(item) if dtype == "mirror" else clock_box(item)) if parametric else asset.get("bbox_m")
     if not box or len(box) < 3:
         skipped.append({"id": owner_id, "type": dtype, "room_id": room_id,
                         "reason": f"the fitted {label} asset has no 3D box"})
@@ -1123,11 +1516,12 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
     w, dp, h = mount["box_m"]
     status = item.get("status") if item.get("status") in ("verified", "unverified", "assumed") else "assumed"
     if parametric:
-        parts = P.decor_parts("mirror", w, dp, h)
+        parts = P.decor_parts(dtype, w, dp, h, item)
         verts, faces, keys = P.world_mesh(parts, footprint["center"], footprint["rotation_deg"],
                                           floor_z + mount["bottom_m"])
         used = sorted(set(keys), key=keys.index)
-        slots = [mats.get(k, accent=P.DECOR_COLOURS.get(str(item.get("colour") or ""))) for k in used]
+        slots = [mats.get(k, accent=P.DECOR_COLOURS.get(str(item.get("colour") or "")), colour=item.get("colour"))
+                 for k in used]
         ob = _mesh_object(name, verts, faces, slots, [used.index(k) for k in keys], collection, owner_id, "decor",
                           status)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)

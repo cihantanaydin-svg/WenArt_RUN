@@ -70,23 +70,6 @@ EXTERIOR_FALLBACK = {"facade": {"material": "render", "colour": "walls"},
                      "window_frame": "interior", "door": "interior",
                      "paving": {"material": "paving", "colour": "grey"},
                      "garden": {"material": "grass", "colour": None}}
-# The brief's exterior words -> material, per slot (first match in the lower-cased phrase; §4.8). A phrase that
-# matches nothing is a warning and the next source decides.
-EXTERIOR_WORDS = {
-    "facade": (("fibre cement", "fibre_cement"), ("fiber cement", "fibre_cement"), ("brick", "brick_red"),
-               ("stone", "stone_cladding"), ("timber", "wood_cladding"), ("wood", "wood_cladding"),
-               ("render", "render"), ("plaster", "render"), ("stucco", "render")),
-    "roof": (("clay", "clay_tiles"), ("terracotta", "clay_tiles"), ("concrete tile", "concrete_tiles"),
-             ("slate", "slate"), ("standing seam", "standing_seam"), ("metal", "standing_seam"),
-             ("zinc", "standing_seam"), ("green roof", "green_roof"), ("sedum", "green_roof")),
-    "window_frame": (("pvc", "pvc"), ("upvc", "pvc"), ("alumin", "aluminium"), ("steel", "steel"),
-                     ("bronze", "dark_bronze"), ("oak", "oak"), ("wood", "oak"), ("timber", "oak")),
-    "door": (("oak", "wood_oak_light"), ("walnut", "wood_walnut"), ("wood", "wood_oak_light"),
-             ("steel", "steel"), ("alumin", "aluminium"), ("glass", "glass")),
-    "paving": (("gravel", "gravel"), ("decking", "decking"), ("deck", "decking"), ("stone", "stone"),
-               ("paving", "paving"), ("pavers", "paving"), ("concrete", "paving")),
-    "garden": (("grass", "grass"), ("lawn", "grass"), ("gravel", "gravel"), ("decking", "decking")),
-}
 # Looks of the details the build adds (no drawing, brief or style names them): slug, colour, reason.
 BUILD_LOOKS = {"sill": ("stone", None, "exterior sill not drawn"),
                "light_well": ("concrete", None, "light well: concrete (not drawn)"),
@@ -96,27 +79,17 @@ BUILD_LOOKS = {"sill": ("stone", None, "exterior sill not drawn"),
                "ground": ("soil", None, "neutral ground (brief site: ground)")}
 
 
-def _colour_words() -> list[str]:
-    """Known colour names, longest first (``wenart/style/colours.py`` once track C fills it, else the local
-    table of shell.py)."""
-    from wenart.blender import shell
-    try:
-        from wenart.style import colours as C
-        names = list(getattr(C, "NAMES", ()) or ())
-    except ImportError:
-        names = []
-    return sorted(set(names) | set(shell._SRGB), key=len, reverse=True)
-
-
 def look_from_words(slot: str, phrase: str) -> Optional[dict]:
-    """``{"material", "colour"}`` of a brief phrase for an exterior slot (``EXTERIOR_WORDS`` and the colour
-    names), None when no material word matches."""
-    text = " " + str(phrase or "").strip().lower().replace("_", " ") + " "
-    material = next((slug for word, slug in EXTERIOR_WORDS.get(slot, ()) if word in text), None)
-    if material is None:
+    """``{"material", "colour"}`` of a brief phrase for an exterior slot, None when no material word matches: track
+    C's tables (``wenart.style.profile.exterior_look_from_words``: vocabulary slugs such as
+    ``aluminium_anthracite``, ``steel_black``, ``paving_stone``; colours of ``wenart/style/colours.py``; track F
+    switched to them, docs/milestone10.md §1.6b row 20)."""
+    from wenart.style.profile import exterior_look_from_words
+
+    look, _notes = exterior_look_from_words(slot, str(phrase or ""))
+    if not look or not look.get("material"):
         return None
-    colour = next((c for c in _colour_words() if f" {c} " in text), None)
-    return {"material": material, "colour": colour}
+    return {"material": look["material"], "colour": look.get("colour")}
 
 
 def _wall_colour(style: dict) -> tuple[Optional[str], Optional[list], str]:

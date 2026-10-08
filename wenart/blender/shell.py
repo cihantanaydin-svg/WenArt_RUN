@@ -534,10 +534,12 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                 room_slots.append((r["polygon"], inside_slot, wet_slot))
     rooms_by_id = {r["id"]: r for r in rooms}
     accents: dict[str, list] = {}
+    accent_rooms: dict[str, list] = {}      # Milestone 10: the manifest marks accent faces (accent, room_ids)
     for wid, per_room in accent_walls(building, level, style).items():
         for rid, look in (per_room or {}).items():
             if rid in rooms_by_id and len(rooms_by_id[rid]["polygon"]) >= 3:
                 accents.setdefault(wid, []).append((rooms_by_id[rid]["polygon"], slot_of(look)))
+                accent_rooms.setdefault(wid, []).append((rid, look))
     face_slots: dict[str, list[tuple]] = {}
     if whole:
         # Drawn facade parts (prepared per wall by build.prepare: side direction, optional z band).
@@ -623,6 +625,12 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             "thickness": wall["thickness"], "height": height,
         })
         entry = manifest_objects[-1]
+        if wall["id"] in accent_rooms:
+            # The gate (wenart/gate/colour.py) finds a room's accent wall by these keys (track H).
+            marked = accent_rooms[wall["id"]]
+            entry.update(accent=True, room_ids=sorted(rid for rid, _look in marked),
+                         accent_material=slots[accents[wall["id"]][0][1]].name,
+                         accent_reason="; ".join(str(look.get("reason") or "") for _rid, look in marked))
         if wall["id"] in extended:
             entry["corner_join"] = {k: [round(c, 4) for c in v] for k, v in extended[wall["id"]].items()}
         if slab_above is not None:
@@ -1732,10 +1740,10 @@ def build_slabs(plan: dict, collections: dict, library, style: dict, manifest_ob
 #
 # docs/milestone10.md §1.6b row 20: track F owns ``wenart/blender/looks.py`` (pure functions this module calls:
 # ``wall_face_material``, ``accent_walls``, ``wet_wall_look``, ``door_look``, ``window_frame_look``,
-# ``facade_look``) and ``materials.exterior_material(library, slug, colour=None)``. Until they land, the
-# wrappers below give the looks of Milestone 9 (the style slots as they are); each hands over to F's function of
-# the same name and signature as soon as the module has it. A look is a dict ``{"material": slug, "asset",
-# "tint", "colour", "rgb", "source", "reason"}`` (only ``material`` required).
+# ``facade_look``) and ``materials.exterior_material(library, slug, colour=None)``. The wrappers below hand over
+# to F's function of the same name and signature (the Milestone 9 looks remain as the fallback when the module
+# cannot be imported). A look is a dict ``{"material": slug, "asset", "tint", "colour", "rgb", "params",
+# "source", "reason"}`` (only ``material`` required); ``look_material`` makes its Blender material.
 
 def _f_looks(name: str):
     """Track F's function ``name`` of ``wenart.blender.looks``, None while F's module or function is missing."""
@@ -1752,8 +1760,8 @@ def _slot_look(entry, default: str) -> dict:
 
 
 def wall_face_material(style: dict, room: dict | None = None) -> dict:
-    """The look of the inside wall faces of ``room`` (None = the level's default). Today: the style's
-    ``walls`` slot for every room."""
+    """The look of the inside wall faces of ``room`` (None = the level's default): ``looks.wall_face_material``
+    (the style's ``walls`` slot with its colour name)."""
     f = _f_looks("wall_face_material")
     if f is not None:
         return f(style, room)
@@ -1761,7 +1769,8 @@ def wall_face_material(style: dict, room: dict | None = None) -> dict:
 
 
 def wet_wall_look(style: dict, room: dict | None = None) -> dict:
-    """The look of the wall faces of a wet room. Today: the style's ``wet_walls`` slot, else ``walls``."""
+    """The look of the wall faces of a wet room: ``looks.wet_wall_look`` (the style's ``wet_walls`` slot, its tile
+    size, pattern and grout colour as procedural ``params``), else ``walls``."""
     f = _f_looks("wet_wall_look")
     if f is not None:
         return f(style, room)
@@ -1769,8 +1778,9 @@ def wet_wall_look(style: dict, room: dict | None = None) -> dict:
 
 
 def accent_walls(building: dict, level: dict, style: dict) -> dict:
-    """``{wall id: {room id: look}}``: the inside faces of a wall towards a room that take an accent look
-    (the style's ``wall_accent``). Today: none."""
+    """``{wall id: {room id: look}}``: the inside faces of a wall towards a room that take the style's
+    ``wall_accent`` look (``looks.accent_walls``: behind the sofa or the bed head, else the longest wall without a
+    window, one per living room and bedroom)."""
     f = _f_looks("accent_walls")
     if f is not None:
         return f(building, level, style) or {}
@@ -1778,7 +1788,8 @@ def accent_walls(building: dict, level: dict, style: dict) -> dict:
 
 
 def door_look(style: dict, opening: dict | None = None) -> dict:
-    """The look of a door leaf. Today: the style's ``door`` slot (a wood door's veneer, ``door_leaf_material``)."""
+    """The look of a door leaf: ``looks.door_look`` (the style's ``door`` slot, a wood door's veneer, the door style
+    decided by the drawn operation first)."""
     f = _f_looks("door_look")
     if f is not None:
         return f(style, opening)
@@ -1788,7 +1799,8 @@ def door_look(style: dict, opening: dict | None = None) -> dict:
 
 
 def window_frame_look(style: dict, opening: dict | None = None) -> dict:
-    """The look of a window frame (seen from inside). Today: the style's ``window_frame`` slot."""
+    """The look of a window frame (seen from inside): ``looks.window_frame_look`` (the style's ``window_frame``
+    slot)."""
     f = _f_looks("window_frame_look")
     if f is not None:
         return f(style, opening)
@@ -1796,85 +1808,63 @@ def window_frame_look(style: dict, opening: dict | None = None) -> dict:
 
 
 def facade_look(looks: dict, wall: dict | None = None) -> dict:
-    """The outside look of an outer wall: the resolved facade look (``exterior.resolve_looks``). Today: the
-    same for every wall."""
+    """The outside look of an outer wall: ``looks.facade_look`` (the resolved facade look of
+    ``exterior.resolve_looks``)."""
     f = _f_looks("facade_look")
     if f is not None:
         return f(looks, wall)
     return looks["facade"]
 
 
-# Linear RGB of the colour words the outside looks use while wenart/style/colours.py (track C) has no values;
-# sRGB values converted with the IEC 61966-2-1 transfer function.
-_SRGB = {"white": "#F4F4F2", "off-white": "#EDEAE3", "ivory": "#FFFFF0", "cream": "#F2E8D5", "greige": "#B8AFA3",
-         "beige": "#D8C8AE", "sand": "#C9B48F", "taupe": "#8B7D6B", "light grey": "#C8C8C6", "grey": "#9A9A98",
-         "mid grey": "#808080", "dark grey": "#5A5A5A", "anthracite": "#383E42", "charcoal": "#36393B",
-         "black": "#1E1E1E", "terracotta": "#B5583A", "red": "#9B2D20", "brick red": "#8E3B2A",
-         "dark bronze": "#4A3C2F", "bronze": "#6F5233", "sage": "#9CA88E", "olive": "#6B6B3A", "green": "#4F6B3A",
-         "brown": "#6B4A31", "walnut brown": "#5C4033"}
-# Flat linear colours of the outside slugs the vocabulary does not know yet (track C / F add them).
-LOOK_RGB = {"render": (0.62, 0.60, 0.56), "stone_cladding": (0.36, 0.33, 0.29), "brick_red": (0.30, 0.11, 0.06),
-            "wood_cladding": (0.25, 0.15, 0.08), "fibre_cement": (0.40, 0.40, 0.39),
-            "concrete_tiles": (0.17, 0.17, 0.17), "clay_tiles": (0.38, 0.13, 0.07), "slate": (0.07, 0.08, 0.09),
-            "standing_seam": (0.15, 0.16, 0.17), "green_roof": (0.08, 0.15, 0.04),
-            "paving": (0.33, 0.33, 0.32), "gravel": (0.40, 0.38, 0.34),
-            "grass": (0.07, 0.17, 0.03), "decking": (0.30, 0.18, 0.10), "stone": (0.50, 0.48, 0.44),
-            "concrete": (0.38, 0.38, 0.37), "bark": (0.10, 0.07, 0.05), "foliage": (0.04, 0.12, 0.02),
-            "soil": (0.15, 0.11, 0.08), "dark_bronze": (0.065, 0.045, 0.03), "soffit": (0.75, 0.74, 0.72),
-            "pvc": (0.85, 0.85, 0.84), "aluminium": (0.45, 0.46, 0.47), "steel": (0.12, 0.12, 0.12),
-            "oak": (0.40, 0.26, 0.14), "wood_walnut": (0.20, 0.11, 0.06), "glass": (0.60, 0.65, 0.65)}
+# Flat linear colours of the outside details no vocabulary slug covers (the build's own looks of
+# ``exterior.BUILD_LOOKS`` and the site: sill stone, light-well concrete, soffit, trees, soil, the window glass of
+# the exterior model); designer values (assumed). Every vocabulary slug takes ``vocabulary.MATERIALS[slug]["flat"]``
+# through ``materials.exterior_material``, every colour name ``wenart/style/colours.py``.
+LOOK_RGB = {"stone": (0.50, 0.48, 0.44), "concrete": (0.38, 0.38, 0.37), "bark": (0.10, 0.07, 0.05),
+            "foliage": (0.04, 0.12, 0.02), "soil": (0.15, 0.11, 0.08), "soffit": (0.75, 0.74, 0.72),
+            "glass": (0.60, 0.65, 0.65)}
 
 
 def colour_rgb(name: str | None) -> tuple[float, float, float] | None:
-    """Linear RGB of a colour name: ``wenart.style.colours.linear_rgb`` when track C's table knows it, else
-    ``_SRGB``; None for an unknown word."""
+    """Linear RGB of a colour phrase (``wenart.style.colours.linear_rgb``: names, aliases and modifiers); None
+    for an unknown word."""
     if not name:
         return None
     word = str(name).strip().lower().replace("_", " ")
     try:
         from wenart.style import colours as C
-        if word in getattr(C, "NAMES", ()) and hasattr(C, "linear_rgb"):
-            return tuple(round(float(v), 4) for v in C.linear_rgb(word))
-    except Exception:  # noqa: BLE001 - the local table stands in
-        pass
-    hexv = _SRGB.get(word)
-    if hexv is None:
+        return tuple(round(float(v), 4) for v in C.linear_rgb(word))
+    except (ImportError, KeyError, ValueError):
         return None
-
-    def lin(c: float) -> float:
-        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
-
-    return tuple(round(lin(int(hexv[i:i + 2], 16) / 255.0), 4) for i in (1, 3, 5))
 
 
 def exterior_material(library, slug: str, colour=None, rgb=None):
-    """The Blender material of an outside slug in a colour (track F's ``materials.exterior_material`` once it
-    exists): a vocabulary slug as the library makes it (tinted to the colour), else a flat material of
-    ``rgb`` / the colour / ``LOOK_RGB`` (the slug keeps its name, so the manifest's material record names it)."""
+    """The Blender material of an outside slug in a colour: a vocabulary slug through track F's
+    ``materials.exterior_material`` (its asset, procedural look and colour), else a flat material of ``rgb`` /
+    the colour / ``LOOK_RGB`` (the slug keeps its name, so the manifest's material record names it)."""
     from wenart.blender import materials as M
 
-    f = getattr(M, "exterior_material", None)
-    if f is not None and rgb is None:
-        return f(library, slug, colour)
+    if slug in M.FLAT_COLOURS and rgb is None:
+        return M.exterior_material(library, slug, colour)
     rgb = tuple(rgb) if rgb else colour_rgb(colour)
     if slug in M.FLAT_COLOURS:
         base = M.flat_colour(slug)
-        tint = [r / max(b, 1e-4) for r, b in zip(rgb, base)] if rgb else None
-        return library.get(slug, None, tint)
+        return library.get(slug, None, [r / max(b, 1e-4) for r, b in zip(rgb, base)] if rgb else None)
     target = rgb or LOOK_RGB.get(slug) or M.flat_colour("unknown")
     grey = M.flat_colour("unknown")
     return library.get(slug, None, [t / max(g, 1e-4) for t, g in zip(target, grey)])
 
 
 def look_material(library, look: dict):
-    """The Blender material of a look (``exterior.resolve_looks`` entry or a slot look): a slot look without a
-    colour (a vocabulary slug or one with an ``asset``) as the library makes it (M9), any other through
-    ``exterior_material`` in its ``colour`` / ``rgb``."""
+    """The Blender material of a look (``exterior.resolve_looks`` entry or a slot look): a vocabulary slug through
+    the library with its asset, colour name and procedural ``params``; an explicit ``rgb`` or a slug the
+    vocabulary does not know through ``exterior_material``."""
     from wenart.blender import materials as M
 
     slug = str(look.get("material") or look.get("slug") or "unknown")
-    if not look.get("colour") and not look.get("rgb") and (look.get("asset") or slug in M.FLAT_COLOURS):
-        return library.get(slug, look.get("asset"), look.get("tint"))
+    if not look.get("rgb") and (look.get("asset") or slug in M.FLAT_COLOURS):
+        return library.get(slug, look.get("asset") or (M.ENTRIES.get(slug) or {}).get("asset"), look.get("tint"),
+                           colour=look.get("colour"), params=look.get("params"))
     return exterior_material(library, slug, look.get("colour"), look.get("rgb"))
 
 

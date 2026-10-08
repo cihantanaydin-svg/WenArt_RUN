@@ -135,6 +135,14 @@ SCENE_OBJECT = {
         "virtual": {"type": "boolean"},
         "line": {"type": ["array", "null"], "items": {"type": "array", "items": {"type": "number"}},
                  "minItems": 2, "maxItems": 2},
+        # Milestone 10 (track F): an accent wall (its rooms in room_ids, read by the gate), a piece's design and
+        # recolour records, a wall-hung piece's bottom, a lit lamp's light.
+        "accent": {"type": "boolean"},
+        "accent_material": {"type": ["string", "null"]},
+        "design": {"type": "object"},
+        "recolour": {"type": "object"},
+        "mount_bottom_m": {"type": "number", "minimum": 0},
+        "light": {"type": "object", "required": ["name", "energy_w"]},
         "stair": {"type": "object", "required": ["risers", "riser_m", "riser_source", "flights"],
                   "properties": {"risers": {"type": "integer", "minimum": 2},
                                  "riser_m": {"type": "number", "exclusiveMinimum": 0},
@@ -143,6 +151,8 @@ SCENE_OBJECT = {
     "allOf": [
         {"if": {"properties": {"kind": {"enum": ["door", "window"]}}, "required": ["kind"]},
          "then": {"required": ["room_ids"]}},
+        {"if": {"properties": {"accent": {"const": True}}, "required": ["accent"]},
+         "then": {"required": ["room_ids"], "properties": {"kind": {"const": "wall"}}}},
         {"if": {"properties": {"kind": {"enum": ["furniture", "furniture_proxy", "decor"]}}, "required": ["kind"]},
          "then": {"required": ["box3d"]}},
     ],

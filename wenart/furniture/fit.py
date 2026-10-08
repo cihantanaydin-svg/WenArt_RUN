@@ -86,6 +86,27 @@ Milestone 8 (docs/milestone8.md §1, §4): fit v2.
   to its width keeping the model's aspect, cushions and plants to the item
   box (refused above ``DECOR_NON_UNIFORM_CAP``). No model -> parametric
   (cushion, plant, book set, rug) or nothing (wall art).
+
+Milestone 10 (docs/milestone10.md §4.5, §4.6, §1.6b rows 15, 16; track F):
+
+- The piece's look (``furniture.design``, written by the layout stage, else ``style.json`` through
+  ``wenart.blender.looks.design_for``; only with ``--style``) decides between the library models after the style
+  filter: ``material_tags`` ("glass coffee table") keep only models whose judged ``material_tags`` hold every
+  asked tag; an upholstered piece's ``fabric_colour`` (a non-upholstered piece's ``colour``) keeps models that can
+  take it: ``recolourable_fabric`` models (their separable fabric slots get the colour: ``asset.recolour``, applied
+  by the scene builder) or models whose judged fabric slots are already that colour (``colour_rgb`` within
+  ``COLOUR_MATCH_DE`` in CIELAB, ``asset.colour_match``); models without the judged fields are skipped for such a
+  brief (§4.5: "the fit picks another"), and with none left the parametric piece takes the look. The furniture
+  wood (``design.wood``) is recoloured on ``recolourable_wood`` models and preferred, never a reason to skip one.
+  Every skipped model is listed under ``excluded`` with the reason.
+- The judged fields (``material_slots``, ``material_tags``, ``recolourable_fabric``, ``recolourable_wood``) and a
+  plant's ``species`` and ``pot`` travel with the asset (``GLB_ASSET_FIELDS``).
+- Decor: the 12 new types take library models like the Milestone 9 ones (tabletop pieces within their box, a clock
+  like wall art, curtains, blinds, throws and large plants scaled to their box); a large plant prefers models of
+  its ``species``.
+- Refit: ``--source building.json [--completion completion.json]`` runs ``wenart.furniture.locked.check`` (mode
+  and kept rooms from ``completion.json``) on the fitted building and exits 1 on a violation (the report lists
+  them, the fitted building is not written).
 """
 from __future__ import annotations
 
@@ -94,6 +115,7 @@ import copy
 import hashlib
 import json
 import math
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Optional
@@ -109,7 +131,16 @@ FROZEN_KEYS = ("id", "level_id", "room_id", "type", "type_raw", "source", "footp
 OBJAVERSE_ASSET_FIELDS = ("glb", "sha256_glb", "uid", "title", "author", "source_url", "licence_url", "via",
                           "attribution")
 # Milestone 8: what any GLB model (ABO, Objaverse, generated) carries over when its entry has it.
-GLB_ASSET_FIELDS = OBJAVERSE_ASSET_FIELDS + ("licence_flag", "generated", "style_hint", "name")
+GLB_ASSET_FIELDS = OBJAVERSE_ASSET_FIELDS + ("licence_flag", "generated", "style_hint", "name",
+                                             # Milestone 10 (track D's judged fields, docs/milestone10.md §4.5, §4.6)
+                                             "material_slots", "material_tags", "recolourable_fabric",
+                                             "recolourable_wood", "species", "pot")
+# Milestone 10: a judged fabric slot whose colour is within this CIELAB distance (Delta E 1976) of the brief's colour
+# counts as that colour (designer value, assumed; about the difference between two named greys).
+COLOUR_MATCH_DE = 15.0
+RECOLOUR_MIN_SHARE = 0.05        # recolour only separable slots covering at least this share of the model
+UPHOLSTERED_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bench", "bed_single",
+                                      "bed_double")
 
 # Fit v2 ranking (docs/milestone8.md §1).
 SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")
@@ -257,8 +288,82 @@ def usable_candidates(ftype: str, candidates: list[dict], style_family: Optional
 UNIFORM_RANGE = (0.75, 1.30)   # a model stretched more than this looks wrong (a 1.1 m tall sofa)
 
 
+def _srgb_to_lab(rgb) -> tuple[float, float, float]:
+    from wenart.style import colours as CL
+
+    return CL.linear_to_lab(tuple(CL.srgb_to_linear(float(c) / 255.0) for c in rgb[:3]))
+
+
+def colour_distance(srgb_255, colour: str) -> Optional[float]:
+    """CIELAB Delta E (1976) between a judged slot colour (``colour_rgb``, sRGB 0-255) and a colour phrase of
+    ``wenart/style/colours.py``; None when either is unknown."""
+    from wenart.style import colours as CL
+
+    if not srgb_255 or len(srgb_255) < 3:
+        return None
+    try:
+        target = CL.linear_to_lab(CL.linear_rgb(colour))
+    except (KeyError, ValueError):
+        return None
+    lab = _srgb_to_lab(srgb_255)
+    return math.sqrt(sum((a - b) ** 2 for a, b in zip(lab, target)))
+
+
+def _slots(entry: dict, material: str, separable: bool) -> list[dict]:
+    return [s for s in entry.get("material_slots") or [] if isinstance(s, dict) and s.get("material") == material
+            and (not separable or s.get("separable")) and float(s.get("share") or 0.0) >= RECOLOUR_MIN_SHARE]
+
+
+def look_of(entry: dict, ftype: str, design: dict) -> tuple[Optional[dict], Optional[str]]:
+    """``(look, why not)`` of one library model for a piece's design (pure, Milestone 10): ``look`` holds what the
+    asset gets (``recolour`` of its fabric / wood slots, ``colour_match``, ``tags``), or None and the reason the
+    model cannot show the design (asked material tags missing; the fabric colour neither recolourable nor
+    matching; a model nobody judged)."""
+    look: dict = {}
+    tags = [t for t in design.get("material_tags") or [] if isinstance(t, str)]
+    if tags:
+        have = entry.get("material_tags")
+        if have is None:
+            return None, f"no judged material tags (the design asks for {', '.join(tags)})"
+        missing = [t for t in tags if t not in have]
+        if missing:
+            return None, f"material tags {have} lack {', '.join(missing)}"
+        look["tags"] = tags
+    colour = design.get("fabric_colour") if ftype in UPHOLSTERED_TYPES else design.get("colour")
+    if ftype in UPHOLSTERED_TYPES and not colour:
+        colour = design.get("colour")
+    if colour:
+        material = "fabric" if ftype in UPHOLSTERED_TYPES else None
+        if material and entry.get("recolourable_fabric") is True and _slots(entry, "fabric", True):
+            look["recolour"] = {"fabric": {"colour": colour, "slots": [{"index": s["index"], "name": s.get("name")}
+                                                                       for s in _slots(entry, "fabric", True)]}}
+        else:
+            judged = [s for s in entry.get("material_slots") or [] if isinstance(s, dict)
+                      and (material is None or s.get("material") == material) and s.get("colour_rgb")]
+            if not judged:
+                return None, (f"cannot take the colour {colour}: no recolourable {material or 'judged'} slot and no "
+                              "judged slot colour")
+            dist = [d for d in (colour_distance(s["colour_rgb"], colour) for s in judged) if d is not None]
+            if not dist or min(dist) > COLOUR_MATCH_DE:
+                return None, (f"cannot take the colour {colour}: not recolourable and its "
+                              f"{material or 'slot'} colour is {min(dist) if dist else float('nan'):.1f} Delta E away "
+                              f"(> {COLOUR_MATCH_DE:g})")
+            look["colour_match"] = {"colour": colour, "delta_e": round(min(dist), 2)}
+    wood = design.get("wood")
+    if wood and entry.get("recolourable_wood") is True and _slots(entry, "wood", True):
+        from wenart.style import vocabulary as V
+
+        flat = (V.FURNITURE_MATERIALS.get(wood) or {}).get("flat")
+        if flat:
+            look.setdefault("recolour", {})["wood"] = {
+                "colour": wood, "rgb": [float(v) for v in flat],
+                "slots": [{"index": s["index"], "name": s.get("name")} for s in _slots(entry, "wood", True)]}
+    return look, None
+
+
 def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
-              uniform_range: tuple[float, float] = UNIFORM_RANGE, style_family: Optional[str] = None) -> dict:
+              uniform_range: tuple[float, float] = UNIFORM_RANGE, style_family: Optional[str] = None,
+              design: Optional[dict] = None) -> dict:
     """The ``asset`` dict for one piece (pure: the piece is not modified).
 
     A candidate is accepted when its non-uniform scale (max/min of sx, sy, sz) is
@@ -266,7 +371,8 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     candidate in rank order (``rank_key``, Milestone 8) is tried, then the
     parametric fallback. Beds without a mattress (unless bed frames with a deck)
     and, with ``style_family``, models of another style are no candidates
-    (``usable_candidates``)."""
+    (``usable_candidates``). Milestone 10: ``design`` (the piece's look) keeps only the models that can show it
+    (``look_of``); none left -> parametric with the reason."""
     ftype = piece["type"]
     width, depth = piece["footprint"]["size"]
     if not (width > 0 and depth > 0):
@@ -282,7 +388,26 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     candidates, excluded, reason = usable_candidates(ftype, candidates, style_family)
     if not candidates:
         return parametric_fit(piece, reason, excluded=excluded, style_family=style_family)
+    looks: dict[str, dict] = {}
+    if design:
+        kept = []
+        for e in candidates:
+            look, why = look_of(e, ftype, design)
+            if look is None:
+                excluded.append({"id": e["id"], "reason": why})
+            else:
+                kept.append(e)
+                looks[e["id"]] = look
+        if not kept:
+            asked = {k: design[k] for k in ("material_tags", "fabric_colour", "colour") if design.get(k)}
+            return parametric_fit(piece, f"no {ftype} model can show the design {asked} (recolour, colour or "
+                                         "material tags); the parametric piece takes it",
+                                  excluded=excluded, style_family=style_family)
+        candidates = kept
+        # Recolourable wood first among equals: a stable sort keeps the fit v2 order otherwise.
     ordered = rank_candidates(candidates, width, depth)
+    if design and design.get("wood"):
+        ordered = sorted(ordered, key=lambda e: 0 if "wood" in (looks.get(e["id"], {}).get("recolour") or {}) else 1)
     tried = []
     for rank, entry in enumerate(ordered, start=1):
         scales, non_uniform = scale_for(entry, width, depth)
@@ -320,6 +445,12 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
             if piece["type"] in C.BED_TYPES and not C.has_mattress(entry) and is_bed_frame(entry):
                 asset.update(bed_frame_record(entry, width, depth, scales[2]))
                 asset["bbox_m"][2] = max(asset["bbox_m"][2], asset["bedding"]["top_m"])
+            look = looks.get(entry["id"]) or {}
+            for key in ("recolour", "colour_match"):
+                if look.get(key):
+                    asset[key] = look[key]
+            if look.get("tags"):
+                asset["material_tags_asked"] = look["tags"]
             return asset
     best = min(tried, key=lambda t: t["non_uniform"])
     reason = (f"no {ftype} candidate within {round((cap - 1) * 100)} % non-uniform scale and "
@@ -341,11 +472,17 @@ def bed_frame_record(entry: dict, width: float, depth: float, z_scale: float) ->
 
 # Decor (docs/milestone8.md §4): types that may use a library decor model; book sets stay parametric.
 DECOR_LIBRARY_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",
-                                        "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9
+                                        "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9
+                                        # Milestone 10 (docs/milestone10.md §4.6)
+                                        "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
+                                        "sculpture", "plant_large", "pendant_light", "ceiling_light")
 # Milestone 9 (docs/milestone9.md §3, §5): wall decor hangs like wall art (its width, the model's aspect); tabletop
 # decor keeps the model's proportions and real size, scaled down (never up) to fit the item's box ("within").
-WALL_DECOR_TYPES: tuple[str, ...] = ("wall_art", "mirror")
-SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp")
+WALL_DECOR_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
+SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp",
+                                        # Milestone 10: tabletop and hanging pieces keep their real proportions
+                                        "candle", "tray", "books", "sculpture", "basket", "pendant_light",
+                                        "ceiling_light")
 # Furniture models that serve a decor type too (the same object): a floor plant may be a potted_plant model.
 DECOR_FROM_FURNITURE: dict[str, tuple[str, ...]] = {"plant": ("potted_plant",)}
 # Decor models of catalog.json (Poly Haven, M4) by their old ``type``: the potted plants. The pillow model
@@ -459,6 +596,11 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None) -> O
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
     if not fits:
         return None
+    # Milestone 10: a large plant of the brief's species takes models of that species first.
+    species = item.get("species")
+    if dtype == "plant_large" and species:
+        same = [(e, f) for e, f in fits if e.get("species") == species]
+        fits = same or fits
     # Milestone 9: an AI decor item names a colour; models whose name holds it come first (the pick stays
     # deterministic by the host id inside the chosen group).
     colour = str(item.get("colour") or "").strip().casefold()
@@ -492,15 +634,27 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None) -> O
     return asset
 
 
+def design_of(piece: dict, style: Optional[dict]) -> dict:
+    """The look the fit honours for a piece (Milestone 10): its ``furniture.design`` (layout stage), else the
+    ``style.json`` fallback of ``wenart.blender.looks.design_for``; {} without a style."""
+    if style is None and not isinstance(piece.get("design"), dict):
+        return {}
+    from wenart.blender import looks as LK
+
+    return LK.design_for(piece, style or {})[0]
+
+
 def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
-                 style_family: Optional[str] = None) -> dict:
+                 style_family: Optional[str] = None, style: Optional[dict] = None) -> dict:
     """A deep copy of ``building`` with ``asset`` set on every furniture piece
     and on every decor item (a library decor model, or None: parametric decor,
     no wall art), nothing else changed. ``style_family`` (refit only): the
-    library style filter of ``fit_piece`` and ``fit_decor_item``."""
+    library style filter of ``fit_piece`` and ``fit_decor_item``; ``style`` (refit only, Milestone 10): the
+    profile whose looks the fit honours (``design_of``)."""
     fitted = copy.deepcopy(building)
     for original, piece in zip(building.get("furniture", []), fitted.get("furniture", [])):
-        piece["asset"] = fit_piece(piece, catalog, cap=cap, style_family=style_family)
+        design = design_of(piece, style) if (style is not None or piece.get("design")) else None
+        piece["asset"] = fit_piece(piece, catalog, cap=cap, style_family=style_family, design=design or None)
         for key in FROZEN_KEYS:
             if original.get(key) != piece.get(key):  # cannot happen; guards future edits
                 raise RuntimeError(f"fit changed {key} of {piece['id']}")
@@ -617,8 +771,19 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += ["", "## Ranking (fit v2)", "", f"Rule: {RANKING_RULE}.", ""] + ranking
     if frames:
         lines += ["", "## Bed frames with bedding", ""] + frames
+    looks = [(p["id"], p["asset"]) for p in pieces if (p.get("asset") or {}).get("recolour")
+             or (p.get("asset") or {}).get("colour_match")]
+    if looks:
+        lines += ["", "## Recolour and colour matches (Milestone 10)", ""]
+        for pid, asset in looks:
+            for part, spec in sorted((asset.get("recolour") or {}).items()):
+                lines.append(f"- {pid}: {asset['asset_id']} {part} slots "
+                             f"{[s.get('index') for s in spec.get('slots') or []]} recoloured {spec.get('colour')}")
+            if asset.get("colour_match"):
+                cm = asset["colour_match"]
+                lines.append(f"- {pid}: {asset['asset_id']} already {cm['colour']} (Delta E {cm['delta_e']})")
     if excluded:
-        lines += ["", "## Models not taken (mattress rule and style filter)", ""]
+        lines += ["", "## Models not taken (mattress rule, style filter, design)", ""]
         lines += [f"- {pid}: {aid}: {why}" for pid, aid, why in excluded]
     for item in building.get("decor") or []:              # Milestone 8: library decor models credit too
         asset = item.get("asset") or {}
@@ -693,6 +858,21 @@ def download_fitted(building: dict, assets_dir: Path, log=print) -> dict:
     return result
 
 
+def locked_check(source_path: Path, fitted: dict, completion_path: Optional[Path] = None) -> tuple[list[str], str]:
+    """``(violations, how)``: ``wenart.furniture.locked.check`` of the drawn furniture of ``source_path`` (the
+    building before the layout) against the fitted building, mode and kept rooms from ``completion.json``
+    (``complete`` and none when it is not given)."""
+    from wenart import building as B
+    from wenart.furniture import locked
+
+    completion = json.loads(completion_path.read_text(encoding="utf-8")) if completion_path else None
+    mode, keep = locked.mode_of(completion), locked.keep_rooms_of(completion)
+    problems = locked.check(B.load(source_path), fitted, mode, keep_rooms=keep)
+    how = (f"source {source_path}, mode {mode}" + (f", kept rooms {', '.join(keep)}" if keep else "")
+           + (f" (from {completion_path})" if completion_path else " (no completion.json: complete)"))
+    return problems, how
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="fit catalogue assets to the furniture of a building JSON")
     parser.add_argument("building", help="building.json from the ingest pipeline (or the layout step)")
@@ -703,29 +883,49 @@ def main(argv=None) -> int:
     parser.add_argument("--no-download", action="store_true", help="do not download even when --assets is given")
     parser.add_argument("--style", default=None,
                         help="style.json (refit only): library models only of its style family or neutral")
+    parser.add_argument("--source", default=None,
+                        help="building.json before the layout (refit only): run the locked check of the drawn "
+                             "furniture; a violation exits 1 (docs/milestone10.md §2.7)")
+    parser.add_argument("--completion", default=None,
+                        help="completion.json of the layout stage (the check's mode and kept rooms)")
     args = parser.parse_args(argv)
 
     from wenart import building as B
 
     building = B.load(args.building)
     catalog = C.load(Path(args.catalog))
-    family, style_note = None, None
+    family, style_note, profile = None, None, None
     if args.style:
-        family, how = style_family_of(json.loads(Path(args.style).read_text(encoding="utf-8")))
+        profile = json.loads(Path(args.style).read_text(encoding="utf-8"))
+        family, how = style_family_of(profile)
         style_note = (f"family {family!r} ({how}, {args.style}): library models only when their styles hold "
                       f"{family!r} or {C.NEUTRAL!r}" if family else
                       f"no style family ({how}, {args.style}): every library model may be used")
         print(f"style filter: {style_note}")
-    fitted = fit_building(building, catalog, style_family=family)
+    if isinstance(profile, list):
+        profile = profile[0] if profile else None
+    fitted = fit_building(building, catalog, style_family=family, style=profile if isinstance(profile, dict) else None)
     if args.assets and not args.no_download:
         result = download_fitted(fitted, Path(args.assets))
         if result["failed"]:
             print(f"{len(result['failed'])} model download(s) failed; those pieces use the parametric fallback")
     assert_only_assets_changed(building, fitted)
     out = Path(args.out)
-    B.save(fitted, out)
     report_path = Path(args.report) if args.report else out.with_name(out.stem + "_report.md")
-    report_path.write_text(fit_report(fitted, title=out.stem, style_note=style_note), encoding="utf-8")
+    report = fit_report(fitted, title=out.stem, style_note=style_note)
+    if args.source:
+        problems, how = locked_check(Path(args.source), fitted, Path(args.completion) if args.completion else None)
+        report += "\n## Locked check (docs/milestone10.md §2.7)\n\n" + how + "\n\n" + (
+            "\n".join(f"- {p}" for p in problems) if problems else "- pass") + "\n"
+        if problems:
+            report_path.write_text(report, encoding="utf-8")
+            print(f"locked check: {len(problems)} violation(s); {out} not written (report {report_path})",
+                  file=sys.stderr)
+            for line in problems:
+                print(f"  {line}", file=sys.stderr)
+            return 1
+    B.save(fitted, out)
+    report_path.write_text(report, encoding="utf-8")
     methods = Counter(p["asset"]["method"] for p in fitted.get("furniture", []))
     print(f"{len(fitted.get('furniture', []))} pieces: {methods.get('library', 0)} library, "
           f"{methods.get('parametric', 0)} parametric -> {out} (report {report_path})")

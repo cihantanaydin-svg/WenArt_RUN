@@ -102,18 +102,38 @@ PARAMETRIC_TYPES: tuple[str, ...] = (
     "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "washing_machine",
     # Milestone 7 documented-only types (docs/milestone7.md §6.4).
     "stair", "side_table", "floor_lamp", "potted_plant",
+    # Milestone 10 (docs/milestone10.md §1.1): the corner sofa, seating, tables, children's beds and cabinets.
+    "sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib", "bunk_bed",
+    "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet",
 )
 # Built by shell.build_stairs with the walls (fixed equipment), never by furniture.create_furniture.
 SHELL_TYPES: tuple[str, ...] = ("stair",)
 DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # parametric decor builders (M8: rug)
                                  # Milestone 9 (docs/milestone9.md §3): tabletop decor and the framed wall mirror
-                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")
-# Decor without the 0.6 m cap (Milestone 8): a rug under a group of pieces, a picture over a sofa; M9: a mirror.
-LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror")
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror",
+                                 # Milestone 10 (docs/milestone10.md §4.6)
+                                 "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture",
+                                 "plant_large", "pendant_light", "ceiling_light")
+_NEW_DECOR: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("curtain"):]
+# Milestone 10 storage built with the cabinet fronts of the design (a design detail of the piece).
+CABINET_LOOK_TYPES: tuple[str, ...] = ("sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
+# Decor without the 0.6 m cap (Milestone 8): a rug under a group of pieces, a picture over a sofa; M9: a mirror;
+# M10: curtains and blinds by window size, a throw over a bed's foot, large plants and floor sculptures, pendants
+# on their cord.
+LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
+                                      "sculpture", "pendant_light")
 # Decor that rests on its host's built top (Milestone 9: the builder casts a ray down onto the host mesh).
-SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp")
+SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp",
+                                        "candle", "tray", "books", "sculpture", "basket")      # Milestone 10, with a host
+# Seats decor rests on at seat height (cushions, a throw): Milestone 10 adds the corner sofa, chaise and bench.
+SEAT_HOST_TYPES: tuple[str, ...] = ("sofa", "armchair", "sofa_corner", "chaise")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
-                                  "glass", "green", "terracotta", "duvet", "mirror")
+                                  "glass", "green", "terracotta", "duvet", "mirror",
+                                  # Milestone 10: cabinet fronts and handles of the design, table tops of a material
+                                  # tag, plant pots, lamp bulbs (lit in the interior evening mood), rattan
+                                  "front", "handle", "marble", "pot", "bulb", "rattan")
+# Milestone 10 doors and windows (``door_parts`` / ``window_parts``; shell.py maps them to the looks).
+OPENING_KEYS: tuple[str, ...] = ("frame", "leaf", "glass", "handle", "rail", "sill")
 # Parts whose key starts with this take the item's colour (Milestone 9 AI decor: ``decor.colour``) as a tint of
 # the key's material: ``accent_ceramic`` = the ceramic material tinted.
 ACCENT_PREFIX = "accent_"
@@ -149,6 +169,10 @@ BEVEL_BY_ROLE: dict[str, float] = {
     # Milestone 7
     "step": 0.003, "riser": 0.002, "landing": 0.003, "rail": 0.008, "post": 0.004, "base": 0.006,
     "pole": 0.0, "shade": 0.004,
+    # Milestone 10
+    "panel": 0.002, "rod": 0.0, "roller": 0.0, "slat": 0.002, "castor": 0.004, "rest": 0.003, "ladder": 0.004,
+    "leaf": 0.003, "frame": 0.002, "mullion": 0.002, "transom": 0.002, "sill": 0.003, "rim": 0.003, "book": 0.003,
+    "candle": 0.0, "plate": 0.0, "canopy": 0.0, "cord": 0.0,
 }
 BEVEL_SOFT_KEYS: dict[str, float] = {"fabric": 0.03, "bedding": 0.03, "duvet": 0.03}
 BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
@@ -160,7 +184,11 @@ PROUD = 0.008
 DECOR_MAX_M = 0.6
 DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 0.012, "wall_art": 0.6,
                         # Milestone 9
-                        "vase": 0.30, "bowl": 0.10, "plant_small": 0.35, "table_lamp": 0.50, "mirror": 0.80}
+                        "vase": 0.30, "bowl": 0.10, "plant_small": 0.35, "table_lamp": 0.50, "mirror": 0.80,
+                        # Milestone 10 (typical sizes, assumed)
+                        "curtain": 2.4, "blind": 1.3, "throw": 0.05, "books": 0.12, "candle": 0.2, "basket": 0.35,
+                        "tray": 0.04, "clock": 0.35, "sculpture": 0.4, "plant_large": 1.6, "pendant_light": 0.6,
+                        "ceiling_light": 0.12}
 MIRROR_FRAME_M = 0.03            # the parametric mirror: frame width and depth; the glass sits on its front
 RUG_THICKNESS_M = 0.012
 # Bed frames (Milestone 8): the mattress on the deck and the inner box the bedding fills.
@@ -1140,18 +1168,925 @@ def _stair(w: float, d: float, h: float, piece: dict | None = None) -> list[Part
     return out
 
 
+# --------------------------------------------------------------------------
+# Milestone 10 (docs/milestone10.md §4.4-§4.7): cabinets with fronts, the new furniture types, doors, windows
+# --------------------------------------------------------------------------
+
+# Cabinet looks (``furniture.design``, docs/milestone10.md §1.1, §4.4). The builders read the design of the piece
+# they get (``build_parts(..., piece=)``); ``furniture.py`` fills a missing design from ``style.json`` first
+# (``wenart.blender.looks.design_for``), so a design here is complete or empty (defaults below, recorded there).
+FRONT_STYLES: tuple[str, ...] = ("flat", "shaker", "slatted", "glass")
+DEFAULT_FRONT_STYLE = "flat"
+SHAKER_FRAME_M = 0.065           # shaker stiles and rails (at most 18 % of the front's side)
+SHAKER_PANEL_M = 0.012           # the recessed panel; the frame stands FRONT_THICKNESS
+SLAT_W_M = 0.03                  # slatted fronts: slat width and gap on a dark backing
+SLAT_GAP_M = 0.012
+SLAT_BACKING_M = 0.008
+GLASS_FRAME_M = 0.05             # glass fronts: the frame around the pane
+GLASS_PANE_M = 0.006
+HANDLE_BAR = (0.012, 0.16)       # bar handle cross-section and length (doors vertical, drawers horizontal)
+CABINET_DOOR_W = 0.6             # one door per this much width (at least one)
+WALL_CABINET_PLINTH_M = 0.0
+LEG_M = 0.035
+# Glass and stone tops for tables with design.material_tags (§4.10: "glass coffee table": the parametric glass top).
+TOP_TAG_KEYS: dict[str, str] = {"glass": "glass", "marble": "marble"}
+TABLE_TYPES_WITH_TOP_TAGS: tuple[str, ...] = ("table_coffee", "table_dining", "side_table", "console_table", "desk")
+
+
+def piece_design(piece: dict | None) -> dict:
+    """The piece's ``design`` dict ({} when there is none)."""
+    design = (piece or {}).get("design")
+    return design if isinstance(design, dict) else {}
+
+
+def front_style_of(design: dict, default: str = DEFAULT_FRONT_STYLE) -> str:
+    style = design.get("front_style")
+    return style if style in FRONT_STYLES else default
+
+
+def _front_panel(cx: float, y_face: float, z0: float, fw: float, fh: float, style: str) -> list[Part]:
+    """One cabinet front (door or drawer) of ``fw x fh`` standing in front of the carcass face at ``y_face``
+    (towards -Y), its bottom at ``z0``: flat slab, shaker frame on a recessed panel, vertical slats on a dark
+    backing, or a glass pane in a frame. Every part has role ``front``."""
+    y0 = y_face - FRONT_GAP                        # back of the front
+    t = FRONT_THICKNESS
+    if style == "shaker":
+        f = min(SHAKER_FRAME_M, fw * 0.18, fh * 0.18)
+        parts = [_box(cx, y0 - SHAKER_PANEL_M / 2.0, z0, fw, SHAKER_PANEL_M, fh, "front", "front")]
+        yc = y0 - t / 2.0
+        parts += [_box(cx - fw / 2.0 + f / 2.0, yc, z0, f, t, fh, "front", "front"),
+                  _box(cx + fw / 2.0 - f / 2.0, yc, z0, f, t, fh, "front", "front"),
+                  _box(cx, yc, z0, fw - 2 * f, t, f, "front", "front"),
+                  _box(cx, yc, z0 + fh - f, fw - 2 * f, t, f, "front", "front")]
+        return parts
+    if style == "slatted":
+        parts = [_box(cx, y0 - SLAT_BACKING_M / 2.0, z0, fw, SLAT_BACKING_M, fh, "dark", "front")]
+        n = max(1, int((fw + SLAT_GAP_M) // (SLAT_W_M + SLAT_GAP_M)))
+        sw = (fw - (n - 1) * SLAT_GAP_M) / n
+        st = t - SLAT_BACKING_M
+        for i in range(n):
+            x = cx - fw / 2.0 + sw / 2.0 + i * (sw + SLAT_GAP_M)
+            parts.append(_box(x, y0 - SLAT_BACKING_M - st / 2.0, z0, sw, st, fh, "front", "front"))
+        return parts
+    if style == "glass":
+        f = min(GLASS_FRAME_M, fw * 0.2, fh * 0.2)
+        yc = y0 - t / 2.0
+        return [_box(cx - fw / 2.0 + f / 2.0, yc, z0, f, t, fh, "front", "front"),
+                _box(cx + fw / 2.0 - f / 2.0, yc, z0, f, t, fh, "front", "front"),
+                _box(cx, yc, z0, fw - 2 * f, t, f, "front", "front"),
+                _box(cx, yc, z0 + fh - f, fw - 2 * f, t, f, "front", "front"),
+                _box(cx, yc, z0 + f, fw - 2 * f, GLASS_PANE_M, fh - 2 * f, "glass", "front")]
+    return [_box(cx, y0 - t / 2.0, z0, fw, t, fh, "front", "front")]
+
+
+def _handle(cx: float, y_face: float, zc: float, vertical: bool) -> Part:
+    """A bar handle on a front whose face is at ``y_face - FRONT_GAP - FRONT_THICKNESS`` (centre ``zc``)."""
+    y = y_face - FRONT_GAP - FRONT_THICKNESS - PROUD / 2.0
+    t, length = HANDLE_BAR
+    if vertical:
+        return _box(cx, y, zc - length / 2.0, t, PROUD, length, "handle", "handle")
+    return _box(cx, y, zc - t / 2.0, length, PROUD, t, "handle", "handle")
+
+
+def cabinet_fronts(w: float, y_face: float, z0: float, z1: float, rows: int, cols: int, design: dict,
+                   doors: bool = True, handle_at: str = "top") -> list[Part]:
+    """The fronts (and handles) of a cabinet face from ``z0`` to ``z1`` in ``rows`` x ``cols`` with 3 mm gaps, in
+    the design's front style; door handles stand vertically near the meeting edges (``handle_at`` ``top``: in the
+    upper part of the door, a base cabinet; ``bottom``: a wall cabinet), drawer handles horizontally centred."""
+    style = front_style_of(design)
+    gap = 0.003
+    rh = (z1 - z0) / rows
+    cw = w / cols
+    parts: list[Part] = []
+    for r in range(rows):
+        for c in range(cols):
+            cx = -w / 2.0 + cw * (c + 0.5)
+            fz0 = z0 + rh * r + gap / 2.0
+            fw, fh = cw - gap, rh - gap
+            parts += _front_panel(cx, y_face, fz0, fw, fh, style)
+            if doors:
+                side = 1.0 if c % 2 == 0 else -1.0          # pairs of doors: handles at the meeting edges
+                if cols == 1:
+                    side = 1.0
+                hx = cx + side * (fw / 2.0 - 0.04)
+                hz = fz0 + fh - 0.1 - HANDLE_BAR[1] / 2.0 if handle_at == "top" else fz0 + 0.1 + HANDLE_BAR[1] / 2.0
+                hz = min(max(hz, fz0 + HANDLE_BAR[1] / 2.0 + 0.01), fz0 + fh - HANDLE_BAR[1] / 2.0 - 0.01)
+                parts.append(_handle(hx, y_face, hz, vertical=fh >= HANDLE_BAR[1] + 0.04))
+            else:
+                parts.append(_handle(cx, y_face, fz0 + fh / 2.0, vertical=False))
+    return parts
+
+
+def _carcass(w: float, d: float, z0: float, h: float, key: str = "wood") -> tuple[Part, float]:
+    """The carcass box (its front face FRONT_GAP + FRONT_THICKNESS behind the footprint's front edge) and that
+    face's y."""
+    inset = FRONT_GAP + FRONT_THICKNESS
+    return _box(0.0, inset / 2.0, z0, w, d - inset, h, key, "body"), -d / 2.0 + inset
+
+
+def _cols(w: float) -> int:
+    return max(1, round(w / CABINET_DOOR_W))
+
+
+def _sideboard(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Sideboard: wooden legs, a carcass, a row of doors (the design's fronts) and a top."""
+    design = piece_design(piece)
+    legs = min(0.15, h * 0.2)
+    top_t = 0.025
+    body, face = _carcass(w, d, legs, h - legs - top_t)
+    parts = [body, _box(0.0, 0.0, h - top_t, w, d, top_t, "wood", "top")]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - 0.04 - LEG_M / 2.0), sy * (d / 2.0 - 0.04 - LEG_M / 2.0), 0.0, LEG_M,
+                              LEG_M, legs, "wood", "leg"))
+    parts += cabinet_fronts(w, face, legs + 0.005, h - top_t - 0.005, 1, max(2, _cols(w)), design)
+    return parts
+
+
+def _shoe_cabinet(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Shoe cabinet: plinth, carcass and two or three tilt-out flaps over the whole width (horizontal handles)."""
+    design = piece_design(piece)
+    plinth = min(0.06, h * 0.08)
+    body, face = _carcass(w, d, plinth, h - plinth)
+    rows = 3 if h >= 0.9 else 2
+    return ([_box(0.0, 0.02, 0.0, w - 0.04, d - 0.06, plinth, "dark", "plinth"), body]
+            + cabinet_fronts(w, face, plinth + 0.003, h - 0.003, rows, 1, design, doors=False))
+
+
+def _display_cabinet(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Display cabinet: plinth, carcass, shelves seen through the fronts (glass unless the design says another
+    front style), two doors."""
+    design = dict(piece_design(piece))
+    design.setdefault("front_style", "glass")
+    if design.get("front_style") is None:
+        design["front_style"] = "glass"
+    plinth = min(0.08, h * 0.05)
+    inset = FRONT_GAP + FRONT_THICKNESS
+    t = 0.018
+    face = -d / 2.0 + inset
+    parts = [_box(0.0, 0.0, 0.0, w - 0.04, d - 0.06, plinth, "dark", "plinth"),
+             _box(-(w / 2.0 - t / 2.0), inset / 2.0, plinth, t, d - inset, h - plinth, "wood", "side"),
+             _box(w / 2.0 - t / 2.0, inset / 2.0, plinth, t, d - inset, h - plinth, "wood", "side"),
+             _box(0.0, d / 2.0 - t / 2.0, plinth, w - 2 * t, t, h - plinth, "wood", "back"),
+             _box(0.0, inset / 2.0, plinth, w - 2 * t, d - inset - t, t, "wood", "bottom"),
+             _box(0.0, inset / 2.0, h - t, w - 2 * t, d - inset - t, t, "wood", "top")]
+    z = plinth + SHELF_PITCH
+    while z < h - t - 0.2:
+        parts.append(_box(0.0, inset / 2.0 - t / 2.0, z, w - 2 * t, d - inset - 2 * t, 0.012, "glass", "shelf"))
+        z += SHELF_PITCH
+    parts += cabinet_fronts(w, face, plinth + 0.003, h - 0.003, 1, 2 if w >= 0.7 else 1, design)
+    return parts
+
+
+def _tall_cabinet(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Tall (pantry) cabinet: plinth, carcass, a lower door of two thirds and an upper one per column."""
+    design = piece_design(piece)
+    plinth = min(0.1, h * 0.05)
+    body, face = _carcass(w, d, plinth, h - plinth, "painted")
+    parts = [_box(0.0, 0.03, 0.0, w, d - 0.06, plinth, "dark", "plinth"), body]
+    split = plinth + (h - plinth) * 2.0 / 3.0
+    cols = max(1, round(w / 0.45))
+    parts += cabinet_fronts(w, face, plinth + 0.003, split, 1, cols, design)
+    parts += cabinet_fronts(w, face, split, h - 0.003, 1, cols, design, handle_at="bottom")
+    return parts
+
+
+def _wall_cabinet(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Wall cabinet (its bottom at z = 0 of its own frame; ``furniture.py`` hangs it at ``mount_bottom_m``):
+    carcass and a row of doors with their handles low."""
+    design = piece_design(piece)
+    body, face = _carcass(w, d, 0.0, h, "painted")
+    return [body] + cabinet_fronts(w, face, 0.003, h - 0.003, 1, _cols(w), design, handle_at="bottom")
+
+
+def _counter_m10(w: float, d: float, h: float, island: bool = False, piece: dict | None = None) -> list[Part]:
+    """Kitchen counter run or island (Milestone 6 boxes): plinth, carcass, worktop, and the design's fronts and
+    handles over the base (one door per 0.6 m; handles in the upper part)."""
+    design = piece_design(piece)
+    top_t = 0.04
+    plinth_h = min(0.1, h * 0.12)
+    inset = 0.03
+    if island:
+        carcass = _box(0.0, 0.0, plinth_h, w - 2 * inset, d - 2 * inset, h - top_t - plinth_h, "painted", "body")
+        plinth = _box(0.0, 0.0, 0.0, w - 4 * inset, d - 4 * inset, plinth_h, "dark", "plinth")
+    else:
+        carcass = _box(0.0, inset / 2.0, plinth_h, w, d - inset, h - top_t - plinth_h, "painted", "body")
+        plinth = _box(0.0, inset, 0.0, w, d - 2 * inset, plinth_h, "dark", "plinth")
+    front_y = -d / 2.0 + inset
+    parts = [plinth, carcass, _box(0.0, 0.0, h - top_t, w, d, top_t, "worktop", "top")]
+    parts += cabinet_fronts(w, front_y, plinth_h + 0.01, h - top_t - 0.02, 1, _cols(w), design)
+    return parts
+
+
+def _vanity(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """A washbasin with the vanity look (docs/milestone10.md §4.4: a drawn washbasin at least 0.45 m deep; its
+    type stays ``washbasin``): a wall-hung cabinet with the design's fronts under a ceramic top with an inset
+    basin and a tap."""
+    design = piece_design(piece)
+    top_t = 0.03
+    basin_h = min(0.15, h * 0.2)
+    bottom = min(0.3, h * 0.35)                     # wall-hung: free floor under the cabinet
+    body, face = _carcass(w, d, bottom, h - top_t - bottom)
+    parts = [body, _box(0.0, d / 2.0 - 0.01, 0.0, w * 0.3, 0.02, bottom, "dark", "back")]   # the wall bracket
+    bw, bd = min(w - 0.12, 0.5), min(d - 0.12, 0.36)
+    sx, sy = (w - bw) / 2.0, (d - bd) / 2.0
+    z_top = h - top_t
+    parts += [_box(0.0, -d / 2.0 + sy / 2.0, z_top, w, sy, top_t, "ceramic", "top"),
+              _box(0.0, d / 2.0 - sy / 2.0, z_top, w, sy, top_t, "ceramic", "top"),
+              _box(-w / 2.0 + sx / 2.0, 0.0, z_top, sx, bd, top_t, "ceramic", "top"),
+              _box(w / 2.0 - sx / 2.0, 0.0, z_top, sx, bd, top_t, "ceramic", "top")]
+    parts += _basin(0.0, 0.0, h - basin_h, bw, bd, basin_h, 0.012, "ceramic")
+    parts.append(_cylinder_z(0.0, d / 2.0 - sy / 2.0, h, 0.012, 0.012, 0.15, "steel", "tap", n=12))
+    parts += cabinet_fronts(w, face, bottom + 0.003, z_top - 0.003, 1, 1 if w < 0.8 else 2, design, doors=w >= 0.8)
+    return parts
+
+
+def _washbasin_m10(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """The Milestone 4 pedestal basin, or the vanity look when the design says ``vanity``."""
+    if piece_design(piece).get("vanity"):
+        return _vanity(w, d, h, piece)
+    return _washbasin(w, d, h)
+
+
+def _built_in_wardrobe(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """A built-in wardrobe (docs/milestone10.md §4.4: a drawn wardrobe spanning wall to wall; its type stays
+    ``wardrobe``): fronts over the whole width (no carcass sides showing), a recessed plinth and a filler
+    panel at the top."""
+    design = piece_design(piece)
+    plinth = 0.08
+    filler = 0.06
+    body, face = _carcass(w, d, plinth, h - plinth)
+    parts = [_box(0.0, 0.04, 0.0, w, d - 0.08, plinth, "dark", "plinth"), body,
+             _box(0.0, face - FRONT_GAP - FRONT_THICKNESS / 2.0, h - filler, w, FRONT_THICKNESS, filler, "front",
+                  "front")]
+    parts += cabinet_fronts(w, face, plinth + 0.003, h - filler - 0.003, 1, max(2, round(w / 0.5)), design)
+    return parts
+
+
+def _wardrobe_m10(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """The Milestone 4 wardrobe, built-in when the design says ``built_in``, with the design's fronts when it
+    names a front style."""
+    design = piece_design(piece)
+    if design.get("built_in"):
+        return _built_in_wardrobe(w, d, h, piece)
+    if design.get("front_style") in FRONT_STYLES:
+        body, face = _carcass(w, d, 0.0, h)
+        return [body] + cabinet_fronts(w, face, 0.05, h - 0.05, 1, max(2, round(w / 0.5)), design)
+    return _wardrobe(w, d, h)
+
+
+def _table_m10(w: float, d: float, h: float, piece: dict | None = None, desk: bool = False) -> list[Part]:
+    """The Milestone 4 table; a ``glass`` or ``marble`` material tag of the design (§4.10: "glass coffee table")
+    gives that top, ``metal`` steel legs."""
+    parts = _table(w, d, h, desk=desk)
+    tags = piece_design(piece).get("material_tags") or ()
+    top_key = next((TOP_TAG_KEYS[t] for t in tags if t in TOP_TAG_KEYS), None)
+    for p in parts:
+        if p["role"] == "top" and top_key:
+            p["key"] = top_key
+        if p["role"] == "leg" and "metal" in tags:
+            p["key"] = "steel"
+    if top_key == "glass" and not desk:             # a glass top shows its frame: a lower wooden shelf
+        leg = min(0.06, w * 0.08, d * 0.08)
+        inset = min(0.04, w * 0.05, d * 0.05)
+        sw, sd = w - 2 * (inset + leg), d - 2 * (inset + leg)
+        if sw > 0.1 and sd > 0.1:
+            parts.append(_box(0.0, 0.0, min(0.12, h * 0.25), sw, sd, 0.02, "wood", "shelf"))
+    return parts
+
+
+def _console_table(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Console table: a narrow top, four slim legs and a lower shelf (tags as ``_table_m10``)."""
+    parts = _table_m10(w, d, h, piece)
+    leg = min(0.06, w * 0.08, d * 0.08)
+    inset = min(0.04, w * 0.05, d * 0.05)
+    sw, sd = w - 2 * (inset + leg), d - 2 * (inset + leg)
+    if sw > 0.1 and sd > 0.05 and not any(p["role"] == "shelf" for p in parts):
+        parts.append(_box(0.0, 0.0, min(0.15, h * 0.2), sw, sd, 0.02, "wood", "shelf"))
+    return parts
+
+
+# Corner sofa: the two rectangles of wenart.furniture.schemas.l_parts (the one geometry source, docs/milestone10.md
+# §1.6b row 15). That module needs jsonschema, which Blender's Python lacks, and the build's fingerprint covers only
+# the scene code, so the builder keeps this copy of the formula; tests/test_blender_furniture.py checks that both
+# give the same rectangles (schemas.L_SEAT_DEPTH_M / L_CHAISE_WIDTH_M equal these defaults).
+L_SEAT_DEPTH_M = 0.9
+L_CHAISE_WIDTH_M = 0.9
+
+
+def l_parts(size, chaise_side, chaise_depth, seat_depth=None, chaise_width=None):
+    """``[(x0, x1, y0, y1) main seat, (x0, x1, y0, y1) chaise]`` of a corner sofa in its frame
+    (``wenart.furniture.schemas.l_parts``): the main seat along the back (+Y) over the whole width, ``seat_depth``
+    deep, the chaise ``chaise_width`` wide on ``chaise_side`` (right = +X) over ``chaise_depth`` from the back."""
+    w, d = float(size[0]), float(size[1])
+    depth = min(float(chaise_depth), d) if chaise_depth else d
+    seat = min(float(seat_depth) if seat_depth else L_SEAT_DEPTH_M, depth)
+    cw = min(float(chaise_width) if chaise_width else L_CHAISE_WIDTH_M, w / 2.0)
+    main = (-w / 2.0, w / 2.0, d / 2.0 - seat, d / 2.0)
+    if chaise_side == "left":
+        chaise = (-w / 2.0, -w / 2.0 + cw, d / 2.0 - depth, d / 2.0)
+    else:
+        chaise = (w / 2.0 - cw, w / 2.0, d / 2.0 - depth, d / 2.0)
+    return [main, chaise]
+
+
+def _sofa_corner(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Corner sofa (``shape: L``): the main seat along the back over the whole width and the long seat (chaise) on
+    ``chaise_side`` from ``l_parts`` (default right, the schema's default sizes); a back along +Y, an arm at the
+    end away from the chaise, seat cushions on both parts."""
+    piece = piece or {}
+    side = piece.get("chaise_side") if piece.get("chaise_side") in ("left", "right") else "right"
+    main, chaise = l_parts((w, d), side, piece.get("chaise_depth"), piece.get("seat_depth"),
+                           piece.get("chaise_width"))
+    back_t = min(0.2, (main[3] - main[2]) * 0.25)
+    arm_w = min(0.15, w * 0.06)
+    seat_h = sofa_seat_height(h)
+    arm_h = min(0.65, h * 0.8)
+    mx0, mx1, my0, my1 = main
+    cx0, cx1, cy0, cy1 = chaise
+    seat_y0, seat_y1 = my0, my1 - back_t
+    parts = [_box(0.0, d / 2.0 - back_t / 2.0, 0.0, w, back_t, h, "fabric", "back")]
+    # The arm on the side away from the chaise; the main seat base between the arm and the chaise.
+    if side == "right":
+        arm_x = mx0 + arm_w / 2.0
+        base_x0, base_x1 = mx0 + arm_w, cx0
+    else:
+        arm_x = mx1 - arm_w / 2.0
+        base_x0, base_x1 = cx1, mx1 - arm_w
+    parts.append(_box(arm_x, (seat_y0 + seat_y1) / 2.0, 0.0, arm_w, seat_y1 - seat_y0, arm_h, "fabric", "arm"))
+    parts.append(_box((base_x0 + base_x1) / 2.0, (seat_y0 + seat_y1) / 2.0, 0.0, base_x1 - base_x0,
+                      seat_y1 - seat_y0, seat_h - 0.1, "fabric", "body"))
+    ch_y1 = my1 - back_t
+    parts.append(_box((cx0 + cx1) / 2.0, (cy0 + ch_y1) / 2.0, 0.0, cx1 - cx0, ch_y1 - cy0, seat_h - 0.1, "fabric",
+                      "body"))
+    seat_w = base_x1 - base_x0
+    n = max(1, round(seat_w / 0.75))
+    cw = seat_w / n
+    for i in range(n):
+        parts.append(_box(base_x0 + cw * (i + 0.5), (seat_y0 + seat_y1) / 2.0, seat_h - 0.1, cw - 0.03,
+                          seat_y1 - seat_y0 - 0.04, 0.1, "fabric", "cushion"))
+    parts.append(_box((cx0 + cx1) / 2.0, (cy0 + ch_y1) / 2.0, seat_h - 0.1, cx1 - cx0 - 0.03, ch_y1 - cy0 - 0.04,
+                      0.1, "fabric", "cushion"))
+    return parts
+
+
+def sofa_corner_parts_info(piece: dict) -> dict:
+    """The corner sofa's record for the manifest: the side and both rectangles (piece frame)."""
+    fp = piece["footprint"]
+    side = piece.get("chaise_side") if piece.get("chaise_side") in ("left", "right") else "right"
+    rects = l_parts(fp["size"], side, piece.get("chaise_depth"), piece.get("seat_depth"), piece.get("chaise_width"))
+    return {"chaise_side": side, "chaise_side_assumed": piece.get("chaise_side") not in ("left", "right"),
+            "rectangles": [[round(v, 4) for v in r] for r in rects]}
+
+
+def _chaise(w: float, d: float, h: float) -> list[Part]:
+    """Chaise longue: a seat along the depth, a raised back at the head end (+Y), one arm and a long cushion."""
+    back_t = min(0.15, d * 0.1)
+    seat_h = sofa_seat_height(h)
+    arm_w = min(0.12, w * 0.15)
+    seat_d = d - back_t
+    return [_box(0.0, d / 2.0 - back_t / 2.0, 0.0, w, back_t, h, "fabric", "back"),
+            _box(-(w / 2.0 - arm_w / 2.0), -back_t / 2.0 + seat_d * 0.2, 0.0, arm_w, seat_d * 0.6, seat_h + 0.12,
+                 "fabric", "arm"),
+            _box(arm_w / 2.0, -back_t / 2.0, 0.0, w - arm_w, seat_d, seat_h - 0.1, "fabric", "body"),
+            _box(arm_w / 2.0, -back_t / 2.0, seat_h - 0.1, w - arm_w - 0.03, seat_d - 0.04, 0.1, "fabric", "cushion")]
+
+
+def _ottoman(w: float, d: float, h: float) -> list[Part]:
+    """Upholstered ottoman on four short legs."""
+    legs = min(0.08, h * 0.2)
+    parts = [_box(0.0, 0.0, legs, w, d, h - legs - 0.06, "fabric", "body"),
+             _box(0.0, 0.0, h - 0.06, w - 0.02, d - 0.02, 0.06, "fabric", "cushion")]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - 0.05), sy * (d / 2.0 - 0.05), 0.0, LEG_M, LEG_M, legs, "wood", "leg"))
+    return parts
+
+
+def _bench(w: float, d: float, h: float) -> list[Part]:
+    """Bench: a padded seat on a wooden frame with four legs."""
+    pad = min(0.06, h * 0.15)
+    frame_t = 0.03
+    leg = min(0.045, d * 0.15)
+    parts = [_box(0.0, 0.0, h - pad - frame_t, w, d, frame_t, "wood", "top"),
+             _box(0.0, 0.0, h - pad, w - 0.01, d - 0.01, pad, "fabric", "cushion")]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - 0.04 - leg / 2.0), sy * (d / 2.0 - 0.03 - leg / 2.0), 0.0, leg, leg,
+                              h - pad - frame_t, "wood", "leg"))
+    return parts
+
+
+def _bar_stool(w: float, d: float, h: float) -> list[Part]:
+    """Bar stool: a round seat, four legs inside the seat's footprint and footrest bars."""
+    seat_t = 0.05
+    leg = 0.025
+    r = min(w, d) / 2.0
+    off = r * 0.62
+    parts = [_cylinder_z(0.0, 0.0, h - seat_t, w / 2.0, d / 2.0, seat_t, "fabric", "top", n=32)]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * off / math.sqrt(2.0), sy * off / math.sqrt(2.0), 0.0, leg, leg, h - seat_t,
+                              "steel", "leg"))
+    span = 2.0 * off / math.sqrt(2.0)
+    rest = min(0.3, h * 0.4)
+    for sy in (-1, 1):
+        parts.append(_box(0.0, sy * off / math.sqrt(2.0), rest, span, 0.015, 0.015, "steel", "rest"))
+    return parts
+
+
+def _office_chair(w: float, d: float, h: float) -> list[Part]:
+    """Office chair: a five-star base with castors, a gas lift, a seat, a back at +Y and two armrests; the seat
+    fills the footprint (the star stays inside it)."""
+    seat_h = min(0.48, h * 0.5)
+    seat_t = 0.08
+    r = min(w, d) / 2.0 - 0.02
+    parts = []
+    for k in range(5):
+        a = math.radians(90.0 + 72.0 * k)
+        mid = (math.cos(a) * r / 2.0, math.sin(a) * r / 2.0)
+        verts, faces = geom2d.box((mid[0], mid[1], 0.06), (r, 0.04, 0.03), math.degrees(a))
+        parts.append({"verts": verts, "faces": faces, "key": "dark", "role": "base"})
+        parts.append(_cylinder_z(math.cos(a) * (r - 0.02), math.sin(a) * (r - 0.02), 0.0, 0.022, 0.022, 0.045,
+                                 "dark", "castor", n=10))
+    parts.append(_cylinder_z(0.0, 0.0, 0.045, 0.025, 0.025, seat_h - seat_t - 0.045, "steel", "pole", n=12))
+    back_t = 0.05
+    parts.append(_box(0.0, -back_t / 2.0, seat_h - seat_t, w - 0.06, d - back_t, seat_t, "fabric", "cushion"))
+    parts.append(_box(0.0, d / 2.0 - back_t / 2.0, seat_h + 0.05, w * 0.85, back_t, h - seat_h - 0.05, "fabric", "back"))
+    for sx in (-1, 1):
+        parts.append(_box(sx * (w / 2.0 - 0.02), -0.02, seat_h + 0.18, 0.04, d * 0.5, 0.03, "dark", "arm"))
+        parts.append(_box(sx * (w / 2.0 - 0.02), 0.0, seat_h, 0.02, 0.03, 0.18, "dark", "arm"))
+    return parts
+
+
+def _crib(w: float, d: float, h: float) -> list[Part]:
+    """Crib (cot): four corner posts, top and bottom rails, vertical slats on all sides, a mattress base and a
+    mattress (bedding) about 0.3 m above the floor."""
+    post = 0.045
+    rail = 0.035
+    base_z = min(0.3, h * 0.35)
+    parts = []
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - post / 2.0), sy * (d / 2.0 - post / 2.0), 0.0, post, post, h, "wood",
+                              "post"))
+    for y in (-(d / 2.0 - post / 2.0), d / 2.0 - post / 2.0):
+        for z in (base_z - rail, h - rail):
+            parts.append(_box(0.0, y, z, w - 2 * post, rail * 0.8, rail, "wood", "rail"))
+    for x in (-(w / 2.0 - post / 2.0), w / 2.0 - post / 2.0):
+        for z in (base_z - rail, h - rail):
+            parts.append(_box(x, 0.0, z, rail * 0.8, d - 2 * post, rail, "wood", "rail"))
+    slat, pitch = 0.02, 0.085
+    for y in (-(d / 2.0 - post / 2.0), d / 2.0 - post / 2.0):
+        n = max(1, int((w - 2 * post) / pitch))
+        for i in range(n):
+            x = -w / 2.0 + post + (i + 0.5) * (w - 2 * post) / n
+            parts.append(_box(x, y, base_z, slat, slat, h - rail - base_z, "wood", "slat"))
+    parts.append(_box(0.0, 0.0, base_z - rail, w - 2 * post, d - 2 * post, 0.02, "wood", "bottom"))
+    parts.append(_superellipsoid(0.0, 0.0, base_z - rail + 0.02, w - 2 * post - 0.02, d - 2 * post - 0.02, 0.1, 0.15,
+                                 0.1, "bedding", "mattress"))
+    return parts
+
+
+def _bunk_bed(w: float, d: float, h: float) -> list[Part]:
+    """Bunk bed: four posts, two frames with mattresses (lower 0.3 m, upper 1.3 m or 60 % of the height), a guard
+    rail on the upper bunk's front (-Y) and a ladder at the foot end of the front."""
+    post = 0.06
+    frame_t = 0.12
+    lower = min(0.3, h * 0.2)
+    upper = max(lower + 0.9, min(1.3, h * 0.6)) if h > lower + 1.0 else h * 0.6
+    parts = []
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - post / 2.0), sy * (d / 2.0 - post / 2.0), 0.0, post, post, h, "wood",
+                              "post"))
+    for z in (lower, upper):
+        for x in (-(w / 2.0 - post / 2.0), w / 2.0 - post / 2.0):
+            parts.append(_box(x, 0.0, z - frame_t, post * 0.8, d - 2 * post, frame_t, "wood", "rail"))
+        for y in (-(d / 2.0 - post / 2.0), d / 2.0 - post / 2.0):
+            parts.append(_box(0.0, y, z - frame_t, w - 2 * post, post * 0.8, frame_t, "wood", "rail"))
+        parts.append(_box(0.0, 0.0, z - 0.03, w - 2 * post, d - 2 * post, 0.02, "wood", "bottom"))
+        parts.append(_superellipsoid(0.0, 0.0, z - 0.01, w - 2 * post - 0.02, d - 2 * post - 0.02, 0.15, 0.15, 0.1,
+                                     "bedding", "mattress"))
+    # Guard rail of the upper bunk along the long side; the ladder at the foot end.
+    for z in (upper + 0.15, h - 0.04):
+        parts.append(_box(-w / 2.0 + post + 0.01, 0.0, z, 0.03, d - 2 * post, 0.03, "wood", "rail"))
+    lx = w / 2.0 - post - 0.03
+    ly0, ly1 = -d / 2.0 + post, -d / 2.0 + post + 0.4
+    for y in (ly0 + 0.015, ly1 - 0.015):
+        parts.append(_box(lx, y, 0.0, 0.03, 0.03, upper + 0.3, "wood", "ladder"))
+    z = 0.3
+    while z < upper:
+        parts.append(_box(lx, (ly0 + ly1) / 2.0, z, 0.025, ly1 - ly0 - 0.06, 0.025, "wood", "ladder"))
+        z += 0.27
+    return parts
+
+
+# --------------------------------------------------------------------------
+# Doors and windows (docs/milestone10.md §4.7): pure parts in the opening's frame
+# --------------------------------------------------------------------------
+#
+# Frame of an opening (as wenart.blender.shell builds them): x along the wall (the opening from -width/2 to
+# +width/2), y across the wall (0 = the wall centre line, the wall from -thickness/2 to +thickness/2), z up from the
+# opening's bottom. Keys: ``frame`` (door frame, window frame), ``leaf``, ``glass``, ``handle``, ``rail``
+# (sliding / barn track), ``sill`` (inside window sill). shell.build_openings calls ``door_parts`` /
+# ``window_parts`` with the looks of ``wenart.blender.looks`` (docs/milestone10.md §1.6b row 20).
+
+DOOR_STYLES: tuple[str, ...] = ("flush", "shaker_panel", "glazed", "pocket", "sliding", "barn", "double", "entrance",
+                                "folding")
+DOOR_FRAME_W = 0.05
+DOOR_LEAF_T = 0.04
+ENTRANCE_LEAF_T = 0.065
+DOOR_PANEL_FRAME_M = 0.11        # shaker panel door: stiles and rails
+DOOR_PANEL_PROUD_M = 0.006
+GLAZED_FRAME_M = 0.09
+SLIDING_OVERLAP_M = 0.05         # a surface-mounted sliding / barn leaf covers the opening plus this per side
+SLIDING_STANDOFF_M = 0.012       # off the wall face
+RAIL_H = 0.04
+LEVER_HEIGHT_M = 1.0
+# Window frames by material (docs/milestone10.md §4.7): (frame width, frame depth) in metres, typical profiles
+# (assumed; no drawing gives them).
+WINDOW_PROFILES: dict[str, tuple[float, float]] = {
+    "pvc_white": (0.065, 0.07), "aluminium_anthracite": (0.05, 0.065), "steel_black": (0.035, 0.045),
+    "dark_bronze": (0.045, 0.06), "oak": (0.068, 0.068), "painted_metal_white": (0.05, 0.06),
+}
+DEFAULT_WINDOW_PROFILE = (0.05, 0.06)
+MULLION_W = 0.04
+INSIDE_SILL = {"depth_proud": 0.03, "thickness": 0.025, "ears": 0.02}
+
+
+def door_style_of(look: dict | None) -> str:
+    style = (look or {}).get("door_style")
+    return style if style in DOOR_STYLES else "flush"
+
+
+def _leaf_box(cx: float, z0: float, lw: float, lh: float, t: float, y: float = 0.0) -> Part:
+    return _box(cx, y, z0, lw, t, lh, "leaf", "leaf")
+
+
+def _lever_pair(x: float, z: float, t: float, y: float = 0.0) -> list[Part]:
+    """Lever handles on both faces of a leaf of thickness ``t`` centred on ``y``."""
+    out = []
+    for s in (-1, 1):
+        yy = y + s * (t / 2.0 + 0.03)
+        out.append(_box(x, yy, z - 0.035, 0.02, 0.06, 0.07, "handle", "handle"))              # rose and neck
+        out.append(_box(x - 0.06, yy + s * 0.02, z - 0.01, 0.13, 0.02, 0.02, "handle", "handle"))       # lever
+    return out
+
+
+def door_parts(look: dict | None, width: float, height: float, thickness: float,
+               frame_w: float = DOOR_FRAME_W) -> tuple[list[Part], dict]:
+    """``(parts, record)`` of a door in the opening's frame (see above) for a door look
+    (``wenart.blender.looks.door_look``: ``door_style`` decided with the drawn operation first). Swing styles
+    (flush, shaker panel, glazed, entrance) and double / folding doors sit in a frame as deep as the wall;
+    pocket doors are a flush leaf with a recessed pull; sliding and barn doors hang on the room face of the wall
+    (``look["side"]``: +1 / -1, the y side of the room; default -1) from a rail and overlap the opening."""
+    style = door_style_of(look)
+    side = -1.0 if float((look or {}).get("side") or -1.0) < 0 else 1.0
+    w, h, t = float(width), float(height), float(thickness)
+    parts: list[Part] = []
+    surface = style in ("sliding", "barn")
+    if not surface:
+        parts += [_box(-(w / 2.0 - frame_w / 2.0), 0.0, 0.0, frame_w, t, h, "frame", "frame"),
+                  _box(w / 2.0 - frame_w / 2.0, 0.0, 0.0, frame_w, t, h, "frame", "frame"),
+                  _box(0.0, 0.0, h - frame_w, w - 2 * frame_w, t, frame_w, "frame", "frame")]
+    lw, lh = w - 2 * frame_w - 0.01, h - frame_w - 0.01
+    leaf_t = ENTRANCE_LEAF_T if style == "entrance" else DOOR_LEAF_T
+    lever_z = min(LEVER_HEIGHT_M, lh - 0.1)
+    if style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
+        if style == "glazed":
+            f = min(GLAZED_FRAME_M, lw * 0.2)
+            parts += [_box(-(lw / 2.0 - f / 2.0), 0.0, 0.0, f, leaf_t, lh, "leaf", "leaf"),
+                      _box(lw / 2.0 - f / 2.0, 0.0, 0.0, f, leaf_t, lh, "leaf", "leaf"),
+                      _box(0.0, 0.0, 0.0, lw - 2 * f, leaf_t, f * 1.6, "leaf", "leaf"),
+                      _box(0.0, 0.0, lh - f, lw - 2 * f, leaf_t, f, "leaf", "leaf"),
+                      _box(0.0, 0.0, f * 1.6, lw - 2 * f, 0.008, lh - f * 2.6, "glass", "glass")]
+        else:
+            parts.append(_leaf_box(0.0, 0.0, lw, lh, leaf_t))
+        if style == "shaker_panel":
+            f = min(DOOR_PANEL_FRAME_M, lw * 0.2)
+            for s in (-1, 1):
+                y = s * (leaf_t / 2.0 + DOOR_PANEL_PROUD_M / 2.0)
+                parts += [_box(-(lw / 2.0 - f / 2.0), y, 0.0, f, DOOR_PANEL_PROUD_M, lh, "leaf", "panel"),
+                          _box(lw / 2.0 - f / 2.0, y, 0.0, f, DOOR_PANEL_PROUD_M, lh, "leaf", "panel"),
+                          _box(0.0, y, 0.0, lw - 2 * f, DOOR_PANEL_PROUD_M, f * 1.5, "leaf", "panel"),
+                          _box(0.0, y, lh * 0.5 - f / 2.0, lw - 2 * f, DOOR_PANEL_PROUD_M, f, "leaf", "panel"),
+                          _box(0.0, y, lh - f, lw - 2 * f, DOOR_PANEL_PROUD_M, f, "leaf", "panel")]
+        if style == "entrance":
+            for z in (lh * 0.3, lh * 0.5, lh * 0.7):
+                for s in (-1, 1):
+                    parts.append(_box(0.0, s * (leaf_t / 2.0 + 0.002), z, lw - 0.16, 0.004, 0.012, "frame", "groove"))
+            for s in (-1, 1):                                            # a long bar pull on both faces
+                parts.append(_box(lw / 2.0 - 0.1, s * (leaf_t / 2.0 + 0.04), lever_z - 0.4, 0.025, 0.025, 0.8,
+                                  "handle", "handle"))
+        elif style == "pocket":
+            for s in (-1, 1):                                            # recessed flush pulls
+                parts.append(_box(lw / 2.0 - 0.06, s * (leaf_t / 2.0 + 0.001), lever_z - 0.08, 0.03, 0.002, 0.16,
+                                  "handle", "handle"))
+        else:
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, leaf_t)
+    elif style in ("double", "folding"):
+        half = lw / 2.0 - 0.002
+        for s in (-1, 1):
+            parts.append(_leaf_box(s * (half / 2.0 + 0.001), 0.0, half, lh, DOOR_LEAF_T))
+        if style == "double":
+            for s in (-1, 1):
+                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T)
+        else:
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T)
+    else:                                                                # sliding / barn: on the room face
+        sw = w + 2 * SLIDING_OVERLAP_M
+        sh = h + 0.02
+        y = side * (t / 2.0 + SLIDING_STANDOFF_M + DOOR_LEAF_T / 2.0)
+        if style == "barn":
+            n = max(3, int(sw / 0.16))
+            pw = sw / n
+            for i in range(n):
+                parts.append(_box(-sw / 2.0 + pw * (i + 0.5), y, 0.0, pw - 0.004, DOOR_LEAF_T, sh, "leaf", "leaf"))
+            for z in (0.15, sh - 0.3):                                   # the ledges
+                parts.append(_box(0.0, y + side * (DOOR_LEAF_T / 2.0 + 0.01), z, sw - 0.04, 0.02, 0.15, "leaf",
+                                  "ledge"))
+        else:
+            parts.append(_box(0.0, y, 0.0, sw, DOOR_LEAF_T, sh, "leaf", "leaf"))
+        rail_y = side * (t / 2.0 + 0.02)
+        parts.append(_box(w / 2.0 - 0.05, rail_y, sh + 0.02, 2.0 * sw, 0.02, RAIL_H, "rail", "rail"))
+        parts.append(_box(-sw / 2.0 + 0.08, y + side * (DOOR_LEAF_T / 2.0 + 0.01), lever_z - 0.15, 0.03, 0.02, 0.3,
+                          "handle", "handle"))
+    record = {"door_style": style, "leaf_thickness": leaf_t, "frame_width": None if surface else frame_w,
+              "surface_mounted": surface, "side": side if surface else None,
+              "parts": sorted({p["role"] for p in parts})}
+    return parts, record
+
+
+def window_profile(material: str | None) -> tuple[float, float]:
+    """``(frame width, frame depth)`` of a window frame material (``WINDOW_PROFILES``, assumed typical sizes)."""
+    return WINDOW_PROFILES.get(str(material or ""), DEFAULT_WINDOW_PROFILE)
+
+
+def window_parts(look: dict | None, width: float, height: float, wall_thickness: float, mullions: int = 0,
+                 transoms: int = 0, inside: int = -1) -> tuple[list[Part], dict]:
+    """``(parts, record)`` of a window in the opening's frame: the frame (the material's profile), ``mullions``
+    vertical and ``transoms`` horizontal bars when the building gives them (none otherwise), the glass pane(s)
+    and an inside sill on the room side (``inside``: -1 / +1, the y side of the room; the outside sill is the
+    shell's). Profiles: ``window_profile``."""
+    fw, depth = window_profile((look or {}).get("material"))
+    w, h = float(width), float(height)
+    depth = min(depth, float(wall_thickness))
+    parts = [_box(-(w / 2.0 - fw / 2.0), 0.0, 0.0, fw, depth, h, "frame", "frame"),
+             _box(w / 2.0 - fw / 2.0, 0.0, 0.0, fw, depth, h, "frame", "frame"),
+             _box(0.0, 0.0, h - fw, w - 2 * fw, depth, fw, "frame", "frame"),
+             _box(0.0, 0.0, 0.0, w - 2 * fw, depth, fw, "frame", "frame")]
+    m, tr = max(0, int(mullions or 0)), max(0, int(transoms or 0))
+    for i in range(1, m + 1):
+        x = -w / 2.0 + fw + (w - 2 * fw) * i / (m + 1)
+        parts.append(_box(x, 0.0, fw, MULLION_W, depth * 0.9, h - 2 * fw, "frame", "mullion"))
+    for j in range(1, tr + 1):
+        z = fw + (h - 2 * fw) * j / (tr + 1)
+        parts.append(_box(0.0, 0.0, z - MULLION_W / 2.0, w - 2 * fw, depth * 0.9, MULLION_W, "frame", "transom"))
+    parts.append(_box(0.0, 0.0, fw, w - 2 * fw, 0.006, h - 2 * fw, "glass", "glass"))
+    s = -1.0 if inside < 0 else 1.0
+    t = float(wall_thickness)
+    proud = INSIDE_SILL["depth_proud"]
+    sill_d = t / 2.0 - depth / 2.0 + proud
+    parts.append(_box(0.0, s * (depth / 2.0 + sill_d / 2.0), -INSIDE_SILL["thickness"], w + 2 * INSIDE_SILL["ears"],
+                      sill_d, INSIDE_SILL["thickness"], "sill", "sill"))
+    record = {"material": (look or {}).get("material"), "frame_width": fw, "frame_depth": depth, "mullions": m,
+              "transoms": tr, "inside_sill": {"depth": round(sill_d, 4), "proud": proud,
+                                              "thickness": INSIDE_SILL["thickness"]},
+              "profile_assumed": True}
+    return parts, record
+
+
+# --------------------------------------------------------------------------
+# Milestone 10 decor (docs/milestone10.md §4.6): parametric fallbacks of the 12 new types
+# --------------------------------------------------------------------------
+#
+# Item frame as every decor item: width X, depth Y, front = local -Y (curtains, blinds and clocks face the room
+# with it; their back is +Y, on the wall side), origin at the box centre on its rest height. Keys starting with
+# ``colour_`` take the item's colour name (``decor.colour``: the brief's or the AI's) as the base colour of their
+# material (``furniture._Materials``); ``pot`` takes the plant's pot material and colour; ``bulb`` emits when the
+# item's ``light_on`` is true (the interior evening mood).
+
+COLOUR_PREFIX = "colour_"
+CURTAIN_PANEL_SHARE = 0.22       # each curtain panel covers this share of the rod width (open curtains)
+CURTAIN_PLEATS = 5
+BLIND_DOWN_SHARE = 0.35          # a roller blind is drawn down this share of its window (decor_ai sizes its box)
+PLANT_SPECIES: tuple[str, ...] = ("palm", "monstera", "fiddle_leaf_fig", "olive", "fern", "other")
+PLANT_POT_SHARE = 0.55           # pot diameter / the smaller side of the item box
+LIGHT_TYPES: tuple[str, ...] = ("pendant_light", "ceiling_light", "table_lamp")
+
+
+def _cylinder_x(x0: float, cy: float, cz: float, ry: float, rz: float, length: float, key: str, role: str = "body",
+                n: int = 16) -> Part:
+    """Elliptic cylinder along +X from ``x0`` to ``x0 + length`` (a turned Z cylinder: (x, y, z) -> (z, y, -x),
+    a proper rotation, so the faces stay wound outwards)."""
+    part = _cylinder_z(0.0, 0.0, 0.0, rz, ry, length, key, role, n)
+    part["verts"] = [(x0 + z, cy + y, cz - x) for x, y, z in part["verts"]]
+    return part
+
+
+def _leaf(bx: float, by: float, bz: float, length: float, width: float, thick: float, yaw_deg: float,
+          pitch_deg: float, key: str = "green", role: str = "leaf") -> Part:
+    """A flat leaf (a superellipsoid ``width x length x thick``) from the point ``(bx, by, bz)`` outwards along the
+    direction ``yaw_deg`` (counter-clockwise from +Y), raised by ``pitch_deg`` (negative: drooping)."""
+    part = _superellipsoid(0.0, length / 2.0, -thick / 2.0, width, length, thick, 0.5, 0.6, key, role, n_eta=6, n_om=12)
+    p, yw = math.radians(pitch_deg), math.radians(yaw_deg)
+    cp, sp, cy, sy = math.cos(p), math.sin(p), math.cos(yw), math.sin(yw)
+    verts = []
+    for x, y, z in part["verts"]:
+        y1, z1 = y * cp - z * sp, y * sp + z * cp
+        verts.append((bx + x * cy - y1 * sy, by + x * sy + y1 * cy, bz + z1))
+    part["verts"] = verts
+    part["smooth"] = True
+    return part
+
+
+def _leaf_length(reach: float, pitch_deg: float, room_above: float) -> float:
+    """The longest leaf that stays within ``reach`` sideways and ``room_above`` upwards at ``pitch_deg``."""
+    p = math.radians(pitch_deg)
+    out = reach / max(math.cos(p), 0.2)
+    if p > 0:
+        out = min(out, room_above / max(math.sin(p), 1e-3))
+    return max(0.05, out)
+
+
+def _pot(w: float, d: float, h: float) -> tuple[list[Part], float, float]:
+    """``(parts, pot top, crown radius)``: a tapered pot (key ``pot``) with soil."""
+    r = min(w, d) / 2.0
+    pr = r * PLANT_POT_SHARE
+    pot_h = min(0.45, max(0.2, h * 0.22))
+    parts = [_frustum_z(0.0, 0.0, 0.0, pr * 0.78, pr * 0.78, pr, pr, pot_h, "pot", "pot"),
+             _cylinder_z(0.0, 0.0, pot_h - 0.015, pr * 0.92, pr * 0.92, 0.012, "dark", "soil", n=24)]
+    return parts, pot_h, r
+
+
+def _plant_large(w: float, d: float, h: float, species: str | None = None) -> list[Part]:
+    """A large floor plant (``plant_large``) of its species (docs/milestone10.md §4.6: palm, monstera,
+    fiddle-leaf fig, olive, fern; anything else a plain crown) in a pot, inside its ``w x d x h`` box."""
+    parts, top, r = _pot(w, d, h)
+    reach = r - 0.01
+    crown_h = h - top
+    sp = species if species in PLANT_SPECIES else "other"
+    if sp == "palm":
+        for k, (dx, dy, f) in enumerate(((0.03, 0.0, 0.75), (-0.025, 0.02, 0.9), (0.0, -0.03, 1.0))):
+            stem_top = top + crown_h * 0.55 * f
+            parts.append(_cylinder_z(dx, dy, top - 0.01, 0.012, 0.012, stem_top - top + 0.01, "wood", "stem", n=8))
+            for j in range(6):
+                pitch = 35.0 if j % 2 == 0 else -5.0
+                length = _leaf_length(reach - math.hypot(dx, dy), pitch, h - stem_top - 0.02)
+                parts.append(_leaf(dx, dy, stem_top, length, length * 0.16, 0.01, 60.0 * j + 20.0 * k, pitch))
+    elif sp == "monstera":
+        for j in range(7):
+            base = top + crown_h * (0.15 + 0.07 * j)
+            yaw = 51.4 * j
+            off = (-0.04 * math.sin(math.radians(yaw)), 0.04 * math.cos(math.radians(yaw)))
+            parts.append(_cylinder_z(off[0] * 0.5, off[1] * 0.5, top - 0.01, 0.008, 0.008, base - top + 0.01, "green",
+                                     "stem", n=6))
+            length = min(_leaf_length(reach - 0.04, 20.0, h - base - 0.02), 0.5)
+            parts.append(_leaf(off[0], off[1], base, length, length * 0.8, 0.012, yaw, 20.0))
+    elif sp == "fiddle_leaf_fig":
+        trunk_top = top + crown_h * 0.95
+        parts.append(_cylinder_z(0.0, 0.0, top - 0.01, 0.018, 0.018, trunk_top - top, "wood", "trunk", n=10))
+        n = 14
+        for j in range(n):
+            base = top + crown_h * (0.4 + 0.5 * j / n)
+            length = min(_leaf_length(reach - 0.02, 35.0, h - base - 0.02), 0.28)
+            parts.append(_leaf(0.0, 0.0, base, length, length * 0.6, 0.01, 137.5 * j, 35.0))
+    elif sp == "olive":
+        trunk_top = top + crown_h * 0.45
+        parts.append(_cylinder_z(0.0, 0.0, top - 0.01, 0.025, 0.025, trunk_top - top + 0.05, "wood", "trunk", n=10))
+        blob = min(reach * 1.1, crown_h * 0.45)
+        for j, (dx, dy, dz) in enumerate(((0.0, 0.0, 0.25), (reach * 0.35, 0.0, 0.0), (-reach * 0.3, reach * 0.2, 0.1))):
+            bw = min(blob, 2 * (reach - abs(dx)), 2 * (reach - abs(dy)))
+            z0 = min(trunk_top + dz * crown_h * 0.3, h - bw * 0.8)
+            parts.append(_superellipsoid(dx, dy, z0, bw, bw, bw * 0.8, 0.9, 0.9, "green", "crown", n_eta=8, n_om=16))
+    elif sp == "fern":
+        for j in range(12):
+            pitch = 25.0 if j % 2 == 0 else -12.0
+            length = _leaf_length(reach, pitch, h - top - 0.02)
+            parts.append(_leaf(0.0, 0.0, top + 0.02, length, length * 0.3, 0.01, 30.0 * j, pitch))
+    else:
+        parts += [_cylinder_z(0.0, 0.0, top, 0.015, 0.015, crown_h * 0.4, "wood", "stem", n=8),
+                  _cylinder_z(0.0, 0.0, top + crown_h * 0.35, reach, reach, crown_h * 0.65, "green", "crown", n=16)]
+    return parts
+
+
+def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
+    """The parametric fallback of a Milestone 10 decor type (``decor_parts``)."""
+    r = min(w, d) / 2.0
+    if dtype == "curtain":                    # an open pair of pleated panels under a rod
+        parts = [_cylinder_x(-w / 2.0, 0.0, h - 0.02, 0.012, 0.012, w, "steel", "rod", n=12)]
+        pw = w * CURTAIN_PANEL_SHARE
+        k = CURTAIN_PLEATS
+        bw = pw / k
+        for sx in (-1, 1):
+            x0 = sx * (w / 2.0) - (pw if sx > 0 else 0.0)
+            for i in range(k):
+                y = (d / 4.0) * (1 if i % 2 == 0 else -1)
+                parts.append(_box(x0 + bw * (i + 0.5), y, 0.0, bw, d / 2.0, h - 0.05, "colour_fabric",
+                                  "panel"))
+        return parts
+    if dtype == "blind":                      # a roller blind drawn down to its box's bottom: roller, panel, bar
+        tube = min(0.03, d / 2.0, h / 4.0)
+        bar = min(0.02, h / 8.0)
+        return [_cylinder_x(-w / 2.0, 0.0, h - tube, tube, tube, w, "colour_fabric", "roller", n=16),
+                _box(0.0, -tube * 0.4, bar, w - 0.02, 0.004, h - tube - bar, "colour_fabric", "panel"),
+                _box(0.0, -tube * 0.4, 0.0, w - 0.02, min(0.012, d), bar, "dark", "bar")]
+    if dtype == "throw":                      # a draped blanket and its folded edge
+        return [_superellipsoid(0.0, 0.0, 0.0, w, d, h, 0.2, 0.08, "colour_fabric", "throw", n_eta=10, n_om=32),
+                _superellipsoid(0.0, -d / 2.0 + d * 0.12, h * 0.4, w * 0.98, d * 0.22, h * 0.6, 0.3, 0.1,
+                                "colour_fabric", "fold", n_om=24)]
+    if dtype == "books":                      # a stack of three books lying flat
+        keys = ("dark", "painted", "terracotta")
+        parts, z = [], 0.0
+        bh = h / 3.0
+        for i in range(3):
+            s = 1.0 - 0.08 * i
+            parts.append(_box(0.01 * (i % 2), 0.0, z, w * s, d * s, bh - 0.002, keys[i], "book"))
+            z += bh
+        return parts
+    if dtype == "candle":                     # three pillar candles on a plate, a flame each (lit at evening)
+        rr = r * 0.32
+        plate = 0.012
+        parts = [_cylinder_z(0.0, 0.0, 0.0, w / 2.0, d / 2.0, plate, "colour_ceramic", "plate", n=24)]
+        for (dx, dy), f in zip(((-w * 0.22, -d * 0.12), (w * 0.2, -d * 0.1), (0.0, d * 0.22)), (1.0, 0.75, 0.55)):
+            ch = (h - plate - 0.03) * f
+            parts.append(_cylinder_z(dx, dy, plate, rr, rr, ch, "ceramic", "candle", n=16))
+            parts.append(_superellipsoid(dx, dy, plate + ch + 0.004, 0.01, 0.01, 0.022, 0.8, 1.0, "bulb", "flame",
+                                         n_eta=6, n_om=8))
+        return parts
+    if dtype == "basket":                     # a woven basket, its open top shown dark
+        return [_frustum_z(0.0, 0.0, 0.0, w / 2.0 * 0.85, d / 2.0 * 0.85, w / 2.0, d / 2.0, h * 0.98, "rattan", "body"),
+                _cylinder_z(0.0, 0.0, h * 0.98, w / 2.0 * 0.9, d / 2.0 * 0.9, h * 0.02, "dark", "inside", n=24)]
+    if dtype == "tray":                       # a flat tray with low rims
+        t, rim = 0.008, min(0.012, w * 0.05, d * 0.05)
+        return [_box(0.0, 0.0, 0.0, w, d, t, "colour_wood", "base"),
+                _box(0.0, -d / 2.0 + rim / 2.0, t, w, rim, h - t, "colour_wood", "rim"),
+                _box(0.0, d / 2.0 - rim / 2.0, t, w, rim, h - t, "colour_wood", "rim"),
+                _box(-w / 2.0 + rim / 2.0, 0.0, t, rim, d - 2 * rim, h - t, "colour_wood", "rim"),
+                _box(w / 2.0 - rim / 2.0, 0.0, t, rim, d - 2 * rim, h - t, "colour_wood", "rim")]
+    if dtype == "clock":                      # a wall clock facing -Y: rim, face, hands
+        cr = min(w, h) / 2.0
+        hands = min(0.006, d / 4.0)
+        face = min(0.01, d / 4.0)
+        y0 = -d / 2.0 + hands                       # the face sits behind the hands
+        parts = [_cylinder_y(0.0, y0 + face, cr, cr, cr, d - hands - face, "colour_steel", "rim", n=40),
+                 _cylinder_y(0.0, y0, cr, cr * 0.9, cr * 0.9, face, "ceramic", "face", n=40)]
+        parts.append(_box(0.0, -d / 2.0 + hands * 0.75, cr - 0.005, cr * 0.55, hands / 2.0, 0.01, "dark", "hand"))
+        parts.append(_box(0.0, -d / 2.0 + hands * 0.25, cr, 0.008, hands / 2.0, cr * 0.75, "dark", "hand"))
+        return parts
+    if dtype == "sculpture":                  # an abstract piece: stacked smooth forms on a plinth
+        base_h = min(0.05, h * 0.12)
+        parts = [_box(0.0, 0.0, 0.0, w * 0.8, d * 0.8, base_h, "dark", "base")]
+        z, s = base_h, 1.0
+        for i in range(3):
+            bh = (h - base_h) * (0.45 if i == 0 else 0.3 if i == 1 else 0.25)
+            parts.append(_superellipsoid(0.0, 0.0, z, w * 0.7 * s, d * 0.7 * s, bh, 0.8, 0.9, "colour_ceramic", "form",
+                                         n_eta=8, n_om=20))
+            z += bh
+            s *= 0.75
+        return parts
+    if dtype == "plant_large":
+        return _plant_large(w, d, h, (item or {}).get("species"))
+    if dtype == "pendant_light":              # a ceiling canopy, a cord and a cone shade with its bulb
+        shade_h = min(0.3, h * 0.6)
+        canopy = min(0.06, r)
+        parts = [_cylinder_z(0.0, 0.0, h - 0.025, canopy, canopy, 0.025, "colour_steel", "canopy", n=16),
+                 _cylinder_z(0.0, 0.0, shade_h, 0.004, 0.004, h - 0.025 - shade_h, "dark", "cord", n=6),
+                 _frustum_z(0.0, 0.0, 0.0, w / 2.0, d / 2.0, w * 0.12, d * 0.12, shade_h, "colour_steel", "shade")]
+        bulb = min(0.06, r * 0.4)
+        parts.append(_superellipsoid(0.0, 0.0, 0.01, bulb, bulb, bulb, 1.0, 1.0, "bulb", "bulb", n_eta=6, n_om=12))
+        return parts
+    if dtype == "ceiling_light":              # a flush canopy with a dome diffuser
+        canopy = min(0.03, h * 0.3)
+        return [_cylinder_z(0.0, 0.0, h - canopy, w / 2.0 * 0.8, d / 2.0 * 0.8, canopy, "colour_steel", "canopy",
+                            n=32),
+                _superellipsoid(0.0, 0.0, 0.0, w, d, h - canopy + 0.004, 0.6, 1.0, "bulb", "bulb", n_eta=8, n_om=32)]
+    raise KeyError(f"no decor builder for {dtype!r}")
+
+
 _BUILDERS = {
     "bed": _bed, "bed_single": _bed, "bed_double": _bed,
     "sofa": _sofa, "armchair": lambda w, d, h: _sofa(w, d, h, cushions=1),
-    "table_dining": _table, "table_coffee": _table, "desk": lambda w, d, h: _table(w, d, h, desk=True),
-    "chair": _chair, "wardrobe": _wardrobe, "dresser": _drawers, "nightstand": _drawers, "tv_unit": _tv_unit,
-    "bookshelf": _bookshelf, "kitchen_counter": _counter, "kitchen_island": lambda w, d, h: _counter(w, d, h, True),
-    "fridge": _fridge, "stove": _stove, "sink_kitchen": _sink, "washbasin": _washbasin, "toilet": _toilet,
+    "table_dining": _table_m10, "table_coffee": _table_m10,
+    "desk": lambda w, d, h, piece=None: _table_m10(w, d, h, piece, desk=True),
+    "chair": _chair, "wardrobe": _wardrobe_m10, "dresser": _drawers, "nightstand": _drawers, "tv_unit": _tv_unit,
+    "bookshelf": _bookshelf, "kitchen_counter": _counter_m10,
+    "kitchen_island": lambda w, d, h, piece=None: _counter_m10(w, d, h, True, piece),
+    "fridge": _fridge, "stove": _stove, "sink_kitchen": _sink, "washbasin": _washbasin_m10, "toilet": _toilet,
     "shower": _shower, "bathtub": _bathtub, "washing_machine": _washing_machine,
     "stair": _stair, "side_table": _side_table, "floor_lamp": _floor_lamp, "potted_plant": _potted_plant,
+    # Milestone 10 (docs/milestone10.md §1.1, §4.4, §4.5)
+    "sofa_corner": _sofa_corner, "chaise": _chaise, "ottoman": _ottoman, "bench": _bench, "bar_stool": _bar_stool,
+    "office_chair": _office_chair, "console_table": _console_table, "crib": _crib, "bunk_bed": _bunk_bed,
+    "sideboard": _sideboard, "shoe_cabinet": _shoe_cabinet, "display_cabinet": _display_cabinet,
+    "tall_cabinet": _tall_cabinet, "wall_cabinet": _wall_cabinet,
 }
-# Builders that read the piece itself (drawn flights, round shape); the others take only the box.
-_PIECE_BUILDERS = ("stair", "side_table")
+# Builders that read the piece itself (drawn flights, round shape; Milestone 10: the design, the L shape); the
+# others take only the box.
+_PIECE_BUILDERS = ("stair", "side_table", "table_dining", "table_coffee", "desk", "wardrobe", "kitchen_counter",
+                   "kitchen_island", "washbasin", "sofa_corner", "console_table", "sideboard", "shoe_cabinet",
+                   "display_cabinet", "tall_cabinet", "wall_cabinet")
 
 
 def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
@@ -1183,7 +2118,11 @@ def decor_size(dtype: str, size) -> tuple[float, float, float]:
     return tuple(min(DECOR_MAX_M, max(0.02, v)) for v in (w, d, h))
 
 
-def decor_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
+def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
+    """Parts of a parametric decor item of box ``w x d x h`` (``item``: the decor entry, read for a large
+    plant's species)."""
+    if dtype in _NEW_DECOR:
+        return _new_decor_parts(dtype, w, d, h, item)
     if dtype == "cushion":
         return [_box(0.0, 0.0, 0.0, w, d, h, "fabric", "body")]
     if dtype == "book_set":
@@ -1239,9 +2178,13 @@ def decor_rest_height(host_type: str | None, host_height: float, dtype: str,
     item rests on the bedding top (``bedding_top``: the soft pillows rise
     above the type height, docs/milestone6.md §5 row 8); without
     ``host_size`` (a library bed, a proxy) on the type height as before."""
-    if dtype in ("plant", "mirror") or not host_type:
+    if dtype in ("plant", "mirror", "plant_large") or not host_type:
         return 0.0
-    if host_type in ("sofa", "armchair"):
+    if dtype == "throw" and host_type in BED_TYPES and host_size is not None:
+        return round(bedding_top(float(host_size[0]), float(host_size[1]), float(host_height)) - 0.03, 4)
+    if dtype == "throw" and host_type in SEAT_HOST_TYPES:
+        return sofa_seat_height(host_height)
+    if host_type in SEAT_HOST_TYPES:
         return sofa_seat_height(host_height) if dtype == "cushion" else host_height
     if host_type == "bookshelf":
         shelves = shelf_heights(host_height)
@@ -1260,7 +2203,7 @@ def part_bevel_radius(part: Part) -> float:
     and glass, ``BEVEL_SOFT_KEYS`` for fabric and bedding, else
     ``BEVEL_BY_ROLE`` / ``BEVEL_BY_KEY`` / ``BEVEL_DEFAULT_M``; never more
     than a third of the part's smallest side (nor ``BEVEL_WIDTH_M``)."""
-    if part.get("smooth") or part["key"] == "glass":
+    if part.get("smooth") or part["key"] in ("glass", "bulb"):
         return 0.0
     key, role = part["key"], part["role"]
     if key in BEVEL_SOFT_KEYS:

@@ -23,7 +23,8 @@ import pytest
 from wenart.blender import cameras, cli, geom2d, schemas
 from wenart.blender import furniture as F
 from wenart.blender import parametric as P
-from wenart.blender.proxies import PROXY_HEIGHTS, proxy_height
+from wenart.blender.proxies import PROXY_HEIGHTS, mount_bottom, proxy_height
+from wenart.furniture import schemas as SC
 from wenart.synthetic.blocks import BLOCKS
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +39,8 @@ SIZES = {t: (w, d) for _, (t, w, d) in BLOCKS.items()}
 SIZES.update({"bed": (1.4, 2.0), "kitchen_island": (1.8, 0.9),
               # Milestone 7 documented-only types (docs/milestone7.md §6.4; furniture size table defaults)
               "stair": (1.0, 3.0), "side_table": (0.45, 0.45), "floor_lamp": (0.4, 0.4), "potted_plant": (0.4, 0.4)})
+# Milestone 10 types (docs/milestone10.md §1.1): the default size options of wenart/furniture/schemas.py.
+SIZES.update({t: SC.SIZE_OPTIONS[t][SC.DEFAULT_SIZE_INDEX] for t in P.PARAMETRIC_TYPES if t not in SIZES})
 
 
 # --------------------------------------------------------------------------
@@ -91,6 +94,14 @@ def test_every_type_has_a_recognisable_parametric_mesh(ftype):
         # Milestone 7 (docs/milestone7.md §6.4)
         "stair": {"step", "riser", "rail"}, "side_table": {"top", "leg"}, "floor_lamp": {"base", "pole", "shade"},
         "potted_plant": {"pot", "crown"},
+        # Milestone 10 (docs/milestone10.md §4.4, §4.5)
+        "sofa_corner": {"back", "arm", "cushion", "body"}, "chaise": {"back", "arm", "cushion"},
+        "ottoman": {"body", "cushion", "leg"}, "bench": {"top", "cushion", "leg"}, "bar_stool": {"top", "leg", "rest"},
+        "office_chair": {"base", "castor", "pole", "cushion", "back", "arm"}, "console_table": {"top", "leg", "shelf"},
+        "crib": {"post", "rail", "slat", "mattress"}, "bunk_bed": {"post", "rail", "mattress", "ladder"},
+        "sideboard": {"top", "leg", "front", "handle"}, "shoe_cabinet": {"plinth", "front", "handle"},
+        "display_cabinet": {"shelf", "front", "handle", "back"}, "tall_cabinet": {"plinth", "front", "handle"},
+        "wall_cabinet": {"body", "front", "handle"},
     }[ftype]
     assert expected <= roles, (ftype, roles)
     if ftype == "sofa":
@@ -608,7 +619,9 @@ def test_parametric_pieces_sit_on_their_footprints(scene):
         bx, by, bz = e["bbox_m"]
         assert abs(bx - fp["size"][0]) <= 0.01 and abs(by - fp["size"][1]) <= 0.01 and bz >= e["size"][2] - 0.02
         (x0, x1), (y0, y1), (z0, z1) = ob["bounds"]
-        assert z0 == pytest.approx(0.0, abs=1e-4) and z1 == pytest.approx(bz, abs=1e-4)
+        base = mount_bottom(piece)[0]                   # Milestone 10: a wall cabinet hangs at 1.45 m (rule)
+        assert z0 == pytest.approx(base, abs=1e-4) and z1 == pytest.approx(base + bz, abs=1e-4)
+        assert e.get("mount_bottom_m", 0.0) == pytest.approx(base)
         rad = math.radians(fp["rotation_deg"])
         ext_x = abs(bx * math.cos(rad)) + abs(by * math.sin(rad))
         ext_y = abs(bx * math.sin(rad)) + abs(by * math.cos(rad))

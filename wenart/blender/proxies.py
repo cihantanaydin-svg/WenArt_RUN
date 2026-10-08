@@ -31,7 +31,26 @@ PROXY_HEIGHTS: dict[str, float] = {
     # (the default ceiling 2.70 m of wenart/defaults.yaml + the assumed 0.15 m slab; the scene builder
     # uses the level's own ceiling), the others as wenart.furniture.schemas.HEIGHTS.
     "stair": 2.85, "side_table": 0.55, "floor_lamp": 1.6, "potted_plant": 1.0,
+    # Milestone 10 (docs/milestone10.md §1.1): the 14 new types, wenart.furniture.schemas.HEIGHTS (typical
+    # catalogue heights, assumed); a wall cabinet's own height, hung at its ``mount_bottom_m``.
+    "sofa_corner": 0.85, "chaise": 0.8, "ottoman": 0.45, "bench": 0.45, "bar_stool": 0.75, "office_chair": 1.0,
+    "console_table": 0.8, "crib": 0.9, "bunk_bed": 1.65, "sideboard": 0.8, "shoe_cabinet": 1.0,
+    "display_cabinet": 1.9, "tall_cabinet": 2.1, "wall_cabinet": 0.7,
 }
+# Milestone 10: wall-hung types stand ``furniture.mount_bottom_m`` above the floor (the §4.4 rule: 1.45 m).
+MOUNTED_TYPES: tuple[str, ...] = ("wall_cabinet",)
+DEFAULT_MOUNT_BOTTOM_M = 1.45
+
+
+def mount_bottom(piece: dict) -> tuple[float, bool]:
+    """``(height of the piece's bottom above the floor, assumed)``: ``mount_bottom_m`` of a wall-hung piece, the
+    rule's 1.45 m (assumed) for a wall cabinet without one, 0 for a piece that stands on the floor."""
+    value = piece.get("mount_bottom_m")
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0:
+        return float(value), False
+    if piece.get("type") in MOUNTED_TYPES:
+        return DEFAULT_MOUNT_BOTTOM_M, True
+    return 0.0, False
 
 # Types rendered with a glass look instead of the grey proxy material.
 GLASS_LOOK = {"shower"}
@@ -82,6 +101,8 @@ def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0) -> dict:
     height, assumed = proxy_height(piece["type"], piece.get("height"))
     height += lift
     cx, cy = float(fp["center"][0]), float(fp["center"][1])
+    base, _ = mount_bottom(piece)              # Milestone 10: a wall cabinet hangs above the floor
+    floor_z = floor_z + base
     cz = floor_z + height / 2.0
     box = geom2d.box((cx, cy, cz), (w, d, height), rot)
 
@@ -108,7 +129,7 @@ def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0) -> dict:
     return {
         "box": box, "wedge": wedge, "height": height, "height_assumed": assumed,
         "center": [cx, cy, cz], "size": [w, d, height], "rotation_deg": rot,
-        "front_deg": None if front is None else float(front),
+        "front_deg": None if front is None else float(front), "mount_bottom_m": base,
     }
 
 

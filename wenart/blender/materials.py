@@ -42,6 +42,23 @@ Milestone 6 (docs/milestone6.md §5):
 - the furniture slugs have albedo modes too (the dyed linen photo in flat
   mode), and ``vocabulary.METALLIC`` sets the Principled Metallic (steel 1).
 
+Milestone 10 (docs/milestone10.md §4.2-§4.8, track F):
+
+- ``MaterialLibrary.get(..., colour=, params=)``: a colour phrase of ``wenart/style/colours.py`` ("warm greige")
+  sets the base colour of a slug that takes one (``colourable``: flat albedo mode and procedural looks unless the
+  vocabulary says ``colourable: False``; a material without a texture always), the record says when it was not
+  applied; ``params`` override a procedural look's vocabulary ``params`` (the wet walls' tile size, pattern and
+  grout colour);
+- procedural looks of the vocabulary (``source: procedural``) are node groups, no file: ``wenart_tiles_<pattern>``
+  (running bond and grid on a Brick Texture, hexagons from two lattices; tile size, grout width and colour, a
+  per-tile colour spread), ``wenart_wallpaper_<pattern>`` (stripe, check, geometric, herringbone, botanical,
+  grasscloth: the colour and its ``dark`` ink), ``wenart_slats`` and ``wenart_standing_seam``; a procedural entry
+  without a group (``procedural: None``: window-frame metals, PVC) is a plain Principled material; ``tiles_*`` slugs
+  with an image asset that is missing keep the Milestone 6 glazed tiles;
+- ``exterior_material(library, slug, colour=None)`` (the outside looks, §4.8) and ``light_material`` (lit lamp
+  parts of the interior evening mood);
+- the world strength of the four new moods comes from the vocabulary's ``hdri_strength``.
+
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
 Glass BSDF inputs 'Color', 'Roughness', 'IOR'; Glossy BSDF (ShaderNodeBsdfAnisotropic) 'Color', 'Roughness';
@@ -52,9 +69,15 @@ MULTIPLY_ADD, MAXIMUM); Vector Math inputs 'Vector', 'Vector_001', 'Scale'
 'MULTIPLE_SCATTERING' with sun_elevation / sun_rotation (radians); Brick
 Texture inputs 'Vector', 'Color1', 'Color2', 'Mortar', 'Scale', 'Mortar Size',
 'Mortar Smooth', 'Bias', 'Brick Width', 'Row Height', outputs 'Color' and
+Brick Texture inputs 'Vector', 'Color1', 'Color2', 'Mortar', 'Scale', 'Mortar Size',
 'Factor' (identifier 'Fac'), properties offset / offset_frequency / squash /
 squash_frequency; node groups through ``NodeTree.interface.new_socket(name,
-in_out=..., socket_type=...)``.
+in_out=..., socket_type=...)``. Milestone 10: Vector Math WRAP (inputs 0 value, 1 max, 2 min), DOT_PRODUCT
+(output 'Value'), ABSOLUTE; Mix (data_type VECTOR / RGBA; identifiers 'Factor_Float', 'A_Vector', 'B_Vector',
+'A_Color', 'B_Color', 'Result_Vector', 'Result_Color'); White Noise 'Vector' -> 'Value'; Voronoi 'Vector', 'Scale'
+-> 'Distance'; Noise 'Vector', 'Scale', 'Detail' -> 'Fac'; Separate / Combine XYZ; Bump 'Strength', 'Distance',
+'Height' -> 'Normal'; Math FRACT, FLOOR, FLOORED_MODULO, LESS_THAN, GREATER_THAN, ABSOLUTE; Emission 'Color',
+'Strength'.
 """
 from __future__ import annotations
 
@@ -96,6 +119,23 @@ def _vocabulary_tables() -> tuple[dict, dict, dict, dict, dict, str | None]:
 
 
 _FLAT, _ROUGH, _MODES, _METALLIC, _TILES, VOCABULARY_IMPORT_ERROR = _vocabulary_tables()
+
+
+def _vocabulary_entries() -> tuple[dict, dict]:
+    """``({slug: {asset, source, procedural, params, colourable}}, {mood: hdri_strength})`` of the vocabulary
+    (Milestone 10); empty when it cannot be imported (``VOCABULARY_IMPORT_ERROR`` says why)."""
+    try:
+        from wenart.style import vocabulary as V
+        entries = {}
+        for slug, e in list(V.MATERIALS.items()) + list(V.FURNITURE_MATERIALS.items()):
+            entries[slug] = {k: e[k] for k in ("asset", "source", "procedural", "params", "colourable") if k in e}
+        strength = {mood: float(e["hdri_strength"]) for mood, e in V.LIGHTING.items() if "hdri_strength" in e}
+    except Exception:  # noqa: BLE001 - see _vocabulary_tables
+        return {}, {}
+    return entries, strength
+
+
+ENTRIES, _MOOD_HDRI_STRENGTH = _vocabulary_entries()
 FLAT_COLOURS: dict[str, tuple[float, float, float]] = {**_LOCAL_FLAT_COLOURS, **_FLAT}
 ROUGHNESS: dict[str, float] = {**_LOCAL_ROUGHNESS, **_ROUGH}
 # The local plaster_exterior is a plaster too: flat mode with half the detail
@@ -131,11 +171,18 @@ def metallic(slug: str) -> float:
 
 
 def procedural_for(slug: str, has_texture: bool, use_textures: bool) -> str | None:
-    """``"glazed_tiles"`` for a ``tiles_*`` slug without an image texture set
-    while textures are on (docs/milestone6.md §5 row 4), else None."""
-    if has_texture or not use_textures or not str(slug).startswith(PROCEDURAL_TILE_PREFIX):
+    """The procedural look of a slug without an image texture set while textures are on: its vocabulary node group
+    (``wenart_tiles``, ``wenart_wallpaper``, ``wenart_slats``, ``wenart_standing_seam``; Milestone 10), the
+    Milestone 6 ``"glazed_tiles"`` for another ``tiles_*`` slug (docs/milestone6.md §5 row 4), else None (a
+    procedural entry without a group is a plain flat material)."""
+    if has_texture or not use_textures:
         return None
-    return "glazed_tiles"
+    entry = ENTRIES.get(slug) or {}
+    if entry.get("source") == "procedural":
+        return entry.get("procedural") if entry.get("procedural") in PROCEDURAL_GROUPS else None
+    if str(slug).startswith(PROCEDURAL_TILE_PREFIX):
+        return "glazed_tiles"
+    return None
 
 
 def procedural_note() -> str:
@@ -203,18 +250,37 @@ class MaterialLibrary:
                 "source": tset.get("source"), "licence": tset.get("licence")}, "textured"
 
     # -- public API ----------------------------------------------------------
-    def get(self, slug: str, asset_id: str | None = None, tint=None, unverified: bool = False):
-        key = (slug, asset_id, tuple(tint) if tint else None, unverified)
+    def get(self, slug: str, asset_id: str | None = None, tint=None, unverified: bool = False, colour=None,
+            params: dict | None = None):
+        """The material of ``slug`` (with its texture set ``asset_id`` when usable), ``tint`` multiplied in, the red
+        stripes when ``unverified``; Milestone 10: ``colour`` (a ``colours.py`` phrase) as its base colour where the
+        slug takes one (``colourable``, or no texture in use), ``params`` over a procedural look's own."""
+        import json as _json
+
+        pkey = _json.dumps(params, sort_keys=True) if params else None
+        key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey)
         if key in self._cache:
             return self._cache[key]
         tset, reason = self.texture_set(asset_id)
-        # One Blender material per (slug, asset, tint, unverified); the record
+        # One Blender material per (slug, asset, tint, unverified, colour, params); the record
         # is keyed by the material's name so a slug used both textured (floor
         # with an asset) and flat (door leaf without one) is reported twice, and
         # an asset that could not be used keeps its own record with the reason.
         procedural = procedural_for(slug, tset is not None, self.use_textures)
-        name = slug + (f"__{tset['id']}" if tset else "") + ("__unverified" if unverified else "")
-        mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural)
+        rgb = colour_linear(colour)
+        colour_note = None
+        if colour and rgb is None:
+            colour_note = f"colour {colour!r} is not a colours.py name: the slug's own colour is used"
+        elif rgb is not None and not takes_colour(slug, tset is not None):
+            colour_note = (f"colour {colour!r} not applied: {slug} keeps its own colour (a wood tone, a frame metal "
+                           "or the colour of its photo)")
+            rgb = None
+        all_params = procedural_params(slug, params) if procedural in PROCEDURAL_GROUPS else {}
+        name = (slug + (f"__{tset['id']}" if tset else "") + (f"__{_tag(colour)}" if rgb is not None else "")
+                + (f"__p{_short_hash(pkey)}" if pkey and procedural in PROCEDURAL_GROUPS else "")
+                + ("__unverified" if unverified else ""))
+        mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural, base_rgb=rgb,
+                           params=all_params)
         self._cache[key] = mat
         mode, detail = albedo_mode(slug)
         clamped = mat.get("wenart_gain_clamped")
@@ -223,12 +289,21 @@ class MaterialLibrary:
             "source": tset["source"] if tset else None, "licence": tset["licence"] if tset else None,
             "size_m": tset["size_m"] if tset else None, "flat_colour": list(flat_colour(slug)),
             "tint": list(tint) if tint else None, "unverified": unverified,
-            "reason": reason if procedural is None else f"{reason}; {procedural_note()}",
+            "reason": reason if procedural is None else f"{reason}; {procedural_note_for(procedural, slug, all_params)}",
             "albedo_mode": mode, "detail": detail,
             "albedo_gain": mat.get("wenart_albedo_gain"), "albedo_mean_luminance": mat.get("wenart_albedo_mean"),
             "gain_clamped": None if clamped is None else bool(clamped),
             "metallic": metallic(slug), "procedural": procedural,
         }
+        if colour:
+            self.records[mat.name].update(colour=str(colour), colour_rgb=[round(v, 4) for v in rgb] if rgb else None,
+                                          colour_applied=rgb is not None)
+            if colour_note:
+                self.records[mat.name]["colour_note"] = colour_note
+        if all_params:
+            self.records[mat.name]["params"] = all_params
+        if procedural in PROCEDURAL_GROUPS:
+            self.records[mat.name]["group"] = procedural_group_name(procedural, all_params)
         if mat.get("wenart_albedo_note"):
             self.records[mat.name]["albedo_note"] = mat["wenart_albedo_note"]
         return mat
@@ -284,8 +359,18 @@ class MaterialLibrary:
 # Node builders
 # --------------------------------------------------------------------------
 
+def _tag(colour) -> str:
+    return "".join(ch if ch.isalnum() else "_" for ch in str(colour).strip().lower())
+
+
+def _short_hash(text: str) -> str:
+    import hashlib
+
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
+
+
 def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scale_m=None,
-                 unverified: bool = False, procedural: str | None = None):
+                 unverified: bool = False, procedural: str | None = None, base_rgb=None, params: dict | None = None):
     """Principled BSDF material: albedo / normal / roughness maps from
     ``texture_set`` (box UVs in metres, Mapping scale 1/size_m), the
     procedural glazed tiles (``procedural="glazed_tiles"`` and no texture
@@ -299,7 +384,10 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     Custom properties on the material: ``wenart_albedo_mode``,
     ``wenart_albedo_detail`` (flat), ``wenart_albedo_mean`` (texture mean
     luminance), ``wenart_albedo_gain`` and ``wenart_gain_clamped`` (texture
-    mode) and ``wenart_albedo_note`` when the texture could not be read."""
+    mode) and ``wenart_albedo_note`` when the texture could not be read.
+    Milestone 10: ``base_rgb`` (linear) replaces the slug's flat colour (a
+    colour phrase of the style); ``procedural`` may name a vocabulary node
+    group, set up with ``params``."""
     import bpy
 
     mat = bpy.data.materials.new(name)
@@ -314,7 +402,11 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     mat["wenart_albedo_mode"] = mode
     if detail is not None:
         mat["wenart_albedo_detail"] = detail
-    colour = _tinted(flat_colour(slug), tint)
+    if base_rgb is not None:                       # a colour phrase: white is 1.0 linear, capped like a texture
+        base_rgb = tuple(min(MAX_ALBEDO, float(c)) for c in base_rgb)
+    colour = _tinted(base_rgb if base_rgb is not None else flat_colour(slug), tint)
+    if base_rgb is not None:
+        mat["wenart_colour"] = [round(float(v), 4) for v in base_rgb]
 
     if texture_set is not None:
         size = scale_m or texture_set.get("size_m") or [1.0, 1.0]
@@ -338,7 +430,7 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
         elif mode == "flat":
             _flat_detail_albedo(nodes, links, albedo.outputs["Color"], bsdf, colour, detail, mean_lum)
         else:
-            gain, clamped = albedo_gain_for(mean_lum, slug)
+            gain, clamped = albedo_gain_for(mean_lum, slug, base_rgb)
             mat["wenart_albedo_gain"] = gain
             mat["wenart_gain_clamped"] = clamped
             colour_out = albedo.outputs["Color"]
@@ -370,6 +462,12 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
         links.new(group.outputs["Roughness"], bsdf.inputs["Roughness"])
         links.new(group.outputs["Normal"], bsdf.inputs["Normal"])
         mat["wenart_procedural"] = procedural_note()
+    elif procedural in PROCEDURAL_GROUPS:
+        group = procedural_node(nodes, links, procedural, slug, colour, params or {})
+        links.new(group.outputs["Color"], bsdf.inputs["Base Color"])
+        links.new(group.outputs["Roughness"], bsdf.inputs["Roughness"])
+        links.new(group.outputs["Normal"], bsdf.inputs["Normal"])
+        mat["wenart_procedural"] = procedural_note_for(procedural, slug, params or {})
     else:
         bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
 
@@ -457,11 +555,11 @@ def _tinted(colour, tint) -> tuple[float, float, float]:
     return tuple(float(c) * float(t) for c, t in zip(colour, tint))
 
 
-def albedo_gain_for(mean_lum: float, slug: str) -> tuple[float, bool]:
+def albedo_gain_for(mean_lum: float, slug: str, base_rgb=None) -> tuple[float, bool]:
     """``(gain, clamped)``: the gain that brings a map of mean linear luminance
-    ``mean_lum`` to the luminance of the slug's flat colour, clamped to
+    ``mean_lum`` to the luminance of the slug's flat colour (``base_rgb`` when given), clamped to
     ``ALBEDO_GAIN_RANGE``; ``clamped`` says whether the clamp changed it."""
-    target = luminance(flat_colour(slug))
+    target = luminance(base_rgb if base_rgb is not None else flat_colour(slug))
     if mean_lum <= 1e-4 or target <= 0:
         return 1.0, False
     wanted = target / mean_lum
@@ -717,6 +815,8 @@ def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
 
 MOOD_STRENGTH = {"warm daylight": 1.0, "cool daylight": 1.2, "golden evening": 0.8,
                  "overcast": 1.4, "night": 0.05}
+# Milestone 10: the four new moods take the vocabulary's ``hdri_strength`` (bright noon 1.0, blue hour 0.8, cloudy
+# soft 1.4, interior evening 0.5; wenart/style/finishes.py LIGHTING).
 
 
 def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
@@ -735,7 +835,8 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     out = nodes.new("ShaderNodeOutputWorld")
     bg = nodes.new("ShaderNodeBackground")
     links.new(bg.outputs["Background"], out.inputs["Surface"])
-    strength = MOOD_STRENGTH.get(str(lighting.get("mood", "")).lower(), 1.0)
+    mood = str(lighting.get("mood", "")).lower()
+    strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0))
     bg.inputs["Strength"].default_value = strength
     azimuth = float(lighting.get("sun_azimuth_deg", 210.0))
     elevation = float(lighting.get("sun_elevation_deg", 35.0))
@@ -761,3 +862,436 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     links.new(sky.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = strength * 0.5
     return {"kind": "sky", "file": None, "strength": strength * 0.5}
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: colours and the procedural looks (docs/milestone10.md §4.2, §4.3, §4.8)
+# --------------------------------------------------------------------------
+
+def colour_linear(colour) -> tuple[float, float, float] | None:
+    """Linear RGB of a colour phrase of ``wenart/style/colours.py`` (``"warm greige"``), None when unknown."""
+    if not colour:
+        return None
+    try:
+        from wenart.style import colours as C
+        return tuple(float(v) for v in C.linear_rgb(str(colour)))  # type: ignore[return-value]
+    except (ImportError, KeyError, ValueError):
+        return None
+
+
+def colourable(slug: str) -> bool:
+    """True when a colour name sets the base colour of ``slug`` while its texture is in use: flat-albedo-mode and
+    procedural looks unless the vocabulary says ``colourable: False`` (``wenart.style.profile.is_colourable``). A
+    material without a texture set always takes the colour (it is a flat colour anyway)."""
+    entry = ENTRIES.get(slug) or {}
+    if "colourable" in entry:
+        return bool(entry["colourable"])
+    return albedo_mode(slug)[0] == "flat"
+
+
+def takes_colour(slug: str, textured: bool) -> bool:
+    """Whether a colour phrase sets the base colour of ``slug`` in a material: the vocabulary's ``colourable`` flag
+    when it has one (``False``: a wood tone, a window-frame metal keep their own colour); without the flag a flat
+    albedo look, or any look whose texture is not in use (a flat colour: ceramic, steel, a missing photo)."""
+    entry = ENTRIES.get(slug) or {}
+    if "colourable" in entry:
+        return bool(entry["colourable"])
+    return albedo_mode(slug)[0] == "flat" or not textured
+
+
+def procedural_params(slug: str, overrides: dict | None = None) -> dict:
+    """The vocabulary ``params`` of a procedural slug with the style's overrides (``tile_size_m``, ``pattern``,
+    ``grout_colour`` of the wet walls) on top; None values of the overrides are ignored."""
+    params = dict((ENTRIES.get(slug) or {}).get("params") or {})
+    for key, value in (overrides or {}).items():
+        if value is not None:
+            params[key] = value
+    return params
+
+
+PROCEDURAL_GROUPS = ("wenart_tiles", "wenart_wallpaper", "wenart_slats", "wenart_standing_seam")
+WALLPAPER_PATTERNS = ("stripe", "botanical", "geometric", "check", "herringbone", "grasscloth")
+TILE_PATTERNS = ("running_bond", "grid", "hexagon")
+TILE_GROUT_ROUGHNESS = 0.7
+DEFAULT_INK_MODIFIER = "dark"
+
+
+def procedural_group_name(procedural: str, params: dict) -> str:
+    """The node group of a procedural look: one per tile and wallpaper pattern (their layout is node properties),
+    one each for slats and standing seams."""
+    if procedural == "wenart_tiles":
+        pattern = params.get("pattern") if params.get("pattern") in TILE_PATTERNS else "grid"
+        return f"wenart_tiles_{pattern}"
+    if procedural == "wenart_wallpaper":
+        pattern = params.get("pattern") if params.get("pattern") in WALLPAPER_PATTERNS else "stripe"
+        return f"wenart_wallpaper_{pattern}"
+    return procedural
+
+
+def procedural_note_for(procedural: str, slug: str, params: dict) -> str:
+    """The text recorded for a procedural look (material record and custom property)."""
+    if procedural == "glazed_tiles":
+        return procedural_note()
+    if procedural == "wenart_tiles":
+        size = params.get("tile_size_m") or [0.2, 0.2]
+        return (f"procedural tiles {params.get('pattern') or 'grid'} {float(size[0]):.3f} x {float(size[1]):.3f} m, "
+                f"{float(params.get('grout_m') or 0.002) * 1000:.0f} mm grout in {params.get('grout_colour') or 'light grey'}"
+                f" (node group {procedural_group_name(procedural, params)})")
+    if procedural == "wenart_wallpaper":
+        rep = params.get("repeat_m") or [0.2, 0.2]
+        return (f"procedural wallpaper {params.get('pattern')}, repeat {float(rep[0]):.2f} x {float(rep[1]):.2f} m, "
+                f"ink = the colour {params.get('ink_modifier') or DEFAULT_INK_MODIFIER} "
+                f"(node group {procedural_group_name(procedural, params)})")
+    if procedural == "wenart_slats":
+        return (f"procedural wood slats {float(params.get('slat_width_m') or 0.03) * 100:.1f} cm, gap "
+                f"{float(params.get('gap_m') or 0.02) * 100:.1f} cm on {params.get('backing_colour') or 'charcoal'} "
+                f"(node group wenart_slats)")
+    if procedural == "wenart_standing_seam":
+        return (f"procedural standing seam, seams every {float(params.get('seam_spacing_m') or 0.45):.2f} m "
+                f"(node group wenart_standing_seam)")
+    return f"procedural {procedural} ({slug})"
+
+
+class _Graph:
+    """Small helper to wire shader nodes: sockets are linked, plain values set as defaults."""
+
+    def __init__(self, tree):
+        self.nodes, self.links = tree.nodes, tree.links
+
+    def feed(self, socket, value) -> None:
+        if hasattr(value, "is_output"):
+            self.links.new(value, socket)
+        elif isinstance(value, (tuple, list)):
+            socket.default_value = tuple(value)
+        else:
+            socket.default_value = value
+
+    def math(self, op: str, *values):
+        node = self.nodes.new("ShaderNodeMath")
+        node.operation = op
+        for i, v in enumerate(values):
+            self.feed(node.inputs[i], v)
+        return node.outputs[0]
+
+    def vmath(self, op: str, *values, value_out: bool = False):
+        node = self.nodes.new("ShaderNodeVectorMath")
+        node.operation = op
+        for i, v in enumerate(values):
+            if op == "SCALE" and i == 1:
+                self.feed(node.inputs["Scale"], v)
+            else:
+                self.feed(node.inputs[i], v)
+        return node.outputs["Value" if value_out else "Vector"]
+
+    def mix(self, data_type: str, factor, a, b):
+        node = self.nodes.new("ShaderNodeMix")
+        node.data_type = data_type
+        ids = {"RGBA": ("A_Color", "B_Color", "Result_Color"), "VECTOR": ("A_Vector", "B_Vector", "Result_Vector"),
+               "FLOAT": ("A_Float", "B_Float", "Result_Float")}[data_type]
+        self.feed(_socket(node.inputs, "Factor_Float"), factor)
+        self.feed(_socket(node.inputs, ids[0]), a)
+        self.feed(_socket(node.inputs, ids[1]), b)
+        return _socket(node.outputs, ids[2])
+
+    def xyz(self, vector):
+        node = self.nodes.new("ShaderNodeSeparateXYZ")
+        self.links.new(vector, node.inputs["Vector"])
+        return node.outputs["X"], node.outputs["Y"]
+
+    def combine(self, x, y, z=0.0):
+        node = self.nodes.new("ShaderNodeCombineXYZ")
+        for name, v in (("X", x), ("Y", y), ("Z", z)):
+            self.feed(node.inputs[name], v)
+        return node.outputs["Vector"]
+
+    def fract_below(self, value, period, share):
+        """1 where ``fract(value / period) < share`` (a band of ``share`` of each period), else 0."""
+        return self.math("LESS_THAN", self.math("FRACT", self.math("DIVIDE", value, period)), share)
+
+
+def _socket(collection, identifier: str):
+    return next(s for s in collection if s.identifier == identifier)
+
+
+def _new_group(name: str, inputs: list[tuple[str, str]], outputs: list[tuple[str, str]]):
+    import bpy
+
+    group = bpy.data.node_groups.new(name, "ShaderNodeTree")
+    for sname, stype in inputs:
+        group.interface.new_socket(name=sname, in_out="INPUT", socket_type=stype)
+    for sname, stype in outputs:
+        group.interface.new_socket(name=sname, in_out="OUTPUT", socket_type=stype)
+    gin = group.nodes.new("NodeGroupInput")
+    gout = group.nodes.new("NodeGroupOutput")
+    uv = group.nodes.new("ShaderNodeUVMap")
+    uv.uv_map = "box_m"
+    return group, gin, gout, uv.outputs["UV"]
+
+
+_COLOUR, _FLOAT = "NodeSocketColor", "NodeSocketFloat"
+_OUTPUTS = [("Color", _COLOUR), ("Roughness", _FLOAT), ("Normal", "NodeSocketVector")]
+
+
+def _bump(g: _Graph, height, strength: float, distance: float):
+    node = g.nodes.new("ShaderNodeBump")
+    node.inputs["Strength"].default_value = strength
+    node.inputs["Distance"].default_value = distance
+    g.feed(node.inputs["Height"], height)
+    return node.outputs["Normal"]
+
+
+def tiles_group(pattern: str):
+    """``wenart_tiles_<pattern>`` (created once per file): inputs Tile Color, Grout Color, Tile Width, Tile Height,
+    Grout, Variation, Tile Roughness; outputs Color, Roughness, Normal. ``running_bond`` / ``grid``: a Brick
+    Texture on the ``box_m`` UVs (offset 0.5 / 0), the brick colours the tile colour x (1 +- variation);
+    ``hexagon``: pointy-top hexagons ``Tile Width`` flat to flat (the nearer of two rectangular lattices, the
+    hexagon distance of the local position, one white-noise value per tile centre for the spread). Grout
+    roughness 0.7, a bump from the grout mask (recessed joints)."""
+    import bpy
+
+    name = f"wenart_tiles_{pattern}"
+    group = bpy.data.node_groups.get(name)
+    if group is not None:
+        return group
+    group, gin, gout, uv = _new_group(name, [("Tile Color", _COLOUR), ("Grout Color", _COLOUR), ("Tile Width", _FLOAT),
+                                             ("Tile Height", _FLOAT), ("Grout", _FLOAT), ("Variation", _FLOAT),
+                                             ("Tile Roughness", _FLOAT)], _OUTPUTS)
+    g = _Graph(group)
+    i = gin.outputs
+    if pattern == "hexagon":
+        r3 = math.sqrt(3.0)
+        p = g.vmath("SCALE", uv, g.math("DIVIDE", 1.0, i["Tile Width"]))
+        lattice, half = (1.0, r3, 1.0), (0.5, r3 / 2.0, 0.0)          # z stays 0 in both lattices
+        a = g.vmath("SUBTRACT", g.vmath("WRAP", p, lattice, (0.0, 0.0, 0.0)), half)
+        b = g.vmath("SUBTRACT", g.vmath("WRAP", g.vmath("SUBTRACT", p, half), lattice, (0.0, 0.0, 0.0)), half)
+        closer_a = g.math("LESS_THAN", g.vmath("DOT_PRODUCT", a, a, value_out=True),
+                          g.vmath("DOT_PRODUCT", b, b, value_out=True))
+        local = g.mix("VECTOR", closer_a, b, a)
+        ax, ay = g.xyz(g.vmath("ABSOLUTE", local))
+        hexd = g.math("MAXIMUM", ax, g.math("ADD", g.math("MULTIPLY", ax, 0.5), g.math("MULTIPLY", ay, r3 / 2.0)))
+        edge_at = g.math("SUBTRACT", 0.5, g.math("DIVIDE", g.math("MULTIPLY", i["Grout"], 0.5), i["Tile Width"]))
+        grout = g.math("GREATER_THAN", hexd, edge_at)
+        noise = g.nodes.new("ShaderNodeTexWhiteNoise")
+        g.links.new(g.vmath("SUBTRACT", p, local), noise.inputs["Vector"])
+        spread = g.math("MULTIPLY_ADD", g.math("SUBTRACT", g.math("MULTIPLY", noise.outputs["Value"], 2.0), 1.0),
+                        i["Variation"], 1.0)
+        tile = g.vmath("SCALE", i["Tile Color"], spread)
+        colour = g.mix("RGBA", grout, tile, i["Grout Color"])
+    else:
+        brick = g.nodes.new("ShaderNodeTexBrick")
+        brick.offset = 0.5 if pattern == "running_bond" else 0.0
+        brick.offset_frequency = 2
+        brick.squash = 1.0
+        brick.squash_frequency = 1
+        g.links.new(uv, brick.inputs["Vector"])
+        brick.inputs["Scale"].default_value = 1.0
+        brick.inputs["Mortar Smooth"].default_value = 0.3
+        brick.inputs["Bias"].default_value = 0.0
+        g.links.new(i["Tile Width"], brick.inputs["Brick Width"])
+        g.links.new(i["Tile Height"], brick.inputs["Row Height"])
+        g.links.new(i["Grout"], brick.inputs["Mortar Size"])
+        g.links.new(i["Grout Color"], brick.inputs["Mortar"])
+        for sock, sign in (("Color1", 1.0), ("Color2", -1.0)):
+            factor = g.math("MULTIPLY_ADD", i["Variation"], sign, 1.0)
+            g.links.new(g.vmath("SCALE", i["Tile Color"], factor), brick.inputs[sock])
+        colour = brick.outputs["Color"]
+        grout = brick.outputs["Factor"]
+    g.links.new(colour, gout.inputs["Color"])
+    rough = g.nodes.new("ShaderNodeMapRange")
+    g.links.new(grout, rough.inputs["Value"])
+    g.links.new(i["Tile Roughness"], rough.inputs["To Min"])
+    rough.inputs["To Max"].default_value = TILE_GROUT_ROUGHNESS
+    g.links.new(rough.outputs["Result"], gout.inputs["Roughness"])
+    g.links.new(_bump(g, g.math("SUBTRACT", 1.0, grout), 0.4, 0.002), gout.inputs["Normal"])
+    return group
+
+
+def wallpaper_group(pattern: str):
+    """``wenart_wallpaper_<pattern>``: inputs Color, Ink, Repeat X, Repeat Y; outputs Color, Roughness (the material
+    sets it), Normal. The ink share per pattern (box UVs in metres): stripe = vertical bands half a repeat wide;
+    check = gingham (two crossing band sets, the crossing in full ink); geometric = diamonds (a check turned 45
+    degrees); herringbone = short diagonal bands turning every column; botanical = leaf blobs (Voronoi cells
+    distorted by noise); grasscloth = fine horizontal fibres (stretched noise, a third of the ink)."""
+    import bpy
+
+    name = f"wenart_wallpaper_{pattern}"
+    group = bpy.data.node_groups.get(name)
+    if group is not None:
+        return group
+    group, gin, gout, uv = _new_group(name, [("Color", _COLOUR), ("Ink", _COLOUR), ("Repeat X", _FLOAT),
+                                             ("Repeat Y", _FLOAT), ("Roughness", _FLOAT)], _OUTPUTS)
+    g = _Graph(group)
+    i = gin.outputs
+    x, y = g.xyz(uv)
+    rx, ry = i["Repeat X"], i["Repeat Y"]
+    if pattern == "check":
+        share = g.math("MULTIPLY", g.math("ADD", g.fract_below(x, rx, 0.5), g.fract_below(y, ry, 0.5)), 0.5)
+    elif pattern == "geometric":
+        u, v = g.math("ADD", x, y), g.math("SUBTRACT", x, y)
+        share = g.math("ABSOLUTE", g.math("SUBTRACT", g.fract_below(u, rx, 0.5), g.fract_below(v, rx, 0.5)))
+    elif pattern == "herringbone":
+        column = g.math("FLOOR", g.math("DIVIDE", x, rx))
+        turn = g.math("MULTIPLY_ADD", g.math("FLOORED_MODULO", column, 2.0), -2.0, 1.0)
+        share = g.fract_below(g.math("ADD", x, g.math("MULTIPLY", y, turn)), g.math("MULTIPLY", rx, 0.25), 0.5)
+    elif pattern == "botanical":
+        noise = g.nodes.new("ShaderNodeTexNoise")
+        g.links.new(uv, noise.inputs["Vector"])
+        g.feed(noise.inputs["Scale"], g.math("DIVIDE", 3.0, rx))
+        offset = g.vmath("SCALE", g.vmath("SUBTRACT", noise.outputs["Color"], (0.5, 0.5, 0.5)),
+                         g.math("MULTIPLY", rx, 0.3))
+        cells = g.nodes.new("ShaderNodeTexVoronoi")
+        cells.voronoi_dimensions = "2D"                     # the UV plane (3D cells would cut random slices)
+        g.links.new(g.vmath("ADD", uv, offset), cells.inputs["Vector"])
+        g.feed(cells.inputs["Scale"], g.math("DIVIDE", 1.0, rx))
+        share = g.math("LESS_THAN", cells.outputs["Distance"], 0.3)
+    elif pattern == "grasscloth":
+        noise = g.nodes.new("ShaderNodeTexNoise")
+        g.links.new(g.combine(g.math("DIVIDE", x, g.math("MULTIPLY", rx, 4.0)),
+                              g.math("DIVIDE", y, g.math("MULTIPLY", ry, 0.05))), noise.inputs["Vector"])
+        noise.inputs["Scale"].default_value = 1.0
+        noise.inputs["Detail"].default_value = 4.0
+        share = g.math("MULTIPLY", noise.outputs["Fac"], 0.35)
+    else:                                                       # stripe
+        share = g.fract_below(x, rx, 0.5)
+    g.links.new(g.mix("RGBA", share, i["Color"], i["Ink"]), gout.inputs["Color"])
+    g.links.new(i["Roughness"], gout.inputs["Roughness"])
+    g.links.new(_bump(g, share, 0.05, 0.0005), gout.inputs["Normal"])
+    return group
+
+
+def slats_group():
+    """``wenart_slats``: inputs Color (the wood), Backing, Slat Width, Gap, Roughness; vertical slats (along the box
+    UV v, world Z on a wall) with a wood-grain luminance from stretched noise, the gaps in the backing colour, a bump
+    that stands the slats proud."""
+    import bpy
+
+    group = bpy.data.node_groups.get("wenart_slats")
+    if group is not None:
+        return group
+    group, gin, gout, uv = _new_group("wenart_slats", [("Color", _COLOUR), ("Backing", _COLOUR), ("Slat Width", _FLOAT),
+                                                       ("Gap", _FLOAT), ("Roughness", _FLOAT)], _OUTPUTS)
+    g = _Graph(group)
+    i = gin.outputs
+    x, y = g.xyz(uv)
+    pitch = g.math("ADD", i["Slat Width"], i["Gap"])
+    slat = g.fract_below(x, pitch, g.math("DIVIDE", i["Slat Width"], pitch))
+    grain = g.nodes.new("ShaderNodeTexNoise")
+    g.links.new(g.combine(g.math("MULTIPLY", x, 40.0), g.math("MULTIPLY", y, 1.5)), grain.inputs["Vector"])
+    grain.inputs["Scale"].default_value = 1.0
+    wood = g.vmath("SCALE", i["Color"], g.math("MULTIPLY_ADD", grain.outputs["Fac"], 0.3, 0.85))
+    g.links.new(g.mix("RGBA", slat, i["Backing"], wood), gout.inputs["Color"])
+    g.links.new(i["Roughness"], gout.inputs["Roughness"])
+    g.links.new(_bump(g, slat, 0.8, 0.01), gout.inputs["Normal"])
+    return group
+
+
+def standing_seam_group():
+    """``wenart_standing_seam``: inputs Color, Seam Spacing, Roughness; raised seams every ``Seam Spacing`` (2 cm
+    wide, 10 % lighter) by a bump."""
+    import bpy
+
+    group = bpy.data.node_groups.get("wenart_standing_seam")
+    if group is not None:
+        return group
+    group, gin, gout, uv = _new_group("wenart_standing_seam", [("Color", _COLOUR), ("Seam Spacing", _FLOAT),
+                                                               ("Roughness", _FLOAT)], _OUTPUTS)
+    g = _Graph(group)
+    i = gin.outputs
+    x, _y = g.xyz(uv)
+    share = g.math("SUBTRACT", 1.0, g.math("DIVIDE", 0.02, i["Seam Spacing"]))
+    seam = g.math("SUBTRACT", 1.0, g.fract_below(x, i["Seam Spacing"], share))
+    g.links.new(g.vmath("SCALE", i["Color"], g.math("MULTIPLY_ADD", seam, 0.1, 1.0)), gout.inputs["Color"])
+    g.links.new(i["Roughness"], gout.inputs["Roughness"])
+    g.links.new(_bump(g, seam, 1.0, 0.02), gout.inputs["Normal"])
+    return group
+
+
+def _colour_param(name, fallback) -> tuple[float, float, float, float]:
+    rgb = colour_linear(name) or tuple(fallback)
+    return (float(rgb[0]), float(rgb[1]), float(rgb[2]), 1.0)
+
+
+def procedural_node(nodes, links, procedural: str, slug: str, colour, params: dict):
+    """A group node of a procedural look in a material, its inputs set from ``colour`` (linear RGB of the material)
+    and ``params``; returns the node (outputs Color, Roughness, Normal)."""
+    node = nodes.new("ShaderNodeGroup")
+    rough = ROUGHNESS.get(slug, 0.6)
+    base = (float(colour[0]), float(colour[1]), float(colour[2]), 1.0)
+    if procedural == "wenart_tiles":
+        pattern = params.get("pattern") if params.get("pattern") in TILE_PATTERNS else "grid"
+        node.node_tree = tiles_group(pattern)
+        size = params.get("tile_size_m") or [0.2, 0.2]
+        node.inputs["Tile Color"].default_value = base
+        node.inputs["Grout Color"].default_value = _colour_param(params.get("grout_colour"), (0.55, 0.55, 0.53))
+        node.inputs["Tile Width"].default_value = float(size[0])
+        node.inputs["Tile Height"].default_value = float(size[1] if len(size) > 1 else size[0])
+        node.inputs["Grout"].default_value = float(params.get("grout_m") or 0.002)
+        node.inputs["Variation"].default_value = float(params.get("variation") or 0.0)
+        node.inputs["Tile Roughness"].default_value = rough
+    elif procedural == "wenart_wallpaper":
+        pattern = params.get("pattern") if params.get("pattern") in WALLPAPER_PATTERNS else "stripe"
+        node.node_tree = wallpaper_group(pattern)
+        rep = params.get("repeat_m") or [0.2, 0.2]
+        ink = _ink_colour(colour, params.get("ink_modifier") or DEFAULT_INK_MODIFIER)
+        node.inputs["Color"].default_value = base
+        node.inputs["Ink"].default_value = (*ink, 1.0)
+        node.inputs["Repeat X"].default_value = float(rep[0])
+        node.inputs["Repeat Y"].default_value = float(rep[1] if len(rep) > 1 else rep[0])
+        node.inputs["Roughness"].default_value = rough
+    elif procedural == "wenart_slats":
+        node.node_tree = slats_group()
+        node.inputs["Color"].default_value = base
+        node.inputs["Backing"].default_value = _colour_param(params.get("backing_colour"), (0.03, 0.03, 0.03))
+        node.inputs["Slat Width"].default_value = float(params.get("slat_width_m") or 0.03)
+        node.inputs["Gap"].default_value = float(params.get("gap_m") or 0.02)
+        node.inputs["Roughness"].default_value = rough
+    elif procedural == "wenart_standing_seam":
+        node.node_tree = standing_seam_group()
+        node.inputs["Color"].default_value = base
+        node.inputs["Seam Spacing"].default_value = float(params.get("seam_spacing_m") or 0.45)
+        node.inputs["Roughness"].default_value = rough
+    else:
+        raise KeyError(f"unknown procedural look {procedural!r}")
+    return node
+
+
+def _ink_colour(colour, modifier: str) -> tuple[float, float, float]:
+    """The wallpaper ink: the base colour with the ``dark`` modifier (CIELAB, ``colours.apply_modifier``)."""
+    try:
+        from wenart.style import colours as C
+        lab = C.apply_modifier(C.linear_to_lab(tuple(float(c) for c in colour[:3])), modifier)
+        return tuple(float(v) for v in C.lab_to_linear(lab))  # type: ignore[return-value]
+    except (ImportError, ValueError, KeyError):
+        return tuple(float(c) * 0.5 for c in colour[:3])  # type: ignore[return-value]
+
+
+def exterior_material(library, slug: str, colour=None):
+    """The Blender material of an outside look (docs/milestone10.md §1.6b row 20, §4.8): a vocabulary slug with its
+    asset (``vocabulary`` entry; a procedural look its node group) in ``colour`` (a ``colours.py`` phrase) where the
+    slug takes a colour (``colourable``), else as the library makes it; the record says when a colour was not
+    applied. A slug the vocabulary does not know gets the flat ``unknown`` grey (recorded)."""
+    asset = (ENTRIES.get(slug) or {}).get("asset")
+    return library.get(slug, asset, colour=colour)
+
+
+def light_material(name: str, rgb=(1.0, 0.78, 0.55), strength: float = 8.0):
+    """A lit lamp part (bulb, diffuser, flame; docs/milestone10.md §4.9 interior evening): an Emission shader of a
+    warm white (about 2700 K) at ``strength``; the room gets its light from the lamp's own point light
+    (``furniture.py``), the emission is what the camera sees."""
+    import bpy
+
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    for n in list(nodes):
+        if n.bl_idname == "ShaderNodeBsdfPrincipled":
+            nodes.remove(n)
+    emit = nodes.new("ShaderNodeEmission")
+    emit.inputs["Color"].default_value = (*[float(c) for c in rgb], 1.0)
+    emit.inputs["Strength"].default_value = float(strength)
+    links.new(emit.outputs["Emission"], nodes.get("Material Output").inputs["Surface"])
+    mat["wenart_light"] = float(strength)
+    return mat

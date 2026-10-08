@@ -100,6 +100,12 @@ Milestone 8 (docs/milestone8.md §1, §2):
   models of ``catalog.json`` stay as they were).
 - ``bed_usable(entry)``: a bed model with a mattress, or a bed frame with a
   deck; ``has_mattress`` keeps its M7 meaning.
+
+Milestone 10 (docs/milestone10.md §1.1, §4.5, §4.6; track F): the 14 new furniture types (a parametric entry
+each in ``catalog.json`` until the library pod's ``catalog_library.json`` adds models) and the 12 new decor
+types; library entries may carry track D's judged fields ``material_slots``, ``material_tags``,
+``recolourable_fabric``, ``recolourable_wood`` (``wenart/assets/recolour.py``) and, for plants, ``species`` and
+``pot`` (checked by ``_validate_m10_fields`` when present; the fit reads them, ``fit.GLB_ASSET_FIELDS``).
 """
 from __future__ import annotations
 
@@ -138,7 +144,11 @@ CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribut
 GENERATED_FIELDS = ("prompt", "image_sha256", "model", "revision", "seed")
 KINDS = ("furniture", "decor")
 DECOR_TYPES = ("cushion", "plant", "rug", "wall_art",    # library decor (docs/milestone8.md §4)
-               "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9 (docs/milestone9.md §3)
+               "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9 (docs/milestone9.md §3)
+               # Milestone 10 (docs/milestone10.md §4.6): ``books`` = library book stacks next to the parametric
+               # ``book_set``
+               "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large",
+               "pendant_light", "ceiling_light")
 # The unit factors of the prep pod's unit guess (docs/milestone7.md §7.2; wenart/assets/objaverse.yaml units).
 # An Objaverse entry's optional ``unit_scale`` is one of them, or any positive finite factor with a ``unit_note``
 # saying where it comes from (a model of unknown units normalised by type, wenart.assets.objaverse.normalise_unit).
@@ -153,6 +163,9 @@ FURNITURE_TYPES = (
     "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower",
     "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine",
     "stair", "side_table", "floor_lamp", "potted_plant",              # Milestone 7 (documented-only types)
+    # Milestone 10 (docs/milestone10.md §1.1)
+    "sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib", "bunk_bed",
+    "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet",
     "unknown",
 )
 
@@ -164,6 +177,10 @@ PARAMETRIC_HEIGHTS: dict[str, float] = {
     "nightstand": 0.5, "dresser": 0.8, "kitchen_counter": 0.9, "kitchen_island": 0.9, "fridge": 1.8,
     "stove": 0.9, "sink_kitchen": 0.9, "washbasin": 0.85, "toilet": 0.4, "shower": 2.0, "bathtub": 0.55,
     "washing_machine": 0.85, "stair": 2.7, "side_table": 0.55, "floor_lamp": 1.6, "potted_plant": 1.0,
+    # Milestone 10 (wenart/furniture/schemas.py HEIGHTS; the wall cabinet's own height)
+    "sofa_corner": 0.85, "chaise": 0.8, "ottoman": 0.45, "bench": 0.45, "bar_stool": 0.75, "office_chair": 1.0,
+    "console_table": 0.8, "crib": 0.9, "bunk_bed": 1.65, "sideboard": 0.8, "shoe_cabinet": 1.0,
+    "display_cabinet": 1.9, "tall_cabinet": 2.1, "wall_cabinet": 0.7,
     "unknown": 0.8,
 }
 
@@ -372,6 +389,7 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
     if furniture and e["type"] in BED_TYPES and not isinstance(e.get("has_mattress"), bool):
         raise CatalogError(f"{e['id']}: a bed model needs has_mattress (true/false)")
     _validate_bed_frame(e, furniture)
+    _validate_m10_fields(e)
     if "quality" in e:
         q = e["quality"]
         if not (isinstance(q, list) and len(q) == 2 and all(isinstance(v, int) and not isinstance(v, bool)
@@ -391,6 +409,29 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
             if not any(abs(float(u) - f) < 1e-12 for f in UNIT_SCALES) and "unit_note" not in e:
                 raise CatalogError(f"{e['id']}: unit_scale {u!r} is not one of {UNIT_SCALES} and has no unit_note "
                                    "(a model normalised by type says so there)")
+
+
+MATERIAL_TAGS = ("glass", "wood", "metal", "fabric", "rattan", "marble")   # = the schema's design.material_tags
+PLANT_SPECIES = ("palm", "monstera", "fiddle_leaf_fig", "olive", "fern", "other")
+
+
+def _validate_m10_fields(e: dict) -> None:
+    """Milestone 10 fields of a library entry, when present: ``material_tags`` from ``MATERIAL_TAGS``,
+    ``recolourable_fabric`` / ``recolourable_wood`` booleans, ``material_slots`` a list of slots with an integer
+    ``index``, ``species`` one of ``PLANT_SPECIES``."""
+    tags = e.get("material_tags")
+    if tags is not None and (not isinstance(tags, list) or any(t not in MATERIAL_TAGS for t in tags)):
+        raise CatalogError(f"{e['id']}: material_tags {tags!r} must be a list of {', '.join(MATERIAL_TAGS)}")
+    for key in ("recolourable_fabric", "recolourable_wood"):
+        if key in e and not isinstance(e[key], bool):
+            raise CatalogError(f"{e['id']}: {key} must be true/false")
+    slots = e.get("material_slots")
+    if slots is not None and (not isinstance(slots, list) or any(
+            not isinstance(s, dict) or isinstance(s.get("index"), bool) or not isinstance(s.get("index"), int)
+            for s in slots)):
+        raise CatalogError(f"{e['id']}: material_slots must be a list of slots with an integer index")
+    if e.get("species") is not None and e["species"] not in PLANT_SPECIES:
+        raise CatalogError(f"{e['id']}: species {e['species']!r} is not one of {', '.join(PLANT_SPECIES)}")
 
 
 def _validate_licence(e: dict, source: str) -> None:

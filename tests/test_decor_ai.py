@@ -55,11 +55,14 @@ def test_living_room_slots_cover_every_kind():
     assert ids["f_L0_001.cushions"].kind == "soft" and ids["f_L0_001.cushions"].types == ("cushion",)
     assert ids["f_L0_001.wall"].kind == "wall" and ids["f_L0_001.wall"].types == ("wall_art",)
     top = ids["f_L0_002.centre"]
-    assert top.kind == "top" and top.types == ("vase", "bowl", "plant_small", "book_set")
+    # Milestone 10: candles, trays, book stacks and small sculptures on tops too.
+    assert top.kind == "top" and top.types == ("vase", "bowl", "plant_small", "book_set", "books", "candle", "tray",
+                                               "sculpture")
     assert top.max_size[0] == pytest.approx(1.0 - 2 * DA.TOP_MARGIN_M) and top.max_size[1] == pytest.approx(0.54)
-    assert ids["f_L0_003.centre"].types == ("table_lamp", "vase", "plant_small", "book_set")
+    assert ids["f_L0_003.centre"].types == ("table_lamp", "vase", "plant_small", "book_set", "books", "candle")
     assert {"f_L0_004.left", "f_L0_004.right"} <= set(ids)
-    assert ids["f_L0_004.wall"].types == ("wall_art", "mirror")       # a dresser takes a picture or a mirror
+    assert ids["f_L0_004.wall"].types[:2] == ("wall_art", "mirror")   # a dresser takes a picture or a mirror
+    assert set(ids["f_L0_004.wall"].types) <= {"wall_art", "mirror", "clock"}         # (Milestone 10: a clock)
     assert any(s.kind == "rug" for s in slots) and any(s.kind == "floor" for s in slots)
     assert len([s for s in slots if s.kind == "floor"]) <= DA.FLOOR_CORNERS_MAX
     # Every slot of a top has its centre on the host and the host's rotation.
@@ -97,7 +100,9 @@ def test_room_types_limit_the_decor():
     bath = room_building(room_type="bathroom", furniture=[("washbasin", (3.0, 4.75), 0.0, (0.6, 0.45)),
                                                           ("toilet", (1.0, 4.65), 0.0, (0.4, 0.7))])
     slots, _ = slots_of(bath)
-    assert [(s.id, s.types) for s in slots] == [("f_L0_001.wall", ("mirror",))]
+    # Milestone 10: a ceiling light at the room centre besides the mirror (no window in this bathroom).
+    assert [(s.id, s.types) for s in slots] == [("f_L0_001.wall", ("mirror",)), (f"ceiling:centre_{RID}",
+                                                                                  ("ceiling_light",))]
     mirror = slots[0].items["mirror"]
     assert mirror["type"] == "mirror" and mirror["gap_m"] == DA.MIRROR_GAP_M
     kitchen = room_building(room_type="kitchen", furniture=[("table_dining", (3.0, 2.5), 0.0, (1.2, 0.8))])
@@ -301,7 +306,7 @@ def test_brief_switches_decor_off_or_to_the_rules():
 def test_schema_takes_ai_decor_and_refuses_broken_items():
     out, _ = applied(living(), choose(("f_L0_002.centre", "bowl", "black")))
     B.validate(out)
-    for mutate in (lambda o: o["decor"][0].update(method="guess"), lambda o: o["decor"][0].update(type="candle"),
+    for mutate in (lambda o: o["decor"][0].update(method="guess"), lambda o: o["decor"][0].update(type="lantern"),
                    lambda o: o["decor"][0]["evidence"][0].update(method="dream")):
         broken = copy.deepcopy(out)
         mutate(broken)
