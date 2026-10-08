@@ -1,6 +1,7 @@
 {
   "source_text": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
   "family": "scandinavian",
+  "style_tags": [],
   "floor": {
     "material": "wood_oak_light",
     "asset": "WoodFloor051",

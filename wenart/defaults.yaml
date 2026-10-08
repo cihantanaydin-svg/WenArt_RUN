@@ -17,6 +17,7 @@ style:
     # python -c "from wenart.style.profile import default_block_yaml as d; print(d())" prints this block.
     source_text: Scandinavian, light oak floor, white walls, linen textiles, warm daylight
     family: scandinavian
+    style_tags: []
     floor: {material: wood_oak_light, asset: WoodFloor051, colour: null}
     walls: {material: plaster_white, asset: white_plaster_02, colour: null}
     wall_accent: null

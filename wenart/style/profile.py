@@ -45,7 +45,7 @@ from wenart.style import vocabulary as V
 DEFAULTS_PATH = Path(__file__).resolve().parents[1] / "defaults.yaml"
 
 # The slots of the profile, in output order (shape of docs/milestone3.md §1, Milestone 10 additions between them).
-PROFILE_KEYS = ("source_text", "family", "floor", "walls", "wall_accent", "ceiling", "wet_floor", "wet_walls", "trim",
+PROFILE_KEYS = ("source_text", "family", "style_tags", "floor", "walls", "wall_accent", "ceiling", "wet_floor", "wet_walls", "trim",
                 "door", "window_frame", "cabinets", "furniture", "decor", "exterior", "exterior_fallback", "lighting",
                 "colours", "matched_terms", "unmatched_terms", "warnings")
 
@@ -1110,6 +1110,7 @@ def profile_from_text(text: str, defaults: Optional[dict] = None, photo_terms=No
     profile = {
         "source_text": text,
         "family": family,
+        "style_tags": list(d["tags"]),
         "floor": {"material": floor, "asset": asset_of(floor), "colour": floor_colour},
         "walls": {"material": walls, "asset": asset_of(walls), "colour": wall_colour},
         "wall_accent": accent,

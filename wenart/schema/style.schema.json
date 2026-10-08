@@ -5,12 +5,14 @@
   "description": "Milestone 10 (docs/milestone10.md §1.6a, §4.1; track C). What `python -m wenart.style <project>` writes: the brief's words turned into looks. Every slot keeps the Milestone 3 meaning and its `material` / `asset` keys; the Milestone 10 slots add fields. A material is a slug of wenart/style/vocabulary.py (`asset` is its Poly Haven / ambientCG id, null for procedural looks and flat metals); a colour is a phrase of wenart/style/colours.py (optional modifiers light, dark, pale, deep, warm, cool, muted + a colour name) and never part of a slug. The profile never holds geometry.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["source_text", "family", "floor", "walls", "wall_accent", "ceiling", "wet_floor", "wet_walls", "trim", "door",
+  "required": ["source_text", "family", "style_tags", "floor", "walls", "wall_accent", "ceiling", "wet_floor", "wet_walls", "trim", "door",
                "window_frame", "cabinets", "furniture", "decor", "exterior", "exterior_fallback", "lighting", "colours",
                "matched_terms", "unmatched_terms", "warnings"],
   "properties": {
     "source_text": {"type": "string", "description": "The style text of the brief this profile was made from"},
     "family": {"type": ["string", "null"], "description": "The style family keyword of vocabulary.STYLE_FAMILIES, null when none matched (Milestone 7)"},
+    "style_tags": {"type": "array", "uniqueItems": true, "items": {"enum": ["natural"]},
+                   "description": "Style words beyond the families (wenart/style/objects.py STYLE_TAGS): natural = light wood, linen, rattan accents; its only effect is the furniture wood when the brief names none (assumed, listed)"},
     "floor": {"$ref": "#/$defs/surface"},
     "walls": {"$ref": "#/$defs/surface"},
     "wall_accent": {

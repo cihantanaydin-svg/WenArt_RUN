@@ -1,6 +1,9 @@
 {
   "source_text": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
   "family": "modern",
+  "style_tags": [
+    "natural"
+  ],
   "floor": {
     "material": "wood_oak_light",
     "asset": "WoodFloor051",

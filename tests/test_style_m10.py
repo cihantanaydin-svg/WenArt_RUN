@@ -250,7 +250,8 @@ def test_furniture_decor_and_accents():
 
 def test_the_natural_style_word_assumes_light_wood_only_when_no_wood_is_named():
     p = prof("Modern natural")
-    assert p["family"] == "modern" and p["furniture"]["wood"] == "wood_veneer_oak_light" and p["unmatched_terms"] == []
+    assert p["family"] == "modern" and p["style_tags"] == ["natural"] and p["unmatched_terms"] == []
+    assert p["furniture"]["wood"] == "wood_veneer_oak_light"
     assert warned(p, "assumed: furniture wood wood_veneer_oak_light", "'natural'")
     p = prof("Modern natural, walnut furniture")
     assert p["furniture"]["wood"] == "wood_veneer_walnut" and not warned(p, "assumed: furniture wood")
@@ -320,7 +321,7 @@ def test_the_exterior_words_of_the_brief_win_over_style_and_fallback():
 def test_real02_has_no_unmatched_term_and_the_target_slots(capsys):
     p = real02()
     assert p["unmatched_terms"] == [] and len(p["matched_terms"]) == 10
-    assert p["family"] == "modern" and p["lighting"]["mood"] == "warm daylight"
+    assert p["family"] == "modern" and p["style_tags"] == ["natural"] and p["lighting"]["mood"] == "warm daylight"
     assert p["floor"] == {"material": "wood_oak_light", "asset": "WoodFloor051", "colour": None}
     assert p["walls"] == {"material": "paint", "asset": "plastered_wall", "colour": "warm greige"}     # not plaster_cream (the old bug)
     assert p["wall_accent"] is None
