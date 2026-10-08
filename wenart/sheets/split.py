@@ -25,8 +25,8 @@ How:
    among themselves (a notes block).
 4. Strays: a cluster outside every frame (or, without a frame, more than ``STRAY_FAR`` x the median region size
    from every other region) with < 1 % of the document's entities is stray: listed, never read.
-5. Region ids follow the reading order: rows from the top (regions whose vertical spans overlap by >= 50 % of the
-   lower one share a row), left to right in a row.
+5. Region ids follow the reading order of the schema (``$defs/region.id``): top to bottom by the top of the region's
+   box (its non-text entities), then left to right.
 """
 from __future__ import annotations
 
@@ -53,7 +53,6 @@ SATELLITE_REACH = 0.5      # ... within 0.5 x the drawing's shorter side ...
 SATELLITE_COUNT = 10       # ... with 10 x fewer entities joins that drawing
 STRAY_SHARE = 0.01         # strays hold < 1 % of the document's entities
 STRAY_FAR = 10.0           # ... and (no frame) lie > 10 x the median region size from every other region
-ROW_OVERLAP = 0.5          # reading order: vertical overlap share of the lower region to share a row
 PERCENTILES = (2.0, 98.0)
 RASTER_STEPS = 8           # clustering raster: cells of gap / 8 ...
 RASTER_MAX = 6000          # ... at most this many cells per side
@@ -398,24 +397,5 @@ def _overlap(a: Box, b: Box) -> bool:
 
 
 def reading_order(clusters: list[Cluster]) -> list[Cluster]:
-    """Rows from the top, left to right in a row (a region joins a row when its vertical span overlaps the row's
-    first region by >= 50 % of the lower of the two heights)."""
-    pending = sorted(clusters, key=lambda c: (-c.box[3], c.box[0]))
-    rows: list[list[Cluster]] = []
-    for c in pending:
-        placed = False
-        for row in rows:
-            first = row[0]
-            lo = max(c.box[1], first.box[1])
-            hi = min(c.box[3], first.box[3])
-            h = min(c.box[3] - c.box[1], first.box[3] - first.box[1])
-            if h > 0 and hi - lo >= ROW_OVERLAP * h:
-                row.append(c)
-                placed = True
-                break
-        if not placed:
-            rows.append([c])
-    out = []
-    for row in rows:
-        out.extend(sorted(row, key=lambda c: c.box[0]))
-    return out
+    """Top to bottom by the top of the region box (y up), then left to right (sheets.schema ``$defs/region.id``)."""
+    return sorted(clusters, key=lambda c: (-round(c.geometry_box[3], 6), round(c.geometry_box[0], 6)))

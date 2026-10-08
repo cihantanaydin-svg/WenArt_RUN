@@ -1,15 +1,16 @@
 """The ``sheet_region`` AI question (docs/milestone10.md §3.1 item 2, §1.5, §1.6a): crop, prompt, strict schema, the
 request items and the merge of the two passes.
 
-What: ``requests(regions, out_dir)`` renders one crop per region (``<out>/sheets/crops/<key>.png``, 1024 px) and
+What: ``requests(regions, out_dir)`` renders one crop per region it is given (the stage passes only the regions
+whose class neither title nor geometry decided, §3.1 item 2) (``<out>/sheets/crops/<key>.png``, 1024 px) and
 returns the request items in the M7 format of ``wenart.recognition.answers`` (task ``sheet_region``);
 ``merge(regions, loaded, conflict, warnings)`` applies the answers of pass 1 (Qwen3-VL-8B, ``qwen``) and pass 2
 (GLM-4.6V-Flash, ``glm``).
 
-Why: AI proposes, title text and geometry decide. The answers are evidence next to the title and geometry: a
-class both passes agree on that differs from the title or geometry is a ``region_class_disagreement`` conflict (the
-title or geometry wins); for a region nothing else classifies, an agreed class is recorded as ``unverified`` and
-never makes the region a plan.
+Why: AI proposes, title text and geometry decide: the passes are the last step of the fall-through, asked only
+when nothing else classifies a region. An agreed class is recorded as ``unverified`` and never makes the region a
+plan. (Answers given for a decided region, e.g. from an older request file, are compared: a class both passes agree
+on that differs from the title or geometry is a ``region_class_disagreement`` conflict; the title or geometry wins.)
 
 How: the schema is strict (class enum, level word, variant word, confidence, reason; no other keys) and grammar-safe
 for vLLM (``wenart.recognition.schemas.grammar_problems``). The input hash is computed from a canonical description
@@ -92,6 +93,9 @@ def render(region, px: int = CROP_PX):
     from wenart.ingest.debug_image import _font
 
     b = region.box
+    if region.texts:                                    # the crop shows the title below the drawing too
+        b = (min([b[0]] + [t.box[0] for t in region.texts]), min([b[1]] + [t.box[1] for t in region.texts]),
+             max([b[2]] + [t.box[2] for t in region.texts]), max([b[3]] + [t.box[3] for t in region.texts]))
     w, h = max(b[2] - b[0], 1e-9), max(b[3] - b[1], 1e-9)
     margin = 16
     scale = (px - 2 * margin) / max(w, h)

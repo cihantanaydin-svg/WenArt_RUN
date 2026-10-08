@@ -1461,6 +1461,12 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
             page = dxf_generic.read_page(record.source_path, record.file, region_box=record.region_box,
                                          units_to_m_override=record.units_override)
     record.generic_page = None                   # the page model is large; the extraction keeps what is needed
+    if record.region_id is not None:
+        # The section cut line (A-A, its arms and arrow heads) is drawing annotation, read by the sheets stage: it
+        # is never a wall, an opening or site decor of the plan.
+        from wenart.sheets import register as RG
+        from wenart.sheets import titles as T
+        page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
     origin = _region_origin(record)
     is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
     if origin is not None and build is not None and not is_reference:
@@ -1792,6 +1798,16 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     b["facade"] = TB.facade_block(sheets, b["walls"], build.warn, b["levels"], b["openings"], build.unions)
     site = b.get("site") or {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)
+    if ground is not None:
+        # The site is drawn around the ground floor: what another level's plan region reads outside its walls (a
+        # basement's or an attic's) is not site (listed).
+        for key in ("boundary_walls", "areas", "decor", "openings"):
+            other = [x for x in site.get(key) or [] if x.get("level_id") not in (None, ground)]
+            if other:
+                site[key] = [x for x in site[key] if x.get("level_id") in (None, ground)]
+                build.warn(f"site: {len(other)} {key.replace('_', ' ')} read outside the walls of "
+                           f"{', '.join(sorted({x['level_id'] for x in other}))} not used (the site is the ground "
+                           f"floor's, {ground})")
     b["site"] = TB.site_block(site, sheets, SE.area_kind, ground, build.frame_shift)
     b["project"]["datum"] = (sheets.get("heights") or {}).get("datum")
     for c in sheets.get("conflicts") or []:

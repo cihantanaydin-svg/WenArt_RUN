@@ -2,9 +2,8 @@
 §0.1, §5 acceptance rows 2 and 3 (heights)). Needs LibreDWG ``dwg2dxf`` (``scripts/cloud-setup.sh``); the DWG is
 converted once per session into a temporary folder (about a minute).
 
-The walls of real02 are drawn as open face lines (§0.4): until the face-line wall primitive (track A3) lands, the
-plans are read but left out (``failed_levels: leave_out``) and the project ends ``needs_review`` with each region
-named; the assertions on the building accept both states."""
+The walls of real02 are drawn as open face lines (§0.4), read by track A3's face-pair walls: all four plan levels
+(L-1, its alternative L-1b, L0, the attic L1) build, the project is ``ok``."""
 from __future__ import annotations
 
 import pytest
@@ -130,10 +129,21 @@ def test_pipeline_reads_one_record_per_region(real02):
     plans = [p for p in pages if p["region_class"] in ("floor_plan", "alternative_floor_plan")]
     # $INSUNITS 4 (mm) but the drawing is in cm: the unit check decided (§1.6b row 3).
     assert all(p["scale"]["metres_per_unit"] == 0.01 and p["scale"]["method"] == "unit_check" for p in plans)
-    left = {x["region_id"] for x in building.get("levels_left_out") or []}
-    built = {lv["region_id"] for lv in building["levels"]}
-    assert left | built == {p["region_id"] for p in plans}
-    if building["status"] == "needs_review":
-        reasons = [w for w in building["warnings"] if w.startswith("needs review: r")]
-        assert reasons and all("(L" in r for r in reasons)
+    assert building["status"] == "ok" and not building.get("levels_left_out")
+    levels = {lv["id"]: lv for lv in building["levels"]}
+    assert list(levels) == ["L-1", "L-1b", "L0", "L1"]
+    assert {lv["region_id"] for lv in levels.values()} == {p["region_id"] for p in plans}
+    assert {k: lv["elevation"] for k, lv in levels.items()} == pytest.approx({"L-1": -3.0, "L-1b": -3.0, "L0": 0.0,
+                                                                              "L1": 3.15}, abs=0.001)
+    assert all(lv["elevation_source"] == "section" for lv in levels.values())
+    assert levels["L-1b"]["variant"] == "Açık mutfak" and levels["L-1b"]["base_level_id"] == "L-1"
+    assert all(any(w["level_id"] == k for w in building["walls"]) for k in levels)
+    assert [v["id"] for v in building["variants"]] == ["base", "l-1b-acik-mutfak"]
+    roof = building["roof"]
+    assert roof["type"] == "mansard" and roof["over_level_id"] == "L1"
+    assert roof["ridge_height"]["value"] == pytest.approx(3.15 + 3.64, abs=0.01)
+    assert {s["id"] for s in building["slabs"]} >= {"sl_L-1", "sl_L0", "sl_L1"}
+    # The site is the ground floor's: nothing read outside a basement's or the attic's walls.
+    assert all(x["level_id"] == "L0" for key in ("decor", "areas", "boundary_walls")
+               for x in building["site"].get(key) or [])
     assert any(c["kind"] == "unit_mismatch" for c in building["conflicts"])

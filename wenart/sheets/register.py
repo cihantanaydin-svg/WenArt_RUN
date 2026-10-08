@@ -8,9 +8,11 @@ Why: on one sheet the plans are drawn side by side; each level must sit over the
 "fixed": a residual over 5 cm is a ``registration_residual`` conflict and every level is built as drawn.
 
 How (metres):
-- the outline of a plan is the outer boundary of its long straight strokes (>= 0.5 m), each grown by 0.25 m, merged,
-  holes filled and shrunk back (the walls' outer faces; furniture and tiles inside do not matter); a closed outline
-  that encloses all other strokes with a margin (the roof outline on an attic plan) is left out;
+- the outline of a plan is the outer boundary of its long straight strokes (>= 0.5 m), each grown by ``GROW_M``
+  (0.75 m: an opening up to 1.5 m wide in walls drawn as face lines is bridged), merged, holes filled and shrunk back
+  (the walls' outer faces; furniture and tiles inside do not matter); a closed outline that encloses all other strokes
+  with a margin (the roof outline on an attic plan) and the section cut line (layers ``KESİT``, ``SECTION``,
+  ``SCHNITT``, ``COUPE``, ``CUT``) are left out;
 - the reference is the base ground-floor plan (else the lowest base plan); its frame: x right, y up, origin at the
   min corner of its outline (transform ``[s, 0, -s x0, 0, s, -s y0]``; the pipeline moves the origin to the min corner
   of the reference's outer walls once the core has read them, docs/milestone10.md §1.6b row 1);
@@ -28,6 +30,7 @@ How (metres):
 from __future__ import annotations
 
 import math
+import re
 from typing import Callable, Optional
 
 import numpy as np
@@ -41,7 +44,8 @@ from wenart.sheets import units_check as UC
 from wenart.sheets.model import box_union
 
 SEGMENT_MIN_M = 0.5
-GROW_M = 0.25
+GROW_M = 0.75
+CUT_LAYER_RE = re.compile(r"KESIT|SECTION|SCHNITT|COUPE|\bCUT\b")
 SAMPLE_M = 0.10
 TRIM = 0.8
 ICP_ITERS = 40
@@ -64,7 +68,8 @@ def enclosing_outlines(region, mpu: Optional[float], max_margin_m: Optional[floa
         if e.rect is None and not (len(e.strokes) == 1 and e.strokes[0].closed and len(e.strokes[0].pts) >= 4):
             continue
         b = e.box
-        others = [o.box for o in region.ents if o is not e and o.box != b]
+        # Lines that end on the outline (a ridge or hip line drawn up to the eaves) do not count for the margin.
+        others = [o.box for o in region.ents if o is not e and o.box != b and not _ends_on(o, b)]
         if not others or b != geom:
             continue
         ob = box_union(others)
@@ -72,6 +77,87 @@ def enclosing_outlines(region, mpu: Optional[float], max_margin_m: Optional[floa
         if all(lo <= m <= hi and m > 0 for m in margins):
             out.append(e.id)
     return out
+
+
+def _ends_on(ent, box, rel: float = 0.005) -> bool:
+    """A single straight line inside ``box`` with an end on its boundary."""
+    if len(ent.strokes) != 1 or ent.strokes[0].closed or len(ent.strokes[0].pts) != 2:
+        return False
+    tol = rel * max(box[2] - box[0], box[3] - box[1])
+    for x, y in ent.strokes[0].pts:
+        if not (box[0] - tol <= x <= box[2] + tol and box[1] - tol <= y <= box[3] + tol):
+            return False
+    return any(min(abs(x - box[0]), abs(x - box[2]), abs(y - box[1]), abs(y - box[3])) <= tol
+               for x, y in ent.strokes[0].pts)
+
+
+def cut_line_entities(region) -> set:
+    """Entities on a section cut-line layer (``A-A`` with its arms and arrows): never part of the outline."""
+    from wenart.sheets import titles as T
+    return {e.id for e in region.ents if e.layer and CUT_LAYER_RE.search(T.fold(e.layer))}
+
+
+CUT_MIN_M = 1.0                  # the cut line itself is at least 1 m long
+
+
+def cut_line(plans: list, section) -> Optional[dict]:
+    """The section's cut line drawn on a registered plan (``A-A``: a long line on a cut-line layer with two short
+    arms at its ends pointing the way the viewer looks, letters at the ends). Returns ``{axis, at, flipped, view,
+    region, entities, letter}`` in the building frame: ``axis`` the building axis the section's width runs along (the
+    cut line's direction), ``at`` the building coordinate of the line on the other axis, ``flipped`` True when the
+    viewer's left (the section's left end) is the max end along ``axis``. A line whose letter does not appear in the
+    section's title is not used when the title names one; None when no plan draws a cut line."""
+    from wenart.sheets import titles as T
+    title = T.fold((section.title or {}).get("text") or "") if section is not None else ""
+    named = re.match(r"^\s*([A-Z0-9]{1,2})\s*-\s*\1\b", title)
+    for r in plans:
+        tf, mpu = r.transform_to_building, r.metres_per_unit
+        if tf is None or not mpu:
+            continue
+        ids = cut_line_entities(r)
+        if not ids:
+            continue
+        segs = [(a, b, st) for e in r.ents if e.id in ids for a, b, st in UC.segments(e.strokes)]
+        if not segs:
+            continue
+        a, b, st = max(segs, key=lambda s: math.dist(s[0], s[1]))
+        length = math.dist(a, b)
+        if length * mpu < CUT_MIN_M:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        tol = 0.02 * length
+        arms = []
+        for c, d, other in segs:
+            if (c, d) == (a, b):
+                continue
+            for p, q in ((c, d), (d, c)):
+                if min(math.dist(p, a), math.dist(p, b)) <= tol and math.dist(p, q) > 0:
+                    vx, vy = q[0] - p[0], q[1] - p[1]
+                    n = math.hypot(vx, vy)
+                    if abs(vx / n * ux + vy / n * uy) <= 0.2:            # perpendicular to the cut line
+                        arms.append((vx / n, vy / n, other.id))
+        if not arms:
+            continue
+        vx = sum(x for x, _, _ in arms) / len(arms)
+        vy = sum(y for _, y, _ in arms) / len(arms)
+        letters = [t for t in r.texts if len(T.fold(t.text).strip()) <= 2
+                   and min(math.dist(t.point, a), math.dist(t.point, b)) <= 0.1 * length]
+        letter = T.fold(letters[0].text).strip() if letters else None
+        if named and letter and letter != named.group(1):
+            continue
+        # Building frame: the linear part of the region's transform.
+        bux, buy = tf[0] * ux + tf[1] * uy, tf[3] * ux + tf[4] * uy
+        bvx, bvy = tf[0] * vx + tf[1] * vy, tf[3] * vx + tf[4] * vy
+        axis = "x" if abs(bux) >= abs(buy) else "y"
+        mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        mx, my = tf[0] * mid[0] + tf[1] * mid[1] + tf[2], tf[3] * mid[0] + tf[4] * mid[1] + tf[5]
+        at = my if axis == "x" else mx
+        left = (-bvy, bvx)                                  # the viewer's left: the view turned 90 deg ccw
+        flipped = (left[0] if axis == "x" else left[1]) > 0
+        return {"axis": axis, "at": round(at, 4) + 0.0, "flipped": bool(flipped),
+                "view": [round(bvx, 4) + 0.0, round(bvy, 4) + 0.0], "region": r.id,
+                "entities": sorted({st.id} | {i for _, _, i in arms}), "letter": letter}
+    return None
 
 
 def roof_outlines(region, mpu: float) -> list:
@@ -142,7 +228,7 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
     polygon in building metres}`` for the outline cross-checks."""
     outlines: dict[str, Polygon] = {}
     ref_mpu = reference.metres_per_unit
-    excl = set(enclosing_outlines(reference, ref_mpu))
+    excl = set(enclosing_outlines(reference, ref_mpu)) | cut_line_entities(reference)
     ref_poly = outline(reference, ref_mpu, excl)
     if ref_poly is None:
         for r in plans:
@@ -167,7 +253,7 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
         if r is reference:
             continue
         mpu = r.metres_per_unit
-        poly = outline(r, mpu, set(enclosing_outlines(r, mpu)))
+        poly = outline(r, mpu, set(enclosing_outlines(r, mpu)) | cut_line_entities(r))
         if poly is None:
             r.registration = {"reference": reference.id, "method": "none", "rotation_deg": 0.0, "shift_m": [0.0, 0.0],
                               "residual_m": None, "matched": 0, "stairs_aligned": None, "note": "no outline"}
@@ -238,7 +324,7 @@ def _r(v: float) -> float:
 
 def stairs_check(plans: list, conflict: Callable, warnings: list) -> None:
     """``stairs_aligned`` of each plan with the plan of the level below in the same variant (base levels with base
-    levels, an alternative with the base levels next to it)."""
+    levels, an alternative with the base levels next to it); the lowest level is checked against the level above."""
     def boxes(r) -> list:
         tf = r.transform_to_building
         if tf is None:
@@ -256,6 +342,8 @@ def stairs_check(plans: list, conflict: Callable, warnings: list) -> None:
             by_order.setdefault(r.level["order"], []).append(r)
     for order, regions in by_order.items():
         below = [b for b in by_order.get(order - 1, []) if b.variant in ("base", None)]
+        if not below and order - 1 not in by_order:
+            below = [b for b in by_order.get(order + 1, []) if b.variant in ("base", None)]
         if not below:
             continue
         for r in regions:
@@ -266,13 +354,14 @@ def stairs_check(plans: list, conflict: Callable, warnings: list) -> None:
             if not mine or not theirs:
                 r.registration["stairs_aligned"] = False
                 warnings.append(f"registration: {r.id} ({r.level['id']}): stairs drawn on "
-                                f"{'the level below only' if theirs else 'this level only'}")
+                                f"{'the level next to it only' if theirs else 'this level only'}")
                 continue
             ok = any(a.intersects(b) for a in mine for b in theirs)
             r.registration["stairs_aligned"] = ok
             if not ok:
                 cid = conflict("stair_alignment", [r.id] + [b.id for b in below],
-                               f"{r.id} ({r.level['id']}): its stairs do not overlap the stairs of the level below",
+                               f"{r.id} ({r.level['id']}): its stairs do not overlap the stairs of the level "
+                               f"next to it",
                                "unresolved: each level is built as drawn")
                 r.conflicts.append(cid)
 

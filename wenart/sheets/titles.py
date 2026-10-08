@@ -108,19 +108,32 @@ def alternative_of(text: str) -> Optional[tuple[str, str]]:
 
     ``BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)`` -> (``Açık mutfak``, ``bracket``); ``ZEMİN KAT PLANI
     ALTERNATİF 2`` -> (``2``, ``word``); a bracket holding only an area or a scale (``(92 m²)``, ``(1/100)``) is no
-    alternative."""
+    alternative. A name written in capitals is given in sentence case (``(AÇIK MUTFAK)`` -> ``Açık mutfak``, Turkish
+    dotless i kept); the slug is the same either way."""
     folded = fold(text)
     m = _ALT_RE.search(folded)
     if m:
         start = m.start(2)
         name = _original_slice(text, folded, start).strip(" :-()[]") or m.group(1).title()
-        return name, "word"
+        return sentence_case(name, text), "word"
     for bm in _BRACKET_RE.finditer(text):
         inner = bm.group(1).strip()
         if not inner or re.fullmatch(r"[\d\s.,/:]*(m2|m²|sq ?ft)?", inner, re.IGNORECASE):
             continue
-        return inner, "bracket"
+        return sentence_case(inner, text), "bracket"
     return None
+
+
+def sentence_case(name: str, title: str = "") -> str:
+    """A name in capitals -> sentence case (Turkish capitals ``I`` / ``İ`` -> ``ı`` / ``i`` when the title is
+    Turkish); any other name as written."""
+    letters = [c for c in name if c.isalpha()]
+    if not letters or any(c.islower() for c in letters):
+        return name
+    if language_of(title or name) == "tr" or any(c in name for c in "ÇĞİÖŞÜ"):
+        name = name.replace("I", "ı").replace("İ", "i")
+    low = name.lower()
+    return low[:1].upper() + low[1:]
 
 
 def _original_slice(text: str, folded: str, start: int) -> str:
