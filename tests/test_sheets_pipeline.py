@@ -301,3 +301,17 @@ def test_an_alternative_whose_base_was_left_out_gets_its_slabs(tmp_path):
     stair = next(f for f in building["furniture"] if f["id"] == over["openings"][0]["furniture_id"])
     assert stair["level_id"] == "L-1b"
     assert any("base level L-1 left out" in w for w in building["warnings"])
+
+
+def test_two_regions_of_one_level_on_one_sheet_keep_their_own_region_ids(tmp_path):
+    # Review finding 14: the attic plan titled as the ground floor is a copy of L0 (r5) on the same sheet as its base
+    # (r2): the base's walls, rooms and furniture name r2, the copy's cross-check evidence names r5.
+    building, _, _ = _build(tmp_path, titles={"attic": "ZEMİN KAT PLANI"})
+    level = next(lv for lv in building["levels"] if lv["id"] == "L0")
+    assert sorted({e["region_id"] for e in level["evidence"]}) == ["r2", "r5"]
+    for key in ("walls", "rooms", "furniture"):
+        items = [x for x in building[key] if x["level_id"] == "L0"]
+        assert items and all(x["evidence"][0]["region_id"] == "r2" for x in items), key
+    walls = [w for w in building["walls"] if w["level_id"] == "L0"]
+    assert all([e["region_id"] for e in w["evidence"]] == ["r2", "r5"] for w in walls)
+    assert not any("left without a region_id" in w for w in building["warnings"])
