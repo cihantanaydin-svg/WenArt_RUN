@@ -168,7 +168,8 @@ def level_prisms(building: dict, levels: Sequence[dict], roof_model: Optional[di
             z1 = float(order[i + 1]["elevation"])
         elif roof_model is not None and roof_model.get("convex") and roof_model.get("over_level_id") == lv["id"]:
             planes = R.underside(roof_model)
-            z1 = max(R.surface_z(planes, x, y) for x, y in outline)
+            # the highest underside point is a plane corner (the ridge), not an outline corner
+            z1 = max(R.surface_z(planes, float(p[0]), float(p[1])) for pl in roof_model["planes"] for p in pl["points"])
         else:
             z1 = float(lv["elevation"]) + float(lv["ceiling_height"]) + 0.3
         out.append((outline, z0, planes, z1))
@@ -312,10 +313,10 @@ def view_check(model: ExteriorModel, position, target, lens: float, shift_y: flo
     lab, _ = model.cast(position, d[None, :] / np.linalg.norm(d))
     aim_ok = int(lab[0]) == LABELS["building"]
     why = None
-    if share < MIN_BUILDING_SHARE:
-        why = f"the building fills {share:.0%} of the frame (< {MIN_BUILDING_SHARE:.0%})"
-    elif blocked > MAX_BLOCKED:
+    if blocked > MAX_BLOCKED:
         why = f"{blocked:.0%} of the view of the building is blocked by trees or the plot wall"
+    elif share < MIN_BUILDING_SHARE:
+        why = f"the building fills {share:.0%} of the frame (< {MIN_BUILDING_SHARE:.0%})"
     elif not aim_ok:
         names = {v: k for k, v in LABELS.items()}
         why = f"the line of sight to the building ends on {names.get(int(lab[0]), 'nothing')}"

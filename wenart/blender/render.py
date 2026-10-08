@@ -129,6 +129,14 @@ images with the same look (``save_display(..., look=LOOK)``), so the pulled
 panes blend into a picture of one look. The A/B alternative is now the old
 look: ``--alt-look None`` (``stages.ALT_LOOK``). EV and white balance are
 metered scene-linear (before the view transform) and do not change.
+
+Milestone 10 (docs/milestone10.md §3.3): an exterior camera (custom property
+``wenart_camera_kind = exterior``, ``exterior.create_cameras``) meters its
+facades: the meter mask keeps the surfaces whose world normal is nearly
+horizontal (walls, not the ground, the roof or the sky; ``meter_stats``
+``normal_z``) when they fill at least 2 % of the frame; the record says
+``meter.metered``. Interior cameras are metered as before; render entries
+carry ``room_id`` / ``level_id`` None for exterior views.
 """
 from __future__ import annotations
 
@@ -353,8 +361,13 @@ def luminance(rgb):
     return a[..., 0] * LUMA[0] + a[..., 1] * LUMA[1] + a[..., 2] * LUMA[2]
 
 
+FACADE_NZ_MAX = 0.3               # Milestone 10: an exterior view meters the facade (|normal z| below this)
+FACADE_MIN_SHARE = 0.02           # ... when that leaves at least this share of the frame, else every surface
+
+
 def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int = METER_BLOCKS_ACROSS,
-                min_coverage: float = METER_BLOCK_COVERAGE, min_albedo: float = METER_MIN_ALBEDO) -> dict:
+                min_coverage: float = METER_BLOCK_COVERAGE, min_albedo: float = METER_MIN_ALBEDO,
+                normal_z=None) -> dict:
     """Incident-light statistics of a metering render.
 
     ``light`` = Diffuse Direct + Indirect (H x W x 3, colour-free), ``albedo``
@@ -365,7 +378,13 @@ def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int 
     "blocks", "blocks_used", "block_px"}``; Y50 is the median of the block
     means of blocks that are at least ``min_coverage`` interior (block side
     ``width // blocks_across`` px). A per-pixel median at a few samples is 0
-    (most paths find no light), block means are not."""
+    (most paths find no light), block means are not.
+
+    Milestone 10: ``normal_z`` (the world normal's Z, given for an exterior
+    view) narrows the mask to the facades (``|z| < FACADE_NZ_MAX``: walls, not
+    the ground, the roof or the sky) when they cover at least
+    ``FACADE_MIN_SHARE`` of the frame; ``metered`` says ``facade`` or
+    ``surfaces``."""
     import numpy as np
 
     light = np.nan_to_num(np.asarray(light, dtype=np.float64), nan=0.0, posinf=0.0, neginf=0.0)
@@ -374,12 +393,20 @@ def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int 
     d = np.nan_to_num(np.asarray(depth, dtype=np.float64), nan=DEPTH_BACKGROUND, posinf=DEPTH_BACKGROUND)
     mask = (~np.isin(idx, sorted(int(v) for v in window_indices))) & (d < DEPTH_BACKGROUND) & \
            (luminance(albedo) >= min_albedo)
+    metered = "surfaces"
+    if normal_z is not None:
+        nz = np.nan_to_num(np.asarray(normal_z, dtype=np.float64), nan=1.0)
+        facade = mask & (np.abs(nz) < FACADE_NZ_MAX)
+        if facade.size and float(facade.mean()) >= FACADE_MIN_SHARE:
+            mask, metered = facade, "facade"
     y = luminance(light)
     h, w = mask.shape
     b = max(1, w // max(1, blocks_across))
     hh, ww = (h // b) * b, (w // b) * b
     stats = {"incident_p50": None, "illuminant": None, "interior_frac": round(float(mask.mean()), 4) if mask.size else 0.0,
              "blocks": 0, "blocks_used": 0, "block_px": b}
+    if normal_z is not None:
+        stats["metered"] = metered
     if hh and ww:
         shape = (hh // b, b, ww // b, b)
         m = mask[:hh, :ww]
@@ -1184,6 +1211,8 @@ class Look:
             rec["meter_seconds"] = meter.pop("seconds")
             rec["meter"] = {k: meter[k] for k in ("resolution", "samples", "blocks", "blocks_used", "block_px",
                                                    "interior_frac")}
+            if "metered" in meter:               # Milestone 10: an exterior view meters its facades
+                rec["meter"]["metered"] = meter["metered"]
             rec["incident_p50"] = None if meter["incident_p50"] is None else round(meter["incident_p50"], 6)
         if self.exposure_mode == "auto":
             rec.update(target=self.target, limits=list(EXPOSURE_LIMITS))
@@ -1257,7 +1286,11 @@ def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[i
     depth = find_channel(channels, "Depth.Z")
     if any(a is None for a in (direct, indirect, albedo, index, depth)):
         raise RuntimeError(f"metering EXR of {cam.name} lacks a pass: {sorted(channels)}")
-    stats = meter_stats(direct + indirect, albedo, index, depth, windows)
+    normal_z = None
+    if cam.get("wenart_camera_kind") == "exterior":        # Milestone 10: meter the facades
+        normal = find_rgb(channels, "Normal")
+        normal_z = None if normal is None else normal[..., 2]
+    stats = meter_stats(direct + indirect, albedo, index, depth, windows, normal_z=normal_z)
     stats.update(resolution=[w, h], samples=METER_SAMPLES, seconds=round(time.time() - t0, 3))
     return stats
 
