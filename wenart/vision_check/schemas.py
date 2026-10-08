@@ -27,6 +27,15 @@ never rejects a polish, an expected one is never required, never asked as
 furniture), and ``rug``/``textile`` are equivalent (the ``textile`` hint
 says "curtain or rug").
 
+Milestone 10 (docs/milestone10.md §1.1, §2.8): the 14 new furniture types
+come with the building schema's enum, the 12 new decor types with its decor
+enum (``DECOR_CATEGORIES`` also takes that enum, so the categories do not
+wait for the decor module). A corner sofa seen as ``sofa`` (and the other
+pairs in ``EQUIVALENT_PAIRS``) is the same object: Feature 1 may change a
+drawn type to such a neighbour, and the model sees the shape, not the label.
+``facade_schema`` is the answer schema of the advisory window count per
+visible facade of an exterior view.
+
 Categories are generated from the enums the rest of the pipeline uses, so
 prompt, schema and building JSON cannot drift: ``door``/``window`` (building
 schema opening types without the plain ``opening``), the building schema's
@@ -57,7 +66,9 @@ OPENING_TYPES: tuple[str, ...] = tuple(t for t in _BUILDING["$defs"]["opening"][
                                        if t != "opening")
 FURNITURE_TYPES: tuple[str, ...] = tuple(t for t in _BUILDING["$defs"]["furniture"]["properties"]["type"]["enum"]
                                          if t != "unknown")
-DECOR_CATEGORIES: tuple[str, ...] = tuple(DECOR_TYPES)
+# The decor module's types plus the building schema's decor enum (Milestone 10 adds 12 types there).
+DECOR_CATEGORIES: tuple[str, ...] = tuple(dict.fromkeys(
+    list(DECOR_TYPES) + list(_BUILDING["$defs"]["decor"]["properties"]["type"]["enum"])))
 EXTRA_CATEGORIES: tuple[str, ...] = ("lamp", "textile", "other_furniture", "other_object")
 CATEGORIES: tuple[str, ...] = OPENING_TYPES + FURNITURE_TYPES + DECOR_CATEGORIES + EXTRA_CATEGORIES
 NOTHING = "nothing"
@@ -80,8 +91,14 @@ DECOR_FURNITURE_TYPES: tuple[str, ...] = ("potted_plant",)
 # expected "plant", is often seen as the M7 "potted_plant" with its hint "large potted plant standing on the floor").
 # Milestone 8: the decor rug may be named "textile" (the extra category whose hint says "curtain or rug").
 # Milestone 9: a table lamp may be named "lamp", a small potted plant "plant".
-EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (("potted_plant", "plant"), ("floor_lamp", "lamp"), ("rug", "textile"),
-                                                 ("table_lamp", "lamp"), ("plant_small", "plant"))
+# Milestone 10: new types seen as their near neighbour (a corner sofa is a sofa, an office chair a chair, ...).
+EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (
+    ("potted_plant", "plant"), ("floor_lamp", "lamp"), ("rug", "textile"), ("table_lamp", "lamp"),
+    ("plant_small", "plant"),
+    ("sofa_corner", "sofa"), ("office_chair", "chair"), ("bar_stool", "chair"), ("bunk_bed", "bed_single"),
+    ("sideboard", "tv_unit"), ("tall_cabinet", "wardrobe"),
+    ("plant_large", "plant"), ("plant_large", "potted_plant"), ("pendant_light", "lamp"), ("ceiling_light", "lamp"),
+    ("curtain", "textile"), ("blind", "textile"), ("throw", "textile"), ("books", "book_set"))
 # The expected category -> what it may also be seen as (symmetric, built from ``EQUIVALENT_PAIRS``).
 EQUIVALENT: dict[str, tuple[str, ...]] = {}
 for _a, _b in EQUIVALENT_PAIRS:
@@ -153,6 +170,19 @@ def view_schema(labels) -> dict:
             "window_count": {"type": "integer", "minimum": 0, "maximum": MAX_COUNT},
         },
     }
+
+
+FACADE_MAX_COUNT = 40
+
+
+def facade_schema() -> dict:
+    """The strict answer schema of the count of one facade crop of an exterior view (advisory, Milestone 10):
+    ``{"window_count", "door_count", "confidence"}``, counts 0..``FACADE_MAX_COUNT``."""
+    count = {"type": "integer", "minimum": 0, "maximum": FACADE_MAX_COUNT}
+    return {"$schema": SCHEMA_ID, "title": "FacadeCount", "type": "object", "additionalProperties": False,
+            "required": ["window_count", "door_count", "confidence"],
+            "properties": {"window_count": dict(count), "door_count": dict(count),
+                           "confidence": copy.deepcopy(CONFIDENCE)}}
 
 
 PREFERENCE: dict[str, Any] = {
