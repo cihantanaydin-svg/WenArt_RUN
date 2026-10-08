@@ -189,8 +189,10 @@ WALL_TYPES: tuple[str, ...] = (
 # main seat), bunk beds, cribs and tall cabinets).
 CLEARANCE_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "desk", "wardrobe",
                                     "sofa_corner", "bunk_bed", "crib", "tall_cabinet")
-# Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair).
-CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",)}
+# Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair; a
+# bench or ottoman at the foot of a bed, §2.3 "bench (bed foot)", code review #21).
+CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",), "bed_double": ("bench", "ottoman"),
+                                                "bed_single": ("bench", "ottoman")}
 # Allowed within 0.3 m of a window even when taller than the sill.
 UNDER_WINDOW_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "table_dining", "table_coffee",
                                        "sofa_corner", "chaise", "bench")
