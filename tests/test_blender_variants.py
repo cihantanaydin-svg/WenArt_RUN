@@ -483,3 +483,43 @@ def test_walls_wholly_above_the_roof_underside_are_listed_not_a_crash(tmp_path):
     assert {"w_w", "w_e"} <= walls and not {"w_s", "w_n"} & walls
     assert any(w.startswith("w_s: the roof underside lies below the floor") and "win_1" in w for w in m["warnings"])
     assert {("w_s", "not_built"), ("w_n", "not_built")} <= {(a["object"], a["field"]) for a in m["assumed"]}
+
+
+def _two_attic_rooms() -> dict:
+    """A 4 x 4 m attic under a gable roof (eaves 1.00 m at y -0.5, ridge along x at y 2.0, 35 degrees): a narrow
+    windowless room along the eaves (y 0..1) listed before a windowless room under the ridge (review #28)."""
+    b = _low_eaves_building()
+    ev = b["walls"][0]["evidence"]
+
+    def wall(wid, start, end):
+        return {"id": wid, "level_id": "L0", "start": start, "end": end, "thickness": 0.2, "exterior": True,
+                "status": "verified", "evidence": ev}
+
+    b["walls"] = [wall("w_s", [-0.2, -0.1], [4.2, -0.1]), wall("w_n", [-0.2, 4.1], [4.2, 4.1]),
+                  wall("w_w", [-0.1, -0.2], [-0.1, 4.2]), wall("w_e", [4.1, -0.2], [4.1, 4.2])]
+    b["openings"] = []
+    room = b["rooms"][0]
+    b["rooms"] = [dict(room, id="r_low", polygon=[[0.0, 0.0], [4.0, 0.0], [4.0, 1.0], [0.0, 1.0]], area_computed=4.0),
+                  dict(room, id="r_high", polygon=[[0.0, 1.0], [4.0, 1.0], [4.0, 4.0], [0.0, 4.0]], area_computed=12.0)]
+    b["roof"] = dict(b["roof"], outline=[[-0.5, -0.5], [4.5, -0.5], [4.5, 4.5], [-0.5, 4.5]],
+                     ridge_lines=[[[-0.5, 2.0], [4.5, 2.0]]], eaves_height={"value": 1.0, "method": "vector"})
+    return b
+
+
+@needs_blender
+def test_each_attic_room_light_hangs_under_its_own_ceiling(tmp_path):
+    from wenart.blender import lighting
+    from wenart.blender import roof as R
+
+    b = _two_attic_rooms()
+    path = tmp_path / "attic.json"
+    path.write_text(json.dumps(b), encoding="utf-8")
+    m = json.loads(cli.build(path, tmp_path / "scene", no_textures=True, preview_samples=1).read_text(encoding="utf-8"))
+    level = dict(b["levels"][0])
+    planes = R.ceiling_planes(R.roof_model(b["roof"], b), level)
+    lights = {o["element_id"]: o["center"] for o in m["objects"] if o["kind"] == "light" and o.get("element_id")}
+    assert set(lights) == {"r_low", "r_high"}
+    for rid, (x, y, z) in lights.items():
+        own = min(float(a) * x + float(bb) * y + float(c) for a, bb, c in planes)
+        assert z == pytest.approx(own - lighting.AREA_LIGHT_CEILING_GAP, abs=2e-3), rid
+    assert lights["r_high"][2] > lights["r_low"][2] + 0.5

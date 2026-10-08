@@ -329,9 +329,10 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             except AttributeError:
                 light.color = _blackbody_rgb(temperature)
             lob = bpy.data.objects.new(f"light_{room['id']}", light)
-            if ceiling_at is not None:
-                ceil_z = min(ceil_z, ceiling_at(level, plan["center"][0], plan["center"][1]))
-            lob.location = (plan["center"][0], plan["center"][1], ceil_z - AREA_LIGHT_CEILING_GAP)
+            # The room's own ceiling at the light (review #28: a sloped ceiling of one room never carries over to
+            # the next room of the level).
+            room_ceil = ceil_z if ceiling_at is None else min(ceil_z, ceiling_at(level, *plan["center"][:2]))
+            lob.location = (plan["center"][0], plan["center"][1], room_ceil - AREA_LIGHT_CEILING_GAP)
             lob.visible_camera = False      # lighting mood only: no lamp in the picture
             collection.objects.link(lob)
             common.set_props(lob, wenart_id=f"light_{room['id']}", kind="light", status="assumed")
@@ -341,7 +342,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                 "name": lob.name, "wenart_id": lob.name, "kind": "light", "status": "assumed",
                 "level_id": level["id"], "element_id": room["id"], "parent": room["id"], "evidence": [],
                 "material": None, "textured": False, "pass_index": None,
-                "center": [plan["center"][0], plan["center"][1], round(ceil_z - AREA_LIGHT_CEILING_GAP, 4)],
+                "center": [plan["center"][0], plan["center"][1], round(room_ceil - AREA_LIGHT_CEILING_GAP, 4)],
                 "size": size,
                 "assumed": {"power_w": power, "w_per_m2": per_m2, "size_m": size,
                             "boundary_distance_m": plan["boundary_distance"], "window_floor_ratio":
