@@ -65,8 +65,15 @@ def _vision_check() -> dict:
 
 
 def _furniture() -> dict:
+    """The M4 layout and, Milestone 10, the completion of a furnished room (``complete.answer_schema``): with changes
+    and additions, and the keep mode's empty lists (``maxItems: 0``)."""
+    from wenart.furniture import complete as CMP
     from wenart.furniture import schemas as FS
-    return {"furniture/layout": FS.grammar_schema()}
+    full = {"change_ids": ["f_L0_001", "f_L0_002"], "change_types": ["sofa", "sofa_corner"], "styles": ["modern"],
+            "colours": ["light grey"], "add": {"table_coffee": 1, "floor_lamp": 1}}
+    keep = dict(full, change_ids=[], change_types=[], add={})
+    return {"furniture/layout": FS.grammar_schema(), "furniture/complete": CMP.answer_schema(full),
+            "furniture/complete keep": CMP.answer_schema(keep)}
 
 
 def _objaverse() -> dict:
