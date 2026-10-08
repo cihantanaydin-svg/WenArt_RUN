@@ -114,6 +114,7 @@ import subprocess
 import sys
 import threading
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -1960,10 +1961,28 @@ def judge_requests(out: Path, cfg: Optional[dict] = None) -> dict:
     return doc
 
 
-def read_requests(out: Path) -> Optional[dict]:
-    doc = read_json(Path(out) / JUDGE_DIR / REQUESTS_NAME)
-    if doc is not None and doc.get("kind") != "objaverse_judge_requests":
-        raise ValueError(f"{Path(out) / JUDGE_DIR / REQUESTS_NAME}: not an Objaverse judging requests file")
+@dataclass(frozen=True)
+class JudgeSpec:
+    """What a judging run asks and how it checks the answers: the library sheets (the default) or, Milestone 10,
+    the material slots of ``wenart.assets.recolour`` (the same answer store, workers, deadline and exit codes). The
+    default spec is the Milestone 7 / 8 judging, so its requests and answers stay as they were."""
+    dir_name: str = JUDGE_DIR                       # <out>/<dir_name>/{requests.json, answers_<slug>.json, sheets/}
+    task: str = TASK
+    system: str = SYSTEM_PROMPT
+    label: str = "objaverse judge"
+    answers_kind: str = "objaverse_judge_answers"
+    requests_kind: str = "objaverse_judge_requests"
+    schema_of: Callable = lambda item: judge_schema(item_kind(item))
+    valid_of: Callable = lambda item, data: valid_judgement(data, item_kind(item))
+
+
+LIBRARY_SPEC = JudgeSpec()
+
+
+def read_requests(out: Path, spec: JudgeSpec = LIBRARY_SPEC) -> Optional[dict]:
+    doc = read_json(Path(out) / spec.dir_name / REQUESTS_NAME)
+    if doc is not None and doc.get("kind") != spec.requests_kind:
+        raise ValueError(f"{Path(out) / spec.dir_name / REQUESTS_NAME}: not a {spec.requests_kind} file")
     for item in (doc or {}).get("items") or []:
         if not _SHA256_RE.match(str(item.get("input_sha256"))):
             raise ValueError(f"request {item.get('key')!r}: input_sha256 is not a sha256 hex digest")
@@ -1982,23 +2001,27 @@ def _store_class():
         from wenart.recognition.answers import AnswerStore
 
         class JudgeStore(AnswerStore):
-            """``judge/answers_<slug>.json``: the recognition answer store with the library judging schema."""
+            """``<spec.dir_name>/answers_<slug>.json``: the recognition answer store with the judging schema of
+            its ``JudgeSpec`` (``valid_of``)."""
+
+            spec: JudgeSpec = LIBRARY_SPEC
 
             def valid(self, item: dict) -> Optional[dict]:
                 rec = self.calls.get(item["key"])
                 if not self.current(rec, item):
                     return None
-                return rec if valid_judgement(rec.get("data"), item_kind(item)) else None
+                return rec if self.spec.valid_of(item, rec.get("data")) else None
 
         _STORE_CLASS = JudgeStore
     return _STORE_CLASS
 
 
-def judge_store(out: Path, key: str, models: Optional[dict] = None):
+def judge_store(out: Path, key: str, models: Optional[dict] = None, spec: JudgeSpec = LIBRARY_SPEC):
     from wenart.recognition import answers as A
     info = A.model_info(key, models)
-    store = _store_class()(A.answers_path(Path(out) / JUDGE_DIR, info["slug"]), key, info["slug"], info["id"])
-    store.data["kind"] = "objaverse_judge_answers"
+    store = _store_class()(A.answers_path(Path(out) / spec.dir_name, info["slug"]), key, info["slug"], info["id"])
+    store.spec = spec
+    store.data["kind"] = spec.answers_kind
     return store
 
 
@@ -2008,25 +2031,26 @@ def item_state(store, item: dict) -> str:
         return "missing"
     if not store.current(rec, item):
         return "stale"
-    return "answered" if valid_judgement(rec.get("data"), item_kind(item)) else "failed"
+    return "answered" if getattr(store, "spec", LIBRARY_SPEC).valid_of(item, rec.get("data")) else "failed"
 
 
-def seed_store(store, items: list[dict], seed_dir: Path, log: Callable = print) -> int:
+def seed_store(store, items: list[dict], seed_dir: Path, log: Callable = print,
+               spec: JudgeSpec = LIBRARY_SPEC) -> int:
     """Copy current, schema-valid answers of ``<seed_dir>/answers_<slug>.json`` (same model id) into ``store``."""
     seed_path = Path(seed_dir) / f"answers_{store.data['slug']}.json"
     seed = read_json(seed_path)
     if seed is None:
-        log(f"objaverse judge: no {seed_path.name} in {seed_dir}: nothing seeded")
+        log(f"{spec.label}: no {seed_path.name} in {seed_dir}: nothing seeded")
         return 0
     if store.data["model"] and seed.get("model") and seed["model"] != store.data["model"]:
-        log(f"objaverse judge: {seed_path} is from {seed['model']}, not {store.data['model']}: nothing seeded")
+        log(f"{spec.label}: {seed_path} is from {seed['model']}, not {store.data['model']}: nothing seeded")
         return 0
     copied = 0
     for item in items:
         if store.valid(item) is not None:
             continue
         rec = (seed.get("calls") or {}).get(item["key"])
-        if not store.current(rec, item) or not valid_judgement(rec.get("data"), item_kind(item)):
+        if not store.current(rec, item) or not spec.valid_of(item, rec.get("data")):
             continue
         store.put(item["key"], dict(rec, seeded_from=str(seed_path)), save=False)
         copied += 1
@@ -2047,11 +2071,11 @@ def _spawn(fn: Callable, tag: int, results: "queue.Queue") -> None:
 
 
 def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, deadline: Optional[float] = None,
-              seed: int = 0, log: Callable = print, clock: Callable[[], float] = time.time) -> dict:
+              seed: int = 0, log: Callable = print, clock: Callable[[], float] = time.time,
+              spec: JudgeSpec = LIBRARY_SPEC) -> dict:
     """Ask every item without a current answer, ``workers`` at once, until ``deadline`` (as
     ``wenart.recognition.answers.ask``: no call starts after it, none is waited for past it)."""
-    judge_dir = Path(out) / JUDGE_DIR
-    schemas = {k: judge_schema(k) for k in ("furniture", "decor")}
+    judge_dir = Path(out) / spec.dir_name
     stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False}
     if deadline is not None and hasattr(client, "deadline"):
         client.deadline = float(deadline)
@@ -2074,8 +2098,8 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
 
             def call(item=item):
                 return client.run_schema([str(judge_dir / p) for p in item["images"]], item["prompt"],
-                                         schemas[item_kind(item)], seed=seed, task=TASK, max_side=0, labels=None,
-                                         system_prompt=SYSTEM_PROMPT)
+                                         spec.schema_of(item), seed=seed, task=spec.task, max_side=0, labels=None,
+                                         system_prompt=spec.system)
             _spawn(call, started, results)
             started += 1
         if not running:
@@ -2085,10 +2109,10 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
             tag, result, exc = results.get(timeout=left)
         except queue.Empty:
             abandoned = len(running)
-            log(f"objaverse judge: deadline reached with {abandoned} call(s) unanswered")
+            log(f"{spec.label}: deadline reached with {abandoned} call(s) unanswered")
             break
         item = running.pop(tag)
-        rec = {"task": TASK, "input_sha256": item["input_sha256"], "model": model, "seed": seed,
+        rec = {"task": spec.task, "input_sha256": item["input_sha256"], "model": model, "seed": seed,
                "images": list(item["images"])}
         if exc is not None:
             rec.update(data=None, raw_text="", error=f"{type(exc).__name__}: {exc}", attempts=0, latency_s=0.0)
@@ -2097,9 +2121,9 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
                        latency_s=round(float(result.latency_s), 3))
         store.put(item["key"], rec)
         stats["asked"] += 1
-        if not valid_judgement(rec["data"], item_kind(item)):
+        if not spec.valid_of(item, rec["data"]):
             stats["failed"] += 1
-            log(f"objaverse judge: {item['key']}: {rec['error'] or 'answer not schema-valid'}")
+            log(f"{spec.label}: {item['key']}: {rec['error'] or 'answer not schema-valid'}")
     stats["left"] = len(pending) - started + abandoned
     stats["incomplete"] = stats["left"] > 0
     store.data["incomplete"] = stats["incomplete"]
@@ -2111,42 +2135,43 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
 
 def judge(out: Path, model_key: str, server: str = DEFAULT_SERVER, workers: Optional[int] = None,
           deadline: Optional[float] = None, seed_dir: Optional[Path] = None, client_factory=None,
-          retries: int = 3, timeout_s: float = 600.0, log: Callable = print) -> int:
+          retries: int = 3, timeout_s: float = 600.0, log: Callable = print, spec: JudgeSpec = LIBRARY_SPEC) -> int:
     """The ``judge`` command: seed, then ask the server for the rest. Exit 0 all answered, 3 deadline, 2 server
     or answer failure (as ``python -m wenart.recognition.answers ask``)."""
     from wenart.recognition import answers as A
-    doc = read_requests(out)
+    doc = read_requests(out, spec)
     if doc is None:
-        raise UsageError(f"{Path(out) / JUDGE_DIR / REQUESTS_NAME} not found: run judge-requests first")
+        raise UsageError(f"{Path(out) / spec.dir_name / REQUESTS_NAME} not found: write the requests first")
     models = A.load_models()
     info = A.model_info(model_key, models)
     items = doc.get("items") or []
-    store = judge_store(out, model_key, models)
+    store = judge_store(out, model_key, models, spec)
     if seed_dir:
-        n = seed_store(store, items, Path(seed_dir), log)
-        log(f"objaverse judge [{model_key}]: {n} answer(s) seeded from {seed_dir}")
+        n = seed_store(store, items, Path(seed_dir), log, spec)
+        log(f"{spec.label} [{model_key}]: {n} answer(s) seeded from {seed_dir}")
     pending = [i for i in items if store.valid(i) is None]
     if not pending:
         store.data["incomplete"] = False
         store.save()
-        log(f"objaverse judge [{model_key}]: all {len(items)} item(s) answered -> {store.path}")
+        log(f"{spec.label} [{model_key}]: all {len(items)} item(s) answered -> {store.path}")
         return EXIT_OK
     deadline = deadline_of(deadline)
     if deadline is not None and time.time() >= deadline:
         store.data["incomplete"] = True
         store.save()
-        log(f"objaverse judge [{model_key}]: deadline already passed, {len(pending)} item(s) left")
+        log(f"{spec.label} [{model_key}]: deadline already passed, {len(pending)} item(s) left")
         return EXIT_DEADLINE
     if client_factory is None:
         from wenart.recognition import vlm_client
         if not vlm_client.health(server):
-            log(f"objaverse judge [{model_key}]: no vLLM server answers at {server}")
+            log(f"{spec.label} [{model_key}]: no vLLM server answers at {server}")
             return EXIT_SERVER
         client = vlm_client.VLMClient(server, model=info["id"], retries=retries, timeout_s=timeout_s)
     else:
         client = client_factory(info, server)
-    stats = judge_ask(items, store, client, out, workers=workers or _workers_default(), deadline=deadline, log=log)
-    log(f"objaverse judge [{model_key}]: {len(items)} item(s): {stats['asked']} asked ({stats['failed']} failed), "
+    stats = judge_ask(items, store, client, out, workers=workers or _workers_default(), deadline=deadline, log=log,
+                      spec=spec)
+    log(f"{spec.label} [{model_key}]: {len(items)} item(s): {stats['asked']} asked ({stats['failed']} failed), "
         f"{stats['reused']} reused, {stats['left']} left -> {store.path}")
     if stats["left"]:
         return EXIT_DEADLINE
@@ -2470,11 +2495,18 @@ def generated_record(cand: dict) -> dict:
     return rec
 
 
-def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers: Optional[dict] = None) -> dict:
+MATERIAL_FIELDS = ("material_slots", "material_tags", "recolourable_fabric", "recolourable_wood")   # recolour.py
+RECOLOUR_TAGS = "recolour/tags.json"                      # <out>/recolour/tags.json (wenart/assets/recolour.py)
+
+
+def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers: Optional[dict] = None,
+                  material: Optional[dict] = None) -> dict:
     """One ``catalog_library.json`` entry. Boxes are metres in the model frame of the glTF importer (Z up): the
     measured raw box times ``unit_scale``; the scene builder must scale the imported mesh by ``unit_scale`` before
     the fit (``fit_scale`` maps metres to the footprint). Decor models get the type ``decor_<decor_type>`` (they go
-    to the catalogue's ``decor`` section)."""
+    to the catalogue's ``decor`` section). Milestone 10: ``material`` (one model of ``recolour/tags.json``) adds
+    ``material_slots``, ``material_tags``, ``recolourable_fabric``, ``recolourable_wood``; a generated plant has the
+    ``species`` and ``pot`` of its prompt (``generate.yaml variants``)."""
     from wenart.furniture import catalog as C
     u = float(obj["unit"]["scale"])
     m = obj["measure"]
@@ -2505,6 +2537,9 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
     }
     if kind == "decor":
         entry["decor_type"] = dec["decor_type"]
+        for key in ("species", "pot"):
+            if (cand.get("attributes") or {}).get(key):
+                entry[key] = cand["attributes"][key]
     else:
         entry["has_mattress"] = dec.get("has_mattress")
         if dec["type"] in BED_TYPES:
@@ -2522,6 +2557,8 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
                       "brand": cand.get("brand"), "style_hint": cand.get("style_hint")})
     elif source == "generated":
         entry.update({"generated": generated_record(cand), "style_hint": cand.get("style_hint")})
+    if material:
+        entry.update({k: material[k] for k in MATERIAL_FIELDS if k in material})
     return entry
 
 
@@ -2581,6 +2618,9 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
         raise UsageError("accepted.json / thumbnails.json missing: run accept first")
     cands = {c["uid"]: c for c in load_candidates(out)}
     answers = load_judgements(out, models)
+    tags_doc = read_json(Path(out) / RECOLOUR_TAGS) or {}
+    material = tags_doc.get("models") or {}
+    material_stale = []
     entries, decor, problems = [], [], []
     for dec in acc["accepted"]:
         uid = dec["uid"]
@@ -2590,7 +2630,11 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
             problems.append({"uid": uid, "code": "glb_changed", "detail": str(cand.get("glb"))})
             continue
         copy_glb(src, assets, uid, cand["glb_sha256"], cand["source"])
-        entry = catalog_entry(cand, obj, dec, cand["glb_sha256"], cfg, answers.get(uid))
+        tags = material.get(uid)
+        if tags is not None and tags.get("glb_sha256") not in (None, cand["glb_sha256"]):
+            material_stale.append(uid)                       # judged on another GLB: no tags rather than wrong ones
+            tags = None
+        entry = catalog_entry(cand, obj, dec, cand["glb_sha256"], cfg, answers.get(uid), tags)
         (decor if entry["kind"] == "decor" else entries).append(entry)
     path = out / CATALOG_NAME
     if not entries and not decor:
@@ -2618,7 +2662,10 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
         "counts": {"entries": len(entries), "decor": len(decor),
                    "by_source": {s: sum(1 for e in entries + decor if e["source"] == s) for s in sources},
                    "licences": dict(sorted(licences.items())), "licence_flags": dict(sorted(flags.items())),
-                   "bed_frames": sum(1 for e in entries if e.get("bed_frame"))},
+                   "bed_frames": sum(1 for e in entries if e.get("bed_frame")),
+                   "material_tagged": sum(1 for e in entries + decor if "material_tags" in e),
+                   "recolourable_fabric": sum(1 for e in entries + decor if e.get("recolourable_fabric")),
+                   "recolourable_wood": sum(1 for e in entries + decor if e.get("recolourable_wood"))},
         "notes": [
             "Written by python -m wenart.assets.objaverse write-catalog on the prep pod (docs/milestone8.md §2); the "
             "integrator copies it into wenart/furniture/ before the full runs (catalog.load merges it, else the M7 "
@@ -2636,6 +2683,7 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
             "unverified: check them before commercial use.",
         ],
         "refused_at_write": problems,
+        "material_tags_stale": material_stale,
         "entries": entries,
         "decor": decor,
     }

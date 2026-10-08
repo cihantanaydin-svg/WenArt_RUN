@@ -91,8 +91,11 @@ seed_base: 0          # image n of a pair: seed_base + sha256("<type>|<family>|<
 # Milestone 9 (docs/milestone9.md §2.3): `plan --target N` plans ceil(deficit / target_accept_rate) new candidates per
 # type (0.7: the M8 generated candidates that passed both judges, 35 of 50, before the type and style limits).
 target_accept_rate: 0.7
-# Decor types the generator makes (small tabletop objects; kind decor, the catalogue's decor section).
-decor_types: [vase, bowl, plant_small]
+# Decor types the generator makes (kind decor, the catalogue's decor section). M9: small tabletop objects; M10
+# (docs/milestone10.md §4.6, §7 pod L2): the types ABO cannot fill (no curtain, blind, throw, book, large plant or
+# sculpture; 4 trays, 6 candles, 7 baskets) and the lights. `plan --target 15` only plans the deficit.
+decor_types: [vase, bowl, plant_small, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large,
+              pendant_light, ceiling_light]
 # TRELLIS.2 settings of the decor items (small objects: the 512 pipeline of the pinned code, `run(pipeline_type=
 # '512')`, checked in trellis2/pipelines/trellis2_image_to_3d.py @ 75fbf01 on 4 Oct 2026; smaller textures and meshes).
 # Furniture keeps the settings above (and its M8 item keys).
@@ -100,6 +103,8 @@ trellis_decor:
   pipeline_type: "512"
   decimation_target: 100000
   texture_size: 1024
+# Decor types that keep the furniture settings above (thin leaves and cloth folds need the 1024 cascade).
+trellis_decor_full: [plant_large, curtain, blind]
 
 # Fixed equipment never generated (docs/milestone8.md §3): stays parametric (or library) as drawn.
 exclude_types: [stair, kitchen_counter, kitchen_island, unknown]
@@ -107,6 +112,39 @@ exclude_types: [stair, kitchen_counter, kitchen_island, unknown]
 # Types whose look comes from ceramics, enamel and metal, not from furniture woods and fabrics: they take the
 # family's "fixtures" hint.
 fixture_types: [fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, washing_machine]
+
+# Milestone 10: the family_hints group of a type whose look is neither furniture nor ceramics (textiles, plants,
+# lights, accessories). A type not listed here takes `fixtures` (fixture_types), `decor` (decor_types) or `furniture`.
+hint_groups:
+  curtain: textile
+  blind: textile
+  throw: textile
+  plant_large: plant
+  pendant_light: lighting
+  ceiling_light: lighting
+  books: accessory
+  basket: accessory
+  tray: accessory
+  clock: accessory
+
+# Milestone 10: types whose words have slots; image n of a pair takes variant (n - 1 + 2 * family number) of each list
+# (species and pots cycle with different lengths, so the combinations spread over the families and images). The
+# species and the pot go into the survey record, the catalogue (`species`, `pot`) and the decor item's fields.
+variants:
+  plant_large:
+    plant:
+      - {species: palm, words: "areca palm with many arching fronds"}
+      - {species: monstera, words: "monstera deliciosa with large split leaves"}
+      - {species: fiddle-leaf fig, words: "fiddle-leaf fig tree with large violin-shaped leaves"}
+      - {species: olive, words: "olive tree with a slim trunk and narrow silvery leaves"}
+      - {species: fern, words: "large boston fern with arching fronds"}
+    pot:
+      - {pot: rattan, words: "woven rattan basket"}
+      - {pot: cream, words: "cream ceramic"}
+      - {pot: terracotta, words: "terracotta"}
+      - {pot: white, words: "matte white ceramic"}
+      - {pot: black, words: "black ceramic"}
+      - {pot: concrete, words: "grey concrete"}
 
 prompt_template: >-
   a single {family} style {type_words}, {hints}, studio product photo, three-quarter front view from the left,
@@ -142,6 +180,34 @@ type_words:
   vase: decorative vase for a table or a sideboard
   bowl: shallow decorative bowl for a coffee table
   plant_small: small indoor plant in a pot for a table or a shelf
+  # Milestone 10 furniture types (docs/milestone10.md §1.1, §4.5): one specific object each.
+  sofa_corner: L-shaped corner sofa with a chaise section and loose back cushions
+  chaise: upholstered chaise longue with one raised head end
+  ottoman: square upholstered ottoman pouf on short legs
+  bench: upholstered bench with a padded seat and wooden legs
+  bar_stool: counter height bar stool with a low backrest and a footrest
+  office_chair: ergonomic office desk chair with armrests on a five-star castor base
+  console_table: narrow console table with two drawers for a hallway
+  crib: baby crib with slatted sides
+  bunk_bed: wooden bunk bed with a ladder and safety rails
+  sideboard: low sideboard with sliding doors and drawers on slim legs
+  shoe_cabinet: slim shoe cabinet with flap doors
+  display_cabinet: tall display cabinet with glass doors and shelves
+  tall_cabinet: tall narrow storage cabinet with two doors
+  wall_cabinet: wall-mounted cabinet with two doors
+  # Milestone 10 decor types (docs/milestone10.md §1.1, §4.6)
+  curtain: pair of floor-length curtains hanging in soft folds from a curtain rod
+  blind: window roller blind, half lowered, on its mounting bracket
+  throw: folded throw blanket
+  books: stack of three hardcover books lying flat
+  candle: pillar candle in a holder
+  basket: woven storage basket with two handles
+  tray: rectangular serving tray with handles
+  clock: round wall clock
+  sculpture: abstract tabletop sculpture on a small base
+  plant_large: "tall indoor {plant}, about 1.6 m high, in a {pot} floor pot"
+  pendant_light: pendant lamp with a dome shade on a cord
+  ceiling_light: flush mount ceiling light with a round shade
 
 # Material and form hints per style family (wenart.style.vocabulary.STYLE_FAMILIES).
 family_hints:
@@ -149,38 +215,74 @@ family_hints:
     furniture: light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines
     fixtures: matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms
     decor: matte white and pale grey ceramic, light oak, natural linen, simple soft forms
+    textile: natural white linen and soft grey wool, simple weave, light and airy
+    plant: healthy green leaves, bright and natural
+    lighting: white opal glass or a light oak and white fabric shade, simple rounded shape
+    accessory: light oak, natural linen, white and pale grey, simple forms
   japandi:
     furniture: light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms
     fixtures: matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms
     decor: handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms
+    textile: undyed linen and raw cotton in oatmeal and stone grey, soft drape, calm
+    plant: healthy green leaves, calm and natural
+    lighting: paper shade on a light ash wood frame, soft rounded form
+    accessory: light ash wood, natural fibres, stone grey, calm minimal forms
   modern minimal:
     furniture: matte white and warm grey surfaces, flush panels, thin black metal details, no ornament
     fixtures: matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms
     decor: matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament
+    textile: plain matte white and warm grey fabric, flat clean fall, no pattern
+    plant: healthy green leaves, clean and simple
+    lighting: matte white metal dome on a thin black cord, crisp simple form
+    accessory: matte white and warm grey with thin black metal, crisp forms
   minimal:
     furniture: plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles
     fixtures: plain white ceramic and enamel, hidden fittings, simple geometric forms
     decor: plain matte ceramic in white, beige and grey, simple geometric forms
+    textile: plain matte beige and grey fabric, straight clean fall, no pattern
+    plant: healthy green leaves, plain and simple
+    lighting: plain matte white shade, simple geometric form
+    accessory: plain matte beige and grey, simple geometric forms
   modern:
     furniture: walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines
     fixtures: glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines
     decor: glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines
+    textile: smooth charcoal and warm grey fabric, tailored fall, subtle texture
+    plant: healthy green leaves, sleek and sculptural
+    lighting: smoked glass and brushed brass, crisp geometric form
+    accessory: walnut and brushed brass with charcoal, crisp lines
   industrial:
     furniture: black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts
     fixtures: black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings
     decor: raw concrete, black steel and dark glazed ceramic, rough textures
+    textile: heavy dark grey canvas and black cotton, raw textured weave
+    plant: healthy green leaves, bold and graphic
+    lighting: black metal cage shade with an exposed bulb and a dark cord
+    accessory: black steel and dark wood, raw textures
   mediterranean:
     furniture: whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms
     fixtures: white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms
     decor: terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms
+    textile: sandy cream linen and white cotton with a loose weave, relaxed folds
+    plant: healthy green leaves, sunlit and relaxed
+    lighting: woven rattan or white glass shade, warm natural tones, soft round form
+    accessory: woven rattan and seagrass, terracotta and sand tones, soft rounded forms
   classic:
     furniture: carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details
     fixtures: white porcelain, polished brass or chrome fittings, moulded classic details
     decor: white porcelain with gold rims, polished brass, moulded classic details
+    textile: heavy cream and gold damask or velvet with pleats and tassels
+    plant: healthy green leaves, lush and formal
+    lighting: polished brass with a cream fabric shade and glass drops, moulded details
+    accessory: polished brass and carved dark wood, cream and gold details
   rustic:
     furniture: rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms
     fixtures: cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms
     decor: rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms
+    textile: coarse natural linen and chunky knit wool in oatmeal and brown
+    plant: healthy green leaves, natural and lush
+    lighting: wrought iron and aged wood with a linen shade, sturdy simple form
+    accessory: rough natural wood and wrought iron, earthy colours, sturdy forms
 
 # A record's fixed fields (survey_generated.json; docs/milestone8.md §2, §3).
 record:

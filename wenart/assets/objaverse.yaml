@@ -399,6 +399,28 @@ thumbnails:
   thumb_px: 256                 # thumbs/<type>/<uid>.jpg, the sheet scaled down
   thumb_jpeg_quality: 85
 
+# Material slots and recolour support (Milestone 10, docs/milestone10.md §4.5; wenart/assets/recolour.py). Each material
+# slot of an accepted model is tinted on a render of the model and both judges name its material; the agreed answers give
+# the catalogue fields `material_slots`, `material_tags`, `recolourable_fabric`, `recolourable_wood`.
+recolour:
+  version: m10.1                # part of every request's input hash: bump when the question or the renders change
+  tile_px: 256                  # one tile of the judging sheet: the model in its own colours, then one tile per slot
+  columns: 3
+  samples: 16                   # the model in its own colours (Cycles); the slot masks use mask_samples
+  mask_samples: 4
+  elevation_deg: 30
+  azimuth_deg: 35               # turned from the model's -Y side (a three-quarter view), the same for every tile
+  highlight_rgb: [255, 0, 255]  # the tint of the slot under judgement
+  highlight_alpha: 0.65
+  mask_threshold: 0.5           # a mask pixel counts above this share of white
+  min_mask_pixels: 24           # a slot seen in fewer pixels is not asked (hidden or tiny): material `other`, not asked
+  max_slots_per_sheet: 6
+  max_sheets_per_model: 2       # the largest slots by area come first; the rest stay `other`, not asked
+  min_slot_share: 0.02          # a slot below this share of the model's surface area is not asked
+  min_tag_share: 0.10           # material tag: the agreed slots of one material cover at least this share
+  min_recolour_share: 0.05      # recolourable: an agreed, single-material slot of fabric (wood) of at least this share
+  sheet_jpeg_quality: 90
+
 # Bed frames (docs/milestone8.md §2): a bed both judges see without a mattress is a bed frame when the thumbnail step
 # measures a deck: five rays straight down (the footprint centre and the points at +-0.2 of the box's x and y extents
 # from it: inside the inner 50 % of the footprint), the topmost surface each ray meets, in the Z-up model frame; the
