@@ -333,6 +333,7 @@ def test_m10_block_name_words():
     assert SY.keyword_type("RANZA") == "bunk_bed" and SY.keyword_type("ayakkabı dolabı") == "shoe_cabinet"
     assert SY.keyword_type("eb_banyo_ustdolap") == "wall_cabinet" and SY.keyword_type("VITRIN") == "display_cabinet"
     assert SY.keyword_type("merdiven") is None and SY.keyword_type("derr") is None   # unknown names stay unknown
+    assert SY.keyword_type("duşş") == "shower" and SY.keyword_type("KOMİDİN") == "nightstand"   # folded M7 words
     assert SY.block_type(["YATAK_TEK"], (1.2, 2.0), TABLE) == "bed_single"           # the M7 word says more
     assert SY.block_type(["YATAK"], (1.6, 2.0), TABLE) == "bed_double"
     assert SY.block_type(["YATAK"], (0.9, 2.0), TABLE) == "bed_single"

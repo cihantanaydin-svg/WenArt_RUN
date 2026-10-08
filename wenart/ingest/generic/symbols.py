@@ -704,8 +704,8 @@ def _block_keyword(name: str) -> Optional[str]:
 
 def keyword_type(name: str) -> Optional[str]:
     """The type word of a block name: the Milestone 10 words first (folded name, whole words for short ones), then
-    the M7 keywords (substring of the upper-case name); None when no word matches. Generic words (``bed``,
-    ``table``, ``seat``) are resolved by ``block_type``."""
+    the M7 keywords (substring of the upper-case or the folded name: DUŞ is DUS), then the generic M10 words; None
+    when no word matches. Generic words (``bed``, ``table``, ``seat``) are resolved by ``block_type``."""
     folded = (name or "").translate(_FOLD).upper()
     words = set(folded.replace(".", "_").split("_"))
 
@@ -719,7 +719,7 @@ def keyword_type(name: str) -> Optional[str]:
     if ftype is not None:
         return ftype
     upper = (name or "").upper()
-    hit = next(((key, ftype) for key, ftype in BLOCK_KEYWORDS if key in upper), None)
+    hit = next(((key, ftype) for key, ftype in BLOCK_KEYWORDS if key in upper or key in folded), None)
     if hit is not None:
         return "seat" if hit[0] in SEAT_KEYWORDS else hit[1]
     return match(BLOCK_GENERIC_M10)[1]
