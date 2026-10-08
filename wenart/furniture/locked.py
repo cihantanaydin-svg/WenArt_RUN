@@ -1,0 +1,219 @@
+"""The locked check of drawn furniture (docs/milestone10.md §1.7, §2.2, §2.7).
+
+What: ``check(source, final, mode)`` compares every drawn piece
+(``source: from_documents``) of the source building JSON with the final one
+and returns one readable line per violation (an empty list = pass);
+``anchor_of(piece, building)`` gives a drawn piece's locked location.
+
+Why: with ``furnished_rooms: complete`` the AI may change a drawn piece's
+type, size, height and look, but its location and position are locked
+(CLAUDE.md furniture rules). This check is the guard after ``layout`` and
+after ``refit``: a violation fails the stage, nothing is silently moved.
+
+How, mode ``complete`` (per drawn piece):
+
+- present in the final building (never removed), same ``level_id`` and
+  ``room_id``, ``source: from_documents`` kept; no final piece claims
+  ``from_documents`` without being in the source;
+- fixed equipment (``schemas.FIXED_TYPES``), pieces that are not built
+  (``build: false``) and the other types that never change
+  (``schemas.UNCHANGEABLE_TYPES``): type and footprint byte-equal;
+- an unverified drawn piece stays ``unverified`` with its drawn footprint
+  (only an agreed type proposal may change its type);
+- every other piece: the anchor within ``ANCHOR_TOL_M`` (5 cm: the footprint
+  centre of a free piece, the back-edge midpoint of a piece against a wall),
+  the same wall, ``front_deg`` within ``FRONT_TOL_DEG`` (1 degree); a changed
+  type, footprint or height needs ``modified_by_ai: true`` and the drawn
+  values (``drawn_type``, ``drawn_footprint``, ``drawn_height``) equal to the
+  source's;
+- walls, openings and rooms byte-equal.
+
+Mode ``keep`` (and every room in ``keep_rooms``): the old byte rule, the
+fit's ``FROZEN_KEYS`` (``KEEP_KEYS``) equal for every drawn piece. Anchors: a piece whose
+back edge (the edge opposite its ``front_deg``; its three points: both ends
+and the middle) lies within ``placer.WALL_TOUCH_M`` (5 cm) of the level's
+walls has a ``back_edge`` anchor at the edge's midpoint with the id of the
+wall nearest to that midpoint (the room outline when no wall is drawn there:
+``wall_id`` null); every other piece, and any piece without a front, has a
+``centre`` anchor.
+"""
+from __future__ import annotations
+
+import json
+from typing import Iterable, Optional
+
+from shapely.geometry import Point, Polygon
+from shapely.ops import unary_union
+
+from wenart import geometry as G
+from wenart.furniture import placer, schemas
+
+ANCHOR_TOL_M = 0.05
+FRONT_TOL_DEG = 1.0
+MODES = ("complete", "keep")
+BYTE_EQUAL_BLOCKS = ("walls", "openings", "rooms")
+
+
+def _dump(value) -> str:
+    return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+
+def _back_edge(piece: dict) -> tuple[tuple[float, float], tuple[float, float], tuple[float, float]]:
+    """(left end, midpoint, right end) of the back edge in the frame of the piece's front."""
+    rot, size = placer.front_frame(piece["footprint"], piece.get("front_deg"))
+    c = (float(piece["footprint"]["center"][0]), float(piece["footprint"]["center"][1]))
+    w, d = size[0] / 2.0, size[1] / 2.0
+    a = G.rotate_point((c[0] - w, c[1] + d), rot, c)
+    b = G.rotate_point((c[0] + w, c[1] + d), rot, c)
+    return a, placer.back_edge_midpoint(c, rot, size), b
+
+
+def _wall_shapes(building: dict, level_id: str) -> list[tuple[str, Polygon]]:
+    out = []
+    for w in building.get("walls", []):
+        if w.get("level_id") != level_id:
+            continue
+        if G.distance(w["start"], w["end"]) < 1e-6:
+            continue
+        thickness = float(w.get("thickness") or placer.DEFAULT_WALL_THICKNESS_M)
+        out.append((w["id"], Polygon(G.centerline_to_rectangle(w["start"], w["end"], thickness))))
+    return out
+
+
+def anchor_of(piece: dict, building: dict) -> dict:
+    """``{"kind": "centre" | "back_edge", "point": [x, y], "wall_id": str | None}`` (see the module docstring)."""
+    fp = piece["footprint"]
+    centre = {"kind": "centre", "point": [round(float(fp["center"][0]), 4), round(float(fp["center"][1]), 4)],
+              "wall_id": None}
+    if piece.get("front_deg") is None:
+        return centre
+    a, mid, b = _back_edge(piece)
+    points = [Point(a), Point(mid), Point(b)]
+    walls = _wall_shapes(building, piece.get("level_id"))
+    if walls:
+        union = unary_union([shape for _id, shape in walls])
+        if all(union.distance(p) <= placer.WALL_TOUCH_M + 1e-9 for p in points):
+            wall_id = min(walls, key=lambda ws: (round(ws[1].distance(points[1]), 6), ws[0]))[0]
+            return {"kind": "back_edge", "point": [round(mid[0], 4), round(mid[1], 4)], "wall_id": wall_id}
+    room = next((r for r in building.get("rooms", []) if r["id"] == piece.get("room_id")), None)
+    if room is not None and len(room.get("polygon") or []) >= 3:
+        ring = Polygon(room["polygon"]).exterior
+        if all(ring.distance(p) <= placer.WALL_TOUCH_M + 1e-9 for p in points):
+            return {"kind": "back_edge", "point": [round(mid[0], 4), round(mid[1], 4)], "wall_id": None}
+    return centre
+
+
+# keep mode: the fit's own guard keys (``wenart.furniture.fit.FROZEN_KEYS``; a copy, so the layout stage does not
+# import the fit, the catalogue and the asset code; tests/test_locked.py checks that both stay equal).
+KEEP_KEYS: tuple[str, ...] = ("id", "level_id", "room_id", "type", "type_raw", "source", "footprint", "front_deg",
+                              "height", "status", "evidence", "build")
+
+
+def _front_ok(a: Optional[float], b: Optional[float]) -> bool:
+    if a is None or b is None:
+        return a is None and b is None
+    return G.angle_difference_deg(float(a), float(b)) <= FRONT_TOL_DEG + 1e-9
+
+
+def _block_problems(source: dict, final: dict) -> list[str]:
+    out = []
+    for key in BYTE_EQUAL_BLOCKS:
+        before = {e.get("id"): _dump(e) for e in source.get(key) or []}
+        after = {e.get("id"): _dump(e) for e in final.get(key) or []}
+        if before == after:
+            continue
+        changed = sorted(i for i in before.keys() & after.keys() if before[i] != after[i])
+        gone = sorted(set(before) - set(after))
+        new = sorted(set(after) - set(before))
+        parts = [f"changed {', '.join(map(str, changed))}" if changed else "",
+                 f"removed {', '.join(map(str, gone))}" if gone else "",
+                 f"added {', '.join(map(str, new))}" if new else ""]
+        out.append(f"{key}: must stay as drawn (byte-equal): " + "; ".join(p for p in parts if p))
+    return out
+
+
+def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> list[str]:
+    pid = src["id"]
+    out = []
+    anchor = anchor_of(src, source)
+    if anchor["kind"] == "back_edge":
+        point = _back_edge(fin)[1]
+    else:
+        point = (float(fin["footprint"]["center"][0]), float(fin["footprint"]["center"][1]))
+    moved = G.distance(point, anchor["point"])
+    if moved > ANCHOR_TOL_M + 1e-6:
+        out.append(f"{pid}: anchor ({anchor['kind']}) moved {moved:.3f} m (> {ANCHOR_TOL_M} m)")
+    if anchor["kind"] == "back_edge":
+        now = anchor_of(fin, final)
+        if now["kind"] != "back_edge" or now["wall_id"] != anchor["wall_id"]:
+            out.append(f"{pid}: no longer against wall {anchor['wall_id']} (now {now['kind']} "
+                       f"{now.get('wall_id')})")
+    if not _front_ok(src.get("front_deg"), fin.get("front_deg")):
+        out.append(f"{pid}: front {src.get('front_deg')} -> {fin.get('front_deg')} (more than {FRONT_TOL_DEG} deg)")
+    changed = (src["type"] != fin["type"] or _dump(src["footprint"]) != _dump(fin["footprint"])
+               or src.get("height") != fin.get("height"))
+    if changed:
+        if fin.get("modified_by_ai") is not True:
+            out.append(f"{pid}: type, footprint or height changed without modified_by_ai")
+        elif (fin.get("drawn_type") != src["type"] or _dump(fin.get("drawn_footprint")) != _dump(src["footprint"])
+              or fin.get("drawn_height") != src.get("height")):
+            out.append(f"{pid}: drawn_type / drawn_footprint / drawn_height do not hold the drawn values")
+    return out
+
+
+def keep_rooms_of(completion: Optional[dict]) -> list[str]:
+    """The rooms the layout kept as drawn (``completion.json`` rooms with ``state: kept``: ``furnished_rooms_keep``
+    and partners of kept rooms), for ``check(..., keep_rooms=...)`` after a later stage (refit)."""
+    return [r["room_id"] for r in (completion or {}).get("rooms", []) if r.get("state") == "kept"]
+
+
+def mode_of(completion: Optional[dict]) -> str:
+    """``keep`` or ``complete`` from ``completion.json`` (``complete`` when it is missing: the default)."""
+    value = ((completion or {}).get("settings") or {}).get("furnished_rooms", "complete")
+    return "keep" if value == "keep" else "complete"
+
+
+def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[str]] = None) -> list[str]:
+    """Violations of the locked rules (see the module docstring); ``keep_rooms``: room ids that stay ``keep``
+    in ``complete`` mode (``furnished_rooms_keep``)."""
+    if mode not in MODES:
+        raise ValueError(f"locked.check: mode must be one of {MODES}, got {mode!r}")
+    keep = set(keep_rooms or ())
+    out = _block_problems(source, final)
+    source_ids = {f["id"] for f in source.get("furniture", [])}
+    final_by_id = {f["id"]: f for f in final.get("furniture", [])}
+    for f in final.get("furniture", []):
+        if f.get("source") == "from_documents" and f["id"] not in source_ids:
+            out.append(f"{f['id']}: labelled from_documents but not in the source building")
+    frozen = KEEP_KEYS
+    for src in source.get("furniture", []):
+        if src.get("source") != "from_documents":
+            continue
+        pid = src["id"]
+        fin = final_by_id.get(pid)
+        if fin is None:
+            out.append(f"{pid}: drawn {src['type']} removed")
+            continue
+        if fin.get("source") != "from_documents":
+            out.append(f"{pid}: source changed to {fin.get('source')!r} (must stay from_documents)")
+        for key in ("level_id", "room_id"):
+            if fin.get(key) != src.get(key):
+                out.append(f"{pid}: {key} {src.get(key)} -> {fin.get(key)}")
+        if mode == "keep" or src.get("room_id") in keep:
+            bad = [k for k in frozen if _dump(src.get(k)) != _dump(fin.get(k))]
+            if bad:
+                out.append(f"{pid}: changed {', '.join(bad)} (keep: drawn pieces stay byte-equal)")
+            continue
+        if (src["type"] in schemas.UNCHANGEABLE_TYPES or src.get("build") is False):
+            bad = [k for k in ("type", "footprint") if _dump(src.get(k)) != _dump(fin.get(k))]
+            if bad:
+                what = "fixed equipment" if src["type"] in schemas.FIXED_TYPES else "drawn piece that never changes"
+                out.append(f"{pid}: {what} changed {', '.join(bad)} (must stay byte-equal)")
+            continue
+        if src.get("status") == "unverified":
+            if fin.get("status") != "unverified":
+                out.append(f"{pid}: unverified drawn piece became {fin.get('status')}")
+            if _dump(src["footprint"]) != _dump(fin["footprint"]):
+                out.append(f"{pid}: unverified drawn piece changed its footprint")
+        out.extend(_changed_piece_problems(src, fin, source, final))
+    return out
