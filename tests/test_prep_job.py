@@ -331,6 +331,10 @@ def _label(cmd: list) -> str:
         if rest[0] == "accept" and "--sources" in rest:
             return f"objaverse accept {rest[rest.index('--sources') + 1]}"
         return f"objaverse {rest[0]}"
+    if mod == "wenart.assets.recolour":
+        return f"recolour {rest[0]}" + (f" {rest[rest.index('--model-key') + 1]}" if rest[0] == "judge" else "")
+    if mod == "wenart.sheets":
+        return ("sheets_final " if "--answers" in rest else "sheets ") + Path(rest[rest.index("--out") + 1]).name
     if mod == "wenart.assets.abo":
         return f"abo {rest[0]}"
     if mod == "wenart.assets.generate":
@@ -344,7 +348,7 @@ def _label(cmd: list) -> str:
     if mod == "wenart.ingest.pipeline":
         return ("pipeline_final " if "--answers" in rest else "pipeline ") + Path(rest[rest.index("--out") + 1]).name
     if mod == "wenart.recognition.answers":
-        project = Path(rest[1]).parent.name
+        project = Path(rest[1]).parent.name + (" sheets" if Path(rest[1]).name == "sheets" else "")
         if rest[0] == "ask":
             return f"ask {rest[rest.index('--model-key') + 1]} {project}"
         return f"status {project}"
@@ -357,7 +361,8 @@ class World:
     """The fake pod: a repo root, M6 outputs, a runner that writes what the real CLIs write, a server factory."""
 
     def __init__(self, tmp_path: Path, *, pipeline_rc=None, status_rc=None, rc=None, server_fail=None,
-                 step_s: float = 1.0, gpu=GPU_6000, projects=("real01", "synthetic-02", "synthetic-06", "real01-scan")):
+                 step_s: float = 1.0, gpu=GPU_6000, projects=("real01", "synthetic-02", "synthetic-06", "real01-scan"),
+                 sheets_rc=None):
         self.tmp = tmp_path
         self.repo = tmp_path / "repo"
         self.results = tmp_path / "results"
@@ -374,6 +379,7 @@ class World:
         self.pipeline_rc = {"real01": 4, "synthetic-02": 4, "synthetic-06": 0, "real01-scan": 4,
                             **(pipeline_rc or {})}
         self.status_rc = status_rc or {}
+        self.sheets_rc = dict(sheets_rc or {})   # project -> exit of its first sheets run (default 0: no question)
         self.rc = rc or {}
         self.server_fail = server_fail or {}
         self.judge_answers: dict = {}            # key -> fn(library) writing complete judge answers
@@ -454,7 +460,7 @@ class World:
         def arg(flag):
             return cmd[cmd.index(flag) + 1]
 
-        lib = Path(arg("--out")) if label.startswith(("objaverse ", "abo ", "generate ")) else None
+        lib = Path(arg("--out")) if label.startswith(("objaverse ", "abo ", "generate ", "recolour ")) else None
 
         if label == "objaverse survey":
             P.write_json(lib / "survey.json", {"candidates": [{"uid": "u1"}, {"uid": "u2"}]})
@@ -474,6 +480,20 @@ class World:
             P.write_json(lib / "thumbnails.json", {"counts": {"rendered": 2}, "device": "OPTIX"})
         elif label == "objaverse judge-requests":
             P.write_json(lib / "judge" / "requests.json", {"items": [{"key": "u1"}, {"key": "u2"}]})
+        elif label == "recolour slots":
+            P.write_json(lib / "recolour" / "slots.json", {"counts": {"models": 3, "ok": 2, "sheets": 2},
+                                                           "models": [{"uid": "u1"}, {"uid": "u2"}]})
+        elif label == "recolour requests":
+            items = [{"key": f"mat_u{i}", "task": "library_material", "images": [f"sheets/u{i}.jpg"],
+                      "input_sha256": f"{i + 30:064x}", "context": {"uid": f"u{i}", "slots": [0]}} for i in (1, 2)]
+            P.write_json(lib / "recolour" / "requests.json", {"kind": "recolour_requests", "task": "library_material",
+                                                              "items": items})
+        elif label.startswith("recolour judge "):
+            P.write_json(lib / "recolour" / f"answers_{label.split()[-1]}.json", {"answers": {}})
+        elif label == "recolour tags":
+            counts = {"models": 1, "unjudged": 0, "recolourable_fabric": 1, "recolourable_wood": 0}
+            P.write_json(lib / "recolour" / "tags.json", {"counts": counts, "unjudged": [],
+                                                          "models": {"u1": {"material_tags": ["fabric"]}}})
         elif label.startswith("objaverse judge "):
             key = label.split()[-1]
             if key in self.judge_answers:                 # schema-valid answers of every item (the real store)
@@ -504,10 +524,29 @@ class World:
             P.write_json(Path(arg("--out")) / "polish_manifest.json", {
                 "device": "NVIDIA RTX PRO 6000", "seconds_per_forward": 0.8, "forwards": 12, "load_seconds": 40,
                 "views": [{"camera": arg("--views"), "attempts": [{"seconds": 4.0}] * 4}]})
+        elif label.startswith("sheets "):
+            name = label.split()[1]
+            out = Path(arg("--out"))
+            rc = self.sheets_rc.get(name, 0)
+            P.write_json(out / "sheets.json", {"project": name, "regions": [], "final": False})
+            (out / "sheets_report.md").write_text("# sheets\n")
+            (out / "sheets_debug").mkdir(parents=True, exist_ok=True)
+            (out / "sheets_debug" / f"{name}_s1.png").write_bytes(b"png")
+            if rc == 4:
+                P.write_json(out / "sheets" / "requests.json", {"items": [{"key": "sheet_a_s1_r1"},
+                                                                          {"key": "sheet_a_s1_r2"}]})
+                (out / "sheets" / "crops").mkdir(parents=True, exist_ok=True)
+                (out / "sheets" / "crops" / "sheet_a_s1_r1.png").write_bytes(b"png")
+            return rc
+        elif label.startswith("sheets_final "):
+            out = Path(arg("--out"))
+            P.write_json(out / "sheets.json", {"project": label.split()[1], "regions": [], "final": True,
+                                               "no_ai": "--no-ai" in cmd})
+            return 0
         elif label.startswith("pipeline "):
             name = label.split()[1]
             out = Path(arg("--out"))
-            rc = self.pipeline_rc[name]
+            rc = self.pipeline_rc.get(name, 0)
             P.write_json(out / "building.json", {"id": name})
             (out / "report.md").write_text("# report\n")
             if rc == 4:
@@ -517,10 +556,10 @@ class World:
                 (rec / "crops" / "sym_L0_1_ctx.png").write_bytes(b"png")
             return rc
         elif label.startswith("ask "):
-            _, key, _project = label.split()
+            key = label.split()[1]
             P.write_json(Path(cmd[cmd.index("ask") + 1]) / f"answers_{key}.json", {"answers": {}})
         elif label.startswith("status "):
-            return self.status_rc.get(label.split()[1], 0)
+            return self.status_rc.get(label[len("status "):], 0)
         elif label.startswith("pipeline_final "):
             name = label.split()[1]
             out = Path(arg("--out"))
@@ -582,16 +621,17 @@ def test_full_prep_runs_every_step_in_the_fixed_order(tmp_path):
     assert {s["name"]: s["status"] for s in w.manifest()["steps"]} == {
         name: "skipped" if name in ("trellis_setup", "generate") else "ok" for name in P.STEPS}
     assert w.labels() == [
-        "abo survey", "objaverse survey", "objaverse thumbnails", "objaverse judge-requests", "gate detect-calibrate",
-        "blender render", "polish smoke",
-        "pipeline real01", "pipeline synthetic-02", "pipeline synthetic-06", "pipeline real01-scan",
+        "abo survey", "objaverse survey", "objaverse thumbnails", "objaverse judge-requests", "recolour slots",
+        "recolour requests", "gate detect-calibrate", "blender render", "polish smoke",
+        "sheets real01", "pipeline real01", "sheets synthetic-02", "pipeline synthetic-02", "sheets synthetic-06",
+        "pipeline synthetic-06", "sheets real01-scan", "pipeline real01-scan",
         "start qwen 8", "ask qwen real01", "ask qwen synthetic-02", "ask qwen real01-scan", "objaverse judge qwen",
-        "stop qwen",
+        "recolour judge qwen", "stop qwen",
         "start glm 8", "ask glm real01", "ask glm synthetic-02", "ask glm real01-scan", "objaverse judge glm",
-        "stop glm",
+        "recolour judge glm", "stop glm",
         "status real01", "pipeline_final real01", "status synthetic-02", "pipeline_final synthetic-02",
         "status real01-scan", "pipeline_final real01-scan",
-        "objaverse accept", "objaverse write-catalog", "objaverse report",
+        "objaverse accept", "recolour tags", "objaverse write-catalog", "objaverse report",
         "pytest tests/gpu/test_recognition.py", "pytest tests/gpu/test_library.py", "pytest tests/gpu/test_detect.py"]
 
 
@@ -697,15 +737,17 @@ def test_no_probe_below_80_gb(tmp_path):
 
 def test_deadline_stops_heavy_steps_and_lets_cpu_steps_and_tests_run(tmp_path):
     w = World(tmp_path, step_s=100.0)
-    deadline = w.clock.t + 600.0
+    deadline = w.clock.t + 700.0
     assert w.prep(l2=True, deadline=deadline).run_all() == 1
     status = {name: s["status"] for name, s in w.steps().items()}
-    # abo_survey (300 s) at t+0, survey (300 s) at t+100 and thumbnails (300 s) at t+200 fit; trellis_setup (900 s)
-    # and generate (600 s) at t+200 do not, nor detect_calibrate (240 s) at t+400.
-    assert status["abo_survey"] == "ok" and status["survey"] == "ok"
+    # abo_survey (300 s) at t+0 and thumbnails (300 s) at t+100 fit; survey (900 s, Milestone 10), trellis_setup
+    # (900 s) and generate (600 s, not before t+100) at t+100 do not, nor recolour_slots (600 s) at t+300 or
+    # timings (420 s) at t+400; detect_calibrate (240 s) at t+300 fits.
+    assert status["abo_survey"] == "ok" and status["survey"] == "deadline"
     assert status["trellis_setup"] == "deadline" and status["generate"] == "deadline"
     assert status["thumbnails"] == "ok" and status["judge_requests"] == "ok"
-    assert status["detect_calibrate"] == "deadline" and status["timings"] == "deadline"
+    assert status["recolour_slots"] == "deadline" and "less than 10 min" in w.steps()["recolour_slots"]["note"]
+    assert status["detect_calibrate"] == "ok" and status["timings"] == "deadline"
     assert status["session_qwen"] == "deadline" and status["session_glm"] == "deadline"
     assert "not started" in w.steps()["session_qwen"]["note"]
     assert status["pipelines"] == "ok" and status["copy"] == "ok" and status["tests"] == "ok"
@@ -939,6 +981,7 @@ def test_a_resumed_prep_never_reruns_the_first_pipeline_over_the_final_building(
     assert step["projects"] == {"real01": "pending", "synthetic-02": "pending", "synthetic-06": "ok",
                                 "real01-scan": "pending"}
     assert step["reused"] == ["real01", "synthetic-02", "synthetic-06", "real01-scan"]
+    assert step["sheets_reused"] == step["reused"]            # Milestone 10: the sheets stage is reused the same way
     # A whole resumed job: no first pipeline, the questions stay pending, pipeline_final runs on them.
     assert w.prep(results=tmp_path / "results-3").run_all() == 0
     labels = w.labels()
@@ -950,7 +993,7 @@ def test_a_resumed_prep_never_reruns_the_first_pipeline_over_the_final_building(
     w.calls.clear()
     w.events.clear()
     w.prep(results=tmp_path / "results-4", only=("pipelines",)).run_all()
-    assert w.labels() == ["pipeline real01"]
+    assert w.labels() == ["sheets real01", "pipeline real01"]
 
 
 def _models() -> dict:
@@ -1006,7 +1049,7 @@ def test_no_server_starts_when_nothing_is_left_to_ask(tmp_path):
     assert "--server" not in ask and ask[-2:] == ["--seed-answers", str(w.repo / "results" / "recognition" / "real01")]
     sessions = w.manifest()["sessions"]
     assert sessions["qwen"]["probe"] == "not run" and sessions["glm"]["probe"] == "not run"
-    assert sessions["qwen"]["missing"] == {"recognition": {"real01": 0}, "judge": 0}
+    assert sessions["qwen"]["missing"] == {"recognition": {"real01": 0}, "sheets": {}, "judge": 0, "recolour": None}
     steps = w.steps()
     assert steps["session_qwen"]["status"] == "ok" and "no server started" in steps["session_qwen"]["note"]
     assert w.manifest()["proposals"]["check_yaml_max_seqs"] == {}
@@ -1081,7 +1124,8 @@ def test_a_recognition_only_job_needs_no_library(tmp_path):
     assert session["judge_note"] == "library not judged: the library step is not in --only"
     # The same with --skip library.
     w2 = World(tmp_path / "b")
-    assert w2.prep(skip=("survey", "thumbnails", "judge_requests", "library", "tests")).run_all() == 0, w2.lines
+    assert w2.prep(skip=("survey", "thumbnails", "judge_requests", "recolour_slots", "library",
+                         "tests")).run_all() == 0, w2.lines
     assert w2.manifest()["sessions"]["glm"]["judge_note"] == "library not judged: the library step is in --skip"
 
 
@@ -1510,3 +1554,535 @@ def test_cli_options_of_the_library_sources(tmp_path, monkeypatch):
                                              "--skip", "trellis_setup,generate"]))
     assert opts.abo_cache == Path("/x/abo") and opts.trellis_python == "/t/py"
     assert opts.skip == ("trellis_setup", "generate")
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: the recolour steps and the sheet questions (docs/milestone10.md §3.1 item 2, §4.5, §7)
+# --------------------------------------------------------------------------
+
+def test_m10_steps_estimates_and_prep_projects():
+    assert P.STEPS.index("judge_requests") + 1 == P.STEPS.index("recolour_slots") < P.STEPS.index("detect_calibrate")
+    assert P.STEPS.index("recolour_slots") < P.STEPS.index("session_qwen") and "recolour_slots" in P.HEAVY
+    assert P.EST_S["recolour_slots"] > 0 and P.EST_S["survey"] == 900.0           # three times the M9 downloads
+    assert P.Prep.estimate(P.Prep.__new__(P.Prep), "recolour_slots") == P.EST_S["recolour_slots"]
+    assert P.PREP_PROJECTS[-2:] == ("real02", "synthetic-07") and P.PREP_PROJECTS[:5] == (
+        "real01", "synthetic-02", "synthetic-06", "real01-scan", "real01-photo")
+    assert "recolour_slots" in P.GENERATE_LATER_STEPS and P.GENERATE_RESERVE_MIN == 40.0
+    opts = P.options_from_args(P.parse_args(["--results", "r", "--only", "recolour_slots,pipelines"]))
+    assert opts.only == ("recolour_slots", "pipelines") and "real02" in opts.projects
+
+
+def test_recolour_slots_then_requests_after_the_judge_requests(tmp_path, monkeypatch):
+    """The slots (Blender, --scope ready) and their requests in one step; the commands of the step, of both sessions
+    and of the library step."""
+    monkeypatch.delenv("WENART_RECOLOUR_WORKERS", raising=False)
+    monkeypatch.setenv("WENART_CPU_THREADS", "16")
+    w = World(tmp_path)
+    w.assets.mkdir(parents=True)
+    assert w.prep().run_all() == 0, w.lines
+    lib, url = str(w.prep_root / "library"), "http://127.0.0.1:8001/v1"
+    work = str(w.prep_root / "library-work" / "recolour")
+    py = ["/venv/python", "-m", "wenart.assets.recolour"]
+    slots = w.call("recolour slots")
+    assert slots["cmd"] == py + ["slots", "--out", lib, "--scope", "ready", "--workers", "4", "--work", work,
+                                 "--assets", str(w.assets)]
+    assert slots["env"]["HF_HUB_OFFLINE"] == "1" and slots["timeout"] > 0
+    assert w.call("recolour requests")["cmd"] == py + ["requests", "--out", lib]
+    assert w.call("recolour judge qwen")["cmd"] == py + ["judge", "--out", lib, "--model-key", "qwen", "--server", url,
+                                                         "--workers", "8"]
+    assert w.call("recolour judge glm")["cmd"][-4:] == ["--server", url, "--workers", "8"]
+    assert w.call("recolour tags")["cmd"] == py + ["tags", "--out", lib]
+    labels = w.labels()
+    assert labels.index("objaverse judge-requests") + 1 == labels.index("recolour slots")
+    assert labels.index("recolour slots") + 1 == labels.index("recolour requests")
+    # In a session the recolour judge follows the library judge on the same server.
+    assert labels.index("objaverse judge qwen") + 1 == labels.index("recolour judge qwen")
+    assert labels.index("recolour judge qwen") + 1 == labels.index("stop qwen")
+    # In the library step: accept -> tags -> write-catalog -> report.
+    assert labels[labels.index("objaverse accept"):labels.index("objaverse report") + 1] == [
+        "objaverse accept", "recolour tags", "objaverse write-catalog", "objaverse report"]
+    steps = w.steps()
+    assert steps["recolour_slots"]["status"] == "ok" and steps["recolour_slots"]["workers"] == 4
+    assert steps["recolour_slots"]["items"] == 2
+    assert steps["recolour_slots"]["note"] == ("2 of 3 model(s) with material slots, 2 sheet(s) to judge "
+                                               "(4 Blender process(es))")
+    assert steps["library"]["status"] == "ok" and steps["library"]["recolour"]["rc"] == 0
+    qwen = w.manifest()["sessions"]["qwen"]
+    assert qwen["recolour"]["rc"] == 0 and qwen["recolour"]["missing_before"] == 2 and qwen["recolour"]["items"] == 2
+    assert "recolour sheets judged" in steps["session_qwen"]["note"]
+    # The catalogue's tags and the sheets are in the results copy (copy.library_files).
+    assert (w.results / "library" / "recolour" / "tags.json").is_file()
+    assert (w.results / "library" / "recolour" / "requests.json").is_file()
+    # Without an assets folder there is no --assets.
+    w2 = World(tmp_path / "b")
+    w2.prep().run_all()
+    assert "--assets" not in w2.call("recolour slots")["cmd"]
+    # The flags are the ones the real parser of wenart.assets.recolour takes (the fakes would accept anything).
+    from wenart.assets import recolour as RC
+    parsed = {label: RC.parse_args(w.call(label)["cmd"][3:]) for label in (
+        "recolour slots", "recolour requests", "recolour judge qwen", "recolour judge glm", "recolour tags")}
+    assert (parsed["recolour slots"].scope, parsed["recolour slots"].workers) == ("ready", 4)
+    assert parsed["recolour slots"].work == work and parsed["recolour slots"].assets == str(w.assets)
+    assert (parsed["recolour judge glm"].model_key, parsed["recolour judge glm"].server,
+            parsed["recolour judge glm"].workers) == ("glm", url, 8)
+
+
+def test_recolour_workers_follow_the_cpu_budget(tmp_path, monkeypatch):
+    prep = World(tmp_path).prep()
+    monkeypatch.delenv("WENART_RECOLOUR_WORKERS", raising=False)
+    monkeypatch.setenv("WENART_CPU_THREADS", "2")
+    assert prep.recolour_workers() == 2
+    monkeypatch.setenv("WENART_CPU_THREADS", "32")
+    assert prep.recolour_workers() == P.RECOLOUR_WORKERS_MAX == 4
+    monkeypatch.setenv("WENART_RECOLOUR_WORKERS", "6")
+    assert prep.recolour_workers() == 6
+    for bad in ("many", "0", "-2"):
+        monkeypatch.setenv("WENART_RECOLOUR_WORKERS", bad)
+        assert prep.recolour_workers() == 1
+    monkeypatch.delenv("WENART_RECOLOUR_WORKERS")
+    monkeypatch.delenv("WENART_CPU_THREADS")
+    assert 1 <= prep.recolour_workers() <= 4
+
+
+def test_recolour_slots_failures_are_named_never_skipped(tmp_path):
+    # No thumbnails.json: failed before any command (the M7 rule).
+    w = World(tmp_path)
+    assert w.prep(only=("recolour_slots",)).run_all() == 1
+    step = w.steps()["recolour_slots"]
+    assert step["status"] == "failed" and "no thumbnails.json" in step["note"] and not w.calls
+    # Exit 1 (nothing usable) and 2 (no Blender, a usage error): failed, the requests are not written.
+    for rc, text in ((1, "no model with a material slot"), (2, "no Blender")):
+        w = World(tmp_path / f"rc{rc}", rc={"recolour slots": rc})
+        P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})
+        assert w.prep(only=("recolour_slots",)).run_all() == 1
+        step = w.steps()["recolour_slots"]
+        assert step["status"] == "failed" and f"slots exit {rc}" in step["note"] and text in step["note"]
+        assert "recolour requests" not in w.labels()
+    # The requests command finds no sheet.
+    w = World(tmp_path / "req", rc={"recolour requests": 1})
+    P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})
+    assert w.prep(only=("recolour_slots",)).run_all() == 1
+    assert "requests exit 1: no sheet to judge" in w.steps()["recolour_slots"]["note"]
+    # Exit 3 (the deadline cut the Blender run): `deadline`, and the requests of what is rendered are written.
+    w = World(tmp_path / "cut", rc={"recolour slots": 3})
+    P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})
+    assert w.prep(only=("recolour_slots",)).run_all() == 1
+    step = w.steps()["recolour_slots"]
+    assert step["status"] == "deadline" and "reuses the rendered models" in step["note"]
+    assert w.labels() == ["recolour slots", "recolour requests"]
+
+
+def _recolour_items(n: int = 2) -> list:
+    return [{"key": f"mat_u{i}", "task": "library_material", "images": [f"sheets/u{i}.jpg"],
+             "input_sha256": f"{i + 30:064x}", "context": {"uid": f"u{i}", "type": "sofa", "kind": "furniture",
+                                                           "slots": [0], "whole": True, "source": "abo"}}
+            for i in range(1, n + 1)]
+
+
+def _recolour_library(w, complete=("qwen", "glm"), answered: int = 2) -> list:
+    """A library whose recolour sheets are judged: ``answered`` of the two items answered by the models of
+    ``complete`` (the library judge answers are written by ``_answered_world``)."""
+    from fakes.fake_vlm import minimal_instance
+    from wenart.assets import recolour as RC
+    items = _recolour_items()
+    lib = w.prep_root / "library" / "recolour"
+    P.write_json(lib / "requests.json", {"kind": "recolour_requests", "task": "library_material", "items": items})
+    data = minimal_instance(RC.answer_schema([0]))
+    assert not RC.answer_errors(data, [0])
+    for key in ("qwen", "glm"):
+        _store(lib / f"answers_{_models()[key]['slug']}.json", key, items[:answered] if key in complete else [], data)
+    return items
+
+
+def test_judge_missing_counts_the_recolour_sheets(tmp_path):
+    """No server starts when nothing is missing, library judge items and recolour sheets both counted."""
+    w = _answered_world(tmp_path)
+    _recolour_library(w, complete=("qwen",))
+    prep = w.prep(only=("session_qwen", "session_glm"))
+    assert (prep.library_judge_missing("glm"), prep.recolour_missing("glm"), prep.judge_missing("glm")) == (0, 2, 2)
+    assert (prep.library_judge_missing("qwen"), prep.recolour_missing("qwen"), prep.judge_missing("qwen")) == (0, 0, 0)
+    assert prep.run_all() == 0, w.lines
+    assert [e for e in w.events if e[0] == "start"] == [("start", "glm", 8)]       # only GLM has something to ask
+    labels = w.labels()
+    assert "recolour judge glm" in labels and "recolour judge qwen" not in labels
+    assert "objaverse judge glm" not in labels                                        # its library judge is complete
+    lib = str(w.prep_root / "library")
+    assert w.call("recolour judge glm")["cmd"][3:] == ["judge", "--out", lib, "--model-key", "glm", "--server",
+                                                       "http://127.0.0.1:8001/v1", "--workers", "8"]
+    sessions = w.manifest()["sessions"]
+    assert sessions["glm"]["missing"]["recolour"] == 2 and sessions["glm"]["missing"]["judge"] == 0
+    assert sessions["glm"]["recolour"]["rc"] == 0 and sessions["glm"]["judge"] is None
+    assert sessions["qwen"]["probe"] == "not run" and sessions["qwen"]["missing"]["recolour"] == 0
+    # Everything answered by both models: no server at all.
+    w2 = _answered_world(tmp_path / "b")
+    _recolour_library(w2)
+    assert w2.prep(only=("session_qwen", "session_glm")).run_all() == 0, w2.lines
+    assert not [e for e in w2.events if e[0] == "start"] and "recolour judge qwen" not in w2.labels()
+    assert w2.manifest()["sessions"]["glm"]["missing"]["recolour"] == 0
+    # One answer short for GLM: the server starts for that alone.
+    w3 = _answered_world(tmp_path / "c")
+    _recolour_library(w3, answered=1)
+    assert w3.prep(only=("session_qwen", "session_glm")).run_all() == 0, w3.lines
+    assert [e for e in w3.events if e[0] == "start"] == [("start", "qwen", 8), ("start", "glm", 8)]
+    assert w3.manifest()["sessions"]["glm"]["missing"]["recolour"] == 1
+
+
+def test_a_library_without_recolour_requests_is_noted_not_judged(tmp_path):
+    """An old library: nothing to ask in the sessions (``recolour_note``), `judge_missing` is the library part alone
+    (None when neither requests file exists)."""
+    w = _answered_world(tmp_path, judge_complete=("qwen",))
+    prep = w.prep(only=("session_qwen", "session_glm"))
+    assert prep.recolour_missing("qwen") is None and prep.judge_missing("qwen") == 0 == prep.library_judge_missing("qwen")
+    assert prep.judge_missing("glm") == 1
+    assert prep.run_all() == 0, w.lines
+    assert "recolour judge glm" not in w.labels() and "objaverse judge glm" in w.labels()
+    glm = w.manifest()["sessions"]["glm"]
+    assert glm["recolour"] is None and "no recolour/requests.json" in glm["recolour_note"]
+    assert glm["missing"] == {"recognition": {"real01": 0}, "sheets": {}, "judge": 1, "recolour": None}
+    assert World(tmp_path / "empty").prep().judge_missing("qwen") is None
+
+
+def test_the_library_step_tags_the_slots_before_the_catalogue(tmp_path):
+    w = World(tmp_path)
+    P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})
+    P.write_json(w.prep_root / "library" / "judge" / "requests.json", {"items": [{"key": "u1"}]})
+    P.write_json(w.prep_root / "library" / "recolour" / "requests.json", {"items": [{"key": "mat_u1"}]})
+    fake_write = w.write
+
+    def write(cmd, label):
+        if label == "objaverse accept":                  # the real accepted.json: one decision per object
+            P.write_json(w.prep_root / "library" / "accepted.json", {"accepted": [{"uid": "u1"}]})
+            return 0
+        return fake_write(cmd, label)
+
+    w.write = write
+    assert w.prep(only=("library",)).run_all() == 0, w.lines
+    assert w.labels() == ["objaverse accept", "recolour tags", "objaverse write-catalog", "objaverse report"]
+    step = w.steps()["library"]
+    assert step["status"] == "ok" and step["recolour"]["models"] == 1 and step["recolour"]["recolourable_fabric"] == 1
+    assert step["recolour"]["accepted_without_fields"] == 0
+    # Accepted models without material fields (not in slots.json, or not judged): a warning that counts them.
+    w2 = World(tmp_path / "b")
+    for rel, doc in (("thumbnails.json", {"counts": {}}), ("judge/requests.json", {"items": [{"key": "u1"}]}),
+                     ("recolour/requests.json", {"items": [{"key": "mat_u1"}]})):
+        P.write_json(w2.prep_root / "library" / rel, doc)
+    fake2 = w2.write
+
+    def write2(cmd, label):
+        if label == "objaverse accept":
+            P.write_json(w2.prep_root / "library" / "accepted.json", {"accepted": [{"uid": "u1"}, {"uid": "u9"}]})
+            return 0
+        return fake2(cmd, label)
+
+    w2.write = write2
+    assert w2.prep(only=("library",)).run_all() == 0
+    step = w2.steps()["library"]
+    assert step["status"] == "warning" and "1 of 2 accepted model(s) have no material fields" in step["note"]
+    assert "objaverse write-catalog" in w2.labels()                       # the catalogue is written all the same
+
+
+def test_a_library_without_recolour_requests_is_a_warning_with_the_reason(tmp_path):
+    w = World(tmp_path)
+    P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})
+    P.write_json(w.prep_root / "library" / "judge" / "requests.json", {"items": [{"key": "u1"}]})
+    assert w.prep(only=("library",)).run_all() == 0, w.lines
+    step = w.steps()["library"]
+    assert step["status"] == "warning" and "no recolour/requests.json in the library" in step["note"]
+    assert "old library" in step["note"] and "recolour_slots" in step["note"]
+    assert w.labels() == ["objaverse accept", "objaverse write-catalog", "objaverse report"]    # no tags command
+
+
+def test_recolour_tags_failures_in_the_library_step(tmp_path):
+    def library(base, **rc):
+        w = World(base, rc=rc)
+        P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {}})
+        P.write_json(w.prep_root / "library" / "judge" / "requests.json", {"items": [{"key": "u1"}]})
+        P.write_json(w.prep_root / "library" / "recolour" / "requests.json", {"items": [{"key": "mat_u1"}]})
+        return w
+    # Exit 1: no model has judged slots: a warning, the catalogue is written without the material fields.
+    w = library(tmp_path, **{"recolour tags": 1})
+    assert w.prep(only=("library",)).run_all() == 0
+    step = w.steps()["library"]
+    assert step["status"] == "warning" and "no model has judged material slots" in step["note"]
+    assert "objaverse write-catalog" in w.labels()
+    # Exit 2 (slots.json or requests.json missing): failed, no catalogue (an earlier job's is removed too).
+    w = library(tmp_path / "b", **{"recolour tags": 2})
+    P.write_json(w.prep_root / "library" / "catalog_library.json", {"entries": []})
+    assert w.prep(only=("library",)).run_all() == 1
+    step = w.steps()["library"]
+    assert step["status"] == "failed" and step["note"] == "accept 0, write-catalog None, report 0, recolour tags 2"
+    assert "objaverse write-catalog" not in w.labels()
+    assert not (w.prep_root / "library" / "catalog_library.json").exists() and step["stale_removed"] == [
+        "catalog_library.json"]
+
+
+# ----- the sheets stage and its questions --------------------------------------
+
+def _sheet_world(tmp_path, **kw) -> World:
+    """real01 (recognition questions), real02 (sheet and recognition questions) and synthetic-07 (sheet questions
+    only: its pipeline exits 0)."""
+    names = ("real01", "real02", "synthetic-07")
+    return World(tmp_path, projects=names, pipeline_rc={"real01": 4, "real02": 4, "synthetic-07": 0},
+                 sheets_rc={"real02": 4, "synthetic-07": 4}, **kw)
+
+
+def _sheet_prep(w: World, **kw) -> P.Prep:
+    return w.prep(projects=["real01", "real02", "synthetic-07"], **kw)
+
+
+def test_the_sheets_stage_runs_before_each_pipeline_with_a_stage_record(tmp_path):
+    w = _sheet_world(tmp_path)
+    prep = _sheet_prep(w, only=("pipelines",))
+    assert prep.run_all() == 0, w.lines
+    assert w.labels() == ["sheets real01", "pipeline real01", "sheets real02", "pipeline real02",
+                          "sheets synthetic-07", "pipeline synthetic-07"]
+    out = w.outputs / "real02"
+    assert w.call("sheets real02")["cmd"] == ["/venv/python", "-m", "wenart.sheets", str(w.repo / "projects" / "real02"),
+                                              "--out", str(out)]
+    assert w.call("sheets real02")["timeout"] > 0
+    # The stage record is the orchestrator's: pending (exit 4), fingerprint, outputs; real01 asked nothing: ok.
+    rec = json.loads((out / "run" / "sheets.json").read_text())
+    assert rec["kind"] == "stage_record" and rec["stage"] == "sheets" and rec["status"] == "pending" and rec["rc"] == 4
+    assert rec["fingerprint"] and rec["outputs"] == ["sheets.json", "sheets_report.md"]
+    assert rec["run_id"] == "prep-t1" and rec["steps"][0]["name"] == "sheets"
+    assert json.loads((w.outputs / "real01" / "run" / "sheets.json").read_text())["status"] == "ok"
+    # synthetic-07: the sheet questions alone keep it pending, although its pipeline exits 0 (scheduler.stage_pipeline).
+    assert json.loads((w.outputs / "synthetic-07" / "run" / "pipeline.json").read_text())["status"] == "pending"
+    assert json.loads((w.outputs / "synthetic-07" / "run" / "pipeline.json").read_text())["rc"] == 0
+    step = w.steps()["pipelines"]
+    assert step["projects"] == {"real01": "pending", "real02": "pending", "synthetic-07": "pending"}
+    assert step["note"] == "3 project(s) with questions"
+    manifest = {p["name"]: p for p in w.manifest()["projects"]}
+    assert manifest["real02"]["sheets_rc"] == 4 and manifest["real02"]["sheet_questions"] == 2
+    assert manifest["real01"]["sheets_rc"] == 0 and manifest["real01"]["sheet_questions"] == 0
+    # A resumed job reuses both records (same fingerprints) and keeps the sheet questions pending.
+    w.calls.clear()
+    results2 = tmp_path / "results-2"
+    assert _sheet_prep(w, results=results2, only=("pipelines",)).run_all() == 0
+    assert w.calls == []
+    step = w.steps_of(results2)["pipelines"]
+    assert step["sheets_reused"] == ["real01", "real02", "synthetic-07"] and step["reused"] == step["sheets_reused"]
+    assert step["projects"]["synthetic-07"] == "pending" and "sheets reused" in step["note"]
+    assert {p["name"]: p["sheets_rc"] for p in w.manifest_of(results2)["projects"]} == {
+        "real01": 0, "real02": 4, "synthetic-07": 4}
+    # A changed project runs its sheets stage and its pipeline again, the others stay reused.
+    (w.repo / "projects" / "real02" / "one_building.dwg").write_bytes(b"changed")
+    w.calls.clear()
+    w.events.clear()
+    _sheet_prep(w, results=tmp_path / "results-3", only=("pipelines",)).run_all()
+    assert w.labels() == ["sheets real02", "pipeline real02"]
+
+
+def test_the_sheets_stage_needing_review_stops_the_project(tmp_path):
+    """Exit 1 (no readable plan, no unit agreement): no pipeline, no questions, the step ends `warning` with the
+    project named; any other exit fails the step."""
+    w = _sheet_world(tmp_path)
+    w.sheets_rc["real02"] = 1
+    assert _sheet_prep(w).run_all() == 0, w.lines
+    labels = w.labels()
+    assert "sheets real02" in labels and "pipeline real02" not in labels
+    stopped_calls = ("ask ", "status ", "pipeline_final ", "sheets_final ")
+    assert not [x for x in labels if x.startswith(stopped_calls) and "real02" in x]
+    step = w.steps()["pipelines"]
+    assert step["status"] == "warning" and step["sheets_need_review"] == ["real02"]
+    assert step["projects"]["real02"] == "needs_review" and "sheets need review" in step["note"]
+    assert json.loads((w.outputs / "real02" / "run" / "sheets.json").read_text())["status"] == "needs_review"
+    assert not (w.outputs / "real02" / "run" / "pipeline.json").exists()
+    assert w.steps()["pipeline_final"]["projects"].keys() == {"real01", "synthetic-07"}
+    # A crash of the stage (exit 2) fails the step; the project is left out of the questions.
+    w2 = _sheet_world(tmp_path / "b")
+    w2.sheets_rc["real02"] = 2
+    assert _sheet_prep(w2).run_all() == 1
+    assert w2.steps()["pipelines"]["status"] == "failed"
+    assert w2.steps()["pipelines"]["note"] == "sheets failed: real02 (exit 2)"
+    assert "pipeline real02" not in w2.labels() and "ask qwen real02 sheets" not in w2.labels()
+    # Sheet questions pending but the pipeline then needs review (exit 1): the orchestrator stops the project, so
+    # nothing is asked for it (the sheet questions of the other projects are).
+    w3 = _sheet_world(tmp_path / "c")
+    w3.pipeline_rc["real02"] = 1
+    assert _sheet_prep(w3).run_all() == 0, w3.lines
+    assert w3.steps()["pipelines"]["projects"]["real02"] == "needs_review"
+    assert "ask qwen real02 sheets" not in w3.labels() and "ask qwen synthetic-07 sheets" in w3.labels()
+
+
+def test_both_sessions_ask_the_sheet_questions_before_the_recognition_ones(tmp_path):
+    w = _sheet_world(tmp_path)
+    (w.repo / "results" / "recognition" / "real02" / "sheets").mkdir(parents=True)     # committed seeds folder
+    assert _sheet_prep(w).run_all() == 0, w.lines
+    labels = w.labels()
+    for key in ("qwen", "glm"):
+        start = labels.index(f"start {key} 8")
+        session = labels[start:labels.index(f"stop {key}")]
+        assert [x for x in session if x.startswith("ask ")] == [
+            f"ask {key} real01", f"ask {key} real02 sheets", f"ask {key} real02", f"ask {key} synthetic-07 sheets"]
+    url = "http://127.0.0.1:8001/v1"
+    ask = w.call("ask qwen real02 sheets")["cmd"]
+    assert ask == ["/venv/python", "-m", "wenart.recognition.answers", "ask", str(w.outputs / "real02" / "sheets"),
+                   "--model-key", "qwen", "--server", url, "--workers", "8", "--seed-answers",
+                   str(w.repo / "results" / "recognition" / "real02" / "sheets")]
+    # No committed folder: no --seed-answers; the recognition folder of real02 has its own (absent) seeds.
+    assert w.call("ask qwen synthetic-07 sheets")["cmd"][-2:] == ["--workers", "8"]
+    assert w.call("ask qwen real02")["cmd"][4] == str(w.outputs / "real02" / "recognition")
+    qwen = w.manifest()["sessions"]["qwen"]
+    assert qwen["missing"]["sheets"] == {"real02": 2, "synthetic-07": 2} and qwen["missing"]["recognition"] == {
+        "real01": 2, "real02": 2}
+    asks = {(a["project"], a["qdir"]): a for a in qwen["asks"]}
+    assert set(asks) == {("real01", "recognition"), ("real02", "sheets"), ("real02", "recognition"),
+                         ("synthetic-07", "sheets")}
+    assert asks[("real02", "sheets")]["items"] == 2 and asks[("real02", "sheets")]["seeded_from"]
+    session = w.steps()["session_qwen"]
+    assert session["status"] == "ok" and "4 question folder(s) asked" in session["note"]
+    assert (w.outputs / "real02" / "sheets" / "answers_qwen.json").is_file()
+
+
+def test_stored_and_committed_sheet_answers_need_no_server(tmp_path):
+    """The sheet_region answers of one model stored in the outputs, the other model's in the committed seeds
+    (results/recognition/<p>/sheets/): no vLLM start; the seeds are copied by `ask` without a server."""
+    from fakes.fake_vlm import minimal_instance
+    from wenart.sheets import question as SQ
+    w = _sheet_world(tmp_path)
+    items = [{"key": f"sheet_a_s1_r{i}", "task": "sheet_region", "images": [f"crops/sheet_a_s1_r{i}.png"],
+              "input_sha256": f"{i + 40:064x}"} for i in (1, 2)]
+    out = w.outputs / "real02" / "sheets"
+    P.write_json(out / "requests.json", {"kind": "recognition_requests", "items": items})
+    answer = minimal_instance(SQ.SCHEMA)
+    _store(out / f"answers_{_models()['qwen']['slug']}.json", "qwen", items, answer)
+    seeds = w.repo / "results" / "recognition" / "real02" / "sheets"
+    _store(seeds / f"answers_{_models()['glm']['slug']}.json", "glm", items, answer)
+    prep = w.prep(only=("session_qwen", "session_glm"), projects=["real02"])
+    assert prep.recognition_missing(prep.projects[0], "qwen", "sheets") == (0, 0)
+    assert prep.recognition_missing(prep.projects[0], "glm", "sheets") == (2, 0)      # in the seeds only
+    assert prep.pending() == [prep.projects[0]]                                      # pending by its requests file
+    assert prep.run_all() == 0, w.lines
+    assert not [e for e in w.events if e[0] == "start"]
+    assert w.labels() == ["ask glm real02 sheets"]
+    cmd = w.call("ask glm real02 sheets")["cmd"]
+    assert "--server" not in cmd and cmd[-2:] == ["--seed-answers", str(seeds)]
+    glm = w.manifest()["sessions"]["glm"]
+    assert glm["probe"] == "not run" and glm["missing"] == {"recognition": {}, "sheets": {"real02": 0}, "judge": None,
+                                                           "recolour": None}
+    assert glm["asks"][0]["qdir"] == "sheets" and glm["asks"][0]["server"] is False
+
+
+def test_pipeline_final_applies_the_sheet_answers_first(tmp_path):
+    w = _sheet_world(tmp_path)
+    assert _sheet_prep(w).run_all() == 0, w.lines
+    labels = w.labels()
+    final = labels[labels.index("status real01"):labels.index("objaverse accept")]
+    assert final == ["status real01", "pipeline_final real01",
+                     "status real02", "status real02 sheets", "sheets_final real02", "pipeline_final real02",
+                     "status synthetic-07 sheets", "sheets_final synthetic-07", "pipeline_final synthetic-07"]
+    out = w.outputs / "real02"
+    sheets = w.call("sheets real02")["cmd"]
+    assert w.call("sheets_final real02")["cmd"] == sheets + ["--answers", str(out / "sheets")]
+    assert w.call("status real02 sheets")["cmd"][-1] == str(out / "sheets")
+    pipe = w.call("pipeline real02")["cmd"]
+    assert w.call("pipeline_final real02")["cmd"] == pipe + ["--answers", str(out / "recognition")]
+    # Only sheet questions: the recognition folder has nothing to wait for, but the pipeline still gets its folder.
+    assert w.call("pipeline_final synthetic-07")["cmd"][-2:] == [
+        "--answers", str(w.outputs / "synthetic-07" / "recognition")]
+    assert json.loads((out / "sheets.json").read_text())["final"] is True and not json.loads(
+        (out / "sheets.json").read_text())["no_ai"]
+    step = w.steps()["pipeline_final"]
+    assert step["status"] == "ok"
+    assert step["projects"]["real02"] == {"rc": 0, "answers_complete": True, "second_round": False,
+                                          "sheets": {"rc": 0, "answers_complete": True}}
+    assert step["projects"]["real01"] == {"rc": 0, "answers_complete": True, "second_round": False}
+    rec = json.loads((out / "run" / "pipeline_final.json").read_text())
+    assert rec["status"] == "ok" and [s["name"] for s in rec["steps"]] == ["sheets --answers", "pipeline_final"]
+    assert set(rec["written"]) == {"building.json", "sheets.json"}
+    project = {p["name"]: p for p in w.manifest()["projects"]}["real02"]
+    assert project["sheets_answers_complete"] is True and project["sheets_final_rc"] == 0
+    assert project["answers_complete"] is True and project["pipeline_final_rc"] == 0
+
+
+def test_missing_sheet_answers_run_sheets_without_ai_and_warn(tmp_path):
+    w = _sheet_world(tmp_path, status_rc={"real02 sheets": 1})
+    assert _sheet_prep(w).run_all() == 0, w.lines
+    sheets = w.call("sheets real02")["cmd"]
+    final = w.call("sheets_final real02")["cmd"]
+    assert final == sheets + ["--answers", str(w.outputs / "real02" / "sheets"), "--no-ai"]
+    assert json.loads((w.outputs / "real02" / "sheets.json").read_text())["no_ai"] is True
+    assert "--no-ai" not in w.call("pipeline_final real02")["cmd"]              # the recognition answers are complete
+    step = w.steps()["pipeline_final"]
+    assert step["status"] == "warning" and step["note"] == "sheet answers missing (sheets --no-ai): real02"
+    assert step["projects"]["real02"]["sheets"] == {"rc": 0, "answers_complete": False}
+    rec = json.loads((w.outputs / "real02" / "run" / "pipeline_final.json").read_text())
+    assert rec["status"] == "warning" and rec["note"] == "sheet answers missing: sheets --no-ai"
+    assert [s["name"] for s in rec["steps"]] == ["sheets --no-ai", "pipeline_final"]
+    # The sheets run crashes after the answers (exit 2): that project fails, no pipeline_final for it.
+    w2 = _sheet_world(tmp_path / "b", rc={"sheets_final real02": 2})
+    assert _sheet_prep(w2).run_all() == 1
+    step = w2.steps()["pipeline_final"]
+    assert step["status"] == "failed" and step["note"] == "pipeline_final failed: real02"
+    assert "pipeline_final real02" not in w2.labels() and "pipeline_final synthetic-07" in w2.labels()
+    assert json.loads((w2.outputs / "real02" / "run" / "pipeline_final.json").read_text())["note"] == "sheets exit 2"
+
+
+def test_copy_puts_the_sheet_files_into_the_results_layout(tmp_path):
+    w = _sheet_world(tmp_path)
+    prep = _sheet_prep(w)
+    assert prep.run_all() == 0, w.lines
+    rec = w.results / "recognition" / "real02" / "sheets"
+    assert sorted(f.name for f in rec.iterdir()) == ["answers_glm.json", "answers_qwen.json", "requests.json"]
+    assert not (rec / "crops").exists()                               # the crops stay on the volume
+    assert (w.results / "recognition" / "real02" / "requests.json").is_file()      # the recognition folder, as before
+    fur = w.results / "furniture" / "real02"
+    assert (fur / "sheets.json").is_file() and (fur / "sheets_report.md").is_file()   # copy_project's *.json / *.md rule
+    assert (fur / "sheets_debug" / "real02_s1.png").read_bytes() == b"png"
+    assert not (w.results / "recognition" / "real01" / "sheets").exists()             # no sheet question there
+    assert w.steps()["copy"]["status"] == "ok"
+    # The EXIT trap's copy does the same.
+    results2 = tmp_path / "results-2"
+    assert _sheet_prep(w, results=results2).copy_only() == 0
+    assert (results2 / "recognition" / "real02" / "sheets" / "requests.json").is_file()
+    assert (results2 / "furniture" / "real02" / "sheets_debug" / "real02_s1.png").is_file()
+    # A debug image over the 3 MB limit is named, not copied silently.
+    big = w.outputs / "real02" / "sheets_debug" / "big_s2.png"
+    big.write_bytes(b"x" * (3 * 1024 * 1024 + 1))
+    results3 = tmp_path / "results-3"
+    job = _sheet_prep(w, results=results3, only=("copy",))
+    assert job.run_all() == 0
+    step = w.steps_of(results3)["copy"]
+    assert step["status"] == "warning" and step["left_out_for_size"] == ["real02/sheets_debug/big_s2.png"]
+    assert not (results3 / "furniture" / "real02" / "sheets_debug" / "big_s2.png").exists()
+
+
+def test_the_library_copy_takes_the_recolour_folder_and_names_what_it_leaves_out(tmp_path):
+    w = World(tmp_path)
+    lib = w.prep_root / "library"
+    for rel in ("recolour/slots.json", "recolour/requests.json", "recolour/tags.json", "recolour/answers_qwen.json"):
+        P.write_json(lib / rel, {})
+    (lib / "recolour" / "sheets").mkdir(parents=True)
+    (lib / "recolour" / "sheets" / "u1.jpg").write_bytes(b"jpg")
+    prep = w.prep()
+    assert prep.sync_library() == 5
+    got = sorted(f.relative_to(w.results / "library").as_posix() for f in (w.results / "library").rglob("*")
+                 if f.is_file())
+    assert got == ["recolour/answers_qwen.json", "recolour/requests.json", "recolour/sheets/u1.jpg",
+                   "recolour/slots.json", "recolour/tags.json"]
+    assert prep.library_left_out() == []
+    (lib / "recolour" / "slots.json").write_bytes(b"x" * (8 * 1024 * 1024))
+    assert prep.library_left_out() == ["recolour/slots.json"]
+    (lib / "model.glb").write_bytes(b"x" * (8 * 1024 * 1024))                     # a model file is meant to stay
+    assert prep.library_left_out() == ["recolour/slots.json"]
+
+
+def test_the_documented_m10_pod_commands_name_real_steps(tmp_path):
+    """prep.sh's header holds the L1 and L2 commands the lead copies: every PREP_ONLY / PREP_SKIP list in it names
+    steps of ``STEPS`` (a typo would fail the job at the pod's start), L1 asks the sheets of the M10 projects and L2
+    generates."""
+    text = " ".join(ln.lstrip("#").strip() for ln in _text().splitlines() if ln.startswith("#"))
+    lists = re.findall(r"PREP_(?:ONLY|SKIP)=([a-z_,]+)", text)
+    assert lists
+    for names in lists:
+        assert {n for n in names.split(",") if n} <= set(P.STEPS), names      # a wrapped list ends with a comma
+    m10 = [ln for ln in text.split("scripts/gpu_run.py run") if "M10 L1" in ln or "M10 L2" in ln]
+    assert len(m10) == 2
+    l1, l2 = m10
+    assert "PREP_PROJECTS=real02,synthetic-07" in l1 and "pipelines" in re.search(r"PREP_ONLY=([a-z_,]+)", l1).group(1)
+    assert "WENART_GENERATE_TARGET=20" in l2 and "generate" in re.search(r"PREP_ONLY=([a-z_,]+)", l2).group(1)
+    for part in (l1, l2):
+        only = re.search(r"PREP_ONLY=([a-z_,]+)", part).group(1).split(",")
+        assert "recolour_slots" in only and only.index("recolour_slots") > only.index("judge_requests")
+        assert P.options_from_args(P.parse_args(["--results", str(tmp_path), "--only", ",".join(only)])).only

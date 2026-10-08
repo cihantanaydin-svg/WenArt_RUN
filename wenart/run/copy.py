@@ -22,6 +22,8 @@ What: ``python -m wenart.run copy --projects ... [--private ...] [--ab ...]
 | ``detect/*.json`` | ``check/<p>/detect/`` |
 | ``decor_debug/*.png`` (<= 3 MB), ``decor_debug/*.json`` (Milestone 9) | ``furniture/<p>/decor_debug/`` |
 | ``export/<p>.blend``, ``export/<p>.glb``, ``export/export_manifest.json`` (Milestone 9) | ``final/<p>/3d/`` |
+| ``sheets/requests.json``, ``sheets/answers_*.json``, ``sheets/crops/*.png`` (Milestone 10) | ``recognition/<p>/sheets/`` |
+| ``sheets_debug/*.png`` (<= 3 MB, Milestone 10) | ``furniture/<p>/sheets_debug/`` |
 | ``variants/<id>/<the rows above>`` (Milestone 10, an alternative) | ``<area>/<p>/variants/<id>/...`` |
 
 Milestone 10 (docs/milestone10.md §1.6b row 9): an alternative's sub-output ``variants/<id>/`` has a project
@@ -152,6 +154,12 @@ PUBLIC_RULES = (
     Rule("decor_debug", "furniture", "decor_debug", "png"),
     Rule("decor_debug", "furniture", "decor_debug", "json"),
     Rule("export", "final", "3d", "export"),
+    # Milestone 10 (docs/milestone10.md §1.5): the sheet_region questions and answers (the next run's seeds,
+    # results/recognition/<p>/sheets/) and the sheet debug images; sheets.json and sheets_report.md go with the
+    # general rule of out/.
+    Rule("sheets", "recognition", "sheets", "recognition"),
+    Rule("sheets/crops", "recognition", "sheets/crops", "crops"),
+    Rule("sheets_debug", "furniture", "sheets_debug", "png"),
 )
 PRIVATE_RULES = (
     Rule("final", "final", "", "private_final"),

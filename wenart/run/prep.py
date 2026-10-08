@@ -6,8 +6,9 @@
     (also ``python -m wenart.run prep ...``; run by ``scripts/jobs/prep.sh`` after the setup)
 
 Milestone 8 (docs/milestone8.md §6): the library steps cover every source, in this order: ``abo_survey``,
-``survey`` (Objaverse, all licences), ``trellis_setup``, ``generate``, ``thumbnails``, ``judge_requests``, then the
-M7 steps from ``detect_calibrate`` to ``pipeline_final`` as before (the sessions judge every source's sheets),
+``survey`` (Objaverse, all licences), ``trellis_setup``, ``generate``, ``thumbnails``, ``judge_requests``, (Milestone 10:
+``recolour_slots``), then the M7 steps from ``detect_calibrate`` to ``pipeline_final`` as before (the sessions judge every
+source's sheets),
 ``library`` (accept over every source, ``write-catalog`` -> ``catalog_library.json``, report, ``ATTRIBUTION.md``),
 ``copy``, ``tests``:
 
@@ -30,6 +31,48 @@ M7 steps from ``detect_calibrate`` to ``pipeline_final`` as before (the sessions
   generates the gaps, the thumbnails and both sessions add only the generated models, ``library`` builds the
   catalogue of every source. Every download happens before ``thumbnails``: the steps from there run with
   ``HF_HUB_OFFLINE=1``.
+
+Milestone 10 (docs/milestone10.md §3.1 item 2, §4.5, §4.11, §7 pods L1 and L2): the library carries the material slots
+of its models, and the prep pod answers the sheet AI questions of the M10 projects (the full runs reuse the answers as
+seeds).
+
+- ``recolour_slots`` (new, after ``judge_requests``; heavy: Blender on the GPU, exit 3 = ``deadline``): ``python -m
+  wenart.assets.recolour slots --out <library> --scope ready --workers N --work <prep-root>/library-work/recolour
+  [--assets <assets>]`` (every ready thumbnail object, so the sessions judge the slots before ``accept``; ``N`` =
+  ``$WENART_RECOLOUR_WORKERS`` or the CPU budget up to 4; ``--assets`` when the folder exists) and, in the same step,
+  ``recolour requests --out <library>`` (CPU, seconds; no step of its own: it only turns the slots.json just written into
+  requests.json). ``thumbnails.json`` missing -> ``failed``. A resumed job renders only the models without a result.
+- ``session_qwen`` / ``session_glm``: after ``objaverse judge``, ``recolour judge --out <library> --model-key <k> --server
+  <url> --workers <seqs>`` on the same server. ``judge_missing`` counts the library judge items and the recolour sheets
+  (``recolour_missing``); no server starts when neither, nor any question, is missing. A library without
+  ``recolour/requests.json`` (an old library) is noted in the session (``recolour_note``) and ends the library step
+  with a ``warning``.
+- ``library``: ``objaverse accept`` -> ``recolour tags --out <library>`` -> ``write-catalog`` -> report -> ATTRIBUTION.md.
+  The catalogue gets ``material_slots``, ``material_tags``, ``recolourable_fabric`` and ``recolourable_wood`` from
+  ``recolour/tags.json``. ``warning`` (with the reason) when the library has no recolour requests, no model has judged
+  slots or accepted models have no material fields; ``failed`` when ``tags`` exits 2 (no catalogue is written then).
+  ``wenart.run.copy.library_files`` copies ``<library>/recolour/`` (sheets, slots.json, requests, answers, tags.json).
+- ``survey``'s estimate is 900 s (``EST_S``: about three times the M9 downloads); ``GENERATE_RESERVE_MIN`` is 40.
+- ``pipelines``: the sheets stage first, per project (``wenart.sheets <project> --out <out>``; stage record
+  ``<out>/run/sheets.json`` with the orchestrator's fingerprint, reused while it holds): exit 0 ``ok``, 4 ``pending``
+  (``sheet_region`` questions written in ``<out>/sheets``; the pipeline still runs), 1 ``needs_review`` (the project
+  stops: no pipeline, the step ends ``warning``); then the first pipeline as before. ``real02`` and ``synthetic-07``
+  are prep projects (``PREP_PROJECTS``).
+- The two question folders: the sessions ask ``<out>/sheets`` (the sheet_region questions) and ``<out>/recognition`` with
+  ``wenart.recognition.answers ask <qdir> --model-key <k> ...``, sheets first; the committed seeds are
+  ``results/recognition/<p>/`` for the recognition folder and ``results/recognition/<p>/sheets/`` for the sheets folder
+  (the integrator commits the copied answers there).
+- ``pipeline_final``: per project with sheet questions ``sheets --answers <out>/sheets`` (``--no-ai`` too when
+  ``answers status`` finds an answer missing), then ``pipeline --answers <out>/recognition`` as before; exit 0 and 1 of
+  the sheets run go on (1: the pipeline says why), anything else fails the project.
+- ``copy``: ``<out>/sheets/requests.json`` and ``answers_*.json`` -> ``recognition/<p>/sheets/``, ``sheets_debug/*.png``
+  -> ``furniture/<p>/sheets_debug/`` (``copy_sheets``: ``wenart.run.copy`` has no rule for them), ``sheets.json`` and
+  ``sheets_report.md`` -> ``furniture/<p>/`` (``copy_project``'s ``*.json`` / ``*.md`` rule).
+- Pods (docs/milestone10.md §7): L1 = ``PREP_PROJECTS="real02 synthetic-07"
+  PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,pipelines,session_qwen,session_glm,pipeline_final,
+  library,copy,tests``; L2 = ``PREP_PROJECTS="real02 synthetic-07" WENART_GENERATE_TARGET=20
+  PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests``
+  (the real GLBs of L2 come from the assets copy of L1's write-catalog, ``--assets``).
 
 The M7 text below holds for the other steps (its ``survey`` now follows ``abo_survey``):
 
@@ -131,14 +174,20 @@ from wenart.run import stages as S
 from wenart.run import state as ST
 from wenart.run.projects import REPO_ROOT, ProjectError, ProjectRef, check_name
 
-STEPS = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "judge_requests", "detect_calibrate",
-         "timings", "pipelines", "session_qwen", "session_glm", "pipeline_final", "library", "copy", "tests")
+STEPS = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "judge_requests", "recolour_slots",
+         "detect_calibrate", "timings", "pipelines", "session_qwen", "session_glm", "pipeline_final", "library", "copy",
+         "tests")
 # Download and GPU steps: they start only when now + EST_S < deadline (seconds; §10 table, measured on nothing
 # yet: the prep pod is where they are measured).
-HEAVY = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "detect_calibrate", "timings",
-         "session_qwen", "session_glm")
-EST_S = {"abo_survey": 300.0, "survey": 300.0, "trellis_setup": 900.0, "generate": 600.0, "thumbnails": 300.0,
-         "detect_calibrate": 240.0, "timings": 420.0}
+HEAVY = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "recolour_slots", "detect_calibrate",
+         "timings", "session_qwen", "session_glm")
+# Milestone 10: survey 300 -> 900 s. The survey now reads 44 groups of types (M9: 18) and tries up to 48 GLB
+# downloads per group (80 for the flat-colour groups), so about three times the M9 downloads; the metadata shards
+# were probably nearly all read in M9 already (1498 objects over the dataset's 160 shards; not measured).
+# recolour_slots: 600 s is the least worth starting (the step resumes where a cut left it); the Blender run itself
+# is not measured yet.
+EST_S = {"abo_survey": 300.0, "survey": 900.0, "trellis_setup": 900.0, "generate": 600.0, "thumbnails": 300.0,
+         "recolour_slots": 600.0, "detect_calibrate": 240.0, "timings": 420.0}
 LAST_DOWNLOAD_STEP = "generate"            # HF_HUB_OFFLINE=1 for every step after it (M7: after the survey)
 SETUP_TRELLIS = "scripts/pod_setup_trellis.sh"
 GENERATE_MODULE = Path("wenart") / "assets" / "generate.py"
@@ -149,7 +198,8 @@ SESSION_KEYS = {"session_qwen": "qwen", "session_glm": "glm"}     # pass 1, then
 STATUSES = ("ok", "warning", "skipped", "deadline", "failed")
 GOOD = ("ok", "warning", "skipped")
 
-PREP_PROJECTS = ("real01", "synthetic-02", "synthetic-06", "real01-scan", "real01-photo")
+# Milestone 10: real02 and synthetic-07 are prep projects for their sheet_region AI passes (sheets stage, §3.1 item 2).
+PREP_PROJECTS = ("real01", "synthetic-02", "synthetic-06", "real01-scan", "real01-photo", "real02", "synthetic-07")
 # Where a prep project lives: the committed projects, the real01 raster fixtures (area S, §4.4), the test projects.
 PROJECT_ROOTS = (Path("projects"), Path("tests") / "fixtures" / "real01_raster",
                  Path("tests") / "fixtures" / "projects")
@@ -178,11 +228,17 @@ TEST_GROUP_STEPS = {"library": "library", "detect": "detect_calibrate"}
 LATE_S = 600.0                             # CPU steps and tests may run until the deadline + 10 min
 # Milestone 9: the generation stops this long before the job deadline when the same job thumbnails and judges (the
 # L1 pod: 871 sheets in about 22 min of thumbnails; two judge sessions and the library about 15 min for 300 models).
-GENERATE_RESERVE_MIN = 30.0
-GENERATE_LATER_STEPS = ("thumbnails", "session_qwen", "session_glm")
+# Milestone 10: 30 -> 40 min; the same pod now also renders the material slots of the generated models and judges them
+# (recolour_slots and the recolour judge in both sessions, about 10 min, not measured yet).
+GENERATE_RESERVE_MIN = 40.0
+GENERATE_LATER_STEPS = ("thumbnails", "recolour_slots", "session_qwen", "session_glm")
 NO_DEADLINE_TIMEOUT_S = 4 * 3600.0
 MANIFEST = "prep_manifest.json"
 GPU_SPEED_JSON = "gpu_speed.json"
+# Milestone 10 (docs/milestone10.md §4.5, §7): the material slots of the library models, ``wenart.assets.recolour``.
+RECOLOUR_MODULE = "wenart.assets.recolour"
+RECOLOUR_DIR = "recolour"                  # <library>/recolour: slots.json, requests.json, answers_<slug>.json, tags.json
+RECOLOUR_WORKERS_MAX = 4                   # Blender processes that share the GPU (``WENART_RECOLOUR_WORKERS`` overrides)
 
 
 def utc_now() -> str:
@@ -353,10 +409,30 @@ class Project:
     final_rc: Optional[int] = None
     complete: Optional[bool] = None       # answers of both models for every item (answers status)
     second_round: bool = False            # pipeline_final exited 4 with complete answers: re-run with --no-ai
+    # Milestone 10: the sheets stage (its sheet_region questions are in <out>/sheets, answered in the same sessions).
+    sheets_rc: Optional[int] = None       # first sheets run of this job (its stored rc when reused): 0, 1, 4
+    sheets_reused: bool = False
+    sheets_complete: Optional[bool] = None    # the sheet_region answers of both models are complete (answers status)
+    sheets_final_rc: Optional[int] = None     # ``sheets --answers`` of pipeline_final
 
     @property
     def requests(self) -> Path:
         return self.out_dir / S.RECOGNITION_DIR / "requests.json"
+
+    @property
+    def sheet_requests(self) -> Path:
+        return self.out_dir / S.SHEETS_DIR / "requests.json"
+
+    def requests_of(self, qdir: str) -> Path:
+        """``requests.json`` of a question folder (``S.QUESTION_DIRS``)."""
+        return self.out_dir / qdir / "requests.json"
+
+    @property
+    def stopped(self) -> bool:
+        """The sheets stage or the first pipeline of this job ended with something other than done (0) or questions
+        written (4): needs review, or failed. The orchestrator stops such a project, so no question is asked for it."""
+        return (self.sheets_rc not in (None, 0, S.EXIT_QUESTIONS)
+                or self.pipeline_rc not in (None, 0, S.EXIT_QUESTIONS))
 
     def ref(self, results: Path) -> ProjectRef:
         return ProjectRef(name=self.name, private=False, project_dir=self.project_dir or self.out_dir,
@@ -389,6 +465,7 @@ class Prep:
         self.sessions: dict = {}
         self.timing: Optional[dict] = None
         self.tests: list[dict] = []
+        self.sheets_too_big: list = []            # sheet debug images over the copy limit (``copy_sheets``)
         self.started_utc = utc_now()
         self.exit_code: Optional[int] = None
         self.projects = [self.find_project(n) for n in opts.projects]
@@ -474,14 +551,20 @@ class Prep:
         return None
 
     def pending(self) -> list[Project]:
-        """Projects with recognition questions: the first pipeline of this run exited 4 (or its stored ``pending``
-        record was reused), or (pipelines not run in this job: ``--skip``/``--only``) a requests.json with items
-        from an earlier job in ``--outputs``."""
+        """Projects with AI questions, in either folder (``recognition`` and, Milestone 10, ``sheets``): the first
+        pipeline (or the sheets stage) of this run exited 4 (or its stored ``pending`` record was reused), or (the
+        stage not run in this job: ``--skip``/``--only``) a requests.json with items from an earlier job in
+        ``--outputs``. A project that stopped (``Project.stopped``: its sheets stage or pipeline needs review or
+        failed) has none."""
         return [p for p in self.projects
-                if (p.pipeline_rc == S.EXIT_QUESTIONS or (p.pipeline_rc is None and items_in(p.requests) > 0))]
+                if not p.stopped and (
+                    S.EXIT_QUESTIONS in (p.pipeline_rc, p.sheets_rc)
+                    or (p.pipeline_rc is None and items_in(p.requests) > 0)
+                    or (p.sheets_rc is None and items_in(p.sheet_requests) > 0))]
 
-    def seeds(self, p: Project) -> Optional[Path]:
-        seeds = S.recognition_seeds(p.ref(self.opts.results), Path(self.opts.repo_root))
+    def seeds(self, p: Project, qdir: str = S.RECOGNITION_DIR) -> Optional[Path]:
+        """The committed answers of ``p`` (``results/recognition/<p>/``; the sheet_region answers in its ``sheets/``)."""
+        seeds = S.recognition_seeds(p.ref(self.opts.results), Path(self.opts.repo_root), qdir)
         return seeds if seeds is not None and seeds.is_dir() else None
 
     def sync_library(self) -> int:
@@ -502,6 +585,16 @@ class Prep:
             n += 1
         return n
 
+    def library_left_out(self) -> list[str]:
+        """Library files that ``copy.library_files`` leaves out for their size (model files are meant to stay): a
+        catalogue, requests or slots file over the limit would otherwise be missing from ``$RESULTS`` unnoticed."""
+        src = Path(self.opts.library)
+        if not src.is_dir():
+            return []
+        return [f.relative_to(src).as_posix() for f in sorted(src.rglob("*"))
+                if f.is_file() and not f.is_symlink() and f.suffix.lower() not in CP.LIBRARY_SKIP_SUFFIXES
+                and f.stat().st_size > CP.MAX_TEXT_BYTES]
+
     # ----- what a session still has to ask ------------------------------------
 
     def models(self) -> dict:
@@ -511,18 +604,19 @@ class Prep:
             self._models = A.load_models()
         return self._models
 
-    def recognition_missing(self, p: Project, key: str) -> tuple[int, int]:
-        """``(without seeds, with seeds)``: the questions of ``p`` that have no current, schema-valid answer of
-        ``key`` in ``<out>/recognition`` (first number) and neither there nor in the committed seeds
-        (``results/recognition/<p>/``, second number). An unreadable store or item counts as missing."""
-        data = read_json(p.requests)
+    def recognition_missing(self, p: Project, key: str, qdir: str = S.RECOGNITION_DIR) -> tuple[int, int]:
+        """``(without seeds, with seeds)``: the questions of ``p`` in ``<out>/<qdir>`` that have no current,
+        schema-valid answer of ``key`` there (first number) and neither there nor in the committed seeds
+        (``results/recognition/<p>/``, for the sheets folder ``.../sheets/``; second number). An unreadable store
+        or item counts as missing."""
+        data = read_json(p.requests_of(qdir))
         items = [i for i in (data.get("items") or []) if isinstance(i, dict)] if isinstance(data, dict) else []
         if not items:
             return 0, 0
         try:
             from wenart.recognition import answers as A    # lazy: jsonschema
-            store = A.AnswerStore.for_model(p.requests.parent, key, self.models())
-            seeds = self.seeds(p)
+            store = A.AnswerStore.for_model(p.requests_of(qdir).parent, key, self.models())
+            seeds = self.seeds(p, qdir)
             seed_path = seeds / store.path.name if seeds is not None else None
             seed = (A.AnswerStore(seed_path, key, store.data["slug"], store.data["model"])
                     if seed_path is not None and seed_path.is_file() else None)
@@ -538,7 +632,7 @@ class Prep:
         own = [i for i in items if not answered(store, i)]
         return len(own), sum(1 for i in own if not answered(seed, i))
 
-    def judge_missing(self, key: str) -> Optional[int]:
+    def library_judge_missing(self, key: str) -> Optional[int]:
         """The library judge items without a current, schema-valid answer of ``key`` (None: no
         ``judge/requests.json`` in the library work folder)."""
         data = read_json(self.opts.library / "judge" / "requests.json")
@@ -559,6 +653,27 @@ class Prep:
             except Exception:  # noqa: BLE001 - a broken item or record is not an answer
                 n += 1
         return n
+
+    def recolour_missing(self, key: str) -> Optional[int]:
+        """Milestone 10: the recolour sheets (``<library>/recolour/requests.json``) without a current, schema-valid
+        answer of ``key`` (None: the library has no recolour requests: an old library, or ``recolour_slots`` has
+        not run)."""
+        path = self.opts.library / RECOLOUR_DIR / "requests.json"
+        if not path.is_file():
+            return None
+        try:
+            from wenart.assets import recolour as RC         # lazy: the library judge's answer store
+            summary = RC.status(self.opts.library, self.models())
+            return max(0, int(summary["items"]) - int(summary["models"][key]["answered"]))
+        except Exception:  # noqa: BLE001 - an unreadable store or request file: every sheet is asked
+            return items_in(path)
+
+    def judge_missing(self, key: str) -> Optional[int]:
+        """What the library judging of ``key`` still has to ask: the library judge items and (Milestone 10) the
+        recolour sheets without a current, schema-valid answer (None: neither requests file exists). The session
+        starts a server for it (``do_session`` also keeps the two numbers apart)."""
+        parts = [n for n in (self.library_judge_missing(key), self.recolour_missing(key)) if n is not None]
+        return sum(parts) if parts else None
 
     # ----- pipeline records (the orchestrator's stage records, M7 §9.1) -------
 
@@ -630,6 +745,10 @@ class Prep:
 
     def objaverse(self, *args) -> list:
         return [self.opts.py, "-m", "wenart.assets.objaverse", *[str(a) for a in args]]
+
+    def recolour(self, *args) -> list:
+        """``python -m wenart.assets.recolour <command> ...`` (Milestone 10, docs/milestone10.md §4.5)."""
+        return [self.opts.py, "-m", RECOLOUR_MODULE, *[str(a) for a in args]]
 
     def generate_cmd(self, *args) -> list:
         return [self.opts.trellis_python, "-m", "wenart.assets.generate", *[str(a) for a in args]]
@@ -848,6 +967,87 @@ class Prep:
         entry["items"] = items_in(self.opts.library / "judge" / "requests.json")
         return ("ok", f"{entry['items']} sheet(s) to judge") if rc == 0 else ("failed", f"exit {rc}")
 
+    def recolour_workers(self) -> int:
+        """Blender processes of ``recolour slots --workers``: ``$WENART_RECOLOUR_WORKERS``, else the pod's CPU budget
+        (``$WENART_CPU_THREADS``, set by prep.sh; else ``os.cpu_count()``) up to ``RECOLOUR_WORKERS_MAX``. They share
+        the GPU (a slot render is small: 256 px tiles at 4 to 16 samples; the GLB import is the CPU part)."""
+        text = os.environ.get("WENART_RECOLOUR_WORKERS", "").strip()
+        if text:
+            try:
+                return max(1, int(text))
+            except ValueError:
+                return 1
+        try:
+            cpus = int(os.environ.get("WENART_CPU_THREADS", "") or 0)
+        except ValueError:
+            cpus = 0
+        return max(1, min(RECOLOUR_WORKERS_MAX, cpus or os.cpu_count() or 1))
+
+    def do_recolour_slots(self, entry: dict) -> tuple:
+        """Milestone 10 (docs/milestone10.md §4.5): ``recolour slots --scope ready`` (Blender on the GPU: every ready
+        thumbnail object, so the judging can run in the same sessions as the library judging, before ``accept``;
+        deadline exit 3), then ``recolour requests`` in the same step (CPU, seconds: it only turns the slots.json
+        just written into requests.json, and a step of its own would have to be selected again with the same
+        inputs). A resumed job renders only the models without a result in ``<prep-root>/library-work/recolour``."""
+        lib = self.opts.library
+        if not (lib / "thumbnails.json").is_file():
+            return "failed", self.missing_input("thumbnails.json")
+        workers = self.recolour_workers()
+        cmd = self.recolour("slots", "--out", lib, "--scope", "ready", "--workers", workers, "--work",
+                            Path(self.opts.prep_root) / "library-work" / RECOLOUR_DIR)
+        if Path(self.opts.assets).is_dir():
+            cmd += ["--assets", str(self.opts.assets)]          # the GLB copies an earlier write-catalog made
+        rc = self.run(cmd, what="slots")
+        slots = read_json(lib / RECOLOUR_DIR / "slots.json")
+        entry["workers"] = workers
+        entry["counts"] = slots.get("counts") if isinstance(slots, dict) else None
+        if rc == 3:
+            if isinstance(slots, dict):        # what is rendered so far is judged by this job's sessions
+                self.run(self.recolour("requests", "--out", lib), late=True, what="requests")
+            return "deadline", "cut by the deadline (a resumed job reuses the rendered models)"
+        if rc != 0:
+            return "failed", f"slots exit {rc}" + {1: ": no model with a material slot", 2: ": no Blender, or "
+                                                   "thumbnails.json missing (a usage error, see the log)"}.get(rc, "")
+        rc_req = self.run(self.recolour("requests", "--out", lib), late=True, what="requests")
+        entry["items"] = items_in(lib / RECOLOUR_DIR / "requests.json")
+        if rc_req != 0:
+            return "failed", f"requests exit {rc_req}" + (": no sheet to judge" if rc_req == 1 else "")
+        counts = entry["counts"] or {}
+        return "ok", (f"{counts.get('ok', '?')} of {counts.get('models', '?')} model(s) with material slots, "
+                      f"{entry['items']} sheet(s) to judge ({workers} Blender process(es))")
+
+    def recolour_tags(self, entry: dict) -> tuple:
+        """The library step's ``recolour tags``: ``(rc, warning)``; ``rc`` None when it did not run. A library without
+        ``recolour/requests.json`` (an old library) is a warning with the reason, not a failure; so are models with
+        no judged slots (the catalogue gives them no material fields; the fit picks another model for a colour brief)."""
+        lib = self.opts.library
+        info = entry["recolour"] = {"rc": None}
+        if not (lib / RECOLOUR_DIR / "requests.json").is_file():
+            return None, (f"no {RECOLOUR_DIR}/requests.json in the library: the catalogue has no material fields (an "
+                          f"old library: run recolour_slots and both sessions)")
+        rc = self.run(self.recolour("tags", "--out", lib), late=True, what="recolour tags")
+        info["rc"] = rc
+        doc = read_json(lib / RECOLOUR_DIR / "tags.json")
+        counts = doc.get("counts") if isinstance(doc, dict) else None
+        tagged = set((doc.get("models") or {}) if isinstance(doc, dict) else {})
+        accepted = read_json(lib / "accepted.json")
+        uids = {d.get("uid") for d in (accepted.get("accepted") or []) if isinstance(d, dict)} \
+            if isinstance(accepted, dict) else set()
+        without = len(uids - tagged) if uids else 0
+        if isinstance(counts, dict):
+            info.update({k: counts.get(k) for k in ("models", "unjudged", "recolourable_fabric", "recolourable_wood",
+                                                   "tags")})
+        info["accepted_without_fields"] = without
+        if rc not in (0, 1):
+            return rc, None
+        if rc == 1 or (uids and without == len(uids)):
+            return rc, ("no model has judged material slots: the catalogue has no material fields (the sessions did "
+                        "not judge the recolour sheets?)")
+        if without:
+            return rc, (f"{without} of {len(uids)} accepted model(s) have no material fields (not in "
+                        f"{RECOLOUR_DIR}/slots.json, or not judged by both models)")
+        return rc, None
+
     def do_library(self, entry: dict) -> tuple:
         lib = self.opts.library
         if not (lib / "thumbnails.json").is_file():
@@ -857,8 +1057,11 @@ class Prep:
             # accepted" (a warning) although its input is missing.
             return "failed", self.missing_input("judge/requests.json")
         rc_accept = self.run(self.objaverse("accept", "--out", lib), late=True, what="accept")
-        rc_catalog = None
+        rc_catalog, rc_tags, recolour_warning = None, None, None
         if rc_accept == 0:
+            # Milestone 10: the material tags of the judged slots, then the catalogue that copies them into its entries.
+            rc_tags, recolour_warning = self.recolour_tags(entry)
+        if rc_accept == 0 and rc_tags in (0, 1, None):
             rc_catalog = self.run(self.objaverse("write-catalog", "--out", lib, "--assets", self.opts.assets),
                                   late=True, what="write-catalog")
         else:
@@ -880,8 +1083,10 @@ class Prep:
                      attribution=attribution is not None)
         if rc_accept == 1:
             return "warning", "nothing accepted: every type stays Poly Haven or parametric (library_report.md)"
-        if rc_accept != 0 or rc_catalog not in (0, None) or rc_report != 0:
+        if rc_accept != 0 or rc_catalog not in (0, None) or rc_report != 0 or rc_tags not in (0, 1, None):
             note = f"accept {rc_accept}, write-catalog {rc_catalog}, report {rc_report}"
+            if rc_tags not in (0, None):
+                note += f", recolour tags {rc_tags}"
             absent = self.accepted_glbs_missing() if rc_catalog not in (0, None) else []
             if absent:
                 entry["glbs_missing"] = len(absent)
@@ -889,8 +1094,10 @@ class Prep:
                          f"caches are on the container disk, a targeted re-run on a new pod must include survey and "
                          f"abo_survey (they download them again)")
             return "failed", note
-        return "ok", (f"{entry['accepted_models']} model(s) and {entry['decor_models']} decor model(s) in "
-                      f"{LIBRARY_CATALOG}")
+        note = f"{entry['accepted_models']} model(s) and {entry['decor_models']} decor model(s) in {LIBRARY_CATALOG}"
+        if recolour_warning:
+            return "warning", f"{note}; {recolour_warning}"
+        return "ok", note
 
     def accepted_glbs_missing(self) -> list[str]:
         """The survey GLB paths of the accepted objects (``accepted.json``) that are not files on this pod: the
@@ -1059,17 +1266,54 @@ class Prep:
         return float(self._current["commands"][-1]["seconds"]) if self._current and self._current["commands"] \
             else 0.0
 
+    def run_sheets(self, p: Project) -> str:
+        """Milestone 10 (§1.5, §1.6a): the sheets stage of one prep project, as ``scheduler.stage_sheets`` runs it:
+        ``wenart.sheets <project> --out <out>`` with a stage record (``<out>/run/sheets.json``). Exit 0 ``ok``, 4
+        ``pending`` (sheet_region questions written; the regions are decided by title and geometry meanwhile, so the
+        pipeline still runs), 1 ``needs_review`` (the project stops here), else ``failed``. A stored record with the
+        same fingerprint (project files, LibreDWG version, sheets code) is reused (a ``pending`` one stays pending):
+        a resumed job never runs the first sheets stage over the ``sheets.json`` that ``pipeline_final`` wrote."""
+        cmd = S.sheets(self.tools, p.ref(self.opts.results))
+        ins = ST.file_hashes([p.project_dir])
+        ins.update(self.converter_inputs())
+        fp = ST.fingerprint("sheets", S.STAGE_VERSION["sheets"], cmd[1:], ins, self.code("sheets"))
+        prev = ST.read_record(p.out_dir, "sheets")
+        if ST.reusable(prev, fp, p.out_dir) and prev.status in ("ok", "pending"):
+            p.sheets_rc = S.EXIT_QUESTIONS if prev.status == "pending" else 0
+            p.sheets_reused = True
+            return prev.status
+        log_name = f"sheets-{p.name}"
+        p.sheets_rc = self.run(cmd, late=True, log_name=log_name, what=f"{p.name} sheets")
+        state = {0: "ok", 1: "needs_review", S.EXIT_QUESTIONS: "pending"}.get(p.sheets_rc, "failed")
+        self.record(p, "sheets", state, p.sheets_rc, fingerprint=fp, inputs=ins,
+                    steps=[{"name": "sheets", "rc": p.sheets_rc, "seconds": self.last_seconds()}],
+                    log=str(Path(self.opts.step_logs) / f"{log_name}.log"))
+        return state
+
     def do_pipelines(self, entry: dict) -> tuple:
-        """The first pipeline of every prep project; a stored ``run/pipeline.json`` with the same fingerprint is
-        reused as the orchestrator does (``pending`` stays pending): a resumed job never runs the first pipeline
-        over the building that ``pipeline_final`` wrote."""
-        missing, failed, states, reused = [], [], {}, []
+        """The sheets stage (Milestone 10), then the first pipeline of every prep project; a stored
+        ``run/sheets.json`` or ``run/pipeline.json`` with the same fingerprint is reused as the orchestrator does
+        (``pending`` stays pending): a resumed job never runs the first pipeline over the building that
+        ``pipeline_final`` wrote. A project whose sheets stage needs review stops there (no pipeline); it is listed
+        and ends the step as a ``warning``."""
+        missing, failed, sheets_failed, states, reused, review, sheets_reused = [], [], [], {}, [], [], []
         for p in self.projects:
             if p.project_dir is None:
                 missing.append(p.name)
                 states[p.name] = "missing"
                 continue
             p.out_dir.mkdir(parents=True, exist_ok=True)
+            sheets_state = self.run_sheets(p)
+            if p.sheets_reused:
+                sheets_reused.append(p.name)
+            if sheets_state == "needs_review":
+                review.append(p.name)
+                states[p.name] = "needs_review"
+                continue
+            if sheets_state == "failed":
+                sheets_failed.append(f"{p.name} (exit {p.sheets_rc})")
+                states[p.name] = "failed"
+                continue
             cmd = S.pipeline(self.tools, p.ref(self.opts.results))
             ins = ST.file_hashes([p.project_dir])
             ins.update(self.converter_inputs())
@@ -1084,6 +1328,8 @@ class Prep:
             log_name = f"pipeline-{p.name}"
             p.pipeline_rc = self.run(cmd, late=True, log_name=log_name, what=p.name)
             states[p.name] = {0: "ok", 1: "needs_review", S.EXIT_QUESTIONS: "pending"}.get(p.pipeline_rc, "failed")
+            if states[p.name] == "ok" and sheets_state == "pending":
+                states[p.name] = "pending"             # the sheet questions keep it pending (scheduler.stage_pipeline)
             self.record(p, "pipeline", states[p.name], p.pipeline_rc, fingerprint=fp, inputs=ins,
                         steps=[{"name": "pipeline", "rc": p.pipeline_rc, "seconds": self.last_seconds()}],
                         log=str(Path(self.opts.step_logs) / f"{log_name}.log"))
@@ -1091,12 +1337,21 @@ class Prep:
                 failed.append(p.name)
         entry["projects"] = states
         entry["reused"] = reused
-        if missing or failed:
+        if sheets_reused:
+            entry["sheets_reused"] = sheets_reused
+        if review:
+            entry["sheets_need_review"] = review
+        if missing or failed or sheets_failed:
             return "failed", "; ".join(x for x in (
                 f"not found: {', '.join(missing)}" if missing else "",
+                f"sheets failed: {', '.join(sheets_failed)}" if sheets_failed else "",
                 f"pipeline failed: {', '.join(failed)}" if failed else "") if x)
-        return "ok", (f"{len(self.pending())} project(s) with questions"
-                      + (f"; reused (same fingerprint): {', '.join(reused)}" if reused else ""))
+        note = (f"{len(self.pending())} project(s) with questions"
+                + (f"; reused (same fingerprint): {', '.join(reused)}" if reused else "")
+                + (f"; sheets reused: {', '.join(sheets_reused)}" if sheets_reused else ""))
+        if review:
+            return "warning", note + f"; sheets need review, no pipeline (sheets_report.md): {', '.join(review)}"
+        return "ok", note
 
     def open_server(self, key: str, seqs: int, stats: list):
         mem = self.gpu_info().get("memory_mib") or None
@@ -1117,16 +1372,21 @@ class Prep:
         tier = SV.server_seqs(mem)                      # no check.yaml cap: the probe measures it
         candidates = list(PROBE_SEQS) if tier >= PROBE_SEQS[0] else [tier]
         info = {"key": key, "tier": tier, "probe": tier >= PROBE_SEQS[0], "tried": [], "max_seqs": None,
-                "asks": [], "judge": None}
+                "asks": [], "judge": None, "recolour": None}
         if not info["probe"]:
             info["note"] = f"GPU below {SV.VRAM_LARGE_MIB} MiB: no 8-sequence probe ({tier} sequences)"
         self.sessions[key] = info
         entry["session"] = info
-        # What this model still has to answer: the projects' questions (stored or committed seeds count) and the
-        # library judge items. No server when there is nothing: the seeds are copied without one.
-        work = {p.name: self.recognition_missing(p, key) for p in self.pending()}
-        judge_left = self.judge_missing(key)
-        info["missing"] = {"recognition": {n: w[1] for n, w in work.items()}, "judge": judge_left}
+        # What this model still has to answer: the projects' questions in both folders (sheet_region in ``sheets``,
+        # the rest in ``recognition``; stored or committed answers count), the library judge items and the recolour
+        # sheets. No server when there is nothing: the seeds are copied without one.
+        work = {(p.name, q): self.recognition_missing(p, key, q) for p in self.pending() for q in S.QUESTION_DIRS
+                if items_in(p.requests_of(q))}
+        judge_left = self.library_judge_missing(key)
+        recolour_left = self.recolour_missing(key)
+        info["missing"] = {"recognition": {n: w[1] for (n, q), w in work.items() if q == S.RECOGNITION_DIR},
+                           "sheets": {n: w[1] for (n, q), w in work.items() if q == S.SHEETS_DIR},
+                           "judge": judge_left, "recolour": recolour_left}
         # The judge answers feed this job's library step: without judge/requests.json the session fails when that
         # step runs (a selected step's input is missing), and only notes it when the library is left out (a
         # recognition-only job, e.g. PREP_ONLY=pipelines,session_qwen,session_glm,pipeline_final).
@@ -1136,16 +1396,20 @@ class Prep:
                 no_library = self.missing_input("judge/requests.json")
             else:
                 info["judge_note"] = f"library not judged: the library step is {self.selected('library')}"
-        if not any(w[1] for w in work.values()) and not judge_left:
+        if recolour_left is None:
+            # An old library, or recolour_slots has not run: nothing to ask here; the library step ends with a warning.
+            info["recolour_note"] = f"recolour sheets not judged: no {RECOLOUR_DIR}/requests.json in {self.opts.library}"
+        if not any(w[1] for w in work.values()) and not self.judge_missing(key):
             info.update(probe="not run", note="nothing to ask: no server started (every answer is stored)")
             for p in self.pending():
-                if work[p.name][0]:                     # the committed seeds complete the set: copy them
-                    seeds = self.seeds(p)
-                    rc = self.run(S.recognize(self.tools, p.ref(self.opts.results), key, None, None, seeds),
-                                  log_name=f"ask-{key}", what=f"{p.name} stored answers")
-                    info["asks"].append({"project": p.name, "rc": rc, "items": items_in(p.requests),
-                                         "seconds": self.last_seconds(), "server": False,
-                                         "seeded_from": str(seeds) if seeds else None})
+                for q in S.QUESTION_DIRS:
+                    if work.get((p.name, q), (0, 0))[0]:        # the committed seeds complete the set: copy them
+                        seeds = self.seeds(p, q)
+                        rc = self.run(S.recognize(self.tools, p.ref(self.opts.results), key, None, None, seeds, qdir=q),
+                                      log_name=f"ask-{key}", what=f"{p.name} stored answers{self.qdir_note(q)}")
+                        info["asks"].append({"project": p.name, "qdir": q, "rc": rc,
+                                             "items": items_in(p.requests_of(q)), "seconds": self.last_seconds(),
+                                             "server": False, "seeded_from": str(seeds) if seeds else None})
             self.write_manifest()
             bad = [a for a in info["asks"] if a["rc"] != 0]
             if no_library:
@@ -1164,7 +1428,7 @@ class Prep:
                                           (stats[-1] if stats else {}).get("seconds_to_ready")})
                     if info["probe"]:
                         info["max_seqs"] = seqs
-                    self.ask_all(key, url, seqs, info, work, judge_left)
+                    self.ask_all(key, url, seqs, info, work, judge_left, recolour_left)
                 break
             except SV.ServerError as exc:
                 info["tried"].append({"seqs": seqs, "ok": False, "reason": exc.reason, "error": str(exc)})
@@ -1182,16 +1446,17 @@ class Prep:
             if last.get("reason") == "deadline":
                 return "deadline", "server not started before the deadline"
             return "failed", f"server did not come up ({', '.join(str(t.get('reason')) for t in info['tried'])})"
-        rcs = [a["rc"] for a in info["asks"]] + ([info["judge"]["rc"]] if info["judge"] else [])
+        rcs = [a["rc"] for a in info["asks"]] + [info[k]["rc"] for k in ("judge", "recolour") if info[k]]
         if any(rc not in (0, 3) for rc in rcs):
             return "failed", "exit codes " + ", ".join(str(rc) for rc in rcs) + (f"; {no_library}" if no_library
                                                                                  else "")
         if no_library:
-            return "failed", f"{len(info['asks'])} project(s) asked; library not judged: {no_library}"
+            return "failed", f"{len(info['asks'])} question folder(s) asked; library not judged: {no_library}"
         if 3 in rcs:
             return "deadline", "cut by the deadline (answers are kept and reused by the next job)"
-        return "ok", (f"{up[-1]['seqs']} sequences; {len(info['asks'])} project(s) asked"
-                      + (", library judged" if info["judge"] else ""))
+        return "ok", (f"{up[-1]['seqs']} sequences; {len(info['asks'])} question folder(s) asked"
+                      + (", library judged" if info["judge"] else "")
+                      + (", recolour sheets judged" if info["recolour"] else ""))
 
     def keep_server_log(self, key: str, seqs: int) -> None:
         """The vLLM log of a failed start (the next start truncates ``vllm-<key>.log``)."""
@@ -1202,18 +1467,26 @@ class Prep:
             except OSError:
                 pass
 
-    def ask_all(self, key: str, url: str, seqs: int, info: dict, work: dict, judge_left: Optional[int]) -> None:
-        """Inside a session: the recognition requests of every project with an answer of ``key`` missing (in its
-        store; ``ask`` copies the committed seeds first), then the library judge when an item lacks an answer
-        (``objaverse judge`` keeps the answers in ``<prep-root>/library/judge`` and asks only the rest)."""
+    @staticmethod
+    def qdir_note(qdir: str) -> str:
+        return "" if qdir == S.RECOGNITION_DIR else f" ({qdir})"
+
+    def ask_all(self, key: str, url: str, seqs: int, info: dict, work: dict, judge_left: Optional[int],
+                recolour_left: Optional[int] = None) -> None:
+        """Inside a session: the requests of every project with an answer of ``key`` missing, the ``sheets`` folder
+        (Milestone 10: the sheet_region questions) before the ``recognition`` one, each in its own store (``ask``
+        copies the committed seeds first); then the library judge when an item lacks an answer (``objaverse judge``
+        keeps the answers in ``<prep-root>/library/judge`` and asks only the rest) and, Milestone 10, the recolour
+        sheets (``recolour judge``, answers in ``<prep-root>/library/recolour``) on the same server."""
         for p in self.pending():
-            if not work.get(p.name, (1, 1))[0]:
-                continue
-            seeds = self.seeds(p)
-            rc = self.run(S.recognize(self.tools, p.ref(self.opts.results), key, url, seqs, seeds),
-                          log_name=f"ask-{key}", what=p.name)
-            info["asks"].append({"project": p.name, "rc": rc, "items": items_in(p.requests),
-                                 "seconds": self.last_seconds(), "seeded_from": str(seeds) if seeds else None})
+            for q in S.QUESTION_DIRS:
+                if not work.get((p.name, q), (0, 0))[0]:
+                    continue
+                seeds = self.seeds(p, q)
+                rc = self.run(S.recognize(self.tools, p.ref(self.opts.results), key, url, seqs, seeds, qdir=q),
+                              log_name=f"ask-{key}", what=p.name + self.qdir_note(q))
+                info["asks"].append({"project": p.name, "qdir": q, "rc": rc, "items": items_in(p.requests_of(q)),
+                                     "seconds": self.last_seconds(), "seeded_from": str(seeds) if seeds else None})
         judge_requests = self.opts.library / "judge" / "requests.json"
         if judge_left:
             cmd = self.objaverse("judge", "--out", self.opts.library, "--model-key", key, "--server", url,
@@ -1221,22 +1494,55 @@ class Prep:
             rc = self.run(cmd, log_name=f"judge-{key}", what="library judge")
             info["judge"] = {"rc": rc, "items": items_in(judge_requests), "missing_before": judge_left,
                              "seconds": self.last_seconds()}
+        if recolour_left:
+            cmd = self.recolour("judge", "--out", self.opts.library, "--model-key", key, "--server", url,
+                                "--workers", str(seqs))
+            rc = self.run(cmd, log_name=f"recolour-judge-{key}", what="recolour judge")
+            info["recolour"] = {"rc": rc, "items": items_in(self.opts.library / RECOLOUR_DIR / "requests.json"),
+                                "missing_before": recolour_left, "seconds": self.last_seconds()}
 
     def do_pipeline_final(self, entry: dict) -> tuple:
+        """Per project with questions: Milestone 10, ``sheets --answers <out>/sheets`` first (``--no-ai`` when an
+        answer is missing, so the regions are decided by title and geometry alone; as ``scheduler.
+        stage_pipeline_final``), then the pipeline with ``--answers <out>/recognition`` (``--no-ai`` when an answer is
+        missing, so it never exits 4)."""
         pending = self.pending()
         if not pending:
             return "skipped", "no questions"
         states, failed = {}, []
         for p in pending:
             log_name = f"pipeline_final-{p.name}"
-            rc_status = self.run([self.opts.py, "-m", "wenart.recognition.answers", "status",
-                                  p.out_dir / S.RECOGNITION_DIR], late=True, log_name=log_name,
-                                 what=f"{p.name} answers status")
-            p.complete = rc_status == 0
             ref = p.ref(self.opts.results)
+            steps: list = []
+            if items_in(p.requests) > 0:
+                rc_status = self.run([self.opts.py, "-m", "wenart.recognition.answers", "status",
+                                      p.out_dir / S.RECOGNITION_DIR], late=True, log_name=log_name,
+                                     what=f"{p.name} answers status")
+                p.complete = rc_status == 0
+            else:
+                p.complete = True                      # no recognition question (only sheet questions): none waits
+            if items_in(p.sheet_requests) > 0:
+                rc_status = self.run([self.opts.py, "-m", "wenart.recognition.answers", "status",
+                                      p.out_dir / S.SHEETS_DIR], late=True, log_name=log_name,
+                                     what=f"{p.name} sheet answers status")
+                p.sheets_complete = rc_status == 0
+                name = "sheets --answers" if p.sheets_complete else "sheets --no-ai"
+                p.sheets_final_rc = self.run(S.sheets(self.tools, ref, answers=True, no_ai=not p.sheets_complete),
+                                             late=True, log_name=log_name, what=f"{p.name} {name}")
+                steps.append({"name": name, "rc": p.sheets_final_rc, "seconds": self.last_seconds()})
+                if p.sheets_final_rc not in (0, 1):
+                    # The scheduler stops this project too (1 = needs review goes on: the pipeline says so itself).
+                    p.final_rc = p.sheets_final_rc
+                    states[p.name] = {"rc": p.final_rc, "answers_complete": p.complete,
+                                      "sheets": {"rc": p.sheets_final_rc, "answers_complete": p.sheets_complete}}
+                    self.record(p, "pipeline_final", "failed", p.final_rc, f"sheets exit {p.sheets_final_rc}",
+                                steps=steps, log=str(Path(self.opts.step_logs) / f"{log_name}.log"))
+                    failed.append(p.name)
+                    continue
             p.final_rc = self.run(S.pipeline_final(self.tools, ref, answers=True, no_ai=not p.complete),
                                   late=True, log_name=log_name, what=p.name)
-            steps = [{"name": "pipeline_final", "rc": p.final_rc, "seconds": self.last_seconds()}]
+            first = {"name": "pipeline_final", "rc": p.final_rc, "seconds": self.last_seconds()}
+            steps.append(first)
             # Exit 4 with every answer in: the answers opened new questions (a raster page's second round). Never
             # failed: once more with --no-ai, the new items stay unknown/unverified (listed in its report).
             p.second_round = p.final_rc == S.EXIT_QUESTIONS and p.complete
@@ -1245,12 +1551,16 @@ class Prep:
                                       log_name=log_name, what=f"{p.name} --no-ai")
                 steps.append({"name": "pipeline_final --no-ai", "rc": p.final_rc, "seconds": self.last_seconds()})
             states[p.name] = {"rc": p.final_rc, "answers_complete": p.complete, "second_round": p.second_round}
+            if p.sheets_final_rc is not None:
+                states[p.name]["sheets"] = {"rc": p.sheets_final_rc, "answers_complete": p.sheets_complete}
             status = {0: "ok", 1: "needs_review"}.get(p.final_rc, "failed")
-            note = S.SECOND_ROUND_NOTE if p.second_round else None if p.complete else "answers missing: --no-ai"
+            notes = [S.SECOND_ROUND_NOTE if p.second_round else None if p.complete else "answers missing: --no-ai",
+                     "sheet answers missing: sheets --no-ai" if p.sheets_complete is False else None]
+            note = "; ".join(n for n in notes if n) or None
             if status == "ok" and note:
                 status = "warning"
-            self.record(p, "pipeline_final", status, steps[0]["rc"] if p.second_round else p.final_rc, note,
-                        steps=steps, written={"building.json": ST.canonical_sha256(p.out_dir / "building.json")},
+            self.record(p, "pipeline_final", status, first["rc"] if p.second_round else p.final_rc, note,
+                        steps=steps, written=self.final_written(p),
                         log=str(Path(self.opts.step_logs) / f"{log_name}.log"))
             if p.final_rc not in (0, 1):
                 failed.append(p.name)
@@ -1264,15 +1574,58 @@ class Prep:
         incomplete = [p.name for p in pending if not p.complete]
         if incomplete:
             notes.append(f"answers missing (run with --no-ai): {', '.join(incomplete)}")
+        sheets_incomplete = [p.name for p in pending if p.sheets_complete is False]
+        if sheets_incomplete:
+            notes.append(f"sheet answers missing (sheets --no-ai): {', '.join(sheets_incomplete)}")
         return ("warning", "; ".join(notes)) if notes else ("ok", None)
+
+    @staticmethod
+    def final_written(p: Project) -> dict:
+        """``{output: canonical sha256}`` of what ``pipeline_final`` wrote (the orchestrator's ``written``)."""
+        written = {"building.json": ST.canonical_sha256(p.out_dir / "building.json")}
+        if (p.out_dir / "sheets.json").is_file():
+            written["sheets.json"] = ST.canonical_sha256(p.out_dir / "sheets.json")
+        return written
 
     # ----- copy and tests -----------------------------------------------------
 
+    def copy_sheets(self, p: Project) -> tuple[int, list]:
+        """Milestone 10: the sheet analysis files that ``wenart.run.copy.PUBLIC_RULES`` has no rule for. The questions
+        and the answers of the sheets folder (``requests.json``, ``answers_<slug>.json``) go to
+        ``recognition/<p>/sheets/`` (the committed seeds of a project live in ``results/recognition/<p>/``, so the
+        sheet_region seeds live in its ``sheets/``) and the debug images ``sheets_debug/*.png`` to
+        ``furniture/<p>/sheets_debug/``. ``sheets.json`` and ``sheets_report.md`` are copied to ``furniture/<p>/`` by
+        ``copy_project`` (its ``*.json`` / ``*.md`` rule). The crops of ``sheets/crops`` stay on the volume. Returns
+        ``(files written, [names left out for their size])``."""
+        ref = p.ref(self.opts.results)
+        written, too_big = 0, []
+        jobs = [(p.out_dir / S.SHEETS_DIR, ref.results_area("recognition") / S.SHEETS_DIR, CP.MAX_TEXT_BYTES,
+                 lambda n: n == "requests.json" or (n.startswith("answers_") and n.endswith(".json"))),
+                (p.out_dir / "sheets_debug", ref.results_area("furniture") / "sheets_debug", CP.MAX_PNG_BYTES,
+                 lambda n: n.endswith(".png"))]
+        for src, dst, limit, wanted in jobs:
+            if not src.is_dir() or src.is_symlink():
+                continue
+            for f in sorted(src.iterdir()):
+                if not f.is_file() or f.is_symlink() or not wanted(f.name):
+                    continue
+                if f.stat().st_size > limit:
+                    too_big.append(f"{p.name}/{src.name}/{f.name}")
+                    continue
+                dst.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(f, dst / f.name)
+                written += 1
+        return written, too_big
+
     def copy_projects(self) -> dict:
         counts = {}
+        self.sheets_too_big = []
         for p in self.projects:
             if p.out_dir.is_dir():
                 counts[p.name] = CP.copy_project(p.ref(self.opts.results))
+                n, too_big = self.copy_sheets(p)
+                counts[p.name] += n
+                self.sheets_too_big += too_big
         return counts
 
     def do_copy(self, entry: dict) -> tuple:
@@ -1280,7 +1633,14 @@ class Prep:
         if CP.library_attribution(self.opts.library, self.opts.library / LIBRARY_CATALOG) is not None:
             entry["library_attribution"] = True
         entry["library_files"] = self.sync_library()
-        return "ok", f"{sum(entry['files'].values())} project file(s), {entry['library_files']} library file(s)"
+        note = f"{sum(entry['files'].values())} project file(s), {entry['library_files']} library file(s)"
+        left_out = self.library_left_out() + self.sheets_too_big
+        if left_out:                                  # never silently: a file over the 8 MB copy limit is not in $RESULTS
+            entry["left_out_for_size"] = left_out
+            more = f" and {len(left_out) - 6} more" if len(left_out) > 6 else ""
+            return "warning", (f"{note}; left out for their size (text over 8 MB, debug images over 3 MB): "
+                               f"{', '.join(left_out[:6])}{more}")
+        return "ok", note
 
     def test_env(self, group: str) -> dict:
         o = self.opts
@@ -1323,7 +1683,8 @@ class Prep:
         self.out(f"prep GPU: {gpu.get('name') or 'none'} ({gpu.get('memory_mib') or 0} MiB, key {gpu.get('key')})")
         table = {"abo_survey": self.do_abo_survey, "survey": self.do_survey, "trellis_setup": self.do_trellis_setup,
                  "generate": self.do_generate, "thumbnails": self.do_thumbnails, "judge_requests": self.do_judge_requests,
-                 "detect_calibrate": self.do_detect_calibrate, "timings": self.do_timings,
+                 "recolour_slots": self.do_recolour_slots, "detect_calibrate": self.do_detect_calibrate,
+                 "timings": self.do_timings,
                  "pipelines": self.do_pipelines, "session_qwen": lambda e: self.do_session(e, "qwen"),
                  "session_glm": lambda e: self.do_session(e, "glm"), "pipeline_final": self.do_pipeline_final,
                  "library": self.do_library, "copy": self.do_copy, "tests": self.do_tests}
@@ -1366,7 +1727,9 @@ class Prep:
         def project_entry(p: Project) -> dict:
             return {"name": p.name, "project_dir": S.t(p.project_dir) if p.project_dir else None,
                     "out_dir": str(p.out_dir), "pipeline_rc": p.pipeline_rc, "questions": items_in(p.requests),
-                    "answers_complete": p.complete, "pipeline_final_rc": p.final_rc}
+                    "answers_complete": p.complete, "pipeline_final_rc": p.final_rc, "sheets_rc": p.sheets_rc,
+                    "sheet_questions": items_in(p.sheet_requests), "sheets_answers_complete": p.sheets_complete,
+                    "sheets_final_rc": p.sheets_final_rc}
 
         return {"schema_version": "0.1", "kind": "prep_manifest", "job": self.opts.job_id,
                 "git_commit": self.commit(), "started_utc": self.started_utc,
