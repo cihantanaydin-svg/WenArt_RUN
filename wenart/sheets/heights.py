@@ -295,11 +295,13 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
            "slabs": [], "ground": [],
            "roof": {"eaves_z": None, "ridge_z": None, "pitches_deg": [], "knee_wall": None, "overhang": None,
                     "thickness": None, "profile": []}}
-    usable = section is not None and section.mpu and section.bands and section.walls is not None
+    usable = section is not None and section.mpu and section.bands and section.walls is not None and levels
     if not usable:
         why = ("no section drawing" if section is None else
                "the section has no unit" if not section.mpu else
-               "no slab bands found in the section" if not section.bands else "no outer walls found in the section")
+               "no slab bands found in the section" if not section.bands else
+               "no outer walls found in the section" if section.walls is None else
+               "no plan level known to map the slab bands to")
         _assumed_levels(out, levels, ceiling_default, slab_default, why)
         warnings.append(f"heights assumed ({why}): ceiling {ceiling_default:.2f} m, slab {slab_default:.2f} m, "
                         f"floor to floor {FLOOR_TO_FLOOR_M:.2f} m")

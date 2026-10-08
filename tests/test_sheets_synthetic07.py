@@ -9,8 +9,8 @@ and area within 0.05 m²; openings: type, centre and width within 2 cm.
 
 Track A3 fixed the two gaps listed here before: the basement plan L-1 is built (a ray through a door or window gap of
 one wall band counts as a hit, so the Salon is closed in) and ``KAPI_SURME_90`` is a sliding door (a leaf as long as
-its gap, drawn half open). The elevation check leaves out the openings whose head is below the ground line (the elevations
-do not draw them; ``sheets/to_building.plan_check``)."""
+its gap, drawn half open). The elevation check leaves out the openings whose head is below the ground line (the
+elevations do not draw them; ``sheets/to_building.plan_check``)."""
 from __future__ import annotations
 
 import json
@@ -341,3 +341,25 @@ def test_the_dwg_copy_reads_like_the_dxf(tmp_path, sheets):
         pytest.approx([lv["floor_z"]["value"] for lv in sheets["heights"]["levels"]], abs=0.001)
     assert doc["heights"]["roof"]["ridge_z"]["value"] == pytest.approx(sheets["heights"]["roof"]["ridge_z"]["value"],
                                                                        abs=0.001)
+
+
+def test_untitled_plans_with_a_section_need_review_without_a_crash(tmp_path):
+    # Review finding 8: no plan level known but a usable section: the heights are assumed, sheets.json and the
+    # report are written and the CLI exits 1 (needs review), not 2 with a traceback.
+    from ezdxf import recover
+
+    from wenart.sheets import __main__ as CLI
+
+    project = tmp_path / "untitled"
+    project.mkdir()
+    doc, _ = recover.readfile(str(PROJECT / "sheet.dxf"))
+    msp = doc.modelspace()
+    for handle in ("164", "1AF", "202", "230"):                 # the four plan titles
+        msp.delete_entity(doc.entitydb[handle])
+    doc.saveas(project / "sheet.dxf")
+    out = tmp_path / "out"
+    assert CLI.main([str(project), "--out", str(out), "--no-ai"]) == CLI.EXIT_REVIEW
+    sheets = SH.load(out)
+    assert sheets["levels"] == [] and sheets["needs_review"]
+    assert any("no plan level known" in w for w in sheets["warnings"])
+    assert (out / "sheets_report.md").is_file()
