@@ -28,7 +28,6 @@ from wenart.synthetic import sheet as S
 from wenart.synthetic.sheet import CM, Drawing, SheetProject, rnd
 from wenart.synthetic.sheet_writer import SheetRecord
 
-CLASS_FOR_PAGE = {"alternative_floor_plan": "floor_plan"}
 LANGUAGE = "tr"
 GLOSS = {"Açık mutfak": "open kitchen"}
 
@@ -182,17 +181,16 @@ def build_heights_truth(project: SheetProject, record: SheetRecord) -> dict:
     slab = [sec(f"slab:{k}") for k in range(3)]
     mark = [sec(f"mark_tri:{k}") for k in range(3)]
     mark_text = [sec(f"mark_text:{k}") for k in range(3)]
-    floors = [(-S.FLOOR_TO_FLOOR, "L-1", -3.0), (0.0, "L0", 0.0), (S.FLOOR_TO_FLOOR, "L1", 3.0)]
     levels = []
-    for k, (z, lid, mark_z) in enumerate(floors):
-        below_slab, above_slab = (slab[k], slab[k + 1] if k + 1 < 3 else None)
-        entry = {"level_id": lid, "floor_z": z,
-                 "ceiling_height": (_num(r.ridge_under - z) if lid == "L1" else _num(S.CEILING)),
-                 "floor_to_floor": (_num(S.FLOOR_TO_FLOOR) if lid != "L1" else None),
-                 "level_mark": mark_z, "level_mark_text": S.MARKS[k][1], "level_mark_target_z": z,
-                 "entities": {"floor_slab": below_slab, "slab_above": above_slab, "mark": mark[k], "mark_text": mark_text[k],
-                              "mark_line": sec(f"mark_line:{k}")}}
-        levels.append(entry)
+    for k, (z, lid) in enumerate(zip(S.SLAB_TOPS, ("L-1", "L0", "L1"))):
+        attic = lid == "L1"
+        levels.append({
+            "level_id": lid, "floor_z": z, "ceiling_height": _num(r.ridge_under - z) if attic else _num(S.CEILING),
+            "floor_to_floor": None if attic else _num(S.FLOOR_TO_FLOOR),
+            # printed mark minus the datum (building z), the text as printed, the z the triangle points at
+            "level_mark": S.MARKS[k][0], "level_mark_text": S.MARKS[k][1], "level_mark_target_z": z,
+            "entities": {"floor_slab": slab[k], "slab_above": None if attic else slab[k + 1], "mark": mark[k],
+                         "mark_text": mark_text[k], "mark_line": sec(f"mark_line:{k}")}})
     return {
         "schema_version": "1.0", "kind": "heights_truth", "project": project.name,
         "section_regions": [ids["section"]], "cut_axis": "y", "cut_at": S.CUT_AT, "flipped": False,

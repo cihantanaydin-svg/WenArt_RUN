@@ -1593,3 +1593,53 @@ def test_synthetic_07_wall_faces_are_long_enough_to_pair_up(sheet):
             a, b = [_apply(region, p) for p in f.get_points("xy")]
             shortest.append((G.distance(a, b), level["id"], a, b))
     assert min(shortest)[0] >= 0.40 - 1e-9, min(shortest)
+
+
+def test_synthetic_07_walls_and_rooms_match_the_face_lines(sheet):
+    """Walls and rooms of building.json against the drawn face lines (read back, in building metres): every face line of a wall
+    lies on that wall's side faces (centre line +- thickness / 2, inside its extent), and every room's polygon edge runs along
+    a face line or across an opening's gap."""
+    b = sheet["building"]
+    rooms_by_level: dict = {}
+    for r in b["rooms"]:
+        rooms_by_level.setdefault(r["level_id"], []).append(r)
+    for level in b["levels"]:
+        region = _region(sheet, id=level["region_id"])
+        lines = {f"LWPOLYLINE:{f.dxf.handle}": [_apply(region, p) for p in f.get_points("xy")]
+                 for f in _in_region(sheet, region, "LWPOLYLINE", "AR_w_sld")}
+        for w in (w for w in b["walls"] if w["level_id"] == level["id"]):
+            length = G.distance(w["start"], w["end"])
+            ux, uy = (w["end"][0] - w["start"][0]) / length, (w["end"][1] - w["start"][1]) / length
+            for ev in w["evidence"]:
+                a, c = lines[ev["entity"]]
+                for p in (a, c):
+                    along = (p[0] - w["start"][0]) * ux + (p[1] - w["start"][1]) * uy
+                    across = (p[0] - w["start"][0]) * -uy + (p[1] - w["start"][1]) * ux
+                    assert abs(abs(across) - w["thickness"] / 2) < 1e-6, (w["id"], ev["entity"])
+                    assert -w["thickness"] / 2 - 1e-6 <= along <= length + w["thickness"] / 2 + 1e-6
+        openings = [o for o in b["openings"] if o["level_id"] == level["id"]]
+        walls = {w["id"]: w for w in b["walls"]}
+
+        def in_gap(p):
+            for o in openings:
+                w = walls[o["wall_id"]]
+                length = G.distance(w["start"], w["end"])
+                ux, uy = (w["end"][0] - w["start"][0]) / length, (w["end"][1] - w["start"][1]) / length
+                along = (p[0] - o["center"][0]) * ux + (p[1] - o["center"][1]) * uy
+                across = (p[0] - o["center"][0]) * -uy + (p[1] - o["center"][1]) * ux
+                if abs(along) <= o["width"] / 2 + 1e-6 and abs(across) <= w["thickness"] / 2 + 1e-6:
+                    return True
+            return False
+
+        for room in rooms_by_level[level["id"]]:
+            poly = room["polygon"]
+            for i, a in enumerate(poly):
+                c = poly[(i + 1) % len(poly)]
+                n = max(2, int(G.distance(a, c) / 0.05))
+                for k in range(n + 1):
+                    p = (a[0] + (c[0] - a[0]) * k / n, a[1] + (c[1] - a[1]) * k / n)
+                    assert any(G.point_segment_distance(p, s0, s1) < 1e-6 for s0, s1 in lines.values()) or in_gap(p), (room["id"], p)
+        for f in (f for f in b["furniture"] if f["level_id"] == level["id"]):
+            corners = G.rotated_rectangle(f["footprint"]["center"], f["footprint"]["size"], f["footprint"]["rotation_deg"])
+            room = next(r for r in rooms_by_level[level["id"]] if r["id"] == f["room_id"])
+            assert all(Polygon(room["polygon"]).buffer(1e-6).contains(Point(c)) for c in corners), f["id"]
