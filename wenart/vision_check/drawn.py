@@ -90,7 +90,7 @@ def _row(piece: dict, final: dict, source: Optional[dict], src: Optional[dict], 
                                 f"{now.get('wall_id')})")
     if ref_front is not None and piece.get("front_deg") is not None:
         row["front_turn_deg"] = round(G.angle_difference_deg(float(ref_front), float(piece["front_deg"])), 3)
-    elif ref_front is not None or piece.get("front_deg") is not None:
+    elif row["reference"] == "source building.json" and (ref_front is not None or piece.get("front_deg") is not None):
         row["notes"].append("front missing on one side")
     row["checked"] = True
     row["ok"] = (row["anchor_distance_m"] <= tol_m + 1e-6 and row["same_wall"] is not False

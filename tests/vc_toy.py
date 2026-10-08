@@ -379,7 +379,7 @@ class FakeClient:
     """
 
     def __init__(self, model="fake/model", truth=None, extras=None, counts=None, fail=(), see_all=False,
-                 prefer=None, statuses=None):
+                 prefer=None, statuses=None, facade_counts=None):
         self.model = model
         self.truth = truth or {}
         self.extras = extras or {}
@@ -388,6 +388,7 @@ class FakeClient:
         self.see_all = see_all
         self.prefer = prefer or {}
         self.statuses = statuses or {}
+        self.facade_counts = facade_counts or {}        # {image name: (windows, doors)} for the facade crops
         self.calls = []
 
     def run_schema(self, images, prompt, schema, *, seed=0, task="custom", max_side=None, labels=None,
@@ -400,7 +401,10 @@ class FakeClient:
         if names[0] in self.fail:
             return VLMResult(task=task, model=self.model, data=None, raw_text="", latency_s=0.01, attempts=3,
                              error="cannot reach http://fake: refused")
-        if task.startswith("preference"):
+        if task.startswith("facade"):
+            windows, doors = self.facade_counts.get(names[0], (0, 0))
+            data = {"window_count": windows, "door_count": doors, "confidence": 0.9}
+        elif task.startswith("preference"):
             a, b = (self.prefer.get(n, 0) for n in names[:2])
             data = {"choice": "first" if a > b else "second" if b > a else "same", "confidence": 0.8}
         else:

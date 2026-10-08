@@ -4,7 +4,7 @@ The house is 8 x 6 m (wall centre lines x = 0..8, y = 0..6, 20 cm walls, 2.7 m h
 outside the centre lines) with a gable roof (eaves 2.7 m at y = -0.5 and 6.5, ridge 4.5 m at y = 3). The south
 wall has two windows and a door, the east wall one window; glass and door leaves sit on the wall centre line
 as the Blender build makes them. The camera (kind ``exterior``, no room, no level) looks at the south-east
-corner from 16 m away with a 20 mm lens, so both facades show.
+corner from 16 m away with a 28 mm lens, so both facades show.
 
 ``render`` gives the index, planar depth and world-normal maps of any subset of the openings and the roof, so
 a test can leave a window or the roof out of the render while the building JSON keeps it. ``write_ext_project``
@@ -23,7 +23,7 @@ from wenart import views as V
 
 SIZE = (320, 180)
 CAMERA = {"name": "ext_1", "kind": "exterior", "view": "corner", "room_id": None, "level_id": None, "index": 1,
-          "position": [16.0, -10.0, 1.6], "target": [8.1, -0.1, 1.6], "lens_mm": 20.0, "sensor_mm": 36.0,
+          "position": [16.0, -10.0, 1.6], "target": [8.1, -0.1, 1.6], "lens_mm": 28.0, "sensor_mm": 36.0,
           "resolution": list(SIZE), "sides": ["south", "east"], "region_id": None, "variant": "base",
           "dropped_reason": None, "visible_openings": ["win_s1", "win_s2", "d_s1", "win_e1"],
           "visible_furniture": [], "warning": None, "shift_x": 0.0, "shift_y": 0.0}
