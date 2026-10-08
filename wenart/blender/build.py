@@ -642,7 +642,7 @@ def main(argv: list[str]) -> int:
         wall_whole = None
         if whole:
             wall_whole = {"slab_above": above, "looks": looks, "outline": prep["outlines"].get(level["id"]),
-                          "faces": prep["faces"],
+                          "faces": prep["faces"], "open_rooms": prep["open_rooms"],
                           "roof_cut": R.wall_cut(roof) if roof and roof["over_level_id"] == level["id"] else None}
             warnings.extend(openings_through_roof(building, level, wall_whole["roof_cut"]))
             warnings.extend(pieces_above_ceiling(building, level))

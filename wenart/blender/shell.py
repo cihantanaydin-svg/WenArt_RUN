@@ -521,6 +521,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     roof_cut = whole.get("roof_cut") if whole else None
     cut_planes = roof_cut["planes"] if roof_cut else None
     slab_above = whole.get("slab_above") if whole else None
+    open_ids = set((whole or {}).get("open_rooms") or ())
+    open_polys = [r["polygon"] for r in rooms if r["id"] in open_ids and len(r["polygon"]) >= 3]
 
     footprint_centre = _level_centre(walls)
     extended = corner_extensions(walls) if whole else {}
@@ -626,7 +628,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             warnings.append(f"{wall['id']}: exterior wall with rooms on both sides or on neither; "
                             f"outward side taken from the level centre")
         _assign_wall_face_materials(ob, wall, rooms, outward, outline=whole.get("outline") if whole else None,
-                                    face_slots=face_slots.get(wall["id"]))
+                                    face_slots=face_slots.get(wall["id"]), open_polys=open_polys)
     for cutter in cutters:
         common.delete_object(cutter)
     bpy.context.view_layer.update()
@@ -697,14 +699,16 @@ def wall_face_slot(wall: dict, centre, normal, outward, indoor_polys, wet_polys,
 OUTDOOR_ROOM_TYPES = {"balcony"}
 
 
-def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outline=None, face_slots=None) -> None:
+def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outline=None, face_slots=None,
+                                open_polys=()) -> None:
     """Slot 0 interior, 1 exterior (faces of exterior walls whose normal
     points ``outward``, see ``wall_outward_normal``, and that look into no
     indoor room), 2 wet-room faces: ``wall_face_slot`` per face.
 
     Milestone 10 (``outline``: the building outline): a vertical face whose probe lies outside the outline
-    is outside too (the end faces of a closed L-join at the building corner); ``face_slots``: drawn facade
-    parts ``[(z0, z1, slot)]`` replace the exterior slot of the faces whose centre lies in their z range."""
+    is outside too (the end faces of a closed L-join at the building corner), and so is one looking into a
+    room open to the sky (``open_polys``: roof terraces); ``face_slots``: drawn facade parts ``[(z0, z1,
+    slot)]`` replace the exterior slot of the faces whose centre lies in their z range."""
     mesh = ob.data
     polys = [r for r in rooms if len(r["polygon"]) >= 3]
     indoor = [r["polygon"] for r in polys if r.get("room_type") not in OUTDOOR_ROOM_TYPES]
@@ -712,7 +716,8 @@ def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outl
     for poly in mesh.polygons:
         c = poly.center  # wall meshes are built in world coordinates (identity transform)
         slot = wall_face_slot(wall, (c.x, c.y), tuple(poly.normal), outward, indoor, wet_polys)
-        if outline and slot == 0 and outside_face(c, tuple(poly.normal), outline):
+        if outline and slot == 0 and (outside_face(c, tuple(poly.normal), outline)
+                                      or open_face(c, tuple(poly.normal), open_polys)):
             slot = 1
         if face_slots and slot == 1:
             slot = facade_face_slot(c.z, face_slots, slot)
@@ -726,6 +731,14 @@ def outside_face(centre, normal, outline, probe: float = DEFAULTS["face_probe"])
         return False
     p = (float(centre[0]) + float(normal[0]) * probe, float(centre[1]) + float(normal[1]) * probe)
     return not G.point_in_polygon(p, outline) and geom2d.distance_to_polygon_edges(p, outline) > 1e-6
+
+
+def open_face(centre, normal, open_polys, probe: float = DEFAULTS["face_probe"]) -> bool:
+    """A vertical face looking into a room open to the sky (a roof terrace; pure, Milestone 10)."""
+    if not open_polys or abs(float(normal[2])) > 0.5:
+        return False
+    p = (float(centre[0]) + float(normal[0]) * probe, float(centre[1]) + float(normal[1]) * probe)
+    return any(G.point_in_polygon(p, poly) for poly in open_polys)
 
 
 def facade_face_slot(z: float, face_slots, default: int) -> int:
