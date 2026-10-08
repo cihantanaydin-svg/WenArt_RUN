@@ -400,3 +400,26 @@ def test_an_earth_hatch_under_the_elevation_is_no_facade(tmp_path):
     assert all((f["z_range"] or [0.0, 1.0])[1] > 0.0 for f in ex["facade"])
     assert [f["material"] for f in ex["facade"] if f["source"] == "hatch"] == ["stone_cladding"]
     assert any("below the ground floor's level" in w for w in res.doc["warnings"])
+
+
+def test_a_lone_circle_is_no_tree_unless_its_layer_or_block_says_so(tmp_path):
+    # Review finding 9: a ring round the north arrow (layer VAZIYET) and a manhole (layer RÖGAR) are listed, not
+    # built as trees; the fixture's tree on layer AGAC stays.
+    import ezdxf
+
+    import _sheets_fixture as FX
+
+    project = tmp_path / "trees"
+    project.mkdir()
+    path = FX.write_sheet(project / "sheet.dxf", exterior=True)
+    doc = ezdxf.readfile(path)
+    msp = doc.modelspace()
+    sx, sy = FX.SITE
+    msp.add_circle((sx + 2100.0, sy + 500.0), 90.0, dxfattribs={"layer": "VAZIYET"})
+    msp.add_circle((sx + 1500.0, sy + 300.0), 40.0, dxfattribs={"layer": "RÖGAR"})
+    doc.saveas(path)
+    res = SH.run(project, tmp_path / "out", no_ai=True)
+    trees = res.doc["exterior"]["site"]["trees"]
+    assert [t["points"][0] for t in trees] == [pytest.approx([-4.0, 11.0])]
+    assert trees[0]["evidence"][0]["layer"] == "AGAC"
+    assert sum("is not read as a tree" in w for w in res.doc["warnings"]) == 2

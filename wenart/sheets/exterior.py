@@ -437,13 +437,19 @@ def site_of(region, warnings: list) -> Optional[dict]:
         if block and NORTH_BLOCK_RE.search(block):
             continue
         circles = [st for st in e.strokes if st.kind == "circle" and st.arc is not None]
-        is_tree = bool(block and TREE_BLOCK_RE.search(block)) or (not e.block and len(e.strokes) == 1 and circles)
-        if not is_tree or not circles:
+        if not circles:
+            continue
+        # A tree: a block or a layer that names one (AĞAÇ, TREE, BAUM, ARBRE). Any other lone circle (a north arrow's
+        # ring, a manhole, a round column) is listed, never built as a tree.
+        if not (TREE_BLOCK_RE.search(block) or TREE_BLOCK_RE.search(T.fold(e.layer or ""))):
+            if not e.block and len(e.strokes) == 1:
+                warnings.append(f"site plan {region.id}: circle {e.id} on layer {e.layer!r} is not read as a tree "
+                                f"(neither its layer nor a block names one)")
             continue
         crown = max(circles, key=lambda st: st.arc["radius"])            # the crown; a trunk circle inside is not
         (cx, cy), r = crown.arc["center"], crown.arc["radius"]
-        out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3),
-                             "evidence": [_ev(region, e.id, "site_tree")]})
+        ev = dict(_ev(region, e.id, "site_tree"), layer=e.layer)
+        out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3), "evidence": [ev]})
     if out["plot"]:
         out["plot_walls"] = _plot_walls(region, closed, tf, mpu)
     return out
