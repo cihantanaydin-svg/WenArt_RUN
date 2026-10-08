@@ -36,6 +36,12 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window, and so are >= 2 strictly
   inside it (walls drawn as face lines: the faces are the wall primitive, not strokes here; docs/milestone10.md
   §3.1 item 11).
+- ``operation`` (Milestone 10, §1.6b row 17; set as attributes by ``set_operation``, copied by the pipeline): a block
+  name that says it (``OPERATION_WORDS``: sliding / sürme, pocket, folding / katlanır, double / çift kanat, fixed /
+  sabit) wins (``block_name``); else the drawing (``geometry``): one swing arc = swing, two half arcs = double, and a
+  gap with no swing arc but one or two thin closed leaves parallel to the wall, 0.45-0.85 x the gap long, in the band
+  or within 0.10 m of a face, is a sliding door (a window's glass spans its gap). Windows get an operation only from
+  a block name (else null: swing, assumed).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -91,6 +97,18 @@ DOOR_HEIGHT_M = 2.10
 WINDOW_SILL_M = 0.90
 WINDOW_HEIGHT_M = 1.20
 CONF_DOOR_LEAF, CONF_DOOR, CONF_WINDOW, CONF_DOORLESS = 0.95, 0.85, 0.9, 0.8
+# Milestone 10 (docs/milestone10.md §1.6b row 17): how a door or window opens. Block-name words (Turkish letters
+# folded to ASCII, spaces and hyphens read as "_"; only words that name the operation), else the drawing: one swing
+# arc = swing, two half arcs = double, a leaf drawn parallel to the wall without an arc = sliding.
+OPERATION_WORDS: tuple[tuple[str, str], ...] = (
+    ("SLIDING", "sliding"), ("SURME", "sliding"), ("POCKET", "pocket"), ("FOLDING", "folding"),
+    ("KATLANIR", "folding"), ("AKORDEON", "folding"), ("BIFOLD", "folding"), ("DOUBLE", "double"),
+    ("CIFT_KANAT", "double"), ("FIXED", "fixed"), ("SABIT", "fixed"),
+)
+_FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "ğ": "g", "Ü": "U", "ü": "u", "Ö": "O",
+                       "ö": "o", "Ç": "C", "ç": "c", " ": "_", "-": "_"})
+SLIDING_LEAF = (0.45, 0.85)     # x gap width: a sliding leaf is shorter than its gap (a window's glass spans it)
+SLIDING_REACH_M = 0.10          # ... and lies in the wall band or within 0.10 m of a face
 CONF_RASTER = 0.7
 
 
@@ -577,6 +595,14 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "window"
         g.found = {"lines": list({id(it): it for it, _ in parallel}.values())}
         return
+    # Sliding door (Milestone 10): no swing arc, but one or two leaves (thin closed shapes) parallel to the wall,
+    # shorter than the gap, in the band or just beside it.
+    leaves = _sliding_leaves(g, zone)
+    if leaves:
+        g.cls = "door"
+        g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
+                   "radius": None, "double": False, "sliding": True}
+        return
     # Doorless: nothing in the band (the jamb faces at the gap ends do not count) and no door-like arc. Strokes
     # that are only in the classification zone (a chair or a round table beside an open plan) do not count; an
     # arc there counts when it could be a mis-sized door swing: hinged within the zone of a gap end, radius
@@ -592,6 +618,52 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         return
     g.cls = "unclassified"
     g.found = {"content": content + [it for it in swings if it not in content]}
+
+
+def _sliding_leaves(g: Gap, zone: list) -> list:
+    """Thin closed shapes (<= LEAF_WIDTH_M across) parallel to the gap, 0.45-0.85 x its width long, inside the gap
+    (+- 0.10 m along) and the wall band (+- SLIDING_REACH_M across)."""
+    out = []
+    for it in zone:
+        pts = it.pts
+        if len(pts) < 4 or not (it.st.closed or math.dist(pts[0], pts[-1]) <= 0.001):
+            continue
+        xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+        along = (max(xs) - min(xs)) if g.axis == "h" else (max(ys) - min(ys))
+        across = (max(ys) - min(ys)) if g.axis == "h" else (max(xs) - min(xs))
+        lo, hi = (min(xs), max(xs)) if g.axis == "h" else (min(ys), max(ys))
+        mid = ((min(ys) + max(ys)) / 2.0 - g.c) if g.axis == "h" else ((min(xs) + max(xs)) / 2.0 - g.c)
+        if across > LEAF_WIDTH_M or not SLIDING_LEAF[0] * g.width <= along <= SLIDING_LEAF[1] * g.width:
+            continue
+        if lo < g.a - OWN_MARGIN_M or hi > g.b + OWN_MARGIN_M or abs(mid) > g.t / 2.0 + SLIDING_REACH_M:
+            continue
+        out.append(it)
+    return out
+
+
+def operation_word(names) -> Optional[str]:
+    """The operation a block name says (``OPERATION_WORDS``), or None."""
+    for name in names:
+        folded = (name or "").translate(_FOLD).upper()
+        for key, op in OPERATION_WORDS:
+            if key in folded:
+                return op
+    return None
+
+
+def set_operation(item: OpeningItem, operation: Optional[str], source: Optional[str]) -> None:
+    """``operation`` / ``operation_source`` of an opening (§1.6b row 17). Set as attributes: the pipeline copies them
+    into the building's openings (null = swing, assumed)."""
+    item.operation = operation
+    item.operation_source = source
+
+
+def _door_operation(item: OpeningItem, strokes: list, double: bool, sliding: bool = False) -> None:
+    named = operation_word([n for st in strokes if st.block for n in st.block.split("/")])
+    if named is not None:
+        set_operation(item, named, "block_name")
+    else:
+        set_operation(item, "sliding" if sliding else ("double" if double else "swing"), "geometry")
 
 
 def _door_like(g: Gap, arc: dict) -> bool:
@@ -995,6 +1067,7 @@ def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict, joined: Optional[d
     confidence = min(q.wall.evidence.get("confidence", 1.0) for q in seg)
     # Walls drawn as face lines carry their layer and the layer choice: kept when every piece has the same.
     layers = {q.wall.evidence.get("layer") for q in seg}
+    rules = {q.wall.evidence.get("rule") for q in seg}
     first_notes = {q.wall.evidence.get("note") for q in seg}
     notes = [first_notes.pop()] if len(first_notes) == 1 and None not in first_notes else []
     notes += [joined[q.k] for q in seg if q.k in joined]
@@ -1007,7 +1080,8 @@ def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict, joined: Optional[d
     if len(seg) > 1:
         notes.append(f"run of {len(seg)} pieces")
     ev = B.evidence(base.get("file", ctx.file_rel), method, round(confidence, 3), page=base.get("page", ctx.page_no),
-                    entity=entity, layer=layers.pop() if len(layers) == 1 else None)
+                    entity=entity, layer=layers.pop() if len(layers) == 1 else None,
+                    rule=rules.pop() if len(rules) == 1 else None)
     if notes:
         ev["note"] = "; ".join(notes)
     return WallItem(start=(round(s[0], 4), round(s[1], 4)), end=(round(e[0], 4), round(e[1], 4)),
@@ -1078,6 +1152,14 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
     box = ctx.box(corners)
     width = round(g.width, 4)
     names = ",".join(dict.fromkeys(e for p in g.pieces for e in p.wall.entity.split(",") if e))
+    if g.cls == "door" and g.found.get("sliding"):
+        ids = [it.st.id for it in g.found["leaves"]]
+        ev = ctx.evidence("vector", CONF_DOOR, ",".join(ids), box_units=box)
+        ev["note"] = f"{len(ids)} leaf/leaves drawn parallel to the wall without a swing arc: a sliding door"
+        item = OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(axis_deg % 360.0, 3),
+                           box=box, entity=ids[0], evidence=ev, height=DOOR_HEIGHT_M, assumed=["height"])
+        _door_operation(item, [it.st for it in g.found["leaves"]], False, sliding=True)
+        return item
     if g.cls == "door":
         side = _rot(_swing_side(g), theta)
         probe = (center[0] + side[0] * DOOR_SWING_PROBE, center[1] + side[1] * DOOR_SWING_PROBE)
@@ -1087,15 +1169,21 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
         ev = ctx.evidence("vector", conf, ",".join(ids), box_units=box)
         if not g.found["leaf"]:
             ev["note"] = "swing arc without a drawn leaf"
-        return OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(rotation % 360.0, 3),
+        item = OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(rotation % 360.0, 3),
                            box=box, entity=ids[0], evidence=ev, swing_point=_r(probe), height=DOOR_HEIGHT_M,
                            assumed=["height"])
+        _door_operation(item, [it.st for it in g.found["arcs"] + g.found["leaves"]], bool(g.found.get("double")))
+        return item
     if g.cls == "window":
         ids = [it.st.id for it in g.found["lines"]]
         ev = ctx.evidence("vector", CONF_WINDOW, ",".join(ids), box_units=box)
-        return OpeningItem(kind="window", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
+        item = OpeningItem(kind="window", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
                            box=box, entity=ids[0], evidence=ev, height=WINDOW_HEIGHT_M, sill=WINDOW_SILL_M,
                            assumed=["height", "sill_height"])
+        named = operation_word([n for it in g.found["lines"] if it.st.block for n in it.st.block.split("/")])
+        if named is not None:
+            set_operation(item, named, "block_name")
+        return item
     if g.cls == "empty":
         ev = ctx.evidence("derived", CONF_DOORLESS, f"gap:{names}", box_units=box)
         item = OpeningItem(kind="opening", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
@@ -1138,7 +1226,9 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["owned"] = g.found["owned"]
     if g.cls == "door":
         entry["hinges"] = [_out(h, theta) for h in g.found["hinges"]]
-        entry["radius"] = round(g.found["radius"], 4)
+        entry["radius"] = round(g.found["radius"], 4) if g.found.get("radius") is not None else None
+        if g.found.get("sliding"):
+            entry["operation"] = "sliding"
         entry["leaf"] = g.found["leaf"]
     if g.cls == "unclassified":
         entry["strokes"] = [it.st.id for it in g.found.get("content", [])]
@@ -1221,6 +1311,7 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
         doors.append(OpeningItem(kind="door", width=round(w, 4), center=_r(center),
                                  rotation_deg=round(rotation % 360, 3), box=bx, entity=ids[0], evidence=ev,
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))
+        _door_operation(doors[-1], [it.st, leaf.st], False)
     windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors)
     return doors, windows
 

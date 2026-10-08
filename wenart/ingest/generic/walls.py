@@ -1637,7 +1637,7 @@ def _wall_item(r: _Rect, prims: list[WallPrim], theta: float, file_rel: str, pag
     box = [round(v, 3) for v in box]
     pixel_box = box if (method == "raster" and units_to_m) else None
     ev = B.evidence(file_rel, method, round(confidence, 3), page=page_no, entity=entity, pixel_box=pixel_box,
-                    layer=layer)
+                    layer=layer, rule="face_pairs" if layer is not None else None)
     if note:
         ev["note"] = note
     start = (round(start[0], 4), round(start[1], 4))
