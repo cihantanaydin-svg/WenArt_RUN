@@ -148,7 +148,7 @@ def test_a_changed_piece_grows_from_its_wall_line():
 
 def test_a_corner_sofa_takes_the_free_side():
     sofa = drawn("f1", "sofa", (2.5, 3.53), (2.2, 0.9))
-    chair = drawn("f2", "armchair", (3.7, 2.4), (0.8, 0.8), front=180.0, rotation=270.0)   # right, in front
+    chair = drawn("f2", "armchair", (3.75, 2.0), (0.8, 0.8), front=180.0, rotation=270.0)  # right, in front
     _b, ctx, pieces, anchors = setup([sofa, chair], "living")
     req = P.ChangeRequest(0, "sofa_corner", (2.6, 1.6), anchors[0])
     final, results, _base = P.place_changes(pieces, [req], ctx)
@@ -241,16 +241,80 @@ def test_added_pieces_are_repaired_off_doors_and_windows():
     assert all(not P.failed_checks(c) for c in result.checks)
 
 
+def test_a_flush_piece_never_grows_through_the_wall():
+    """Review #17: a no-front table drawn flush with the west wall fails inside_room as drawn (2 cm shrink); the
+    excuse covers only its drawn amount, so the 2.0 m and 1.6 m tables (through the wall) are refused."""
+    table = drawn("f1", "table_dining", (0.6, 3.0), (1.2, 0.8), front=None)
+    _b, ctx, pieces, anchors = setup([table], "dining")
+    final, results, base = P.place_changes(pieces, [P.ChangeRequest(0, "table_dining", (2.0, 1.0), anchors[0])], ctx)
+    assert base["pieces"] == [["inside_room"]]
+    steps = results[0].steps
+    assert [s["ok"] for s in steps[:2]] == [False, False] and all("outside" in s["grown"] for s in steps[:2])
+    assert final[0].polygon().difference(ctx.polygon).area <= pieces[0].polygon().difference(ctx.polygon).area + 1e-9
+
+
+def test_a_changed_piece_never_overlaps_its_neighbours_more_than_drawn():
+    """Review #17: drawn nightstands overlap the bed by 3 mm (no_overlap fails as drawn); a wider bed would overlap
+    each by 10 cm: refused, the drawn size stays."""
+    bed = drawn("f1", "bed_double", (2.5, 2.98), (1.6, 2.0))
+    left = drawn("f2", "nightstand", (1.453, 3.78), (0.5, 0.4))
+    right = drawn("f3", "nightstand", (3.547, 3.78), (0.5, 0.4))
+    _b, ctx, pieces, anchors = setup([bed, left, right])
+    final, results, base = P.place_changes(pieces, [P.ChangeRequest(0, "bed_double", (1.8, 2.0), anchors[0])], ctx)
+    assert all("no_overlap" in fails for fails in base["pieces"])
+    assert not results[0].steps[0]["ok"] and "overlap:1" in results[0].steps[0]["grown"]
+    assert final[0].size == (1.6, 2.0)
+    for j in (1, 2):
+        assert final[0].polygon().intersection(final[j].polygon()).area <= \
+            pieces[0].polygon().intersection(pieces[j].polygon()).area + 1e-9
+
+
+def test_real01_nightstand_stays_in_the_room():
+    """Review #17 on the committed real01 data: nightstand f_L0_006 sits within 2 cm of the wall (inside_room fails as
+    drawn); changed to 0.6 x 0.45 it would end 7 cm inside the wall."""
+    import json
+    from pathlib import Path
+
+    from wenart.furniture import complete as C
+
+    building = json.loads((Path(__file__).resolve().parents[1] / "results" / "furniture" / "real01" /
+                           "building_fitted.json").read_text(encoding="utf-8"))
+    room = next(r for r in building["rooms"] if r["id"] == "r_L0_bed_room_2")
+    ctx = P.room_context(building, room)
+    drawn_pieces = [d for d in C.classify_drawn(room, building) if d.kind != "mounted"]
+    k = next(i for i, d in enumerate(drawn_pieces) if d.id == "f_L0_006")
+    reqs = C._requests([{"id": "f_L0_006", "type": "nightstand", "size": (0.6, 0.45)}], drawn_pieces)
+    final, results, _base = P.place_changes([d.piece for d in drawn_pieces], reqs, ctx)
+    outside = final[k].polygon().difference(ctx.polygon).area
+    assert outside <= drawn_pieces[k].piece.polygon().difference(ctx.polygon).area + 1e-9
+
+
+def test_a_bench_may_stand_at_the_foot_of_the_bed():
+    """Review #21 (§2.3 "bench (bed foot)"): a bench or ottoman touching the foot of a bed is not pushed 0.6 m away."""
+    bed = drawn("f1", "bed_double", (2.5, 2.98), (1.6, 2.0))
+    _b, ctx, pieces, _a = setup([bed])
+    for ftype, size in (("bench", (1.2, 0.4)), ("ottoman", (0.5, 0.5))):
+        y = 1.98 - size[1] / 2
+        result = P.place([prop(ftype, (2.5, y), 0.0, size)], ctx, obstacles=pieces)
+        assert [p.type for p in result.pieces] == [ftype] and result.pieces[0].center == (2.5, y), ftype
+        assert not result.log and all(result.checks[0].values())
+    chair = P.Piece("chair", (2.5, 1.75), 0.0, (0.45, 0.45), False)               # any other piece still gives way
+    assert P.obstacle_checks(P.obstacles_for(pieces, ctx) + [chair], ctx)[1]["clearance_ok"] is False
+
+
 def test_a_check_the_drawn_layout_already_fails_is_not_counted_against_the_change():
-    """A chair drawn on the door's approach strip fails doors_free as drawn; changing it into an office chair
-    at the same anchor keeps that failure (drawn_layout) and is applied."""
+    """A chair drawn on the door's approach strip fails doors_free as drawn; changing it into a bar stool of no
+    larger footprint at the same anchor keeps that failure (drawn_layout) and is applied. An office chair would
+    cover more of the strip and swing than the drawn chair (code review #17): refused at every size."""
     chair = drawn("f1", "chair", (4.3, 0.4), (0.45, 0.45), front=None)
     _b, ctx, pieces, anchors = setup([chair], "bedroom")
-    final, results, baseline = P.place_changes(pieces, [P.ChangeRequest(0, "office_chair", (0.6, 0.6), anchors[0])],
+    final, results, baseline = P.place_changes(pieces, [P.ChangeRequest(0, "bar_stool", (0.42, 0.42), anchors[0])],
                                                ctx)
     assert baseline["pieces"] == [["doors_free"]]
-    assert results[0].applied and final[0].type == "office_chair"
-    assert results[0].steps[0]["failed"] == []                                  # nothing new
+    assert results[0].applied and final[0].type == "bar_stool"
+    assert results[0].steps[0]["failed"] == [] and results[0].steps[0]["grown"] == []      # nothing new
+    final, results, _b = P.place_changes(pieces, [P.ChangeRequest(0, "office_chair", (0.6, 0.6), anchors[0])], ctx)
+    assert not results[0].applied and all("door:d1" in s["grown"] for s in results[0].steps[:-1])
 
 
 def test_an_unverified_piece_keeps_its_footprint():
