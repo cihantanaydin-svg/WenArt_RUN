@@ -474,6 +474,12 @@ accept:
                                                          # quality, likes, views, survey rank, uid
 
 # The survey files the shared steps read (each source's survey writes its own; docs/milestone8.md §2).
+# The 14 furniture and 12 decor types of Milestone 10 (docs/milestone10.md §1.1): `--types new` of both surveys. The
+# older types are covered by the Milestone 9 library (their thumbnails, answers and models stay).
+new_types: [sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard,
+            shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet,
+            curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light]
+
 survey_files:
   objaverse: survey.json
   abo: survey_abo.json
