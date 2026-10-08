@@ -144,3 +144,11 @@ def test_brief_lens_outside_14_to_35_is_reported_and_not_used(tmp_path, text):
     order = brief["assumed"]
     assert order.index("render.samples") < order.index("render.lens_mm")    # still in defaults.yaml order
 
+
+
+def test_lens_range_is_the_camera_rule():
+    """wenart.brief keeps its own copy of the lens range (the sheets and pipeline stages never import Blender code)."""
+    from wenart import brief as B
+    from wenart.blender.cameras import LENS_RANGE_MM
+
+    assert B.LENS_RANGE_MM == LENS_RANGE_MM

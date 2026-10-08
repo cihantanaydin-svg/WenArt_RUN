@@ -37,6 +37,9 @@ from typing import Any, Optional
 
 DEFAULTS_PATH = Path(__file__).resolve().parent / "defaults.yaml"
 BRIEF_FILE = "brief.yaml"
+# The brief's lens range (mm): the same as ``wenart.blender.cameras.LENS_RANGE_MM`` (tests/test_brief.py pins it).
+# A copy, so the stages that read the brief (sheets, pipeline) do not import the Blender camera code.
+LENS_RANGE_MM = (14.0, 35.0)
 
 
 def brief_defaults(defaults: Optional[dict] = None) -> dict:
@@ -65,9 +68,7 @@ def _kind(value: Any) -> str:
 
 
 def _lens_problem(value: Any) -> Optional[str]:
-    """``render.lens_mm``: ``auto`` or a number from 14 to 35 (mm, ``wenart.blender.cameras.LENS_RANGE_MM``)."""
-    from wenart.blender.cameras import LENS_RANGE_MM  # lazy: only a brief that sets the lens needs it
-
+    """``render.lens_mm``: ``auto`` or a number from 14 to 35 (mm, ``LENS_RANGE_MM``)."""
     if value == "auto":
         return None
     lo, hi = LENS_RANGE_MM
