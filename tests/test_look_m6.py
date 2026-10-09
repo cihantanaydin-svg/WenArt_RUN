@@ -821,7 +821,8 @@ def hall(tmp_path_factory):
     if BLENDER is None:
         pytest.skip("no Blender binary")
     tmp = tmp_path_factory.mktemp("m6_hall")
-    return _build(tmp, hall_building(), None, ["--no-textures"])
+    # Milestone 11 decision D3: the stripes are a debug option (--markers); rows 1 pin them
+    return _build(tmp, hall_building(), None, ["--no-textures", "--markers"])
 
 
 def _faces(scene: dict, name: str, normal) -> list[dict]:
@@ -852,14 +853,15 @@ def test_row1_stripes_mix_for_camera_rays_only(hall):
 
 @needs_blender
 def test_row3_wall_faces_split_at_the_room_corners(flat):
-    """w_n runs along the bedroom (dry) and the kitchen (wet): tiles on the kitchen span only."""
+    """w_n runs along the bedroom and the kitchen: the faces split at the room corners. Milestone 11 (§1.3 M2): a
+    kitchen is no wet room for its walls, both spans take the style's walls (was: tiles on the kitchen span)."""
     room_side = _faces(flat, "w_n", (0, -1, 0))
     assert room_side
     for f in room_side:
         x0, x1 = f["min"][0], f["max"][0]
         assert x1 <= 4.0 + 1e-4 or x0 >= 4.1 - 1e-4 or (x0 >= 4.0 - 1e-4 and x1 <= 4.1 + 1e-4), f  # no face spans both
         if x0 >= 4.1 - 1e-4 and x1 <= 7.6 + 1e-4:
-            assert f["material"].startswith("tiles_light"), f
+            assert f["material"].startswith("plaster_white"), f
         elif x0 >= -1e-4 and x1 <= 4.0 + 1e-4:
             assert f["material"].startswith("plaster_white"), f
     kitchen = [f for f in room_side if f["min"][0] >= 4.1 - 1e-4 and f["max"][0] <= 7.6 + 1e-4]
@@ -895,11 +897,15 @@ def test_row3_synthetic_03_wall_w_L1_006(tmp_path):
 def test_row4_procedural_tiles_and_flat_mode(flat):
     m = flat["manifest"]["materials"]
     tiles = m["tiles_light"]
-    assert tiles["procedural"] == "glazed_tiles" and not tiles["textured"]
-    assert flat["materials"]["tiles_light"]["group"] == "wenart_glazed_tiles"
+    # Milestone 11 step 0 (§1.3 M1): tiles_light is the vocabulary's procedural light ceramic (wenart_tiles), not
+    # the glazed-tiles fallback of a missing image set
+    assert tiles["procedural"] == "wenart_tiles" and not tiles["textured"]
+    assert flat["materials"]["tiles_light"]["group"].startswith("wenart_tiles")
     assert flat["materials"]["tiles_light"]["group_links"] == ["Base Color", "Normal", "Roughness"]
+    # Milestone 11 (§1.3 M2): the kitchen walls take the style's walls; the tiles are its splashback band
     kitchen_walls = {f["material"] for f in _faces(flat, "w_e", (-1, 0, 0)) if 0 < f["center"][1] < 3}
-    assert kitchen_walls == {"tiles_light"}
+    assert kitchen_walls == {"plaster_white"}
+    assert flat["objects"]["splashback_r_kit"]["materials"][0].startswith("tiles_light")
     # Flat albedo mode still works: the dyed linen photo gives only its weave to the vocabulary colour.
     linen = m["fabric_linen__rough_linen"]
     assert linen["textured"] and linen["albedo_mode"] == "flat" and linen["detail"] == 0.5
@@ -982,8 +988,8 @@ def test_row9_door_veneer_handles_and_skirting(flat, hall):
     assert 1.05 <= min(ys) and max(ys) <= 1.95                                      # within the opening
     lever_z = [v[2] for v in handle["verts"] if abs(abs(v[0] - 4.05) - (lt / 2 + shell.HANDLE_DEPTH)) < 1e-6]
     assert lever_z and sum(lever_z) / len(lever_z) == pytest.approx(shell.HANDLE_HEIGHT, abs=1e-6)
-    # Skirting along the dry bedroom only, interrupted at the door, inside the room.
-    assert "skirting_r_bed" in flat["objects"] and "skirting_r_kit" not in flat["objects"]
+    # Skirting along the bedroom (and, Milestone 11 M2, the kitchen: no wet walls), interrupted at the door.
+    assert "skirting_r_bed" in flat["objects"] and "skirting_r_kit" in flat["objects"]
     sk = flat["objects"]["skirting_r_bed"]
     assert sk["pass_index"] == 0 and sk["status"] == "assumed" and sk["kind"] == "wall"
     assert sk["materials"] == ["painted_wood_white"]
@@ -1007,7 +1013,8 @@ def test_assumed_entries_of_every_design_detail(flat, hall):
         assert a["parent"] and a["reason"] and a["object"] and "value" in a, a
         by_kind.setdefault(a["kind"], []).append(a["parent"])
     assert by_kind == {"bedding": ["f_bed"], "counter_fronts": ["f_counter"], "door_handles": ["door_p"],
-                       "skirting": ["r_bed"], "dim_room_light": ["r_bed"]}
+                       "skirting": ["r_bed", "r_kit"], "dim_room_light": ["r_bed"],
+                       "splashback": ["r_kit"]}                       # Milestone 11 M2
     hall_kinds = sorted((a["kind"], a["parent"]) for a in hall["manifest"]["assumed"] if "kind" in a)
     assert hall_kinds == [("door_handles", "d_in"), ("door_handles", "d_st"), ("skirting", "r_hall"),
                           ("skirting", "r_st"), ("windowless_room_light", "r_hall"),

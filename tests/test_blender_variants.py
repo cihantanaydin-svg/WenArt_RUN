@@ -580,4 +580,4 @@ def test_each_attic_room_light_hangs_under_its_own_ceiling(tmp_path):
         # corners; the centre alone let the downhill half rise through the roof of real02)
         own = lighting.light_ceiling(at, level, (x, y), sizes[rid], 99.0)
         assert z == pytest.approx(own - lighting.AREA_LIGHT_CEILING_GAP, abs=2e-3), rid
-    assert lights["r_high"][2] > lights["r_low"][2] + 0.5
+    assert lights["r_high"][2] > lights["r_low"][2] + 0.3      # (0.5 with the centre-only rule of M10)
