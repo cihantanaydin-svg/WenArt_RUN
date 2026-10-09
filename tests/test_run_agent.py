@@ -242,4 +242,30 @@ def test_the_agent_stages_and_their_code_list():
     covered = {p.relative_to(REPO_ROOT).as_posix() for p in ST._code_files(S.STAGES["agent_apply"].code, REPO_ROOT)}
     missing = sorted(import_closure("wenart.agent") - covered)
     assert not missing, missing
+
+
+def test_the_orchestrator_files_are_copied_for_public_projects_only(tmp_path):
+    """wenart/run/copy.py (Milestone 11 rows): the log, overrides, log images, round previews and the report's
+    before/after images reach $RESULTS/agent/<p>/ and final/<p>/agent/; a private project copies none of them."""
+    from test_run_copy import refs
+    from wenart.run import copy as CP
+    results, pub, priv = refs(tmp_path)
+    for ref in (pub, priv):
+        o = ref.out_dir
+        for rel, data in (("orchestrator/log.json", b"{}"), ("orchestrator/log.md", b"# log"),
+                          ("orchestrator/overrides.json", b"{}"), ("orchestrator/images/r1_001_x.png", b"png"),
+                          ("orchestrator/images/r1_cam_before.jpg", b"jpg"), ("agent/previews/cam_preview.jpg", b"j"),
+                          ("agent/previews/render_manifest.json", b"{}"), ("final/agent/r1_001_x.png", b"png"),
+                          ("agent/previews/cam.png", b"a full-size png: never copied")):
+            (o / rel).parent.mkdir(parents=True, exist_ok=True)
+            (o / rel).write_bytes(data)
+    CP.copy_project(pub)
+    got = {p.relative_to(results).as_posix() for p in results.rglob("*") if p.is_file()}
+    assert {"agent/p/log.json", "agent/p/log.md", "agent/p/overrides.json", "agent/p/images/r1_001_x.png",
+            "agent/p/images/r1_cam_before.jpg", "agent/p/previews/cam_preview.jpg",
+            "agent/p/previews/render_manifest.json", "final/p/agent/r1_001_x.png"} <= got
+    assert "agent/p/previews/cam.png" not in got
+    CP.copy_project(priv)
+    private = {p.relative_to(tmp_path / "pr").as_posix() for p in (tmp_path / "pr").rglob("*") if p.is_file()}
+    assert not any("agent" in p or "orchestrator" in p for p in private), private
     assert S.est_final(10, 4) > S.est_final(10, 4, polish=False) > S.est_previews(10)

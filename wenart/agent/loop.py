@@ -241,8 +241,7 @@ class AgentLoop:
                 checks.append({"source": "vision", "target": key, "status": "error", "note": str(exc),
                                "call_id": call_id})
                 continue
-            images = [self.log.rel(p) if str(p).startswith(str(self.log.dir)) else str(Path(p))
-                      for p in res.get("images") or []]
+            images = [self.image_ref(p) for p in res.get("images") or []]
             checks.append({"source": "vision", "target": key, "status": "error" if res["error"] else "ok",
                            "note": res["error"], "call_id": call_id, "images": images,
                            "counts": {"kept": len(res["kept"]), "dropped": len(res["dropped"])}})
@@ -254,6 +253,19 @@ class AgentLoop:
         return {"kept": kept, "dropped": dropped, "checks": checks}
 
     # ----- logging helpers ---------------------------------------------------------------------
+
+    def image_ref(self, path) -> str:
+        """An image of the log: relative to ``orchestrator/`` (its own images), else ``../<path in the project
+        output>`` (previews, plan crops), never an absolute path."""
+        p = Path(path).resolve()
+        try:
+            return p.relative_to(self.log.dir.resolve()).as_posix()
+        except ValueError:
+            pass
+        try:
+            return "../" + p.relative_to(self.project_out.resolve()).as_posix()
+        except ValueError:
+            return p.name
 
     def log_findings(self, round_no: int, code: dict, vision: dict) -> None:
         for c in code.get("checks") or []:

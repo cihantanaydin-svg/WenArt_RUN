@@ -176,8 +176,8 @@ def log_markdown(data: dict) -> str:
         lines += ["", f"## Round {rnd}", ""]
         checks = [e for e in ev if e["kind"] == "check"]
         if checks:
-            lines += _table(["seq", "check", "status", "counts", "note"],
-                            [[e["seq"], e.get("source") or e.get("tool") or "", e.get("status"),
+            lines += _table(["seq", "critic", "of", "status", "counts", "note"],
+                            [[e["seq"], e.get("source") or "", e.get("tool") or e.get("target") or "", e.get("status"),
                               json.dumps(e.get("counts")) if e.get("counts") else "", e.get("note")] for e in checks])
             lines.append("")
         findings = [e for e in ev if e["kind"] == "finding"]

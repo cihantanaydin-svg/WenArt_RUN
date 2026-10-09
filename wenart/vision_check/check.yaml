@@ -1,7 +1,10 @@
 # Final vision check settings (docs/milestone5.md §5). The two VLM ids and
 # revisions live only here (§1.6); tests/test_m5_config.py checks them
 # against the table in docs/milestone5.md §1.6. `server_flags` are appended to
-# `vllm serve <id>` by the job (scripts/jobs/polish.sh).
+# `vllm serve <id>` by the job (scripts/jobs/polish.sh). Milestone 11: the agent
+# models (agent, agent_fast) follow the table in docs/milestone11.md §11
+# (checked by tests/test_agent_config.py); wenart/run/servers.py reads their
+# per-model serving keys (gpu_memory_utilization, limit_mm, prequantized, env).
 
 models:
   qwen:                       # pass 1
