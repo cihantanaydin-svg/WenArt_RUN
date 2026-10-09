@@ -498,7 +498,7 @@ def parse_listing(html: str) -> tuple[list[str], list[str]]:
     return files, dirs
 
 
-def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) -> dict:
+def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, skip_existing: bool = False) -> dict:
     """Download status.json, job.log, results/ and (when the job wrote it) results-private/ from the
     pod into ``run_dir``, recursively (depth <= COLLECT_MAX_DEPTH). Small files only: a file of
     COLLECT_MAX_FILE bytes or more is left out, and the downloads stop at COLLECT_MAX_TOTAL bytes
@@ -522,7 +522,9 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
     download (``failed``: fetch gave None; a file left out for its size is not a failure). The size
     cap (``capped``) stays a warning: it is deliberate, and a retry would only hit it again. A failed
     collection is retried at the next poll (``COLLECT_TRIES``), so a proxy glitch never lets the runner
-    stop the pod with files missing (review F2).
+    stop the pod with files missing (review F2). ``skip_existing`` (a retry, Milestone 10): a result file an earlier
+    attempt of this run already wrote is not fetched again (the job has ended, its files no longer change; pod L2c
+    of 9 Oct 2026 fetched 6500 files three times over for two failed ones and ran out of grace).
     """
     got = {}
     for name in ("status.json", "job.log"):
@@ -575,7 +577,7 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         trees[tree] = {"listed": listed, "files": len(todo) - n_before}
 
     lock = threading.Lock()
-    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": [], "big": 0, "big_bytes": 0}
+    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": [], "big": 0, "big_bytes": 0, "kept": 0}
 
     def get_big(tree: str, rel_name: str) -> None:
         with lock:
@@ -595,6 +597,10 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
 
     def get(item: tuple[str, str]) -> None:
         tree, rel_name = item
+        if skip_existing and (run_dir / tree / rel_name).is_file():
+            with lock:
+                state["kept"] += 1
+            return
         if is_big_result(rel_name):
             get_big(tree, rel_name)
             return
@@ -634,6 +640,7 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         (run_dir / "collect_too_big.txt").write_text("\n".join(too_big) + "\n")
     private = trees.get("results-private", {}).get("files", 0)
     print(f"collected {state['n']} result files ({state['total'] / 1e6:.1f} MB)"
+          + (f", {state['kept']} kept from the earlier attempt" if state["kept"] else "")
           + (f", {private} of them listed under results-private/" if "results-private" in trees else "")
           + (f"; {state['big']} 3D file(s) ({state['big_bytes'] / 1e6:.1f} MB)" if state["big"] else ""))
     ok = (got["job.log"] and job_listing is not None and "results" in trees
@@ -836,7 +843,7 @@ def cmd_run(a: argparse.Namespace) -> int:
             if final_status is not None and not collected_ok and pod_status == "RUNNING" \
                     and collect_tries < COLLECT_TRIES:
                 collect_tries += 1
-                col = collect_all(status_url, run_dir)
+                col = collect_all(status_url, run_dir, skip_existing=collect_tries > 1)
                 collected_ok = col["ok"]
                 save_pod_log("done")
                 if collected_ok:

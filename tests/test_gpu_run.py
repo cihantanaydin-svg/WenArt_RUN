@@ -578,6 +578,11 @@ def test_runner_retries_a_collection_with_a_failed_download_before_stopping(runn
     assert fake.calls.count(("POST", f"/v2/pods/{POD_ID}/action")) == 1
     run_dir = next((tmp_path / "runs").iterdir())
     assert (run_dir / report).read_text() == "# private"
+    # The retry fetches only what the first attempt did not write (Milestone 10, pod L2c).
+    fetched = [u for u in status_server["requests"] if u.endswith(report)]
+    assert len(fetched) == 1                         # the failed first fetch never reached the server
+    others = [u for u in status_server["requests"] if "results/" in u and not u.endswith("/") and not u.endswith(report)]
+    assert len(others) == len(set(others)), "a file the first collection wrote was fetched again"
 
 
 def test_run_result_wording():
