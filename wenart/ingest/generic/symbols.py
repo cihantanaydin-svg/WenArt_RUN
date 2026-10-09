@@ -42,6 +42,12 @@ footprint must come from the geometry and the type from a rule, a block name or 
    boundary lines (< 50 mm wide or > 4.5 m long) are not decor; else ``other``.
 
 All coordinates are page metres (y up); ``box`` is in page units when ``units_to_m`` is given.
+
+Milestone 11 (docs/milestone11.md §1.2 U8, U10, U12): the counter rule never reads a block's own strokes; a table
+drawn with its chairs (a named table block, or an unknown composite) is split into the table and one chair per
+chair part facing it (``split_table_chairs``); a kitchen cluster whose counter run is a closed outline along the
+walls is split into counter legs, a peninsula (``kitchen_island``), the named hob and sink blocks and the rest
+(``kitchen_split``). Only pieces that were never asked are split, so the AI candidates stay as they were.
 """
 from __future__ import annotations
 
@@ -1252,7 +1258,10 @@ def counter_rule(cl: Cluster, walls: list, openings: list, theta: float) -> list
     to_f, from_f = _frame(theta)
     faces = _wall_faces(walls, openings, to_f)
     out = []
-    for chain, a_end, b_end in _chains(cl.segs, to_f):
+    # Milestone 11 (docs/milestone11.md §1.2 U12): a block's own strokes are never a counter run (real02: five strokes
+    # of a bedroom wardrobe block were read as counter legs); a counter drawn as a block is typed by its name.
+    loose = [s for s in cl.segs if not s.stroke.block]
+    for chain, a_end, b_end in _chains(loose, to_f):
         if len(chain) < 2:
             continue
         if not (_near_face(to_f(a_end), faces) and _near_face(to_f(b_end), faces)):
@@ -1755,6 +1764,12 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         # than 4.5 m; its counter legs are still read, and the rest is split as usual.
         legs = counter_rule(cl, walls, openings, ctx.theta) if oversize else None
         if oversize and not legs:
+            # Milestone 11 (U8): a kitchen whose counter run is drawn as closed outlines along the walls is split into
+            # the counter legs, the hob and sink blocks and the rest (never asked).
+            ks = kitchen_split(cl, walls, openings, ctx.theta)
+            if ks is not None:
+                pieces.extend(kitchen_items(ks, walls, ctx, raster_page, table, wall_polys, notes))
+                continue
             pieces.append(_unknown(cl, fp, ctx, raster_page, f"cluster larger than {MAX_SIDE_M} m on a side",
                                    {"oversize": True}))
             notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
@@ -1769,6 +1784,14 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             continue
         if not oversize:
             legs = counter_rule(cl, walls, openings, ctx.theta)
+            if legs or not fitting_types(table, (fp[1], fp[2])):
+                # Milestone 11 (U8): a kitchen cluster (a counter run, or one that fits no type): its closed counter
+                # outlines become the legs and the free blocks (a peninsula), its hob and sink blocks are named, the
+                # rest is never asked. Mirrored twins take the same path whichever strokes their clusters hold.
+                ks = kitchen_split(cl, walls, openings, ctx.theta)
+                if ks is not None:
+                    pieces.extend(kitchen_items(ks, walls, ctx, raster_page, table, wall_polys, notes))
+                    continue
         if legs:
             used = set()
             for leg in legs:
@@ -1800,6 +1823,11 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     infos = named_instances(infos, table, ctx.theta, notes)
     for info in infos:
         part, n, fp, lsh = info["part"], info["n"], info["fp"], info.get("l")
+        if info.get("rule_type"):
+            # Milestone 11: a chair split off a named table block (``_split_named``).
+            pieces.append(_rule_item(part.segs, fp, info["rule_type"], info.get("front"), ctx, raster_page, table,
+                                     info.get("note") or "split (M11)"))
+            continue
         shape = l_details(lsh) if lsh else (round_shape(part.segs) if n == 1 else {})
         block_item = None if info.get("no_name") else _block_item(part, fp, ctx, raster_page, table, lsh,
                                                                    wall_polys, [o for o in infos if o is not info])
@@ -1810,6 +1838,19 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             pieces.append(block_item)
             continue
         types = fitting_types(table, (fp[1], fp[2]), "L" if lsh else None)
+        if (n > 1 or not types) and not lsh:
+            # Milestone 11 (U10, U8): a composite that is a table with its chairs, or a kitchen counter run with its
+            # appliances, is split into its pieces (never asked: the candidates and their keys do not change).
+            split = split_table_chairs(part, table, ctx.theta)
+            if split is not None:
+                made = table_chair_items(split, ctx, raster_page, table)
+                pieces.extend(made)
+                notes.append(f"table + {len(made) - 1} chairs at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) split (M11)")
+                continue
+            ks = kitchen_split(part, walls, openings, ctx.theta)
+            if ks is not None:
+                pieces.extend(kitchen_items(ks, walls, ctx, raster_page, table, wall_polys, notes))
+                continue
         if n > 1 or not types:
             reason = (f"possible group of {n} pieces" if n > 1 else "fits no size-table type")
             pieces.append(_unknown(part, fp, ctx, raster_page, reason,
@@ -2188,6 +2229,23 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
     ftype = block_type(names, info["size"], table)
     if ftype is None or ftype in ("stair",) or fits(table, ftype, info["size"]):
         return [info]
+    if ftype in TABLE_TYPES:
+        # Milestone 11 (U10): a table block drawn with its chairs (real02's "masa": a 3.35 m table and 10 chairs read
+        # as one 3.35 x 1.57 m table) -> the named table and one chair per chair part, each facing the table.
+        split = split_table_chairs(info["part"], table, theta)
+        if split is not None:
+            tfp = footprint(list(split["table_poly"].exterior.coords)[:-1], theta)
+            note = (f"block {chain} ({info['size'][0]:.2f} x {info['size'][1]:.2f} m) holds a table and "
+                    f"{len(split['chairs'])} chairs: split (M11)")
+            notes.append(note)
+            out = [{"part": split["table"], "n": 1, "fp": tfp, "size": (tfp[1], tfp[2]), "poly": Polygon(tfp[4]),
+                    "note": note}]
+            for chair in split["chairs"]:
+                cfp, front = chair_footprint(chair, split["table_poly"], theta)
+                out.append({"part": chair, "n": 1, "fp": cfp, "size": (cfp[1], cfp[2]), "poly": Polygon(cfp[4]),
+                            "rule_type": "chair", "front": front,
+                            "note": f"chair of block {chain}, facing the table (M11 split)"})
+            return out
     subs = [sub for sub, n in _split_geometric(info["part"], table) if n == 1]
     if len(subs) < 2:
         return [info]
@@ -2209,6 +2267,310 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
             pt["no_name"] = True
             pt["note"] = f"drawn inside block {chain} next to its named piece; type asked"
     return parts
+
+
+# --------------------------------------------------------------------------
+# Milestone 11: group splitting (docs/milestone11.md §1.2 U8, U10, step 4)
+# --------------------------------------------------------------------------
+#
+# A drawn group read as one piece is split into its pieces when the drawing shows them: a dining table with the
+# chairs around it (real02's 10-seat "masa" block and the open kitchen's MASA111), and a kitchen counter run drawn
+# as closed outlines along the walls with the hob and sink blocks on it (real02's kitchens, one 4.6 x 2.9 m cluster).
+# Only pieces that were never asked are split (named blocks, composites, oversize clusters): the AI candidates and
+# their keys stay as they were, so the answers of earlier runs still apply. Parts of a split that no rule or block
+# name types stay unknown and are not asked (the agent types them, docs/milestone11.md §5).
+
+TABLE_TYPES = ("table_dining", "table_coffee")
+CHAIR_MAX_M = 0.8              # a chair part is at most this large across ...
+CHAIR_REACH_M = 0.4            # ... and stands within this of the table outline
+CHAIR_DEPTH_M = 0.45           # a chair whose visible part is shallower is tucked under the table to this depth
+KITCHEN_APPLIANCES = ("stove", "sink_kitchen", "fridge")
+OUTLINE_CLOSE_M = 0.3          # an open counter outline whose ends are this close is closed
+COUNTER_LEG_FILL = 0.85        # a leg fills >= 85 % of its box
+COUNTER_COVER = 0.9            # the legs and islands cover >= 90 % of the outline
+ISLAND_MIN_M2 = 0.25
+
+
+def split_table_chairs(part: Cluster, table: dict, theta: float) -> Optional[dict]:
+    """``{"table": Cluster, "table_poly", "chairs": [Cluster]}`` when ``part`` is a table outline (its largest
+    top-level closed contour fits a table type) with at least two chair-sized parts within ``CHAIR_REACH_M`` around
+    it and nothing else; else None."""
+    tops = top_contours(part)
+    if not tops:
+        return None
+    tpoly, tidx = max(tops, key=lambda tm: tm[0].area)
+    sides = _rect_sides(tpoly)
+    if not any(fits(table, t, sides) for t in TABLE_TYPES):
+        return None
+    own = set(tidx)
+    inner = tpoly.buffer(-0.02)
+    inside, rest = [], []
+    for k, s in enumerate(part.segs):
+        mid = s.geom if s.dot else s.geom.centroid
+        (inside if k in own or inner.contains(mid) else rest).append(s)
+    subs = [sub for sub in clusters_of(rest, CLUSTER_M) if max(sub.size(theta)) >= DETAIL_M]
+    if len(subs) < 2:
+        return None
+    for sub in subs:
+        w, h = sub.size(theta)
+        if max(w, h) > CHAIR_MAX_M or sub.geom.distance(tpoly) > CHAIR_REACH_M:
+            return None
+    small = [s for s in rest if not any(s in sub.segs for sub in subs)]
+    return {"table": Cluster(inside + small), "table_poly": tpoly, "chairs": subs}
+
+
+def chair_footprint(chair: Cluster, tpoly, theta: float) -> tuple[tuple, float]:
+    """(footprint as ``footprint`` returns it, front_deg) of a chair beside a table: its visible box in the plan's
+    aligned frame, grown towards the table to ``CHAIR_DEPTH_M`` when shallower (the seat under the table edge),
+    facing the table."""
+    to_f, from_f = _frame(theta)
+    x0, y0, x1, y1 = chair.bounds(theta)
+    tb = [to_f(p) for p in tpoly.exterior.coords]
+    tx0, ty0 = min(p[0] for p in tb), min(p[1] for p in tb)
+    tx1, ty1 = max(p[0] for p in tb), max(p[1] for p in tb)
+    cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    # The side of the table the chair stands on: the axis on which it lies outside the table's extent.
+    out_x = max(tx0 - cx, cx - tx1, 0.0)
+    out_y = max(ty0 - cy, cy - ty1, 0.0)
+    if out_x >= out_y:
+        d = (1.0, 0.0) if cx < tx0 else (-1.0, 0.0)
+        depth = x1 - x0
+        if depth < CHAIR_DEPTH_M:
+            if d[0] > 0:
+                x1 = x0 + CHAIR_DEPTH_M
+            else:
+                x0 = x1 - CHAIR_DEPTH_M
+    else:
+        d = (0.0, 1.0) if cy < ty0 else (0.0, -1.0)
+        depth = y1 - y0
+        if depth < CHAIR_DEPTH_M:
+            if d[1] > 0:
+                y1 = y0 + CHAIR_DEPTH_M
+            else:
+                y0 = y1 - CHAIR_DEPTH_M
+    corners = [from_f(p) for p in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+    fd = from_f(d)
+    front = _snap_deg(math.degrees(math.atan2(fd[1], fd[0])), theta)
+    return footprint(corners, theta), front
+
+
+def _rule_item(segs: list, fp, ftype: str, front: Optional[float], ctx: _Ctx, raster: bool, table: dict,
+               note: str, details: Optional[dict] = None) -> FurnitureItem:
+    """A piece typed by a Milestone 11 split rule (``type_method: rule``); ``verified`` when its footprint fits the
+    type's size range."""
+    size, rotation = size_rotation(fp[1], fp[2], fp[3], front)
+    box = ctx.box(fp[4])
+    ids = sorted({s.stroke.id for s in segs}, key=_id_key)
+    ok = fits(table, ftype, (fp[1], fp[2]))
+    full = note if ok else f"{note}; {fp[1]:.2f} x {fp[2]:.2f} m does not fit the {ftype} size range"
+    ev = ctx.evidence(ids, confidence=0.85, raster=raster, box=box, note=full)
+    return FurnitureItem(type=ftype, type_raw=None, center=_r(fp[0]), size=size, rotation_deg=rotation,
+                         front_deg=round(front, 3) if front is not None else None, box=box, entity=ids[0], evidence=ev,
+                         status="verified" if ok else "unverified", type_method="rule",
+                         details=dict(details or {}, split_rule=note))
+
+
+def table_chair_items(split: dict, ctx: _Ctx, raster: bool, table: dict, named: Optional[FurnitureItem] = None
+                      ) -> list[FurnitureItem]:
+    """The table (``named``: the block-named table, else a rule table) and one chair per part, facing the table."""
+    tpoly = split["table_poly"]
+    out = []
+    note = f"table + {len(split['chairs'])} chairs drawn as one group: split (M11)"
+    if named is None:
+        fp = footprint(list(tpoly.exterior.coords)[:-1], ctx.theta)
+        ttype = next((t for t in TABLE_TYPES if fits(table, t, (fp[1], fp[2]))), "table_dining")
+        out.append(_rule_item(split["table"].segs, fp, ttype, None, ctx, raster, table, note))
+    else:
+        out.append(named)
+    for chair in split["chairs"]:
+        fp, front = chair_footprint(chair, tpoly, ctx.theta)
+        out.append(_rule_item(chair.segs, fp, "chair", front, ctx, raster, table,
+                              f"chair of the drawn table + chairs group, facing the table (M11 split)"))
+    return out
+
+
+def _appliance_type(s: Seg) -> Optional[str]:
+    for name in reversed((s.stroke.block or "").split("/")):
+        t = keyword_type(name) if name else None
+        if t in KITCHEN_APPLIANCES:
+            return t
+    return None
+
+
+def _outline_polygons(segs: list[Seg], to_f) -> list[tuple[Polygon, list[Seg]]]:
+    """Closed (or nearly closed) loose polylines of a cluster as polygons in the aligned frame, with their segments."""
+    by_stroke: dict[str, list[Seg]] = {}
+    for s in segs:
+        if s.stroke.block or s.curve or s.dot or s.stroke.kind != "polyline":
+            continue
+        by_stroke.setdefault(s.stroke.id, []).append(s)
+    out = []
+    for sid, ss in sorted(by_stroke.items()):
+        pts = [to_f(p) for p in ss[0].stroke.pts]
+        if len(pts) < 4:
+            continue
+        if not ss[0].stroke.closed and math.dist(pts[0], pts[-1]) > OUTLINE_CLOSE_M:
+            continue
+        poly = Polygon(pts).buffer(0)
+        if poly.is_empty or poly.geom_type != "Polygon" or poly.area < 0.3:
+            continue
+        out.append((poly, ss))
+    return out
+
+
+def counter_legs(poly: Polygon, faces: list[dict]) -> Optional[tuple[list[dict], list[tuple]]]:
+    """A counter outline (aligned frame) as legs along wall faces and free blocks (a peninsula or island):
+    ``([{"rect": (x0, y0, x1, y1), "front_f", "depth", "length"}], [(x0, y0, x1, y1)])``, or None when it is no
+    counter run (no leg, or the legs and blocks cover < ``COUNTER_COVER`` of it). A leg is the outline within 0.75 m
+    of a wall face it lies on, 0.45-0.75 m deep and filling its box; a corner goes to the longer leg."""
+    from shapely.geometry import box as sbox
+
+    legs = []
+    coords = list(poly.exterior.coords)
+    for f in faces:
+        lo, hi = f["lo"], f["hi"]
+        k = 0 if f["axis"] == "v" else 1
+        # The leg's depth is the distance from the face to an outline corner (0.45-0.75 m): the strip stops at the
+        # leg's front edge, so a perpendicular leg running away from the wall is not taken in.
+        depths = sorted({round((p[k] - f["pos"]) * f["normal"], 4) for p in coords
+                         if COUNTER_DEPTH_M[0] <= (p[k] - f["pos"]) * f["normal"] <= COUNTER_DEPTH_M[1] + 0.02})
+        for reach in depths:
+            a, b = sorted((f["pos"], f["pos"] + f["normal"] * reach))
+            strip = sbox(a, lo, b, hi) if f["axis"] == "v" else sbox(lo, a, hi, b)
+            part = poly.intersection(strip)
+            if part.is_empty or part.area < 0.1:
+                continue
+            x0, y0, x1, y1 = part.bounds
+            on_face = (abs((x0 if f["normal"] > 0 else x1) - f["pos"]) if f["axis"] == "v"
+                       else abs((y0 if f["normal"] > 0 else y1) - f["pos"]))
+            depth = (x1 - x0) if f["axis"] == "v" else (y1 - y0)
+            length = (y1 - y0) if f["axis"] == "v" else (x1 - x0)
+            if on_face > COUNTER_END_M or depth < COUNTER_DEPTH_M[0] or length < 0.3:
+                continue
+            if part.area < COUNTER_LEG_FILL * (x1 - x0) * (y1 - y0):
+                continue
+            front = (f["normal"], 0.0) if f["axis"] == "v" else (0.0, f["normal"])
+            legs.append({"rect": (x0, y0, x1, y1), "front_f": front, "depth": depth, "length": length})
+            break
+    if not legs:
+        return None
+    legs.sort(key=lambda lg: (-lg["length"], lg["rect"]))
+    kept: list[dict] = []
+    for lg in legs:
+        r = sbox(*lg["rect"])
+        for k in kept:
+            r = r.difference(sbox(*k["rect"]))
+        r = r.buffer(-0.005, join_style="mitre").buffer(0.005, join_style="mitre")  # no slivers (mm offsets)
+        if r.is_empty:
+            continue
+        r = max(getattr(r, "geoms", [r]), key=lambda g: g.area)
+        x0, y0, x1, y1 = r.bounds
+        length = (y1 - y0) if lg["front_f"][0] else (x1 - x0)
+        if length < 0.3 or r.area < 0.9 * (x1 - x0) * (y1 - y0):
+            continue
+        kept.append(dict(lg, rect=(x0, y0, x1, y1), length=length))
+    if not kept:
+        return None
+    rest = poly.difference(unary_union([sbox(*k["rect"]) for k in kept]))
+    rest = rest.buffer(-0.005, join_style="mitre").buffer(0.005, join_style="mitre")   # no slivers along the legs
+    blocks = []
+    for g in getattr(rest, "geoms", [rest]):
+        if g.is_empty or g.area < ISLAND_MIN_M2:
+            continue
+        x0, y0, x1, y1 = g.bounds
+        if g.area >= 0.85 * (x1 - x0) * (y1 - y0) and min(x1 - x0, y1 - y0) >= COUNTER_DEPTH_M[0]:
+            blocks.append((x0, y0, x1, y1))
+    covered = sum(sbox(*k["rect"]).intersection(poly).area for k in kept) + sum(
+        sbox(*b).intersection(poly).area for b in blocks)
+    if covered < COUNTER_COVER * poly.area:
+        return None
+    return kept, blocks
+
+
+def kitchen_split(cl: Cluster, walls: list, openings: list, theta: float) -> Optional[dict]:
+    """``{"legs": [counter_rule-shaped leg dicts], "blocks": [(rect_f, segs)], "rest": [Seg]}``: a cluster whose loose
+    closed outlines are counter runs along the walls (``counter_legs``; one leg is enough when the cluster holds a
+    stove, sink or fridge block, else an L or U along two walls); ``rest`` = every other segment (the appliance
+    blocks, stools, chairs). None otherwise."""
+    appliance = any(_appliance_type(s) for s in cl.segs)
+    to_f, _from_f = _frame(theta)
+    faces = _wall_faces(walls, openings, to_f)
+    legs, blocks, used = [], [], set()
+    for poly, ss in _outline_polygons(cl.segs, to_f):
+        found = counter_legs(poly, faces)
+        if found is None or (not appliance and len(found[0]) < 2):
+            # Without a hob, sink or fridge block only an L or U run along two walls is a counter (one 0.6 m deep
+            # rectangle along one wall may be a wardrobe or a shelf).
+            continue
+        for lg in found[0]:
+            legs.append({"rect_f": lg["rect"], "front_f": lg["front_f"], "segs": ss, "leg": ss[0],
+                         "length": lg["length"], "depth": lg["depth"]})
+        blocks += [(b, ss) for b in found[1]]
+        used.update(id(s) for s in ss)
+    if not legs:
+        return None
+    return {"legs": legs, "blocks": blocks, "rest": [s for s in cl.segs if id(s) not in used]}
+
+
+def split_by_instance(segs: list[Seg]) -> list[Cluster]:
+    """One part per DXF block instance (``block_instance``) and the loose strokes clustered at 20 mm."""
+    groups: dict[str, list[Seg]] = {}
+    loose = []
+    for s in segs:
+        if s.stroke.block:
+            groups.setdefault(block_instance(s.stroke)[0], []).append(s)
+        else:
+            loose.append(s)
+    parts = [Cluster(v) for _k, v in sorted(groups.items())]
+    return parts + clusters_of(loose, CLUSTER_M)
+
+
+def kitchen_items(split: dict, walls: list, ctx: _Ctx, raster: bool, table: dict, wall_polys: list,
+                  notes: list) -> list[FurnitureItem]:
+    """The counter legs (``_counter_item``), the free blocks (a peninsula or island: ``kitchen_island``) and the rest
+    by block instance: a named block (hob, sink) by its name, every other part unknown and not asked."""
+    out = [_counter_item(leg, walls, ctx, raster) for leg in split["legs"]]
+    for item in out:
+        item.evidence["note"] = "kitchen counter run drawn as a closed outline along the walls (M11 split)"
+    _to_f, from_f = _frame(ctx.theta)
+    for (x0, y0, x1, y1), ss in split["blocks"]:
+        corners = [from_f(p) for p in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+        fp = footprint(corners, ctx.theta)
+        ftype = "kitchen_island" if fits(table, "kitchen_island", (fp[1], fp[2])) else "kitchen_counter"
+        out.append(_rule_item(ss, fp, ftype, None, ctx, raster, table,
+                              "free block of a kitchen counter outline (peninsula or island, M11 split)"))
+    runs = []
+    for leg in split["legs"]:
+        x0, y0, x1, y1 = leg["rect_f"]
+        fdir = from_f(leg["front_f"])
+        runs.append((Polygon([from_f(p) for p in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]),
+                     round(math.degrees(math.atan2(fdir[1], fdir[0])) % 360.0, 3)))
+    for sub in split_by_instance(split["rest"]):
+        w, h = sub.size(ctx.theta)
+        if max(w, h) < DETAIL_M or short_side(sub.segs) < LINE_DETAIL_M:
+            continue
+        fp = footprint([p for s in sub.segs for p in s.pts], ctx.theta)
+        poly = Polygon(fp[4])
+        run = next(((rp, fr) for rp, fr in runs if rp.contains(Point(fp[0]))), None)
+        item = _block_item(sub, fp, ctx, raster, table, None, wall_polys, [])
+        if item is not None and item.front_deg is None and run is not None and item.type in KITCHEN_APPLIANCES:
+            # A hob or sink set into a counter leg faces the way the leg faces.
+            item = _rule_item(sub.segs, fp, item.type, run[1], ctx, raster, table,
+                              f"{item.type} block {item.type_raw} on a counter leg: the leg's front (M11 split)")
+            item.type_method, item.type_raw = "block_name", _block_chain(sub)
+        if item is None:
+            inside = run is not None and poly.area > 0 and poly.intersection(run[0]).area >= 0.8 * poly.area
+            if inside:
+                item = _unknown(sub, fp, ctx, raster, "detail inside a kitchen counter leg (an appliance front or "
+                                "drawers, M11 split): not built", {"split": "kitchen", "build": False})
+            else:
+                item = _unknown(sub, fp, ctx, raster, "part of a kitchen counter cluster (M11 split): not asked, the "
+                                "agent types it", {"split": "kitchen"})
+        out.append(item)
+    notes.append(f"kitchen counter cluster split (M11): {len(split['legs'])} counter legs, "
+                 f"{len(split['blocks'])} free blocks, {len(out) - len(split['legs']) - len(split['blocks'])} other "
+                 f"parts")
+    return out
 
 
 def _candidate(part: Cluster, fp, ctx: _Ctx, raster: bool, faces, fronts: list, types: list, n: int) -> dict:

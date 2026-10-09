@@ -74,6 +74,10 @@ Milestone 10 (docs/milestone10.md §2.5), rooms with drawn furniture:
   gives way to every drawn piece.
 
 Without ``obstacles`` the Milestone 4 behaviour is unchanged.
+
+Milestone 11 (docs/milestone11.md §6): ``snap_to_wall`` (public) puts a piece's back edge on a wall of the room,
+parallel, 2 cm off the face, sliding it off doors, window bands (tall pieces) and other pieces; armchairs keep a
+0.45 m free zone in front (``schemas.CLEARANCE_DEPTH_M``, U13), where a coffee table, pouf or side table may stand.
 """
 from __future__ import annotations
 
@@ -185,7 +189,11 @@ class Piece:
             return orient(unary_union(parts).buffer(0), 1.0)
         return _rect(self.center, self.size, self.rotation_deg, -self.size[1] / 2.0, self.size[1] / 2.0)
 
-    def front_zone(self, depth: float = CLEARANCE_FRONT_M) -> Polygon:
+    def front_zone(self, depth: Optional[float] = None) -> Polygon:
+        """The free zone in front of the piece: ``depth`` metres, by default the type's (``schemas.CLEARANCE_DEPTH_M``,
+        else 0.6 m)."""
+        if depth is None:
+            depth = schemas.CLEARANCE_DEPTH_M.get(self.type, CLEARANCE_FRONT_M)
         if self.shape == "L":
             x0, x1, y_front = schemas.l_seat_front(self.size, self.chaise_side, self.chaise_depth, self.seat_depth,
                                                    self.chaise_width)
@@ -707,6 +715,64 @@ def _try_candidates(piece: Piece, pieces: list[Piece], ctx: RoomContext, candida
         if _candidate_ok(piece, pieces, ctx, base_failures):
             return center, rotation, size
     piece.center, piece.rotation_deg, piece.size = original
+    return None
+
+
+SNAP_SLIDE_M = 1.0       # Milestone 11 snap_to_wall: how far along a wall the piece may slide off a door or window
+
+
+def _opening_blocked(piece: Piece, ctx: RoomContext) -> bool:
+    """The piece stands on a door's approach strip or swing, or (taller than the sill, not a type allowed under a
+    window) in a window band."""
+    poly = piece.polygon()
+    for door in ctx.doors:
+        if poly.intersection(door.zone).area > AREA_EPS:
+            return True
+        if door.swing is not None and poly.intersection(door.swing).area > AREA_EPS:
+            return True
+    if piece.type not in schemas.UNDER_WINDOW_TYPES:
+        for win in ctx.windows:
+            if piece.height() > win.sill + 1e-9 and poly.intersection(win.band).area > AREA_EPS:
+                return True
+    return False
+
+
+def snap_to_wall(piece: Piece, ctx: RoomContext, seg_index: Optional[int] = None, offset: float = 0.0,
+                 max_shift: Optional[float] = None, others: Optional[list[Piece]] = None
+                 ) -> Optional[tuple[tuple[float, float], float, int]]:
+    """Milestone 11 (docs/milestone11.md §6 "wall snapping"): the position of ``piece`` with its back edge on a wall
+    of the room, parallel to it, ``SNAP_GAP_M`` (2 cm) off the wall face, as ``(center, rotation, segment index)``,
+    or None.
+
+    What: the boundary segments are tried nearest first (from the back edge's midpoint; only ``seg_index`` when
+    given); on each the piece is slid along the wall (first ``offset``, then 10 cm steps up to ``SNAP_SLIDE_M`` both
+    ways) until it stands inside the room, off every door's approach strip and swing, and (when taller than the
+    sill) off every window band, and off the ``others`` pieces. ``max_shift``: the centre may move at most this far (a
+    drawn piece: 0.3 m, §5). Why: the agent's ``move`` edit and the groups' anchors need one deterministic wall snap;
+    ``_snap_to_segment`` alone ignores doors and windows. How: pure; the piece itself is not changed."""
+    other_polys = [o.polygon() for o in others or []]
+    mid = piece.back_edge().interpolate(0.5, normalized=True).coords[0]
+    if seg_index is not None:
+        order = [seg_index]
+    else:
+        order = sorted(range(len(ctx.segments)), key=lambda i: (round(G.point_segment_distance(mid, *ctx.segments[i]),
+                                                                       6), i))
+    steps = [0.0] + [s * k * SLIDE_STEP_M for k in range(1, int(round(SNAP_SLIDE_M / SLIDE_STEP_M)) + 1)
+                     for s in (1.0, -1.0)]
+    for i in order:
+        a, b = ctx.segments[i]
+        if G.distance(a, b) < piece.size[0] + 2 * SNAP_GAP_M - 1e-6:
+            continue
+        for step in steps:
+            center, rotation = _snap_to_segment(piece, ctx, i, offset + step)
+            if max_shift is not None and G.distance(center, piece.center) > max_shift + 1e-6:
+                continue
+            probe = dataclasses.replace(piece, center=center, rotation_deg=rotation, repairs=[])
+            poly = probe.polygon()
+            inside = ctx.shrunk.buffer(1e-3, join_style="mitre").contains(poly)
+            if inside and not _opening_blocked(probe, ctx) and all(poly.intersection(o).area < AREA_EPS
+                                                                   for o in other_polys):
+                return center, rotation, i
     return None
 
 

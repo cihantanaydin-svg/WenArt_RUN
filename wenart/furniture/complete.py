@@ -331,7 +331,7 @@ def partner_transform(room: dict, partner: dict, kind: str, building: dict) -> t
 @dataclass
 class Drawn:
     item: dict                   # the building furniture dict as given
-    kind: str                    # fixed | obstacle | kept | mounted | changeable | other
+    kind: str                    # fixed | obstacle | kept | mounted | changeable | other | outline (M11)
     anchor: dict
     piece: placer.Piece          # front frame; against_wall from the anchor
     unverified: bool = False
@@ -365,6 +365,8 @@ def classify_drawn(room: dict, building: dict) -> list[Drawn]:
             kind = "other"
         elif f["type"] in schemas.MOUNTED_TYPES:
             kind = "mounted"
+        elif f.get("inferred_as") == "rug":
+            kind = "outline"          # Milestone 11 (infer.py): a rug / zone outline: not built, no obstacle
         elif f.get("build") is False:
             kind = "obstacle"
         elif f["type"] in schemas.FIXED_TYPES:
@@ -379,14 +381,15 @@ def classify_drawn(room: dict, building: dict) -> list[Drawn]:
     return out
 
 
-def _present(drawn: list[Drawn], pieces: Optional[list[placer.Piece]] = None) -> list[tuple[str, tuple]]:
-    """``(type, size)`` of the built floor pieces (the final ``pieces`` when given, in drawn order)."""
+def _present(drawn: list[Drawn], pieces: Optional[list[placer.Piece]] = None) -> list[tuple[str, tuple, bool]]:
+    """``(type, size, unverified)`` of the built floor pieces (the final ``pieces`` when given, in drawn order;
+    Milestone 11 U10: an unverified table asks for no chairs, ``schemas.completion_plan``)."""
     out = []
     for k, d in enumerate(drawn):
-        if d.kind in ("mounted", "obstacle"):
+        if d.kind in ("mounted", "obstacle", "outline"):
             continue
         p = pieces[k] if pieces is not None else d.piece
-        out.append((p.type, p.size))
+        out.append((p.type, p.size, d.unverified))
     return out
 
 
@@ -416,7 +419,8 @@ def build_question(room: dict, building: dict, drawn: list[Drawn], ctx: placer.R
     changeable = [d for d in drawn if d.kind == "changeable"]
     change_types = [] if settings.keep_size or not changeable else list(schemas.change_types(rtype, subtype))
     add = dict(plan["addable"])
-    question = {"room": room_block(room, ctx, building), "drawn": [d.to_prompt() for d in drawn if d.kind != "other"],
+    question = {"room": room_block(room, ctx, building),
+                "drawn": [d.to_prompt() for d in drawn if d.kind not in ("other", "outline")],
                 "change_ids": [d.id for d in changeable] if change_types else [],
                 "change_types": change_types, "add": add, "missing": plan["missing"],
                 "anchor_missing": plan["anchor_missing"], "anchors": list(plan["anchors"]),
@@ -539,7 +543,7 @@ def check_change_rules(agreed: list[dict], drawn: list[Drawn], plan: dict) -> tu
     (``plan["maxima"]``, at least what the documents draw)."""
     anchors = set(plan.get("anchor_roles", plan["anchors"]))   # any bed is the bed (review #18)
     by_id = {d.id: d for d in drawn}
-    counts = Counter(t for t, _ in _present(drawn))
+    counts = Counter(p[0] for p in _present(drawn))
     drawn_counts = Counter(counts)
     has_anchor = plan["has_anchor"]
     kept, refused = [], []
@@ -793,7 +797,7 @@ def run_changes(rec: RoomCompletion, changes: list[dict], ctx: placer.RoomContex
                 family: Optional[str], out: dict, mirrored: Optional[dict] = None) -> None:
     """Place the agreed changes, write the changed pieces into ``out`` and record them (``mirrored``: partner
     piece id per drawn id for copied decisions)."""
-    floor = [d for d in rec.drawn if d.kind != "mounted"]
+    floor = [d for d in rec.drawn if d.kind not in ("mounted", "outline")]
     rec.floor = floor
     requests = _requests(changes, floor)
     final, results, baseline = placer.place_changes([d.piece for d in floor], requests, ctx)
@@ -837,7 +841,7 @@ def _obstacles(rec: RoomCompletion) -> list[placer.Piece]:
 
 def _final_present(rec: RoomCompletion) -> list[tuple[str, tuple]]:
     """``(type, size)`` of the built floor pieces after the changes (the plan's input)."""
-    return [(p.type, p.size) for d, p in zip(rec.floor, rec.final_pieces) if d.kind != "obstacle"]
+    return [(p.type, p.size, d.unverified) for d, p in zip(rec.floor, rec.final_pieces) if d.kind != "obstacle"]
 
 
 def place_added(rec: RoomCompletion, answers: dict[int, Optional[dict]], ctx: placer.RoomContext, model: str,

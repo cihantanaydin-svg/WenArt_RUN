@@ -431,9 +431,13 @@ def test_pdf_furniture_plan_furnishes_level_when_dxf_floor_plan_has_none(tmp_pat
                       lambda f, t: furniture_matches(None, f["footprint"]["center"], f["footprint"]["size"],
                                                      f["footprint"]["rotation_deg"], t, check_type=False), "furniture")
     for piece in building["furniture"]:
-        # Vector PDF footprints carry no block name: type unknown, hence unverified, but kept.
-        assert piece["type"] == "unknown" and piece["status"] == "unverified" and piece["source"] == "from_documents"
-        assert [(e["file"], e["page"]) for e in piece["evidence"]] == [("mobilya.pdf", 1)]
+        # Vector PDF footprints carry no block name: type unknown, hence unverified, but kept. Milestone 11
+        # (CLAUDE.md "never an unexplained box"): a footprint only one type fits is inferred (furniture/infer.py),
+        # still unverified, with an inferred evidence entry after the drawing's.
+        assert piece["status"] == "unverified" and piece["source"] == "from_documents"
+        assert piece["type"] == "unknown" or piece.get("inferred") is True
+        assert [(e["file"], e["page"]) for e in piece["evidence"]][:1] == [("mobilya.pdf", 1)]
+        assert all(e["method"] == "inferred" for e in piece["evidence"][1:])
         assert piece["room_id"] is not None
     assert furnished_room_labels(building) == ["Banyo", "Salon", "Yatak Odası"]
     assert [c["kind"] for c in building["conflicts"]] == []
@@ -560,7 +564,7 @@ def test_room_label_disagreement_is_a_conflict(tmp_path):
 
 
 def test_area_label_over_tolerance_marks_room_unverified(tmp_path):
-    """Label vs computed area: 2.9 % stays verified, more than 3 % -> unverified."""
+    """Label vs computed area: 2.9 % stays verified, more than 8 % -> unverified (Milestone 11 D4: was 3 %)."""
     truth_area = 24.50
     for label, expected in (("SALON 30,00 m²", "unverified"), ("SALON 25,20 m²", "verified")):
         level = level_01_zemin()
@@ -574,7 +578,7 @@ def test_area_label_over_tolerance_marks_room_unverified(tmp_path):
         area = [c for c in building["conflicts"] if c["kind"] == "area_label_vs_computed"]
         assert len(area) == 1 and area[0]["element_ids"] == ["r_L0_salon"]
         if expected == "unverified":
-            assert building["unverified"] == ["r_L0_salon"] and "over 3%" in area[0]["resolution"]
+            assert building["unverified"] == ["r_L0_salon"] and "over 8%" in area[0]["resolution"]
             assert "r_L0_salon" in (project / "out" / "report.md").read_text(encoding="utf-8").split("## Unverified")[1]
         else:
             assert building["unverified"] == [] and "within tolerance" in area[0]["resolution"]

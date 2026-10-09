@@ -217,6 +217,20 @@ def valid_answer(task: str, data) -> bool:
     return data is not None and task in tasks() and not task_errors(task, data)
 
 
+def find_by_input(calls: dict, item: dict, current: Callable) -> Optional[dict]:
+    """Milestone 11: the record (in key order) of ``calls`` whose input hash is the item's, current by ``current`` and
+    schema-valid, else None."""
+    sha = item.get("input_sha256")
+    if not sha:
+        return None
+    for key in sorted(calls):
+        rec = calls[key]
+        if isinstance(rec, dict) and rec.get("input_sha256") == sha and current(rec, item) \
+                and valid_answer(item["task"], rec.get("data")):
+            return rec
+    return None
+
+
 class AnswerStore:
     """``<out>/recognition/answers_<slug>.json``: every answer of one model, rewritten after each answer."""
 
@@ -248,13 +262,19 @@ class AnswerStore:
         return not (model and rec.get("model") and rec.get("model") != model)
 
     def valid(self, item: dict) -> Optional[dict]:
-        """The stored record of ``item`` when it is current (key, input hash, model) and schema-valid, else None."""
+        """The stored record of ``item`` when it is current (key, input hash, model) and schema-valid, else None.
+
+        Milestone 11: an answer follows its crop. When the record under the item's key is not current, a current
+        record under another key with the same ``input_sha256`` is used (the same crops and question: a group split
+        of the ingest that took a candidate away renumbers the later keys of the page, docs/milestone11.md §1.2 U8)."""
         rec = self.calls.get(item["key"])
-        if not self.current(rec, item):
-            return None
-        if not valid_answer(item["task"], rec.get("data")):
-            return None
-        return rec
+        if self.current(rec, item) and valid_answer(item["task"], rec.get("data")):
+            return rec
+        return self.by_input(item)
+
+    def by_input(self, item: dict) -> Optional[dict]:
+        """A current, schema-valid record of another key with the item's ``input_sha256`` (None when there is none)."""
+        return find_by_input(self.calls, item, self.current)
 
     def put(self, key: str, record: dict, save: bool = True) -> None:
         self.calls[key] = record
@@ -270,6 +290,8 @@ class AnswerStore:
 def item_state(store: AnswerStore, item: dict) -> str:
     """``answered`` | ``stale`` (other input hash or model) | ``failed`` (no schema-valid data) | ``missing``."""
     rec = store.get(item["key"])
+    if (rec is None or not store.current(rec, item)) and store.by_input(item) is not None:
+        return "answered"                                  # Milestone 11: the answer of the same crop, re-keyed
     if rec is None:
         return "missing"
     if not store.current(rec, item):
@@ -343,10 +365,10 @@ def seed_answers(store: AnswerStore, items: list[dict], seed_dir: Path, log: Cal
         if store.valid(item) is not None:
             continue
         rec = calls.get(item["key"])
-        if not store.current(rec, item):
-            continue
-        if not valid_answer(item["task"], rec.get("data")):
-            continue
+        if not store.current(rec, item) or not valid_answer(item["task"], rec.get("data")):
+            rec = find_by_input(calls, item, store.current)      # Milestone 11: the same crop under another key
+            if rec is None:
+                continue
         new = dict(rec)
         new["seeded_from"] = str(seed_path)
         store.put(item["key"], new, save=False)

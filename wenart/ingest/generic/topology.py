@@ -503,6 +503,40 @@ def _separator_item(cand: dict, walls: list[WallItem], units_to_m: Optional[floa
 # Unlabelled faces (§2.7.1)
 # --------------------------------------------------------------------------
 
+STAIR_FILL = 0.75                  # Milestone 11 (M8): a stair covering 3/4 of an unlabelled face makes it a stair room
+STAIR_LABELS = {"turkish": "Merdiven", "english": "Stair"}
+
+
+def stair_fill(face, stairs: list = ()) -> float:
+    """The share of an unlabelled face the drawn stairs cover (their footprints: FurnitureItems or dicts)."""
+    from shapely.geometry import box as sbox
+    from shapely import affinity
+
+    poly = face if isinstance(face, Polygon) else Polygon(face)
+    if poly.area <= 0:
+        return 0.0
+    covered = 0.0
+    for s in stairs:
+        if hasattr(s, "center"):
+            c, size, rot = s.center, s.size, s.rotation_deg
+        else:
+            c, size, rot = s["footprint"]["center"], s["footprint"]["size"], s["footprint"]["rotation_deg"]
+        rect = affinity.rotate(sbox(c[0] - size[0] / 2.0, c[1] - size[1] / 2.0, c[0] + size[0] / 2.0,
+                                    c[1] + size[1] / 2.0), float(rot), origin=(c[0], c[1]))
+        covered += rect.intersection(poly).area
+    return min(1.0, covered / poly.area)
+
+
+def stair_room_label(face, stairs: list = (), turkish: bool = True) -> Optional[str]:
+    """Milestone 11 (docs/milestone11.md §1.2 M8): the label of an unlabelled face the stair fills (>= ``STAIR_FILL``;
+    real02's stair cores 0.9-1.0, real01's hall with its stair less: it stays a hall "Room"):
+    "Merdiven" on a Turkish page, "Stair" else; None otherwise. The schema has no stair room type: the room stays a
+    ``hall`` (``unlabelled_face_type``)."""
+    if stair_fill(face, stairs) < STAIR_FILL:
+        return None
+    return STAIR_LABELS["turkish" if turkish else "english"]
+
+
 def unlabelled_face_type(face, walls: list, openings: list, stairs: list = ()) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
     ``("unknown", reason)``. The room stays ``unverified`` either way."""

@@ -383,6 +383,21 @@ def chaise_side_candidates(candidates: list[dict], side: Optional[str]) -> tuple
     return kept, excluded, want
 
 
+class _OneModel:
+    """A catalogue view with one library model (the agent's pinned ``asset_pin``, Milestone 11)."""
+
+    def __init__(self, catalog, entry: dict):
+        self._catalog = catalog
+        self._entry = entry
+
+    def candidates(self, ftype: str) -> list[dict]:
+        return [self._entry] if self._entry.get("type") == ftype else []
+
+    @property
+    def parametric_types(self) -> list[str]:
+        return self._catalog.parametric_types
+
+
 def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
               uniform_range: tuple[float, float] = UNIFORM_RANGE, style_family: Optional[str] = None,
               design: Optional[dict] = None) -> dict:
@@ -401,6 +416,21 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     if not (width > 0 and depth > 0):
         return parametric_fit(piece, f"footprint size {piece['footprint']['size']} is not positive",
                               style_family=style_family)
+    pin = piece.get("asset_pin")
+    if pin:
+        # Milestone 11 (edit_ops swap_model): the agent's model is tried alone first, through the same rules; when
+        # it fails them the normal ranking decides and the asset says so.
+        entry = next((e for e in catalog.candidates(ftype) if e.get("id") == pin), None)
+        if entry is not None:
+            pinned = fit_piece(dict(piece, asset_pin=None), _OneModel(catalog, entry), cap, uniform_range,
+                               style_family, design)
+            if pinned.get("method") == "library":
+                pinned["pinned"] = pin
+                return pinned
+        asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design)
+        asset["pin_refused"] = (f"{pin}: not a {ftype} model of the catalogue" if entry is None
+                                else f"{pin}: fails the fit rules (style, caps, look)")
+        return asset
     candidates = catalog.candidates(ftype)
     if not candidates:
         if ftype in catalog.parametric_types:
