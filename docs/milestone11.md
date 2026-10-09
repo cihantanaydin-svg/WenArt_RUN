@@ -15,6 +15,504 @@ spec (815 lines, done). This design is `docs/milestone11.md`.
 
 Status: **design, waiting for the user's OK** (step 1). Only plain bug fixes (§1) are built before the OK.
 
-<!-- DIAGNOSIS -->
+## 1. Diagnosis of real02 (step 0, CPU, 9 Oct 2026)
 
-<!-- DESIGN -->
+Inputs: the committed real02 results of pod F1b (`results/final/real02/`, `results/furniture/real02/`,
+`results/renders/real02/`) and the code that made them. Three review agents (exterior; furniture; rooms, materials,
+cameras) checked every cause in the code and the data. "Fixed" = a plain bug, fixed now with a CPU test that fails
+on the old code (commits `5cf5047`, `ad86494` and the furniture commit). Every fix shows only after the next pod
+re-runs real02. Note: the committed exterior images are older than commit `6a5e19a` (stair shafts), so they still
+show the white boxes above the ridge.
+
+### 1.1 Exterior ("not a real building on a real site")
+
+| # | What is wrong | Image | Stage | Code | Cause | Plain bug | Status |
+|---|---|---|---|---|---|---|---|
+| E1 | The ground looks like water; the plane's edge and the HDRI's own ground show ("lake shore") | ext_1–5 | build (site) | `site.py` `ground_extent`, `MARGIN_M=30`; `exterior.py` `CLIP_END=500` | the grass plane ended 30 m from the building | yes | **fixed**: flat ground to 1000 m, clip 3000 m |
+| E2 | Plants stand through the roof | ext_1, 2, 5 | decor → build | `build.py` checked furniture only; the decor placer ignores the attic slope | 1.6 m plants in slots where the sloped ceiling is 0.87 m | yes | **fixed** in the build (not built, listed); the decor placer must respect the slope (step 4) |
+| E3 | Grey discs float above the roof | ext_3, 4 | decor → build | `blender/furniture.py` hangs a light under the slope only without `center[2]` | ceiling lights at the flat-ceiling height 3.31 m where the slope is 1.45 m | yes | **fixed**: hung under the slope |
+| E4 | White boxes above the ridge | ext_3–5 | shell (stairs) | `shell.plan_stairs` | top-floor stair shafts | yes | fixed in M10 (`6a5e19a`), not re-rendered |
+| E5 | Orange band on the terrace | ext_5 | build (floors) | `shell.floor_material` | the roof terrace got the interior oak floor + unverified stripes | yes | **fixed**: terraces take the exterior paving; stripes → decision D3 |
+| E6 | The roof covers only part; gable walls rise like parapets | ext_1–5 | sheets → roof | `sheets/to_building.py:312–321` cuts roof openings from the label "Teras"; `roof.py:670` | the two terraces remove the whole steep slope at both ends, the outer attic walls become assumed 1.0 m parapets; the section (vector) shows the roof closed there; nothing checks text against the section | design (trust order) | decision D5 |
+| E7 | Front and back slopes too steep; attic rooms very low (bathroom 1.45 m) | ext_1, 4 | roof | `roof.py` `mansard_ends`, `_profile_tiers` | the uncut sides use the 40° lower slope up to the ridge; the plan's closed break line is not used there | design | step 5 |
+| E8 | Doors and windows above the roof underside ("wooden triangles") | ext_3, 4 | openings | `build.py` `openings_through_roof` only warns | attic opening heights are an assumed 2.1 m default, not drawn | partly | step 5: clip assumed heights at the roof, or a dormer |
+| E9 | Basement windows buried; thin plinth and trenches | ext_1–5 | site | `site.py` `light_wells` | the section draws ground at ±0.00; the 7.19 m basement window (sill −2.10 m) gets an assumed 0.8 m light well | no (data) | decision D6 |
+| E10 | Long blank facades, no plinth, slab band or cornice | ext_1–4 | data / looks | `facade.faces` empty | the plans really have few openings on the side walls; the facade is one plain render material | no | step 5: facade looks from the brief |
+| E11 | No path, steps or entrance; no plot, fence, trees | ext_1–4 | site | – | no site plan; nothing is inferred | no | step 5 |
+| E12 | Grass shiny at low angles | ext_1–4 | materials | `materials.py` (Grass004) | suspected: specular on a flat plane | suspected | step 5: matte ground |
+| E13 | Sky does not match the sun | all | lighting | `materials.py:851`, `lighting.py:277` | HDRI with its own low sun and ground; and the world turn used the compass azimuth while the lamp used the building frame | yes (frame) | **fixed** (frame); sky-only HDRI or physical sky: step 5 |
+| E14 | Cameras stiff | all | cameras | `exterior.py` `plan_exterior` | 4 corners exactly on the 45° diagonals at 12 m, 32 mm, one aerial view | no | step 5: 30/60° toward the main facade, frontal entrance view |
+
+### 1.2 Furniture ("wrong facing, floating pieces, odd combinations")
+
+Root cause: 107 of 226 drawn pieces had no front (`front_deg` null). Then the builder turns them by rotation only,
+so they face −Y or +X whatever the room says; in each mirrored twin pair one of the two is backwards.
+Checked and **not** bugs: front = rotation − 90 in every stage file; library models' forward axis
+(`catalog.reorient_rotation_deg`); mirrored blocks on the generic DXF path (full transform).
+
+| # | What is wrong | Image | Stage | Code | Cause | Plain bug | Status |
+|---|---|---|---|---|---|---|---|
+| U1 | All 8 washbasins face the wall | banyo_* | ingest | `generic/symbols.py` `_block_item` | pieces typed by block name never got the drawn-front rules; corner pieces got no wall rule | yes | **fixed**: block pieces take the unique drawn front; new corner rule for long-back types |
+| U2 | Toilets turned 90° | banyo_1 | ingest | same | same | yes | **fixed** |
+| U3 | Master bed reversed (headboard in the room) | e_yatak_odasi_1–3 | ingest | same | `YATAK` block without front; pillows and lamps are at the east wall | yes | **fixed** |
+| U4 | Wardrobes face the wall; the "wall-like board" beside the bed is a wardrobe back | e_yatak_odasi_2/3, yatak_odasi_3 | ingest + AI | `recognition/symbols.py` `_front`; `generic/core.py` | both AI passes agreed on a front into the wall; the twin's passes disagreed | yes | **fixed**: an AI front into a wall is refused (geometry beats AI); corner rule |
+| U5 | Twin bedrooms get different bed fronts | yatak_odasi_3 | ingest | pillow rule | equal pillow counts: a tie picked the first side | yes | **fixed**: a tie gives no pillow front, the wall rule decides |
+| U6 | Shallow pieces (≤ 0.5 m) got no wall front | – | ingest | `front_candidates` | short sides counted as touching the wall behind | yes | **fixed** (`near_wall_sides`) |
+| U7 | Added dining chairs face away from the table | salon_2/3 | completion | `complete.py` `companion_problems` | the model gave every chair rotation 0; the check measured distance only | yes | **fixed**: `placer.face_host` turns companions to their host |
+| U8 | Kitchen floor covered by a giant striped block; no counters | mutfak_1–3 | ingest + build | `symbols.py:1757`; `blender/proxies.py` | the whole U-shaped counter run + sink + hob = one 4.6 × 2.9 m "unknown" cluster (78 entities) built as a 0.8 m box; the double sink was typed `fridge` | partly | **fixed** (render): an unknown box that holds other pieces is drawn flat; splitting the run: step 4 |
+| U9 | Giant striped boxes in the play room | oyun_1–3 | ingest + build | same | a rug / zone outline (4.5 × 3.0 m) read as one piece; round table + 2 chairs read as one piece | partly | **fixed** (flat); group splitting: step 4 |
+| U10 | Huge striped dining table + 7 extra chairs | salon_1–3 | ingest + completion | `symbols.py` `named_instances`; `schemas.py:247` | one block `masa` = table + 10 chairs typed as one 3.35 × 1.57 m table; completion then asked for 8 more chairs | design | step 4: split a named block that fails its size table; no chairs for an unverified table |
+| U11 | Palms read as floor lamps; a pouf read as a second sofa ("sofas in a row") | salon | AI typing | recognition | the AI typed by size without the outline shape | design | the agent re-types on the plan crop (step 3) |
+| U12 | A `kitchen_counter` inside a bedroom wardrobe | e_yatak_odasi | ingest | `counter_rule` | 5 strokes of the wardrobe block read as counter legs | design (tested rule) | step 4: no counter rule on a block's own strokes |
+| U13 | Added armchair 1 cm behind a sofa back, facing it | oyun_1/2 | placer | `schemas.CLEARANCE_TYPES` | seats have no front clearance | design | step 4 |
+| U14 | TV unit and console stuck at the window behind the seating | salon_1/2 | completion | `schemas.py:228` | the TV wall (f_L-1_005, untyped) was not seen; the room plan demands a TV unit | design | step 4: functional groups (TV faces the main sofa) |
+| U15 | Bed + nightstand read as one double bed, then 2 more nightstands added | yatak_odasi_3 | ingest | `split_composite` | touching pieces stay one cluster | design | step 4 |
+| U16 | Twin rooms differ (bench vs striped box) | L1 koridor | AI | – | the AI passes disagree in one twin | design | step 3: twins take the agreed twin's type and front |
+| U17 | 58 drawn pieces untyped (striped boxes) | many | recognition | two-pass rule | the two passes disagree or do not answer | design | new rule: the agent infers the type, code checks it (§5) |
+
+### 1.3 Rooms, materials, cameras
+
+| # | What is wrong | Image | Stage | Code | Cause | Plain bug | Status |
+|---|---|---|---|---|---|---|---|
+| M1 | Black/beige checkerboard marble, full height, in every bathroom and kitchen | banyo_*, mutfak_* | style | `vocabulary.py` `tiles_light → Tiles074` | the default "light tiles" asset is a dark marble checkerboard (mean luminance 0.13, gain clamped) | yes | **fixed**: procedural light ceramic 60 × 30 cm |
+| M2 | Kitchens tiled to full height, tiled floor | mutfak_*, açık mutfak | build | `shell.py:138` `WET_ROOM_TYPES` includes kitchen | kitchens are treated as wet rooms | design | step 5: style walls + splashback behind counters, the brief's floor |
+| M3 | Red/white stripes on 20 floors and 58 pieces in the final images | most | build | `shell.floor_material`, `materials.py:671` | unverified marker, mainly area label vs polygon > 3 % (corridors include the stair hall; open kitchen 8.5 m² label on 52 m²); generic labels use 8 % | design | decisions D3, D4 |
+| M4 | Kitchen cameras low, looking at a "floor" | mutfak_1–3 | cameras | `camsearch.py:765–822` | caused by U8 (no free point; 3 views from one fallback point) | follows U8 | U8 fixed; a fallback point gives 1 view (step 3 camera tools) |
+| M5 | Cameras inside a stair, views of a bare wall | oda_*, oda_2_1 | cameras | `camsearch.py:800–822` | unlabelled stair cores ("Oda") filled by the stair; a tested M10 rule keeps 2 views | design | step 3: a stair core gets no view (the hall shows it) |
+| M6 | A door leaf fills ¼ of the frame | banyo_*, e_yatak_odasi_1 | cameras | `camsearch.py:170, 327` | the score rewards seeing doors; corner point next to the door | design | step 3: penalty for one large element near the lens |
+| M7 | Some rooms rendered twice | L1 koridor, L0 oda, açık mutfak | ingest | `ingest/twins.py` | 3 twin pairs not paired (suspected: one piece or opening does not mirror) | suspected | step 3 |
+| M8 | Unlabelled stair cores named "Oda" (room) | L0 oda | ingest | `generic/rooms.py:64` | placeholder label | design | step 4: a face filled by a stair is a stair room |
+| M9 | Debug image: the drawing in a corner of a blank page | debug/one_building_dwg_p1.jpg | ingest | `debug_image.py` | a stray HATCH 318 m off the sheet set the window; the file was also from an older run | yes | **fixed** (window, stale-file warning) |
+| M10 | Ceiling heights, attic slopes | L1 | – | – | checked against the section: consistent | no | – |
+
+### 1.4 What this says about the design
+
+- Most "illogical" results are **not** random AI errors. They are rules that never looked at the room as a
+  whole: a piece without a front faces −Y, a cluster of 78 strokes becomes one box, a disagreement between two
+  passes becomes a striped box, a text label cuts the roof that the section draws closed.
+- No stage could see its own result. The vision check only lists mismatches with the JSON; nobody asks "does a
+  bed with its headboard in the middle of the room make sense?".
+- The fixes above remove the worst plain bugs; the agent and a better layout engine (§3–§6) are what remove the
+  rest.
+
+## 2. Architecture
+
+```mermaid
+flowchart TD
+  subgraph Pod["RunPod pod (one GPU, 2 h, stops itself)"]
+    S[scheduler: the stage chain of M10\nwenart/run/scheduler.py] -->|stage outputs| C1
+    subgraph Agent["wenart/agent (new)"]
+      C1[code critic\nplausibility + exterior checks\nCPU, milliseconds] --> F[findings\nchecklist id, severity, evidence]
+      C2[vision critic\nagent model looks at\ntop-down plans, previews, renders] --> F
+      F --> P[planner\nagent model, tool calls only]
+      P -->|typed edit| V{edit validator\ncode: room polygon, collisions,\nclearances, door swing, windows,\nwall contact, walkways, score}
+      V -- rejected + reason --> P
+      V -- accepted --> O[(overrides.json\nevery accepted edit)]
+      O --> R[router: earliest stage\nthe edits touch]
+    end
+    R -->|re-run from stage X\nfingerprints skip the rest| S
+    S -->|previews of changed views| C2
+    L[(decision log\nlog.json + log.md\nbefore/after images)]
+    C1 & C2 & P & V & R --> L
+  end
+```
+
+Parts:
+
+| Part | Where | What it does |
+|---|---|---|
+| Stage runner | `wenart/run/scheduler.py` (exists; its class is already called `Orchestrator`) | runs the stage chain; stage fingerprints already make a re-run from stage X cheap. New: `run_project(p, from_stage, to_stage)` for one project and a stage range |
+| Agent loop | `wenart/agent/loop.py` (new; class `AgentLoop`, to avoid a clash with the scheduler's `Orchestrator`) | rounds, budget, stop rules, routing |
+| Tool API | `wenart/agent/tools.py` | typed tools: name, JSON schema in and out, handler, the stage it touches |
+| Edits | `wenart/agent/edits.py` | the edit types (§3.2), their validators, `overrides.json` |
+| Code critic | `wenart/agent/critic_code.py` + `wenart/furniture/plausibility.py` | the checklists of §4 as code: every item it can measure |
+| Vision critic | `wenart/agent/critic_vision.py` | the checklist items only an image shows, asked per room / per view with a strict schema |
+| Model client | `wenart/agent/model.py` | OpenAI-compatible client of the vLLM server (tool calls, JSON schema), and `MockModel` (scripted answers) for the CPU tests |
+| Log | `wenart/agent/log.py` | `outputs/<p>/orchestrator/log.json`, `log.md`, `images/` |
+| CLI | `python -m wenart.agent run <p> --rounds 4 --deadline …` and `python -m wenart.run pod … [--no-orchestrator]` | orchestrated is the default; `--no-orchestrator` is the M10 chain, unchanged (golden stage list test) |
+
+The agent never edits the building JSON or a `.blend` file directly. Every accepted edit is one entry in
+`outputs/<p>/orchestrator/overrides.json`. A new CPU step `apply_overrides` reads it after `layout`/`decor`
+(furniture, room types, materials) and the build reads it for cameras, exterior and lighting. So a re-run is
+deterministic, the overrides are part of the stage fingerprints, and `--no-orchestrator` ignores them.
+
+## 3. Tool API
+
+All tools take and return JSON. The model sees their JSON schemas (OpenAI `tools` format through vLLM). The model
+writes no code and runs no shell commands; a tool call that does not match its schema is rejected with the schema
+error, and that counts against the round's call budget.
+
+### 3.1 Read tools (no side effects)
+
+| Tool | Input | Output |
+|---|---|---|
+| `building_summary` | `level?` | levels, rooms (type, name, area, status, ceiling), counts, open conflicts |
+| `room` | `room_id` | polygon, walls with ids, doors (width, hinge, swing polygon), windows (sill, head), pieces (id, type, footprint, `front_deg`, against-wall, source, labels, checks) |
+| `room_topdown` | `room_id`, `annotate` | PNG made on the CPU: room, pieces with front arrows, door swings, window bands, walkways, failed checks in red |
+| `plan_crop` | `room_id` or `piece_id` | the source plan crop (what the drawing shows) |
+| `plausibility` | `room_id` or `building` | score 0–100 and the violations of §4 (code) |
+| `view` | `view_id` | preview or final render, plan crop with the camera cone, visible elements |
+| `exterior_summary` | – | outline, levels and grade, roof (type, pitch, ridge, eaves), openings per facade, site, sun, exterior cameras |
+| `catalog` | `type`, `style?`, `size?` | library models with real sizes and style tags |
+| `stage_status` | `stage?` | status, seconds, notes of the stages |
+
+### 3.2 Edit tools (validated by code before they are accepted)
+
+| Tool | Input | Code checks before acceptance | Re-run from |
+|---|---|---|---|
+| `move_piece` | `piece_id`, `center` or `snap_wall_id` + `offset` | inside the room, no overlap, clearances, door swing, window band, walkway, drawn-piece lock (§5) | `refit` |
+| `rotate_piece` | `piece_id`, `front_deg` | as above + the front faces free space (not a wall) | `refit` |
+| `resize_piece` | `piece_id`, `size` | the size is within the type's real product sizes (schemas size table) + as above | `refit` |
+| `change_type` | `piece_id`, `type` | the type is allowed in the room type and fits the footprint (size table) | `refit` |
+| `swap_model` | `piece_id`, `asset_id` | the asset is of the piece's type and style family, scale caps of M4 | `refit` |
+| `add_piece` / `add_group` | `room_id`, `type` or group (`dining_set`, `bed_set`, `living_set`, `desk_set`, `kitchen_run`), anchor | layout engine places it (§6); all placer checks; no second anchor piece | `refit` |
+| `remove_piece` | `piece_id`, `reason` | `added_by_ai`: always allowed; drawn: only with a clear-error reason (§5) and the plan crop as evidence | `refit` |
+| `relayout_room` | `room_id`, `constraints` | layout engine (§6) re-places the AI pieces; the drawn pieces stay locked | `layout` |
+| `set_room_type` | `room_id`, `type`, `reason` | the type fits area, fixtures and doors | `layout` |
+| `set_camera` / `add_camera` / `remove_camera` | `view_id`, position, target, lens | inside the room (interior) or outside the site boundary at 1.5–1.7 m (exterior), not inside a piece, ≥ 0.6 m from a door leaf | `build` (that view only) |
+| `set_material` | `slot` (walls, floor, wet walls, kitchen walls, facade, roof, ground, frames …), `look_id` | the look exists in the vocabulary; style family of the brief | `build` |
+| `set_exterior` | roof type / pitch / eaves, ground, site items, sun azimuth/elevation | roof covers the outline, site is outside the building, sun above horizon | `build` |
+| `correct_geometry` | `kind` (close gap, merge duplicate wall, fix opening on wall), ids, `evidence` | only a clear error: gap ≤ 0.15 m, duplicate within 0.02 m, opening ≤ 0.10 m off its wall; logged as `corrected_by_ai` | `pipeline_final` |
+| `rerun_stage` | `stage`, `settings` (white list per stage, e.g. camera policy, samples, completion on/off) | the setting is on the white list | that stage |
+| `finish` | `verdict`, `open_findings` | – | – |
+
+Every edit tool returns `{accepted, failed_checks, score_before, score_after, overrides_id}`. An edit is
+rejected when it fails a hard check, or when it lowers the room's plausibility score. The model sees the reason
+and may try again (at most 3 tries per finding).
+
+## 4. Critic checklists
+
+Severity: **critical** (the image is wrong: a missing roof, a bed in the middle of a room, a blocked door),
+**major** (clearly odd: sofa facing a wall, chairs not at the table), **minor** (taste). Each item says whether
+code measures it (C), the vision critic judges it (V) or both.
+
+### 4.1 Building and exterior
+
+| Id | Check | How |
+|---|---|---|
+| X1 | outer walls closed on every level; levels stacked on slabs; no floating parts | C |
+| X2 | roof covers the whole outline (overhang 0.3–0.8 m), its type matches the section / outline; no wall rises above the roof except gables and parapets; nothing pokes through the roof (stair shafts, decor) | C + V |
+| X3 | windows and doors on the facades in plausible places; no long blank facade on a habitable room; entrance door at grade with steps or a ramp when the floor is above grade | C + V |
+| X4 | ground and site: textured ground (grass, paving), a path to the entrance, the plot boundary; basement below grade when the section says so | C + V |
+| X5 | believable scale: storey heights 2.6–3.3 m, door 2.0–2.2 m, window sill 0.8–1.1 m | C |
+| X6 | exterior cameras: eye level 1.5–1.7 m, outside the building, 3/4 corner view with two facades, the whole building in frame, verticals straight; one frontal view of the entrance facade | C + V |
+| X7 | sky and sun: sun 25–50° above the horizon, from the side of the main facade, shadows visible; sky matches the lighting mood | C + V |
+| X8 | facade, roof, frame materials follow the brief (`dark bronze window frames` → dark bronze frames) | C |
+
+### 4.2 Rooms
+
+| Id | Check | How |
+|---|---|---|
+| R1 | room type fits area, fixtures and doors (a room with a bathtub is a bathroom; a 3 m² room is not a bedroom) | C + V |
+| R2 | ceiling height plausible; attic slopes follow the roof | C |
+| R3 | every door opens into free space; door swing clear | C |
+| R4 | finishes fit the room: tiles in wet rooms, a backsplash (not full-height tiles) in kitchens, the brief's colours elsewhere | C + V |
+| R5 | lighting: no black rooms, no blown windows | C (existing metering) |
+
+### 4.3 Furniture
+
+| Id | Check | How |
+|---|---|---|
+| F1 | right type for the room (no kitchen counter in a bedroom; no dining table in a bathroom) | C + V |
+| F2 | real size: within the type's product sizes; height plausible | C |
+| F3 | back to the wall where it belongs: bed headboard, sofa (unless it faces a group in an open room), wardrobe, kitchen run, TV unit, bookshelf, dresser, desk (wall or window) | C |
+| F4 | fronts face the right way: sofa → TV unit / coffee table; armchairs → the coffee table; dining chairs → the table; desk → window or wall; bed foot → free space | C + V |
+| F5 | groups belong together: dining table + chairs (count by table size), bed + 2 nightstands (single bed: 1), sofa + coffee table (+ TV unit), desk + chair | C |
+| F6 | clearances: 0.6 m in front of wardrobes, 0.9 m walkway, 0.7 m beside a bed, 0.75 m behind dining chairs | C (existing placer) |
+| F7 | no blocked door or window (taller than the sill) | C (existing placer) |
+| F8 | no floating piece: a piece that is not against a wall is part of a group (sofa facing a TV, island in a kitchen) | C |
+| F9 | nothing odd in the image: a piece through a wall, a giant box, a piece on the roof, duplicated pieces | V |
+
+### 4.4 Views and renders
+
+| Id | Check | How |
+|---|---|---|
+| V1 | camera inside the room, not inside a piece, not pressed against a door leaf; eye height 1.2–1.6 m; the room's main group in frame | C + V |
+| V2 | the render matches the building JSON (the M5 check, now one pass of the agent model + the object-index pass as code) | C + V |
+| V3 | no debug markers (stripes) in final images (decision D3) | C |
+| V4 | polish changed no geometry (the M5 gate, unchanged) | C |
+
+## 5. Rules the validator enforces (from the new CLAUDE.md wording)
+
+- Walls, openings and room outlines from DWG/PDF vectors are locked. Only `correct_geometry` changes them, only for
+  the clear errors it lists, with the evidence.
+- Drawn fixed equipment (stairs, kitchen runs, island, appliances, sanitary ware): type, place, orientation and
+  footprint locked; only a clear drawing error may be fixed (`adjusted_by_ai`, reason, evidence).
+- Drawn furniture: kept by default. The agent may rotate (front), snap to the nearest wall (≤ 0.3 m), resize to a
+  real product size, change the type within the room type, or fix a clear drawing error (e.g. a rug outline read as
+  a piece, a cushion read as a sofa, a table footprint that includes its chairs). Each change keeps `drawn_type`,
+  `drawn_footprint`, `drawn_front_deg` and gets `adjusted_by_ai: {reason, round, model}`.
+- AI pieces (`added_by_ai`) may be moved, swapped or removed freely, always through the placer checks.
+- Every inferred item (`inferred: true`) is listed in the report.
+
+## 6. Better layout engine (step 4)
+
+The agent is only as good as its tools. `wenart/furniture/` gets:
+
+| Feature | What | Where |
+|---|---|---|
+| Wall snapping | snap a piece's back edge to the nearest wall segment (parallel, 0.02 m gap), skipping doors and window bands | `placer.snap_to_wall` (exists in part: `_snap_to_segment`) |
+| Front/back rules per type | table per type: `back: wall | free | group`, `front_to: tv_unit | table | window | free`, side rules | `schemas.ORIENTATION_RULES` |
+| Functional groups | dining set, bed set, living set, desk set, kitchen run: anchor + members with relative offsets and facing; placed as one unit, then checked | `wenart/furniture/groups.py` (new) |
+| Circulation | a walkway graph from every door to every other door and to each piece's use side; 0.9 m main, 0.6 m secondary | `placer.walkway_*` (exists in part) |
+| Door swings, window clearances | exist (`DoorZone.swing`, `WindowZone.band`); used by every edit | – |
+| Plausibility score | 100 minus weighted violations of §4.3 per room; the critic, the edit validator and the tests use the same function | `wenart/furniture/plausibility.py` (new) |
+| Untyped drawn pieces | an unknown footprint that contains other pieces is a rug or a group outline; one that matches a type's size table and position rule gets that type as `inferred` (the agent confirms it on the plan crop) | `wenart/furniture/infer.py` (new) |
+
+## 7. Exterior (step 5)
+
+| Item | Today (§1.1) | Target |
+|---|---|---|
+| Roof | E6, E7, E8 | a roof from the outline (hip / gable / mansard by the section, else hip), overhang 0.5 m, eaves and gutters, nothing through it |
+| Ground and site | E1 (fixed), E11, E12 | grass with a texture, paving around the house, a path to each entrance, a low fence or hedge at the plot boundary (a plot of outline + 6 m when no site plan), a few trees |
+| Grade | E9 | the basement below grade when the section's ground line says so (light wells for its windows), else the ground at the lowest floor |
+| Facade | E10 | facade, plinth, frame and roof materials from the brief (`style.exterior`), window frames in the brief's colour |
+| Cameras | E14 | 2 corner views at 1.6 m eye height and 3/4 angle (two facades), 1 frontal view of the entrance, 1 high view; lens 24–28 mm, straight verticals (shift), building fills 60–80 % of the width |
+| Sun and sky | E13 | sun 35° up, 45° to the main facade, HDRI sky of the mood; shadows on the ground |
+
+## 8. The feedback loop
+
+```
+round 0  stage chain up to render, previews only (960×540, 32 samples, no polish)
+round k  1. code critic: plausibility of every room, exterior checks          (CPU, seconds)
+         2. vision critic: per room the top-down image + its previews;
+            per exterior view; strict JSON findings                          (GPU, ~3–6 s per call)
+         3. planner: findings → tool calls (≤ 40 per round), validated
+         4. router: earliest stage the accepted edits touch → re-run from it;
+            render only the views whose scene changed (previews)
+         5. stop when: no critical/major finding left, or no edit accepted
+            in this round, or max rounds (4), or the time budget (below)
+final    full renders (1920×1080, 128 samples), gate, polish, final check
+         (agent model, one pass + object-index code check)
+         → findings go back once more if they are critical and time allows
+           (only the changed views are rendered again)
+report   report.md with the agent section: rounds, findings, edits, open items
+```
+
+Routing of findings to stages:
+
+| Finding source | Example | Goes back to |
+|---|---|---|
+| recognition | drawn sink typed fridge; a rug read as a box; room type wrong | `change_type` / `set_room_type` overrides → `layout` |
+| fit | wrong model, wrong size, model rotated | `swap_model` / `resize_piece` → `refit` |
+| layout / completion / decor | facing, floating, missing group, blocked door | edits → `refit` (or `layout` for `relayout_room`) |
+| shell / exterior | roof, grade, facade, site | `set_exterior` / `correct_geometry` → `build` / `pipeline_final` |
+| materials / lighting | full-height tiles in a kitchen, wrong frame colour | `set_material` → `build` |
+| camera | view of a bare wall, camera behind a door leaf | camera edits → `build` (that view) |
+| polish | the polish added an object | `rerun_stage polish` with a lower strength, else Cycles |
+
+Time budget: the loop stops when `now + estimate(final stages) > deadline − 20 min` (the user's rule: stop at
+least 20 min before the 2 h deadline). Estimates come from `wenart/run/plan.py` (measured per stage).
+
+## 9. Decision log
+
+`outputs/<p>/orchestrator/log.json` (schema `wenart/schema/agent_log.schema.json`), one entry per event:
+
+```json
+{"seq": 42, "round": 2, "t": "2026-10-10T08:12:31Z", "kind": "edit",
+ "model": "<model id>", "revision": "<sha>", "call_id": "r2-c17", "pass": 1,
+ "checklist": "F4", "severity": "major", "target": "f_L-1_017",
+ "finding": "corner sofa faces the window wall; the TV unit f_L-1_005 is behind it",
+ "evidence": {"images": ["images/r2_topdown_r_L-1_salon.png"], "metrics": {"front_hits": "wall w_L-1_012"}},
+ "tool": "rotate_piece", "args": {"piece_id": "f_L-1_017", "front_deg": 180},
+ "validation": {"accepted": true, "failed_checks": [], "score_before": 61, "score_after": 78},
+ "label": "adjusted_by_ai", "reason": "sofa must face the TV unit",
+ "before": "images/r2_f_L-1_017_before.png", "after": "images/r2_f_L-1_017_after.png",
+ "rerun_from": "refit"}
+```
+
+`kind`: `check`, `finding`, `edit`, `rejected_edit`, `rerun`, `render`, `stop`. `log.md` is the same as tables per
+round with the before/after images side by side. Every changed piece gets in the building JSON:
+`source` (`from_documents` / `added_by_ai`), `adjusted_by_ai: {reason, round, log_seq}` when changed, and
+`inferred: true` when its type or placement was inferred.
+
+## 10. Test plan
+
+CPU (`pytest -m "not gpu"`, with `MockModel` that replays scripted tool calls):
+
+| Test | What it proves |
+|---|---|
+| tool schemas | every tool's input/output schema is valid JSON Schema; a bad call is rejected with the error |
+| edit validators | per edit type a passing and a failing case (outside room, overlap, door swing, window, walkway, drawn lock, score drop) |
+| plausibility | hand-made rooms: bed in the middle → F3 critical; bed headboard on a wall → no F3; sofa facing a wall → F4; table without chairs → F5; dining chairs facing away → F4 |
+| real02 regression | `results/furniture/real02/building_final.json`: the critic finds the known problems of §1 (≥ the listed counts); after the scripted edits the room scores rise and no hard check fails |
+| loop | stops at max rounds, at the deadline, when no edit is accepted, when no finding is left; routing picks the earliest stage |
+| overrides | applying twice = once; fingerprints change with overrides; `--no-orchestrator` ignores them |
+| log | every edit has a validation, reason, model, round; log.md renders |
+| fallback | `python -m wenart.run pod --no-orchestrator` gives the M10 stage list (golden) |
+| exterior | roof covers outline, nothing above the roof, ground material textured, cameras outside the building at eye level |
+
+GPU (`pytest -m gpu`, on the pods):
+
+| Test | What it proves |
+|---|---|
+| model serves | vLLM starts with the agent model; one tool call and one JSON-schema answer are valid |
+| critic smoke | the vision critic flags a planted error (a bed rotated 180°, a sofa facing a wall) in a preview |
+| loop on synthetic-01 | ends with no critical finding, log written, every accepted edit validated |
+| real02 | after the loop: plausibility up for every furnished room, no critical exterior finding, report lists every inferred item |
+
+## 11. Model choice (checked 9 Oct 2026 on Hugging Face, PyPI, vLLM v0.30.0 source and the vLLM recipes)
+
+`docs.vllm.ai` and `recipes.vllm.ai` were blocked here; the same pages were read as raw files on GitHub. Speeds
+marked (S) are from third-party snippets only; (est.) are estimates.
+
+| Model (HF id, revision) | Licence | Size | Vision | Weights | Tool calling in vLLM 0.30.0 | Fits next to Cycles on 96 GB |
+|---|---|---|---|---|---|---|
+| **`Qwen/Qwen3.8-27B-FP8`** @`017b9c7af6b5689d5dd426a76e0bc077eb5ca20a` (pick) | Apache-2.0 | 27.8B dense | yes | 28.7 GiB (official FP8) | `--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3` (strict tool schemas supported) | yes, ≈ 50 GB with KV cache |
+| `Qwen/Qwen3.6-35B-A3B-FP8` @`95a723d08a9490559dae23d0cff1d9466213d989` (fallback, faster) | Apache-2.0 | 36B, 3B active | yes | 37.5 GB | same flags | yes, ≈ 55 GB |
+| `google/gemma-4-31B-it` @`842da3794eaa0b77d5f08bae87a17459d91ff475` (other family, optional second opinion) | Apache-2.0 | 30.7B | yes | 62.5 GB bf16 (no official FP8) | `gemma4` parser, no strict tool schemas | yes, tight |
+| Qwen3-VL-32B / 30B-A3B | Apache-2.0 | 33B / 31B-A3B | yes | 35 / 32 GB FP8 | `hermes` | yes, older generation |
+| GLM-4.6V (108B), Qwen3.5-122B, Mistral Small 4 (119B) | MIT / Apache / Apache | 108–125B | yes | ≥ 79 GB | yes | **no** (no room for Cycles) |
+| gpt-oss-20b / 120b | Apache-2.0 | 21B / 117B | **no** | 14 / 65 GB | `openai` | text only: would need a second model for vision |
+| Qwen3.8-Flash-Next | qwen-community-1.0 (**flag**) | 180B | yes | ≥ 250 GB | – | no |
+
+Why the pick: one model for both agent and critic, a vision-language model of the newest Qwen generation, Apache-2.0,
+an official FP8 checkpoint, verified on Blackwell (sm_120) in the vLLM recipe, and better agent and vision scores
+than the 27B/35B alternatives on its model card (OSWorld-Verified 84.3 vs 63.9 for Qwen3.6-27B; multimodal tool
+use ClawEval-MM 57.4 vs 42.6). vLLM 0.30.0 (our pinned version) already supports it; 0.31.0 is not needed.
+
+Serving (to be confirmed on the model-check pod):
+
+```
+vllm serve Qwen/Qwen3.8-27B-FP8 --revision 017b9c7af6b5689d5dd426a76e0bc077eb5ca20a \
+  --enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3 \
+  --max-model-len 32768 --max-num-seqs 4 --limit-mm-per-prompt '{"image":4}' --gpu-memory-utilization 0.55
+```
+
+- Structured output: in vLLM 0.30.0 a forced tool call (`tool_choice="required"`) and a JSON-schema
+  `response_format` cannot be combined in one request. The agent uses `tool_choice="auto"` with `strict: true`
+  tools; the critic uses `response_format` (JSON schema) with no tools. Both are validated again in our code.
+- Thinking: off for critic calls (`enable_thinking: false`), low effort for the planner. Temperature 0 as today;
+  the model card recommends sampling, so the model-check pod tests temperature 0 for repetition loops.
+- Optional speed-up: MTP speculative decoding (`--speculative-config '{"method":"mtp","num_speculative_tokens":5}'`);
+  tested on the model-check pod, kept only if it works with strict tool calls.
+
+VRAM plan, RTX PRO 6000 (96 GB) (est.):
+
+| Item | GB |
+|---|---|
+| Agent model weights (FP8) | 29 |
+| KV cache (4 × 32k tokens; only 16 of 64 layers keep a full KV cache) | 16 |
+| Vision encoder, CUDA graphs, activations | 5 |
+| **vLLM (`--gpu-memory-utilization 0.55`)** | **≈ 53** |
+| Blender Cycles (scene + render) at the same time | 10–20 |
+| Free | ≈ 23 |
+
+The agent server stays up while Blender renders (no swap). For the polish and gate stages (≈ 22 GB) the server is
+put to sleep (`--enable-sleep-mode`, `POST /sleep?level=1`, weights to CPU RAM) or stopped, then woken. On 48 GB
+GPUs the agent runs alone and swaps with Blender (sleep mode); 32 GB and below: not supported in M11.
+
+Speed (est.): ≈ 40–50 tokens/s per stream without MTP; a vision critique (one 1920×1080 image + 2k text tokens,
+≈ 400 output tokens, no thinking) ≈ 6–10 s; a planner step ≈ 10–40 s. Measured on the model-check pod (G1).
+
+The Qwen3-VL-8B + GLM-4.6V-Flash pair stays for `--no-orchestrator` and for the recognition questions that have no
+code check (two passes there, as today).
+
+## 12. Time and cost per project, pods
+
+Estimates on an RTX PRO 6000 (≈ $2.5/h measured in M10); measured on pod G1 before the full runs.
+
+| Part | real02 (19 rooms, 47 views) | real01 / synthetic-01 (≈ 6–10 rooms) |
+|---|---|---|
+| Setup (venvs, downloads, agent model ≈ 31 GB at 1.1 GB/s) | 20 min | 20 min (shared on one pod) |
+| Stage chain to the previews (round 0) | 15 min | 6–8 min |
+| One round: code critic (s), vision critic (≈ 19 rooms × 2–3 images × 6–10 s ≈ 5 min), planner (≈ 3 min), re-run + previews (≈ 4 min) | ≈ 12 min | ≈ 6 min |
+| Rounds (max 4; usually 2–3) | 25–45 min | 12–24 min |
+| Final: full renders, gate, polish, final check, report | 25 min | 10–15 min |
+| **Total** | **85–105 min** | **30–50 min each** |
+
+| Pod | What | GPU time | Cost (est.) |
+|---|---|---|---|
+| G1 | model check: serve the pick and the fallback, tool calls, critic on real02 previews with planted errors, speed, VRAM next to a Cycles render, temperature 0, MTP; GPU tests of the agent | ≈ 45 min | ≈ $2 |
+| G2 | real02 orchestrated (base + the Açık mutfak variant), GPU tests | ≤ 115 min | ≤ $5.2 (**over $5 worst case: needs your OK**, `--over-5-ok`) |
+| G3 | real01 + synthetic-01 orchestrated, old pipeline for the before/after where missing, GPU tests | ≤ 115 min | ≤ $5.2 (**needs your OK**) |
+| **M11 total** | | ≈ 4.6 h | **≈ $12** (spent so far $65.68 of $100 → ≈ $78) |
+
+All within the limits ($5/GPU-hour, $30/day, 2 h per pod, one pod at a time). Today (9 Oct, UTC) $28.08 of the $30 daily cap is spent
+(`scripts/gpu_run.py status`), so the M11 pods start on 10 Oct at the earliest; G2 and G3 on one day ≈ $10.5. Each pod has the watchdog and
+self-stop of `scripts/pod_entry.sh`; the agent loop stops itself 20 min before the deadline.
+
+## 13. Order of work after your OK
+
+| Step | What | Where it runs |
+|---|---|---|
+| 3 | agent core with `MockModel`: tools, edits + validators, overrides, loop, router, log; `--no-orchestrator` | CPU, here |
+| 4 | layout engine: wall snapping, orientation rules, groups, circulation, group splitting, type inference, plausibility | CPU, here (parallel with 3) |
+| 5 | exterior: roof from outline and break line, grade, site, facade looks, cameras, sky | CPU, here (parallel with 3; Blender CPU test renders) |
+| 6 | pods G1, then G2, G3 | RunPod |
+| 7 | report: before/after per project, AI decisions, rounds, minutes, cost; `docs/progress.md` | here |
+
+Commit, push and `docs/progress.md` after each step.
+
+## 14. Risks
+
+| Risk | Mitigation |
+|---|---|
+| The agent "fixes" correct drawn data | locked geometry and drawn-piece rules in the validator (§5); every change logged with evidence; the report lists them |
+| Loops that do not converge (edit A undoes edit B) | an edit must not lower the room score; the same piece is edited at most 3 times; stop when a round accepts nothing |
+| Vision critic hallucinates findings | a vision finding needs a code-checkable target (piece id, view id); findings the code contradicts are dropped and logged |
+| The model at temperature 0 repeats itself | tested on G1; `presence_penalty` or a low temperature with a fixed seed as fallback (logged) |
+| Time: real02 needs a whole pod | rounds cut by the time budget; the final stages are reserved first |
+| 27B model too slow | fallback `Qwen3.6-35B-A3B-FP8` (3B active, ≈ 3–4× faster), same code path |
+
+## 15. Decisions for the user
+
+| # | Question | Recommendation |
+|---|---|---|
+| D1 | The new `CLAUDE.md` wording (§16) | OK as written; I edit `CLAUDE.md` only after your OK |
+| D2 | Agent + critic model `Qwen/Qwen3.8-27B-FP8` (Apache-2.0), fallback `Qwen/Qwen3.6-35B-A3B-FP8` | yes |
+| D3 | Unverified stripes in the final images | take them out of final images; show them in the debug top-down images and a "review" contact sheet, list every item in the report |
+| D4 | Room area label vs measured area (18 of real02's rooms are unverified at 3 %) | compare with the polygon minus the stair opening; 8 % tolerance (as the generic label check); beyond that the agent decides and logs it |
+| D5 | real02 attic ends: the plan labels a 22 m² "Teras" per dwelling, but the section draws the roof closed there | you know the building: is it a roof terrace cut into the mansard roof (today's build), or a closed roof? |
+| D6 | real02 basement: the section draws the ground at ±0.00, so the 7 m wide basement windows are buried | is there a sunken garden / open court in front of the basement? If yes, the site gets one |
+| D7 | Pods G2 and G3: worst case 115 min × ≈ $2.6/h ≈ $5.2 each (over the $5 single-action line) | OK to run them with `--over-5-ok` |
+| D8 | The Qwen3-VL-8B + GLM-4.6V-Flash pair | keep for `--no-orchestrator` and for the recognition questions without a code check; orchestrated runs use the agent model alone, checked by code |
+
+## 16. Proposed `CLAUDE.md` wording (not committed; replaces the sections "Furniture rules" and "No-hallucination rules")
+
+### Furniture rules (new wording)
+- Fixed equipment drawn in the documents (stairs, kitchen counter runs, kitchen island and appliances, sanitary
+  ware) is treated like walls: same type, position, orientation and footprint as drawn. Style changes only the
+  look. The AI may fix only a clear drawing error (e.g. a front that faces the wall), logged as `adjusted_by_ai`.
+- Drawn furniture is kept by default. The AI may correct its orientation, snap it to a wall, change its size to a
+  real product size, change its type within the room type's types, and fix clear drawing errors (a rug outline
+  read as a piece, a cushion read as a sofa, a table footprint that includes its chairs). Every change keeps
+  `drawn_type`, `drawn_footprint`, `drawn_front_deg`, `drawn_height` and is labelled `adjusted_by_ai` with the
+  reason. A drawn piece is removed only when it is clearly not furniture (logged with the plan crop as evidence).
+  With `keep` or `furnished_rooms_keep_size` only the look, the orientation and clear errors change.
+- Footprint clear but type unclear → the AI infers the type from size, room and neighbours, marks it `inferred`
+  and lists it in the report. It never stays an unexplained box.
+- Rooms with drawn furniture: with `furnished_rooms: complete` (default) the AI adds the pieces the room type
+  misses (`added_by_ai`, `completes_room: true`); never a second anchor piece. Small decor if the brief allows it
+  (default: yes).
+- Rooms with no furniture in the documents: the AI furnishes them in the project style (default).
+- Every placement or edit passes the code checks before it is accepted: inside the room, no collisions, real
+  clearances and walkways, door swings free, windows free, backs to walls where the type needs it, fronts facing
+  their group.
+- Every piece is labelled `from_documents` (with evidence), `added_by_ai` or `adjusted_by_ai` (with the reason).
+
+### Evidence and inference rules (new wording, replaces "No-hallucination rules")
+- Source geometry (DWG/DXF entities, vector PDF paths) is the anchor for walls, openings, room outlines and
+  levels. The AI may override it only for a clear error (e.g. a 5 cm gap in an outer wall, a duplicated wall, a
+  door off its wall); it logs the reason and the evidence, and the item is marked `corrected_by_ai`.
+- Trust order when sources disagree: vector geometry > OCR text and dimensions > AI vision. Conflicts: prefer
+  DWG > vector PDF > scan > photo, and list every conflict in the report.
+- Where the documents are silent, unclear or illogical, the AI infers, completes and corrects: furniture type,
+  orientation and placement, missing exterior parts (roof, ground, site), cameras, materials, lighting. Each such
+  item is marked `inferred` (or `adjusted_by_ai`) and listed in the report.
+- Missing scale or open outer walls: the AI tries to infer them first (dimension text, door widths, stair treads,
+  typical room sizes, closing small gaps) and marks them `inferred`. "needs review" only for real blockers: no
+  usable geometry at all, or inferences that contradict each other.
+- Every wall, door, window, room, furniture piece, label and dimension in the building JSON carries evidence:
+  file, page, layer/entity id or pixel box, method (vector / ocr / ai / inferred), confidence; AI changes also
+  carry the model, the round and the reason.
+- AI calls: temperature 0, typed tools and strict JSON schemas. Every AI edit is checked by code before it is
+  accepted. A critique loop with code validation replaces the "two passes must agree" rule; two independent passes
+  stay only where no code check exists (e.g. reading a label that no geometry confirms).
+- Everything is logged: every check, finding, edit, rejected edit and reason goes to
+  `outputs/<p>/orchestrator/log.json` and `log.md` with before/after images. Nothing changes silently.
+- AI polish must not change geometry: compare edge and depth maps before/after and reject changed results. A
+  final vision check compares every render with the building JSON and the source plan; its findings go back to
+  the stage that caused them.
+- Save a debug image per page with detected elements drawn over the original, colored by method and confidence.
+

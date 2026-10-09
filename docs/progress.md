@@ -696,3 +696,25 @@ Open items:
 
 GPU cost so far: $65.68 of $100. No pod is running.
 
+
+## Milestone 11 – AI orchestrator (steps 0–1 done, 9 Oct 2026; waiting for your OK)
+
+Spec: `docs/milestone11.md` (the user named `docs/milestone10.md`, which is the M10 spec).
+
+- **Step 0, diagnosis of real02** (§1): 41 problems traced to their stage and code, in three tables (exterior 14,
+  furniture 17, rooms/materials/cameras 10). The main causes: 107 of 226 drawn pieces had no front, so they faced a
+  fixed direction; whole kitchen runs and table-with-chairs blocks read as one box; the "unverified" stripes are
+  painted into the final images; the default "light tiles" were a black/beige marble checkerboard; the grass plane
+  ended 30 m from the house; text labels ("Teras") cut a roof the section draws closed.
+- **Plain bugs fixed now** (each with a CPU test that fails on the old code): ground to the horizon, attic decor
+  kept under the roof, terrace paving, sky and sun in one frame, light ceramic wet tiles, debug-image window and
+  stale previews, block pieces take the drawn front (washbasins, toilets, beds, wardrobes), AI fronts into a wall
+  refused, pillow-rule ties, shallow pieces' wall rule, added chairs face their table, unknown boxes that hold other
+  pieces drawn flat. They show in the images after the next pod re-runs the projects.
+- **Step 1, design** (§2–§14): agent loop over the existing stages, typed tool API, edit validator, overrides file,
+  critic checklists, feedback routing, decision log, layout-engine and exterior work, test plan. Model pick:
+  `Qwen/Qwen3.8-27B-FP8` (Apache-2.0) as agent and vision critic on the RTX PRO 6000 next to Cycles; fallback
+  `Qwen/Qwen3.6-35B-A3B-FP8`. Three pods, ≈ $12.
+- **Waiting for you**: the `CLAUDE.md` wording (§16) and decisions D1–D8 (§15).
+
+GPU cost so far: $65.68 of $100 (no pod in M11 yet). No pod is running.
