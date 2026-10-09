@@ -580,7 +580,7 @@ lights emit; HDRI at dusk), each with a verified Poly Haven HDRI.
 | Models per furniture type | 10–20 (18 of 24 at 20) | ≥ 20 per type where sources allow; reasons listed | 669 models; 23 of 37 at 20. Below: crib 8, display_cabinet 8, bunk_bed 10, chaise 10, shower 10, sink_kitchen 15, tall_cabinet 17, dresser 18, nightstand 18, chair 19 (one accepted M9 model's GLB was on M9's container disk), fridge 19, sofa_corner 19, stove 19, toilet 19. Reasons: few real models in ABO / Objaverse for the new types; the judges refuse many generated sanitary and kitchen models (M9); the generation ran in one pod (L2c, 40 min, the 13 thinnest new types first) |
 | Style families per type | ≥ 3 for all 24 | ≥ 3 for all 38 | ≥ 3 for all 37 library types (GPU test, pod L2c) |
 | Decor types | 8 | 20, ≥ 15 models each | 20 types, 363 models; 18 of 20 with ≥ 15. Below: blind 9, plant_large 10 (generated only: no real source) |
-| Material slots and tags | — | judged by both models | 1264 models judged (recolourable: fabric 184, wood 207); the 102 models generated in L2c have none (§10.4) |
+| Material slots and tags | — | judged by both models | 1264 models judged (recolourable: fabric 184, wood 207); 101 generated models have none (made after the slot renders, or their GLB changed; §10.4) |
 | Door styles / window frames | 1 / 1 | 8 / 6 + colours | 8 / 6 + frame colours |
 | Exterior materials | 1 | ≥ 13 | 28 |
 | Lighting moods | 5 | 9 | 9 |
