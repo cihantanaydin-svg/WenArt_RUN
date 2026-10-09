@@ -914,3 +914,21 @@ def test_rooms_on_both_sides_of_a_separator_share_its_line(tmp_path):
     building = build_project(duvar, tmp_path / "out_duvar", no_ai=True)
     assert any(w.startswith("plan.dxf: layers DUVAR used without the synthetic DXF convention")
                for w in building["warnings"])
+
+
+def test_drawn_wall_cabinets_hang_at_the_rule_height():
+    """Milestone 10: a wall cabinet typed from the documents (symbol or AI) gets the rule's mount_bottom_m (the schema
+    requires it), with an evidence entry naming the rule and a warning; a given value and other types stay."""
+    from wenart.ingest.pipeline import _mount_wall_cabinets
+
+    building = {"project": {"source_folder": "projects/x"}, "warnings": [], "furniture": [
+        {"id": "f_L0_001", "type": "wall_cabinet", "evidence": [B.evidence("plan.dxf", "ai", 0.9)]},
+        {"id": "f_L0_002", "type": "wall_cabinet", "mount_bottom_m": 1.6, "evidence": [B.evidence("plan.dxf", "vector", 1.0)]},
+        {"id": "f_L0_003", "type": "sofa", "evidence": [B.evidence("plan.dxf", "vector", 1.0)]}]}
+    _mount_wall_cabinets(building)
+    a, b, c = building["furniture"]
+    assert a["mount_bottom_m"] == 1.45
+    assert a["evidence"][-1]["file"] == "plan.dxf" and a["evidence"][-1]["method"] == "derived"
+    assert a["evidence"][-1]["rule"] == "wall_cabinet_mount"
+    assert b["mount_bottom_m"] == 1.6 and len(b["evidence"]) == 1 and "mount_bottom_m" not in c
+    assert len(building["warnings"]) == 1 and building["warnings"][0].startswith("f_L0_001: wall cabinet hung at 1.45 m")

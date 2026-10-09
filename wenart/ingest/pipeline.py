@@ -1652,6 +1652,27 @@ def unanswered_text(build: ProjectBuild) -> str:
     return text
 
 
+def _mount_wall_cabinets(building: dict) -> None:
+    """Milestone 10 (docs/milestone10.md §4.4; the schema requires ``mount_bottom_m`` on a ``wall_cabinet``): a drawn
+    wall cabinet (symbol typing or the two AI passes) hangs at the rule's bottom height, which no plan gives. The
+    value gets an evidence entry naming the rule and a warning, so it is listed as assumed, never silent (real02,
+    pod L1d of 9 Oct 2026: two AI-typed wall cabinets failed the schema)."""
+    from wenart.furniture.schemas import WALL_CABINET_Z      # lazy: the furniture package is not an ingest import
+
+    lo = WALL_CABINET_Z[0]
+    for f in building["furniture"]:
+        if f.get("type") != "wall_cabinet" or "mount_bottom_m" in f:
+            continue
+        f["mount_bottom_m"] = lo
+        source = next((e["file"] for e in f.get("evidence") or [] if e.get("file")),
+                      building["project"]["source_folder"])
+        f.setdefault("evidence", []).append(B.evidence(
+            source, "derived", 0.5, rule="wall_cabinet_mount",
+            text=f"bottom {lo:.2f} m above the floor (rule, docs/milestone10.md §4.4); the documents give no height"))
+        building["warnings"].append(f"{f['id']}: wall cabinet hung at {lo:.2f} m above the floor (assumed: the "
+                                    f"rule of docs/milestone10.md §4.4, the documents give no height)")
+
+
 def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = None, answers=None) -> None:
     """``<out>/recognition/requests.json`` with the questions of the pages whose furniture is in the building
     (§1.4); an earlier file is rewritten (empty when nothing is asked) so it never lists stale questions.
@@ -2080,6 +2101,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         building["project"]["unit_system"] = "imperial" if systems.count("imperial") > systems.count("metric") \
             else "metric"
     _write_questions(build, out_dir, asked, answers)
+    _mount_wall_cabinets(building)
 
     # Conflicts: stable order and ids.
     build.raw_conflicts.sort(key=lambda c: CONFLICT_ORDER.index(c["kind"]) if c["kind"] in CONFLICT_ORDER else 99)
