@@ -23,7 +23,7 @@ types:
   bed_double:      {width: [1.35, 2.00], depth: [1.85, 2.25], source: "std; syn 1.4-1.8 x 2.0; r01 F1/F4 1.78 x 2.03"}
   sofa:            {width: [1.20, 3.00], depth: [0.70, 1.10], source: "std; syn 1.6-2.6 x 0.9-0.95; r01 F14/F15 1.90 x 0.70"}
   armchair:        {width: [0.60, 1.10], depth: [0.60, 1.10], source: "std; syn 0.8-1.0 square"}
-  table_dining:    {width: [0.80, 2.60], depth: [0.70, 1.20], source: "std (round 0.9-1.2, 4-10 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73"}
+  table_dining:    {width: [0.80, 3.00], depth: [0.70, 1.20], source: "std (round 0.9-1.2, 4-12 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73; m11 real02 masa 3.35 x 1.00 (10 seats)"}
   table_coffee:    {width: [0.60, 1.40], depth: [0.40, 1.20], source: "std; syn 0.8-1.2 x 0.5-0.7; r01 F16 1.13 x 1.12"}
   desk:            {width: [0.90, 2.00], depth: [0.50, 0.90], source: "std; syn 1.2-1.6 x 0.6-0.8"}
   chair:           {width: [0.35, 0.65], depth: [0.35, 0.65], source: "std; syn 0.4-0.5 square; r01 F8-F13 0.38 x 0.45"}

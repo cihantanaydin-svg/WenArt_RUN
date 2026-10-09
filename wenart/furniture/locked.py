@@ -30,6 +30,11 @@ How, mode ``complete`` (per drawn piece):
   source's;
 - walls, openings and rooms byte-equal.
 
+Milestone 11 (docs/milestone11.md §5): a drawn piece the agent changed through ``edit_ops.apply_edit`` carries
+``adjusted_by_ai`` (with its reason) and is checked by ``_agent_problems`` instead: the drawn values kept for what
+changed (``drawn_type``, ``drawn_footprint``, ``drawn_front_deg``); fixed equipment and kept rooms only turned (and
+in a kept room an unknown piece typed, a piece not built); other drawn furniture moved at most 0.3 m.
+
 Mode ``keep`` (and every room in ``keep_rooms``): the old byte rule, the
 fit's ``FROZEN_KEYS`` (``KEEP_KEYS``) equal for every drawn piece. Anchors: a piece whose
 back edge (the edge opposite its ``front_deg``; its three points: both ends
@@ -171,6 +176,46 @@ def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> 
     return out
 
 
+AGENT_SNAP_M = 0.3               # Milestone 11 (§5): a drawn piece adjusted by the agent moves at most this far
+
+
+def _agent_problems(src: dict, fin: dict, keep: bool) -> list[str]:
+    """Milestone 11 (docs/milestone11.md §5, CLAUDE.md furniture rules): a drawn piece the agent changed
+    (``adjusted_by_ai`` with its reason, ``wenart.furniture.edit_ops``). Fixed equipment and pieces that never change:
+    only the orientation (type, centre and size as drawn). Kept rooms (``keep``): only the orientation, an unknown
+    piece's type and ``build: false``. Other drawn furniture: the centre within ``AGENT_SNAP_M``. Always: the drawn
+    values kept (``drawn_type``, ``drawn_footprint``, ``drawn_front_deg``) for what changed."""
+    pid = src["id"]
+    out = []
+    adj = fin.get("adjusted_by_ai")
+    if not isinstance(adj, dict) or not str(adj.get("reason") or "").strip():
+        return [f"{pid}: adjusted_by_ai without a reason"]
+    sfp, ffp = src["footprint"], fin["footprint"]
+    moved = G.distance(sfp["center"], ffp["center"])
+    same_box = sorted(round(float(v), 3) for v in sfp["size"]) == sorted(round(float(v), 3) for v in ffp["size"])
+    if src["type"] != fin["type"] and fin.get("drawn_type") != src["type"]:
+        out.append(f"{pid}: type changed without the drawn type ({fin.get('drawn_type')} != {src['type']})")
+    if _dump(sfp) != _dump(ffp) and _dump(fin.get("drawn_footprint")) != _dump(sfp):
+        out.append(f"{pid}: footprint changed without the drawn footprint")
+    if not _front_ok(src.get("front_deg"), fin.get("front_deg")) and "drawn_front_deg" in fin \
+            and not _front_ok(fin.get("drawn_front_deg"), src.get("front_deg")):
+        out.append(f"{pid}: drawn_front_deg {fin.get('drawn_front_deg')} != the drawn front {src.get('front_deg')}")
+    elif not _front_ok(src.get("front_deg"), fin.get("front_deg")) and "drawn_front_deg" not in fin:
+        out.append(f"{pid}: front changed without drawn_front_deg")
+    fixed = src["type"] in schemas.UNCHANGEABLE_TYPES or src.get("build") is False
+    if fixed or keep:
+        if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown"):
+            out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} changed its type")
+        if moved > 1e-3 or not same_box:
+            out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} moved or resized (only the "
+                       f"orientation may change)")
+        if fixed and fin.get("build") is False and src.get("build") is not False:
+            out.append(f"{pid}: fixed equipment removed")
+    elif moved > AGENT_SNAP_M + 1e-6:
+        out.append(f"{pid}: moved {moved:.3f} m by the agent (> {AGENT_SNAP_M} m)")
+    return out
+
+
 def keep_rooms_of(completion: Optional[dict]) -> list[str]:
     """The rooms the layout kept as drawn (``completion.json`` rooms with ``state: kept``: ``furnished_rooms_keep``
     and partners of kept rooms), for ``check(..., keep_rooms=...)`` after a later stage (refit)."""
@@ -209,6 +254,16 @@ def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[st
         for key in ("level_id", "room_id"):
             if fin.get(key) != src.get(key):
                 out.append(f"{pid}: {key} {src.get(key)} -> {fin.get(key)}")
+        if fin.get("adjusted_by_ai") is not None:
+            # Milestone 11: the agent's validated edit (edit_ops) is checked by the M11 rules, not the M10 anchor.
+            kept = mode == "keep" or src.get("room_id") in keep
+            out.extend(_agent_problems(src, fin, kept))
+            if kept:
+                free = {"footprint", "front_deg", "build", "type", "evidence", "height"}
+                bad = [k for k in frozen if k not in free and _dump(src.get(k)) != _dump(fin.get(k))]
+                if bad:
+                    out.append(f"{pid}: changed {', '.join(bad)} (keep: drawn pieces stay byte-equal)")
+            continue
         if mode == "keep" or src.get("room_id") in keep:
             bad = [k for k in frozen if _dump(src.get(k)) != _dump(fin.get(k))]
             if bad:

@@ -72,6 +72,11 @@ Milestone 10 (docs/milestone10.md §4.6, §1.6b rows 18, 20; track F):
 - Partner chains (pod F1, real02: r_L-1b_banyo_2 is ``same_as`` r_L-1_banyo_2, the twin of r_L-1_banyo): a room
   whose partner takes a copy itself copies after it, from that copy (``_copy_order``); a loop of partners has no
   room to copy from, so its first room in building order is decorated itself (listed, ``copy_targets``).
+
+Milestone 11 (docs/milestone11.md §1.1 E2): under the sloped attic ceiling (``ceiling_planes``: the roof as the build
+makes it) a corner whose ceiling is lower than the plant (+ 10 cm) gets no plant (``ceiling_over``); the AI
+decorator's floor corners and tabletop heights use the same ceiling. A drawn rug outline (``infer.py``) is no rug
+blocker.
 """
 from __future__ import annotations
 
@@ -212,15 +217,63 @@ def _corner_candidates(ctx: placer.RoomContext, inset: float = CORNER_INSET_M) -
     return out
 
 
+CEILING_CLEAR_M = 0.10           # Milestone 11 (E2): a floor item's top stays this far under the (sloped) ceiling
+
+
+def ceiling_planes(building: dict, level_id: str) -> list:
+    """Milestone 11 (docs/milestone11.md §1.1 E2): the sloped ceiling of the level under the roof, as the build makes
+    it (``wenart.blender.build.prepare``: ``roof.roof_model`` + ``roof.ceiling_planes``, pure Python, no Blender), or
+    [] when the level has a flat ceiling (no roof, a non-convex roof, another level)."""
+    roof = building.get("roof")
+    if not isinstance(roof, dict):
+        return []
+    from wenart.blender import roof as R
+
+    try:
+        model = R.roof_model(roof, building)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return []
+    if not model or not model.get("convex") or not model.get("equations") or model.get("over_level_id") != level_id:
+        return []
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), None)
+    if level is None or level.get("ceiling_height") is None:
+        return []
+    return [list(p) for p in R.ceiling_planes(model, level)]
+
+
+def ceiling_over(building: dict, level_id: str, center, size, rotation_deg: float = 0.0,
+                 planes: Optional[list] = None) -> float:
+    """The ceiling height above the floor over a footprint: the level's ``ceiling_height``; under the roof the lowest
+    ceiling plane over its corners and centre (as ``wenart.blender.furniture.ceiling_above``)."""
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), {})
+    flat = float(level.get("ceiling_height") or 2.7)
+    planes = ceiling_planes(building, level_id) if planes is None else planes
+    if not planes:
+        return flat
+    from wenart.blender import geom2d
+
+    floor_z = float(level.get("elevation") or 0.0)
+    pts = list(G.rotated_rectangle((float(center[0]), float(center[1])), (float(size[0]), float(size[1])),
+                                   float(rotation_deg))) + [(float(center[0]), float(center[1]))]
+    return round(min(geom2d.surface_z(planes, x, y) for x, y in pts) - floor_z, 4)
+
+
 def plant_position(room: dict, furniture: list[dict], building: dict) -> tuple[Optional[tuple[float, float]], str]:
-    """A free corner for the plant, or (None, reason)."""
+    """A free corner for the plant, or (None, reason). Milestone 11 (E2): under a sloped attic ceiling a corner where
+    the ceiling over the plant is lower than its height (+ ``CEILING_CLEAR_M``) is no place for it."""
     ctx = placer.room_context(building, room)
     pieces = [placer.piece_from_furniture(f, i) for i, f in enumerate(furniture)]
     candidates = _corner_candidates(ctx)
     if not candidates:
         return None, "no convex corner"
+    planes = ceiling_planes(building, room["level_id"])
     reasons = []
     for center in candidates:
+        if planes:
+            ceiling = ceiling_over(building, room["level_id"], center, PLANT_SIZE, planes=planes)
+            if ceiling < PLANT_HEIGHT_M + CEILING_CLEAR_M:
+                reasons.append(f"{center}: sloped ceiling {ceiling:.2f} m")
+                continue
         plant = placer.Piece("plant", center, 0.0, PLANT_SIZE, False, index=len(pieces))
         checks = placer.check_piece(plant, pieces, ctx)
         failed = placer.failed_checks(checks)
@@ -313,11 +366,12 @@ def fit_rug(rect: tuple[float, float, float, float], allowed_local, key_point: t
 
 
 def _rug_forbidden(ctx: placer.RoomContext, furniture: list[dict], rugs: list[Polygon]):
-    """The floor a rug never covers: door swings, blocker pieces (``RUG_BLOCKER_TYPES`` and not-built symbols)
-    and the rugs placed before."""
+    """The floor a rug never covers: door swings, blocker pieces (``RUG_BLOCKER_TYPES`` and not-built symbols; not a
+    drawn rug outline, Milestone 11 ``infer.py``) and the rugs placed before."""
     zones = [d.swing for d in ctx.doors if d.swing is not None and not d.swing.is_empty]
     zones += [placer.piece_from_furniture(f).polygon() for f in furniture
-              if f["type"] in RUG_BLOCKER_TYPES or f.get("build", True) is False]
+              if (f["type"] in RUG_BLOCKER_TYPES or f.get("build", True) is False)
+              and f.get("inferred_as") != "rug"]
     zones += list(rugs)
     return unary_union(zones) if zones else None
 

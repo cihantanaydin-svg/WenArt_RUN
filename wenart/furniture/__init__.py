@@ -16,4 +16,7 @@
 - ``layout``: two model passes -> placer -> ``added_by_ai`` pieces.
 - ``decor``: rule-based cushions, books and plants; Milestone 8: rugs under furniture
   groups and wall art above sofas, beds and dressers.
+- Milestone 11 (docs/milestone11.md §6, contract §17.2): ``plausibility`` (the code critic: checks F1-F9, R1-R4 and
+  a score per room), ``edit_ops`` (the agent's validated edits), ``groups`` (functional groups placed as one unit),
+  ``infer`` (types of unclear drawn pieces, rug outlines).
 """

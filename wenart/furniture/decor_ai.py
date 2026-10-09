@@ -282,12 +282,18 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
     ceiling = _ceiling(building, room)
     level = next((lv for lv in building.get("levels") or [] if lv.get("id") == room["level_id"]), {})
     hosts = sorted((p for p in pieces if usable_host(p)), key=lambda p: p["id"])
+    planes = D.ceiling_planes(building, room["level_id"])     # Milestone 11 (E2): the attic slope
     for host in hosts:
         htype = host["type"]
         if htype in TOP_HOSTS:
             top = _host_top(host)
             sill = _window_limit(host, ctx)
-            max_h = ceiling - CEILING_CLEAR_M - top
+            here = ceiling
+            if planes:
+                fp = host["footprint"]
+                here = min(ceiling, D.ceiling_over(building, room["level_id"], fp["center"], fp["size"],
+                                                   float(fp["rotation_deg"]), planes=planes))
+            max_h = here - CEILING_CLEAR_M - top
             if sill is not None:
                 max_h = min(max_h, sill - top)
             for part, local, (pw, pd) in _top_parts(host):
@@ -1214,6 +1220,7 @@ def floor_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Room
     if not types:
         return []
     base_corners = free_corners(room, pieces, building, ctx)
+    planes = D.ceiling_planes(building, room["level_id"])     # Milestone 11 (E2): the attic slope
     out = []
     for n, small in enumerate(base_corners[:FLOOR_CORNERS_MAX], start=1):
         made = {}
@@ -1228,6 +1235,9 @@ def floor_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Room
                 if not near:
                     continue
                 centre = near[0]
+            if planes and h > D.ceiling_over(building, room["level_id"], centre, (w, d), planes=planes) \
+                    - CEILING_CLEAR_M:
+                continue                      # the sloped ceiling over this corner is too low (real02's attic)
             made[t] = {"type": t, "center": [round(centre[0], 3), round(centre[1], 3)], "rotation_deg": 0.0,
                        "size": [w, d, h] if t != "plant" else list(D.PLANT_SIZE),
                        "reason": f"{t.replace('_', ' ')} in a free corner"}

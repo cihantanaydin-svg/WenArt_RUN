@@ -222,7 +222,8 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
     (without ``has_documented_furniture`` decided: it starts ``False``).
 
     Generic core pages: ``union`` (the bridged wall union), ``separators``,
-    ``unlabelled_label``, ``face_type(polygon) -> (room_type, reason)`` and
+    ``unlabelled_label``, ``face_type(polygon) -> (room_type, reason[, label])`` (Milestone 11: a label for the
+    unlabelled face, e.g. "Merdiven" for a stair core) and
     labels with a ``block`` (see the module docstring).
     """
     result = RoomResult()
@@ -308,7 +309,11 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             label, area_label, label_raw = unlabelled_label, None, None
             room_type = "unknown"
             if face_type is not None:
-                room_type, reason = face_type(shp)
+                typed = face_type(shp)
+                room_type, reason = typed[0], typed[1]
+                if len(typed) > 2 and typed[2]:
+                    # Milestone 11 (M8): a face the stair fills is named for it ("Merdiven"), not "Oda".
+                    label = typed[2]
                 result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label: {reason}")
             else:
                 result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label")

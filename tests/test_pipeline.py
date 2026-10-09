@@ -560,7 +560,7 @@ def test_room_label_disagreement_is_a_conflict(tmp_path):
 
 
 def test_area_label_over_tolerance_marks_room_unverified(tmp_path):
-    """Label vs computed area: 2.9 % stays verified, more than 3 % -> unverified."""
+    """Label vs computed area: 2.9 % stays verified, more than 8 % -> unverified (Milestone 11 D4: was 3 %)."""
     truth_area = 24.50
     for label, expected in (("SALON 30,00 m²", "unverified"), ("SALON 25,20 m²", "verified")):
         level = level_01_zemin()
@@ -574,7 +574,7 @@ def test_area_label_over_tolerance_marks_room_unverified(tmp_path):
         area = [c for c in building["conflicts"] if c["kind"] == "area_label_vs_computed"]
         assert len(area) == 1 and area[0]["element_ids"] == ["r_L0_salon"]
         if expected == "unverified":
-            assert building["unverified"] == ["r_L0_salon"] and "over 3%" in area[0]["resolution"]
+            assert building["unverified"] == ["r_L0_salon"] and "over 8%" in area[0]["resolution"]
             assert "r_L0_salon" in (project / "out" / "report.md").read_text(encoding="utf-8").split("## Unverified")[1]
         else:
             assert building["unverified"] == [] and "within tolerance" in area[0]["resolution"]

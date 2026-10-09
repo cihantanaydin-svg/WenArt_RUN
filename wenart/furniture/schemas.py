@@ -51,6 +51,11 @@ the long seat (chaise) is ``chaise_width`` wide on ``chaise_side`` seen from
 the front (a viewer facing the sofa: ``right`` = local +X); both default to
 0.9 m (``L_SEAT_DEPTH_M``, ``L_CHAISE_WIDTH_M``). ``l_parts`` gives the two
 rectangles; the placer uses them in every check.
+
+Milestone 11 (docs/milestone11.md §4.3, §6): ``ORIENTATION_RULES`` per type (back to a wall / free in a group, what
+the front faces, the group partners; used by ``plausibility``, ``infer`` and ``groups``), ``GROUP_TYPES`` (the
+functional groups), the armchair's front clearance (``CLEARANCE_DEPTH_M``, U13) and ``completion_plan`` taking an
+``unverified`` flag per piece (an unverified table asks for no chairs, U10).
 """
 from __future__ import annotations
 
@@ -186,13 +191,20 @@ WALL_TYPES: tuple[str, ...] = (
     "wall_cabinet",
 )
 # 0.6 m free in front of these (docs/milestone4.md section 3; Milestone 10: the corner sofa (in front of its
-# main seat), bunk beds, cribs and tall cabinets).
+# main seat), bunk beds, cribs and tall cabinets; Milestone 11 (docs/milestone11.md §1.2 U13): armchairs, with a
+# shorter zone, ``CLEARANCE_DEPTH_M``).
 CLEARANCE_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "desk", "wardrobe",
-                                    "sofa_corner", "bunk_bed", "crib", "tall_cabinet")
+                                    "sofa_corner", "bunk_bed", "crib", "tall_cabinet", "armchair")
+# Milestone 11 (U13: an added armchair stood 1 cm behind a sofa back, facing it): the depth of the free zone in
+# front of a seat that is not the 0.6 m default (a knee zone; assumed typical value).
+CLEARANCE_DEPTH_M: dict[str, float] = {"armchair": 0.45}
 # Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair; a
-# bench or ottoman at the foot of a bed, §2.3 "bench (bed foot)", code review #21).
-CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",), "bed_double": ("bench", "ottoman"),
-                                                "bed_single": ("bench", "ottoman")}
+# bench or ottoman at the foot of a bed, §2.3 "bench (bed foot)", code review #21); Milestone 11: a coffee table,
+# pouf or side table in front of an armchair.
+CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",),
+                                                "bed_double": ("bench", "ottoman"),
+                                                "bed_single": ("bench", "ottoman"),
+                                                "armchair": ("table_coffee", "ottoman", "side_table")}
 # Allowed within 0.3 m of a window even when taller than the sill.
 UNDER_WINDOW_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "table_dining", "table_coffee",
                                        "sofa_corner", "chaise", "bench")
@@ -253,6 +265,99 @@ COMPANION_REACH_M = 0.6
 # Upholstered types: the AI's colour is the fabric colour (``design.fabric_colour``), else ``design.colour``.
 FABRIC_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bench", "bed_single",
                                  "bed_double")
+
+# --------------------------------------------------------------------------
+# Milestone 11: orientation rules per type (docs/milestone11.md §4.3 F3, F4, F8, §6)
+# --------------------------------------------------------------------------
+
+# type -> {"back": "wall" | "wall_or_group" | "free" | "skip", "back_severity", "front_to": [types], "reach_m",
+# "partners": [types], "partner_m"}:
+# - back "wall": the back edge stands on a wall (F3: within BACK_WALL_M, parallel within BACK_PARALLEL_DEG);
+#   "wall_or_group": on a wall, or free when its front faces one of ``front_to`` (a sofa facing the TV unit or the
+#   coffee table in an open room); "free": a piece of a group (F8: one of ``partners`` within ``partner_m``, or a side
+#   on a wall); "skip": no orientation checks (stairs, wall-hung cabinets);
+# - front_to: what the front should face (F4) when one of these stands in the room within ``reach_m`` (edge to edge);
+#   empty = only "the front does not face a wall closer than FRONT_WALL_MIN_M";
+# - frontless types (FRONTLESS_TYPES) have no front: F4 is skipped.
+# Sizes and distances are assumed typical values (planning handbooks), not from a standard.
+BACK_WALL_M = 0.05
+BACK_PARALLEL_DEG = 5.0
+FRONT_WALL_MIN_M = 0.3
+FACING_DEG = 45.0                  # the front faces a target when the target lies within 45 degrees of it
+FRONTLESS_TYPES: tuple[str, ...] = ("table_dining", "table_coffee", "side_table", "floor_lamp", "potted_plant",
+                                    "ottoman", "kitchen_island", "stair", "unknown")
+_SEATS = ("sofa", "sofa_corner", "armchair", "chaise")
+_BEDS = ("bed_double", "bed_single", "bunk_bed", "crib")
+
+
+def _rule(back: str, front_to=(), reach_m: float = 0.0, partners=(), partner_m: float = 0.0,
+          back_severity: str = "major") -> dict[str, Any]:
+    return {"back": back, "back_severity": back_severity, "front_to": list(front_to), "reach_m": reach_m,
+            "partners": list(partners), "partner_m": partner_m}
+
+
+ORIENTATION_RULES: dict[str, dict[str, Any]] = {
+    "bed_double": _rule("wall", back_severity="critical"),
+    "bed_single": _rule("wall", back_severity="critical"),
+    "bunk_bed": _rule("wall", back_severity="critical"),
+    "crib": _rule("wall"),
+    "sofa": _rule("wall_or_group", ("tv_unit", "table_coffee"), 4.5),
+    "sofa_corner": _rule("wall_or_group", ("tv_unit", "table_coffee"), 4.5),
+    "armchair": _rule("free", ("table_coffee", "sofa", "sofa_corner", "tv_unit"), 3.5,
+                      _SEATS + ("table_coffee", "tv_unit", "ottoman", "side_table", "floor_lamp"), 2.0),
+    "chaise": _rule("free", ("table_coffee", "tv_unit"), 3.5, _SEATS + ("table_coffee", "tv_unit"), 2.0),
+    "chair": _rule("free", ("table_dining", "desk", "kitchen_island", "table_coffee"), 1.0,
+                   ("table_dining", "desk", "kitchen_island", "table_coffee", "dresser"), 0.8),
+    "office_chair": _rule("free", ("desk",), 1.0, ("desk",), 1.0),
+    "bar_stool": _rule("free", ("kitchen_island", "kitchen_counter"), 0.8, ("kitchen_island", "kitchen_counter"),
+                       0.8),
+    "table_dining": _rule("free", partners=("chair", "bench", "bar_stool"), partner_m=1.0),
+    "table_coffee": _rule("free", partners=_SEATS, partner_m=1.5),
+    "kitchen_island": _rule("free", partners=("kitchen_counter", "sink_kitchen", "stove", "fridge", "bar_stool",
+                                              "tall_cabinet"), partner_m=3.0),
+    "ottoman": _rule("free", partners=_SEATS + _BEDS + ("table_coffee", "dresser"), partner_m=1.5),
+    "side_table": _rule("free", partners=_SEATS + _BEDS + ("desk",), partner_m=0.8),
+    "floor_lamp": _rule("free", partners=_SEATS + _BEDS + ("desk", "table_coffee"), partner_m=1.2),
+    "potted_plant": _rule("free", partners=_SEATS + _BEDS + ("tv_unit", "sideboard", "console_table"),
+                          partner_m=1.5),
+    "bench": _rule("free", partners=_BEDS + ("table_dining", "shoe_cabinet"), partner_m=0.8),
+    "desk": _rule("wall"),
+    "wardrobe": _rule("wall"),
+    "tv_unit": _rule("wall", ("sofa", "sofa_corner", "armchair"), 6.0),
+    "bookshelf": _rule("wall"),
+    "dresser": _rule("wall"),
+    "sideboard": _rule("wall"),
+    "console_table": _rule("wall"),
+    "shoe_cabinet": _rule("wall"),
+    "display_cabinet": _rule("wall"),
+    "nightstand": _rule("wall", partners=_BEDS, partner_m=0.3, back_severity="minor"),
+    "kitchen_counter": _rule("wall"),
+    "sink_kitchen": _rule("wall"),
+    "stove": _rule("wall"),
+    "fridge": _rule("wall"),
+    "tall_cabinet": _rule("wall"),
+    "washing_machine": _rule("wall"),
+    "washbasin": _rule("wall"),
+    "toilet": _rule("wall"),
+    "bathtub": _rule("wall"),
+    "shower": _rule("wall", back_severity="minor"),
+    "wall_cabinet": _rule("skip"),
+    "stair": _rule("skip"),
+}
+
+# Functional groups (docs/milestone11.md §6, wenart/furniture/groups.py): the anchor types of a group and its members.
+GROUP_TYPES: dict[str, dict[str, Any]] = {
+    "dining_set": {"anchor": ("table_dining",), "members": ("chair",)},
+    "bed_set": {"anchor": ("bed_double", "bed_single"), "members": ("nightstand",)},
+    "living_set": {"anchor": ("sofa",), "members": ("table_coffee", "tv_unit")},
+    "desk_set": {"anchor": ("desk",), "members": ("office_chair",)},
+    "kitchen_run": {"anchor": ("kitchen_counter",), "members": ("sink_kitchen", "stove", "fridge")},
+}
+
+
+def orientation_rule(ftype: str) -> dict[str, Any]:
+    """The ``ORIENTATION_RULES`` row of a type (``skip`` for a type without one)."""
+    return ORIENTATION_RULES.get(ftype, _rule("skip"))
 
 LAYOUT: dict[str, Any] = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -397,7 +502,8 @@ def count_by_length(length: float, table: tuple[tuple[float, int], ...]) -> int:
 
 def completion_plan(room_type: Optional[str], subtype: Optional[str],
                     present: Iterable[tuple[str, Any]]) -> dict[str, Any]:
-    """What a room with drawn furniture holds, misses and may get (§2.3), from its pieces ``(type, size)``
+    """What a room with drawn furniture holds, misses and may get (§2.3), from its pieces ``(type, size)`` (or
+    ``(type, size, unverified)``, Milestone 11: an unverified dining table asks for no chairs)
     after the agreed changes.
 
     Returns ``anchors`` (the anchor types the room may get), ``anchor_roles`` (every type that is the room's main
@@ -408,7 +514,13 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     type; nothing in bathrooms and WCs) and ``counts`` (type -> present).
     """
     rtype = room_type or "other"
-    items = [(t, tuple(float(v) for v in size)) for t, size in present]
+    present = list(present)
+    items = [(p[0], tuple(float(v) for v in p[1])) for p in present]
+    # Milestone 11 (U10: one block "masa" = table + 10 chairs read as one table, then 7 more chairs were asked for):
+    # an unverified table (a third value True: its footprint may hold its drawn chairs) asks for no chairs.
+    sure_tables = [max(float(v) for v in p[1]) for p in present
+                   if p[0] == "table_dining" and not (len(p) > 2 and p[2])]
+    unsure_table = any(p[0] == "table_dining" for p in present) and not sure_tables
     counts = Counter(t for t, _ in items)
     anchors = anchor_types(rtype, subtype)
     # Any bed type counts as the room's bed (code review #18: a double bed drawn in a child's room, a bunk bed in
@@ -420,10 +532,13 @@ def completion_plan(room_type: Optional[str], subtype: Optional[str],
     beds = [t for t, _ in items if t in NIGHTSTANDS_PER_BED]
     if "nightstand" in expected and beds:
         expected["nightstand"] = max(NIGHTSTANDS_PER_BED[b] for b in beds)
-    tables = [max(size) for t, size in items if t == "table_dining"]
+    tables = sure_tables
     if tables and rtype != "other":
         # Chairs follow a drawn dining table wherever it stands (a dining corner of a living room or kitchen).
         expected["chair"] = count_by_length(max(tables), CHAIRS_BY_TABLE_LENGTH)
+        extra.pop("chair", None)
+    elif unsure_table:
+        expected.pop("chair", None)
         extra.pop("chair", None)
     if rtype == "kitchen":
         islands = [max(size) for t, size in items if t == "kitchen_island"]

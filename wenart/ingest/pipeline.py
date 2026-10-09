@@ -76,7 +76,7 @@ OPENING_TOL = 0.010             # metres: opening centre and width matching
 FURNITURE_TOL = 0.010           # metres: furniture centre and footprint corner matching
 ROTATION_TOL = 1.0              # degrees: furniture facing across documents
 SWING_MARGIN = 0.05             # metres past the wall face where the door swing probe is placed
-AREA_TOL = 0.03                 # label vs computed area: conflict beyond, unverified beyond this
+AREA_TOL = 0.08                 # label vs computed area (M11 D4: 8 %, was 3 %): conflict beyond, unverified beyond this
 DIMENSION_TOL = 0.01            # printed vs measured dimension
 PRINT_EPS = 0.0051              # texts show two decimals: smaller differences are rounding
 OUTLINE_TOL = 0.005             # metres, Hausdorff distance of exterior rings across levels
@@ -346,8 +346,12 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
     real = [o for o in ex.openings if not o.virtual]
     union = TP.bridged_union(ex.walls, real, ex.separators)
 
+    turkish = ex.report.get("unlabelled_label", R.UNLABELLED_LABEL) == R.UNLABELLED_LABEL
+
     def face_type(poly):
-        return TP.unlabelled_face_type(poly, ex.walls, real, stairs)
+        room_type, reason = TP.unlabelled_face_type(poly, ex.walls, real, stairs)
+        label = TP.stair_room_label(poly, stairs, turkish)   # Milestone 11 (M8): a stair core is no "Oda"
+        return (room_type, reason, label) if label else (room_type, reason)
 
     anchors = [_to_building(ex, t.start) for t in ex.labels]
     fallbacks = [_to_building(ex, G.box_center(t.box)) for t in ex.labels]
@@ -473,7 +477,7 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
 
     for work in works:
         _check_dimensions(build, work, walls, evidence_only=work is not master and work.record.kind in RASTER_KINDS)
-    _check_areas(build, rooms, master)
+    _check_areas(build, rooms, master, furniture)
 
 
 def _raster_room_labels(build: ProjectBuild, level_id: str, ex: LevelExtraction, rooms: list[dict], where: str) -> None:
@@ -816,17 +820,38 @@ def _check_dimensions(build: ProjectBuild, work: PageWork, walls: list[dict], ev
         dim.conflict_id = entry["description"]
 
 
-def _check_areas(build: ProjectBuild, rooms: list[dict], master: PageWork) -> None:
+def stair_area(room: dict, furniture: list[dict]) -> float:
+    """Milestone 11 (decision D4): the floor area the drawn stairs of a room take (their footprints inside its
+    polygon, m²): a stair opening is not counted in a printed room area."""
+    from wenart.ingest.generic import topology as TP
+
+    stairs = [f for f in furniture if f.get("room_id") == room["id"] and f.get("type") == "stair"]
+    if not stairs or len(room.get("polygon") or []) < 3:
+        return 0.0
+    return round(TP.stair_fill(room["polygon"], stairs) * Polygon(room["polygon"]).area, 3)
+
+
+def _check_areas(build: ProjectBuild, rooms: list[dict], master: PageWork,
+                 furniture: Optional[list[dict]] = None) -> None:
+    """Area label vs polygon (Milestone 11, decision D4): the label is compared with the polygon and with the polygon
+    minus its stair openings (``stair_area``), the closer one counts; ``AREA_TOL`` (8 %, as the generic label check)."""
     for room in rooms:
         label_area = room.get("area_label")
         if label_area is None or room["area_computed"] <= 0:
             continue
+        stairs = stair_area(room, furniture or [])
+        net = room["area_computed"] - stairs
         diff = abs(label_area - room["area_computed"])
+        if stairs > 0 and abs(label_area - net) < diff:
+            diff = abs(label_area - net)
+        else:
+            stairs = 0.0
         if diff <= PRINT_EPS:
             continue
         pct = diff / label_area * 100.0
         description = (f"Label says {format_m2(label_area)} m², polygon gives {format_m2(room['area_computed'])} m² "
-                       f"({pct:.1f}%)")
+                       + (f"minus the stair {format_m2(stairs)} m² = {format_m2(net)} m² " if stairs else "")
+                       + f"({pct:.1f}%)")
         if diff / label_area <= AREA_TOL:
             resolution = f"within tolerance ({AREA_TOL * 100:.0f}%), kept polygon from {master.record.file}"
         else:
@@ -1418,6 +1443,7 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str],
         fp = f["footprint"]
         lines.append(f"| {f['id']} | {f['level_id']} | {f['room_id'] or '-'} | {f['type']} | {f['type_raw'] or '-'} | {f['source']} | "
                      f"{fp['size'][0]:.2f} x {fp['size'][1]:.2f} | {fp['rotation_deg']:.0f} | {f['status']} | {f['evidence'][0]['file']} |")
+    lines += _inferred_section(b)
     if build is not None and getattr(build, "sheets", None) is not None:
         lines += _m10_sections(b)
     if build is not None and build.generic:
@@ -1888,6 +1914,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],
                                                                             info["residual_m"])
+    # Milestone 11 (U16): a twin's untyped (or frontless) drawn piece takes the agreed twin's type and front.
+    for line in TW.apply_twin_copies(b["furniture"], TW.twin_copies(b["rooms"], b["furniture"])):
+        build.warn(f"twin copy: {line}")
     for lv in b["levels"]:
         if not lv.get("base_level_id"):
             continue
@@ -1919,6 +1948,53 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         # The sheet analysis's conflicts name drawing regions (sheets.json ids), not building elements.
         build.conflict(c["kind"], list(c.get("regions") or []), f"sheets.json {c['id']}: {c['description']}",
                        c["resolution"])
+
+
+def _pending_piece_ids(build: ProjectBuild) -> set[str]:
+    """Ids of the drawn pieces whose AI question is still waiting for its answers (the run with the answers decides
+    them; nothing is inferred before)."""
+    out = set()
+    for work in build.generic:
+        pending = set((work.extraction.report or {}).get("pending") or [])
+        for f in work.extraction.furniture:
+            if f.details.get("candidate_key") in pending and getattr(f, "element_id", None):
+                out.add(f.element_id)
+    return out
+
+
+def _infer_types(build: ProjectBuild) -> None:
+    """Milestone 11 (docs/milestone11.md §6, CLAUDE.md "never an unexplained box"): the drawn ``unknown`` pieces get an
+    inferred type or are recognised as rug / group outlines (``wenart.furniture.infer``), after the AI answers were
+    applied; every inference is a warning and is listed in the report (``inferred: true``)."""
+    from wenart.furniture import infer as INF
+
+    b = build.building
+    pending = _pending_piece_ids(build)
+    # The conflicts are written to the building at the end; the inference needs them now (a face that holds two room
+    # names, real02's open kitchen with its living room, allows the types of both).
+    view = dict(b, conflicts=list(b.get("conflicts") or []) + list(build.raw_conflicts))
+    proposals = [p for p in INF.infer_types(view) if p["piece_id"] not in pending]
+    if not proposals:
+        return
+    b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    for p in proposals:
+        what = "not built (rug or group outline)" if p.get("build") is False else f"inferred {p['type']}"
+        build.warn(f"{p['piece_id']}: {what}: {p['reason']}")
+
+
+def _inferred_section(b: dict) -> list[str]:
+    """Milestone 11: every inferred item (type, front or outline) with its reason."""
+    rows = [f for f in b["furniture"] if f.get("inferred")]
+    if not rows:
+        return []
+    lines = ["", "## Inferred (Milestone 11)", "",
+             "Pieces whose type, front or role the documents left unclear; inferred by code (the agent may change "
+             "them on the plan crop).", "", "| Piece | Room | Type | Front | Built | Reason |", "|---|---|---|---|---|---|"]
+    for f in rows:
+        front = f"{f['front_deg']:g}" if f.get("front_deg") is not None else "-"
+        lines.append(f"| {f['id']} | {f.get('room_id') or '-'} | {f['type']} | {front} | "
+                     f"{'no' if f.get('build') is False else 'yes'} | {_cell(f.get('inferred_reason') or '')} |")
+    return lines
 
 
 def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Callable] = None, answers=None,
@@ -2096,6 +2172,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _check_outlines(build)
     if build.sheets is not None:
         _building_m10(build, project_dir)
+    _infer_types(build)
     masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.
