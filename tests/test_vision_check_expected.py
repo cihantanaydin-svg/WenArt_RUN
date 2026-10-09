@@ -410,6 +410,25 @@ def test_crosscheck_skips_pieces_that_are_not_built(tmp_path):
     assert cc["in_json_not_rendered"] == []
 
 
+def test_crosscheck_skips_the_upper_end_of_a_stair_built_below(tmp_path):
+    """Milestone 10: a top-level stair that is the drawn upper end of the stair below is listed in the scene
+    manifest's ``furniture.not_built`` with ``arrives_from`` and not built; its absence is no mismatch. Any
+    other piece missing from the render still is."""
+    out = T.write_toy_project(tmp_path, drop=("f_arm",))
+    path = out / "scene" / "scene_manifest.json"
+    scene = json.loads(path.read_text(encoding="utf-8"))
+    building = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
+    view = V.load_views(out / "renders")[CAM]
+    assert [x["id"] for x in X.expected_view(view, scene, building)["json_crosscheck"]["in_json_not_rendered"]] \
+        == ["f_arm"]
+    scene.setdefault("furniture", {}).setdefault("not_built", []).append(
+        {"id": "f_arm", "type": "armchair", "reason": "arrives from f_x (L-1 -> L0)", "arrives_from": "f_x"})
+    assert X.expected_view(view, scene, building)["json_crosscheck"]["in_json_not_rendered"] == []
+    scene["furniture"]["not_built"][-1].pop("arrives_from")             # not built for another reason: still tested
+    assert [x["id"] for x in X.expected_view(view, scene, building)["json_crosscheck"]["in_json_not_rendered"]] \
+        == ["f_arm"]
+
+
 def test_crosscheck_skips_what_a_control_render_hides_on_purpose(tmp_path):
     out = T.write_toy_project(tmp_path, controls=("f_arm",))
     hidden = V.load_views(out / "controls" / "hide_f_arm")[CAM]

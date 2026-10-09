@@ -737,7 +737,6 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 - Objaverse LVIS category names are checked against the LVIS v1 list, not the Objaverse file (unverified until a pod).
 - A toilet's `height` has two meanings: `furniture.schemas.HEIGHTS` gives an added toilet 0.8 m (the cistern top), while `parametric._toilet` and the proxy tables read it as the bowl (0.4 m), so an AI-added parametric toilet is built 1.2 m tall with a 0.77 m bowl (real01 `f_L0_021`; synthetic-03 in M7). The camera model follows the built mesh; a fix changes real01's renders.
 - `recolour slots` rebuilds every model's record and sheet after Blender on each run (reads the masks and renders from the network volume, about 15 min for 1646 models) and does not watch the deadline there; the GLB copies with renamed materials before Blender neither. The prep job therefore runs `recolour_slots` only where the slots are new (L2b leaves it out: the generated models get no material fields: a colour brief skips them and the fit takes another model, `wenart/assets/recolour.py`).
-- A stair drawn on the top level over the stair below (real02's attic twins, synthetic-07's attic MERDIVEN) is now read as the upper end of that stair. It is not built again: `shell.stair_arrival`, listed in `furniture.not_built` with `arrives_from` and `slab_opening`. A top-level stair over no stair stops under the roof underside (assumed, with a warning). Two readers still treat the upper end as a built stair: the camera search's ray model (`camsearch.RoomModel` turns a stair without a plan into a solid footprint box of `piece_bbox` height over the stairwell; fix: skip the `plan_stairs` items that have `arrival`) and the vision check's JSON cross-check (`vision_check/expected.py` `json_crosscheck` skips only `build: false`, so an attic view of the stairwell lists the piece as `in_json_not_rendered`, about 4 views of real02 and synthetic-07; fix: skip the `not_built` ids that have `arrives_from`). real02 and synthetic-07 need a rebuild on the next pod.
 
 ### 10.5 Pods
 
@@ -777,3 +776,19 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 
 Open (§10.4): an AI-added parametric toilet is built 1.2 m tall (the builder reads its 0.8 m JSON height as the bowl);
 fixing the meaning of a toilet's height changes real01's renders and is left for a later milestone.
+
+### 10.8 Top-floor stairs (seen in the exterior views of F1b and F2)
+
+A stair drawn on the top level was built as a new flight rising to a level that does not exist: real02's attic
+stairs reached 7.05 m with their shafts against a ridge at 6.79 m (white boxes above the roof), synthetic-07's
+attic stair rose out of its gable roof. The documents draw the same stair block at the same place on every plan
+(real02 "merdiven", synthetic-07 MERDIVEN, "stairs aligned"), so the attic stair is the drawn upper end of the stair
+below. Fix (whole M10 buildings only; M3–M9 buildings keep the M7 path):
+
+- `shell.stair_arrival`: a top-level stair over a stair of the level below (at least half of the smaller footprint)
+  is that stair's upper end: not built, listed in `furniture.not_built` with `arrives_from` and `slab_opening`, an
+  assumed `stair_arrival` entry; the attic ceilings are no longer cut for it.
+- A top-level stair over no stair stops 5 mm under the roof underside (assumed, a warning "the roof access is not
+  drawn (needs review)"); with less than 0.30 m of room it is not built (a warning).
+- The camera model (`camsearch.RoomModel`) and the vision check's JSON cross-check (`expected.json_crosscheck`)
+  leave out a stair the builder does not build.

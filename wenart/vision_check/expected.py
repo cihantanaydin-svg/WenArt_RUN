@@ -521,7 +521,10 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
         })
     elements.sort(key=lambda e: (-e["pixels"], e["index"]))
 
-    crosscheck = json_crosscheck(view, camera, building, table, cfg, level_id, scope=sc)
+    # Milestone 10: the drawn upper end of a stair built on the level below (shell.stair_arrival) is not built.
+    arrived = frozenset(n["id"] for n in (scene_manifest.get("furniture") or {}).get("not_built") or []
+                        if n.get("arrives_from"))
+    crosscheck = json_crosscheck(view, camera, building, table, cfg, level_id, scope=sc, skip=arrived)
     result = {
         "camera": view.camera,
         "view_kind": "exterior" if exterior else "interior",
@@ -750,8 +753,12 @@ def placement(mask: np.ndarray, depth_m: np.ndarray, camera: dict, size, extent:
 
 
 def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, cfg: dict,
-                    level_id: Optional[str] = None, scope: Optional[dict] = None) -> dict:
+                    level_id: Optional[str] = None, scope: Optional[dict] = None,
+                    skip: frozenset = frozenset()) -> dict:
     """The §5.1 building-JSON cross-check of one view (see the module docstring).
+
+    ``skip`` (Milestone 10): furniture ids the scene does not build on purpose (the scene manifest's
+    ``furniture.not_built`` entries with ``arrives_from``); they are not tested.
 
     ``scope`` (Milestone 10, ``exterior.scope``): an exterior view. It tests the outer openings of the camera's
     variant (each on its own level, thresholds ``check.yaml: crosscheck_exterior``) and no furniture; the result
@@ -829,6 +836,8 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
             continue
         if piece.get("build") is False:
             continue        # a drawn symbol both AI passes call not furniture: never built (docs/milestone7.md §3.3)
+        if piece["id"] in skip:
+            continue        # the drawn upper end of a stair built on the level below (shell.stair_arrival)
         try:
             box3d = furniture_box3d(piece, level, built_height.get(piece["id"]))
         except (KeyError, TypeError, ValueError):

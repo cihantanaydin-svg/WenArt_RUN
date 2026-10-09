@@ -368,3 +368,21 @@ def test_no_stair_or_shaft_rises_out_of_the_roof(gable_build):
     assert any(w.startswith("f_L1_002: stair on the top level") and "roof access is not drawn" in w
                for w in m["warnings"])
     assert not [w for w in m["warnings"] if w.startswith("f_L1_001:")]
+
+
+def test_the_camera_model_leaves_out_a_stair_the_builder_does_not_build():
+    """The ray model of camsearch follows the builder: the attic's upper end of the stair below is neither a
+    solid nor a box (before: a box over the stairwell); the ground-floor stair stays its built parts."""
+    from wenart.blender import camsearch
+    vb = B.prepare(_with_attic_stair(), "base")["building"]
+    hall = next(r for r in vb["rooms"] if r["id"] == "r_L1_hol")
+    model = camsearch.RoomModel(hall, vb, _level(vb, "L1"))
+    codes = {camsearch.FIRST_ELEMENT + len(model.elements) - len(model.pieces) + k: f["id"]
+             for k, f in enumerate(model.pieces)}
+    modelled = {codes.get(b[0]) for b in model.boxes} | {codes.get(s[0]) for s in model.solids}
+    assert "f_L1_001" in {f["id"] for f in model.pieces} and "f_L1_001" not in modelled
+    ground = next(r for r in vb["rooms"] if r["id"] == next(f for f in vb["furniture"] if f["id"] == "f_L0_001")["room_id"])
+    model0 = camsearch.RoomModel(ground, vb, _level(vb, "L0"))
+    codes0 = {camsearch.FIRST_ELEMENT + len(model0.elements) - len(model0.pieces) + k: f["id"]
+              for k, f in enumerate(model0.pieces)}
+    assert "f_L0_001" in {codes0.get(s[0]) for s in model0.solids}

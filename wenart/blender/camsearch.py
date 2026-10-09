@@ -591,21 +591,26 @@ class RoomModel:
         # built parts instead (review dwgblender-2): the step prisms on their sloped waist, the riser
         # plates, the landing slab and the rails, open under the upper flight and the landing as
         # shell.build_stairs builds it; its bounding box is a solid block taller than the room that hid
-        # the walls behind the flights.
+        # the walls behind the flights. A stair the builder leaves out on the top level of a whole building
+        # (shell.top_level_stair, Milestone 10: the drawn upper end of the stair below, or no headroom under
+        # the roof) is nothing in the model either.
         self.boxes = []
         self.solids = []
-        stair_plans = None
+        stair_items = None
         for k, f in enumerate(self.pieces):
             code = FIRST_ELEMENT + len(self.elements) - len(self.pieces) + k
             if f.get("type") in P.SHELL_TYPES:
-                if stair_plans is None:
-                    stair_plans = {item["piece"]["id"]: item["plan"] for item in plan_stairs(building, self.level)}
-                plan = stair_plans.get(f["id"])
+                if stair_items is None:
+                    stair_items = {item["piece"]["id"]: item for item in plan_stairs(building, self.level)}
+                item = stair_items.get(f["id"]) or {}
+                plan = item.get("plan")
                 if plan is not None:
                     solid = convex_parts_solid(P.stair_parts(plan), self.floor_z)
                     if solid is not None:
                         self.solids.append((code,) + solid)
                         continue
+                elif "arrival" in item:
+                    continue
             fp = f["footprint"]
             rot = math.radians(float(fp.get("rotation_deg") or 0.0))
             c, s = math.cos(rot), math.sin(rot)
