@@ -127,10 +127,14 @@ def test_abo_candidates_are_cc_by_with_known_units_and_the_documented_front(surv
         assert c["kind"] == ("decor" if c["group"] in OV.DECOR_TYPES else "furniture"), c["uid"]
         per_type[c["group"]] = per_type.get(c["group"], 0) + 1
     assert all(n <= acfg["survey"]["per_type_limit"] for n in per_type.values()), per_type
-    surveyed_here = any(Path(c["glb"]).is_file() for c in surv["candidates"])
+    # A filtered survey (``--types``, Milestone 10) lists its types; its other records are kept from the earlier
+    # survey, whose GLBs were in that pod's container cache (the new ones are in the volume cache).
+    listed = set(surv.get("types") or [])
+    fresh = {c["uid"] for c in surv["candidates"] if not listed or c["group"] in listed}
+    surveyed_here = any(Path(c["glb"]).is_file() for c in surv["candidates"] if c["uid"] in fresh)
     accepted = {a["uid"] for a in (OV.read_json(LIBRARY / "accepted.json") or {}).get("accepted", [])}
     for c in surv["candidates"]:
-        if surveyed_here:
+        if surveyed_here and c["uid"] in fresh:
             assert Path(c["glb"]).is_file(), c["uid"]
         elif c["uid"] in accepted:
             assert OV.glb_source(c, ASSETS) is not None, f"{c['uid']}: accepted, but no GLB in {ASSETS}"
