@@ -11,7 +11,9 @@ footprint must come from the geometry and the type from a rule, a block name or 
    so the whole stroke would never pass a 90 % test against the walls alone - or when >= 50 % of it lies inside the
    wall material (jamb lines crossing a wall). Dropped segments that close a piece's contour (a headboard 9 mm off the
    wall face) are given back to that piece. Segments inside the building outline are furniture strokes; the others
-   are site strokes.
+   are site strokes. A furniture segment that is straight, longer than 4.5 m and runs out of the building outline (the
+   roof ridge on synthetic-07's attic plan, a grid axis) is dropped: it would chain every piece and door leaf it
+   touches.
 2. **Clusters**: union-find over segments closer than 20 mm (dots included); a cluster whose bbox lies >= 80 % inside
    another merges into it unless it is a closed polygon with both sides >= 0.3 m that fits a size-table type (a sink or
    hob in a counter stays its own piece) - but not when a closed contour of the container encloses it and it is the
@@ -1674,6 +1676,16 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     inside_mask = shapely.contains(inside_poly, mids) if len(mids) else np.zeros(0, bool)
     inside = [s for s, m in zip(kept, inside_mask) if m]
     outside = [s for s, m in zip(kept, inside_mask) if not m]
+    # Pod F2 (synthetic-07's attic): a long straight stroke that crosses the building outline (a roof ridge or eaves
+    # line drawn on the top plan, a grid axis, a section line) is no furniture stroke: it would chain every piece and
+    # door leaf it touches into one cluster. Strokes outside the outline (site decor) are not touched.
+    crossing = [s for s in inside if not s.curve and not s.dot and s.length > MAX_SIDE_M
+                and s.geom.difference(inside_poly).length > OUTLINE_NEAR_M]
+    if crossing:
+        drop_ids = {id(s) for s in crossing}
+        inside = [s for s in inside if id(s) not in drop_ids]
+        notes.append(f"{len(crossing)} straight strokes longer than {MAX_SIDE_M} m that cross the building outline "
+                     f"are no furniture: {_short_ids([s.id for s in crossing])}")
     pool = [s for s in near_wall if inside_poly.contains(s.geom.centroid if not s.dot else s.geom)]
 
     clusters = clusters_of(inside)
