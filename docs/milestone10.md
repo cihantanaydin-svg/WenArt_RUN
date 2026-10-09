@@ -569,20 +569,24 @@ lights emit; HDRI at dusk), each with a verified Poly Haven HDRI.
 
 ### 4.11 Coverage table (filled from the survey and the library pods)
 
-| Item | Today | Target |
-|---|---|---|
-| Colours | 3 (white, cream, charcoal) | ≥ 40 + 6 modifiers |
-| Wall finishes | 5 | ≥ 14 + any paint colour |
-| Wet-wall tiles | 1 | 6 kinds × size / colour / grout |
-| Floors | 8 | ≥ 25 |
-| Cabinet front styles / worktops / handles | 0 / 1 / 0 | 4 / 4 / 3 |
-| Furniture types | 24 (+ 4 documented-only) | 38 |
-| Models per furniture type | 10–20 (18 of 24 at 20) | ≥ 20 per type where sources allow; reasons listed |
-| Style families per type | ≥ 3 for all 24 | ≥ 3 for all 38 |
-| Decor types | 8 | 20, ≥ 15 models each |
-| Door styles / window frames | 1 / 1 | 8 / 6 + colours |
-| Exterior materials | 1 | ≥ 13 |
-| Lighting moods | 5 | 9 |
+| Item | Today | Target | M10 (9 Oct 2026, after pod L2c) |
+|---|---|---|---|
+| Colours | 3 (white, cream, charcoal) | ≥ 40 + 6 modifiers | 53 named colours (W3C CSS Color 4, xkcd) + 7 modifiers |
+| Wall finishes | 5 | ≥ 14 + any paint colour | 25 + any paint colour |
+| Wet-wall tiles | 1 | 6 kinds × size / colour / grout | 6 kinds (subway, large porcelain, zellige, hexagon, mosaic, cement) with size, colour and grout |
+| Floors | 8 | ≥ 25 | 32 |
+| Cabinet front styles / worktops / handles | 0 / 1 / 0 | 4 / 4 / 3 | 4 / 4 / 3 |
+| Furniture types | 24 (+ 4 documented-only) | 38 | 38: 37 with library models, `wall_cabinet` parametric by design (built along the counter run) |
+| Models per furniture type | 10–20 (18 of 24 at 20) | ≥ 20 per type where sources allow; reasons listed | 669 models; 23 of 37 at 20. Below: crib 8, display_cabinet 8, bunk_bed 10, chaise 10, shower 10, sink_kitchen 15, tall_cabinet 17, dresser 18, nightstand 18, chair 19 (one accepted M9 model's GLB was on M9's container disk), fridge 19, sofa_corner 19, stove 19, toilet 19. Reasons: few real models in ABO / Objaverse for the new types; the judges refuse many generated sanitary and kitchen models (M9); the generation ran in one pod (L2c, 40 min, the 13 thinnest new types first) |
+| Style families per type | ≥ 3 for all 24 | ≥ 3 for all 38 | ≥ 3 for all 37 library types (GPU test, pod L2c) |
+| Decor types | 8 | 20, ≥ 15 models each | 20 types, 363 models; 18 of 20 with ≥ 15. Below: blind 9, plant_large 10 (generated only: no real source) |
+| Material slots and tags | — | judged by both models | 1264 models judged (recolourable: fabric 184, wood 207); the 102 models generated in L2c have none (§10.4) |
+| Door styles / window frames | 1 / 1 | 8 / 6 + colours | 8 / 6 + frame colours |
+| Exterior materials | 1 | ≥ 13 | 28 |
+| Lighting moods | 5 | 9 | 9 |
+
+`python -m wenart.style projects/real02` (9 Oct 2026): all 10 brief terms matched, no unmatched term; the exterior values the
+brief does not name are assumed (facade render warm greige, roof concrete tiles anthracite, paving grey, garden grass).
 
 ## 5. Acceptance
 
@@ -742,5 +746,10 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 | L1c `5j6x21hcj34t42` | RTX PRO 6000 | 115 | $4.76 | the rest of the thumbnails (50 min), 1646 judging sheets, material slots cut after 18 min | the same: the byte-for-byte library copy after every late step outran the watchdog → size and mtime compare, 16 copies at once; the runner collects 16 files at once; `--max-minutes 95 --grace 1200` |
 | L1d `5wbmxoz3cdezq6` | RTX PRO 6000 | 68 | $2.81 | sheets and pipelines of the four prep projects (real02: 92 questions, synthetic-07 and real02: no sheet_region question), both sessions (recognition, library judging), final pipelines, catalogue 618 + 316 decor models, copy, GPU tests | GPU tests: 2 library failures (a kept ABO record has no GLB on the pod: the test fixed; crib in 2 style families: L2's generation); real02 failed the schema (drawn wall cabinets without `mount_bottom_m`: fixed, real02 `ok` locally with the answers) |
 | L2a `md5uwkua9n8mey` | RTX PRO 6000 | 112 | $4.65 | the rest of the material slots (1264 of 1646 ready models with slots, 1275 sheets, 57 min), Qwen judged them (7 min) | GLM could not start before the deadline: the slots step overran its reserve by 15 min (it rebuilds every model's record and sheet after Blender, unbounded by the deadline), then the late steps ran into the watchdog; nothing collected. The generation's input images (310 MB) no longer go to `$RESULTS` |
+| L2b `k5vdwxva8alqyr` | RTX PRO 6000 | 58 | $2.43 | generation (target 20, every type: 438 pairs) | the network volume filled during the generation (120 GB): the job could not write, ended, and the pod stopped itself after its grace; nothing collected |
+| diagnostic `dg3ea8edhye1l2` | RTX PRO 4000 | 7 | $0.06 | `volume_report.sh` | could not start: volume full |
+| — | — | — | — | volume grown to 250 GB (your OK, decision #9) | |
+| diagnostic `2aw8p6a9m8kvsw` | RTX PRO 4000 | 5 | $0.04 | `volume_report.sh`: prep 34 GB (19 GB material-slot GLB copies), pip cache 17 GB, assets 14 GB, jobs 8 GB; L2b's logs | ok |
+| L2c `6d8e6zae3wsqxt` | RTX PRO 6000 | 81 | $3.37 | generation for the 13 thinnest new types (`WENART_GENERATE_TYPES`, 40 min: 387 generated candidates in all), thumbnails, 1769 judging sheets, both sessions (GLM: the material sheets), catalogue 669 + 363 decor models, copy (47 s), GPU tests | GPU tests: 3 wrong expectations fixed (a `mixed` slot material, `wall_cabinet` parametric only, an accepted record write-catalog refused); the runner's retries re-fetched everything (fixed: a retry fetches only the missing files) |
 
 
