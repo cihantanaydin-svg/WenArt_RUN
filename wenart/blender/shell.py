@@ -89,7 +89,11 @@ Milestone 10 (docs/milestone10.md §3.2, §1.6b rows 12, 13, 20), the whole buil
 keeps the M3-M9 shell): slabs (``slab_plan`` / ``build_slabs``), walls to the next floor or cut by the roof
 underside and the terrace parapets, closed L-joins, the facade look and the drawn facade parts on the outward
 faces, sills and balcony railings (``build_outside_details``, kind ``railing``), floors and ceilings with the
-stair voids and the sloped attic ceilings. The inside and opening looks go through track F's functions
+stair voids and the sloped attic ceilings. A stair on the top level (no level above) never rises to a floor that is
+not there or through the roof (``top_level_stair``): over a stair of the level below it is that stair's drawn upper
+end (``stair_arrival``: not built again, ``not_built`` with ``arrives_from`` and the slab opening, which the floor
+keeps; no ceiling opening), any other stops under the roof underside (assumed, a warning; no opening, no shaft).
+The inside and opening looks go through track F's functions
 (``wall_face_material``, ``wet_wall_look``, ``accent_walls``, ``door_look``, ``window_frame_look``,
 ``facade_look`` of ``wenart/blender/looks.py``; thin wrappers with the M9 looks as the fallback) and the outside
 materials through ``exterior_material`` / ``look_material``.
@@ -1612,8 +1616,15 @@ def build_skirting(building: dict, level: dict, collection, library, style: dict
 STAIR_NOT_BUILT_REASON = "build false: kept in the building, not built"
 STAIR_METHOD = "parametric (fixed equipment: the drawn flights and landing)"
 STAIR_METHOD_GENERIC = "parametric (fixed equipment: one assumed flight, no drawn flights)"
-# Above the level the shaft cap stays this far under the next floor (no coplanar faces with it).
+# Above the level the shaft cap stays this far under the next floor (no coplanar faces with it); a stair on the
+# top level of a whole building stops this far under the roof underside (Milestone 10).
 STAIR_UPPER_FLOOR_GAP = 0.005
+# Milestone 10: a stair on the top level whose footprint covers at least this share of the smaller of its own and
+# a stair footprint of the level below is the drawn upper end of that stair (``stair_arrival``).
+STAIR_ARRIVAL_SHARE = 0.5
+# Milestone 10: a stair on the top level with less room than this under the roof (two of the lowest risers) is
+# not built (a warning, needs review).
+STAIR_MIN_RISE_M = 2 * P.STAIR_RISER_RANGE[0]
 
 
 def stair_rise(building: dict, level: dict) -> tuple[float, float, str, str | None]:
@@ -1621,7 +1632,10 @@ def stair_rise(building: dict, level: dict) -> tuple[float, float, str, str | No
     (pure, metres above its floor): with nothing above, the ceiling height +
     the assumed ``STAIR_SLAB_M`` and the cap ``STAIR_SHAFT_CAP_M`` above the
     ceiling; with a level above, floor to floor and the cap just under its
-    floor (whose own floor is not cut: a warning says so)."""
+    floor (whose own floor is not cut: a warning says so). The top level of a
+    whole building (Milestone 10) does not use this rise: ``plan_stairs``
+    reads its stairs as the upper end of the stair below or stops them under
+    the roof (``top_level_stair``)."""
     floor_z = float(level["elevation"])
     ceiling = float(level["ceiling_height"])
     above = sorted(float(lv["elevation"]) for lv in building["levels"] if float(lv["elevation"]) > floor_z + 1e-6)
@@ -1643,11 +1657,21 @@ def plan_stairs(building: dict, level: dict, slab_void: bool = False) -> list[di
     level's walls for the handrail sides), or ``plan: None`` and the reason
     for a piece with ``build: false``. Site elements are never read.
     ``slab_void`` (Milestone 10): the slab above carries the opening and the
-    floor above is cut, so the stair arrives there (no capped-shaft warning)."""
+    floor above is cut, so the stair arrives there (no capped-shaft warning).
+
+    Milestone 10, the top level of a whole building (no level above it,
+    ``build.is_whole_building``): ``top_level_stair`` instead. A stair over a
+    stair of the level below is that stair's drawn upper end (``plan: None``,
+    ``arrival``: ``stair_arrival``; no second flight, no ceiling opening, no
+    shaft; the floor keeps the slab's opening); any other stops under the roof
+    underside (rise = ceiling = cap: no opening, no shaft through the roof;
+    assumed and a warning). Items may carry ``arrival`` and ``warnings``
+    (for ``build_stairs``). Pre-M10 buildings keep the M7 rise."""
     walls = [w for w in building["walls"] if w["level_id"] == level["id"]]
     rise, cap, source, warning = stair_rise(building, level)
     if slab_void:
         warning = None
+    top_of_whole = whole_building(building) and is_top_level(building, level)
     out = []
     for piece in building.get("furniture") or []:
         if piece.get("level_id") != level["id"] or piece.get("type") not in P.SHELL_TYPES:
@@ -1655,11 +1679,133 @@ def plan_stairs(building: dict, level: dict, slab_void: bool = False) -> list[di
         if piece.get("build", True) is False:
             out.append({"piece": piece, "plan": None, "reason": STAIR_NOT_BUILT_REASON})
             continue
+        if top_of_whole:
+            out.append(top_level_stair(building, level, piece, walls))
+            continue
         plan = P.stair_plan(piece, rise, float(level["ceiling_height"]), cap, walls, source)
         if warning:
             plan["warnings"].append(warning)
         out.append({"piece": piece, "plan": plan, "reason": None})
     return out
+
+
+def whole_building(building: dict) -> bool:
+    """``build.is_whole_building`` (pure; build imports this module): Milestone 10, a building with slabs, a roof
+    or variants."""
+    return bool(building.get("slabs") or isinstance(building.get("roof"), dict) or building.get("variants"))
+
+
+def is_top_level(building: dict, level: dict) -> bool:
+    """True when no level of ``building`` lies above ``level`` (pure; the test of ``stair_rise``)."""
+    z = float(level["elevation"])
+    return not any(float(lv["elevation"]) > z + 1e-6 for lv in building.get("levels") or [])
+
+
+def _footprint_polygon(piece: dict) -> list[tuple[float, float]]:
+    """The footprint rectangle of a piece, counter-clockwise ([] without a usable footprint)."""
+    fp = piece.get("footprint") or {}
+    try:
+        rect = G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return []
+    rect = geom2d.ccw(rect)
+    return rect if len(rect) >= 3 and G.polygon_area(rect) > 1e-9 else []
+
+
+def stair_arrival(building: dict, level: dict, piece: dict) -> dict | None:
+    """The stair of the level below whose drawn upper end ``piece`` is (pure; Milestone 10), or None.
+
+    Only in a whole building (``whole_building``) on a level with no level above it: a plan cut above a stair
+    shows its flights from above, the same block at the same place as on the plan below (real02's attic,
+    synthetic-07's MERDIVEN on every plan; ``sheets_report.md``: "stairs aligned"). It is when the piece's
+    footprint covers at least ``STAIR_ARRIVAL_SHARE`` of the smaller of its own and the footprint of a built
+    stair (``parametric.SHELL_TYPES``) of the level(s) directly below (the highest elevation under it); the
+    largest share wins. ``{"from": that stair's id, "from_level", "share", "opening": the id of the opening of
+    the building's slab under ``level`` drawn for it (``furniture_id``, else the first one over its footprint)
+    or None, "slabs": True when the building has slabs (``slab_plan`` then cuts an opening over it)}``."""
+    levels = building.get("levels") or []
+    if not whole_building(building) or not is_top_level(building, level):
+        return None
+    z = float(level["elevation"])
+    under = [float(lv["elevation"]) for lv in levels if float(lv["elevation"]) < z - 1e-6]
+    mine = _footprint_polygon(piece)
+    if not under or not mine:
+        return None
+    zb = max(under)
+    below = {lv["id"] for lv in levels if abs(float(lv["elevation"]) - zb) <= 1e-6}
+    best = None
+    for q in building.get("furniture") or []:
+        if q.get("type") not in P.SHELL_TYPES or q.get("level_id") not in below or q.get("build", True) is False:
+            continue
+        theirs = _footprint_polygon(q)
+        if not theirs:
+            continue
+        share = _shared_area(mine, theirs) / min(G.polygon_area(mine), G.polygon_area(theirs))
+        if share >= STAIR_ARRIVAL_SHARE - 1e-9 and (best is None or share > best[0] + 1e-9):
+            best = (min(1.0, share), q, theirs)
+    if best is None:
+        return None
+    share, q, theirs = best
+    slab = next((s for s in building.get("slabs") or []
+                 if isinstance(s, dict) and s.get("above_level_id") == level["id"]), None)
+    openings = [o for o in (slab or {}).get("openings") or [] if isinstance(o, dict)]
+    opening = next((o.get("id") for o in openings if o.get("furniture_id") == q["id"]), None)
+    if opening is None:
+        opening = next((o.get("id") for o in openings if len(o.get("polygon") or []) >= 3
+                        and _overlap(theirs, geom2d.ccw(o["polygon"]))), None)
+    return {"from": q["id"], "from_level": q["level_id"], "share": round(share, 3), "opening": opening,
+            "slabs": bool(building.get("slabs"))}
+
+
+def top_level_stair(building: dict, level: dict, piece: dict, walls: list[dict]) -> dict:
+    """The ``plan_stairs`` item of a stair on the top level of a whole building (pure; Milestone 10). Nothing
+    lies above it, so it never rises to a floor above or through the roof:
+
+    - over a stair of the level below (``stair_arrival``): that stair's drawn upper end. ``plan: None``,
+      ``arrival``; not built (the stair below arrives through the slab opening, which the floor keeps); a
+      warning when the building has no slabs (the floor is not cut);
+    - else (a stair that goes up, the access to the roof space is not drawn): it stops ``STAIR_UPPER_FLOOR_GAP``
+      under the lowest roof underside over its footprint (``level["ceiling_planes"]``, set by
+      ``build.prepare``; without them the level's ceiling): rise = ceiling = cap, so no ceiling opening and no
+      shaft; the top is assumed (kind ``stair_top``) and a warning says so. With less than
+      ``STAIR_MIN_RISE_M`` of room it is not built (a warning)."""
+    arr = stair_arrival(building, level, piece)
+    if arr is not None:
+        warnings = [] if arr["slabs"] else [
+            f"arrives from {arr['from']}, but the building has no slabs: the floor of {level['id']} is not cut over it"]
+        return {"piece": piece, "plan": None, "arrival": arr, "warnings": warnings,
+                "reason": f"arrives from {arr['from']} ({arr['from_level']} -> {level['id']}): the drawn upper end "
+                          f"of that stair; no level above, not built again"}
+    floor_z = float(level["elevation"])
+    planes = level.get("ceiling_planes")
+    mine = _footprint_polygon(piece)
+    if planes:
+        corners = mine or [tuple(piece["footprint"]["center"])]
+        under, what = min(geom2d.surface_z(planes, x, y) for x, y in corners) - floor_z, "the roof underside"
+    else:
+        under, what = float(level["ceiling_height"]), "the ceiling"
+    top = under - STAIR_UPPER_FLOOR_GAP
+    why = "on the top level with no level above and not over a stair of the level below"
+    roof = building.get("roof") if isinstance(building.get("roof"), dict) else {}
+    terraces = [str(o.get("id") or o.get("room_id")) for o in roof.get("openings") or []
+                if isinstance(o, dict) and len(o.get("polygon") or []) >= 3 and mine
+                and _overlap(mine, geom2d.ccw(o["polygon"]))]
+    extra = [f"it reaches into the roof opening {', '.join(terraces)}: it may lead out onto the roof (needs review)"] \
+        if terraces else []
+    if top < STAIR_MIN_RISE_M:
+        headroom = (f"{why}: {what} lies {under:.2f} m above the floor over its footprint, no room for a flight; "
+                    f"not built (needs review)")
+        return {"piece": piece, "plan": None, "arrival": None,
+                "reason": f"{why}: no headroom under {what} over its footprint (needs review)",
+                "warnings": [headroom, *extra]}
+    plan = P.stair_plan(piece, top, top, top, walls, f"limited by {what} (no level above, assumed)")
+    plan["notes"] = [n.replace("under the shaft cap", f"under {what}") for n in plan["notes"]]
+    plan["assumed"].append({"field": "rise_m", "kind": "stair_top", "value": round(top, 4),
+                            "reason": f"{why}: the stair stops under {what}; no roof opening is drawn, none is cut"})
+    plan["warnings"].append(f"{why}: stops {top:.2f} m above the floor under {what}; the roof access is not drawn "
+                            f"(needs review)")
+    plan["warnings"].extend(extra)
+    return {"piece": piece, "plan": plan, "arrival": None, "reason": None}
 
 
 def stair_mesh(plan: dict, floor_z: float) -> tuple[list, list, list[int], list[dict]]:
@@ -1691,7 +1837,10 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
     becomes a scene-manifest ``assumed`` entry (parent = the piece). Returns
     ``{"pieces", "ids", "not_built"}``. ``shaft`` False (Milestone 10: the
     slab above has the opening and the floor above is cut): no capped shaft,
-    the stair arrives on the level above."""
+    the stair arrives on the level above. An item without a plan is listed
+    under ``not_built`` (``stair_not_built``: Milestone 10's upper end of the
+    stair below carries ``arrives_from`` and ``slab_opening``, and that
+    stair's ``stair`` record gets ``upper_end``)."""
     from wenart.blender import common
 
     floor_z = float(level["elevation"])
@@ -1703,8 +1852,17 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
     steel = library.get("steel_brushed")
     for item in plans:
         piece, plan = item["piece"], item["plan"]
+        for w in item.get("warnings") or []:
+            warnings.append(f"{piece['id']}: stair {w}")
         if plan is None:
-            summary["not_built"].append({"id": piece["id"], "type": piece["type"], "reason": item["reason"]})
+            record, notes = stair_not_built(item, level)
+            summary["not_built"].append(record)
+            assumed.extend(notes)
+            if record.get("arrives_from"):
+                below = next((e for e in manifest_objects if e.get("name") == f"furn_{record['arrives_from']}"
+                              and isinstance(e.get("stair"), dict)), None)
+                if below is not None:
+                    below["stair"]["upper_end"] = piece["id"]
             continue
         status = piece.get("status", "verified")
         unverified = status == "unverified"
@@ -1776,6 +1934,32 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
                             "reason": void.get("reason", "assumed ceiling opening")},
             })
     return summary
+
+
+def stair_not_built(item: dict, level: dict) -> tuple[dict, list[dict]]:
+    """``(record, assumed)`` of a ``plan_stairs`` item without a plan (pure): the furniture summary's
+    ``not_built`` record ``{"id", "type", "reason"}`` and the scene-manifest ``assumed`` entries. The upper end
+    of a stair of the level below (Milestone 10, ``stair_arrival``) adds ``arrives_from`` and ``slab_opening``
+    (the opening id of the slab under the level, or None) to the record and one ``stair_arrival`` entry."""
+    piece = item["piece"]
+    record = {"id": piece["id"], "type": piece["type"], "reason": item["reason"]}
+    arr = item.get("arrival")
+    if not arr:
+        return record, []
+    record["arrives_from"] = arr["from"]
+    record["slab_opening"] = arr.get("opening")
+    if arr.get("opening"):
+        through = f"slab opening {arr['opening']}"
+    elif arr.get("slabs"):
+        through = "the opening the slab plan cuts over it"
+    else:
+        through = "no slab opening: the building has no slabs"
+    entry = {"object": piece["id"], "field": "stair", "value": f"arrives from {arr['from']}",
+             "reason": f"no level above {level['id']}: the drawn stair lies over {arr['from']} "
+                       f"({arr['share']:.0%} of the smaller footprint; {through}); read as its upper end, "
+                       f"not built as a second flight",
+             "parent": piece["id"], "kind": "stair_arrival"}
+    return record, [entry]
 
 
 def stair_record(plan: dict, parts: list[dict]) -> dict:
@@ -1970,7 +2154,12 @@ def slab_plan(building: dict, levels: list[dict], brief_thickness: float = 0.20,
 
 
 def _overlap(a, b) -> bool:
-    """True when two polygons share area (a clipped by b's convex pieces; enough for stair openings)."""
+    """True when two polygons share area (``_shared_area``; enough for stair openings)."""
+    return _shared_area(a, b) > 1e-4
+
+
+def _shared_area(a, b) -> float:
+    """The area two polygons share (a clipped by b's convex pieces; a convex, as stair openings and footprints)."""
     area = 0.0
     for piece in geom2d.convex_pieces(b):
         poly = list(a)
@@ -1981,7 +2170,7 @@ def _overlap(a, b) -> bool:
             poly = geom2d.clip_half_plane(poly, -nx, -ny, nx * p[0] + ny * p[1]) if poly else []
         if len(poly) >= 3:
             area += G.polygon_area(poly)
-    return area > 1e-4
+    return area
 
 
 def stair_arrivals(plan: dict, voids: list, tol: float = STAIR_ARRIVAL_TOL) -> list[str]:
