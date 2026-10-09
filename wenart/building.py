@@ -32,7 +32,7 @@ from wenart import units
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema" / "building.schema.json"
 SCHEMA_VERSION = "0.1"
 
-METHODS = ("vector", "raster", "ocr", "ai", "derived")
+METHODS = ("vector", "raster", "ocr", "ai", "derived", "inferred")   # inferred: Milestone 11
 ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "other",
               "unknown")
 

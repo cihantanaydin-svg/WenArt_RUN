@@ -98,7 +98,7 @@ def test_stops_at_max_rounds(tmp_path):
 
 
 def test_stops_when_no_edit_is_accepted(tmp_path):
-    loop, out, _ = make(tmp_path, [rotate("f1", 999.0), {"content": "I cannot fix it"}], [[F3]])
+    loop, out, _ = make(tmp_path, [rotate("f1", 355.0), {"content": "I cannot fix it"}], [[F3]])
     summary = loop.run()
     assert summary["stop"]["reason"] == "no_edit" and loop.rerun.calls == []
     rej = [e for e in log_of(out)["events"] if e["kind"] == "rejected_edit"]

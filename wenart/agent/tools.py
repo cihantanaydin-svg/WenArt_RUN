@@ -582,7 +582,9 @@ def furniture_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
         out = _result(accepted, res.get("failed_checks") or ([] if accepted else ["rejected"]),
                       before=res.get("score_before"), after=res.get("score_after"),
                       rerun_from=res.get("rerun_from") or "refit", message=str(res.get("message") or ""),
-                      changed_ids=res.get("changed_ids"), log_seq=edit["log_seq"])
+                      changed_ids=res.get("changed_ids"), log_seq=edit["log_seq"],
+                      # track B: acceptance is decided on the unfloored penalty (a score floored at 0 hides gains)
+                      penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
         if before_png is not None:
             out["before_image"] = ctx.rel(before_png)
         if not accepted:

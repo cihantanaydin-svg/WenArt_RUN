@@ -94,7 +94,7 @@ def test_read_tools(tmp_path):
     ext = reg.call(ctx, "exterior_summary", {})
     assert ext["outline_bbox"] == [0.0, 0.0, 8.0, 3.5] and [c["view_id"] for c in ext["exterior_cameras"]] == ["ext_1"]
     plaus = reg.call(ctx, "plausibility", {"room_id": "r1"})
-    assert "not available" in plaus["error"]                     # track B's stub
+    assert 0 <= plaus["score"] <= 100 and isinstance(plaus["violations"], list)   # track B's plausibility (merged)
     write_json(ctx.project_out / "run" / "refit.json", {"status": "ok", "seconds": 3.0, "note": None})
     assert reg.call(ctx, "stage_status", {})["stages"] == {"refit": {"status": "ok", "seconds": 3.0, "note": None}}
     cat = reg.call(ctx, "catalog", {"type": "sofa", "size": [2.0, 0.9]})
@@ -119,10 +119,16 @@ def test_furniture_edit_accepted_goes_to_overrides_with_images(tmp_path):
 def test_rejected_and_unavailable_edits_never_reach_overrides(tmp_path, monkeypatch):
     ctx = ctx_for(tmp_path)
     reg = TL.build_registry()
-    res = reg.call(ctx, "rotate_piece", {"piece_id": "f1", "front_deg": 999, "reason": "into the wall"})
+    res = reg.call(ctx, "rotate_piece", {"piece_id": "f1", "front_deg": 355, "reason": "into the wall"})
     assert not res["accepted"] and res["failed_checks"] == ["front_into_wall"] and res["overrides_id"] is None
     assert res["rerun_from"] is None and ctx.piece("f1")["front_deg"] == 270.0
-    # the stub of track B: the edit is refused, never applied
+    # an edit validator that is not available (the track B stub before the merge): refused, never applied
+    from wenart.furniture import edit_ops
+
+    def missing(*a, **k):
+        raise NotImplementedError("M11 track B")
+
+    monkeypatch.setattr(edit_ops, "apply_edit", missing)
     ctx2 = ctx_for(tmp_path / "b", apply_edit=None)
     res = reg.call(ctx2, "move_piece", {"piece_id": "f1", "center": [2, 2], "reason": "away from the door"})
     assert not res["accepted"] and res["failed_checks"] == ["validator_unavailable"]

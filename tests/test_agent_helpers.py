@@ -92,7 +92,7 @@ def project(tmp_path: Path, name: str = "toy", previews: bool = True) -> Path:
 
 class FakeEdits:
     """``edit_ops.apply_edit`` (contract §17.2): rotate / move / resize / change_type / remove / add / set_room_type;
-    rejects a front of 999 (a "wall" check), an unknown piece and a ``reject`` reason; score 50 -> 70."""
+    rejects a front of 355 (a "wall" check; 999 is refused by track B's schema before), an unknown piece and a ``reject`` reason; score 50 -> 70."""
 
     def __init__(self):
         self.calls: list[dict] = []
@@ -124,7 +124,7 @@ class FakeEdits:
             res["failed_checks"] = ["unknown_piece"]
             return res
         if op == "rotate":
-            if edit["front_deg"] == 999:
+            if edit["front_deg"] == 355:
                 res["failed_checks"] = ["front_into_wall"]
                 return res
             p["front_deg"] = edit["front_deg"]

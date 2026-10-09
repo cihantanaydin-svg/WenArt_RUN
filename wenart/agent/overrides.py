@@ -78,7 +78,8 @@ class Overrides:
     def add(self, round_no: int, tool: str, args: dict, result: dict, model: str = "") -> int:
         """Store one accepted edit; its ``seq`` (the ``overrides_id`` the tool returns)."""
         seq = self.next_seq()
-        keep = ("accepted", "failed_checks", "score_before", "score_after", "changed_ids", "rerun_from", "message",
+        keep = ("accepted", "failed_checks", "score_before", "score_after", "penalty_before", "penalty_after",
+                "changed_ids", "rerun_from", "message",
                 "applied", "log_seq", "metrics", "rolled_back")
         self.edits.append({"seq": seq, "round": int(round_no), "tool": tool, "args": copy.deepcopy(args),
                            "result": {k: copy.deepcopy(result.get(k)) for k in keep if k in result},

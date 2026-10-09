@@ -441,7 +441,7 @@
         "room_id": {"type": ["string", "null"]},
         "type": {"enum": ["bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair", "wardrobe", "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine", "stair", "side_table", "floor_lamp", "potted_plant", "sofa_corner", "chaise", "ottoman", "bench", "bar_stool", "office_chair", "console_table", "crib", "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet", "unknown"]},
         "type_raw": {"type": ["string", "null"], "description": "Block name or label as drawn, e.g. KANEPE_3LU, yatak"},
-        "type_method": {"enum": ["block_name", "rule", "ai_two_pass", "none"], "description": "How the type was decided (generic core, docs/milestone7.md §2.8, §3.3)"},
+        "type_method": {"enum": ["block_name", "rule", "ai_two_pass", "none", "inferred"], "description": "How the type was decided (generic core, docs/milestone7.md §2.8, §3.3)"},
         "type_candidates": {"type": "array", "items": {"type": "object"}, "description": "The AI passes' answers: {type, model, pass, confidence, front, reason}"},
         "build": {"type": "boolean", "description": "false = a drawn symbol both AI passes call not_furniture: kept as an obstacle, not built (default true)"},
         "assumed": {"type": "array", "items": {"enum": ["front_deg"]}, "description": "Values that are assumed, not decided: front_deg = the drawn front kept although both AI passes answered 'none' (review ingest-6)"},

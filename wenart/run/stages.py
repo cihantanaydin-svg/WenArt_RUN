@@ -111,7 +111,10 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
                  "wenart/geometry.py", "wenart/schema/**", "wenart/recognition/**", "wenart/furniture/__init__.py",
-                 "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML)
+                 "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML,
+                 # Milestone 11 (track B): the pipeline infers untyped pieces (infer.py) with the placer and the
+                 # plausibility rules.
+                 "wenart/furniture/infer.py", "wenart/furniture/placer.py", "wenart/furniture/plausibility.py")
 # Milestone 10 (docs/milestone10.md §3.1): the sheet analysis reads the documents and the brief (failed_levels).
 SHEETS_CODE = PIPELINE_CODE
 # wenart/furniture/decor.py: its DECOR_TYPES are the vision check's decor categories (Milestone 8: rug, wall_art).
@@ -137,7 +140,8 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/decor_ai.py", "wena
               "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
               "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**",
               "wenart/views.py",                         # M10: render.twin_rooms through views.brief_value
-              "wenart/ingest/**", "wenart/sheets/**")    # M10: complete.py's size-table check (as the layout's)
+              "wenart/ingest/**", "wenart/sheets/**",    # M10: complete.py's size-table check (as the layout's)
+              "wenart/furniture/infer.py", "wenart/furniture/plausibility.py")   # M11: reached through the ingest
 DECOR_ANSWERS = "decor_ai_answers.json"
 
 
@@ -180,7 +184,9 @@ STAGE_LIST = (
            "wenart/blender/**",
            # M10 review fix #20: a type proposal must fit its drawn footprint (recognition.symbols' size table; its
            # answers module reaches the sheet questions, so the sheets and ingest packages are in the closure).
-           "wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**"),
+           "wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**",
+           # Milestone 11 (track B): the ingest closure now reaches the inference and plausibility rules.
+           "wenart/furniture/infer.py", "wenart/furniture/plausibility.py"),
           ("building_furnished.json", "layout.json", "completion.json", "completion_report.md"), heavy=True),
     # Milestone 9 (docs/milestone9.md §4): the AI decor's two passes per room, asked in the layout's Qwen session
     # (answers stored by key in decor_ai_answers.json); a failure is a warning: the decor stage then falls back to
