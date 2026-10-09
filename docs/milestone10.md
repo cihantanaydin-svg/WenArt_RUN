@@ -737,6 +737,16 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 - Objaverse LVIS category names are checked against the LVIS v1 list, not the Objaverse file (unverified until a pod).
 - `recolour slots` rebuilds every model's record and sheet after Blender on each run (reads the masks and renders from the network volume, about 15 min for 1646 models) and does not watch the deadline there; the GLB copies with renamed materials before Blender neither. The prep job therefore runs `recolour_slots` only where the slots are new (L2b leaves it out: the generated models get no material fields: a colour brief skips them and the fit takes another model, `wenart/assets/recolour.py`).
 
+### 10.6 The GPU test failures of pod F1 (real02)
+
+| Test | Cause | Fix |
+|---|---|---|
+| `test_every_room_has_three_views` | test bug: it passed the scene manifest's variant record (an object since M10) where `views_for` takes the variant id | the id from the record; the rooms cross-checked against the record's `views` |
+| `test_passes_exist_and_depth_is_plausible` | code bug: real02's stair core `r_L0_oda` is filled by a U stair; the camera search's fallback point sat in the 0.20 m stair well, 8 cm from a step, and no rule rejected a surface that close (the share rules missed it). Also a test gap: exterior views and the open roof terrace have sky by design | `camsearch`: a view whose nearest model surface is under 0.12 m is blocked (`SCORE["blocked_min_depth"]`, docs/milestone6.md §4.1); only real02's stair-core views change. The test checks every view, exterior views up to the exterior clip end without the coverage bound, open-sky rooms without the coverage bound |
+| `test_index_pass_contains_every_visible_proxy` | test expectation: a library wardrobe's fitted box grazes the frame edge by 1 cm while its mesh (domed cornice) stays outside | a library piece may be absent when shrinking its box by 2 cm per side hides it and its built box matches its footprint (± 1 cm) |
+| `test_ai_decor_is_built` | test bug: it checked the base scene only; L-1b decor is built in the variant's scene | every variant scene, decor on its own levels; every AI item in some scene. Also a code bug found on the way: decor copies along a chain of partner rooms (same_as of a twin) missed the root's decor (`decor.copy_partner_decor` copies in dependency order) |
+| `test_gate_validation_recorded` | test bug and a count bug: M10's exterior comparisons share the calibration file; the rates count the interior ones, the test recomputed over all, and `n_benign`/`n_negative` counted all | `decide_validation(kind=...)` counts the comparisons of one view kind; the test recomputes the interior ones |
+
 ### 10.5 Pods
 
 | Pod | GPU | Minutes | Cost | What it did | Result |
@@ -751,5 +761,6 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 | — | — | — | — | volume grown to 250 GB (your OK, decision #9) | |
 | diagnostic `2aw8p6a9m8kvsw` | RTX PRO 4000 | 5 | $0.04 | `volume_report.sh`: prep 34 GB (19 GB material-slot GLB copies), pip cache 17 GB, assets 14 GB, jobs 8 GB; L2b's logs | ok |
 | L2c `6d8e6zae3wsqxt` | RTX PRO 6000 | 81 | $3.37 | generation for the 13 thinnest new types (`WENART_GENERATE_TYPES`, 40 min: 387 generated candidates in all), thumbnails, 1769 judging sheets, both sessions (GLM: the material sheets), catalogue 669 + 363 decor models, copy (47 s), GPU tests | GPU tests: 3 wrong expectations fixed (a `mixed` slot material, `wall_cabinet` parametric only, an accepted record write-catalog refused); the runner's retries re-fetched everything (fixed: a retry fetches only the missing files) |
+| F1 `puc0tntgfvz5he` | RTX PRO 6000 | 59 | $2.44 | full run of real02 (base 48 views, variant `l-1b-acik-mutfak` 17 views, 5 exterior views each, gate ok, polish on for the rooms, 3D files 854 MB) | real02 end state **ok**; 5 GPU tests failed (§10.6): diagnosed by a workflow (one agent per failure, an adversarial verifier each), fixed in 4 worktrees |
 
 
