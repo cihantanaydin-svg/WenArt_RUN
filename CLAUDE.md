@@ -44,46 +44,50 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - Batch GPU work: several tests per pod session, not one pod per small check.
 
 ## Furniture rules
-- Fixed equipment drawn in the documents (stairs, kitchen counter runs, kitchen island
-  and appliances, sanitary ware) is treated like walls: same type, position, orientation
-  and footprint size as drawn. Style changes only the look.
-- Drawn furniture is never removed. Its location (footprint centre ± 5 cm; against a
-  wall: the back-edge midpoint on the same wall line) and position (front ± 1°, the same
-  wall) are locked. With `furnished_rooms: complete` (default) AI may change its type
-  (within the room type's types), size, height and look: it stays `from_documents`, gets
-  `modified_by_ai: true` and keeps `drawn_type`, `drawn_footprint`, `drawn_height`. With
-  `keep` or `furnished_rooms_keep_size` only the look changes.
-- Footprint clear but type unclear → keep the footprint, mark `unverified`, show it
-  in debug images. Never guess silently.
-- Rooms that have furniture in the documents: with `furnished_rooms: complete` AI may add
-  the pieces the room type misses (`added_by_ai`, `completes_room: true`) through the same
-  placer checks as empty rooms; never a second anchor piece. Small decor (cushions,
-  plants, books) only if the brief allows it (default: yes).
-- Rooms with no furniture in the documents: furnish with AI in the project style
-  (default), with real clearances; never block doors or windows.
-- Every piece is labelled `from_documents` (with evidence) or `added_by_ai`.
+- Fixed equipment drawn in the documents (stairs, kitchen counter runs, kitchen island and appliances, sanitary
+  ware) is treated like walls: same type, position, orientation and footprint as drawn. Style changes only the
+  look. The AI may fix only a clear drawing error (e.g. a front that faces the wall), logged as `adjusted_by_ai`.
+- Drawn furniture is kept by default. The AI may correct its orientation, snap it to a wall, change its size to a
+  real product size, change its type within the room type's types, and fix clear drawing errors (a rug outline
+  read as a piece, a cushion read as a sofa, a table footprint that includes its chairs). Every change keeps
+  `drawn_type`, `drawn_footprint`, `drawn_front_deg`, `drawn_height` and is labelled `adjusted_by_ai` with the
+  reason. A drawn piece is removed only when it is clearly not furniture (logged with the plan crop as evidence).
+  With `keep` or `furnished_rooms_keep_size` only the look, the orientation and clear errors change.
+- Footprint clear but type unclear → the AI infers the type from size, room and neighbours, marks it `inferred`
+  and lists it in the report. It never stays an unexplained box.
+- Rooms with drawn furniture: with `furnished_rooms: complete` (default) the AI adds the pieces the room type
+  misses (`added_by_ai`, `completes_room: true`); never a second anchor piece. Small decor if the brief allows it
+  (default: yes).
+- Rooms with no furniture in the documents: the AI furnishes them in the project style (default).
+- Every placement or edit passes the code checks before it is accepted: inside the room, no collisions, real
+  clearances and walkways, door swings free, windows free, backs to walls where the type needs it, fronts facing
+  their group.
+- Every piece is labelled `from_documents` (with evidence), `added_by_ai` or `adjusted_by_ai` (with the reason).
 
-## No-hallucination rules
-- Trust order: vector geometry (DXF entities, PDF paths) > OCR text and dimensions
-  > AI vision suggestions. AI proposes; checks against the source decide.
-- Every wall, door, window, room, furniture piece, label and dimension in the
-  building JSON carries evidence: file, page, layer/entity id or pixel box,
-  method (vector / ocr / ai) and confidence.
-- Unverifiable items are marked `unverified` and listed in the report. Nothing is
-  silently added, completed or "fixed". Missing scale or no closed outer walls →
-  stop that project with a `needs review` report.
-- Cross-check dimension text vs measured lengths, area labels vs computed areas,
-  element counts across documents, outline across floors. Conflicts: prefer
+## Evidence and inference rules (user OK of 9 Oct 2026, Milestone 11)
+- Source geometry (DWG/DXF entities, vector PDF paths) is the anchor for walls, openings, room outlines and
+  levels. The AI may override it only for a clear error (e.g. a 5 cm gap in an outer wall, a duplicated wall, a
+  door off its wall); it logs the reason and the evidence, and the item is marked `corrected_by_ai`.
+- Trust order when sources disagree: vector geometry > OCR text and dimensions > AI vision. Conflicts: prefer
   DWG > vector PDF > scan > photo, and list every conflict in the report.
-- AI calls: temperature 0, strict JSON-schema validation, two independent passes;
-  keep only what agrees or matches source evidence.
-- Creative AI only where documents are silent: materials, colors, lighting mood,
-  decor, furniture for empty rooms.
-- AI polish must not change geometry: compare edge and depth maps before/after and
-  reject changed results. A final vision check compares every render with the
-  building JSON and the source plan and lists mismatches.
-- Save a debug image per page with detected elements drawn over the original,
-  colored by method and confidence.
+- Where the documents are silent, unclear or illogical, the AI infers, completes and corrects: furniture type,
+  orientation and placement, missing exterior parts (roof, ground, site), cameras, materials, lighting. Each such
+  item is marked `inferred` (or `adjusted_by_ai`) and listed in the report.
+- Missing scale or open outer walls: the AI tries to infer them first (dimension text, door widths, stair treads,
+  typical room sizes, closing small gaps) and marks them `inferred`. "needs review" only for real blockers: no
+  usable geometry at all, or inferences that contradict each other.
+- Every wall, door, window, room, furniture piece, label and dimension in the building JSON carries evidence:
+  file, page, layer/entity id or pixel box, method (vector / ocr / ai / inferred), confidence; AI changes also
+  carry the model, the round and the reason.
+- AI calls: temperature 0, typed tools and strict JSON schemas. Every AI edit is checked by code before it is
+  accepted. A critique loop with code validation replaces the "two passes must agree" rule; two independent passes
+  stay only where no code check exists (e.g. reading a label that no geometry confirms).
+- Everything is logged: every check, finding, edit, rejected edit and reason goes to
+  `outputs/<p>/orchestrator/log.json` and `log.md` with before/after images. Nothing changes silently.
+- AI polish must not change geometry: compare edge and depth maps before/after and reject changed results. A
+  final vision check compares every render with the building JSON and the source plan; its findings go back to
+  the stage that caused them.
+- Save a debug image per page with detected elements drawn over the original, colored by method and confidence.
 
 ## Engineering conventions
 - Open-weight models and open-source tools only; prefer licenses that allow
