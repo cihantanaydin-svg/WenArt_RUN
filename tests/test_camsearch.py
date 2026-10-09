@@ -958,7 +958,13 @@ def test_profile_is_the_builders_low_part_and_back(ftype, size, height, low):
 def test_library_profile_takes_the_fitted_box_and_the_builders_seat():
     """A library asset sits in the same frame (front -Y), so its back rises to the fitted box's height (a
     1.53 m headboard, a 0.74 m chair back) and its mattress or seat is the builder's at the type height;
-    a low library piece (its box no taller than the seat) stays one box, as do types without a back."""
+    a low library piece (its box no taller than the seat) stays one box, as do types without a back.
+
+    A library toilet's bowl is the type's (0.4 m, ``proxies.PROXY_HEIGHTS``), not its JSON height: an added
+    toilet carries 0.8 m (``furniture.schemas.HEIGHTS``, its cistern top), which ``parametric._toilet`` would
+    read as the bowl (pod F2, synthetic-03: the close-coupled library toilets f_L1_020 and f_L-1_007 were
+    modelled as a 0.8 m bowl, or one 0.74 m box, and seen by two views whose render has no toilet). The
+    parametric toilet keeps the bowl it is built with."""
     def piece(ftype, size, bbox, height=None):
         return {"id": "p", "type": ftype, "height": height, "footprint": {"center": [0, 0], "size": list(size),
                                                                           "rotation_deg": 0.0},
@@ -972,6 +978,19 @@ def test_library_profile_takes_the_fitted_box_and_the_builders_seat():
     assert chair[-1][3] - chair[-1][1] == pytest.approx(min(0.04, 0.4572 * 0.1))
     assert C.piece_profile(piece("bed", (1.0, 1.0), (1.0, 1.0, 0.5))) == [(-0.5, -0.5, 0.5, 0.5, 0.5)]
     assert C.piece_profile(piece("wardrobe", (1.2, 0.6), (1.2, 0.6, 2.1))) == [(-0.6, -0.3, 0.6, 0.3, 2.1)]
+    # Library toilets added at 0.8 m (pod F2, synthetic-03 f_L1_020 and f_L-1_007): a 0.4 m bowl and the
+    # 0.18 m cistern slab on the rear edge up to the fitted box.
+    for size, bbox, low, back in [((0.4, 0.7), (0.4, 0.7, 0.8205), [-0.2, -0.35, 0.2, 0.17, 0.4],
+                                   [-0.2, 0.17, 0.2, 0.35, 0.8205]),
+                                  ((0.45, 0.75), (0.45, 0.75, 0.7392), [-0.225, -0.375, 0.225, 0.195, 0.4],
+                                   [-0.225, 0.195, 0.225, 0.375, 0.7392])]:
+        toilet = C.piece_profile(piece("toilet", size, bbox, 0.8))
+        assert [[round(v, 4) for v in b] for b in toilet] == [low, back], (size, toilet)
+        # A drawn library toilet (no JSON height) gets the same profile.
+        assert C.piece_profile(piece("toilet", size, bbox)) == toilet
+    # The parametric toilet at 0.8 m is built with a 0.8 m bowl and a 1.2 m cistern: modelled as built.
+    built = C.piece_profile(dict(piece("toilet", (0.4, 0.7), (0.4, 0.7, 0.8205), 0.8), asset=None))
+    assert [[round(v, 4) for v in b] for b in built] == [[-0.2, -0.35, 0.2, 0.17, 0.8], [-0.2, 0.17, 0.2, 0.35, 1.2]]
 
 
 @pytest.mark.parametrize("rotation", [0.0, 90.0, 207.0, 315.0])

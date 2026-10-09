@@ -45,7 +45,12 @@ How:
   parametric bed (duvet, pillows: up to 0.15 m above the mattress) is left
   out: for a parametric bed the model errs towards seeing less, not more.
   A library asset's real seat or mattress is not known beyond its fitted
-  box; the builder's height stands for it.
+  box; the builder's height stands for it, except for a library toilet:
+  its bowl is the type's 0.4 m (``proxies.PROXY_HEIGHTS``), because an
+  added toilet's JSON height is its 0.8 m cistern top
+  (``furniture.schemas.HEIGHTS``), which the builder would read as the
+  bowl (pod F2, synthetic-03: a 0.8 m phantom bowl beside two cameras
+  whose renders show no toilet).
   Door leaves need no part of their own: the scene builder builds every
   leaf closed inside its frame (``shell.build_openings``, checked by
   tests/test_blender_build.py), which the door rectangle on the wall is.
@@ -421,9 +426,12 @@ def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]
     back slab, the back reaching the rear edge and the full ``piece_bbox`` height (a library asset's
     fitted box: its back or headboard top). A library asset is placed in the same frame (front -Y;
     ``furniture.fit_vertices``), so its profile is the parametric one stretched to its fitted box,
-    every part clamped to that box's height; its seat or mattress height is the builder's. When the
-    low part is as tall as the box the profile is the box."""
-    w, d, top, _ = piece_bbox(piece)
+    every part clamped to that box's height; its seat or mattress height is the builder's at the piece's
+    height, except a library toilet's bowl, which is the type's (``proxies.PROXY_HEIGHTS``, 0.4 m, as a
+    drawn toilet without a height gets): an added toilet's JSON height is its cistern top
+    (``furniture.schemas.HEIGHTS``, 0.8 m), which ``parametric._toilet`` reads as the bowl (pod F2: a 0.8 m
+    phantom bowl beside the camera). When the low part is as tall as the box the profile is the box."""
+    w, d, top, source = piece_bbox(piece)
     whole = [(-w / 2.0, -d / 2.0, w / 2.0, d / 2.0, top)]
     profile = PROFILES.get(piece.get("type"))
     if profile is None:
@@ -432,6 +440,11 @@ def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]
     fp = piece["footprint"]
     fw, fd = float(fp["size"][0]), float(fp["size"][1])
     h, _ = proxy_height(piece["type"], piece.get("height"))
+    if piece["type"] == "toilet" and source == "library":
+        # An added toilet's JSON height (furniture.schemas.HEIGHTS 0.8) is its cistern top, while
+        # parametric._toilet's h is the bowl; a library mesh has a real bowl, so it gets the type bowl, as drawn
+        # toilets (no height) already do. The parametric toilet is built with that h and keeps it.
+        h = proxy_height("toilet", None)[0]
     parts = P.build_parts(piece["type"], fw, fd, h, piece=piece)
     sx = w / fw if fw > 1e-9 else 1.0
     sy = d / fd if fd > 1e-9 else 1.0
