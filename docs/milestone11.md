@@ -13,7 +13,7 @@ critic is satisfied or the budget ends. The old fixed chain stays as `--no-orche
 Note on the file name: the user asked for the design in `docs/milestone10.md`, but that file is the Milestone 10
 spec (815 lines, done). This design is `docs/milestone11.md`.
 
-Status: **design, waiting for the user's OK** (step 1). Only plain bug fixes (§1) are built before the OK.
+Status: **approved by the user on 9 Oct 2026 (D1–D8, §15)**; build in progress (steps 3–5, contracts §17).
 
 ## 1. Diagnosis of real02 (step 0, CPU, 9 Oct 2026)
 
@@ -468,7 +468,7 @@ Commit, push and `docs/progress.md` after each step.
 | D7 | Pods G2 and G3: worst case 115 min × ≈ $2.6/h ≈ $5.2 each (over the $5 single-action line) | OK to run them with `--over-5-ok` |
 | D8 | The Qwen3-VL-8B + GLM-4.6V-Flash pair | keep for `--no-orchestrator` and for the recognition questions without a code check; orchestrated runs use the agent model alone, checked by code |
 
-## 16. Proposed `CLAUDE.md` wording (not committed; replaces the sections "Furniture rules" and "No-hallucination rules")
+## 16. `CLAUDE.md` wording (approved 9 Oct 2026, committed in `d602269`; replaced "Furniture rules" and "No-hallucination rules")
 
 ### Furniture rules (new wording)
 - Fixed equipment drawn in the documents (stairs, kitchen counter runs, kitchen island and appliances, sanitary
@@ -515,4 +515,58 @@ Commit, push and `docs/progress.md` after each step.
   final vision check compares every render with the building JSON and the source plan; its findings go back to
   the stage that caused them.
 - Save a debug image per page with detected elements drawn over the original, colored by method and confidence.
+
+## 17. Contracts of the build (frozen 9 Oct 2026; only the lead edits this section)
+
+The user's answer of 9 Oct 2026: "OK to D1–D8". D5 and D6 were questions about the building; they become brief
+options with an evidence-based default and stay on the open list of the report:
+
+- D5 `roof_terraces: auto | cut | closed` (default `auto`: a terrace is cut into the roof when the plan of that
+  level draws it as a room with a door to it, as real02's attic does; else the roof stays closed; either way the
+  conflict with the section is listed).
+- D6 `site.front_court: auto | yes | no` (default `auto`: a sunken court, marked `inferred`, in front of a basement
+  window whose sill lies more than 1.0 m below the ground; else the M10 light well).
+- D3 `markers_in_final: false` (default): the unverified stripes are left out of every render; the debug top-down
+  images and the report list the items. D4: a room's area label is compared with the polygon minus its stair
+  openings, 8 % tolerance.
+
+### 17.1 Tracks and file ownership
+
+| Track | Owns (only this track edits) | Tests |
+|---|---|---|
+| A agent core (§2, §3, §8–§11) | `wenart/agent/**` (new), `wenart/run/**`, `wenart/vision_check/check.yaml`, `wenart/report/**`, `scripts/jobs/*.sh`, `scripts/pod_setup_*.sh` | `tests/test_agent_*.py`, `tests/test_run_*.py`, `tests/test_report*.py`, `tests/gpu/test_agent.py` |
+| B layout engine (§6, D4) | `wenart/furniture/**`, `wenart/ingest/**`, `wenart/recognition/**` | the matching `tests/test_*.py` |
+| C exterior, rooms, cameras (§7, D3, D5, D6, M2, M5, M6) | `wenart/blender/**`, `wenart/style/**`, `wenart/sheets/**`, `wenart/brief.py`, `wenart/defaults.yaml`, `wenart/vision_check/exterior.py` | the matching `tests/test_*.py` |
+| Lead | `CLAUDE.md`, `docs/**`, `wenart/schema/building.schema.json`, the stub signatures below | `tests/test_m11_contracts.py` |
+
+A track that needs a change in another track's files writes it down in its report; the lead decides.
+
+### 17.2 Interfaces (stub modules committed by the lead; signatures frozen)
+
+| Module (owner) | Functions | Used by |
+|---|---|---|
+| `wenart/furniture/plausibility.py` (B) | `CHECKS`; `score_room(building, room_id) -> {room_id, score, violations}`; `score_building(building) -> {rooms, mean, counts}` | A (code critic, validator), tests |
+| `wenart/furniture/edit_ops.py` (B) | `EDIT_OPS`, `EDIT_SCHEMAS`; `apply_edit(building, edit, *, catalog=None) -> {accepted, failed_checks, score_before, score_after, building, changed_ids, rerun_from, message}` | A (edit tools) |
+| `wenart/furniture/groups.py` (B) | `GROUPS`; `place_group(building, room_id, group, anchor=None) -> {ok, pieces, failed, reason}` | B (`add_group`), A |
+| `wenart/furniture/infer.py` (B) | `infer_types(building) -> [proposal]`; `apply_inferences(building, proposals) -> building` | B (pipeline), A (agent confirms on the plan crop) |
+| `wenart/blender/exterior_checks.py` (C) | `CAMERA_/EXTERIOR_/MATERIAL_OVERRIDE_SCHEMA`; `check_exterior`, `check_views`, `validate_camera_override`, `validate_exterior_override`, `validate_material_override` | A |
+
+`Violation = {check, severity, target, room_id, message, metrics}` everywhere.
+
+### 17.3 Data between the tracks
+
+- `building["agent_overrides"] = {"cameras": [...], "exterior": {...}, "materials": {...}, "round": n}` (schema
+  `agent_overrides`). Track C's build reads it; without it the build is unchanged (the `--no-orchestrator` path).
+  Camera entry: `{action: set | add | remove, view_id, kind: interior | exterior, room_id, position [x, y, z],
+  target [x, y, z], lens_mm, reason}`. Exterior: `{roof: {type, pitch_deg, overhang_m}, ground: look_id,
+  site: {path, fence, trees, front_court}, sun: {azimuth_deg, elevation_deg}}` (every key optional). Materials:
+  `{slot: look_id}` on top of `style.json`.
+- `outputs/<p>/orchestrator/overrides.json` (A): `{"project", "edits": [{"seq", "round", "tool", "args",
+  "result"}]}`; `python -m wenart.agent apply <out>` replays the accepted furniture edits through
+  `edit_ops.apply_edit` on `building_decor.json` and writes `building_agent.json` (with `agent_overrides`);
+  `refit` reads `building_agent.json` when it exists (A owns the stage change).
+- Labels (schema): `adjusted_by_ai {reason, round, log_seq, model, changed}`, `inferred: true`, evidence method
+  `inferred`, `drawn_front_deg`, `corrected_by_ai` on rooms.
+- The agent model (A, `check.yaml models.agent`): `Qwen/Qwen3.8-27B-FP8` @`017b9c7af6b5689d5dd426a76e0bc077eb5ca20a`;
+  fallback `models.agent_fast`: `Qwen/Qwen3.6-35B-A3B-FP8` @`95a723d08a9490559dae23d0cff1d9466213d989`.
 
