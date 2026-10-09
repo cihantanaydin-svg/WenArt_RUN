@@ -344,7 +344,10 @@ def test_example_object_counts_per_kind(example_builds):
     assert kinds["slab"] == {"sl_L-1", "sl_L0", "sl_L1"} and kinds["roof"] == {"roof"}
     # §1.6b row 11: the site kinds
     assert kinds["terrain"] == {"ground"} and kinds["site_wall"] == {"sw_L0_001", "sw_L0_002", "sw_L0_003", "sw_L0_004"}
-    assert kinds["site_area"] == {"sp_001", "spk_001"} and kinds["site_decor"] == {"tree_sd_L0_001"}
+    # Milestone 11 (docs/milestone11.md §1.1 E11): inferred paths from the drawn plot's edge to the two entrances;
+    # the drawn plot keeps its walls (no hedge) and its drawn tree (no inferred trees)
+    assert kinds["site_area"] == {"sp_001", "spk_001", "path_d_L-1_001", "path_d_L0_001"}
+    assert kinds["site_decor"] == {"tree_sd_L0_001"} and "site_boundary" not in kinds
     assert "site" not in kinds and "light_well" not in kinds          # the south side is open: no light well
     sills = [o for o in m["objects"] if o["name"].endswith("_sill")]
     windows = {o["id"] for o in EXAMPLE["openings"] if o["type"] == "window" and o["level_id"] in levels}
@@ -567,7 +570,14 @@ def test_each_attic_room_light_hangs_under_its_own_ceiling(tmp_path):
     planes = R.ceiling_planes(R.roof_model(b["roof"], b), level)
     lights = {o["element_id"]: o["center"] for o in m["objects"] if o["kind"] == "light" and o.get("element_id")}
     assert set(lights) == {"r_low", "r_high"}
+    sizes = {o["element_id"]: o["size"] for o in m["objects"] if o["kind"] == "light" and o.get("element_id")}
+
+    def at(_level, px, py):
+        return min(float(a) * px + float(bb) * py + float(c) for a, bb, c in planes)
+
     for rid, (x, y, z) in lights.items():
-        own = min(float(a) * x + float(bb) * y + float(c) for a, bb, c in planes)
+        # Milestone 11 (track C): the whole light square stays under the slope (the lowest of its centre and
+        # corners; the centre alone let the downhill half rise through the roof of real02)
+        own = lighting.light_ceiling(at, level, (x, y), sizes[rid], 99.0)
         assert z == pytest.approx(own - lighting.AREA_LIGHT_CEILING_GAP, abs=2e-3), rid
     assert lights["r_high"][2] > lights["r_low"][2] + 0.5

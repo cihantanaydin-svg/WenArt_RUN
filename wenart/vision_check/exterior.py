@@ -280,7 +280,13 @@ def roof_planes(vb: dict) -> tuple[list[dict], str]:
     roof = vb.get("roof")
     if not isinstance(roof, dict):
         return [], "no roof in the building JSON (the build makes a flat roof over the top level: assumed)"
+    # Milestone 11 (docs/milestone11.md §17.3): the agent's roof override changes the roof the build makes
+    from wenart.blender.overrides import roof_override
+    from wenart.blender.roof import apply_override
+    roof, changes = apply_override(roof, roof_override(vb))
     drawn = [p for p in roof.get("planes") or [] if isinstance(p, dict) and len(p.get("points") or []) >= 3]
+    if changes:
+        drawn = []
     if drawn:
         return drawn, "building"
     try:

@@ -216,7 +216,7 @@ SCENE_CAMERA = {
         # Milestone 6 (docs/milestone6.md §1.3); optional so M5 manifests stay valid.
         "shift_x": {"type": "number"},
         "shift_y": {"type": "number"},
-        "policy": {"enum": ["search", "m5"]},
+        "policy": {"enum": ["search", "m5", "agent"]},      # agent: a fixed camera of the agent (M11 §17.3)
         "score": {"type": ["object", "null"]},
         # Milestone 8 (docs/milestone8.md §5): why the camera has its lens (search policy; optional).
         "lens_rule": {"type": ["string", "null"]},
@@ -236,7 +236,7 @@ EXTERIOR_LOOK = {
     "required": ["material", "colour", "source", "assumed", "reason"],
     "properties": {"material": {"type": "string"}, "colour": {"type": ["string", "null"]},
                    "rgb": {"oneOf": [{"type": "null"}, _VEC3]}, "asset": {"type": ["string", "null"]},
-                   "source": {"enum": ["documents", "brief", "style", "fallback", "build"]},
+                   "source": {"enum": ["documents", "brief", "style", "fallback", "build", "agent"]},   # agent: M11
                    "assumed": {"type": "boolean"}, "reason": {"type": "string"},
                    "warnings": {"type": "array", "items": {"type": "string"}}},
 }

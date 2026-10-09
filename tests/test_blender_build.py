@@ -100,7 +100,8 @@ def test_object_counts_per_kind_match_the_json(built):
     # no evidence, a parent (room or door) and an ``assumed`` entry each; nothing else is added.
     skirting = [o for o in details if o["kind"] == "wall"]
     handles = [o for o in details if o["kind"] == "door"]
-    dry = {r["id"] for r in rooms if r["room_type"] not in ("bathroom", "wc", "kitchen", "balcony")}
+    # Milestone 11 (docs/milestone11.md §1.3 M2): a kitchen is no wet room for its walls: it gets skirting too
+    dry = {r["id"] for r in rooms if r["room_type"] not in ("bathroom", "wc", "balcony")}
     assert {o["parent"] for o in skirting} == dry and all(o["wenart_id"] == f"skirting_{o['parent']}" for o in skirting)
     assert {o["parent"] for o in handles} == {o["id"] for o in doors}
     assert all(o["status"] == "assumed" and o["evidence"] == [] for o in skirting + handles)
@@ -215,9 +216,11 @@ def test_materials_textured_or_flat_are_recorded(built):
     handles = [o for o in built["manifest"]["objects"] if o["name"].endswith("_handle")]
     assert handles and all(o["material"] == "steel_brushed" and mats["steel_brushed"]["metallic"] == 1.0
                            for o in handles)
-    # Wet walls without an image asset: procedural glazed tiles (textures on in this build).
+    # Wet walls: tiles_light is the procedural light ceramic, 60 x 30 cm (Milestone 11 step 0, §1.3 M1: the
+    # vocabulary's wenart_tiles group, no image asset; was the glazed-tiles fallback of a missing Tiles074).
     tiles = mats["tiles_light"]
-    assert tiles["procedural"] == "glazed_tiles" and tiles["textured"] is False and "0.60 x 0.30 m" in tiles["reason"]
+    assert tiles["procedural"] == "wenart_tiles" and tiles["textured"] is False
+    assert tiles["params"]["tile_size_m"] == [0.6, 0.3]
     walls = mats["plaster_white"]
     assert walls["textured"] is False and "white_plaster_02" in walls["reason"]  # not in the fake manifest
     assert walls["tint"] is None and walls["albedo_mode"] == "flat" and walls["detail"] == 0.35  # no walls.tint
@@ -319,7 +322,10 @@ def test_synthetic_03_unverified_piece_and_three_levels(tmp_path):
     manifest = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
     schemas.validate_scene_manifest(manifest)
     unknown = next(o for o in manifest["objects"] if o["wenart_id"] == "proxy:f_L0_021")
-    assert unknown["status"] == "unverified" and unknown["material"] == "proxy_unverified"
+    # Milestone 11 decision D3: no stripes in the renders by default; the item is listed for the report instead
+    assert unknown["status"] == "unverified" and unknown["material"] == "proxy"
+    assert manifest["markers_in_final"] is False
+    assert {"id": "f_L0_021", "kind": "furniture", "level_id": "L0"} in manifest["unverified_items"]
     assert all(m["textured"] is False for m in manifest["materials"].values())
     assert all(r["hit_kind"] != "wall" for r in manifest["checks"]["door_rays"])
     # Stove and sink drawn on the counter: lifted so the top faces do not coincide.
@@ -497,7 +503,7 @@ def _merged_run_building() -> dict:
 
 def test_exterior_material_stops_where_a_merged_run_faces_a_room(tmp_path):
     """Review ingest-3 in a built scene: the outward faces of the merged exterior run that look into the
-    kitchen take the wet-wall material, the stretch facing the yard keeps plaster_exterior, and no face
+    kitchen take the inside wall material (Milestone 11 M2; was the wet-wall material), the stretch facing the yard keeps plaster_exterior, and no face
     with the exterior material looks into a room."""
     building = _merged_run_building()
     path = tmp_path / "building.json"
@@ -524,8 +530,10 @@ def test_exterior_material_stops_where_a_merged_run_faces_a_room(tmp_path):
     yard = [f for f in east if f["centre"][1] < 2.9]
     kitchen = [f for f in east if looks_into(f) == ["r_kit"]]
     assert yard and {f["material"] for f in yard} == {"plaster_exterior"}
-    wet = json.loads(STYLE.read_text(encoding="utf-8")).get("wet_walls", {}).get("material")
-    assert kitchen and {f["slot"] for f in kitchen} == {2} and {f["material"] for f in kitchen} == {wet}
+    # Milestone 11 (docs/milestone11.md §1.3 M2): a kitchen is no wet room for its walls any more: its faces take
+    # the inside wall material (slot 0; the tiles are a splashback band behind the counter runs only)
+    walls = json.loads(STYLE.read_text(encoding="utf-8")).get("walls", {}).get("material")
+    assert kitchen and {f["slot"] for f in kitchen} == {0} and {f["material"] for f in kitchen} == {walls}
 
 
 def test_needs_review_building_is_refused(tmp_path):

@@ -982,6 +982,12 @@ def main(argv: list[str]) -> int:
                         p["variant"] = prep["variant"]
                         p["visible_openings"] = E.visible_openings(model, building, levels, p["position"],
                                                                    p["target"], p["lens_mm"], 0.0)
+                        if not p.get("sides"):          # the facade it looks at (its nearest axis)
+                            cx_, cy_ = geom_centre(model.outline)
+                            north, src = S.north_deg(building)
+                            d = (p["position"][0] - cx_, p["position"][1] - cy_)
+                            p["sides"] = [S.side_of(S.AXES[S.nearest_axis(d)], north,
+                                                    not src.startswith("assumed"))]
                 prep["overrides_applied"]["cameras"] += applied
             E.create_cameras(ext_plans, ext_col, manifest_objects)
             camera_plans.extend(ext_plans)
@@ -1103,7 +1109,13 @@ def main(argv: list[str]) -> int:
     return 0
 
 
-SUN_TO_MAIN_FACADE_DEG = 45.0     # Milestone 11 (§7): the sun 45 degrees off the main facade's normal
+def geom_centre(outline) -> tuple[float, float]:
+    """The centre of an outline's bounding box (pure)."""
+    xs, ys = [float(p[0]) for p in outline], [float(p[1]) for p in outline]
+    return ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0) if xs else (0.0, 0.0)
+
+
+SUN_TO_MAIN_FACADE_DEG = 45.0    # Milestone 11 (§7): the sun 45 degrees off the main facade's normal
 
 
 def sun_from_main_facade(style: dict, main: dict | None, building: dict) -> tuple[dict, dict | None]:

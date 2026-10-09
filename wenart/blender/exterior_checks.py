@@ -608,6 +608,9 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
     pos, tgt = [float(v) for v in camera["position"]], [float(v) for v in camera["target"]]
     if math.dist(pos, tgt) < 0.1:
         failed.append("the target is the position")
+    prefix = "cam_" if camera["kind"] == "interior" else "ext_"
+    if not str(camera["view_id"]).startswith(prefix):
+        failed.append(f"an {camera['kind']} view_id starts with {prefix} (the render and report readers)")
     if camera["kind"] == "interior":
         if not camera.get("room_id"):
             return {"ok": False, "failed": failed + ["an interior camera needs its room_id"]}
