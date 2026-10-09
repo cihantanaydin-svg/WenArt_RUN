@@ -256,6 +256,12 @@ LATE_S = 600.0                             # CPU steps and tests may run until t
 # (recolour_slots and the recolour judge in both sessions, about 10 min, not measured yet).
 GENERATE_RESERVE_MIN = 40.0
 GENERATE_LATER_STEPS = ("thumbnails", "recolour_slots", "session_qwen", "session_glm")
+# Milestone 10: the material slots stop this long before the job deadline when the same job judges (pod L1c of
+# 8 Oct 2026: the slots ran to the deadline; heavy steps after it cannot start then). It covers both sessions (pod
+# L1d: about 10 min with the library judging), then the library step, the copy and the GPU tests (about 17 min, which
+# may run 10 min past the deadline).
+RECOLOUR_RESERVE_MIN = 25.0
+RECOLOUR_LATER_STEPS = ("session_qwen", "session_glm")
 NO_DEADLINE_TIMEOUT_S = 4 * 3600.0
 MANIFEST = "prep_manifest.json"
 GPU_SPEED_JSON = "gpu_speed.json"
@@ -1019,6 +1025,22 @@ class Prep:
             reserve = GENERATE_RESERVE_MIN if later else 0.0
         return float(self.opts.deadline) - 60.0 * max(0.0, reserve)
 
+    def recolour_deadline(self) -> Optional[float]:
+        """Milestone 10: the material slots' own deadline, ``$WENART_RECOLOUR_RESERVE_MIN`` minutes before the job's
+        (default RECOLOUR_RESERVE_MIN when this job also runs a judge session, so the sessions still start and judge
+        the slots rendered so far; else 0); None without a job deadline."""
+        if self.opts.deadline is None:
+            return None
+        text = os.environ.get("WENART_RECOLOUR_RESERVE_MIN", "").strip()
+        try:
+            reserve = float(text) if text else None
+        except ValueError:
+            reserve = None
+        if reserve is None:
+            later = any(self.selected(step) is None for step in RECOLOUR_LATER_STEPS)
+            reserve = RECOLOUR_RESERVE_MIN if later else 0.0
+        return float(self.opts.deadline) - 60.0 * max(0.0, reserve)
+
     def generate_workers(self) -> int:
         """Generation workers on the pod's GPU (Milestone 9): ``$WENART_GENERATE_WORKERS`` (default 2 with a target
         plan on a GPU of at least 80 GiB, else 1)."""
@@ -1088,6 +1110,10 @@ class Prep:
                             Path(self.opts.prep_root) / "library-work" / RECOLOUR_DIR)
         if Path(self.opts.assets).is_dir():
             cmd += ["--assets", str(self.opts.assets)]          # the GLB copies an earlier write-catalog made
+        slots_deadline = self.recolour_deadline()
+        if slots_deadline is not None:
+            cmd += ["--deadline", f"{slots_deadline:.0f}"]
+            entry["reserve_min"] = round((float(self.opts.deadline) - slots_deadline) / 60.0, 1)
         rc = self.run(cmd, what="slots")
         slots = read_json(lib / RECOLOUR_DIR / "slots.json")
         entry["workers"] = workers

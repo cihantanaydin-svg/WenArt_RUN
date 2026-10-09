@@ -70,8 +70,10 @@
 #                   copy,tests; L2 = PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,session_qwen,
 #                   session_glm,library,copy,tests with WENART_GENERATE_TARGET=20 (the real GLBs come from the assets
 #                   copy L1's write-catalog made)
-#   WENART_GENERATE_RESERVE_MIN  minutes the generation stops before the job deadline (default 30 when the job also
+#   WENART_GENERATE_RESERVE_MIN  minutes the generation stops before the job deadline (default 40 when the job also
 #                   thumbnails or judges, so the same pod judges what it generated; else 0)
+#   WENART_RECOLOUR_RESERVE_MIN  Milestone 10: minutes the recolour_slots step stops before the job deadline (default
+#                   25 when the job also runs a judge session; else 0); wenart.run.prep reads it
 #   WENART_RECOLOUR_WORKERS  Milestone 10: Blender processes of the recolour_slots step (default: the CPU budget set
 #                   below, at most 4); no new variable of this script: wenart.run.prep reads it
 #   WENART_ABO_CACHE  ABO metadata and GLBs (default $PREP_ROOT/cache/abo, on the volume; M8 and M9: container disk)

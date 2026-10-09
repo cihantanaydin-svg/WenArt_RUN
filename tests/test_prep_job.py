@@ -2290,3 +2290,29 @@ def test_the_library_copy_skips_unchanged_files_and_copies_changed_ones(tmp_path
     assert prep.sync_library() == 2
     assert P.read_json(w.results / "library" / "thumbnails.json") == {"objects": {"u1": {"status": "ready"}}}
     assert (w.results / "library" / "thumbs" / "u3.jpg").read_bytes() == b"JPG" * 4
+
+
+def test_m10_material_slots_keep_time_for_the_judge_sessions(tmp_path, monkeypatch):
+    """Pod L1c of 8 Oct 2026: the slots ran to the job deadline, so no session could start after them. With a session
+    in the same job the slots get their own deadline RECOLOUR_RESERVE_MIN before the job's (``--deadline``, the
+    reserve in the step record); $WENART_RECOLOUR_RESERVE_MIN overrides it; a job without a session keeps the job
+    deadline, a job without a deadline passes none."""
+    monkeypatch.delenv("WENART_RECOLOUR_RESERVE_MIN", raising=False)
+    monkeypatch.setenv("WENART_CPU_THREADS", "16")
+    w = World(tmp_path)
+    deadline = w.clock.t + 6 * 3600.0
+    assert w.prep(deadline=deadline).run_all() == 0, w.lines
+    cmd = w.call("recolour slots")["cmd"]
+    assert cmd[-2:] == ["--deadline", f"{deadline - 60.0 * P.RECOLOUR_RESERVE_MIN:.0f}"]
+    assert w.steps()["recolour_slots"]["reserve_min"] == P.RECOLOUR_RESERVE_MIN == 25.0
+    from wenart.assets import recolour as RC
+    assert RC.parse_args(cmd[3:]).deadline == float(f"{deadline - 60.0 * P.RECOLOUR_RESERVE_MIN:.0f}")
+    alone = P.Prep(w.opts(deadline=deadline, only=("recolour_slots", "copy")), runner=w.runner, clock=w.clock,
+                   out=w.lines.append)
+    assert alone.recolour_deadline() == deadline
+    both = P.Prep(w.opts(deadline=deadline, only=("recolour_slots", "session_glm")), runner=w.runner, clock=w.clock,
+                  out=w.lines.append)
+    assert both.recolour_deadline() == deadline - 25 * 60.0
+    monkeypatch.setenv("WENART_RECOLOUR_RESERVE_MIN", "40")
+    assert both.recolour_deadline() == deadline - 40 * 60.0
+    assert P.Prep(w.opts(), runner=w.runner, clock=w.clock, out=w.lines.append).recolour_deadline() is None
