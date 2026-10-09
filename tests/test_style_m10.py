@@ -184,7 +184,7 @@ def test_wet_walls_tile_size_and_grout():
     assert p["wet_walls"]["tile_size_m"] == [0.6, 1.2] and p["wet_walls"]["grout_colour"] == "black"
     assert prof("marble slab bathroom walls")["wet_walls"]["material"] == "marble_slab"
     p = prof("oak floor")                                                                            # no word: the default wet-wall tile
-    assert p["wet_walls"] == {"material": "tiles_light", "asset": "Tiles074", "tile_size_m": None, "pattern": None,
+    assert p["wet_walls"] == {"material": "tiles_light", "asset": None, "tile_size_m": None, "pattern": None,
                               "colour": None, "grout_colour": None}
     assert P.room_surfaces(prof("zellige bathroom tiles"), "bathroom")["walls"] == "tiles_zellige"
 

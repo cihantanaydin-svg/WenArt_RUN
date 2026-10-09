@@ -259,6 +259,46 @@ def test_debug_raster_of_a_region_renders_only_its_box(tmp_path):
     assert raster.image.convert("L").getextrema()[0] < 128                # something is drawn
 
 
+def test_drawing_window_drops_a_far_stray_and_keeps_the_frame():
+    from wenart.ingest import debug_image as DI
+
+    frame = (0.0, 0.0, 6000.0, 8000.0)                                       # the sheet frame
+    plans = [(500.0 + 120 * i, 1000.0 + 150 * i, 900.0 + 120 * i, 1400.0 + 150 * i) for i in range(40)]  # sheet-wide
+    dims = [(7600.0, 5400.0, 7610.0, 5410.0)]                               # a dimension 16 m right of the frame
+    stray = [(-23000.0, 29600.0, -22900.0, 30000.0)]                         # real02's HATCH:6633, 318 m away
+    window, dropped = DI.drawing_window([frame] + plans + dims + stray)
+    assert dropped == [len(plans) + 2]
+    assert window == (0.0, 0.0, 7610.0, 8000.0)
+    # A small file keeps a far entity out too (inner order statistics), and fewer than 5 boxes keep everything.
+    window, dropped = DI.drawing_window([(0, 0, 1, 1), (2, 0, 3, 1), (0, 2, 1, 3), (2, 2, 3, 3), (900, 900, 901, 901)])
+    assert dropped == [4] and window == (0.0, 0.0, 3.0, 3.0)
+    assert DI.drawing_window([(0, 0, 1, 1), (900, 900, 901, 901)]) == ((0.0, 0.0, 901.0, 901.0), [])
+    assert DI.drawing_window([]) is None
+
+
+def test_debug_raster_of_a_whole_dxf_leaves_a_far_stray_out(tmp_path):
+    # real02's one_building_dwg_p1 debug image: a hatch 318 m off the 60 m sheet made the model-space extents
+    # ~5x the sheet, so the drawing took a corner of a blank image. The window is now the drawing's.
+    import ezdxf
+
+    from wenart.ingest import debug_image as DI
+
+    doc = ezdxf.new("R2010")
+    msp = doc.modelspace()
+    msp.add_lwpolyline([(0, 0), (6000, 0), (6000, 8000), (0, 8000)], close=True)          # the sheet frame
+    for i in range(12):                                                                   # some drawing
+        msp.add_line((500 + 400 * i, 1000), (500 + 400 * i, 7000))
+    stray = msp.add_line((-23000, 29600), (-22900, 30000))
+    path = tmp_path / "stray.dxf"
+    doc.saveas(path)
+    raster = DI.raster_from_dxf(path, width_px=600)
+    w, h = raster.image.size
+    x0, y0 = raster.to_pixels((0, 8000))
+    x1, y1 = raster.to_pixels((6000, 0))
+    assert x1 - x0 > 0.9 * w and y1 - y0 > 0.9 * h                       # the sheet fills the image
+    assert f"LINE:{stray.dxf.handle}" in raster.note and "1 stray entity" in raster.note
+
+
 def test_the_building_origin_is_the_reference_walls_not_the_sheets_outline(tmp_path):
     # §1.6b row 1: the reference's outer wall faces (the core's step 8) fix the origin; the sheets outline starts at
     # an entrance step 0.3 m further out: every level, the roof outline and the profile move with the walls.

@@ -119,6 +119,7 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX, clip_box=None) -> 
     doc, _auditor = recover.readfile(str(path))
     msp = doc.modelspace()
     filter_func = None
+    note = ""
     if clip_box is not None:
         x0, y0, x1, y1 = (float(v) for v in clip_box)
         cache = bbox.Cache()
@@ -131,12 +132,31 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX, clip_box=None) -> 
             return bool(b.has_data) and not (b.extmax.x < x0 or b.extmin.x > x1 or b.extmax.y < y0
                                              or b.extmin.y > y1)
     else:
-        extents = bbox.extents(msp)
-        if not extents.has_data:
+        # The window is the drawing without its strays (``drawing_window``): one hatch 318 m off a 60 m sheet
+        # (real02, HATCH:6633) shrank the whole sheet into a corner of the debug image.
+        cache = bbox.Cache()
+        ids, boxes = [], []
+        for entity in msp:
+            try:
+                b = bbox.extents([entity], fast=True, cache=cache)
+            except Exception:          # an entity ezdxf cannot measure: drawn, not part of the window
+                continue
+            if b.has_data:
+                ids.append(f"{entity.dxftype()}:{entity.dxf.handle}")
+                boxes.append((b.extmin.x, b.extmin.y, b.extmax.x, b.extmax.y))
+        window = drawing_window(boxes)
+        if window is None:
             image = Image.new("RGB", (width_px, width_px // 2), "white")
             return PageRaster(image=image, to_pixels=lambda p: (p[0], p[1]), note="empty DXF")
-        x0, y0 = extents.extmin.x, extents.extmin.y
-        x1, y1 = extents.extmax.x, extents.extmax.y
+        (x0, y0, x1, y1), dropped = window
+        if dropped:
+            stray = {ids[i] for i in dropped}
+            names = ", ".join(sorted(stray)[:5]) + (", ..." if len(stray) > 5 else "")
+            note = (f"{len(stray)} stray entit{'y' if len(stray) == 1 else 'ies'} far outside the drawing "
+                    f"left out of the window: {names}")
+
+            def filter_func(entity) -> bool:
+                return f"{entity.dxftype()}:{entity.dxf.handle}" not in stray
     mx, my = (x1 - x0) * DXF_MARGIN, (y1 - y0) * DXF_MARGIN
     x0, y0, x1, y1 = x0 - mx, y0 - my, x1 + mx, y1 + my
     height_px = max(200, int(round(width_px * (y1 - y0) / (x1 - x0))))
@@ -163,7 +183,40 @@ def raster_from_dxf(path: Path, width_px: int = DXF_WIDTH_PX, clip_box=None) -> 
     def to_pixels(p):
         return ((p[0] - x0) / (x1 - x0) * w_img, (y1 - p[1]) / (y1 - y0) * h_img)
 
-    return PageRaster(image=image, to_pixels=to_pixels)
+    return PageRaster(image=image, to_pixels=to_pixels, note=note)
+
+
+STRAY_QUANTILE = 0.02     # drawing_window: the core of the drawing is the 2-98 % range of the entity centres ...
+STRAY_SPANS = 2.0         # ... and an entity whose box lies more than this many core spans beyond it is a stray
+
+
+def drawing_window(boxes, quantile: float = STRAY_QUANTILE, spans: float = STRAY_SPANS):
+    """``((x0, y0, x1, y1), dropped indices)`` of entity boxes ``(x0, y0, x1, y1)``: the union of the boxes that
+    meet the drawing's core grown by ``spans`` times its size on every side; None without boxes.
+
+    The core is the ``quantile`` .. ``1 - quantile`` range of the box centres per axis (the inner order statistics,
+    so a single far entity never moves it, even in a small file). A stray entity far off the sheet (a hatch 318 m
+    from a 60 m sheet) is dropped; the sheet frame, title block and dimensions around the drawing are kept. With
+    fewer than 5 boxes every box is kept."""
+    boxes = [tuple(float(v) for v in b) for b in boxes]
+    if not boxes:
+        return None
+    arr = np.asarray(boxes, dtype=np.float64)
+    keep = np.ones(len(boxes), dtype=bool)
+    if len(boxes) >= 5:
+        for lo_col, hi_col in ((0, 2), (1, 3)):
+            centres = np.sort((arr[:, lo_col] + arr[:, hi_col]) / 2.0)
+            n = len(centres)
+            lo = centres[int(np.ceil(quantile * (n - 1)))]
+            hi = centres[int(np.floor((1.0 - quantile) * (n - 1)))]
+            span = max(hi - lo, 1e-9)
+            band_lo, band_hi = lo - spans * span, hi + spans * span
+            keep &= (arr[:, hi_col] >= band_lo) & (arr[:, lo_col] <= band_hi)
+        if not keep.any():
+            keep[:] = True
+    kept = arr[keep]
+    window = (float(kept[:, 0].min()), float(kept[:, 1].min()), float(kept[:, 2].max()), float(kept[:, 3].max()))
+    return window, [int(i) for i in np.flatnonzero(~keep)]
 
 
 def raster_from_page(page, box, width_px: int = DXF_WIDTH_PX) -> PageRaster:

@@ -31,6 +31,10 @@ from __future__ import annotations
 
 from wenart.style import finishes as _finishes      # Milestone 10 tables (track C), merged below
 
+# The procedural look of ``tiles_light`` (``wenart_tiles`` node group params, as ``finishes.TILE_PATTERNS``).
+LIGHT_TILE_PARAMS = {"pattern": "grid", "tile_size_m": [0.6, 0.3], "grout_m": 0.002, "grout_colour": "light grey",
+                     "variation": 0.02}
+
 # --------------------------------------------------------------------------
 # Material slugs -> asset + flat colour
 # --------------------------------------------------------------------------
@@ -59,7 +63,13 @@ MATERIALS: dict[str, dict] = {
     "concrete_polished":  {"source": "ambientcg", "asset": "Concrete046",        "kind": "hard",    "flat": [0.45, 0.45, 0.44], "roughness": 0.25, "albedo_mode": "texture"},
     "terracotta":         {"source": "polyhaven", "asset": "patio_tiles",        "kind": "hard",    "flat": [0.55, 0.27, 0.16], "roughness": 0.7,  "albedo_mode": "texture"},
     "marble":             {"source": "polyhaven", "asset": "marble_01",          "kind": "hard",    "flat": [0.80, 0.78, 0.74], "roughness": 0.15, "albedo_mode": "texture"},
-    "tiles_light":        {"source": "ambientcg", "asset": "Tiles074",           "kind": "hard",    "flat": [0.82, 0.82, 0.80], "roughness": 0.2,  "albedo_mode": "texture"},
+    # "Light tiles" (the default wet floor and wet walls): procedural light ceramic, 60 x 30 cm stacked, no image
+    # asset. ambientCG Tiles074 (the M3 asset) is a black and beige marble checkerboard (mean linear luminance
+    # 0.128 measured on the real02 pod run, gain clamped at 2.5): every bathroom and kitchen got full-height
+    # checkerboard walls whatever the brief said (docs/progress.md, Milestone 5 open items).
+    "tiles_light":        _finishes._proc("wenart_tiles", "hard", [0.82, 0.82, 0.80], 0.2,
+                                          params=dict(LIGHT_TILE_PARAMS), wet_safe=True,
+                                          flat_source="estimated: light ceramic tile"),
     "carpet":             {"source": "ambientcg", "asset": "Carpet016",          "kind": "soft",    "flat": [0.60, 0.55, 0.45], "roughness": 0.95, "albedo_mode": "texture"},
     "plaster_white":      {"source": "polyhaven", "asset": "white_plaster_02",   "kind": "plaster", "flat": [0.85, 0.84, 0.80], "roughness": 0.85, "albedo_mode": "flat", "detail": 0.35},
     "plaster_cream":      {"source": "polyhaven", "asset": "beige_wall_001",     "kind": "plaster", "flat": [0.80, 0.72, 0.55], "roughness": 0.85, "albedo_mode": "flat", "detail": 0.35},

@@ -21,7 +21,7 @@ PROCEDURAL_GROUPS = {"wenart_tiles", "wenart_wallpaper", "wenart_slats", "wenart
 
 # The vocabulary of Milestone 3-9: slugs, assets and moods that Milestone 10 must not move.
 LEGACY_ASSETS = {"wood_oak_light": "WoodFloor051", "wood_walnut": "WoodFloor046", "wood_parquet": "herringbone_parquet",
-                 "concrete_polished": "Concrete046", "terracotta": "patio_tiles", "marble": "marble_01", "tiles_light": "Tiles074",
+                 "concrete_polished": "Concrete046", "terracotta": "patio_tiles", "marble": "marble_01",
                  "carpet": "Carpet016", "plaster_white": "white_plaster_02", "plaster_cream": "beige_wall_001",
                  "plaster_charcoal": "white_plaster_02", "plaster_exterior": "grey_plaster", "brick": "red_brick_03",
                  "wood_panel": "wooden_panels", "painted_wood_white": "white_planks_clean", "painted_metal_white": "Metal032"}
@@ -79,6 +79,12 @@ def test_the_vocabulary_merges_the_tables_and_keeps_the_old_slugs():
         assert V.MATERIALS[slug]["asset"] == asset
     assert set(F.MATERIALS) <= set(V.MATERIALS) and set(F.FURNITURE_MATERIALS) <= set(V.FURNITURE_MATERIALS)
     assert not (set(F.MATERIALS) & set(LEGACY_ASSETS)), "Milestone 10 adds slugs, it never replaces one"
+    # "Light tiles" are procedural light ceramic tiles: the old asset Tiles074 is a black and beige marble checkerboard
+    # (real02: every bathroom and kitchen had full-height checkerboard walls).
+    e = V.MATERIALS["tiles_light"]
+    assert e["source"] == "procedural" and e["asset"] is None and e["procedural"] == "wenart_tiles"
+    assert e["params"] == V.LIGHT_TILE_PARAMS and e["params"]["pattern"] == "grid" and e["wet_safe"]
+    assert min(e["flat"]) >= 0.75 and V.asset_for("tiles_light") == ("procedural", None)
     assert not (set(F.FURNITURE_MATERIALS) & {"fabric_linen", "wood_veneer_oak", "wood_veneer_walnut", "steel_brushed",
                                               "stone_worktop", "ceramic_white", "lacquer_dark", "mirror", "plant_green"})
     assert V.asset_for("paint") == ("polyhaven", "plastered_wall")

@@ -194,8 +194,9 @@ def test_wet_room_helpers():
     assert assets["hdris"] == [("polyhaven", "kloppenheim_06")]
 
 
+# tiles_light left this list: procedural light tiles since its asset Tiles074 proved a dark marble checkerboard.
 LEGACY_MATERIALS = ("wood_oak_light", "wood_walnut", "wood_parquet", "concrete_polished", "terracotta", "marble",
-                    "tiles_light", "carpet", "plaster_white", "plaster_cream", "plaster_charcoal", "plaster_exterior",
+                    "carpet", "plaster_white", "plaster_cream", "plaster_charcoal", "plaster_exterior",
                     "brick", "wood_panel", "painted_wood_white", "painted_metal_white")
 
 

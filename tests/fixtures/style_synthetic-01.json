@@ -19,12 +19,12 @@
   },
   "wet_floor": {
     "material": "tiles_light",
-    "asset": "Tiles074",
+    "asset": null,
     "colour": null
   },
   "wet_walls": {
     "material": "tiles_light",
-    "asset": "Tiles074",
+    "asset": null,
     "tile_size_m": null,
     "pattern": null,
     "colour": null,

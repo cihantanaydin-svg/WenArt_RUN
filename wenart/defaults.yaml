@@ -22,8 +22,8 @@ style:
     walls: {material: plaster_white, asset: white_plaster_02, colour: null}
     wall_accent: null
     ceiling: {material: plaster_white, colour: null}
-    wet_floor: {material: tiles_light, asset: Tiles074, colour: null}
-    wet_walls: {material: tiles_light, asset: Tiles074, tile_size_m: null, pattern: null, colour: null, grout_colour: null}
+    wet_floor: {material: tiles_light, asset: null, colour: null}
+    wet_walls: {material: tiles_light, asset: null, tile_size_m: null, pattern: null, colour: null, grout_colour: null}
     trim: {material: painted_wood_white, colour: null}
     door: {material: wood_oak_light, asset: WoodFloor051, style: null, colour: null, handle: null}
     window_frame:

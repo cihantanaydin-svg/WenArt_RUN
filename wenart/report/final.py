@@ -401,6 +401,7 @@ class Inputs:
     variant_manifests: dict = field(default_factory=dict)    # variant id -> its final/final_manifest.json
     base_exterior: Optional[list] = None                 # a variant sub-output: the base's exterior views of THIS run
     exterior_sheets: dict = field(default_factory=dict)  # variant -> contact_exterior_<variant>.jpg (write_images)
+    debug_previews: list = field(default_factory=list)   # [{source, preview, bytes}] written by write_sheets_block
     variant_sheets: dict = field(default_factory=dict)   # variant id -> {"interior": name, "exterior": name}
     sheets_block: Optional[dict] = None                  # the Sheets block of the report (m10.sheets_block)
 
@@ -1466,6 +1467,13 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
             if f.name not in written:
                 inp.warnings.append(f"final/{f.name} is from an earlier run (not part of this report)")
     inp.sheets_block = write_sheets_block(inp)
+    # Debug previews too (as write_review_images does): real02's final/debug/one_building_dwg_p1.jpg came from a run
+    # before the sheet regions and stayed next to this run's sheet image without a word.
+    debug_written = {e["preview"] for e in inp.debug_previews if e.get("preview")}
+    for f in sorted(out.glob(f"{DEBUG_DIR}/*.jpg")):
+        rel = f.relative_to(out).as_posix()
+        if rel not in debug_written:
+            inp.warnings.append(f"final/{rel} is from an earlier run (not part of this report)")
     return sheets
 
 
@@ -1516,9 +1524,10 @@ def write_sheets_block(inp: Inputs) -> Optional[dict]:
         return None
     root = inp.root or inp.project_out
     rows = sheet_image_rows(sh, inp.private)
-    write_debug_previews(root, inp.out_dir, inp.private, inp.warnings, rows)
+    previews = write_debug_previews(root, inp.out_dir, inp.private, inp.warnings, rows)
     block = M.sheets_block(sh, inp.private, sheet_names(sh, inp.private),
                            {r["debug_image"]: r.get("debug_preview") for r in rows})
+    inp.debug_previews = previews
     report = root / SHEETS_REPORT
     if report.is_file():
         if inp.private:

@@ -543,42 +543,6 @@
       ],
       "source": "ambientcg"
     },
-    "ambientcg:Tiles074": {
-      "asset": "Tiles074",
-      "category": "Tiles",
-      "downloads": [
-        "1K-JPG",
-        "2K-JPG",
-        "4K-JPG",
-        "8K-JPG",
-        "1K-PNG",
-        "2K-PNG",
-        "4K-PNG",
-        "8K-PNG"
-      ],
-      "exists": true,
-      "has_required_maps": true,
-      "jpg_1k_2k": true,
-      "licence": "CC0",
-      "maps": [
-        "color",
-        "displacement",
-        "normal",
-        "roughness"
-      ],
-      "measure_note": "not measured: the download host acg-download.struffelproductions.com is not reachable from the cloud session; the vocabulary's flat colour is an estimate (flat_source in the entry)",
-      "measured_flat_linear": null,
-      "name": "Tiles 074",
-      "size_m": [
-        2.1,
-        2.1
-      ],
-      "size_note": "dimensionX / dimensionY of the API (centimetres) / 100",
-      "slugs": [
-        "tiles_light"
-      ],
-      "source": "ambientcg"
-    },
     "ambientcg:Wicker005": {
       "asset": "Wicker005",
       "category": "Wicker",

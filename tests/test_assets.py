@@ -213,7 +213,7 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
 
     def fake_texture(asset_id, out_dir, size="2k", source=None, licence=None):
         calls.append(("texture", asset_id, size))
-        if asset_id == "Tiles074":
+        if asset_id == "Metal032":
             raise web.NetworkError("blocked host (simulated)")
         return {"id": asset_id, "source": source, "licence": "CC0", "size_m": [1.0, 1.0], "files": {}}
 
@@ -226,7 +226,8 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
     assert assets_main(["fetch", "--style", str(style_path), "--assets", str(tmp_path / "a"), "--size", "1k"]) == 0
     assert assets_main(["fetch", "--style", str(style_path), "--assets", str(tmp_path / "a"), "--strict"]) == 1
     ids = {c[1] for c in calls if c[0] == "texture"}
-    assert ids == {"WoodFloor051", "white_plaster_02", "Tiles074", "white_planks_clean", "Metal032",
+    # tiles_light (the wet floor and walls) is procedural since its Tiles074 proved a dark marble checkerboard.
+    assert ids == {"WoodFloor051", "white_plaster_02", "white_planks_clean", "Metal032",
                    "rough_linen", "oak_veneer_01", "walnut_veneer",   # Milestone 6 furniture textures
                    # Milestone 10: the default style's exterior looks (render, concrete roof tiles, pavers, lawn) and the
                    # furniture veneers (docs/milestone10.md §1.6b row 14); procedural looks have nothing to fetch
@@ -234,7 +235,7 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    "oak_veneer_02", "ash_veneer", "white_maple_veneer", "teak_veneer", "black_oak_veneer", "cherry_veneer"}
     assert ("hdri", "kloppenheim_06", "1k") in calls
     out = capsys.readouterr().out
-    assert "1 failed" in out and "Tiles074" in out
+    assert "1 failed" in out and "Metal032" in out
 
 
 # --------------------------------------------------------------------------

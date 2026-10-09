@@ -535,6 +535,18 @@ def test_rerun_is_stable_and_lists_stale_files(tmp_path):
     assert any("cam_gone_final_preview.jpg is from an earlier run" in w for w in manifest["warnings"])
 
 
+def test_a_stale_debug_preview_is_listed(tmp_path):
+    # real02: final/debug/one_building_dwg_p1.jpg came from a run before the sheet regions (the whole sheet in a
+    # corner of a blank page) and stayed next to the current sheet image without a warning.
+    out = make_project(tmp_path)
+    F.write_final(out)
+    (out / "final" / "debug").mkdir(parents=True, exist_ok=True)
+    (out / "final" / "debug" / "old_dwg_p1.jpg").write_bytes(b"x")
+    manifest = F.write_final(out)
+    assert (out / "final" / "debug" / "old_dwg_p1.jpg").is_file()               # listed, never deleted
+    assert "final/debug/old_dwg_p1.jpg is from an earlier run (not part of this report)" in manifest["warnings"]
+
+
 def test_crosscheck_error_is_reported(tmp_path):
     out = make_project(tmp_path)
     cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))

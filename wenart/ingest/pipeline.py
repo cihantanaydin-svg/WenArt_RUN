@@ -1023,6 +1023,8 @@ def _debug_image(record: PageRecord, work: Optional[PageWork], out_dir: Path, pr
         return None
     items: list[DI.DebugItem] = []
     note = f"{record.file} p{record.page}: {record.page_class} / {record.kind}"
+    if raster.note:                       # e.g. stray entities left out of the DXF window (DI.drawing_window)
+        note += f" | {raster.note}"
     if work is None:
         note += f" | skipped: {record.skip_reason}" if record.skip_reason else " | not extracted"
     elif generic:
