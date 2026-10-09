@@ -1,0 +1,318 @@
+{
+ "room_id": "r_L1_oyun_odasi",
+ "label": "Oyun Odası",
+ "room_type": "other",
+ "slots": [
+  {
+   "id": "f_L1_002.back_left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_002",
+   "host_type": "desk",
+   "note": "back left part",
+   "center": [
+    1.03,
+    7.524
+   ],
+   "max_size": [
+    0.37,
+    0.32,
+    2.951
+   ]
+  },
+  {
+   "id": "f_L1_002.back_right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_002",
+   "host_type": "desk",
+   "note": "back right part",
+   "center": [
+    1.97,
+    7.524
+   ],
+   "max_size": [
+    0.37,
+    0.32,
+    2.951
+   ]
+  },
+  {
+   "id": "f_L1_002.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art",
+    "clock"
+   ],
+   "host_id": "f_L1_002",
+   "host_type": "desk",
+   "note": ""
+  },
+  {
+   "id": "f_L1_003.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L1_003",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "f_L1_004.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_004",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L1_004.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_004",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "r_L1_oyun_odasi.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 0.50, 0.50",
+   "center": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "id": "r_L1_oyun_odasi.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.80, 0.50",
+   "center": [
+    5.8,
+    0.5
+   ]
+  },
+  {
+   "id": "window:win_L1_001",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_001"
+  },
+  {
+   "id": "ceiling:centre_r_L1_oyun_odasi",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 oyun odasi"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_002.back_left",
+     "type": "table_lamp",
+     "colour": "natural wood",
+     "reason": "Adds warm ambient light and complements the light oak floor."
+    },
+    {
+     "slot": "f_L1_002.wall",
+     "type": "wall_art",
+     "colour": "sage green",
+     "reason": "Subtle modern art enhances the minimalist aesthetic without overwhelming the space."
+    },
+    {
+     "slot": "r_L1_oyun_odasi.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Large plant brings life to the corner while maintaining clean lines and natural tones."
+    },
+    {
+     "slot": "window:win_L1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Soft cream curtains diffuse daylight and match the neutral, airy feel of the room."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_oyun_odasi",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant adds a warm metallic accent that balances the minimalist design."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.556
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_002.back_left",
+     "type": "table_lamp",
+     "colour": "natural wood",
+     "reason": "adds warm ambient light matching the modern minimal style"
+    },
+    {
+     "slot": "f_L1_002.back_right",
+     "type": "plant_small",
+     "colour": "cream",
+     "reason": "brings life with a soft, neutral tone that complements the light oak and white walls"
+    },
+    {
+     "slot": "f_L1_004.cushions",
+     "type": "cushion",
+     "colour": "sand",
+     "reason": "adds subtle texture and warmth without overwhelming the minimalist aesthetic"
+    },
+    {
+     "slot": "r_L1_oyun_odasi.corner1",
+     "type": "plant_large",
+     "colour": "sage green",
+     "reason": "creates a calming focal point with natural color and scale"
+    },
+    {
+     "slot": "ceiling:centre_r_L1_oyun_odasi",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "adds a touch of warmth and elegance without cluttering the space"
+    }
+   ],
+   "error": null,
+   "latency_s": 3.323
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_002.back_left",
+   "type": "table_lamp",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warm ambient light and complements the light oak floor.",
+    "adds warm ambient light matching the modern minimal style"
+   ]
+  },
+  {
+   "slot": "r_L1_oyun_odasi.corner1",
+   "type": "plant_large",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "Large plant brings life to the corner while maintaining clean lines and natural tones.",
+    "creates a calming focal point with natural color and scale"
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_oyun_odasi",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass pendant adds a warm metallic accent that balances the minimalist design.",
+    "adds a touch of warmth and elegance without cluttering the space"
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L1_002.wall",
+   "type": "wall_art",
+   "colour": "sage green",
+   "reason": "Subtle modern art enhances the minimalist aesthetic without overwhelming the space.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "window:win_L1_001",
+   "type": "curtain",
+   "colour": "cream",
+   "reason": "Soft cream curtains diffuse daylight and match the neutral, airy feel of the room.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L1_002.back_right",
+   "type": "plant_small",
+   "colour": "cream",
+   "reason": "brings life with a soft, neutral tone that complements the light oak and white walls",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L1_004.cushions",
+   "type": "cushion",
+   "colour": "sand",
+   "reason": "adds subtle texture and warmth without overwhelming the minimalist aesthetic",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_001",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L1_002.back_left"
+  },
+  {
+   "id": "dec_L1_002",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L1_oyun_odasi.corner1"
+  },
+  {
+   "id": "dec_L1_003",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_oyun_odasi"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

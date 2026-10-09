@@ -1,0 +1,427 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-07",
+ "views": {
+  "cam_r_L-1_hol_1": {
+   "plan": "cam_r_L-1_hol_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    0
+   ],
+   "scale": 1.00376,
+   "bytes": 61842
+  },
+  "cam_r_L-1_hol_2": {
+   "plan": "cam_r_L-1_hol_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    0
+   ],
+   "scale": 1.00376,
+   "bytes": 56176
+  },
+  "cam_r_L-1_hol_3": {
+   "plan": "cam_r_L-1_hol_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    0
+   ],
+   "scale": 1.00376,
+   "bytes": 64884
+  },
+  "cam_r_L-1_mutfak_1": {
+   "plan": "cam_r_L-1_mutfak_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    643
+   ],
+   "scale": 1.00376,
+   "bytes": 79803
+  },
+  "cam_r_L-1_mutfak_2": {
+   "plan": "cam_r_L-1_mutfak_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    643
+   ],
+   "scale": 1.00376,
+   "bytes": 84797
+  },
+  "cam_r_L-1_mutfak_3": {
+   "plan": "cam_r_L-1_mutfak_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    643
+   ],
+   "scale": 1.00376,
+   "bytes": 78300
+  },
+  "cam_r_L-1_salon_1": {
+   "plan": "cam_r_L-1_salon_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    0
+   ],
+   "scale": 0.83333,
+   "bytes": 84590
+  },
+  "cam_r_L-1_salon_2": {
+   "plan": "cam_r_L-1_salon_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    0
+   ],
+   "scale": 0.83333,
+   "bytes": 80401
+  },
+  "cam_r_L-1_salon_3": {
+   "plan": "cam_r_L-1_salon_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    0
+   ],
+   "scale": 0.83333,
+   "bytes": 81441
+  },
+  "cam_r_L0_banyo_1": {
+   "plan": "cam_r_L0_banyo_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    842
+   ],
+   "scale": 1.00125,
+   "bytes": 57096
+  },
+  "cam_r_L0_banyo_2": {
+   "plan": "cam_r_L0_banyo_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    842
+   ],
+   "scale": 1.00125,
+   "bytes": 60295
+  },
+  "cam_r_L0_banyo_3": {
+   "plan": "cam_r_L0_banyo_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    842
+   ],
+   "scale": 1.00125,
+   "bytes": 59287
+  },
+  "cam_r_L0_hol_1": {
+   "plan": "cam_r_L0_hol_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    197
+   ],
+   "scale": 1.00125,
+   "bytes": 55431
+  },
+  "cam_r_L0_hol_2": {
+   "plan": "cam_r_L0_hol_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    197
+   ],
+   "scale": 1.00125,
+   "bytes": 60854
+  },
+  "cam_r_L0_hol_3": {
+   "plan": "cam_r_L0_hol_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1010,
+    197
+   ],
+   "scale": 1.00125,
+   "bytes": 65107
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "plan": "cam_r_L0_yatak_odasi_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    197
+   ],
+   "scale": 0.83102,
+   "bytes": 89563
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    197
+   ],
+   "scale": 0.83102,
+   "bytes": 90276
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    197
+   ],
+   "scale": 0.83102,
+   "bytes": 88121
+  },
+  "cam_r_L1_hol_1": {
+   "plan": "cam_r_L1_hol_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1000,
+    80
+   ],
+   "scale": 1.10193,
+   "bytes": 61162
+  },
+  "cam_r_L1_hol_2": {
+   "plan": "cam_r_L1_hol_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1000,
+    80
+   ],
+   "scale": 1.10193,
+   "bytes": 62875
+  },
+  "cam_r_L1_hol_3": {
+   "plan": "cam_r_L1_hol_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1000,
+    80
+   ],
+   "scale": 1.10193,
+   "bytes": 62883
+  },
+  "cam_r_L1_oyun_odasi_1": {
+   "plan": "cam_r_L1_oyun_odasi_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    89,
+    80
+   ],
+   "scale": 0.91394,
+   "bytes": 73051
+  },
+  "cam_r_L1_oyun_odasi_2": {
+   "plan": "cam_r_L1_oyun_odasi_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    89,
+    80
+   ],
+   "scale": 0.91394,
+   "bytes": 78038
+  },
+  "cam_r_L1_oyun_odasi_3": {
+   "plan": "cam_r_L1_oyun_odasi_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    89,
+    80
+   ],
+   "scale": 0.91394,
+   "bytes": 75105
+  },
+  "cam_r_L1_teras_1": {
+   "plan": "cam_r_L1_teras_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    1000,
+    667
+   ],
+   "scale": 1.10193,
+   "bytes": 46547
+  },
+  "ext_2": {
+   "plan": "ext_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.64103,
+   "bytes": 78235
+  },
+  "ext_3": {
+   "plan": "ext_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.64103,
+   "bytes": 76418
+  },
+  "ext_5": {
+   "plan": "ext_5_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.64103,
+   "bytes": 80334
+  },
+  "ext_6": {
+   "plan": "ext_6_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.64103,
+   "bytes": 84949
+  },
+  "ext_7": {
+   "plan": "ext_7_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.64103,
+   "bytes": 69070
+  }
+ },
+ "warnings": []
+}

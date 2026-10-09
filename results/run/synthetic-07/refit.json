@@ -1,0 +1,35 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-07",
+ "stage": "refit",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 3.93,
+ "fingerprint": "ff5b6391e68a6bde03e29abc5d1689e6ea3504866a8936344adf257665846b19",
+ "inputs": {
+  "outputs/synthetic-07/building_decor.json": "730fd6ed0082dd0751bf889b9f84c48821e995fc6f8f05e7e78ac99c8781d4bb",
+  "outputs/synthetic-07/style.json": "1458d5a7557739262ba9c15eeb78ddc0ef2682ac3bb93124052b76be86d3cd78",
+  "wenart/furniture/catalog.json": "ddd87db3a4a90960756fcae5e074fcc6d6de4802dfbb5e6f2efdd21c1288901f",
+  "wenart/furniture/catalog_objaverse.json": null,
+  "wenart/furniture/catalog_library.json": "d2d2e66cf47ca84ad39192636733b465b674ae579caeca47cc01dae6da1711c1",
+  "outputs/synthetic-07/building.json": "692253e66ec4911b6bd58e0b80445103952c0350b70ca8220f61c3e098076426",
+  "outputs/synthetic-07/completion.json": "eabb25728a80dd53327dfe5a14829600a96d7ada4508830652d8e4f6d1a92a03"
+ },
+ "outputs": [
+  "building_final.json"
+ ],
+ "started_utc": "2026-10-09T13:55:53Z",
+ "git_commit": "7e95d4e1b113604d58ffe612cb4b8dc46a8bb1e4",
+ "log": "logs/refit.log",
+ "note": null,
+ "run_id": "20261009-134613-full-20261009T135146Z",
+ "steps": [
+  {
+   "name": "refit",
+   "rc": 0,
+   "seconds": 3.93
+  }
+ ],
+ "written": {}
+}

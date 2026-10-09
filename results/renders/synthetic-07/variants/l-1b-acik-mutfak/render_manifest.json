@@ -1,0 +1,680 @@
+{
+ "schema_version": "0.1",
+ "scene": "../scene/scene.blend",
+ "scene_sha256": "bdd3f95b751e7e27987dd7a8fe71ecb779cefef96ad8f99d53a9c8f7995a1f8e",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "auto",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "auto",
+ "look_from": null,
+ "hidden": [],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "win_L-1b_001": 1,
+  "win_L-1b_002": 2,
+  "win_L-1b_003": 3,
+  "d_L-1b_001": 4,
+  "win_L-1b_004": 5,
+  "win_L-1b_005": 6,
+  "d_L-1b_002": 7,
+  "win_L-1b_006": 8,
+  "d_L-1b_003": 9,
+  "win_L-1b_007": 10,
+  "f_L-1b_002": 11,
+  "f_L-1b_003": 12,
+  "f_L-1b_004": 13,
+  "f_L-1b_005": 14,
+  "f_L-1b_006": 15,
+  "f_L-1b_007": 16,
+  "f_L-1b_008": 17,
+  "f_L-1b_009": 18,
+  "f_L-1b_010": 19,
+  "f_L-1b_011": 20,
+  "dec_L-1b_004": 21,
+  "dec_L-1b_006": 22,
+  "dec_L-1b_007": 23,
+  "dec_L-1b_008": 24,
+  "dec_L-1b_009": 25,
+  "f_L-1b_001": 26,
+  "win_L0_001": 27,
+  "d_L0_001": 28,
+  "win_L0_002": 29,
+  "d_L0_002": 30,
+  "win_L0_003": 31,
+  "win_L0_004": 32,
+  "d_L0_003": 33,
+  "win_L0_005": 34,
+  "d_L0_004": 35,
+  "win_L0_006": 36,
+  "f_L0_002": 37,
+  "f_L0_003": 38,
+  "f_L0_004": 39,
+  "f_L0_005": 40,
+  "f_L0_006": 41,
+  "f_L0_007": 42,
+  "f_L0_008": 43,
+  "f_L0_009": 44,
+  "dec_L0_005": 45,
+  "dec_L0_006": 46,
+  "dec_L0_007": 47,
+  "dec_L0_008": 48,
+  "dec_L0_009": 49,
+  "dec_L0_010": 50,
+  "dec_L0_012": 51,
+  "dec_L0_013": 52,
+  "f_L0_001": 53,
+  "d_L1_001": 54,
+  "win_L1_001": 55,
+  "d_L1_002": 56,
+  "win_L1_002": 57,
+  "f_L1_002": 58,
+  "f_L1_003": 59,
+  "f_L1_004": 60,
+  "f_L1_005": 61,
+  "f_L1_006": 62,
+  "dec_L1_002": 63,
+  "dec_L1_003": 64,
+  "dec_L1_004": 65
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_1",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "level_id": "L-1b",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L-1b_salon_acik_mutfak_1.png",
+   "exr": "cam_r_L-1b_salon_acik_mutfak_1_passes.exr",
+   "preview": "cam_r_L-1b_salon_acik_mutfak_1_preview.jpg",
+   "depth_png": "cam_r_L-1b_salon_acik_mutfak_1_depth.png",
+   "index_png": "cam_r_L-1b_salon_acik_mutfak_1_index.png",
+   "files": {
+    "index": "cam_r_L-1b_salon_acik_mutfak_1_index.png",
+    "depth_mm": "cam_r_L-1b_salon_acik_mutfak_1_depth_mm.png",
+    "normal": "cam_r_L-1b_salon_acik_mutfak_1_normal.png",
+    "depth": "cam_r_L-1b_salon_acik_mutfak_1_depth.png"
+   },
+   "preview_bytes": 234640,
+   "seconds": 3.71,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.631804347038269,
+    "max": 5.827831268310547,
+    "mean": 3.258206844329834,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    6,
+    8,
+    14,
+    16,
+    18,
+    21,
+    22,
+    24
+   ],
+   "index_stats": {
+    "5": {
+     "pixels": 34215,
+     "box": [
+      1050,
+      161,
+      1192,
+      425
+     ]
+    },
+    "6": {
+     "pixels": 117903,
+     "box": [
+      1667,
+      0,
+      1920,
+      497
+     ]
+    },
+    "8": {
+     "pixels": 104395,
+     "box": [
+      4,
+      129,
+      367,
+      438
+     ]
+    },
+    "14": {
+     "pixels": 204715,
+     "box": [
+      1005,
+      438,
+      1724,
+      932
+     ]
+    },
+    "16": {
+     "pixels": 32821,
+     "box": [
+      749,
+      672,
+      1020,
+      1007
+     ]
+    },
+    "18": {
+     "pixels": 28464,
+     "box": [
+      828,
+      446,
+      1053,
+      663
+     ]
+    },
+    "21": {
+     "pixels": 123792,
+     "box": [
+      1271,
+      0,
+      1611,
+      405
+     ]
+    },
+    "22": {
+     "pixels": 365843,
+     "box": [
+      567,
+      634,
+      1920,
+      1080
+     ]
+    },
+    "24": {
+     "pixels": 3342,
+     "box": [
+      856,
+      0,
+      967,
+      35
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "bdd3f95b751e7e27987dd7a8fe71ecb779cefef96ad8f99d53a9c8f7995a1f8e",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 8.0,
+    "ev_raw": 8.8697,
+    "at_limit": true,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.001924,
+    "whitepoint": [
+     0.986489,
+     0.997208,
+     1.067439
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6865.5,
+    "wb_tint": 6.41,
+    "residual": 0.35,
+    "window_clip_frac": 0.0001,
+    "meter_seconds": 3.855,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 749,
+     "block_px": 6,
+     "interior_frac": 0.8696
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 7.0,
+    "clip_before": 0.0535,
+    "clip_after": 0.0001,
+    "pane_px": 210298,
+    "pane_median": 0.8914,
+    "wall_median": 0.5411,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8199
+     }
+    ],
+    "pane_median_after": 0.8207,
+    "seconds": 0.331
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_2",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "level_id": "L-1b",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L-1b_salon_acik_mutfak_2.png",
+   "exr": "cam_r_L-1b_salon_acik_mutfak_2_passes.exr",
+   "preview": "cam_r_L-1b_salon_acik_mutfak_2_preview.jpg",
+   "depth_png": "cam_r_L-1b_salon_acik_mutfak_2_depth.png",
+   "index_png": "cam_r_L-1b_salon_acik_mutfak_2_index.png",
+   "files": {
+    "index": "cam_r_L-1b_salon_acik_mutfak_2_index.png",
+    "depth_mm": "cam_r_L-1b_salon_acik_mutfak_2_depth_mm.png",
+    "normal": "cam_r_L-1b_salon_acik_mutfak_2_normal.png",
+    "depth": "cam_r_L-1b_salon_acik_mutfak_2_depth.png"
+   },
+   "preview_bytes": 251399,
+   "seconds": 3.41,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.6318039894104004,
+    "max": 5.362125396728516,
+    "mean": 3.190089225769043,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    6,
+    9,
+    14,
+    16,
+    17,
+    18,
+    21,
+    22,
+    24
+   ],
+   "index_stats": {
+    "5": {
+     "pixels": 128166,
+     "box": [
+      0,
+      75,
+      357,
+      460
+     ]
+    },
+    "6": {
+     "pixels": 51997,
+     "box": [
+      832,
+      162,
+      1042,
+      425
+     ]
+    },
+    "9": {
+     "pixels": 108717,
+     "box": [
+      1414,
+      118,
+      1624,
+      684
+     ]
+    },
+    "14": {
+     "pixels": 152329,
+     "box": [
+      341,
+      431,
+      1029,
+      786
+     ]
+    },
+    "16": {
+     "pixels": 37626,
+     "box": [
+      680,
+      687,
+      1104,
+      996
+     ]
+    },
+    "17": {
+     "pixels": 59438,
+     "box": [
+      1617,
+      564,
+      1920,
+      830
+     ]
+    },
+    "18": {
+     "pixels": 103566,
+     "box": [
+      0,
+      516,
+      326,
+      894
+     ]
+    },
+    "21": {
+     "pixels": 90404,
+     "box": [
+      513,
+      70,
+      816,
+      391
+     ]
+    },
+    "22": {
+     "pixels": 365721,
+     "box": [
+      105,
+      623,
+      1474,
+      1080
+     ]
+    },
+    "24": {
+     "pixels": 2754,
+     "box": [
+      816,
+      0,
+      931,
+      29
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "bdd3f95b751e7e27987dd7a8fe71ecb779cefef96ad8f99d53a9c8f7995a1f8e",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 8.0,
+    "ev_raw": 9.0647,
+    "at_limit": true,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.001681,
+    "whitepoint": [
+     1.053078,
+     0.984836,
+     0.993922
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6287.0,
+    "wb_tint": 2.2,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.352,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 777,
+     "block_px": 6,
+     "interior_frac": 0.9053
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 7.0,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 154681,
+    "pane_median": 0.8592,
+    "wall_median": 0.5266,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7788
+     }
+    ],
+    "pane_median_after": 0.7793,
+    "seconds": 0.301
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_3",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "level_id": "L-1b",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L-1b_salon_acik_mutfak_3.png",
+   "exr": "cam_r_L-1b_salon_acik_mutfak_3_passes.exr",
+   "preview": "cam_r_L-1b_salon_acik_mutfak_3_preview.jpg",
+   "depth_png": "cam_r_L-1b_salon_acik_mutfak_3_depth.png",
+   "index_png": "cam_r_L-1b_salon_acik_mutfak_3_index.png",
+   "files": {
+    "index": "cam_r_L-1b_salon_acik_mutfak_3_index.png",
+    "depth_mm": "cam_r_L-1b_salon_acik_mutfak_3_depth_mm.png",
+    "normal": "cam_r_L-1b_salon_acik_mutfak_3_normal.png",
+    "depth": "cam_r_L-1b_salon_acik_mutfak_3_depth.png"
+   },
+   "preview_bytes": 242741,
+   "seconds": 3.45,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.6318037509918213,
+    "max": 4.122000217437744,
+    "mean": 3.1448311805725098,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    6,
+    9,
+    14,
+    16,
+    18,
+    21,
+    22
+   ],
+   "index_stats": {
+    "5": {
+     "pixels": 77268,
+     "box": [
+      290,
+      148,
+      564,
+      430
+     ]
+    },
+    "6": {
+     "pixels": 79242,
+     "box": [
+      996,
+      148,
+      1277,
+      430
+     ]
+    },
+    "9": {
+     "pixels": 84477,
+     "box": [
+      1813,
+      8,
+      1920,
+      845
+     ]
+    },
+    "14": {
+     "pixels": 152060,
+     "box": [
+      437,
+      439,
+      1134,
+      730
+     ]
+    },
+    "16": {
+     "pixels": 50135,
+     "box": [
+      407,
+      711,
+      934,
+      1001
+     ]
+    },
+    "18": {
+     "pixels": 90045,
+     "box": [
+      32,
+      483,
+      468,
+      785
+     ]
+    },
+    "21": {
+     "pixels": 85264,
+     "box": [
+      680,
+      95,
+      972,
+      387
+     ]
+    },
+    "22": {
+     "pixels": 412150,
+     "box": [
+      0,
+      672,
+      1458,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "bdd3f95b751e7e27987dd7a8fe71ecb779cefef96ad8f99d53a9c8f7995a1f8e",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 8.0,
+    "ev_raw": 8.9412,
+    "at_limit": true,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.001831,
+    "whitepoint": [
+     1.058877,
+     0.9835,
+     0.990081
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6250.4,
+    "wb_tint": 1.65,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.333,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 795,
+     "block_px": 6,
+     "interior_frac": 0.9169
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 7.0,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 128789,
+    "pane_median": 0.8583,
+    "wall_median": 0.5168,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7749
+     }
+    ],
+    "pane_median_after": 0.778,
+    "seconds": 0.323
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791556329.0,
+ "warnings": [
+  "cam_r_L-1b_salon_acik_mutfak_1: exposure at the limit (+8.87 EV wanted, +8.00 used)",
+  "cam_r_L-1b_salon_acik_mutfak_2: exposure at the limit (+9.06 EV wanted, +8.00 used)",
+  "cam_r_L-1b_salon_acik_mutfak_3: exposure at the limit (+8.94 EV wanted, +8.00 used)"
+ ]
+}

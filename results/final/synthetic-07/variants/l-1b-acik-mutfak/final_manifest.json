@@ -1,0 +1,3295 @@
+{
+ "schema_version": "0.1",
+ "kind": "final",
+ "project": "synthetic-07",
+ "status": "ok",
+ "status_note": null,
+ "private": false,
+ "inputs": {
+  "render_manifest": "../renders/render_manifest.json",
+  "scene_manifest": "../scene/scene_manifest.json",
+  "polish_manifest": "../polish/polish_manifest.json",
+  "check_manifest": "../check/check_manifest.json",
+  "check_calibration": "../check/check_calibration.json",
+  "expected_views": "../check/expected_views.json",
+  "gate_calibration": "../gate/gate_calibration.json",
+  "gate_validation": "../gate/gate_validation.json",
+  "sheets": "../../../sheets.json",
+  "completion": "../../../completion.json",
+  "building": "../../../building_final.json"
+ },
+ "stages": {
+  "render": "run",
+  "polish": "run",
+  "check": "run",
+  "check_calibration": "run",
+  "gate_calibration": "run",
+  "gate_validation": "ok",
+  "exterior_gate": "not_applicable",
+  "expected": "run"
+ },
+ "run_id": "20261009-134613-full-20261009T135146Z",
+ "run_stages": [
+  {
+   "stage": "build",
+   "status": "ok",
+   "seconds": 92.56,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:04:30Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "render",
+   "status": "ok",
+   "seconds": 39.93,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:05:10Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "export",
+   "status": "ok",
+   "seconds": 31.31,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:05:42Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "controls",
+   "status": "ok",
+   "seconds": 28.14,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:06:10Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "gate",
+   "status": "ok",
+   "seconds": 1.08,
+   "note": "gate decision ok (the base project's calibration)",
+   "rc": 0,
+   "started_utc": "2026-10-09T14:14:08Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "polish",
+   "status": "ok",
+   "seconds": 43.58,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:14:52Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "detect",
+   "status": "ok",
+   "seconds": 5.03,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:14:57Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "expected",
+   "status": "ok",
+   "seconds": 6.72,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:15:18Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "check",
+   "status": "ok",
+   "seconds": 44.1,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:17:28Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  },
+  {
+   "stage": "combine",
+   "status": "ok",
+   "seconds": 5.87,
+   "note": null,
+   "rc": 0,
+   "started_utc": "2026-10-09T14:20:55Z",
+   "run_id": "20261009-134613-full-20261009T135146Z"
+  }
+ ],
+ "earlier_run_stages": [],
+ "stopped_stages": [],
+ "gate_validation": {
+  "decision": "ok",
+  "recorded_decision": "ok",
+  "benign_accept": 1.0,
+  "negative_reject": 0.9773,
+  "n_benign": 64,
+  "n_negative": 176,
+  "limits": {
+   "benign_accept_min": 0.95,
+   "negative_reject_min": 0.9
+  },
+  "reasons": [],
+  "effect": "polish allowed",
+  "polish_allowed": true
+ },
+ "polish_allowed": true,
+ "brief_assumed": [
+  "empty_rooms",
+  "decor",
+  "polish",
+  "style_photos",
+  "ceiling_height",
+  "slab_thickness",
+  "furnished_rooms",
+  "furnished_rooms_keep",
+  "furnished_rooms_keep_size",
+  "variants",
+  "failed_levels",
+  "site",
+  "exterior.door",
+  "exterior.paving",
+  "exterior.garden",
+  "render.views_per_room",
+  "render.resolution",
+  "render.samples",
+  "render.lens_mm",
+  "render.exterior_views",
+  "render.twin_rooms"
+ ],
+ "advisory": true,
+ "advisory_flags": [
+  "vision check advisory: removal_flagged 0.6667 misses >= 0.8; removal_confirmed 0.0 misses >= 0.6; insertion 0.0 misses >= 0.6; decoy_accept[qwen] 0.3333 misses <= 0.1",
+  "check target missed: removal_flagged 0.667 (needs >= 0.8)",
+  "check target missed: removal_confirmed 0.000 (needs >= 0.6)",
+  "check target missed: insertion 0.000 (needs >= 0.6)",
+  "check target missed: decoy_accept[qwen] 0.333 (needs <= 0.1)",
+  "elevation check: 2 facade(s) differ from the drawn elevation; roof heights ok",
+  "AI completion: 5 proposal(s) refused, reverted or not placed (listed per room)"
+ ],
+ "summary": {
+  "views": 3,
+  "polished": 2,
+  "cycles": 1,
+  "cycles_by_reason": {
+   "check_incomplete": 1
+  },
+  "final_mismatches": 0,
+  "views_with_final_mismatch": 0,
+  "crosscheck_findings": 0,
+  "needs_review": 0,
+  "unverified_in_view": 0,
+  "exposure": {
+   "min": 8.0,
+   "max": 8.0,
+   "views": 3,
+   "at_limit": 3,
+   "modes": [
+    "auto"
+   ],
+   "window_pull": {
+    "views": 3,
+    "min": -1.0,
+    "max": -1.0
+   }
+  },
+  "cameras": {
+   "policies": {
+    "search": 3
+   },
+   "scored": 3,
+   "score_min": 3.406,
+   "score_mean": 3.476,
+   "score_max": 3.57,
+   "warnings": []
+  },
+  "views_per_room": {
+   "3": 1
+  },
+  "seconds": {
+   "build": 86.9,
+   "render": 10.6,
+   "meter": 4.5,
+   "polish": 15.3,
+   "gate": 3.8,
+   "check": 196.0
+  },
+  "rooms_mixed": 1,
+  "interior_views": 3,
+  "exterior_views": 0
+ },
+ "views": [
+  {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_1",
+   "view_kind": "interior",
+   "variant": null,
+   "exterior_view": null,
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "room_type": "living",
+   "level_id": "L-1b",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L-1b_salon_acik_mutfak_1_a1.png",
+   "image_sha256": "57ca6a41977e070b9895200de6666a350eed285851b6f6d8719e8dff22c509b5",
+   "preview": "cam_r_L-1b_salon_acik_mutfak_1_final_preview.jpg",
+   "plan": "cam_r_L-1b_salon_acik_mutfak_1_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a living room in modern minimalist style. White plaster walls, light oak wood floor, sofa, coffee table, armchair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 4.61,
+    "png": "cam_r_L-1b_salon_acik_mutfak_1_a1.png",
+    "sha256": "57ca6a41977e070b9895200de6666a350eed285851b6f6d8719e8dff22c509b5",
+    "attempt_key": "6735ad40f7d25b60a684850a27da9e3db2c08c2faaf31255e77e5da480066114",
+    "panes_restored": 3
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 1,
+    "global": {
+     "edges": 0.9545,
+     "added_lines": 0.0,
+     "colour": 3.9196,
+     "neutral": null,
+     "depth": 0.0054,
+     "masks": null,
+     "features": 0.8556
+    },
+    "gate_key": "d77469a1e3ee9aa9"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 8
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 8
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [
+     "insertion:f_L-1b_005",
+     "insertion:win_L-1b_006",
+     "removal:f_L-1b_005",
+     "removal:win_L-1b_006",
+     "swap:f_L-1b_005"
+    ],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 21,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.84,
+      "area_frac": 0.0184,
+      "centre_px": [
+       1124.4,
+       293.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 34215
+     },
+     "win_L-1b_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4333,
+      "area_frac": 0.05483,
+      "centre_px": [
+       1797.4,
+       243.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 117903
+     },
+     "win_L-1b_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.04943,
+      "centre_px": [
+       188.7,
+       284.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 104395
+     },
+     "f_L-1b_005": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9669,
+      "area_frac": 0.15342,
+      "centre_px": [
+       1410.0,
+       717.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 204715
+     },
+     "f_L-1b_007": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.05769,
+      "centre_px": [
+       935.0,
+       839.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32821
+     },
+     "f_L-1b_009": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.8765,
+      "area_frac": 0.02916,
+      "centre_px": [
+       953.1,
+       559.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 28464
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 8.0,
+    "ev_raw": 8.8697,
+    "at_limit": true,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.001924,
+    "whitepoint": [
+     0.986489,
+     0.997208,
+     1.067439
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6865.5,
+    "wb_tint": 6.41,
+    "residual": 0.35,
+    "window_clip_frac": 0.0001,
+    "meter_seconds": 3.855,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 749,
+     "block_px": 6,
+     "interior_frac": 0.8696
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 7.0,
+    "clip_before": 0.0535,
+    "clip_after": 0.0001,
+    "pane_px": 210298,
+    "pane_median": 0.8914,
+    "wall_median": 0.5411,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8199
+     }
+    ],
+    "pane_median_after": 0.8207,
+    "seconds": 0.331
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 3.5703,
+     "furniture": 0.5703,
+     "openings": 1.0,
+     "floor": 1.0,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 150.0,
+     "shares": {
+      "furn": 0.1426,
+      "open": 0.1306,
+      "window": 0.1306,
+      "floor": 0.2556,
+      "ceiling": 0.0178,
+      "wall": 0.3681,
+      "near": 0.0,
+      "max_single": 0.1523,
+      "d_wall": 4.2147
+     }
+    },
+    "score_total": 3.5703,
+    "warning": null,
+    "placement": "search: score 3.570 = furniture 0.570 + openings 1.000 + floor 1.000 + depth 1.000 - penalties 0.000; yaw 150 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L-1b_004",
+     "dec_L-1b_006",
+     "f_L-1b_007",
+     "f_L-1b_009"
+    ],
+    "from_documents": [
+     "f_L-1b_005",
+     "win_L-1b_004",
+     "win_L-1b_005",
+     "win_L-1b_006"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_2",
+   "view_kind": "interior",
+   "variant": null,
+   "exterior_view": null,
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "room_type": "living",
+   "level_id": "L-1b",
+   "final": "cycles",
+   "reason": "check_incomplete",
+   "detail": "polished image: unreliable pass (qwen saw the decoy)",
+   "image": "../renders/cam_r_L-1b_salon_acik_mutfak_2.png",
+   "image_sha256": "c18943d5df3acdabce1e1ceaaede0a44c74cbff23bac2029b9c03113c34af2b6",
+   "preview": "cam_r_L-1b_salon_acik_mutfak_2_final_preview.jpg",
+   "plan": "cam_r_L-1b_salon_acik_mutfak_2_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a living room in modern minimalist style. White plaster walls, light oak wood floor, sofa, armchair, TV unit, coffee table. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.94,
+    "png": "cam_r_L-1b_salon_acik_mutfak_2_a1.png",
+    "sha256": "1e86b46e9c8df386bdf4f6528035301cd0731bf7fd0a6911ac4bf2ae21ac17ef",
+    "attempt_key": "254e6b74d225d87000a53ea9a5e0e410cfe0f25b862be4e0c762d3d841326987",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 1,
+    "global": {
+     "edges": 0.9663,
+     "added_lines": 0.0,
+     "colour": 4.1483,
+     "neutral": null,
+     "depth": 0.00551,
+     "masks": null,
+     "features": 0.8571
+    },
+    "gate_key": "94ac8f6d46a0d7d7"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "info",
+     "results": {
+      "unverified": 9
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "unverified",
+      "window": "unverified"
+     },
+     "not_computed": [],
+     "unreliable": [
+      "qwen"
+     ],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "info",
+     "results": {
+      "unverified": 9
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "unverified",
+      "window": "unverified"
+     },
+     "not_computed": [],
+     "unreliable": [
+      "qwen"
+     ],
+     "preference_only": false
+    },
+    "other": [
+     "insertion:d_L-1b_003",
+     "removal:d_L-1b_003"
+    ],
+    "polished_rejected": true,
+    "polished_reason": "check_incomplete",
+    "polished_reasons": [
+     {
+      "reason": "check_incomplete",
+      "image": "polished",
+      "detail": "unreliable (decoy seen): qwen"
+     },
+     {
+      "reason": "check_incomplete",
+      "image": "cycles",
+      "detail": "unreliable (decoy seen): qwen"
+     }
+    ],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 21,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8,
+      "area_frac": 0.0614,
+      "centre_px": [
+       179.2,
+       268.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 128166
+     },
+     "win_L-1b_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9667,
+      "area_frac": 0.02568,
+      "centre_px": [
+       934.3,
+       293.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 51997
+     },
+     "d_L-1b_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9975,
+      "area_frac": 0.05679,
+      "centre_px": [
+       1517.8,
+       401.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 108717
+     },
+     "f_L-1b_005": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9521,
+      "area_frac": 0.09989,
+      "centre_px": [
+       688.7,
+       626.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 152329
+     },
+     "f_L-1b_007": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.06452,
+      "centre_px": [
+       872.3,
+       841.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 37626
+     },
+     "f_L-1b_008": {
+      "kind": "furniture",
+      "type": "tv_unit",
+      "visible_share": 0.4866,
+      "area_frac": 0.0297,
+      "centre_px": [
+       1770.6,
+       694.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59438
+     },
+     "f_L-1b_009": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.7474,
+      "area_frac": 0.06728,
+      "centre_px": [
+       164.9,
+       734.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 103566
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 8.0,
+    "ev_raw": 9.0647,
+    "at_limit": true,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.001681,
+    "whitepoint": [
+     1.053078,
+     0.984836,
+     0.993922
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6287.0,
+    "wb_tint": 2.2,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.352,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 777,
+     "block_px": 6,
+     "interior_frac": 0.9053
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 7.0,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 154681,
+    "pane_median": 0.8592,
+    "wall_median": 0.5266,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7788
+     }
+    ],
+    "pane_median_after": 0.7793,
+    "seconds": 0.301
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 3.453,
+     "furniture": 0.453,
+     "openings": 1.0,
+     "floor": 1.0,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 60.0,
+     "shares": {
+      "furn": 0.1132,
+      "open": 0.1419,
+      "window": 0.0881,
+      "floor": 0.2509,
+      "ceiling": 0.0095,
+      "wall": 0.3472,
+      "near": 0.0,
+      "max_single": 0.0903,
+      "d_wall": 3.8251
+     }
+    },
+    "score_total": 3.453,
+    "warning": null,
+    "placement": "search: score 3.453 = furniture 0.453 + openings 1.000 + floor 1.000 + depth 1.000 - penalties 0.000; yaw 60 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L-1b_004",
+     "dec_L-1b_006",
+     "f_L-1b_007",
+     "f_L-1b_008",
+     "f_L-1b_009"
+    ],
+    "from_documents": [
+     "d_L-1b_003",
+     "f_L-1b_005",
+     "win_L-1b_004",
+     "win_L-1b_005"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  },
+  {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_3",
+   "view_kind": "interior",
+   "variant": null,
+   "exterior_view": null,
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "room_type": "living",
+   "level_id": "L-1b",
+   "final": "polished",
+   "reason": null,
+   "detail": null,
+   "image": "../polish/cam_r_L-1b_salon_acik_mutfak_3_a1.png",
+   "image_sha256": "1089cde78021082cdfe65df3d74a90561dec9a38e996bc77f578a0a9250d1bfb",
+   "preview": "cam_r_L-1b_salon_acik_mutfak_3_final_preview.jpg",
+   "plan": "cam_r_L-1b_salon_acik_mutfak_3_plan.jpg",
+   "polish": {
+    "final": "polished",
+    "reason": null,
+    "final_attempt": 1,
+    "attempts": 1,
+    "prompt": "Photorealistic interior photograph of a living room in modern minimalist style. White plaster walls, light oak wood floor, sofa, armchair, coffee table. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens."
+   },
+   "attempt": {
+    "k": 1,
+    "role": "ladder",
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain",
+    "seed": 1,
+    "steps": 8,
+    "seconds": 3.96,
+    "png": "cam_r_L-1b_salon_acik_mutfak_3_a1.png",
+    "sha256": "1089cde78021082cdfe65df3d74a90561dec9a38e996bc77f578a0a9250d1bfb",
+    "attempt_key": "cd6d979021a5a2fca8d72869395b90d1585aa06cd5e0711d18d6781612d3f448",
+    "panes_restored": 2
+   },
+   "gate": {
+    "decision": "accept",
+    "reasons": [],
+    "notes": 1,
+    "global": {
+     "edges": 0.9738,
+     "added_lines": 0.0,
+     "colour": 3.8987,
+     "neutral": null,
+     "depth": 0.00398,
+     "masks": null,
+     "features": 0.8469
+    },
+    "gate_key": "9dc622041af3400f"
+   },
+   "vision_check": {
+    "cycles": {
+     "verdict": "ok",
+     "results": {
+      "ok": 8
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "polished": {
+     "verdict": "ok",
+     "results": {
+      "ok": 8
+     },
+     "mismatches": 0,
+     "extras_confirmed": 0,
+     "counts": {
+      "door": "ok",
+      "window": "ok"
+     },
+     "not_computed": [],
+     "unreliable": [],
+     "preference_only": false
+    },
+    "other": [],
+    "polished_rejected": false,
+    "polished_reason": null,
+    "polished_reasons": [],
+    "needs_review": false,
+    "needs_review_reasons": []
+   },
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 21,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9667,
+      "area_frac": 0.03761,
+      "centre_px": [
+       431.7,
+       289.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 77268
+     },
+     "win_L-1b_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.03761,
+      "centre_px": [
+       1134.5,
+       289.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 79242
+     },
+     "d_L-1b_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.3913,
+      "area_frac": 0.04815,
+      "centre_px": [
+       1857.3,
+       429.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 84477
+     },
+     "f_L-1b_005": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9512,
+      "area_frac": 0.10022,
+      "centre_px": [
+       784.0,
+       595.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 152060
+     },
+     "f_L-1b_007": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.08201,
+      "centre_px": [
+       667.2,
+       868.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 50135
+     },
+     "f_L-1b_009": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.9213,
+      "area_frac": 0.07247,
+      "centre_px": [
+       249.2,
+       638.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 90045
+     }
+    },
+    "error": null
+   },
+   "preference": {
+    "votes": 0,
+    "answers": 4,
+    "asked": 4,
+    "min_votes": 3,
+    "preferred": false,
+    "calls": {
+     "qwen": {
+      "pc": "same",
+      "cp": "same"
+     },
+     "glm": {
+      "pc": "same",
+      "cp": "same"
+     }
+    }
+   },
+   "exposure": {
+    "mode": "auto",
+    "ev": 8.0,
+    "ev_raw": 8.9412,
+    "at_limit": true,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.001831,
+    "whitepoint": [
+     1.058877,
+     0.9835,
+     0.990081
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6250.4,
+    "wb_tint": 1.65,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.333,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 795,
+     "block_px": 6,
+     "interior_frac": 0.9169
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 7.0,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 128789,
+    "pane_median": 0.8583,
+    "wall_median": 0.5168,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7749
+     }
+    ],
+    "pane_median_after": 0.778,
+    "seconds": 0.323
+   },
+   "camera_plan": {
+    "policy": "search",
+    "policy_recorded": true,
+    "score": {
+     "total": 3.4058,
+     "furniture": 0.444,
+     "openings": 1.0,
+     "floor": 0.9618,
+     "depth": 1.0,
+     "penalties": 0.0,
+     "blocked": false,
+     "yaw_deg": 90.0,
+     "shares": {
+      "furn": 0.111,
+      "open": 0.1372,
+      "window": 0.0781,
+      "floor": 0.2405,
+      "ceiling": 0.0,
+      "wall": 0.3945,
+      "near": 0.0,
+      "max_single": 0.0924,
+      "d_wall": 4.0
+     }
+    },
+    "score_total": 3.4058,
+    "warning": null,
+    "placement": "search: score 3.406 = furniture 0.444 + openings 1.000 + floor 0.962 + depth 1.000 - penalties 0.000; yaw 90 deg",
+    "shift_y": -0.1
+   },
+   "plan_kept": null,
+   "ids_by_source": {
+    "added_by_ai": [
+     "dec_L-1b_004",
+     "dec_L-1b_006",
+     "f_L-1b_007",
+     "f_L-1b_009"
+    ],
+    "from_documents": [
+     "d_L-1b_003",
+     "f_L-1b_005",
+     "win_L-1b_004",
+     "win_L-1b_005"
+    ]
+   },
+   "unverified": [],
+   "mismatches": [],
+   "final_mismatches": 0,
+   "needs_review": false,
+   "added_by_polish": false,
+   "detector": {
+    "status": "calibrated",
+    "computed": true,
+    "added": 0,
+    "unmatched": 0,
+    "boxes": []
+   }
+  }
+ ],
+ "rooms": {
+  "r_L-1b_hol": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "same as r_L-1_hol",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "hall",
+   "level_id": "L-1b"
+  },
+  "r_L-1b_salon_acik_mutfak": {
+   "views": [
+    "cam_r_L-1b_salon_acik_mutfak_1",
+    "cam_r_L-1b_salon_acik_mutfak_2",
+    "cam_r_L-1b_salon_acik_mutfak_3"
+   ],
+   "polished": [
+    "cam_r_L-1b_salon_acik_mutfak_1",
+    "cam_r_L-1b_salon_acik_mutfak_3"
+   ],
+   "cycles": [
+    "cam_r_L-1b_salon_acik_mutfak_2"
+   ],
+   "not_rendered": null,
+   "on_purpose": false,
+   "mixed": true,
+   "polish_rule": "ok",
+   "polish_rung": null,
+   "room_type": "living",
+   "level_id": "L-1b"
+  },
+  "r_L0_banyo": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "unchanged in variant",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "bathroom",
+   "level_id": "L0"
+  },
+  "r_L0_hol": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "unchanged in variant",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "hall",
+   "level_id": "L0"
+  },
+  "r_L0_yatak_odasi": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "unchanged in variant",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "bedroom",
+   "level_id": "L0"
+  },
+  "r_L1_hol": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "unchanged in variant",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "hall",
+   "level_id": "L1"
+  },
+  "r_L1_oyun_odasi": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "unchanged in variant",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "other",
+   "level_id": "L1"
+  },
+  "r_L1_teras": {
+   "views": [],
+   "polished": [],
+   "cycles": [],
+   "not_rendered": "unchanged in variant",
+   "on_purpose": true,
+   "mixed": false,
+   "polish_rule": null,
+   "polish_rung": null,
+   "room_type": "balcony",
+   "level_id": "L1"
+  }
+ },
+ "rooms_mixed": [
+  "r_L-1b_salon_acik_mutfak"
+ ],
+ "models": [
+  {
+   "role": "polish base",
+   "repo": "Tongyi-MAI/Z-Image-Turbo",
+   "revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "polish controlnet",
+   "repo": "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1",
+   "revision": "5155fc56d17821007d6f62ac192c09e0f0e72016",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "gate depth",
+   "repo": "depth-anything/Depth-Anything-V2-Small-hf",
+   "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "gate sam",
+   "repo": "facebook/sam2.1-hiera-large",
+   "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "gate dino",
+   "repo": "facebook/dinov2-base",
+   "revision": "f9e44c814b77203eaa57a6bdbbd535f21ede1415",
+   "licence": "Apache-2.0",
+   "source": "polish_manifest.json"
+  },
+  {
+   "role": "check qwen",
+   "repo": "Qwen/Qwen3-VL-8B-Instruct",
+   "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+   "licence": "Apache-2.0",
+   "source": "check_manifest.json"
+  },
+  {
+   "role": "check glm",
+   "repo": "zai-org/GLM-4.6V-Flash",
+   "revision": "411bb4d77144a3f03accbf4b780f5acb8b7cde4e",
+   "licence": "MIT",
+   "source": "check_manifest.json"
+  },
+  {
+   "role": "detector",
+   "repo": "google/owlv2-base-patch16-ensemble",
+   "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+   "licence": "Apache-2.0",
+   "source": "check_manifest.json"
+  }
+ ],
+ "assets": {
+  "textures": {
+   "CC0": 11
+  },
+  "models": {
+   "CC-BY-4.0": 61,
+   "CC0": 2,
+   "generated (TRELLIS.2-4B, MIT)": 12
+  }
+ },
+ "contact_sheets": {
+  "L-1b": "contact_L-1b.jpg"
+ },
+ "building": {
+  "status": "ok",
+  "unverified": [],
+  "conflicts": [
+   {
+    "id": "c_001",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L-1_mutfak"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_002",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L-1_hol"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_003",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L-1b_salon_acik_mutfak"
+    ],
+    "description": "Label says 57,20 m², polygon gives 57,19 m² (0.0%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_004",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L-1b_hol"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_005",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L0_banyo"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_006",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L0_hol"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_007",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L1_teras"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   },
+   {
+    "id": "c_008",
+    "kind": "area_label_vs_computed",
+    "element_ids": [
+     "r_L1_hol"
+    ],
+    "description": "Label says 13,30 m², polygon gives 13,32 m² (0.2%)",
+    "resolution": "within tolerance (3%), kept polygon from sheet.dxf"
+   }
+  ]
+ },
+ "intake": null,
+ "kept_on_volume": [],
+ "units": {
+  "system": "metric",
+  "recorded": true,
+  "documents": [
+   {
+    "file": "sheet.dxf",
+    "unit_system": "metric",
+    "source_kind": "dxf"
+   }
+  ]
+ },
+ "side_by_side": {
+  "sheets": {
+   "r_L-1b_salon_acik_mutfak": "contact_sbs_r_L-1b_salon_acik_mutfak.jpg"
+  },
+  "note": null
+ },
+ "recognition": {
+  "type_methods": {
+   "block_name": 14,
+   "rule": 4
+  },
+  "ai_typed": [],
+  "composites": [],
+  "no_answer": [],
+  "raster_pages": [],
+  "raster_rooms": [],
+  "questions": null,
+  "answer_files": []
+ },
+ "site": {
+  "boundary_walls": [
+   {
+    "id": "sw_L0_001",
+    "kind": "plot",
+    "level_id": "L0",
+    "length_m": 19.7,
+    "thickness_m": 0.2,
+    "build": true
+   },
+   {
+    "id": "sw_L0_002",
+    "kind": "plot",
+    "level_id": "L0",
+    "length_m": 23.7,
+    "thickness_m": 0.2,
+    "build": true
+   },
+   {
+    "id": "sw_L0_003",
+    "kind": "plot",
+    "level_id": "L0",
+    "length_m": 19.7,
+    "thickness_m": 0.2,
+    "build": true
+   },
+   {
+    "id": "sw_L0_004",
+    "kind": "plot",
+    "level_id": "L0",
+    "length_m": 23.7,
+    "thickness_m": 0.2,
+    "build": true
+   }
+  ],
+  "areas": [
+   {
+    "id": "sa_L0_otopark",
+    "label": "Otopark",
+    "label_size": null,
+    "measured": null,
+    "status": null,
+    "closed": false,
+    "kind": "parking",
+    "build": false
+   },
+   {
+    "id": "sa_L0_bahce",
+    "label": "Bahçe",
+    "label_size": null,
+    "measured": null,
+    "status": null,
+    "closed": false,
+    "kind": "garden",
+    "build": false
+   }
+  ],
+  "decor": {
+   "tree": 3
+  },
+  "openings": [],
+  "built_known": true
+ },
+ "separators": [],
+ "assumed": {
+  "brief": [
+   {
+    "key": "empty_rooms",
+    "value": "ai"
+   },
+   {
+    "key": "decor",
+    "value": true
+   },
+   {
+    "key": "polish",
+    "value": true
+   },
+   {
+    "key": "style_photos",
+    "value": []
+   },
+   {
+    "key": "ceiling_height",
+    "value": 2.7
+   },
+   {
+    "key": "slab_thickness",
+    "value": 0.2
+   },
+   {
+    "key": "furnished_rooms",
+    "value": "complete"
+   },
+   {
+    "key": "furnished_rooms_keep",
+    "value": []
+   },
+   {
+    "key": "furnished_rooms_keep_size",
+    "value": false
+   },
+   {
+    "key": "variants",
+    "value": "all"
+   },
+   {
+    "key": "failed_levels",
+    "value": "leave_out"
+   },
+   {
+    "key": "site",
+    "value": "full"
+   },
+   {
+    "key": "exterior.door",
+    "value": ""
+   },
+   {
+    "key": "exterior.paving",
+    "value": ""
+   },
+   {
+    "key": "exterior.garden",
+    "value": ""
+   },
+   {
+    "key": "render.views_per_room",
+    "value": 3
+   },
+   {
+    "key": "render.resolution",
+    "value": [
+     1920,
+     1080
+    ]
+   },
+   {
+    "key": "render.samples",
+    "value": 256
+   },
+   {
+    "key": "render.lens_mm",
+    "value": "auto"
+   },
+   {
+    "key": "render.exterior_views",
+    "value": true
+   },
+   {
+    "key": "render.twin_rooms",
+    "value": "one"
+   }
+  ],
+  "style": [],
+  "building": [
+   "door height 2,10 m: 12 opening(s) (d_L-1_001, d_L-1_002, d_L-1_003, d_L-1b_001, d_L-1b_002, d_L-1b_003 ...)",
+   "window height 1,20 m: 22 opening(s) (win_L-1_001, win_L-1_002, win_L-1_003, win_L-1_004, win_L-1_005, win_L-1_006 ...)",
+   "window sill height 0,90 m: 22 opening(s) (win_L-1_001, win_L-1_002, win_L-1_003, win_L-1_004, win_L-1_005, win_L-1_006 ...)",
+   "f_L-1_001 (stair): direction, turn, void assumed (no UP arrow, break line or riser text drawn: rise direction and flight order are assumed)",
+   "f_L-1b_001 (stair): direction, turn, void assumed (no UP arrow, break line or riser text drawn: rise direction and flight order are assumed)",
+   "f_L0_001 (stair): direction, turn, void assumed (no UP arrow, break line or riser text drawn: rise direction and flight order are assumed)",
+   "f_L1_001 (stair): direction, turn, void assumed (no UP arrow, break line or riser text drawn: rise direction and flight order are assumed)"
+  ],
+  "scene": [
+   {
+    "field": "area_light",
+    "reason": "r_L-1b_hol: room has little daylight (window/floor 0.054 < 0.08); soft ceiling light added (lighting mood, invisible to the camera)",
+    "count": 1,
+    "examples": [
+     "light_r_L-1b_hol"
+    ]
+   },
+   {
+    "field": "area_light",
+    "reason": "r_L0_hol: room has no window; soft ceiling light added (lighting mood, invisible to the camera)",
+    "count": 1,
+    "examples": [
+     "light_r_L0_hol"
+    ]
+   },
+   {
+    "field": "area_light",
+    "reason": "r_L1_hol: room has little daylight (window/floor 0.054 < 0.08); soft ceiling light added (lighting mood, invisible to the camera)",
+    "count": 1,
+    "examples": [
+     "light_r_L1_hol"
+    ]
+   },
+   {
+    "field": "area_light",
+    "reason": "r_L1_oyun_odasi: room has little daylight (window/floor 0.033 < 0.08); soft ceiling light added (lighting mood, invisible to the camera)",
+    "count": 1,
+    "examples": [
+     "light_r_L1_oyun_odasi"
+    ]
+   },
+   {
+    "field": "area_light",
+    "reason": "r_L1_teras: room has no window; soft ceiling light added (lighting mood, invisible to the camera)",
+    "count": 1,
+    "examples": [
+     "light_r_L1_teras"
+    ]
+   },
+   {
+    "field": "counter_fronts",
+    "reason": "design detail of the counter (fronts and handles inside its own box); the documents show only the footprint",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_004"
+    ]
+   },
+   {
+    "field": "direction",
+    "reason": "no UP arrow, break line or riser text drawn: rise direction and flight order are assumed",
+    "count": 2,
+    "examples": [
+     "furn_f_L-1b_001",
+     "furn_f_L0_001"
+    ]
+   },
+   {
+    "field": "door",
+    "reason": "style profile exterior.door (assumed)",
+    "count": 1,
+    "examples": [
+     "exterior"
+    ]
+   },
+   {
+    "field": "door_handles",
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+    "count": 7,
+    "examples": [
+     "d_L-1b_001_handle",
+     "d_L-1b_002_handle",
+     "d_L0_001_handle"
+    ]
+   },
+   {
+    "field": "door_handles",
+    "reason": "design detail of the documented double door (brushed_steel handles on both faces); not in the documents",
+    "count": 1,
+    "examples": [
+     "d_L0_003_handle"
+    ]
+   },
+   {
+    "field": "door_handles",
+    "reason": "design detail of the documented sliding door (brushed_steel rail and handle); not in the documents",
+    "count": 1,
+    "examples": [
+     "d_L-1b_003_handle"
+    ]
+   },
+   {
+    "field": "door_side",
+    "reason": "sliding door: rooms on both sides or none and no swing_side; hung on the wall's right face",
+    "count": 1,
+    "examples": [
+     "d_L-1b_003"
+    ]
+   },
+   {
+    "field": "fabric",
+    "reason": "style profile has no textiles slot; default fabric for sofas and chairs",
+    "count": 3,
+    "examples": [
+     "furniture",
+     "furniture",
+     "furniture"
+    ]
+   },
+   {
+    "field": "garden",
+    "reason": "style profile exterior.garden (assumed)",
+    "count": 1,
+    "examples": [
+     "exterior"
+    ]
+   },
+   {
+    "field": "ground:+x",
+    "reason": "no ground level drawn on this side: the mean of the drawn sides",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "ground:-x",
+    "reason": "no ground level drawn on this side: the mean of the drawn sides",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "handrail",
+    "reason": "design detail on every flight side not against a wall; not in the documents",
+    "count": 2,
+    "examples": [
+     "furn_f_L-1b_001",
+     "furn_f_L0_001"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "door height listed as assumed in the building JSON",
+    "count": 9,
+    "examples": [
+     "d_L-1b_001",
+     "d_L-1b_002",
+     "d_L-1b_003"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for bed_double",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_002"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for fridge",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_002"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for kitchen_counter",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_004"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for shower",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_003"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for sink_kitchen",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_006"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for sofa",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_005"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for stove",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_003"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for toilet",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_004"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "no height in the JSON; type height for washbasin",
+    "count": 1,
+    "examples": [
+     "furn_f_L0_005"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "plot wall height not drawn",
+    "count": 4,
+    "examples": [
+     "sw_L0_001",
+     "sw_L0_002",
+     "sw_L0_003"
+    ]
+   },
+   {
+    "field": "height",
+    "reason": "window height listed as assumed in the building JSON",
+    "count": 15,
+    "examples": [
+     "win_L-1b_001",
+     "win_L-1b_002",
+     "win_L-1b_003"
+    ]
+   },
+   {
+    "field": "height_lift",
+    "reason": "footprint overlaps another piece of the same height; lifted so the top faces do not coincide",
+    "count": 1,
+    "examples": [
+     "furn_f_L-1b_004"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_001",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.60 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_002",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.60 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_003",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.60 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_004",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.60 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_005",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.60 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_006",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.60 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "light_well:win_L-1b_007",
+    "reason": "window sill -2.10 m, ground outside 0.00 m: an open concrete light well 0.8 m deep, 1.00 m wide (no light well drawn)",
+    "count": 1,
+    "examples": [
+     "site"
+    ]
+   },
+   {
+    "field": "parapet",
+    "reason": "roof terrace ro_001: its walls end at a 1.0 m parapet (height assumed)",
+    "count": 1,
+    "examples": [
+     "w_L1_001,w_L1_006"
+    ]
+   },
+   {
+    "field": "parapet_height:ro_001",
+    "reason": "not drawn",
+    "count": 1,
+    "examples": [
+     "roof"
+    ]
+   },
+   {
+    "field": "paving",
+    "reason": "style profile exterior.paving (assumed)",
+    "count": 1,
+    "examples": [
+     "exterior"
+    ]
+   },
+   {
+    "field": "riser_m",
+    "reason": "derived from the level elevations (floor to floor): 3.000 m / 13 drawn risers",
+    "count": 2,
+    "examples": [
+     "furn_f_L-1b_001",
+     "furn_f_L0_001"
+    ]
+   },
+   {
+    "field": "roof",
+    "reason": "listed as assumed in the building JSON",
+    "count": 1,
+    "examples": [
+     "roof"
+    ]
+   },
+   {
+    "field": "sill",
+    "reason": "outside sill 0.66 x 0.124 m, 0.04 m proud of the facade (not drawn; size assumed)",
+    "count": 4,
+    "examples": [
+     "win_L-1b_007_sill",
+     "win_L0_002_sill",
+     "win_L0_006_sill"
+    ]
+   },
+   {
+    "field": "sill",
+    "reason": "outside sill 1.26 x 0.124 m, 0.04 m proud of the facade (not drawn; size assumed)",
+    "count": 11,
+    "examples": [
+     "win_L-1b_001_sill",
+     "win_L-1b_002_sill",
+     "win_L-1b_003_sill"
+    ]
+   },
+   {
+    "field": "sill_height",
+    "reason": "window sill_height listed as assumed in the building JSON",
+    "count": 15,
+    "examples": [
+     "win_L-1b_001",
+     "win_L-1b_002",
+     "win_L-1b_003"
+    ]
+   },
+   {
+    "field": "site",
+    "reason": "not in the brief: the default of wenart/defaults.yaml",
+    "count": 1,
+    "examples": [
+     "brief"
+    ]
+   },
+   {
+    "field": "skirting",
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+    "count": 6,
+    "examples": [
+     "skirting_r_L-1b_salon_acik_mutfak",
+     "skirting_r_L-1b_hol",
+     "skirting_r_L0_yatak_odasi"
+    ]
+   },
+   {
+    "field": "stair",
+    "reason": "no level above L1: the drawn stair lies over f_L0_001 (100% of the smaller footprint; slab opening sv_L1_001); read as its upper end, not built as a second flight",
+    "count": 1,
+    "examples": [
+     "f_L1_001"
+    ]
+   },
+   {
+    "field": "tree",
+    "reason": "parametric tree: crown 2.4 m as drawn, 4.0 m tall (height assumed)",
+    "count": 3,
+    "examples": [
+     "tree_sd_L0_001",
+     "tree_sd_L0_002",
+     "tree_sd_L0_003"
+    ]
+   },
+   {
+    "field": "waist",
+    "reason": "the documents show the stair in plan only",
+    "count": 2,
+    "examples": [
+     "furn_f_L-1b_001",
+     "furn_f_L0_001"
+    ]
+   }
+  ],
+  "m10": [
+   "roof: the ridge runs across the cut (a gable read from one section) assumed",
+   "outside look door: wood_oak_light (fallback: style profile exterior.door (assumed))",
+   "outside look paving: paving in grey (fallback: style profile exterior.paving (assumed))",
+   "outside look garden: grass (fallback: style profile exterior.garden (assumed))",
+   "outside look sill: stone (build: exterior sill not drawn)",
+   "outside look light_well: concrete (build: light well: concrete (not drawn))",
+   "outside look railing: steel_brushed (build: railing not drawn: steel rail and glass panel)",
+   "outside look soffit: soffit (build: roof soffit: painted (not drawn))",
+   "outside look bark: bark (build: parametric tree)",
+   "outside look foliage: foliage (build: parametric tree)",
+   "outside look ground: soil (build: neutral ground (brief site: ground))",
+   "outside look plot_wall: render in white (build: plot wall finish not drawn: the facade's look)"
+  ]
+ },
+ "attribution": {
+  "credits": [
+   {
+    "asset_id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Bed\" by Ambriel (https://sketchfab.com/3d-models/08f7f65edfea417b8ed9ca748381e507), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L0_002"
+    ]
+   },
+   {
+    "asset_id": "objaverse_3a406e651e69409e87323ab42a214874",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Pia Texturizada por Wellington Marques\" by mendesviana (https://sketchfab.com/3d-models/3a406e651e69409e87323ab42a214874), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "dec_L-1_007"
+    ]
+   },
+   {
+    "asset_id": "objaverse_511d44e5693549ca9c4002752a35fcb2",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Scarf\" by Viatorestw (https://sketchfab.com/3d-models/511d44e5693549ca9c4002752a35fcb2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "dec_L-1_003"
+    ]
+   },
+   {
+    "asset_id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L-1_002",
+     "f_L-1b_002"
+    ]
+   },
+   {
+    "asset_id": "objaverse_68e164f1a9414c29820ac2eaf6d8ac04",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Stove from Poly by Google\" by IronEqual (https://sketchfab.com/3d-models/68e164f1a9414c29820ac2eaf6d8ac04), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L-1_003",
+     "f_L-1b_003"
+    ]
+   },
+   {
+    "asset_id": "objaverse_f76c502218884914a27148f656a9b656",
+    "licence": "CC-BY-4.0",
+    "credit": "\"Bathroom1\" by neutralize (https://sketchfab.com/3d-models/f76c502218884914a27148f656a9b656), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "pieces": [
+     "f_L0_005"
+    ]
+   }
+  ],
+  "notice": "Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.",
+  "missing": []
+ },
+ "detector": {
+  "status": "calibrated",
+  "advisory": false,
+  "reason": null,
+  "thresholds": {
+   "t_det": 0.08,
+   "t_strong": 0.11,
+   "match_iou": 0.3,
+   "cover_frac": 0.5,
+   "confirm_iou": 0.3
+  },
+  "model": {
+   "repo": "google/owlv2-base-patch16-ensemble",
+   "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+   "licence": "Apache-2.0"
+  },
+  "not_computed": [],
+  "views_added": []
+ },
+ "decor_ai": null,
+ "files_3d": {
+  "files": {
+   "blend": {
+    "file": "synthetic-07-l-1b-acik-mutfak.blend",
+    "bytes": 135080062
+   },
+   "glb": {
+    "file": "synthetic-07-l-1b-acik-mutfak.glb",
+    "bytes": 301912044
+   }
+  },
+  "max_texture": 1024,
+  "images_scaled": 140,
+  "cameras": 3,
+  "warnings": []
+ },
+ "variant": "l-1b-acik-mutfak",
+ "sheets": null,
+ "building_detail": {
+  "levels": [
+   {
+    "id": "L-1",
+    "label": "Bodrum Kat",
+    "kind": "basement",
+    "order": -1,
+    "elevation": -3.0,
+    "ceiling_height": 2.8,
+    "ceiling_height_source": "section",
+    "elevation_source": "section",
+    "variant": "base",
+    "variant_group": "vg_L-1",
+    "region_id": "r1",
+    "label_source": "title"
+   },
+   {
+    "id": "L-1b",
+    "label": "Bodrum Kat",
+    "kind": "basement",
+    "order": -1,
+    "elevation": -3.0,
+    "ceiling_height": 2.8,
+    "ceiling_height_source": "section",
+    "elevation_source": "section",
+    "variant": "Açık mutfak",
+    "variant_group": "vg_L-1",
+    "region_id": "r2",
+    "label_source": "title"
+   },
+   {
+    "id": "L0",
+    "label": "Zemin Kat",
+    "kind": "floor",
+    "order": 0,
+    "elevation": 0.0,
+    "ceiling_height": 2.8,
+    "ceiling_height_source": "section",
+    "elevation_source": "section",
+    "variant": "base",
+    "variant_group": null,
+    "region_id": "r3",
+    "label_source": "title"
+   },
+   {
+    "id": "L1",
+    "label": "Çatı Katı",
+    "kind": "attic",
+    "order": 1,
+    "elevation": 3.0,
+    "ceiling_height": 3.801,
+    "ceiling_height_source": "section",
+    "elevation_source": "section",
+    "variant": "base",
+    "variant_group": null,
+    "region_id": "r4",
+    "label_source": "title"
+   }
+  ],
+  "variants": [
+   {
+    "id": "base",
+    "label": "Base",
+    "base": true,
+    "levels": [
+     "L-1",
+     "L0",
+     "L1"
+    ],
+    "rooms_changed": 0,
+    "exterior_changed": false
+   },
+   {
+    "id": "l-1b-acik-mutfak",
+    "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+    "base": false,
+    "levels": [
+     "L-1b",
+     "L0",
+     "L1"
+    ],
+    "rooms_changed": 1,
+    "exterior_changed": false
+   }
+  ],
+  "heights": [
+   {
+    "item": "L-1 ceiling height",
+    "value": 2.8,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L-1 floor level",
+    "value": -3.0,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L-1 floor to floor",
+    "value": 3.0,
+    "state": "drawn",
+    "from": "vector",
+    "note": null
+   },
+   {
+    "item": "L-1b ceiling height",
+    "value": 2.8,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L-1b floor level",
+    "value": -3.0,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L-1b floor to floor",
+    "value": 3.0,
+    "state": "drawn",
+    "from": "vector",
+    "note": null
+   },
+   {
+    "item": "L0 ceiling height",
+    "value": 2.8,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L0 floor level",
+    "value": 0.0,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L0 floor to floor",
+    "value": 3.0,
+    "state": "drawn",
+    "from": "vector",
+    "note": null
+   },
+   {
+    "item": "L1 ceiling height",
+    "value": 3.801,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "L1 floor level",
+    "value": 3.0,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "sl_L-1 thickness",
+    "value": 0.2,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "sl_L0 thickness",
+    "value": 0.2,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "sl_L1 thickness",
+    "value": 0.2,
+    "state": "drawn",
+    "from": "section",
+    "note": null
+   },
+   {
+    "item": "roof eaves height",
+    "value": 3.955,
+    "state": "drawn",
+    "from": "vector",
+    "note": "0.96 m above the top floor"
+   },
+   {
+    "item": "roof ridge height",
+    "value": 7.106,
+    "state": "drawn",
+    "from": "vector",
+    "note": "4.11 m above the top floor"
+   },
+   {
+    "item": "roof overhang",
+    "value": 0.5,
+    "state": "drawn",
+    "from": "vector",
+    "note": "left 0.50 m, right 0.50 m"
+   },
+   {
+    "item": "roof thickness",
+    "value": 0.25,
+    "state": "drawn",
+    "from": "vector",
+    "note": "perpendicular to the first slope"
+   },
+   {
+    "item": "roof knee wall",
+    "value": 1.305,
+    "state": "drawn",
+    "from": "vector",
+    "note": "the roof's top surface at the outer face of the outer wall above the top floor (a cross-check); the underside meets the outer face 1.00 m above the floor"
+   },
+   {
+    "item": "north direction (deg)",
+    "value": 0.0,
+    "state": "drawn",
+    "from": "vector",
+    "note": null,
+    "unit": "deg"
+   }
+  ],
+  "slabs": [
+   {
+    "id": "sl_L-1",
+    "above": "L-1",
+    "below": null,
+    "z_top": -3.0,
+    "thickness": 0.2,
+    "thickness_source": "section",
+    "status": "verified",
+    "voids": 0,
+    "variants": []
+   },
+   {
+    "id": "sl_L0",
+    "above": "L0",
+    "below": "L-1",
+    "z_top": 0.0,
+    "thickness": 0.2,
+    "thickness_source": "section",
+    "status": "verified",
+    "voids": 1,
+    "variants": []
+   },
+   {
+    "id": "sl_L1",
+    "above": "L1",
+    "below": "L0",
+    "z_top": 3.0,
+    "thickness": 0.2,
+    "thickness_source": "section",
+    "status": "verified",
+    "voids": 1,
+    "variants": []
+   }
+  ],
+  "roof": {
+   "type": "gable",
+   "type_source": "section",
+   "over_level_id": "L1",
+   "values": {
+    "eaves_height": {
+     "item": "roof eaves height",
+     "value": 3.955,
+     "state": "drawn",
+     "from": "vector",
+     "note": "0.96 m above the top floor"
+    },
+    "ridge_height": {
+     "item": "roof ridge height",
+     "value": 7.106,
+     "state": "drawn",
+     "from": "vector",
+     "note": "4.11 m above the top floor"
+    },
+    "overhang": {
+     "item": "roof overhang",
+     "value": 0.5,
+     "state": "drawn",
+     "from": "vector",
+     "note": "left 0.50 m, right 0.50 m"
+    },
+    "thickness": {
+     "item": "roof thickness",
+     "value": 0.25,
+     "state": "drawn",
+     "from": "vector",
+     "note": "perpendicular to the first slope"
+    },
+    "knee_wall": {
+     "item": "roof knee wall",
+     "value": 1.305,
+     "state": "drawn",
+     "from": "vector",
+     "note": "the roof's top surface at the outer face of the outer wall above the top floor (a cross-check); the underside meets the outer face 1.00 m above the floor"
+    }
+   },
+   "pitches_deg": [
+    {
+     "value": 35.0,
+     "state": "drawn"
+    }
+   ],
+   "planes": 0,
+   "openings": 1,
+   "covering": "clay_tiles",
+   "covering_colour": null,
+   "covering_source": "elevation",
+   "assumed": [
+    "the ridge runs across the cut (a gable read from one section)"
+   ],
+   "status": "verified"
+  },
+  "facade": {
+   "faces": [
+    {
+     "side": "south",
+     "wall_id": null,
+     "level_id": null,
+     "material": "render",
+     "colour": null,
+     "source": "elevation"
+    },
+    {
+     "side": "south",
+     "wall_id": null,
+     "level_id": "L0",
+     "material": "stone_cladding",
+     "colour": null,
+     "source": "elevation"
+    },
+    {
+     "side": "east",
+     "wall_id": null,
+     "level_id": null,
+     "material": "render",
+     "colour": null,
+     "source": "elevation"
+    }
+   ],
+   "elevations": [
+    {
+     "region_id": "r7",
+     "title": "GÜNEY GÖRÜNÜŞÜ",
+     "side": "south",
+     "windows": 2,
+     "doors": 1,
+     "plan_check": {
+      "matched": 3,
+      "missing": 0,
+      "extra": 0,
+      "plan_windows": 2,
+      "plan_doors": 1,
+      "walls": [
+       "w_L-1_001",
+       "w_L0_001",
+       "w_L1_001"
+      ]
+     }
+    },
+    {
+     "region_id": "r8",
+     "title": "DOĞU GÖRÜNÜŞÜ",
+     "side": "east",
+     "windows": 2,
+     "doors": 0,
+     "plan_check": {
+      "matched": 2,
+      "missing": 0,
+      "extra": 0,
+      "plan_windows": 2,
+      "plan_doors": 0,
+      "walls": [
+       "w_L-1_006",
+       "w_L0_006",
+       "w_L1_006"
+      ]
+     }
+    }
+   ]
+  },
+  "site": {
+   "plot": true,
+   "paving": 0,
+   "grass": 1,
+   "parking": 1,
+   "boundary_walls": 4,
+   "areas": 2,
+   "areas_not_built": 2,
+   "decor": 3,
+   "ground": [
+    {
+     "side": "south",
+     "z": {
+      "value": 0.0,
+      "method": "vector",
+      "confidence": 1.0,
+      "evidence": [
+       {
+        "file": "sheet.dxf",
+        "page": 1,
+        "layer": null,
+        "entity": "LINE:240",
+        "method": "vector",
+        "confidence": 1.0,
+        "rule": "ground_line",
+        "region_id": "r6"
+       }
+      ]
+     }
+    },
+    {
+     "side": "north",
+     "z": {
+      "value": 0.0,
+      "method": "vector",
+      "confidence": 1.0,
+      "evidence": [
+       {
+        "file": "sheet.dxf",
+        "page": 1,
+        "layer": null,
+        "entity": "LINE:241",
+        "method": "vector",
+        "confidence": 1.0,
+        "rule": "ground_line",
+        "region_id": "r6"
+       }
+      ]
+     }
+    }
+   ],
+   "terrain": "flat",
+   "light_wells": 0,
+   "north_deg": 0.0,
+   "north_state": "drawn"
+  },
+  "levels_left_out": []
+ },
+ "completion": {
+  "mode": "complete",
+  "keep_size": false,
+  "keep_rooms": [],
+  "assumed": [
+   "furnished_rooms",
+   "furnished_rooms_keep",
+   "furnished_rooms_keep_size",
+   "render.twin_rooms"
+  ],
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "rooms": [
+   {
+    "room_id": "r_L-1_salon",
+    "label": "Salon",
+    "room_type": "living",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_007",
+      "type": "table_coffee",
+      "size": [
+       1.0,
+       0.6
+      ],
+      "confidence": 0.9,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_008",
+      "type": "tv_unit",
+      "size": [
+       1.6,
+       0.45
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_009",
+      "type": "armchair",
+      "size": [
+       0.9,
+       0.9
+      ],
+      "confidence": 0.9,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_010",
+      "type": "sideboard",
+      "size": [
+       1.6,
+       0.45
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": []
+   },
+   {
+    "room_id": "r_L-1_mutfak",
+    "label": "Mutfak",
+    "room_type": "kitchen",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_011",
+      "type": "tall_cabinet",
+      "size": [
+       0.4,
+       0.58
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_012",
+      "type": "table_dining",
+      "size": [
+       1.2,
+       0.8
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_013",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "confidence": 0.9,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_014",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_015",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1_016",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "table_dining",
+      "why": "no free place passed the placer checks (no repair left)"
+     },
+     {
+      "type": "chair",
+      "why": "no free place passed the placer checks (no table_dining in the room)"
+     },
+     {
+      "type": "chair",
+      "why": "no free place passed the placer checks (no table_dining in the room)"
+     },
+     {
+      "type": "chair",
+      "why": "no free place passed the placer checks (no table_dining in the room)"
+     },
+     {
+      "type": "chair",
+      "why": "no free place passed the placer checks (no table_dining in the room)"
+     }
+    ],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_002",
+     "f_L-1_003",
+     "f_L-1_004",
+     "f_L-1_006"
+    ]
+   },
+   {
+    "room_id": "r_L-1_hol",
+    "label": "Hol",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_017",
+      "type": "console_table",
+      "size": [
+       1.2,
+       0.35
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_001"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_salon_acik_mutfak",
+    "label": "Salon + Açık Mutfak",
+    "room_type": "living",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1b_007",
+      "type": "table_coffee",
+      "size": [
+       1.0,
+       0.6
+      ],
+      "confidence": 0.9,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1b_008",
+      "type": "tv_unit",
+      "size": [
+       1.2,
+       0.4
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1b_009",
+      "type": "armchair",
+      "size": [
+       0.9,
+       0.9
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L-1b_010",
+      "type": "sideboard",
+      "size": [
+       1.6,
+       0.45
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1b_002",
+     "f_L-1b_003",
+     "f_L-1b_004",
+     "f_L-1b_006"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_hol",
+    "label": "Hol",
+    "room_type": "hall",
+    "state": "copied",
+    "reason": "decisions of r_L-1_hol (same_as), not asked again",
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1b_011",
+      "type": "console_table",
+      "size": [
+       1.2,
+       0.35
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": "f_L-1_017"
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1b_001"
+    ]
+   },
+   {
+    "room_id": "r_L0_yatak_odasi",
+    "label": "Yatak Odası",
+    "room_type": "bedroom",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L0_006",
+      "type": "nightstand",
+      "size": [
+       0.5,
+       0.4
+      ],
+      "confidence": 0.9,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_007",
+      "type": "nightstand",
+      "size": [
+       0.5,
+       0.4
+      ],
+      "confidence": 0.9,
+      "method": "ai",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_008",
+      "type": "wardrobe",
+      "size": [
+       1.8,
+       0.6
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": []
+   },
+   {
+    "room_id": "r_L0_banyo",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "completed",
+    "reason": "nothing to ask: no changeable drawn piece and nothing the room may get",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_004",
+     "f_L0_005"
+    ]
+   },
+   {
+    "room_id": "r_L0_hol",
+    "label": "Hol",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L0_009",
+      "type": "console_table",
+      "size": [
+       1.2,
+       0.35
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_001"
+    ]
+   },
+   {
+    "room_id": "r_L1_hol",
+    "label": "Hol",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L1_006",
+      "type": "console_table",
+      "size": [
+       1.2,
+       0.35
+      ],
+      "confidence": 0.6,
+      "method": "ai",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_001"
+    ]
+   }
+  ],
+  "changes_applied": 0,
+  "pieces_added": 21,
+  "wall_cabinets": 0,
+  "locked_violations": []
+ },
+ "drawn_check": {
+  "reference": "source building.json",
+  "mode": "complete",
+  "tolerance_m": 0.05,
+  "tolerance_deg": 1.0,
+  "pieces": 18,
+  "checked": 18,
+  "ok": 18,
+  "failed": [],
+  "modified": 0,
+  "proposals": [],
+  "violations": [],
+  "notes": [],
+  "failed_rows": []
+ },
+ "exterior": {
+  "variant": "l-1b-acik-mutfak",
+  "looks": [
+   {
+    "slot": "facade",
+    "material": "render",
+    "colour": "white",
+    "source": "brief",
+    "assumed": false,
+    "reason": "brief exterior.facade: 'white render' (as the style profile reads it)",
+    "warnings": []
+   },
+   {
+    "slot": "roof",
+    "material": "clay_tiles",
+    "colour": null,
+    "source": "documents",
+    "assumed": false,
+    "reason": "roof.covering (elevation)",
+    "warnings": []
+   },
+   {
+    "slot": "window_frame",
+    "material": "aluminium_anthracite",
+    "colour": null,
+    "source": "brief",
+    "assumed": false,
+    "reason": "brief exterior.window_frame: 'anthracite aluminium' (as the style profile reads it)",
+    "warnings": []
+   },
+   {
+    "slot": "door",
+    "material": "wood_oak_light",
+    "colour": null,
+    "source": "fallback",
+    "assumed": true,
+    "reason": "style profile exterior.door (assumed)",
+    "warnings": []
+   },
+   {
+    "slot": "paving",
+    "material": "paving",
+    "colour": "grey",
+    "source": "fallback",
+    "assumed": true,
+    "reason": "style profile exterior.paving (assumed)",
+    "warnings": []
+   },
+   {
+    "slot": "garden",
+    "material": "grass",
+    "colour": null,
+    "source": "fallback",
+    "assumed": true,
+    "reason": "style profile exterior.garden (assumed)",
+    "warnings": []
+   },
+   {
+    "slot": "sill",
+    "material": "stone",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "exterior sill not drawn",
+    "warnings": []
+   },
+   {
+    "slot": "light_well",
+    "material": "concrete",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "light well: concrete (not drawn)",
+    "warnings": []
+   },
+   {
+    "slot": "railing",
+    "material": "steel_brushed",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "railing not drawn: steel rail and glass panel",
+    "warnings": []
+   },
+   {
+    "slot": "soffit",
+    "material": "soffit",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "roof soffit: painted (not drawn)",
+    "warnings": []
+   },
+   {
+    "slot": "bark",
+    "material": "bark",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "parametric tree",
+    "warnings": []
+   },
+   {
+    "slot": "foliage",
+    "material": "foliage",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "parametric tree",
+    "warnings": []
+   },
+   {
+    "slot": "ground",
+    "material": "soil",
+    "colour": null,
+    "source": "build",
+    "assumed": true,
+    "reason": "neutral ground (brief site: ground)",
+    "warnings": []
+   },
+   {
+    "slot": "plot_wall",
+    "material": "render",
+    "colour": "white",
+    "source": "build",
+    "assumed": true,
+    "reason": "plot wall finish not drawn: the facade's look",
+    "warnings": []
+   }
+  ],
+  "views": [],
+  "dropped": [],
+  "elevation": {
+   "source": "building.json facade.elevations",
+   "summary": {
+    "facades": 2,
+    "ok": 0,
+    "mismatch": 2,
+    "not_checked": 0,
+    "roof": "ok"
+   },
+   "facades": [
+    {
+     "side": "south",
+     "region_id": "r7",
+     "result": "mismatch",
+     "drawn": {
+      "windows": 2,
+      "doors": 1,
+      "positions": 3
+     },
+     "building": {
+      "windows": 5,
+      "doors": 1
+     },
+     "counts": {
+      "windows": "more",
+      "doors": "ok"
+     },
+     "notes": [
+      "the drawn heights are +0.60 m from the building's (an elevation without a level mark takes its ground as z 0.00, assumed): a common offset, listed"
+     ]
+    },
+    {
+     "side": "east",
+     "region_id": "r8",
+     "result": "mismatch",
+     "drawn": {
+      "windows": 2,
+      "doors": 0,
+      "positions": 2
+     },
+     "building": {
+      "windows": 3,
+      "doors": 0
+     },
+     "counts": {
+      "windows": "more",
+      "doors": "ok"
+     },
+     "notes": [
+      "the drawn heights are +3.15 m from the building's: more than the 1.0 m a drawn ground at z 0.00 can explain; positions not trusted"
+     ]
+    }
+   ],
+   "roof": {
+    "built": {
+     "eaves": 3.955,
+     "ridge": 7.1059,
+     "planes_source": "derived"
+    },
+    "drawn": {
+     "eaves": {
+      "value": 3.955,
+      "method": "vector"
+     },
+     "ridge": {
+      "value": 7.106,
+      "method": "vector"
+     }
+    },
+    "drawn_source": {
+     "eaves": "sheets.json heights.roof",
+     "ridge": "sheets.json heights.roof"
+    },
+    "result": "ok",
+    "notes": [],
+    "deltas": {
+     "eaves": 0.0,
+     "ridge": -0.0001
+    }
+   },
+   "north": 0.0,
+   "north_source": "site.north_deg (vector)",
+   "warnings": []
+  },
+  "gate": null
+ },
+ "exterior_sheets": {},
+ "variants": null,
+ "variant_sheets": {},
+ "base_exterior_views": [
+  "ext_2",
+  "ext_3",
+  "ext_5",
+  "ext_6",
+  "ext_7"
+ ],
+ "warnings": []
+}

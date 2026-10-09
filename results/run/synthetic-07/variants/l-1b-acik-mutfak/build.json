@@ -1,0 +1,28 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-07/l-1b-acik-mutfak",
+ "stage": "build",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 92.56,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "scene/scene.blend",
+  "scene/scene_manifest.json"
+ ],
+ "started_utc": "2026-10-09T14:04:30Z",
+ "git_commit": "7e95d4e1b113604d58ffe612cb4b8dc46a8bb1e4",
+ "log": "logs/build.log",
+ "note": null,
+ "run_id": "20261009-134613-full-20261009T135146Z",
+ "steps": [
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 92.56
+  }
+ ],
+ "written": {}
+}

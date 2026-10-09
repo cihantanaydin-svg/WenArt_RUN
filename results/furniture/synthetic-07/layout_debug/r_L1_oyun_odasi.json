@@ -1,0 +1,701 @@
+{
+ "room": "r_L1_oyun_odasi",
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 4.107,
+   "error": null,
+   "pieces_proposed": 4,
+   "prompt": "Task: furnish this empty room of unspecified use labelled 'Oyun Odası' on the plan. Style brief: Modern minimal, light oak floor, white walls, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L1_oyun_odasi\", \"label\": \"Oyun Odası\", \"room_type\": \"other\", \"area_m2\": 43.5, \"polygon_m\": [[0.25, 0.25], [6.05, 0.25], [6.05, 7.75], [0.25, 7.75]], \"doors\": [{\"id\": \"d_L1_002\", \"center\": [6.1, 6.0], \"width\": 0.9, \"opens_into_this_room\": true}], \"windows\": [{\"id\": \"win_L1_001\", \"center\": [0.12, 4.0], \"width\": 1.2, \"sill_height\": 0.9}]}\n\nAllowed types with their size options [width, depth]:\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nA good layout for this room type: a small table with chairs or a desk and a bookshelf; keep it sparse.\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of armchair, chair, table_dining, bookshelf, desk\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"desk\",\n      \"center\": [1.5, 6.5],\n      \"rotation_deg\": 0,\n      \"size\": [1.4, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Provides a functional workspace against the wall.\"\n    },\n    {\n      \"type\": \"bookshelf\",\n      \"center\": [0.5, 6.5],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage and visual balance against the wall.\"\n    },\n    {\n      \"type\": \"armchair\",\n      \"center\": [2.0, 5.0],\n      \"rotation_deg\": 0,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Comfortable seating for reading or relaxing.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [2.5, 4.0],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.5],\n      \"against_wall\": false,\n      \"reason\": \"Additional seating near the desk for collaboration.\"\n    }\n  ]\n}",
+   "data": {
+    "pieces": [
+     {
+      "type": "desk",
+      "center": [
+       1.5,
+       6.5
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.4,
+       0.7
+      ],
+      "against_wall": true,
+      "reason": "Provides a functional workspace against the wall."
+     },
+     {
+      "type": "bookshelf",
+      "center": [
+       0.5,
+       6.5
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.0,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Adds storage and visual balance against the wall."
+     },
+     {
+      "type": "armchair",
+      "center": [
+       2.0,
+       5.0
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.9,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Comfortable seating for reading or relaxing."
+     },
+     {
+      "type": "chair",
+      "center": [
+       2.5,
+       4.0
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.5,
+       0.5
+      ],
+      "against_wall": false,
+      "reason": "Additional seating near the desk for collaboration."
+     }
+    ]
+   },
+   "placement": {
+    "pieces": [
+     {
+      "type": "desk",
+      "center": [
+       1.5,
+       7.379
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.4,
+       0.7
+      ],
+      "against_wall": true,
+      "reason": "Provides a functional workspace against the wall.",
+      "proposed": {
+       "center": [
+        1.5,
+        6.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.4,
+        0.7
+       ]
+      },
+      "repairs": [
+       {
+        "iteration": 2,
+        "type": "desk",
+        "step": "snap",
+        "before": {
+         "center": [
+          1.5,
+          6.5
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.4,
+          0.7
+         ]
+        },
+        "after": {
+         "center": [
+          1.5,
+          7.379
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.4,
+          0.7
+         ]
+        },
+        "failed": [
+         "wall_contact"
+        ],
+        "ok": true
+       }
+      ],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "bookshelf",
+      "center": [
+       0.446,
+       6.5
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Adds storage and visual balance against the wall.",
+      "proposed": {
+       "center": [
+        0.5,
+        6.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.35
+       ]
+      },
+      "repairs": [
+       {
+        "iteration": 1,
+        "type": "bookshelf",
+        "step": "snap",
+        "before": {
+         "center": [
+          0.5,
+          6.5
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.0,
+          0.35
+         ]
+        },
+        "after": {
+         "center": [
+          0.446,
+          6.5
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.35
+         ]
+        },
+        "failed": [
+         "inside_room",
+         "no_overlap",
+         "wall_contact"
+        ],
+        "ok": true
+       }
+      ],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "armchair",
+      "center": [
+       2.0,
+       5.0
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Comfortable seating for reading or relaxing.",
+      "proposed": {
+       "center": [
+        2.0,
+        5.0
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.9,
+        0.9
+       ]
+      },
+      "repairs": [],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "chair",
+      "center": [
+       2.5,
+       4.0
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.5,
+       0.5
+      ],
+      "against_wall": false,
+      "reason": "Additional seating near the desk for collaboration.",
+      "proposed": {
+       "center": [
+        2.5,
+        4.0
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.5,
+        0.5
+       ]
+      },
+      "repairs": [],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     }
+    ],
+    "dropped": [],
+    "log": [
+     {
+      "iteration": 1,
+      "piece": 1,
+      "type": "bookshelf",
+      "step": "snap",
+      "before": {
+       "center": [
+        0.5,
+        6.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.35
+       ]
+      },
+      "after": {
+       "center": [
+        0.446,
+        6.5
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.35
+       ]
+      },
+      "failed": [
+       "inside_room",
+       "no_overlap",
+       "wall_contact"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 2,
+      "piece": 0,
+      "type": "desk",
+      "step": "snap",
+      "before": {
+       "center": [
+        1.5,
+        6.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.4,
+        0.7
+       ]
+      },
+      "after": {
+       "center": [
+        1.5,
+        7.379
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.4,
+        0.7
+       ]
+      },
+      "failed": [
+       "wall_contact"
+      ],
+      "ok": true
+     }
+    ],
+    "iterations": 2,
+    "anchor_first": false
+   }
+  },
+  {
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 3.435,
+   "error": null,
+   "pieces_proposed": 4,
+   "prompt": "Task: furnish this empty room of unspecified use labelled 'Oyun Odası' on the plan. Style brief: Modern minimal, light oak floor, white walls, warm daylight.\n\nA good layout for this room type: a small table with chairs or a desk and a bookshelf; keep it sparse.\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nAllowed types with their size options [width, depth]:\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L1_oyun_odasi\", \"label\": \"Oyun Odası\", \"room_type\": \"other\", \"area_m2\": 43.5, \"polygon_m\": [[0.25, 0.25], [6.05, 0.25], [6.05, 7.75], [0.25, 7.75]], \"doors\": [{\"id\": \"d_L1_002\", \"center\": [6.1, 6.0], \"width\": 0.9, \"opens_into_this_room\": true}], \"windows\": [{\"id\": \"win_L1_001\", \"center\": [0.12, 4.0], \"width\": 1.2, \"sill_height\": 0.9}]}\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of armchair, chair, table_dining, bookshelf, desk\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"desk\",\n      \"center\": [1.5, 6.5],\n      \"rotation_deg\": 0,\n      \"size\": [1.4, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Against wall for workspace, minimal and functional.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [1.55, 5.8],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.5],\n      \"against_wall\": false,\n      \"reason\": \"Placed near desk for easy access, clear walkway.\"\n    },\n    {\n      \"type\": \"bookshelf\",\n      \"center\": [0.5, 6.0],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Against wall for storage, keeps space open.\"\n    },\n    {\n      \"type\": \"armchair\",\n      \"center\": [2.5, 4.5],\n      \"rotation_deg\": 0,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Comfortable seating near window for reading or relaxing.\"\n    }\n  ]\n}",
+   "data": {
+    "pieces": [
+     {
+      "type": "desk",
+      "center": [
+       1.5,
+       6.5
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.4,
+       0.7
+      ],
+      "against_wall": true,
+      "reason": "Against wall for workspace, minimal and functional."
+     },
+     {
+      "type": "chair",
+      "center": [
+       1.55,
+       5.8
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.5,
+       0.5
+      ],
+      "against_wall": false,
+      "reason": "Placed near desk for easy access, clear walkway."
+     },
+     {
+      "type": "bookshelf",
+      "center": [
+       0.5,
+       6.0
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.0,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Against wall for storage, keeps space open."
+     },
+     {
+      "type": "armchair",
+      "center": [
+       2.5,
+       4.5
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.9,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Comfortable seating near window for reading or relaxing."
+     }
+    ]
+   },
+   "placement": {
+    "pieces": [
+     {
+      "type": "desk",
+      "center": [
+       1.5,
+       7.379
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.4,
+       0.7
+      ],
+      "against_wall": true,
+      "reason": "Against wall for workspace, minimal and functional.",
+      "proposed": {
+       "center": [
+        1.5,
+        6.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.4,
+        0.7
+       ]
+      },
+      "repairs": [
+       {
+        "iteration": 2,
+        "type": "desk",
+        "step": "snap",
+        "before": {
+         "center": [
+          1.5,
+          6.5
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.4,
+          0.7
+         ]
+        },
+        "after": {
+         "center": [
+          1.5,
+          7.379
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.4,
+          0.7
+         ]
+        },
+        "failed": [
+         "clearance_ok",
+         "wall_contact"
+        ],
+        "ok": true
+       }
+      ],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "chair",
+      "center": [
+       1.55,
+       5.8
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.5,
+       0.5
+      ],
+      "against_wall": false,
+      "reason": "Placed near desk for easy access, clear walkway.",
+      "proposed": {
+       "center": [
+        1.55,
+        5.8
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.5,
+        0.5
+       ]
+      },
+      "repairs": [],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "bookshelf",
+      "center": [
+       0.446,
+       6.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Against wall for storage, keeps space open.",
+      "proposed": {
+       "center": [
+        0.5,
+        6.0
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.35
+       ]
+      },
+      "repairs": [
+       {
+        "iteration": 1,
+        "type": "bookshelf",
+        "step": "snap",
+        "before": {
+         "center": [
+          0.5,
+          6.0
+         ],
+         "rotation_deg": 0.0,
+         "size": [
+          1.0,
+          0.35
+         ]
+        },
+        "after": {
+         "center": [
+          0.446,
+          6.0
+         ],
+         "rotation_deg": 90.0,
+         "size": [
+          1.0,
+          0.35
+         ]
+        },
+        "failed": [
+         "inside_room",
+         "no_overlap",
+         "wall_contact"
+        ],
+        "ok": true
+       }
+      ],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     },
+     {
+      "type": "armchair",
+      "center": [
+       2.5,
+       4.5
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Comfortable seating near window for reading or relaxing.",
+      "proposed": {
+       "center": [
+        2.5,
+        4.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        0.9,
+        0.9
+       ]
+      },
+      "repairs": [],
+      "checks": {
+       "inside_room": true,
+       "no_overlap": true,
+       "clearance_ok": true,
+       "doors_free": true,
+       "windows_free": true,
+       "wall_contact": true
+      }
+     }
+    ],
+    "dropped": [],
+    "log": [
+     {
+      "iteration": 1,
+      "piece": 2,
+      "type": "bookshelf",
+      "step": "snap",
+      "before": {
+       "center": [
+        0.5,
+        6.0
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.35
+       ]
+      },
+      "after": {
+       "center": [
+        0.446,
+        6.0
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.0,
+        0.35
+       ]
+      },
+      "failed": [
+       "inside_room",
+       "no_overlap",
+       "wall_contact"
+      ],
+      "ok": true
+     },
+     {
+      "iteration": 2,
+      "piece": 0,
+      "type": "desk",
+      "step": "snap",
+      "before": {
+       "center": [
+        1.5,
+        6.5
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.4,
+        0.7
+       ]
+      },
+      "after": {
+       "center": [
+        1.5,
+        7.379
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.4,
+        0.7
+       ]
+      },
+      "failed": [
+       "clearance_ok",
+       "wall_contact"
+      ],
+      "ok": true
+     }
+    ],
+    "iterations": 2,
+    "anchor_first": false
+   }
+  }
+ ],
+ "chosen_pass": 1,
+ "skipped": null
+}

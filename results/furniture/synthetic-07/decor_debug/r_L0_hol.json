@@ -1,0 +1,244 @@
+{
+ "room_id": "r_L0_hol",
+ "label": "Hol",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L0_009.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_009",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    6.346,
+    4.6
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.9
+   ]
+  },
+  {
+   "id": "f_L0_009.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_009",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    6.346,
+    5.2
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.9
+   ]
+  },
+  {
+   "id": "f_L0_009.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L0_009",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "r_L0_hol.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 9.50, 4.30",
+   "center": [
+    9.5,
+    4.3
+   ]
+  },
+  {
+   "id": "r_L0_hol.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 6.40, 7.50",
+   "center": [
+    6.4,
+    7.5
+   ]
+  },
+  {
+   "id": "ceiling:centre_r_L0_hol",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 hol"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_009.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L0_009.left",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds subtle warmth and minimal decor on console."
+    },
+    {
+     "slot": "r_L0_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Brings life to corner without clutter, matches daylight."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides even, soft lighting for modern minimal ambiance."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.25
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_009.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L0_009.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Simple, clean lines complement the light oak floor and white walls."
+    },
+    {
+     "slot": "r_L0_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Adds organic warmth without clutter, fits daylight and minimal aesthetic."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides even, warm illumination matching the daylight and neutral palette."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.302
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_009.wall",
+   "type": "mirror",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Reflects light and enhances space in modern minimal style.",
+    "Reflects light and enhances space in modern minimal style."
+   ]
+  },
+  {
+   "slot": "f_L0_009.left",
+   "type": "vase",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds subtle warmth and minimal decor on console.",
+    "Simple, clean lines complement the light oak floor and white walls."
+   ]
+  },
+  {
+   "slot": "r_L0_hol.corner1",
+   "type": "plant",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Brings life to corner without clutter, matches daylight.",
+    "Adds organic warmth without clutter, fits daylight and minimal aesthetic."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_hol",
+   "type": "ceiling_light",
+   "colour": "white",
+   "colour_agreed": true,
+   "reasons": [
+    "Provides even, soft lighting for modern minimal ambiance.",
+    "Provides even, warm illumination matching the daylight and neutral palette."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_010",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_009.wall"
+  },
+  {
+   "id": "dec_L0_011",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L0_009.left"
+  },
+  {
+   "id": "dec_L0_012",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L0_hol.corner1"
+  },
+  {
+   "id": "dec_L0_013",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_hol"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

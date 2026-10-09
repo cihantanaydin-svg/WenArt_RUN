@@ -1,0 +1,2534 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-07",
+ "variant": "l-1b-acik-mutfak",
+ "render_dir": "../renders",
+ "views": {
+  "cam_r_L-1b_salon_acik_mutfak_1": {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_1",
+   "view_kind": "interior",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "room_type": "living",
+   "room_label": "Salon + Açık Mutfak",
+   "level_id": "L-1b",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 22,
+     "wenart_id": "dec_L-1b_006",
+     "kind": "decor",
+     "type": "rug",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 365843,
+     "area_frac": 0.176429,
+     "box_px": [
+      567,
+      634,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      295,
+      587,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4132,
+     "in_frame": 0.4842,
+     "unoccluded": 0.8535,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Defines the seating area and adds subtle texture underfoot."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Soft grey rug grounds the sofa area and complements light oak."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L-1b_005",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 204715,
+     "area_frac": 0.098724,
+     "box_px": [
+      1005,
+      438,
+      1724,
+      932
+     ],
+     "box_1000": [
+      523,
+      405,
+      898,
+      863
+     ],
+     "touches_border": false,
+     "visibility": 0.6435,
+     "in_frame": 1.0,
+     "unoccluded": 0.6435,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:1A1/0,INSERT:1A1/1",
+       "block": "KANEPE_3LU",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [
+      "cushion",
+      "throw"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 21,
+     "wenart_id": "dec_L-1b_004",
+     "kind": "decor",
+     "type": "wall_art",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 123792,
+     "area_frac": 0.059699,
+     "box_px": [
+      1271,
+      0,
+      1611,
+      405
+     ],
+     "box_1000": [
+      661,
+      0,
+      840,
+      375
+     ],
+     "touches_border": true,
+     "visibility": 0.9908,
+     "in_frame": 0.9943,
+     "unoccluded": 0.9965,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern abstract art adds visual interest without clutter."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Minimalist frame with wood tone blends with floor and adds warmth."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L-1b_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 117903,
+     "area_frac": 0.056859,
+     "box_px": [
+      1667,
+      0,
+      1920,
+      497
+     ],
+     "box_1000": [
+      868,
+      0,
+      1000,
+      461
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:19D/0,INSERT:19D/2,INSERT:19D/1",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 8,
+     "wenart_id": "win_L-1b_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 104395,
+     "area_frac": 0.050345,
+     "box_px": [
+      4,
+      129,
+      367,
+      438
+     ],
+     "box_1000": [
+      2,
+      119,
+      192,
+      406
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:199/2,INSERT:199/1,INSERT:199/0",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L-1b_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 34215,
+     "area_frac": 0.0165,
+     "box_px": [
+      1050,
+      161,
+      1192,
+      425
+     ],
+     "box_1000": [
+      546,
+      149,
+      621,
+      394
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:19B/2,INSERT:19B/1,INSERT:19B/0",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L-1b_007",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 32821,
+     "area_frac": 0.015828,
+     "box_px": [
+      749,
+      672,
+      1020,
+      1007
+     ],
+     "box_1000": [
+      390,
+      622,
+      532,
+      933
+     ],
+     "touches_border": false,
+     "visibility": 0.2743,
+     "in_frame": 1.0,
+     "unoccluded": 0.2743,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Placed in front of sofa with 0.6m clearance."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Placed in front of sofa with 0.6m clearance."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L-1b_009",
+     "kind": "furniture",
+     "type": "armchair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 28464,
+     "area_frac": 0.013727,
+     "box_px": [
+      828,
+      446,
+      1053,
+      663
+     ],
+     "box_1000": [
+      431,
+      412,
+      549,
+      614
+     ],
+     "touches_border": false,
+     "visibility": 0.4708,
+     "in_frame": 1.0,
+     "unoccluded": 0.4708,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Complements sofa, placed in open space."
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 24,
+     "wenart_id": "dec_L-1b_008",
+     "kind": "decor",
+     "type": "pendant_light",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 3342,
+     "area_frac": 0.001612,
+     "box_px": [
+      856,
+      0,
+      967,
+      35
+     ],
+     "box_1000": [
+      445,
+      0,
+      504,
+      33
+     ],
+     "touches_border": true,
+     "visibility": 0.0591,
+     "in_frame": 0.1257,
+     "unoccluded": 0.47,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern pendant light focuses illumination on the coffee table area."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Modern black pendant adds contrast and focal point above coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 21,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.84,
+      "area_frac": 0.0184,
+      "centre_px": [
+       1124.4,
+       293.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 34215
+     },
+     "win_L-1b_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4333,
+      "area_frac": 0.05483,
+      "centre_px": [
+       1797.4,
+       243.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 117903
+     },
+     "win_L-1b_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.04943,
+      "centre_px": [
+       188.7,
+       284.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 104395
+     },
+     "f_L-1b_005": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9669,
+      "area_frac": 0.15342,
+      "centre_px": [
+       1410.0,
+       717.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 204715
+     },
+     "f_L-1b_007": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.05769,
+      "centre_px": [
+       935.0,
+       839.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32821
+     },
+     "f_L-1b_009": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.8765,
+      "area_frac": 0.02916,
+      "centre_px": [
+       953.1,
+       559.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 28464
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L-1b_salon_acik_mutfak_2": {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_2",
+   "view_kind": "interior",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "room_type": "living",
+   "room_label": "Salon + Açık Mutfak",
+   "level_id": "L-1b",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 22,
+     "wenart_id": "dec_L-1b_006",
+     "kind": "decor",
+     "type": "rug",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 365721,
+     "area_frac": 0.17637,
+     "box_px": [
+      105,
+      623,
+      1474,
+      1080
+     ],
+     "box_1000": [
+      54,
+      576,
+      768,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.607,
+     "in_frame": 0.7038,
+     "unoccluded": 0.8625,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Defines the seating area and adds subtle texture underfoot."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Soft grey rug grounds the sofa area and complements light oak."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L-1b_005",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 152329,
+     "area_frac": 0.073461,
+     "box_px": [
+      341,
+      431,
+      1029,
+      786
+     ],
+     "box_1000": [
+      177,
+      399,
+      536,
+      728
+     ],
+     "touches_border": false,
+     "visibility": 0.7355,
+     "in_frame": 1.0,
+     "unoccluded": 0.7355,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:1A1/0,INSERT:1A1/1",
+       "block": "KANEPE_3LU",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [
+      "cushion",
+      "throw"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L-1b_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 128166,
+     "area_frac": 0.061808,
+     "box_px": [
+      0,
+      75,
+      357,
+      460
+     ],
+     "box_1000": [
+      0,
+      69,
+      186,
+      426
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:19B/2,INSERT:19B/1,INSERT:19B/0",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 9,
+     "wenart_id": "d_L-1b_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak",
+      "r_L-1b_hol"
+     ],
+     "own_room": true,
+     "pixels": 108717,
+     "area_frac": 0.052429,
+     "box_px": [
+      1414,
+      118,
+      1624,
+      684
+     ],
+     "box_1000": [
+      736,
+      109,
+      846,
+      634
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:18D/0,INSERT:18D/1,INSERT:18D/2,INSERT:18D/3",
+       "note": "door by its block name 'KAPI_SURME_90' (sliding, no swing arc)",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L-1b_009",
+     "kind": "furniture",
+     "type": "armchair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 103566,
+     "area_frac": 0.049945,
+     "box_px": [
+      0,
+      516,
+      326,
+      894
+     ],
+     "box_1000": [
+      0,
+      477,
+      170,
+      828
+     ],
+     "touches_border": true,
+     "visibility": 0.3666,
+     "in_frame": 0.4938,
+     "unoccluded": 0.7424,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Complements sofa, placed in open space."
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 21,
+     "wenart_id": "dec_L-1b_004",
+     "kind": "decor",
+     "type": "wall_art",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 90404,
+     "area_frac": 0.043598,
+     "box_px": [
+      513,
+      70,
+      816,
+      391
+     ],
+     "box_1000": [
+      267,
+      64,
+      425,
+      363
+     ],
+     "touches_border": false,
+     "visibility": 0.9962,
+     "in_frame": 1.0,
+     "unoccluded": 0.9962,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern abstract art adds visual interest without clutter."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Minimalist frame with wood tone blends with floor and adds warmth."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L-1b_008",
+     "kind": "furniture",
+     "type": "tv_unit",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 59438,
+     "area_frac": 0.028664,
+     "box_px": [
+      1617,
+      564,
+      1920,
+      830
+     ],
+     "box_1000": [
+      842,
+      522,
+      1000,
+      769
+     ],
+     "touches_border": true,
+     "visibility": 0.4016,
+     "in_frame": 0.4161,
+     "unoccluded": 0.9651,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Against wall facing sofa, modern minimal style."
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L-1b_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 51997,
+     "area_frac": 0.025076,
+     "box_px": [
+      832,
+      162,
+      1042,
+      425
+     ],
+     "box_1000": [
+      433,
+      150,
+      543,
+      394
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:19D/0,INSERT:19D/2,INSERT:19D/1",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L-1b_007",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 37626,
+     "area_frac": 0.018145,
+     "box_px": [
+      680,
+      687,
+      1104,
+      996
+     ],
+     "box_1000": [
+      354,
+      636,
+      575,
+      923
+     ],
+     "touches_border": false,
+     "visibility": 0.2812,
+     "in_frame": 1.0,
+     "unoccluded": 0.2812,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Placed in front of sofa with 0.6m clearance."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Placed in front of sofa with 0.6m clearance."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 24,
+     "wenart_id": "dec_L-1b_008",
+     "kind": "decor",
+     "type": "pendant_light",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 2754,
+     "area_frac": 0.001328,
+     "box_px": [
+      816,
+      0,
+      931,
+      29
+     ],
+     "box_1000": [
+      425,
+      0,
+      485,
+      27
+     ],
+     "touches_border": true,
+     "visibility": 0.0469,
+     "in_frame": 0.1062,
+     "unoccluded": 0.4416,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern pendant light focuses illumination on the coffee table area."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Modern black pendant adds contrast and focal point above coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 21,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8,
+      "area_frac": 0.0614,
+      "centre_px": [
+       179.2,
+       268.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 128166
+     },
+     "win_L-1b_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9667,
+      "area_frac": 0.02568,
+      "centre_px": [
+       934.3,
+       293.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 51997
+     },
+     "d_L-1b_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9975,
+      "area_frac": 0.05679,
+      "centre_px": [
+       1517.8,
+       401.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 108717
+     },
+     "f_L-1b_005": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9521,
+      "area_frac": 0.09989,
+      "centre_px": [
+       688.7,
+       626.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 152329
+     },
+     "f_L-1b_007": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.06452,
+      "centre_px": [
+       872.3,
+       841.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 37626
+     },
+     "f_L-1b_008": {
+      "kind": "furniture",
+      "type": "tv_unit",
+      "visible_share": 0.4866,
+      "area_frac": 0.0297,
+      "centre_px": [
+       1770.6,
+       694.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59438
+     },
+     "f_L-1b_009": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.7474,
+      "area_frac": 0.06728,
+      "centre_px": [
+       164.9,
+       734.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 103566
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L-1b_salon_acik_mutfak_3": {
+   "camera": "cam_r_L-1b_salon_acik_mutfak_3",
+   "view_kind": "interior",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "room_type": "living",
+   "room_label": "Salon + Açık Mutfak",
+   "level_id": "L-1b",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 22,
+     "wenart_id": "dec_L-1b_006",
+     "kind": "decor",
+     "type": "rug",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 412150,
+     "area_frac": 0.198761,
+     "box_px": [
+      0,
+      672,
+      1458,
+      1080
+     ],
+     "box_1000": [
+      0,
+      622,
+      760,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.6319,
+     "in_frame": 0.7262,
+     "unoccluded": 0.8701,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Defines the seating area and adds subtle texture underfoot."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Soft grey rug grounds the sofa area and complements light oak."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L-1b_005",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 152060,
+     "area_frac": 0.073331,
+     "box_px": [
+      437,
+      439,
+      1134,
+      730
+     ],
+     "box_1000": [
+      227,
+      406,
+      591,
+      676
+     ],
+     "touches_border": false,
+     "visibility": 0.7317,
+     "in_frame": 1.0,
+     "unoccluded": 0.7317,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:1A1/0,INSERT:1A1/1",
+       "block": "KANEPE_3LU",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [
+      "cushion",
+      "throw"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L-1b_009",
+     "kind": "furniture",
+     "type": "armchair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 90045,
+     "area_frac": 0.043424,
+     "box_px": [
+      32,
+      483,
+      468,
+      785
+     ],
+     "box_1000": [
+      16,
+      447,
+      244,
+      727
+     ],
+     "touches_border": false,
+     "visibility": 0.5992,
+     "in_frame": 1.0,
+     "unoccluded": 0.5992,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Complements sofa, placed in open space."
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 21,
+     "wenart_id": "dec_L-1b_004",
+     "kind": "decor",
+     "type": "wall_art",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 85264,
+     "area_frac": 0.041119,
+     "box_px": [
+      680,
+      95,
+      972,
+      387
+     ],
+     "box_1000": [
+      354,
+      87,
+      507,
+      359
+     ],
+     "touches_border": false,
+     "visibility": 0.9952,
+     "in_frame": 1.0,
+     "unoccluded": 0.9952,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern abstract art adds visual interest without clutter."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Minimalist frame with wood tone blends with floor and adds warmth."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 9,
+     "wenart_id": "d_L-1b_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak",
+      "r_L-1b_hol"
+     ],
+     "own_room": true,
+     "pixels": 84477,
+     "area_frac": 0.040739,
+     "box_px": [
+      1813,
+      8,
+      1920,
+      845
+     ],
+     "box_1000": [
+      944,
+      7,
+      1000,
+      783
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:18D/0,INSERT:18D/1,INSERT:18D/2,INSERT:18D/3",
+       "note": "door by its block name 'KAPI_SURME_90' (sliding, no swing arc)",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L-1b_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 79242,
+     "area_frac": 0.038215,
+     "box_px": [
+      996,
+      148,
+      1277,
+      430
+     ],
+     "box_1000": [
+      518,
+      137,
+      666,
+      399
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:19D/0,INSERT:19D/2,INSERT:19D/1",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L-1b_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 77268,
+     "area_frac": 0.037263,
+     "box_px": [
+      290,
+      148,
+      564,
+      430
+     ],
+     "box_1000": [
+      151,
+      137,
+      294,
+      399
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:19B/2,INSERT:19B/1,INSERT:19B/0",
+       "region_id": "r2"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L-1b_007",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_salon_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_salon_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 50135,
+     "area_frac": 0.024178,
+     "box_px": [
+      407,
+      711,
+      934,
+      1001
+     ],
+     "box_1000": [
+      211,
+      658,
+      487,
+      927
+     ],
+     "touches_border": false,
+     "visibility": 0.2948,
+     "in_frame": 1.0,
+     "unoccluded": 0.2948,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Placed in front of sofa with 0.6m clearance."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Placed in front of sofa with 0.6m clearance."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 21,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9667,
+      "area_frac": 0.03761,
+      "centre_px": [
+       431.7,
+       289.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 77268
+     },
+     "win_L-1b_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.03761,
+      "centre_px": [
+       1134.5,
+       289.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 79242
+     },
+     "d_L-1b_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.3913,
+      "area_frac": 0.04815,
+      "centre_px": [
+       1857.3,
+       429.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 84477
+     },
+     "f_L-1b_005": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9512,
+      "area_frac": 0.10022,
+      "centre_px": [
+       784.0,
+       595.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 152060
+     },
+     "f_L-1b_007": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.08201,
+      "centre_px": [
+       667.2,
+       868.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 50135
+     },
+     "f_L-1b_009": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.9213,
+      "area_frac": 0.07247,
+      "centre_px": [
+       249.2,
+       638.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 90045
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  }
+ },
+ "drawn_check": {
+  "kind": "drawn_check",
+  "reference": "source building.json",
+  "mode": "complete",
+  "tolerance_m": 0.05,
+  "tolerance_deg": 1.0,
+  "pieces": [
+   {
+    "id": "f_L-1_001",
+    "room_id": "r_L-1_hol",
+    "type": "stair",
+    "drawn_type": "stair",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     3.0,
+     1.0
+    ],
+    "drawn_size": [
+     3.0,
+     1.0
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1_002",
+    "room_id": "r_L-1_mutfak",
+    "type": "fridge",
+    "drawn_type": "fridge",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.7,
+     0.7
+    ],
+    "drawn_size": [
+     0.7,
+     0.7
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1_003",
+    "room_id": "r_L-1_mutfak",
+    "type": "stove",
+    "drawn_type": "stove",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.6,
+     0.6
+    ],
+    "drawn_size": [
+     0.6,
+     0.6
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1_004",
+    "room_id": "r_L-1_mutfak",
+    "type": "kitchen_counter",
+    "drawn_type": "kitchen_counter",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     2.4,
+     0.6
+    ],
+    "drawn_size": [
+     2.4,
+     0.6
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1_005",
+    "room_id": "r_L-1_salon",
+    "type": "sofa",
+    "drawn_type": "sofa",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     2.2,
+     0.9
+    ],
+    "drawn_size": [
+     2.2,
+     0.9
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1_006",
+    "room_id": "r_L-1_mutfak",
+    "type": "sink_kitchen",
+    "drawn_type": "sink_kitchen",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.8,
+     0.5
+    ],
+    "drawn_size": [
+     0.8,
+     0.5
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1b_001",
+    "room_id": "r_L-1b_hol",
+    "type": "stair",
+    "drawn_type": "stair",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     3.0,
+     1.0
+    ],
+    "drawn_size": [
+     3.0,
+     1.0
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1b_002",
+    "room_id": "r_L-1b_salon_acik_mutfak",
+    "type": "fridge",
+    "drawn_type": "fridge",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.7,
+     0.7
+    ],
+    "drawn_size": [
+     0.7,
+     0.7
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1b_003",
+    "room_id": "r_L-1b_salon_acik_mutfak",
+    "type": "stove",
+    "drawn_type": "stove",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.6,
+     0.6
+    ],
+    "drawn_size": [
+     0.6,
+     0.6
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1b_004",
+    "room_id": "r_L-1b_salon_acik_mutfak",
+    "type": "kitchen_counter",
+    "drawn_type": "kitchen_counter",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     2.4,
+     0.6
+    ],
+    "drawn_size": [
+     2.4,
+     0.6
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1b_005",
+    "room_id": "r_L-1b_salon_acik_mutfak",
+    "type": "sofa",
+    "drawn_type": "sofa",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     2.2,
+     0.9
+    ],
+    "drawn_size": [
+     2.2,
+     0.9
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L-1b_006",
+    "room_id": "r_L-1b_salon_acik_mutfak",
+    "type": "sink_kitchen",
+    "drawn_type": "sink_kitchen",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.8,
+     0.5
+    ],
+    "drawn_size": [
+     0.8,
+     0.5
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_001",
+    "room_id": "r_L0_hol",
+    "type": "stair",
+    "drawn_type": "stair",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     3.0,
+     1.0
+    ],
+    "drawn_size": [
+     3.0,
+     1.0
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_002",
+    "room_id": "r_L0_yatak_odasi",
+    "type": "bed_double",
+    "drawn_type": "bed_double",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     2.0,
+     1.6
+    ],
+    "drawn_size": [
+     2.0,
+     1.6
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_003",
+    "room_id": "r_L0_banyo",
+    "type": "shower",
+    "drawn_type": "shower",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.9,
+     0.9
+    ],
+    "drawn_size": [
+     0.9,
+     0.9
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_004",
+    "room_id": "r_L0_banyo",
+    "type": "toilet",
+    "drawn_type": "toilet",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.7,
+     0.4
+    ],
+    "drawn_size": [
+     0.7,
+     0.4
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_005",
+    "room_id": "r_L0_banyo",
+    "type": "washbasin",
+    "drawn_type": "washbasin",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     0.6,
+     0.45
+    ],
+    "drawn_size": [
+     0.6,
+     0.45
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L1_001",
+    "room_id": "r_L1_hol",
+    "type": "stair",
+    "drawn_type": "stair",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "verified",
+    "size": [
+     3.0,
+     1.0
+    ],
+    "drawn_size": [
+     3.0,
+     1.0
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   }
+  ],
+  "checked": 18,
+  "ok": 18,
+  "failed": [],
+  "modified": [],
+  "proposals": [],
+  "violations": [],
+  "notes": []
+ },
+ "elevation_check": {
+  "kind": "elevation_check",
+  "variant": "l-1b-acik-mutfak",
+  "source": "building.json facade.elevations",
+  "north": 0.0,
+  "north_source": "site.north_deg (vector)",
+  "facades": [
+   {
+    "region_id": "r7",
+    "title": "GÜNEY GÖRÜNÜŞÜ",
+    "side": "south",
+    "direction_from": "view_bearing_deg",
+    "drawn": {
+     "windows": 2,
+     "doors": 1,
+     "positions": 3
+    },
+    "plan_check": {
+     "matched": 3,
+     "missing": 0,
+     "extra": 0,
+     "plan_windows": 2,
+     "plan_doors": 1,
+     "walls": [
+      "w_L-1_001",
+      "w_L0_001",
+      "w_L1_001"
+     ]
+    },
+    "result": "mismatch",
+    "notes": [
+     "the drawn heights are +0.60 m from the building's (an elevation without a level mark takes its ground as z 0.00, assumed): a common offset, listed"
+    ],
+    "building": {
+     "windows": 5,
+     "doors": 1,
+     "openings": [
+      {
+       "id": "win_L-1b_001",
+       "kind": "window",
+       "x": 1.5,
+       "sill": -2.1,
+       "head": -0.9,
+       "wall_id": "w_L-1b_001",
+       "level_id": "L-1b"
+      },
+      {
+       "id": "win_L0_001",
+       "kind": "window",
+       "x": 1.5,
+       "sill": 0.9,
+       "head": 2.1,
+       "wall_id": "w_L0_001",
+       "level_id": "L0"
+      },
+      {
+       "id": "win_L-1b_002",
+       "kind": "window",
+       "x": 4.5,
+       "sill": -2.1,
+       "head": -0.9,
+       "wall_id": "w_L-1b_001",
+       "level_id": "L-1b"
+      },
+      {
+       "id": "d_L0_001",
+       "kind": "door",
+       "x": 4.5,
+       "sill": 0.0,
+       "head": 2.1,
+       "wall_id": "w_L0_001",
+       "level_id": "L0"
+      },
+      {
+       "id": "win_L-1b_003",
+       "kind": "window",
+       "x": 8.0,
+       "sill": -2.1,
+       "head": -0.9,
+       "wall_id": "w_L-1b_001",
+       "level_id": "L-1b"
+      },
+      {
+       "id": "win_L0_002",
+       "kind": "window",
+       "x": 8.0,
+       "sill": 0.9,
+       "head": 2.1,
+       "wall_id": "w_L0_001",
+       "level_id": "L0"
+      }
+     ]
+    },
+    "counts": {
+     "windows": "more",
+     "doors": "ok"
+    },
+    "positions": {
+     "matched": 0,
+     "offset_x_m": 0.0,
+     "offset_z_m": 0.6,
+     "mirrored": false,
+     "max_dx_m": 0.0,
+     "max_dz_m": 0.0,
+     "missing_in_building": [
+      {
+       "kind": "window",
+       "x": 1.5,
+       "sill": 0.9,
+       "head": 2.1
+      },
+      {
+       "kind": "door",
+       "x": 4.5,
+       "sill": 0.0,
+       "head": 2.1
+      },
+      {
+       "kind": "window",
+       "x": 8.0,
+       "sill": 1.5,
+       "head": 2.1
+      }
+     ],
+     "extra_in_building": [
+      {
+       "id": "win_L-1b_001",
+       "kind": "window",
+       "x": 1.5,
+       "sill": -2.1,
+       "head": -0.9
+      },
+      {
+       "id": "win_L0_001",
+       "kind": "window",
+       "x": 1.5,
+       "sill": 0.9,
+       "head": 2.1
+      },
+      {
+       "id": "win_L-1b_002",
+       "kind": "window",
+       "x": 4.5,
+       "sill": -2.1,
+       "head": -0.9
+      },
+      {
+       "id": "d_L0_001",
+       "kind": "door",
+       "x": 4.5,
+       "sill": 0.0,
+       "head": 2.1
+      },
+      {
+       "id": "win_L-1b_003",
+       "kind": "window",
+       "x": 8.0,
+       "sill": -2.1,
+       "head": -0.9
+      },
+      {
+       "id": "win_L0_002",
+       "kind": "window",
+       "x": 8.0,
+       "sill": 0.9,
+       "head": 2.1
+      }
+     ]
+    }
+   },
+   {
+    "region_id": "r8",
+    "title": "DOĞU GÖRÜNÜŞÜ",
+    "side": "east",
+    "direction_from": "view_bearing_deg",
+    "drawn": {
+     "windows": 2,
+     "doors": 0,
+     "positions": 2
+    },
+    "plan_check": {
+     "matched": 2,
+     "missing": 0,
+     "extra": 0,
+     "plan_windows": 2,
+     "plan_doors": 0,
+     "walls": [
+      "w_L-1_006",
+      "w_L0_006",
+      "w_L1_006"
+     ]
+    },
+    "result": "mismatch",
+    "notes": [
+     "the drawn heights are +3.15 m from the building's: more than the 1.0 m a drawn ground at z 0.00 can explain; positions not trusted"
+    ],
+    "building": {
+     "windows": 3,
+     "doors": 0,
+     "openings": [
+      {
+       "id": "win_L0_006",
+       "kind": "window",
+       "x": 3.0,
+       "sill": 0.9,
+       "head": 2.1,
+       "wall_id": "w_L0_006",
+       "level_id": "L0"
+      },
+      {
+       "id": "win_L-1b_007",
+       "kind": "window",
+       "x": 6.0,
+       "sill": -2.1,
+       "head": -0.9,
+       "wall_id": "w_L-1b_006",
+       "level_id": "L-1b"
+      },
+      {
+       "id": "win_L1_002",
+       "kind": "window",
+       "x": 6.0,
+       "sill": 3.9,
+       "head": 5.1,
+       "wall_id": "w_L1_006",
+       "level_id": "L1"
+      }
+     ]
+    },
+    "counts": {
+     "windows": "more",
+     "doors": "ok"
+    },
+    "positions": {
+     "matched": 0,
+     "offset_x_m": 0.0,
+     "offset_z_m": 3.15,
+     "mirrored": false,
+     "max_dx_m": 0.0,
+     "max_dz_m": 0.0,
+     "missing_in_building": [
+      {
+       "kind": "window",
+       "x": 3.0,
+       "sill": 1.5,
+       "head": 2.1
+      },
+      {
+       "kind": "window",
+       "x": 6.0,
+       "sill": 3.6,
+       "head": 4.6
+      }
+     ],
+     "extra_in_building": [
+      {
+       "id": "win_L0_006",
+       "kind": "window",
+       "x": 3.0,
+       "sill": 0.9,
+       "head": 2.1
+      },
+      {
+       "id": "win_L-1b_007",
+       "kind": "window",
+       "x": 6.0,
+       "sill": -2.1,
+       "head": -0.9
+      },
+      {
+       "id": "win_L1_002",
+       "kind": "window",
+       "x": 6.0,
+       "sill": 3.9,
+       "head": 5.1
+      }
+     ]
+    }
+   }
+  ],
+  "roof": {
+   "built": {
+    "eaves": 3.955,
+    "ridge": 7.1059,
+    "planes_source": "derived"
+   },
+   "drawn": {
+    "eaves": {
+     "value": 3.955,
+     "method": "vector"
+    },
+    "ridge": {
+     "value": 7.106,
+     "method": "vector"
+    }
+   },
+   "drawn_source": {
+    "eaves": "sheets.json heights.roof",
+    "ridge": "sheets.json heights.roof"
+   },
+   "result": "ok",
+   "notes": [],
+   "deltas": {
+    "eaves": 0.0,
+    "ridge": -0.0001
+   }
+  },
+  "summary": {
+   "facades": 2,
+   "ok": 0,
+   "mismatch": 2,
+   "not_checked": 0,
+   "roof": "ok"
+  },
+  "warnings": []
+ },
+ "warnings": []
+}

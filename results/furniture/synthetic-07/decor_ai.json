@@ -1,0 +1,3147 @@
+{
+ "project": "synthetic-07",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L-1_salon",
+   "label": "Salon",
+   "room_type": "living",
+   "slots": [
+    {
+     "id": "f_L-1_005.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L-1_005",
+     "host_type": "sofa",
+     "note": ""
+    },
+    {
+     "id": "f_L-1_005.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L-1_005",
+     "host_type": "sofa",
+     "note": ""
+    },
+    {
+     "id": "f_L-1_005.wall",
+     "kind": "wall",
+     "types": [
+      "wall_art"
+     ],
+     "host_id": "f_L-1_005",
+     "host_type": "sofa",
+     "note": ""
+    },
+    {
+     "id": "f_L-1_007.centre",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle",
+      "tray",
+      "sculpture"
+     ],
+     "host_id": "f_L-1_007",
+     "host_type": "table_coffee",
+     "note": "centre part",
+     "center": [
+      3.2,
+      5.8
+     ],
+     "max_size": [
+      0.94,
+      0.54,
+      2.25
+     ]
+    },
+    {
+     "id": "f_L-1_008.left",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle",
+      "sculpture"
+     ],
+     "host_id": "f_L-1_008",
+     "host_type": "tv_unit",
+     "note": "left part, under a window",
+     "center": [
+      3.6,
+      0.496
+     ],
+     "max_size": [
+      0.74,
+      0.39,
+      0.4
+     ]
+    },
+    {
+     "id": "f_L-1_008.right",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle",
+      "sculpture"
+     ],
+     "host_id": "f_L-1_008",
+     "host_type": "tv_unit",
+     "note": "right part, under a window",
+     "center": [
+      2.8,
+      0.496
+     ],
+     "max_size": [
+      0.74,
+      0.39,
+      0.4
+     ]
+    },
+    {
+     "id": "f_L-1_009.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L-1_009",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L-1_009.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L-1_009",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L-1_010.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray",
+      "sculpture"
+     ],
+     "host_id": "f_L-1_010",
+     "host_type": "sideboard",
+     "note": "left part",
+     "center": [
+      5.804,
+      2.4
+     ],
+     "max_size": [
+      0.74,
+      0.39,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L-1_010.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray",
+      "sculpture"
+     ],
+     "host_id": "f_L-1_010",
+     "host_type": "sideboard",
+     "note": "right part",
+     "center": [
+      5.804,
+      1.6
+     ],
+     "max_size": [
+      0.74,
+      0.39,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L-1_010.wall",
+     "kind": "wall",
+     "types": [
+      "wall_art",
+      "mirror",
+      "clock"
+     ],
+     "host_id": "f_L-1_010",
+     "host_type": "sideboard",
+     "note": ""
+    },
+    {
+     "id": "r_L-1_salon.rug1",
+     "kind": "rug",
+     "types": [
+      "rug"
+     ],
+     "host_id": "f_L-1_005",
+     "host_type": null,
+     "note": "f_L-1_005 + f_L-1_007"
+    },
+    {
+     "id": "r_L-1_salon.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 0.50, 0.50",
+     "center": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "id": "r_L-1_salon.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 5.80, 0.50",
+     "center": [
+      5.8,
+      0.5
+     ]
+    },
+    {
+     "id": "window:win_L-1_001",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1_001"
+    },
+    {
+     "id": "window:win_L-1_002",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1_002"
+    },
+    {
+     "id": "window:win_L-1_004",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1_004"
+    },
+    {
+     "id": "window:win_L-1_005",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1_005"
+    },
+    {
+     "id": "window:win_L-1_006",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1_006"
+    },
+    {
+     "id": "ceiling:over_f_L-1_007",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": "f_L-1_007",
+     "host_type": null,
+     "note": "over f L-1 007"
+    },
+    {
+     "id": "ceiling:centre_r_L-1_salon",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L-1 salon"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L-1_005.cushions",
+       "type": "cushion",
+       "colour": "cream",
+       "reason": "Adds soft texture and warmth to the sofa in a minimalist style."
+      },
+      {
+       "slot": "f_L-1_005.throw",
+       "type": "throw",
+       "colour": "sand",
+       "reason": "Complements the light oak floor and white walls with a cozy, neutral tone."
+      },
+      {
+       "slot": "f_L-1_005.wall",
+       "type": "wall_art",
+       "colour": "natural wood",
+       "reason": "Minimalist abstract piece that echoes the floor and adds subtle warmth."
+      },
+      {
+       "slot": "r_L-1_salon.rug1",
+       "type": "rug",
+       "colour": "light grey",
+       "reason": "Defines the seating area without overwhelming the space."
+      },
+      {
+       "slot": "r_L-1_salon.corner1",
+       "type": "plant_large",
+       "colour": "sage green",
+       "reason": "Adds organic life and softens the room’s lines with natural color."
+      },
+      {
+       "slot": "f_L-1_007.centre",
+       "type": "vase",
+       "colour": "terracotta",
+       "reason": "Small, earthy accent that brings warmth and visual interest to the coffee table."
+      },
+      {
+       "slot": "f_L-1_010.left",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm metallic glow enhances the modern minimal aesthetic."
+      },
+      {
+       "slot": "f_L-1_010.right",
+       "type": "tray",
+       "colour": "natural wood",
+       "reason": "Functional and stylish, matches the floor and adds texture."
+      },
+      {
+       "slot": "f_L-1_010.wall",
+       "type": "mirror",
+       "colour": "black",
+       "reason": "Creates depth and reflects light, enhancing the airy feel."
+      },
+      {
+       "slot": "window:win_L-1_001",
+       "type": "curtain",
+       "colour": "cream",
+       "reason": "Soft, light-filtering fabric complements the daylight and neutral palette."
+      },
+      {
+       "slot": "ceiling:over_f_L-1_007",
+       "type": "pendant_light",
+       "colour": "black",
+       "reason": "Modern silhouette with minimal visual weight, focused lighting over the coffee table."
+      },
+      {
+       "slot": "ceiling:centre_r_L-1_salon",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Even, ambient light that supports the open, airy feel of the room."
+      }
+     ],
+     "error": null,
+     "latency_s": 7.114
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L-1_005.cushions",
+       "type": "cushion",
+       "colour": "cream",
+       "reason": "Adds soft texture and warmth without clutter."
+      },
+      {
+       "slot": "f_L-1_005.throw",
+       "type": "throw",
+       "colour": "sand",
+       "reason": "Complements light oak and white walls with earthy warmth."
+      },
+      {
+       "slot": "f_L-1_007.centre",
+       "type": "plant_small",
+       "colour": "natural wood",
+       "reason": "Brings life to the coffee table with minimal visual weight."
+      },
+      {
+       "slot": "f_L-1_008.left",
+       "type": "vase",
+       "colour": "white",
+       "reason": "Clean, modern accent that reflects daylight."
+      },
+      {
+       "slot": "f_L-1_008.right",
+       "type": "book_set",
+       "colour": "cream",
+       "reason": "Adds curated detail without overwhelming the space."
+      },
+      {
+       "slot": "f_L-1_010.left",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm metallic glow enhances modern minimal lighting."
+      },
+      {
+       "slot": "f_L-1_010.right",
+       "type": "tray",
+       "colour": "natural wood",
+       "reason": "Functional and organic, matches floor and wall tones."
+      },
+      {
+       "slot": "f_L-1_010.wall",
+       "type": "wall_art",
+       "colour": "charcoal",
+       "reason": "Subtle contrast adds depth without visual noise."
+      },
+      {
+       "slot": "r_L-1_salon.rug1",
+       "type": "rug",
+       "colour": "light grey",
+       "reason": "Defines seating area while harmonizing with neutral palette."
+      },
+      {
+       "slot": "r_L-1_salon.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Adds organic presence in a free corner without crowding."
+      },
+      {
+       "slot": "window:win_L-1_001",
+       "type": "blind",
+       "colour": "white",
+       "reason": "Maximizes daylight while maintaining clean lines."
+      },
+      {
+       "slot": "ceiling:over_f_L-1_007",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm light source focused over coffee table for ambiance."
+      }
+     ],
+     "error": null,
+     "latency_s": 6.62
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L-1_005.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds soft texture and warmth to the sofa in a minimalist style.",
+      "Adds soft texture and warmth without clutter."
+     ]
+    },
+    {
+     "slot": "f_L-1_005.throw",
+     "type": "throw",
+     "colour": "sand",
+     "colour_agreed": true,
+     "reasons": [
+      "Complements the light oak floor and white walls with a cozy, neutral tone.",
+      "Complements light oak and white walls with earthy warmth."
+     ]
+    },
+    {
+     "slot": "r_L-1_salon.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "colour_agreed": true,
+     "reasons": [
+      "Defines the seating area without overwhelming the space.",
+      "Defines seating area while harmonizing with neutral palette."
+     ]
+    },
+    {
+     "slot": "r_L-1_salon.corner1",
+     "type": "plant_large",
+     "colour": "sage green",
+     "colour_agreed": false,
+     "reasons": [
+      "Adds organic life and softens the room’s lines with natural color.",
+      "Adds organic presence in a free corner without crowding."
+     ]
+    },
+    {
+     "slot": "f_L-1_010.left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "colour_agreed": true,
+     "reasons": [
+      "Warm metallic glow enhances the modern minimal aesthetic.",
+      "Warm metallic glow enhances modern minimal lighting."
+     ]
+    },
+    {
+     "slot": "f_L-1_010.right",
+     "type": "tray",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Functional and stylish, matches the floor and adds texture.",
+      "Functional and organic, matches floor and wall tones."
+     ]
+    },
+    {
+     "slot": "ceiling:over_f_L-1_007",
+     "type": "pendant_light",
+     "colour": "black",
+     "colour_agreed": false,
+     "reasons": [
+      "Modern silhouette with minimal visual weight, focused lighting over the coffee table.",
+      "Warm light source focused over coffee table for ambiance."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "f_L-1_005.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Minimalist abstract piece that echoes the floor and adds subtle warmth.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1_007.centre",
+     "type": "vase",
+     "colour": "terracotta",
+     "reason": "Small, earthy accent that brings warmth and visual interest to the coffee table.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1_010.wall",
+     "type": "mirror",
+     "colour": "black",
+     "reason": "Creates depth and reflects light, enhancing the airy feel.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "window:win_L-1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Soft, light-filtering fabric complements the daylight and neutral palette.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L-1_salon",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Even, ambient light that supports the open, airy feel of the room.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1_007.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Brings life to the coffee table with minimal visual weight.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "f_L-1_008.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean, modern accent that reflects daylight.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "f_L-1_008.right",
+     "type": "book_set",
+     "colour": "cream",
+     "reason": "Adds curated detail without overwhelming the space.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "f_L-1_010.wall",
+     "type": "wall_art",
+     "colour": "charcoal",
+     "reason": "Subtle contrast adds depth without visual noise.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "window:win_L-1_001",
+     "type": "blind",
+     "colour": "white",
+     "reason": "Maximizes daylight while maintaining clean lines.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L-1_001",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L-1_005.cushions"
+    },
+    {
+     "id": "dec_L-1_002",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L-1_005.cushions"
+    },
+    {
+     "id": "dec_L-1_003",
+     "type": "throw",
+     "method": "ai",
+     "slot": "f_L-1_005.throw"
+    },
+    {
+     "id": "dec_L-1_004",
+     "type": "rug",
+     "method": "ai",
+     "slot": "r_L-1_salon.rug1"
+    },
+    {
+     "id": "dec_L-1_005",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L-1_salon.corner1"
+    },
+    {
+     "id": "dec_L-1_006",
+     "type": "table_lamp",
+     "method": "ai",
+     "slot": "f_L-1_010.left"
+    },
+    {
+     "id": "dec_L-1_007",
+     "type": "tray",
+     "method": "ai",
+     "slot": "f_L-1_010.right"
+    },
+    {
+     "id": "dec_L-1_008",
+     "type": "pendant_light",
+     "method": "ai",
+     "slot": "ceiling:over_f_L-1_007"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L-1_mutfak",
+   "label": "Mutfak",
+   "room_type": "kitchen",
+   "slots": [
+    {
+     "id": "f_L-1_012.centre",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "candle"
+     ],
+     "host_id": "f_L-1_012",
+     "host_type": "table_dining",
+     "note": "centre part",
+     "center": [
+      8.0,
+      2.5
+     ],
+     "max_size": [
+      0.7,
+      0.5,
+      1.95
+     ]
+    },
+    {
+     "id": "window:win_L-1_003",
+     "kind": "window",
+     "types": [
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1_003"
+    },
+    {
+     "id": "ceiling:over_f_L-1_012",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light"
+     ],
+     "host_id": "f_L-1_012",
+     "host_type": null,
+     "note": "over f L-1 012"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L-1_012.centre",
+       "type": "bowl",
+       "colour": "white",
+       "reason": "Adds minimal texture without clutter, complements white walls."
+      },
+      {
+       "slot": "window:win_L-1_003",
+       "type": "blind",
+       "colour": "cream",
+       "reason": "Softens daylight while maintaining clean, modern look."
+      },
+      {
+       "slot": "ceiling:over_f_L-1_012",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm metallic glow enhances modern minimal style."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.791
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L-1_012.centre",
+       "type": "vase",
+       "colour": "natural wood",
+       "reason": "Adds warmth and minimal elegance to the dining table."
+      },
+      {
+       "slot": "window:win_L-1_003",
+       "type": "blind",
+       "colour": "cream",
+       "reason": "Softens daylight while maintaining a clean, modern look."
+      },
+      {
+       "slot": "ceiling:over_f_L-1_012",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm metallic glow complements the light oak floor and white walls."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.838
+    }
+   },
+   "agreed": [
+    {
+     "slot": "window:win_L-1_003",
+     "type": "blind",
+     "colour": "cream",
+     "colour_agreed": true,
+     "reasons": [
+      "Softens daylight while maintaining clean, modern look.",
+      "Softens daylight while maintaining a clean, modern look."
+     ]
+    },
+    {
+     "slot": "ceiling:over_f_L-1_012",
+     "type": "pendant_light",
+     "colour": "brass",
+     "colour_agreed": true,
+     "reasons": [
+      "Warm metallic glow enhances modern minimal style.",
+      "Warm metallic glow complements the light oak floor and white walls."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "f_L-1_012.centre",
+     "type": "bowl",
+     "colour": "white",
+     "reason": "Adds minimal texture without clutter, complements white walls.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1_012.centre",
+     "type": "vase",
+     "colour": "natural wood",
+     "reason": "Adds warmth and minimal elegance to the dining table.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L-1_009",
+     "type": "blind",
+     "method": "ai",
+     "slot": "window:win_L-1_003"
+    },
+    {
+     "id": "dec_L-1_010",
+     "type": "pendant_light",
+     "method": "ai",
+     "slot": "ceiling:over_f_L-1_012"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L-1_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "slots": [
+    {
+     "id": "f_L-1_017.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L-1_017",
+     "host_type": "console_table",
+     "note": "left part",
+     "center": [
+      6.346,
+      4.6
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L-1_017.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L-1_017",
+     "host_type": "console_table",
+     "note": "right part",
+     "center": [
+      6.346,
+      5.2
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L-1_017.wall",
+     "kind": "wall",
+     "types": [
+      "mirror",
+      "wall_art"
+     ],
+     "host_id": "f_L-1_017",
+     "host_type": "console_table",
+     "note": ""
+    },
+    {
+     "id": "ceiling:centre_r_L-1_hol",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L-1 hol"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L-1_017.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern minimal style."
+      },
+      {
+       "slot": "f_L-1_017.left",
+       "type": "vase",
+       "colour": "white",
+       "reason": "Simple, clean lines complement the light oak and white walls."
+      },
+      {
+       "slot": "ceiling:centre_r_L-1_hol",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm glow adds coziness without visual clutter."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.778
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L-1_017.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern minimal style."
+      },
+      {
+       "slot": "f_L-1_017.left",
+       "type": "vase",
+       "colour": "cream",
+       "reason": "Adds soft warmth and complements light oak floors."
+      },
+      {
+       "slot": "ceiling:centre_r_L-1_hol",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Provides even, ambient light without visual clutter."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.729
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L-1_017.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Reflects light and enhances space in modern minimal style.",
+      "Reflects light and enhances space in modern minimal style."
+     ]
+    },
+    {
+     "slot": "f_L-1_017.left",
+     "type": "vase",
+     "colour": "white",
+     "colour_agreed": false,
+     "reasons": [
+      "Simple, clean lines complement the light oak and white walls.",
+      "Adds soft warmth and complements light oak floors."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "ceiling:centre_r_L-1_hol",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm glow adds coziness without visual clutter.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L-1_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides even, ambient light without visual clutter.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L-1_011",
+     "type": "mirror",
+     "method": "ai",
+     "slot": "f_L-1_017.wall"
+    },
+    {
+     "id": "dec_L-1_012",
+     "type": "vase",
+     "method": "ai",
+     "slot": "f_L-1_017.left"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "no free corner for a floor plant"
+   ]
+  },
+  {
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "label": "Salon + Açık Mutfak",
+   "room_type": "living",
+   "slots": [
+    {
+     "id": "f_L-1b_005.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L-1b_005",
+     "host_type": "sofa",
+     "note": ""
+    },
+    {
+     "id": "f_L-1b_005.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L-1b_005",
+     "host_type": "sofa",
+     "note": ""
+    },
+    {
+     "id": "f_L-1b_005.wall",
+     "kind": "wall",
+     "types": [
+      "wall_art"
+     ],
+     "host_id": "f_L-1b_005",
+     "host_type": "sofa",
+     "note": ""
+    },
+    {
+     "id": "f_L-1b_007.centre",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle",
+      "tray",
+      "sculpture"
+     ],
+     "host_id": "f_L-1b_007",
+     "host_type": "table_coffee",
+     "note": "centre part",
+     "center": [
+      3.2,
+      5.8
+     ],
+     "max_size": [
+      0.94,
+      0.54,
+      2.25
+     ]
+    },
+    {
+     "id": "f_L-1b_008.left",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle",
+      "sculpture"
+     ],
+     "host_id": "f_L-1b_008",
+     "host_type": "tv_unit",
+     "note": "left part",
+     "center": [
+      5.829,
+      5.071
+     ],
+     "max_size": [
+      0.54,
+      0.34,
+      2.2
+     ]
+    },
+    {
+     "id": "f_L-1b_008.right",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle",
+      "sculpture"
+     ],
+     "host_id": "f_L-1b_008",
+     "host_type": "tv_unit",
+     "note": "right part",
+     "center": [
+      5.829,
+      4.471
+     ],
+     "max_size": [
+      0.54,
+      0.34,
+      2.2
+     ]
+    },
+    {
+     "id": "f_L-1b_009.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L-1b_009",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L-1b_009.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L-1b_009",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L-1b_010.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray",
+      "sculpture"
+     ],
+     "host_id": "f_L-1b_010",
+     "host_type": "sideboard",
+     "note": "left part",
+     "center": [
+      0.496,
+      1.1
+     ],
+     "max_size": [
+      0.74,
+      0.39,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L-1b_010.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray",
+      "sculpture"
+     ],
+     "host_id": "f_L-1b_010",
+     "host_type": "sideboard",
+     "note": "right part",
+     "center": [
+      0.496,
+      1.9
+     ],
+     "max_size": [
+      0.74,
+      0.39,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L-1b_010.wall",
+     "kind": "wall",
+     "types": [
+      "wall_art",
+      "mirror",
+      "clock"
+     ],
+     "host_id": "f_L-1b_010",
+     "host_type": "sideboard",
+     "note": ""
+    },
+    {
+     "id": "r_L-1b_salon_acik_mutfak.rug1",
+     "kind": "rug",
+     "types": [
+      "rug"
+     ],
+     "host_id": "f_L-1b_005",
+     "host_type": null,
+     "note": "f_L-1b_005 + f_L-1b_007"
+    },
+    {
+     "id": "r_L-1b_salon_acik_mutfak.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 0.50, 0.50",
+     "center": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "id": "r_L-1b_salon_acik_mutfak.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 9.50, 3.70",
+     "center": [
+      9.5,
+      3.7
+     ]
+    },
+    {
+     "id": "window:win_L-1b_001",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1b_001"
+    },
+    {
+     "id": "window:win_L-1b_002",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1b_002"
+    },
+    {
+     "id": "window:win_L-1b_003",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1b_003"
+    },
+    {
+     "id": "window:win_L-1b_004",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1b_004"
+    },
+    {
+     "id": "window:win_L-1b_005",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1b_005"
+    },
+    {
+     "id": "window:win_L-1b_006",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L-1b_006"
+    },
+    {
+     "id": "ceiling:over_f_L-1b_007",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": "f_L-1b_007",
+     "host_type": null,
+     "note": "over f L-1b 007"
+    },
+    {
+     "id": "ceiling:centre_r_L-1b_salon_acik_mutfak",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L-1b salon acik mutfak"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L-1b_005.cushions",
+       "type": "cushion",
+       "colour": "cream",
+       "reason": "Adds soft texture and warmth to the sofa in a minimalist style."
+      },
+      {
+       "slot": "f_L-1b_005.throw",
+       "type": "throw",
+       "colour": "sand",
+       "reason": "Complements the light oak floor and white walls with a cozy, neutral tone."
+      },
+      {
+       "slot": "f_L-1b_005.wall",
+       "type": "wall_art",
+       "colour": "charcoal",
+       "reason": "Modern abstract art adds visual interest without clutter."
+      },
+      {
+       "slot": "f_L-1b_007.centre",
+       "type": "vase",
+       "colour": "natural wood",
+       "reason": "A simple wooden vase with greenery enhances the natural, minimalist feel."
+      },
+      {
+       "slot": "f_L-1b_008.left",
+       "type": "candle",
+       "colour": "white",
+       "reason": "Softens the TV unit’s edge with ambient light and clean lines."
+      },
+      {
+       "slot": "f_L-1b_008.right",
+       "type": "candle",
+       "colour": "white",
+       "reason": "Balances the left candle and maintains symmetry for a modern look."
+      },
+      {
+       "slot": "f_L-1b_009.cushions",
+       "type": "cushion",
+       "colour": "beige",
+       "reason": "Matches the sofa cushions and adds comfort without visual noise."
+      },
+      {
+       "slot": "f_L-1b_009.throw",
+       "type": "throw",
+       "colour": "terracotta",
+       "reason": "Adds a subtle pop of warm color to the armchair for contrast."
+      },
+      {
+       "slot": "f_L-1b_010.left",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm metallic glow complements the natural wood tones and modern style."
+      },
+      {
+       "slot": "f_L-1b_010.right",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Symmetrical lighting enhances the room’s balance and elegance."
+      },
+      {
+       "slot": "f_L-1b_010.wall",
+       "type": "mirror",
+       "colour": "black",
+       "reason": "Reflects light and creates the illusion of more space in the room."
+      },
+      {
+       "slot": "r_L-1b_salon_acik_mutfak.rug1",
+       "type": "rug",
+       "colour": "light grey",
+       "reason": "Defines the seating area and adds subtle texture underfoot."
+      },
+      {
+       "slot": "r_L-1b_salon_acik_mutfak.corner1",
+       "type": "plant",
+       "colour": "sage green",
+       "reason": "Lively greenery in a corner brings life without overwhelming the space."
+      },
+      {
+       "slot": "window:win_L-1b_001",
+       "type": "curtain",
+       "colour": "cream",
+       "reason": "Soft, light curtains let in daylight while maintaining a clean aesthetic."
+      },
+      {
+       "slot": "window:win_L-1b_002",
+       "type": "curtain",
+       "colour": "cream",
+       "reason": "Consistent curtain choice across windows for visual harmony."
+      },
+      {
+       "slot": "ceiling:over_f_L-1b_007",
+       "type": "pendant_light",
+       "colour": "black",
+       "reason": "Modern pendant light focuses illumination on the coffee table area."
+      }
+     ],
+     "error": null,
+     "latency_s": 9.64
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L-1b_005.cushions",
+       "type": "cushion",
+       "colour": "cream",
+       "reason": "Adds soft texture and warmth without clutter."
+      },
+      {
+       "slot": "f_L-1b_005.throw",
+       "type": "throw",
+       "colour": "sand",
+       "reason": "Complements light oak and white walls with earthy tone."
+      },
+      {
+       "slot": "f_L-1b_005.wall",
+       "type": "wall_art",
+       "colour": "natural wood",
+       "reason": "Minimalist frame with wood tone blends with floor and adds warmth."
+      },
+      {
+       "slot": "f_L-1b_007.centre",
+       "type": "plant_small",
+       "colour": "natural wood",
+       "reason": "Small greenery adds life without overwhelming the space."
+      },
+      {
+       "slot": "f_L-1b_010.left",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm metallic glow enhances modern minimal lighting."
+      },
+      {
+       "slot": "f_L-1b_010.right",
+       "type": "vase",
+       "colour": "terracotta",
+       "reason": "Earthy tone vase adds subtle color contrast to neutral palette."
+      },
+      {
+       "slot": "r_L-1b_salon_acik_mutfak.rug1",
+       "type": "rug",
+       "colour": "light grey",
+       "reason": "Soft grey rug grounds the sofa area and complements light oak."
+      },
+      {
+       "slot": "r_L-1b_salon_acik_mutfak.corner1",
+       "type": "plant",
+       "colour": "sage green",
+       "reason": "Large plant in corner adds organic shape and freshness."
+      },
+      {
+       "slot": "window:win_L-1b_001",
+       "type": "blind",
+       "colour": "white",
+       "reason": "White blinds maximize daylight while maintaining clean lines."
+      },
+      {
+       "slot": "ceiling:over_f_L-1b_007",
+       "type": "pendant_light",
+       "colour": "black",
+       "reason": "Modern black pendant adds contrast and focal point above coffee table."
+      }
+     ],
+     "error": null,
+     "latency_s": 5.939
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L-1b_005.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds soft texture and warmth to the sofa in a minimalist style.",
+      "Adds soft texture and warmth without clutter."
+     ]
+    },
+    {
+     "slot": "f_L-1b_005.throw",
+     "type": "throw",
+     "colour": "sand",
+     "colour_agreed": true,
+     "reasons": [
+      "Complements the light oak floor and white walls with a cozy, neutral tone.",
+      "Complements light oak and white walls with earthy tone."
+     ]
+    },
+    {
+     "slot": "f_L-1b_005.wall",
+     "type": "wall_art",
+     "colour": "charcoal",
+     "colour_agreed": false,
+     "reasons": [
+      "Modern abstract art adds visual interest without clutter.",
+      "Minimalist frame with wood tone blends with floor and adds warmth."
+     ]
+    },
+    {
+     "slot": "f_L-1b_010.left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "colour_agreed": true,
+     "reasons": [
+      "Warm metallic glow complements the natural wood tones and modern style.",
+      "Warm metallic glow enhances modern minimal lighting."
+     ]
+    },
+    {
+     "slot": "r_L-1b_salon_acik_mutfak.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "colour_agreed": true,
+     "reasons": [
+      "Defines the seating area and adds subtle texture underfoot.",
+      "Soft grey rug grounds the sofa area and complements light oak."
+     ]
+    },
+    {
+     "slot": "r_L-1b_salon_acik_mutfak.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "colour_agreed": true,
+     "reasons": [
+      "Lively greenery in a corner brings life without overwhelming the space.",
+      "Large plant in corner adds organic shape and freshness."
+     ]
+    },
+    {
+     "slot": "ceiling:over_f_L-1b_007",
+     "type": "pendant_light",
+     "colour": "black",
+     "colour_agreed": true,
+     "reasons": [
+      "Modern pendant light focuses illumination on the coffee table area.",
+      "Modern black pendant adds contrast and focal point above coffee table."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "f_L-1b_007.centre",
+     "type": "vase",
+     "colour": "natural wood",
+     "reason": "A simple wooden vase with greenery enhances the natural, minimalist feel.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_008.left",
+     "type": "candle",
+     "colour": "white",
+     "reason": "Softens the TV unit’s edge with ambient light and clean lines.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_008.right",
+     "type": "candle",
+     "colour": "white",
+     "reason": "Balances the left candle and maintains symmetry for a modern look.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_009.cushions",
+     "type": "cushion",
+     "colour": "beige",
+     "reason": "Matches the sofa cushions and adds comfort without visual noise.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_009.throw",
+     "type": "throw",
+     "colour": "terracotta",
+     "reason": "Adds a subtle pop of warm color to the armchair for contrast.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_010.right",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Symmetrical lighting enhances the room’s balance and elegance.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_010.wall",
+     "type": "mirror",
+     "colour": "black",
+     "reason": "Reflects light and creates the illusion of more space in the room.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "window:win_L-1b_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Soft, light curtains let in daylight while maintaining a clean aesthetic.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "window:win_L-1b_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Consistent curtain choice across windows for visual harmony.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L-1b_007.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small greenery adds life without overwhelming the space.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "f_L-1b_010.right",
+     "type": "vase",
+     "colour": "terracotta",
+     "reason": "Earthy tone vase adds subtle color contrast to neutral palette.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "window:win_L-1b_001",
+     "type": "blind",
+     "colour": "white",
+     "reason": "White blinds maximize daylight while maintaining clean lines.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L-1b_001",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L-1b_005.cushions"
+    },
+    {
+     "id": "dec_L-1b_002",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L-1b_005.cushions"
+    },
+    {
+     "id": "dec_L-1b_003",
+     "type": "throw",
+     "method": "ai",
+     "slot": "f_L-1b_005.throw"
+    },
+    {
+     "id": "dec_L-1b_004",
+     "type": "wall_art",
+     "method": "ai",
+     "slot": "f_L-1b_005.wall"
+    },
+    {
+     "id": "dec_L-1b_005",
+     "type": "table_lamp",
+     "method": "ai",
+     "slot": "f_L-1b_010.left"
+    },
+    {
+     "id": "dec_L-1b_006",
+     "type": "rug",
+     "method": "ai",
+     "slot": "r_L-1b_salon_acik_mutfak.rug1"
+    },
+    {
+     "id": "dec_L-1b_007",
+     "type": "plant",
+     "method": "ai",
+     "slot": "r_L-1b_salon_acik_mutfak.corner1"
+    },
+    {
+     "id": "dec_L-1b_008",
+     "type": "pendant_light",
+     "method": "ai",
+     "slot": "ceiling:over_f_L-1b_007"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L0_yatak_odasi",
+   "label": "Yatak Odası",
+   "room_type": "bedroom",
+   "slots": [
+    {
+     "id": "f_L0_002.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L0_002",
+     "host_type": "bed_double",
+     "note": ""
+    },
+    {
+     "id": "f_L0_002.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L0_002",
+     "host_type": "bed_double",
+     "note": ""
+    },
+    {
+     "id": "f_L0_006.centre",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle"
+     ],
+     "host_id": "f_L0_006",
+     "host_type": "nightstand",
+     "note": "centre part, under a window",
+     "center": [
+      1.9,
+      7.529
+     ],
+     "max_size": [
+      0.44,
+      0.34,
+      0.4
+     ]
+    },
+    {
+     "id": "f_L0_007.centre",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "plant_small",
+      "book_set",
+      "books",
+      "candle"
+     ],
+     "host_id": "f_L0_007",
+     "host_type": "nightstand",
+     "note": "centre part, under a window",
+     "center": [
+      4.7,
+      7.529
+     ],
+     "max_size": [
+      0.44,
+      0.34,
+      0.4
+     ]
+    },
+    {
+     "id": "r_L0_yatak_odasi.rug1",
+     "kind": "rug",
+     "types": [
+      "rug"
+     ],
+     "host_id": "f_L0_002",
+     "host_type": null,
+     "note": "f_L0_002"
+    },
+    {
+     "id": "r_L0_yatak_odasi.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 0.50, 0.50",
+     "center": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "id": "r_L0_yatak_odasi.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 5.80, 0.50",
+     "center": [
+      5.8,
+      0.5
+     ]
+    },
+    {
+     "id": "window:win_L0_001",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L0_001"
+    },
+    {
+     "id": "window:win_L0_003",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L0_003"
+    },
+    {
+     "id": "window:win_L0_004",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L0_004"
+    },
+    {
+     "id": "window:win_L0_005",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L0_005"
+    },
+    {
+     "id": "ceiling:over_f_L0_002",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": "f_L0_002",
+     "host_type": null,
+     "note": "over f L0 002"
+    },
+    {
+     "id": "ceiling:centre_r_L0_yatak_odasi",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 yatak odasi"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_002.cushions",
+       "type": "cushion",
+       "colour": "cream",
+       "reason": "Adds soft texture and warmth without clutter."
+      },
+      {
+       "slot": "f_L0_002.throw",
+       "type": "throw",
+       "colour": "sand",
+       "reason": "Complements light oak and white walls with subtle earth tone."
+      },
+      {
+       "slot": "f_L0_006.centre",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm metallic glow enhances modern minimal lighting."
+      },
+      {
+       "slot": "f_L0_007.centre",
+       "type": "plant_small",
+       "colour": "sage green",
+       "reason": "Small plant adds life under window without overwhelming space."
+      },
+      {
+       "slot": "r_L0_yatak_odasi.rug1",
+       "type": "rug",
+       "colour": "natural wood",
+       "reason": "Harmonizes with floor and adds grounding warmth under bed."
+      },
+      {
+       "slot": "r_L0_yatak_odasi.corner1",
+       "type": "plant",
+       "colour": "forest green",
+       "reason": "Large plant in corner brings nature indoors with modern contrast."
+      },
+      {
+       "slot": "window:win_L0_001",
+       "type": "curtain",
+       "colour": "cream",
+       "reason": "Soft, light curtain lets in daylight while maintaining minimalism."
+      },
+      {
+       "slot": "ceiling:over_f_L0_002",
+       "type": "pendant_light",
+       "colour": "black",
+       "reason": "Simple pendant adds focused light above bed without visual noise."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_yatak_odasi",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Neutral ceiling light ensures even ambient illumination."
+      }
+     ],
+     "error": null,
+     "latency_s": 5.056
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L0_002.cushions",
+       "type": "cushion",
+       "colour": "cream",
+       "reason": "Adds soft texture without clutter, matches modern minimal style."
+      },
+      {
+       "slot": "f_L0_002.throw",
+       "type": "throw",
+       "colour": "sand",
+       "reason": "Warm tone complements daylight and light oak floor."
+      },
+      {
+       "slot": "f_L0_006.centre",
+       "type": "table_lamp",
+       "colour": "natural wood",
+       "reason": "Warm light and material harmonize with the room’s natural palette."
+      },
+      {
+       "slot": "f_L0_007.centre",
+       "type": "book_set",
+       "colour": "white",
+       "reason": "Clean lines and neutral color keep the look minimal and airy."
+      },
+      {
+       "slot": "r_L0_yatak_odasi.rug1",
+       "type": "rug",
+       "colour": "beige",
+       "reason": "Softens the floor while enhancing the modern minimal aesthetic."
+      },
+      {
+       "slot": "r_L0_yatak_odasi.corner1",
+       "type": "plant",
+       "colour": "sage green",
+       "reason": "Adds life and calm with a muted, natural hue that suits daylight."
+      },
+      {
+       "slot": "window:win_L0_001",
+       "type": "curtain",
+       "colour": "light grey",
+       "reason": "Subtle contrast to white walls, allows natural light while adding softness."
+      },
+      {
+       "slot": "ceiling:over_f_L0_002",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Bright, even illumination supports the minimalist, open feel."
+      }
+     ],
+     "error": null,
+     "latency_s": 4.641
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_002.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds soft texture and warmth without clutter.",
+      "Adds soft texture without clutter, matches modern minimal style."
+     ]
+    },
+    {
+     "slot": "f_L0_002.throw",
+     "type": "throw",
+     "colour": "sand",
+     "colour_agreed": true,
+     "reasons": [
+      "Complements light oak and white walls with subtle earth tone.",
+      "Warm tone complements daylight and light oak floor."
+     ]
+    },
+    {
+     "slot": "f_L0_006.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "colour_agreed": false,
+     "reasons": [
+      "Warm metallic glow enhances modern minimal lighting.",
+      "Warm light and material harmonize with the room’s natural palette."
+     ]
+    },
+    {
+     "slot": "r_L0_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "natural wood",
+     "colour_agreed": false,
+     "reasons": [
+      "Harmonizes with floor and adds grounding warmth under bed.",
+      "Softens the floor while enhancing the modern minimal aesthetic."
+     ]
+    },
+    {
+     "slot": "r_L0_yatak_odasi.corner1",
+     "type": "plant",
+     "colour": "forest green",
+     "colour_agreed": false,
+     "reasons": [
+      "Large plant in corner brings nature indoors with modern contrast.",
+      "Adds life and calm with a muted, natural hue that suits daylight."
+     ]
+    },
+    {
+     "slot": "window:win_L0_001",
+     "type": "curtain",
+     "colour": "cream",
+     "colour_agreed": false,
+     "reasons": [
+      "Soft, light curtain lets in daylight while maintaining minimalism.",
+      "Subtle contrast to white walls, allows natural light while adding softness."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "f_L0_007.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Small plant adds life under window without overwhelming space.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:over_f_L0_002",
+     "type": "pendant_light",
+     "colour": "black",
+     "reason": "Simple pendant adds focused light above bed without visual noise.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yatak_odasi",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Neutral ceiling light ensures even ambient illumination.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L0_007.centre",
+     "type": "book_set",
+     "colour": "white",
+     "reason": "Clean lines and neutral color keep the look minimal and airy.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "ceiling:over_f_L0_002",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Bright, even illumination supports the minimalist, open feel.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_001",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L0_002.cushions"
+    },
+    {
+     "id": "dec_L0_002",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L0_002.cushions"
+    },
+    {
+     "id": "dec_L0_003",
+     "type": "throw",
+     "method": "ai",
+     "slot": "f_L0_002.throw"
+    },
+    {
+     "id": "dec_L0_004",
+     "type": "table_lamp",
+     "method": "ai",
+     "slot": "f_L0_006.centre"
+    },
+    {
+     "id": "dec_L0_005",
+     "type": "rug",
+     "method": "ai",
+     "slot": "r_L0_yatak_odasi.rug1"
+    },
+    {
+     "id": "dec_L0_006",
+     "type": "plant",
+     "method": "ai",
+     "slot": "r_L0_yatak_odasi.corner1"
+    },
+    {
+     "id": "dec_L0_007",
+     "type": "curtain",
+     "method": "ai",
+     "slot": "window:win_L0_001"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "f_L0_002 wall: wall_art: f_L0_002 has no wall behind it"
+   ]
+  },
+  {
+   "room_id": "r_L0_banyo",
+   "label": "Banyo",
+   "room_type": "bathroom",
+   "slots": [
+    {
+     "id": "window:win_L0_002",
+     "kind": "window",
+     "types": [
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L0_002"
+    },
+    {
+     "id": "window:win_L0_006",
+     "kind": "window",
+     "types": [
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L0_006"
+    },
+    {
+     "id": "ceiling:centre_r_L0_banyo",
+     "kind": "ceiling",
+     "types": [
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 banyo"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "window:win_L0_002",
+       "type": "blind",
+       "colour": "cream",
+       "reason": "Softens light while maintaining minimalism and warmth."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_banyo",
+       "type": "ceiling_light",
+       "colour": "brass",
+       "reason": "Adds subtle warmth and complements natural wood floors."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.215
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "window:win_L0_002",
+       "type": "blind",
+       "colour": "cream",
+       "reason": "Softens light while maintaining minimalism and warmth."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_banyo",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Bright, neutral light enhances the clean, modern aesthetic."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.199
+    }
+   },
+   "agreed": [
+    {
+     "slot": "window:win_L0_002",
+     "type": "blind",
+     "colour": "cream",
+     "colour_agreed": true,
+     "reasons": [
+      "Softens light while maintaining minimalism and warmth.",
+      "Softens light while maintaining minimalism and warmth."
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L0_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "colour_agreed": false,
+     "reasons": [
+      "Adds subtle warmth and complements natural wood floors.",
+      "Bright, neutral light enhances the clean, modern aesthetic."
+     ]
+    }
+   ],
+   "not_agreed": [],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_008",
+     "type": "blind",
+     "method": "ai",
+     "slot": "window:win_L0_002"
+    },
+    {
+     "id": "dec_L0_009",
+     "type": "ceiling_light",
+     "method": "ai",
+     "slot": "ceiling:centre_r_L0_banyo"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "f_L0_005 wall: mirror: f_L0_005 has no wall behind it"
+   ]
+  },
+  {
+   "room_id": "r_L0_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "slots": [
+    {
+     "id": "f_L0_009.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L0_009",
+     "host_type": "console_table",
+     "note": "left part",
+     "center": [
+      6.346,
+      4.6
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L0_009.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L0_009",
+     "host_type": "console_table",
+     "note": "right part",
+     "center": [
+      6.346,
+      5.2
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.9
+     ]
+    },
+    {
+     "id": "f_L0_009.wall",
+     "kind": "wall",
+     "types": [
+      "mirror",
+      "wall_art"
+     ],
+     "host_id": "f_L0_009",
+     "host_type": "console_table",
+     "note": ""
+    },
+    {
+     "id": "r_L0_hol.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "basket"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 9.50, 4.30",
+     "center": [
+      9.5,
+      4.3
+     ]
+    },
+    {
+     "id": "r_L0_hol.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "basket"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 6.40, 7.50",
+     "center": [
+      6.4,
+      7.5
+     ]
+    },
+    {
+     "id": "ceiling:centre_r_L0_hol",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 hol"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_009.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern minimal style."
+      },
+      {
+       "slot": "f_L0_009.left",
+       "type": "vase",
+       "colour": "cream",
+       "reason": "Adds subtle warmth and minimal decor on console."
+      },
+      {
+       "slot": "r_L0_hol.corner1",
+       "type": "plant",
+       "colour": "sage green",
+       "reason": "Brings life to corner without clutter, matches daylight."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_hol",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Provides even, soft lighting for modern minimal ambiance."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.25
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L0_009.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern minimal style."
+      },
+      {
+       "slot": "f_L0_009.left",
+       "type": "vase",
+       "colour": "white",
+       "reason": "Simple, clean lines complement the light oak floor and white walls."
+      },
+      {
+       "slot": "r_L0_hol.corner1",
+       "type": "plant",
+       "colour": "sage green",
+       "reason": "Adds organic warmth without clutter, fits daylight and minimal aesthetic."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_hol",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Provides even, warm illumination matching the daylight and neutral palette."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.302
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_009.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Reflects light and enhances space in modern minimal style.",
+      "Reflects light and enhances space in modern minimal style."
+     ]
+    },
+    {
+     "slot": "f_L0_009.left",
+     "type": "vase",
+     "colour": "cream",
+     "colour_agreed": false,
+     "reasons": [
+      "Adds subtle warmth and minimal decor on console.",
+      "Simple, clean lines complement the light oak floor and white walls."
+     ]
+    },
+    {
+     "slot": "r_L0_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "colour_agreed": true,
+     "reasons": [
+      "Brings life to corner without clutter, matches daylight.",
+      "Adds organic warmth without clutter, fits daylight and minimal aesthetic."
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L0_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "colour_agreed": true,
+     "reasons": [
+      "Provides even, soft lighting for modern minimal ambiance.",
+      "Provides even, warm illumination matching the daylight and neutral palette."
+     ]
+    }
+   ],
+   "not_agreed": [],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_010",
+     "type": "mirror",
+     "method": "ai",
+     "slot": "f_L0_009.wall"
+    },
+    {
+     "id": "dec_L0_011",
+     "type": "vase",
+     "method": "ai",
+     "slot": "f_L0_009.left"
+    },
+    {
+     "id": "dec_L0_012",
+     "type": "plant",
+     "method": "ai",
+     "slot": "r_L0_hol.corner1"
+    },
+    {
+     "id": "dec_L0_013",
+     "type": "ceiling_light",
+     "method": "ai",
+     "slot": "ceiling:centre_r_L0_hol"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L1_oyun_odasi",
+   "label": "Oyun Odası",
+   "room_type": "other",
+   "slots": [
+    {
+     "id": "f_L1_002.back_left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "plant_small",
+      "book_set",
+      "vase",
+      "books"
+     ],
+     "host_id": "f_L1_002",
+     "host_type": "desk",
+     "note": "back left part",
+     "center": [
+      1.03,
+      7.524
+     ],
+     "max_size": [
+      0.37,
+      0.32,
+      2.951
+     ]
+    },
+    {
+     "id": "f_L1_002.back_right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "plant_small",
+      "book_set",
+      "vase",
+      "books"
+     ],
+     "host_id": "f_L1_002",
+     "host_type": "desk",
+     "note": "back right part",
+     "center": [
+      1.97,
+      7.524
+     ],
+     "max_size": [
+      0.37,
+      0.32,
+      2.951
+     ]
+    },
+    {
+     "id": "f_L1_002.wall",
+     "kind": "wall",
+     "types": [
+      "wall_art",
+      "clock"
+     ],
+     "host_id": "f_L1_002",
+     "host_type": "desk",
+     "note": ""
+    },
+    {
+     "id": "f_L1_003.shelf",
+     "kind": "shelf",
+     "types": [
+      "book_set"
+     ],
+     "host_id": "f_L1_003",
+     "host_type": "bookshelf",
+     "note": ""
+    },
+    {
+     "id": "f_L1_004.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L1_004",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L1_004.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L1_004",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "r_L1_oyun_odasi.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 0.50, 0.50",
+     "center": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "id": "r_L1_oyun_odasi.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 5.80, 0.50",
+     "center": [
+      5.8,
+      0.5
+     ]
+    },
+    {
+     "id": "window:win_L1_001",
+     "kind": "window",
+     "types": [
+      "curtain",
+      "blind"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "window win_L1_001"
+    },
+    {
+     "id": "ceiling:centre_r_L1_oyun_odasi",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L1 oyun odasi"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L1_002.back_left",
+       "type": "table_lamp",
+       "colour": "natural wood",
+       "reason": "Adds warm ambient light and complements the light oak floor."
+      },
+      {
+       "slot": "f_L1_002.wall",
+       "type": "wall_art",
+       "colour": "sage green",
+       "reason": "Subtle modern art enhances the minimalist aesthetic without overwhelming the space."
+      },
+      {
+       "slot": "r_L1_oyun_odasi.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Large plant brings life to the corner while maintaining clean lines and natural tones."
+      },
+      {
+       "slot": "window:win_L1_001",
+       "type": "curtain",
+       "colour": "cream",
+       "reason": "Soft cream curtains diffuse daylight and match the neutral, airy feel of the room."
+      },
+      {
+       "slot": "ceiling:centre_r_L1_oyun_odasi",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Brass pendant adds a warm metallic accent that balances the minimalist design."
+      }
+     ],
+     "error": null,
+     "latency_s": 3.556
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L1_002.back_left",
+       "type": "table_lamp",
+       "colour": "natural wood",
+       "reason": "adds warm ambient light matching the modern minimal style"
+      },
+      {
+       "slot": "f_L1_002.back_right",
+       "type": "plant_small",
+       "colour": "cream",
+       "reason": "brings life with a soft, neutral tone that complements the light oak and white walls"
+      },
+      {
+       "slot": "f_L1_004.cushions",
+       "type": "cushion",
+       "colour": "sand",
+       "reason": "adds subtle texture and warmth without overwhelming the minimalist aesthetic"
+      },
+      {
+       "slot": "r_L1_oyun_odasi.corner1",
+       "type": "plant_large",
+       "colour": "sage green",
+       "reason": "creates a calming focal point with natural color and scale"
+      },
+      {
+       "slot": "ceiling:centre_r_L1_oyun_odasi",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "adds a touch of warmth and elegance without cluttering the space"
+      }
+     ],
+     "error": null,
+     "latency_s": 3.323
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L1_002.back_left",
+     "type": "table_lamp",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds warm ambient light and complements the light oak floor.",
+      "adds warm ambient light matching the modern minimal style"
+     ]
+    },
+    {
+     "slot": "r_L1_oyun_odasi.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "colour_agreed": false,
+     "reasons": [
+      "Large plant brings life to the corner while maintaining clean lines and natural tones.",
+      "creates a calming focal point with natural color and scale"
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L1_oyun_odasi",
+     "type": "pendant_light",
+     "colour": "brass",
+     "colour_agreed": true,
+     "reasons": [
+      "Brass pendant adds a warm metallic accent that balances the minimalist design.",
+      "adds a touch of warmth and elegance without cluttering the space"
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "f_L1_002.wall",
+     "type": "wall_art",
+     "colour": "sage green",
+     "reason": "Subtle modern art enhances the minimalist aesthetic without overwhelming the space.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "window:win_L1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Soft cream curtains diffuse daylight and match the neutral, airy feel of the room.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L1_002.back_right",
+     "type": "plant_small",
+     "colour": "cream",
+     "reason": "brings life with a soft, neutral tone that complements the light oak and white walls",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "f_L1_004.cushions",
+     "type": "cushion",
+     "colour": "sand",
+     "reason": "adds subtle texture and warmth without overwhelming the minimalist aesthetic",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L1_001",
+     "type": "table_lamp",
+     "method": "ai",
+     "slot": "f_L1_002.back_left"
+    },
+    {
+     "id": "dec_L1_002",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L1_oyun_odasi.corner1"
+    },
+    {
+     "id": "dec_L1_003",
+     "type": "pendant_light",
+     "method": "ai",
+     "slot": "ceiling:centre_r_L1_oyun_odasi"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L1_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "slots": [
+    {
+     "id": "f_L1_006.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L1_006",
+     "host_type": "console_table",
+     "note": "left part",
+     "center": [
+      9.429,
+      4.246
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      2.901
+     ]
+    },
+    {
+     "id": "f_L1_006.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L1_006",
+     "host_type": "console_table",
+     "note": "right part",
+     "center": [
+      8.829,
+      4.246
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      2.901
+     ]
+    },
+    {
+     "id": "f_L1_006.wall",
+     "kind": "wall",
+     "types": [
+      "mirror",
+      "wall_art"
+     ],
+     "host_id": "f_L1_006",
+     "host_type": "console_table",
+     "note": ""
+    },
+    {
+     "id": "ceiling:centre_r_L1_hol",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L1 hol"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L1_006.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern minimal style."
+      },
+      {
+       "slot": "f_L1_006.left",
+       "type": "vase",
+       "colour": "terracotta",
+       "reason": "Adds warmth and subtle color contrast without clutter."
+      },
+      {
+       "slot": "ceiling:centre_r_L1_hol",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm glow complements daylight and modern minimal aesthetic."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.875
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L1_006.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern minimal style."
+      },
+      {
+       "slot": "f_L1_006.left",
+       "type": "vase",
+       "colour": "cream",
+       "reason": "Adds soft warmth and complements light oak floors."
+      },
+      {
+       "slot": "ceiling:centre_r_L1_hol",
+       "type": "ceiling_light",
+       "colour": "white",
+       "reason": "Provides even, ambient light without visual clutter."
+      }
+     ],
+     "error": null,
+     "latency_s": 1.837
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L1_006.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Reflects light and enhances space in modern minimal style.",
+      "Reflects light and enhances space in modern minimal style."
+     ]
+    },
+    {
+     "slot": "f_L1_006.left",
+     "type": "vase",
+     "colour": "terracotta",
+     "colour_agreed": false,
+     "reasons": [
+      "Adds warmth and subtle color contrast without clutter.",
+      "Adds soft warmth and complements light oak floors."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "ceiling:centre_r_L1_hol",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm glow complements daylight and modern minimal aesthetic.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L1_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides even, ambient light without visual clutter.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L1_004",
+     "type": "mirror",
+     "method": "ai",
+     "slot": "f_L1_006.wall"
+    },
+    {
+     "id": "dec_L1_005",
+     "type": "vase",
+     "method": "ai",
+     "slot": "f_L1_006.left"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "no free corner for a floor plant"
+   ]
+  },
+  {
+   "room_id": "r_L-1b_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "slots": [],
+   "passes": {},
+   "agreed": [],
+   "not_agreed": [],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L-1b_009",
+     "type": "mirror",
+     "method": "ai",
+     "slot": "f_L-1_017.wall"
+    },
+    {
+     "id": "dec_L-1b_010",
+     "type": "vase",
+     "method": "ai",
+     "slot": "f_L-1_017.left"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "decor copied from r_L-1_hol (same_as, not asked)"
+   ]
+  }
+ ],
+ "items_ai": 40,
+ "items_rule": 0,
+ "rooms_ai": 10,
+ "rooms_fallback": 0
+}

@@ -1,0 +1,49 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-07",
+ "views": {
+  "cam_r_L-1b_salon_acik_mutfak_1": {
+   "plan": "cam_r_L-1b_salon_acik_mutfak_1_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    0
+   ],
+   "scale": 0.67265,
+   "bytes": 98717
+  },
+  "cam_r_L-1b_salon_acik_mutfak_2": {
+   "plan": "cam_r_L-1b_salon_acik_mutfak_2_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    0
+   ],
+   "scale": 0.67265,
+   "bytes": 106049
+  },
+  "cam_r_L-1b_salon_acik_mutfak_3": {
+   "plan": "cam_r_L-1b_salon_acik_mutfak_3_plan.jpg",
+   "document": "sheet.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "sheet.dxf",
+   "crop_origin_px": [
+    8,
+    0
+   ],
+   "scale": 0.67265,
+   "bytes": 101087
+  }
+ },
+ "warnings": []
+}

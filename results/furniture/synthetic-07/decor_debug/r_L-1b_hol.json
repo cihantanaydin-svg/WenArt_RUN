@@ -1,0 +1,29 @@
+{
+ "room_id": "r_L-1b_hol",
+ "label": "Hol",
+ "room_type": "hall",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1b_009",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L-1_017.wall"
+  },
+  {
+   "id": "dec_L-1b_010",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L-1_017.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L-1_hol (same_as, not asked)"
+ ]
+}

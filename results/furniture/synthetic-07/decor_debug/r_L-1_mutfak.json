@@ -1,0 +1,159 @@
+{
+ "room_id": "r_L-1_mutfak",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "slots": [
+  {
+   "id": "f_L-1_012.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "candle"
+   ],
+   "host_id": "f_L-1_012",
+   "host_type": "table_dining",
+   "note": "centre part",
+   "center": [
+    8.0,
+    2.5
+   ],
+   "max_size": [
+    0.7,
+    0.5,
+    1.95
+   ]
+  },
+  {
+   "id": "window:win_L-1_003",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L-1_003"
+  },
+  {
+   "id": "ceiling:over_f_L-1_012",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light"
+   ],
+   "host_id": "f_L-1_012",
+   "host_type": null,
+   "note": "over f L-1 012"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1_012.centre",
+     "type": "bowl",
+     "colour": "white",
+     "reason": "Adds minimal texture without clutter, complements white walls."
+    },
+    {
+     "slot": "window:win_L-1_003",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens daylight while maintaining clean, modern look."
+    },
+    {
+     "slot": "ceiling:over_f_L-1_012",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow enhances modern minimal style."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.791
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1_012.centre",
+     "type": "vase",
+     "colour": "natural wood",
+     "reason": "Adds warmth and minimal elegance to the dining table."
+    },
+    {
+     "slot": "window:win_L-1_003",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens daylight while maintaining a clean, modern look."
+    },
+    {
+     "slot": "ceiling:over_f_L-1_012",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements the light oak floor and white walls."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.838
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L-1_003",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens daylight while maintaining clean, modern look.",
+    "Softens daylight while maintaining a clean, modern look."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L-1_012",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm metallic glow enhances modern minimal style.",
+    "Warm metallic glow complements the light oak floor and white walls."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L-1_012.centre",
+   "type": "bowl",
+   "colour": "white",
+   "reason": "Adds minimal texture without clutter, complements white walls.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_012.centre",
+   "type": "vase",
+   "colour": "natural wood",
+   "reason": "Adds warmth and minimal elegance to the dining table.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1_009",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L-1_003"
+  },
+  {
+   "id": "dec_L-1_010",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1_012"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

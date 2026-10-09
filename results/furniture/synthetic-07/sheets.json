@@ -1,0 +1,2500 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "synthetic-07",
+ "created_utc": "2026-10-09T13:51:55Z",
+ "code_commit": "7e95d4e1",
+ "inputs": [
+  {
+   "file": "sheet.dxf",
+   "size": 96080,
+   "sha256": "eceb7f1ef291b0288d85916867ca8a302370a1e8f0a2aa2353e9aadc3b27fe66"
+  },
+  {
+   "file": "brief.yaml",
+   "size": 156,
+   "sha256": "b9e609ad2b68c8dcfe6b350044e1ca44544b6d6d6690e4abdc1da3911792d7e1"
+  }
+ ],
+ "multi_region": true,
+ "documents": [
+  {
+   "file": "sheet.dxf",
+   "format": "dxf",
+   "converter": null,
+   "units": {
+    "insunits": 5,
+    "metres_per_unit": 0.01,
+    "method": "dxf_insunits",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 4,
+      "note": "0 labels alone in a closed outline, 4 regions with >= 2 labels"
+     },
+     {
+      "check": "level_marks",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 3,
+      "note": "3 mark pair(s): 0.01 m/unit, 0.01 m/unit, 0.01 m/unit"
+     },
+     {
+      "check": "door_widths",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 12,
+      "note": "median door radius 85 units"
+     },
+     {
+      "check": "wall_thickness",
+      "unit": "cm",
+      "score": 0.875,
+      "samples": 295,
+      "note": "median face-pair distance 25 units"
+     },
+     {
+      "check": "text_height",
+      "unit": null,
+      "score": null,
+      "samples": 38,
+      "note": "median text height 20 units; cm and in fit equally well"
+     },
+     {
+      "check": "dimensions",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 2"
+     }
+    ],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      0.0,
+      0.0,
+      11000.0,
+      5600.0
+     ],
+     "frames": [
+      {
+       "entity": "LWPOLYLINE:116",
+       "box": [
+        0.0,
+        0.0,
+        11000.0,
+        5600.0
+       ]
+      }
+     ],
+     "gap_units": 185.151,
+     "debug_image": "sheets_debug/sheet_dxf_s1.png",
+     "gap_m": 1.8515
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    600.0,
+    4200.0,
+    1600.0,
+    5000.0
+   ],
+   "box_m": [
+    10.0,
+    8.0
+   ],
+   "entities": 62,
+   "frame": "LWPOLYLINE:116",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI",
+    "entity": "MTEXT:164",
+    "box": [
+     600.0,
+     4092.5,
+     984.0,
+     4130.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 58,
+    "texts": 4,
+    "room_labels": 3,
+    "wall_test": null,
+    "area_labels": 3,
+    "wall_pairs": 71,
+    "closed_rectangles": 6,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:13B",
+     "layer": "S-BETON",
+     "size_m": [
+      0.25,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 6
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": "A_Yazi",
+      "entity": "MTEXT:164",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI",
+      "region_id": "r1"
+     }
+    ]
+   },
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -6.0,
+    0.0,
+    0.01,
+    -42.0
+   ],
+   "registration": {
+    "reference": "r3",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     34.0,
+     -1.6
+    ],
+    "residual_m": 0.0,
+    "matched": 360,
+    "stairs_aligned": true,
+    "note": "6 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:164",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r2",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    2300.0,
+    4175.0,
+    3300.0,
+    4975.0
+   ],
+   "box_m": [
+    10.0,
+    8.0
+   ],
+   "entities": 59,
+   "frame": "LWPOLYLINE:116",
+   "class": "alternative_floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+    "entity": "MTEXT:1AF",
+    "box": [
+     2300.0,
+     4067.5,
+     3020.0,
+     4105.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI",
+     "(Açık mutfak)"
+    ]
+   },
+   "features": {
+    "entities": 56,
+    "texts": 3,
+    "room_labels": 3,
+    "wall_test": null,
+    "area_labels": 2,
+    "wall_pairs": 70,
+    "closed_rectangles": 6,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:187",
+     "layer": "S-BETON",
+     "size_m": [
+      0.25,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 6
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1b",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": "A_Yazi",
+      "entity": "MTEXT:1AF",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+      "region_id": "r2"
+     }
+    ]
+   },
+   "variant_group": "vg_L-1",
+   "variant": "Açık mutfak",
+   "variant_slug": "acik-mutfak",
+   "variant_gloss": "open kitchen",
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -23.0,
+    0.0,
+    0.01,
+    -41.75
+   ],
+   "registration": {
+    "reference": "r3",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     17.0,
+     -1.35
+    ],
+    "residual_m": 0.0,
+    "matched": 360,
+    "stairs_aligned": true,
+    "note": "6 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1AF",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "region_id": "r2"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r3",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    4000.0,
+    3910.0,
+    5000.0,
+    4950.0
+   ],
+   "box_m": [
+    10.0,
+    10.4
+   ],
+   "entities": 68,
+   "frame": "LWPOLYLINE:116",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI",
+    "entity": "MTEXT:202",
+    "box": [
+     4000.0,
+     3802.5,
+     4360.0,
+     3840.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 62,
+    "texts": 6,
+    "room_labels": 3,
+    "wall_test": null,
+    "area_labels": 3,
+    "wall_pairs": 58,
+    "closed_rectangles": 6,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:1D4",
+     "layer": "S-BETON",
+     "size_m": [
+      0.25,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 6
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": "A_Yazi",
+      "entity": "MTEXT:202",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI",
+      "region_id": "r3"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -40.0,
+    0.0,
+    0.01,
+    -40.4
+   ],
+   "registration": {
+    "reference": null,
+    "method": "reference",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "residual_m": 0.0,
+    "matched": 0,
+    "stairs_aligned": true,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:202",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r3"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r4",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    5700.0,
+    4025.0,
+    6800.0,
+    4925.0
+   ],
+   "box_m": [
+    11.0,
+    9.0
+   ],
+   "entities": 41,
+   "frame": "LWPOLYLINE:116",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ÇATI KAT PLANI",
+    "entity": "MTEXT:230",
+    "box": [
+     5700.0,
+     3917.5,
+     6036.0,
+     3955.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "CATI KAT",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 37,
+    "texts": 4,
+    "room_labels": 2,
+    "wall_test": null,
+    "area_labels": 3,
+    "wall_pairs": 42,
+    "closed_rectangles": 7,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:21B",
+     "layer": "S-BETON",
+     "size_m": [
+      0.25,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 6
+   },
+   "level": {
+    "order": 1,
+    "label": "Çatı Katı",
+    "id": "L1",
+    "kind": "attic",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": "A_Yazi",
+      "entity": "MTEXT:230",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ÇATI KAT PLANI",
+      "region_id": "r4"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -57.5,
+    0.0,
+    0.01,
+    -40.75
+   ],
+   "registration": {
+    "reference": "r3",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -17.5,
+     -0.35
+    ],
+    "residual_m": 0.0,
+    "matched": 360,
+    "stairs_aligned": true,
+    "note": "6 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:230",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r4"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r5",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    7800.0,
+    2000.0,
+    10600.0,
+    4450.0
+   ],
+   "box_m": [
+    28.0,
+    24.5
+   ],
+   "entities": 15,
+   "frame": "LWPOLYLINE:116",
+   "class": "site_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "VAZİYET PLANI",
+    "entity": "TEXT:278",
+    "box": [
+     7800.0,
+     1892.5,
+     8112.0,
+     1930.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "VAZIYET PLANI"
+    ]
+   },
+   "features": {
+    "entities": 10,
+    "texts": 5,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 3,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 10,
+    "closed_rectangles": 6,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:266",
+     "layer": "V_Parsel",
+     "size_m": [
+      24.0,
+      20.0
+     ],
+     "closed": true,
+     "ends_m": 20.0
+    },
+    "street_words": true,
+    "north_arrow": true,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -86.0,
+    0.0,
+    0.01,
+    -27.0
+   ],
+   "registration": {
+    "reference": "r3",
+    "method": "site_outline",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -46.0,
+     13.4
+    ],
+    "residual_m": 0.0,
+    "matched": 360,
+    "stairs_aligned": null,
+    "note": "the building outline LWPOLYLINE:269 on the site plan",
+    "outline_entities": [
+     "LWPOLYLINE:269"
+    ]
+   },
+   "use": "exterior",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "TEXT:278",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "VAZİYET PLANI",
+     "region_id": "r5"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r6",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    845.0,
+    1680.0,
+    2300.0,
+    2710.602
+   ],
+   "box_m": [
+    14.55,
+    10.306
+   ],
+   "entities": 28,
+   "frame": "LWPOLYLINE:116",
+   "class": "section",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "A-A KESİTİ",
+    "entity": "TEXT:24C",
+    "box": [
+     845.0,
+     1572.5,
+     1085.0,
+     1610.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "KESITI"
+    ]
+   },
+   "features": {
+    "entities": 24,
+    "texts": 4,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 3,
+    "roof_lines": 4,
+    "level_marks": 3,
+    "ground_lines": 2,
+    "outer_walls": true,
+    "wall_pairs": 11,
+    "closed_rectangles": 3,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:242",
+     "layer": "K_Cati",
+     "size_m": [
+      9.0,
+      3.456
+     ],
+     "closed": true,
+     "ends_m": 0.305
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "heights",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "TEXT:24C",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "A-A KESİTİ",
+     "region_id": "r6"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r7",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    3700.0,
+    1990.0,
+    5300.0,
+    2700.602
+   ],
+   "box_m": [
+    16.0,
+    7.106
+   ],
+   "entities": 17,
+   "frame": "LWPOLYLINE:116",
+   "class": "elevation",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "GÜNEY GÖRÜNÜŞÜ",
+    "entity": "TEXT:25D",
+    "box": [
+     3700.0,
+     1882.5,
+     4036.0,
+     1920.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "GORUNUSU"
+    ]
+   },
+   "features": {
+    "entities": 13,
+    "texts": 4,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 2,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 11,
+    "closed_rectangles": 7,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:24F",
+     "layer": "G_Cephe",
+     "size_m": [
+      11.0,
+      3.456
+     ],
+     "closed": true,
+     "ends_m": 3.456
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 1
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "exterior",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "TEXT:25D",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "GÜNEY GÖRÜNÜŞÜ",
+     "region_id": "r7"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r8",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    5900.0,
+    1980.0,
+    7300.0,
+    2690.602
+   ],
+   "box_m": [
+    14.0,
+    7.106
+   ],
+   "entities": 8,
+   "frame": "LWPOLYLINE:116",
+   "class": "elevation",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "DOĞU GÖRÜNÜŞÜ",
+    "entity": "TEXT:265",
+    "box": [
+     5900.0,
+     1872.5,
+     6212.0,
+     1910.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "GORUNUSU"
+    ]
+   },
+   "features": {
+    "entities": 6,
+    "texts": 2,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 6,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 6,
+    "closed_rectangles": 2,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:25F",
+     "layer": "G_Cephe",
+     "size_m": [
+      8.0,
+      6.801
+     ],
+     "closed": true,
+     "ends_m": 4.0
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 1
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "exterior",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "TEXT:265",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "DOĞU GÖRÜNÜŞÜ",
+     "region_id": "r8"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r9",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    8600.0,
+    800.0,
+    10400.0,
+    1550.0
+   ],
+   "box_m": [
+    18.0,
+    7.5
+   ],
+   "entities": 15,
+   "frame": "LWPOLYLINE:116",
+   "class": "legend",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "LEJANT",
+    "entity": "TEXT:287",
+    "box": [
+     8600.0,
+     692.5,
+     8744.0,
+     730.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "LEJANT"
+    ]
+   },
+   "features": {
+    "entities": 9,
+    "texts": 6,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 6,
+    "closed_rectangles": 4,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:284",
+     "layer": "A_Lejant",
+     "size_m": [
+      2.0,
+      0.4
+     ],
+     "closed": true,
+     "ends_m": 0.4
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 1
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "legend",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "TEXT:287",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "LEJANT",
+     "region_id": "r9"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r10",
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    5000.0,
+    0.0,
+    11000.0,
+    360.0
+   ],
+   "box_m": [
+    60.0,
+    3.6
+   ],
+   "entities": 15,
+   "frame": "LWPOLYLINE:116",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "entities": 6,
+    "texts": 9,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 0,
+    "closed_rectangles": 1,
+    "window_rows": 0,
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:288",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "frame_edge_short_texts",
+     "text": "outer_walls True, closed_rectangles 1",
+     "region_id": "r10"
+    }
+   ],
+   "conflicts": []
+  }
+ ],
+ "stray": [
+  {
+   "file": "sheet.dxf",
+   "sheet": "s1",
+   "entity": "LINE:297",
+   "type": "LINE",
+   "layer": "0",
+   "box": [
+    -90000.0,
+    80000.0,
+    -89900.0,
+    80400.0
+   ],
+   "distance_m": 1175.38,
+   "reason": "far outside the frame, 1 entity (0.30 % of the document)"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L-1",
+   "order": -1,
+   "label": "Bodrum Kat",
+   "kind": "basement",
+   "base_region": "r1",
+   "secondary_regions": [],
+   "alternatives": [
+    {
+     "region": "r2",
+     "variant": "Açık mutfak",
+     "slug": "acik-mutfak",
+     "level_id": "L-1b",
+     "base_unclear": false
+    }
+   ],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:164",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r3",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:202",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "order": 1,
+   "label": "Çatı Katı",
+   "kind": "attic",
+   "base_region": "r4",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:230",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r4"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r1",
+    "r3",
+    "r4"
+   ]
+  },
+  {
+   "id": "l-1b-acik-mutfak",
+   "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+   "base": false,
+   "levels": [
+    "L-1b",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r2",
+    "r3",
+    "r4"
+   ],
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": "A_Yazi",
+     "entity": "MTEXT:1AF",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI (AÇIK MUTFAK)",
+     "region_id": "r2"
+    }
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [
+   "r6"
+  ],
+  "cut_axis": "y",
+  "cut_at": 3.0,
+  "flipped": false,
+  "datum": {
+   "value": 0.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "TEXT:248",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "level_mark",
+     "region_id": "r6",
+     "text": "±0.00"
+    }
+   ],
+   "note": "absolute level of the ground floor (building z = 0) from the level mark"
+  },
+  "levels": [
+   {
+    "level_id": "L-1",
+    "floor_z": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:231",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.8,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:232",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:232",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "level_mark": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:245",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "-3.00"
+      }
+     ],
+     "note": "printed -3.00 - datum 0.00"
+    },
+    "level_mark_target_z": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:245",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "-3.00"
+      }
+     ],
+     "note": "the line the mark points at (the top of a slab)"
+    }
+   },
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:232",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.8,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:233",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:233",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "level_mark": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:248",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "±0.00"
+      }
+     ],
+     "note": "printed ±0.00 - datum 0.00"
+    },
+    "level_mark_target_z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:248",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "±0.00"
+      }
+     ],
+     "note": "the line the mark points at (the top of a slab)"
+    }
+   },
+   {
+    "level_id": "L1",
+    "floor_z": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:233",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 3.801,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:242",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_underside",
+       "region_id": "r6"
+      }
+     ],
+     "note": "sloped: the roof underside, highest under the ridge"
+    },
+    "floor_to_floor": null,
+    "level_mark": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:24B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "+3.00"
+      }
+     ],
+     "note": "printed +3.00 - datum 0.00"
+    },
+    "level_mark_target_z": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:24B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "+3.00"
+      }
+     ],
+     "note": "the line the mark points at (the top of a slab)"
+    }
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L-1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:231",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "z_top": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:231",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L-1",
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:232",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:232",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L0",
+     "L1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:233",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:233",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    }
+   }
+  ],
+  "ground": [
+   {
+    "side": "front",
+    "z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:240",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line",
+       "region_id": "r6"
+      }
+     ]
+    }
+   },
+   {
+    "side": "back",
+    "z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LINE:241",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line",
+       "region_id": "r6"
+      }
+     ]
+    }
+   }
+  ],
+  "roof": {
+   "eaves_z": {
+    "value": 3.955,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:242",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "0.96 m above the top floor"
+   },
+   "ridge_z": {
+    "value": 7.106,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:242",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "4.11 m above the top floor"
+   },
+   "pitches_deg": [
+    {
+     "value": 35.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:242",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      }
+     ]
+    }
+   ],
+   "knee_wall": {
+    "value": 1.305,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:242",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "the roof's top surface at the outer face of the outer wall above the top floor (a cross-check); the underside meets the outer face 1.00 m above the floor"
+   },
+   "overhang": {
+    "value": 0.5,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LINE:234",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "left 0.50 m, right 0.50 m"
+   },
+   "thickness": {
+    "value": 0.25,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:242",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "perpendicular to the first slope"
+   },
+   "profile": [
+    [
+     -0.5,
+     3.955
+    ],
+    [
+     4.0,
+     7.106
+    ],
+    [
+     8.5,
+     3.955
+    ]
+   ]
+  }
+ },
+ "exterior": {
+  "roof": {
+   "type": "gable",
+   "type_source": "section",
+   "outline": [
+    [
+     -0.5,
+     -0.5
+    ],
+    [
+     10.5,
+     -0.5
+    ],
+    [
+     10.5,
+     8.5
+    ],
+    [
+     -0.5,
+     8.5
+    ]
+   ],
+   "break_line": null,
+   "ridge_lines": [
+    [
+     [
+      -0.5,
+      4.0
+     ],
+     [
+      10.5,
+      4.0
+     ]
+    ]
+   ],
+   "covering": "clay_tiles",
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:242",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_line",
+     "region_id": "r6"
+    },
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:22E",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_outline",
+     "region_id": "r4"
+    },
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:25F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "gable_end",
+     "region_id": "r8"
+    },
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "TEXT:25B",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_covering_label",
+     "region_id": "r7",
+     "text": "KİREMİT"
+    }
+   ],
+   "assumed": [
+    "the ridge runs across the cut (a gable read from one section)"
+   ],
+   "also_seen_in": [
+    "elevation"
+   ],
+   "covering_source": "elevation"
+  },
+  "facade": [
+   {
+    "region": "r7",
+    "side": "south",
+    "z_range": null,
+    "colour": null,
+    "material": "render",
+    "source": "label",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "TEXT:257",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "facade_label",
+      "region_id": "r7",
+      "text": "SIVA"
+     }
+    ]
+   },
+   {
+    "region": "r7",
+    "side": "south",
+    "z_range": [
+     0.0,
+     0.6
+    ],
+    "colour": null,
+    "material": "stone_cladding",
+    "source": "hatch",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "HATCH:252",
+      "method": "vector",
+      "confidence": 0.6,
+      "rule": "facade_hatch",
+      "region_id": "r7"
+     },
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "TEXT:259",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "facade_label",
+      "region_id": "r7",
+      "text": "TAŞ KAPLAMA"
+     }
+    ]
+   },
+   {
+    "region": "r8",
+    "side": "east",
+    "z_range": null,
+    "colour": null,
+    "material": "render",
+    "source": "label",
+    "evidence": [
+     {
+      "file": "sheet.dxf",
+      "page": 1,
+      "layer": null,
+      "entity": "TEXT:263",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "facade_label",
+      "region_id": "r8",
+      "text": "SIVA"
+     }
+    ]
+   }
+  ],
+  "openings_seen": [
+   {
+    "region": "r7",
+    "side": "south",
+    "view_bearing_deg": 90.0,
+    "windows": 2,
+    "doors": 1,
+    "positions_m": [
+     {
+      "kind": "window",
+      "x": 1.5,
+      "x_left": 0.9,
+      "width": 1.2,
+      "sill": 0.9,
+      "head": 2.1,
+      "entity": "LWPOLYLINE:255"
+     },
+     {
+      "kind": "door",
+      "x": 4.5,
+      "x_left": 4.05,
+      "width": 0.9,
+      "sill": 0.0,
+      "head": 2.1,
+      "entity": "LWPOLYLINE:253"
+     },
+     {
+      "kind": "window",
+      "x": 8.0,
+      "x_left": 7.7,
+      "width": 0.6,
+      "sill": 1.5,
+      "head": 2.1,
+      "entity": "LWPOLYLINE:256"
+     }
+    ],
+    "plan_check": null,
+    "title": "GÜNEY GÖRÜNÜŞÜ"
+   },
+   {
+    "region": "r8",
+    "side": "east",
+    "view_bearing_deg": 180.0,
+    "windows": 2,
+    "doors": 0,
+    "positions_m": [
+     {
+      "kind": "window",
+      "x": 3.0,
+      "x_left": 2.7,
+      "width": 0.6,
+      "sill": 1.5,
+      "head": 2.1,
+      "entity": "LWPOLYLINE:261"
+     },
+     {
+      "kind": "window",
+      "x": 6.0,
+      "x_left": 5.7,
+      "width": 0.6,
+      "sill": 3.6,
+      "head": 4.6,
+      "entity": "LWPOLYLINE:262"
+     }
+    ],
+    "plan_check": null,
+    "title": "DOĞU GÖRÜNÜŞÜ"
+   }
+  ],
+  "site": {
+   "region": "r5",
+   "registered": true,
+   "plot": [
+    [
+     -6.0,
+     -7.0
+    ],
+    [
+     18.0,
+     -7.0
+    ],
+    [
+     18.0,
+     13.0
+    ],
+    [
+     -6.0,
+     13.0
+    ]
+   ],
+   "plot_walls": [
+    {
+     "start": [
+      -5.85,
+      -6.85
+     ],
+     "end": [
+      -5.85,
+      12.85
+     ],
+     "thickness": 0.2,
+     "kind": "plot",
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:267",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      },
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:268",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      }
+     ]
+    },
+    {
+     "start": [
+      -5.85,
+      12.85
+     ],
+     "end": [
+      17.85,
+      12.85
+     ],
+     "thickness": 0.2,
+     "kind": "plot",
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:267",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      },
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:268",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      }
+     ]
+    },
+    {
+     "start": [
+      17.85,
+      12.85
+     ],
+     "end": [
+      17.85,
+      -6.85
+     ],
+     "thickness": 0.2,
+     "kind": "plot",
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:267",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      },
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:268",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      }
+     ]
+    },
+    {
+     "start": [
+      17.85,
+      -6.85
+     ],
+     "end": [
+      -5.85,
+      -6.85
+     ],
+     "thickness": 0.2,
+     "kind": "plot",
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:267",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      },
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:268",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_plot_wall",
+       "region_id": "r5"
+      }
+     ]
+    }
+   ],
+   "paving": [],
+   "grass": [
+    {
+     "polygon": [
+      [
+       -5.75,
+       -6.75
+      ],
+      [
+       17.75,
+       -6.75
+      ],
+      [
+       17.75,
+       12.75
+      ],
+      [
+       -5.75,
+       12.75
+      ]
+     ],
+     "label": "BAHÇE",
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:268",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_grass",
+       "region_id": "r5"
+      },
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:276",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r5",
+       "text": "BAHÇE"
+      }
+     ]
+    }
+   ],
+   "parking": [
+    {
+     "polygon": [
+      [
+       11.0,
+       8.5
+      ],
+      [
+       16.0,
+       8.5
+      ],
+      [
+       16.0,
+       12.5
+      ],
+      [
+       11.0,
+       12.5
+      ]
+     ],
+     "label": "OTOPARK",
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:26A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_parking",
+       "region_id": "r5"
+      },
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:275",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r5",
+       "text": "OTOPARK"
+      }
+     ]
+    }
+   ],
+   "trees": [
+    {
+     "points": [
+      [
+       -3.5,
+       -3.5
+      ]
+     ],
+     "radius_m": 1.2,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": "V_Agac",
+       "entity": "INSERT:26C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r5"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       13.5,
+       -4.5
+      ]
+     ],
+     "radius_m": 1.2,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": "V_Agac",
+       "entity": "INSERT:26E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r5"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.0,
+       10.0
+      ]
+     ],
+     "radius_m": 1.2,
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": "V_Agac",
+       "entity": "INSERT:270",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r5"
+      }
+     ]
+    }
+   ],
+   "labels": [
+    {
+     "label": "OTOPARK",
+     "kind": "parking",
+     "point": [
+      13.0,
+      10.2938
+     ],
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:275",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r5",
+       "text": "OTOPARK"
+      }
+     ]
+    },
+    {
+     "label": "BAHÇE",
+     "kind": "garden",
+     "point": [
+      2.0,
+      -3.9062
+     ],
+     "evidence": [
+      {
+       "file": "sheet.dxf",
+       "page": 1,
+       "layer": null,
+       "entity": "TEXT:276",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r5",
+       "text": "BAHÇE"
+      }
+     ]
+    }
+   ],
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:266",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "site_plot",
+     "region_id": "r5"
+    }
+   ]
+  },
+  "north": {
+   "value": 0.0,
+   "method": "vector",
+   "confidence": 0.8,
+   "evidence": [
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "INSERT:272",
+     "method": "vector",
+     "confidence": 0.8,
+     "rule": "north_arrow",
+     "region_id": "r5"
+    },
+    {
+     "file": "sheet.dxf",
+     "page": 1,
+     "layer": null,
+     "entity": "TEXT:274",
+     "method": "vector",
+     "confidence": 0.8,
+     "rule": "north_arrow",
+     "region_id": "r5",
+     "text": "N"
+    }
+   ],
+   "note": "north points from the arrow's centre to its N; value = compass bearing of the building's +Y (the site plan turned 0 deg onto the building)"
+  },
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [],
+ "warnings": [
+  "site plan r5: its building outline LWPOLYLINE:269 fits at 0 and 180 deg alike (symmetric): 0 deg kept"
+ ],
+ "needs_review": [],
+ "questions": 0,
+ "answers": null
+}

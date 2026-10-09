@@ -1,0 +1,62 @@
+{
+ "schema_version": "0.1",
+ "dir_relative_to": "project_out",
+ "controls": [
+  {
+   "id": "f_L-1b_005",
+   "index": 14,
+   "kind": "furniture",
+   "type": "sofa",
+   "camera": "cam_r_L-1b_salon_acik_mutfak_1",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "area_frac": 0.09872,
+   "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
+   "plug": false,
+   "dir": "controls/hide_f_L-1b_005"
+  },
+  {
+   "id": "win_L-1b_006",
+   "index": 8,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L-1b_salon_acik_mutfak_1",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "area_frac": 0.05035,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L-1b_006"
+  },
+  {
+   "id": "d_L-1b_003",
+   "index": 9,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L-1b_salon_acik_mutfak_2",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "area_frac": 0.05243,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L-1b_003"
+  }
+ ],
+ "swaps": [
+  {
+   "id": "f_L-1b_005",
+   "index": 14,
+   "type": "sofa",
+   "camera": "cam_r_L-1b_salon_acik_mutfak_1",
+   "room_id": "r_L-1b_salon_acik_mutfak",
+   "area_frac": 0.09872,
+   "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
+   "swap_to": "bed_double"
+  }
+ ],
+ "project": "synthetic-07",
+ "hide_sets": "cam_r_L-1b_salon_acik_mutfak_1:f_L-1b_005;cam_r_L-1b_salon_acik_mutfak_1:win_L-1b_006+plug;cam_r_L-1b_salon_acik_mutfak_2:d_L-1b_003"
+}

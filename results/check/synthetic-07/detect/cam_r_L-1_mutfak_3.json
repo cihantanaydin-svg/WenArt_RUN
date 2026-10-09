@@ -1,0 +1,2288 @@
+{
+ "schema_version": "0.1",
+ "kind": "detect_view",
+ "camera": "cam_r_L-1_mutfak_3",
+ "room_id": "r_L-1_mutfak",
+ "view_kind": "interior",
+ "model": {
+  "repo": "google/owlv2-base-patch16-ensemble",
+  "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+  "licence": "Apache-2.0"
+ },
+ "settings": {
+  "detect_version": "m7.1",
+  "image_long_side": 960,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_per_group": 20
+ },
+ "queries": {
+  "bed_single": {
+   "texts": [
+    "single bed"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bed_single",
+    "bed_double",
+    "bunk_bed",
+    "crib",
+    "unknown"
+   ]
+  },
+  "bed_double": {
+   "texts": [
+    "double bed"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bed_double",
+    "bed_single",
+    "bunk_bed",
+    "crib",
+    "unknown"
+   ]
+  },
+  "sofa": {
+   "texts": [
+    "sofa"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "sofa",
+    "armchair",
+    "chair",
+    "sofa_corner",
+    "chaise",
+    "ottoman",
+    "bench",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "armchair": {
+   "texts": [
+    "armchair"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "armchair",
+    "sofa",
+    "chair",
+    "sofa_corner",
+    "chaise",
+    "ottoman",
+    "bench",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "table_dining": {
+   "texts": [
+    "dining table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "console_table",
+    "unknown"
+   ]
+  },
+  "table_coffee": {
+   "texts": [
+    "coffee table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "table_coffee",
+    "table_dining",
+    "desk",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "console_table",
+    "unknown"
+   ]
+  },
+  "desk": {
+   "texts": [
+    "desk"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "desk",
+    "table_dining",
+    "table_coffee",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "console_table",
+    "unknown"
+   ]
+  },
+  "chair": {
+   "texts": [
+    "chair"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "chair",
+    "sofa",
+    "armchair",
+    "sofa_corner",
+    "chaise",
+    "ottoman",
+    "bench",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "wardrobe": {
+   "texts": [
+    "wardrobe"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "sideboard",
+    "shoe_cabinet",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "kitchen_counter": {
+   "texts": [
+    "kitchen counter"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "wall_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "kitchen_island": {
+   "texts": [
+    "kitchen island"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "kitchen_island",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "nightstand",
+    "console_table",
+    "kitchen_counter",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "wall_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "fridge": {
+   "texts": [
+    "refrigerator"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "fridge",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "washing_machine",
+    "wall_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "stove": {
+   "texts": [
+    "stove"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "stove",
+    "kitchen_counter",
+    "kitchen_island",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "wall_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "sink_kitchen": {
+   "texts": [
+    "kitchen sink"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "sink_kitchen",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "fridge",
+    "washing_machine",
+    "wall_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "washbasin": {
+   "texts": [
+    "washbasin"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "washbasin",
+    "toilet",
+    "shower",
+    "bathtub",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "toilet": {
+   "texts": [
+    "toilet"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "toilet",
+    "washbasin",
+    "shower",
+    "bathtub",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "shower": {
+   "texts": [
+    "shower"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "shower",
+    "washbasin",
+    "toilet",
+    "bathtub",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "bathtub": {
+   "texts": [
+    "bathtub"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bathtub",
+    "washbasin",
+    "toilet",
+    "shower",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "tv_unit": {
+   "texts": [
+    "tv stand"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "tv_unit",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "nightstand",
+    "sideboard",
+    "shoe_cabinet",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "bookshelf": {
+   "texts": [
+    "bookshelf"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bookshelf",
+    "wardrobe",
+    "dresser",
+    "tv_unit",
+    "nightstand",
+    "sideboard",
+    "shoe_cabinet",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "nightstand": {
+   "texts": [
+    "nightstand"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "nightstand",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "kitchen_island",
+    "console_table",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "sideboard",
+    "shoe_cabinet",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "dresser": {
+   "texts": [
+    "chest of drawers"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "dresser",
+    "wardrobe",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "sideboard",
+    "shoe_cabinet",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "washing_machine": {
+   "texts": [
+    "washing machine"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "washing_machine",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "wall_cabinet",
+    "tall_cabinet",
+    "washbasin",
+    "toilet",
+    "shower",
+    "bathtub",
+    "unknown"
+   ]
+  },
+  "stair": {
+   "texts": [
+    "staircase"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "stair",
+    "unknown"
+   ]
+  },
+  "side_table": {
+   "texts": [
+    "side table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "side_table",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "nightstand",
+    "kitchen_island",
+    "console_table",
+    "unknown"
+   ]
+  },
+  "floor_lamp": {
+   "texts": [
+    "floor lamp"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "floor_lamp",
+    "unknown"
+   ]
+  },
+  "potted_plant": {
+   "texts": [
+    "potted plant"
+   ],
+   "class": "decor",
+   "compatible": [
+    "potted_plant",
+    "plant",
+    "plant_large",
+    "plant_small",
+    "unknown"
+   ]
+  },
+  "sofa_corner": {
+   "texts": [
+    "corner sofa"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "sofa_corner",
+    "sofa",
+    "armchair",
+    "chair",
+    "chaise",
+    "ottoman",
+    "bench",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "chaise": {
+   "texts": [
+    "chaise longue"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "chaise",
+    "sofa",
+    "armchair",
+    "chair",
+    "sofa_corner",
+    "ottoman",
+    "bench",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "ottoman": {
+   "texts": [
+    "ottoman"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "ottoman",
+    "sofa",
+    "armchair",
+    "chair",
+    "sofa_corner",
+    "chaise",
+    "bench",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "bench": {
+   "texts": [
+    "bench"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bench",
+    "sofa",
+    "armchair",
+    "chair",
+    "sofa_corner",
+    "chaise",
+    "ottoman",
+    "bar_stool",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "bar_stool": {
+   "texts": [
+    "bar stool"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bar_stool",
+    "sofa",
+    "armchair",
+    "chair",
+    "sofa_corner",
+    "chaise",
+    "ottoman",
+    "bench",
+    "office_chair",
+    "unknown"
+   ]
+  },
+  "office_chair": {
+   "texts": [
+    "office chair"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "office_chair",
+    "sofa",
+    "armchair",
+    "chair",
+    "sofa_corner",
+    "chaise",
+    "ottoman",
+    "bench",
+    "bar_stool",
+    "unknown"
+   ]
+  },
+  "console_table": {
+   "texts": [
+    "console table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "console_table",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "unknown"
+   ]
+  },
+  "crib": {
+   "texts": [
+    "crib"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "crib",
+    "bed_single",
+    "bed_double",
+    "bunk_bed",
+    "unknown"
+   ]
+  },
+  "bunk_bed": {
+   "texts": [
+    "bunk bed"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bunk_bed",
+    "bed_single",
+    "bed_double",
+    "crib",
+    "unknown"
+   ]
+  },
+  "sideboard": {
+   "texts": [
+    "sideboard"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "sideboard",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "shoe_cabinet",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "shoe_cabinet": {
+   "texts": [
+    "shoe cabinet"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "shoe_cabinet",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "sideboard",
+    "display_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "display_cabinet": {
+   "texts": [
+    "display cabinet"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "display_cabinet",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "sideboard",
+    "shoe_cabinet",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "tall_cabinet": {
+   "texts": [
+    "tall cabinet"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "tall_cabinet",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "sideboard",
+    "shoe_cabinet",
+    "display_cabinet",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "wall_cabinet",
+    "unknown"
+   ]
+  },
+  "wall_cabinet": {
+   "texts": [
+    "wall cabinet"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "wall_cabinet",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "tall_cabinet",
+    "unknown"
+   ]
+  },
+  "door": {
+   "texts": [
+    "door"
+   ],
+   "class": "door",
+   "compatible": [
+    "door"
+   ]
+  },
+  "window": {
+   "texts": [
+    "window"
+   ],
+   "class": "window",
+   "compatible": [
+    "window"
+   ]
+  },
+  "lamp": {
+   "texts": [
+    "lamp"
+   ],
+   "class": "lamp",
+   "compatible": [
+    "floor_lamp",
+    "table_lamp",
+    "pendant_light",
+    "ceiling_light"
+   ]
+  },
+  "picture_frame": {
+   "texts": [
+    "picture frame"
+   ],
+   "class": "decor",
+   "compatible": [
+    "wall_art"
+   ]
+  },
+  "rug": {
+   "texts": [
+    "rug"
+   ],
+   "class": "decor",
+   "compatible": [
+    "rug"
+   ]
+  },
+  "vase": {
+   "texts": [
+    "vase"
+   ],
+   "class": "decor",
+   "compatible": [
+    "vase"
+   ]
+  },
+  "cushion": {
+   "texts": [
+    "cushion"
+   ],
+   "class": "decor",
+   "compatible": [
+    "cushion",
+    "throw",
+    "sofa",
+    "armchair",
+    "bed_single",
+    "bed_double",
+    "sofa_corner",
+    "chaise",
+    "bunk_bed"
+   ]
+  },
+  "mirror": {
+   "texts": [
+    "mirror"
+   ],
+   "class": "decor",
+   "compatible": [
+    "mirror"
+   ]
+  },
+  "television": {
+   "texts": [
+    "television"
+   ],
+   "class": "decor",
+   "compatible": [
+    "tv_unit"
+   ]
+  }
+ },
+ "images": {
+  "cycles": {
+   "file": "../renders/cam_r_L-1_mutfak_3.png",
+   "sha256": "373bda334024254d8a1dbe579f61260fb6a892b1d824008c40ec8b3b9aeab294",
+   "key": "232a3c6a631488b5",
+   "size": [
+    1920,
+    1080
+   ],
+   "model_size": [
+    960,
+    540
+   ],
+   "boxes": [
+    {
+     "group": "table_dining",
+     "text": "dining table",
+     "score": 0.0591,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0518,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.2605,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.1446,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0927,
+     "box_px": [
+      514.2,
+      599.3,
+      782.3,
+      906.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0686,
+     "box_px": [
+      693.3,
+      798.3,
+      1198.7,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0629,
+     "box_px": [
+      921.9,
+      812.1,
+      1169.6,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0581,
+     "box_px": [
+      385.2,
+      864.0,
+      594.3,
+      1078.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_counter",
+     "text": "kitchen counter",
+     "score": 0.1399,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.1545,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.1256,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.0748,
+     "box_px": [
+      0.0,
+      0.0,
+      1651.0,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0651,
+     "box_px": [
+      697.2,
+      54.9,
+      938.3,
+      221.8
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "toilet",
+     "text": "toilet",
+     "score": 0.0545,
+     "box_px": [
+      1028.8,
+      0.0,
+      1890.2,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1273,
+     "box_px": [
+      1028.8,
+      0.0,
+      1890.2,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0674,
+     "box_px": [
+      26.0,
+      6.5,
+      449.2,
+      481.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0653,
+     "box_px": [
+      1643.2,
+      0.0,
+      1910.2,
+      1077.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0641,
+     "box_px": [
+      30.3,
+      5.2,
+      446.8,
+      229.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0621,
+     "box_px": [
+      697.2,
+      54.9,
+      938.3,
+      221.8
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0589,
+     "box_px": [
+      0.0,
+      0.0,
+      1651.0,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.1495,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.1068,
+     "box_px": [
+      1237.9,
+      864.4,
+      1757.3,
+      1070.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.0621,
+     "box_px": [
+      1028.8,
+      0.0,
+      1890.2,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.0541,
+     "box_px": [
+      32.9,
+      177.3,
+      429.1,
+      478.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0998,
+     "box_px": [
+      1067.1,
+      0.0,
+      1750.6,
+      1073.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0961,
+     "box_px": [
+      1237.9,
+      864.4,
+      1757.3,
+      1070.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0667,
+     "box_px": [
+      763.0,
+      614.0,
+      1269.0,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0656,
+     "box_px": [
+      693.3,
+      798.3,
+      1198.7,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0626,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0613,
+     "box_px": [
+      1090.8,
+      580.7,
+      1775.0,
+      1071.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0522,
+     "box_px": [
+      385.2,
+      864.0,
+      594.3,
+      1078.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.0894,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.0817,
+     "box_px": [
+      876.4,
+      585.9,
+      1196.5,
+      934.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "floor_lamp",
+     "text": "floor lamp",
+     "score": 0.1774,
+     "box_px": [
+      697.2,
+      54.9,
+      938.3,
+      221.8
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sofa_corner",
+     "text": "corner sofa",
+     "score": 0.0698,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0997,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0808,
+     "box_px": [
+      1237.9,
+      864.4,
+      1757.3,
+      1070.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0745,
+     "box_px": [
+      840.7,
+      897.7,
+      1316.3,
+      1079.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0665,
+     "box_px": [
+      381.1,
+      573.1,
+      997.9,
+      1071.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0519,
+     "box_px": [
+      877.6,
+      936.6,
+      1092.6,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bar_stool",
+     "text": "bar stool",
+     "score": 0.106,
+     "box_px": [
+      876.4,
+      585.9,
+      1196.5,
+      934.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bar_stool",
+     "text": "bar stool",
+     "score": 0.105,
+     "box_px": [
+      506.7,
+      646.0,
+      686.6,
+      904.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bar_stool",
+     "text": "bar stool",
+     "score": 0.0642,
+     "box_px": [
+      978.0,
+      801.0,
+      1101.7,
+      965.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bar_stool",
+     "text": "bar stool",
+     "score": 0.0522,
+     "box_px": [
+      921.9,
+      812.1,
+      1169.6,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "console_table",
+     "text": "console table",
+     "score": 0.1059,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sideboard",
+     "text": "sideboard",
+     "score": 0.1598,
+     "box_px": [
+      1.2,
+      754.1,
+      510.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sideboard",
+     "text": "sideboard",
+     "score": 0.1318,
+     "box_px": [
+      368.5,
+      561.5,
+      1027.1,
+      1076.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "display_cabinet",
+     "text": "display cabinet",
+     "score": 0.0713,
+     "box_px": [
+      26.0,
+      6.5,
+      449.2,
+      481.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "tall_cabinet",
+     "text": "tall cabinet",
+     "score": 0.0567,
+     "box_px": [
+      1837.0,
+      0.0,
+      1917.7,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "tall_cabinet",
+     "text": "tall cabinet",
+     "score": 0.0542,
+     "box_px": [
+      1643.2,
+      0.0,
+      1910.2,
+      1077.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "tall_cabinet",
+     "text": "tall cabinet",
+     "score": 0.0508,
+     "box_px": [
+      0.3,
+      5.6,
+      40.8,
+      817.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0902,
+     "box_px": [
+      1837.0,
+      0.0,
+      1917.7,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.085,
+     "box_px": [
+      1643.2,
+      0.0,
+      1910.2,
+      1077.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0802,
+     "box_px": [
+      0.3,
+      5.6,
+      40.8,
+      817.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0762,
+     "box_px": [
+      26.0,
+      6.5,
+      449.2,
+      481.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0717,
+     "box_px": [
+      1709.4,
+      0.0,
+      1838.4,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0538,
+     "box_px": [
+      30.3,
+      5.2,
+      446.8,
+      229.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.2135,
+     "box_px": [
+      1709.4,
+      0.0,
+      1838.4,
+      1080.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.157,
+     "box_px": [
+      1643.2,
+      0.0,
+      1910.2,
+      1077.5
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.1506,
+     "box_px": [
+      1837.0,
+      0.0,
+      1917.7,
+      1080.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0958,
+     "box_px": [
+      1028.8,
+      0.0,
+      1890.2,
+      1080.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0949,
+     "box_px": [
+      1647.5,
+      0.0,
+      1765.9,
+      1080.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0572,
+     "box_px": [
+      26.0,
+      6.5,
+      449.2,
+      481.6
+     ],
+     "class": "door"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.2718,
+     "box_px": [
+      32.9,
+      177.3,
+      429.1,
+      478.2
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0816,
+     "box_px": [
+      30.3,
+      5.2,
+      446.8,
+      229.0
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0604,
+     "box_px": [
+      1028.8,
+      0.0,
+      1890.2,
+      1080.0
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0573,
+     "box_px": [
+      1837.0,
+      0.0,
+      1917.7,
+      1080.0
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0537,
+     "box_px": [
+      1643.2,
+      0.0,
+      1910.2,
+      1077.5
+     ],
+     "class": "window"
+    },
+    {
+     "group": "lamp",
+     "text": "lamp",
+     "score": 0.2926,
+     "box_px": [
+      697.2,
+      54.9,
+      938.3,
+      221.8
+     ],
+     "class": "fixture"
+    },
+    {
+     "group": "lamp",
+     "text": "lamp",
+     "score": 0.0782,
+     "box_px": [
+      776.1,
+      169.5,
+      875.4,
+      218.2
+     ],
+     "class": "fixture"
+    },
+    {
+     "group": "picture_frame",
+     "text": "picture frame",
+     "score": 0.1166,
+     "box_px": [
+      30.3,
+      5.2,
+      446.8,
+      229.0
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.1892,
+     "box_px": [
+      32.9,
+      177.3,
+      429.1,
+      478.2
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "television",
+     "text": "television",
+     "score": 0.1217,
+     "box_px": [
+      32.9,
+      177.3,
+      429.1,
+      478.2
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "television",
+     "text": "television",
+     "score": 0.1066,
+     "box_px": [
+      30.3,
+      5.2,
+      446.8,
+      229.0
+     ],
+     "class": "decor"
+    }
+   ],
+   "seconds": 0.061
+  },
+  "polished": {
+   "file": "../polish/cam_r_L-1_mutfak_3_a3.png",
+   "sha256": "b8c8b5761e15d45b5cf89adba090f7007dff51c67cf1504fa06ab616a144ba2b",
+   "key": "ce013af2c52f5684",
+   "size": [
+    1920,
+    1080
+   ],
+   "model_size": [
+    960,
+    540
+   ],
+   "boxes": [
+    {
+     "group": "table_dining",
+     "text": "dining table",
+     "score": 0.05,
+     "box_px": [
+      372.1,
+      561.6,
+      1049.3,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.2048,
+     "box_px": [
+      372.1,
+      561.6,
+      1049.3,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.1343,
+     "box_px": [
+      1.8,
+      758.9,
+      507.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0916,
+     "box_px": [
+      513.6,
+      567.5,
+      853.4,
+      914.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0673,
+     "box_px": [
+      643.8,
+      556.4,
+      857.3,
+      631.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0646,
+     "box_px": [
+      505.0,
+      633.1,
+      700.0,
+      911.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0637,
+     "box_px": [
+      386.0,
+      773.4,
+      956.9,
+      1073.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.061,
+     "box_px": [
+      853.3,
+      804.2,
+      1133.6,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "chair",
+     "text": "chair",
+     "score": 0.0531,
+     "box_px": [
+      389.0,
+      865.7,
+      605.1,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_counter",
+     "text": "kitchen counter",
+     "score": 0.1169,
+     "box_px": [
+      1.8,
+      758.9,
+      507.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.1409,
+     "box_px": [
+      1.8,
+      758.9,
+      507.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.0932,
+     "box_px": [
+      372.1,
+      561.6,
+      1049.3,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.0591,
+     "box_px": [
+      0.0,
+      0.0,
+      1686.6,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0582,
+     "box_px": [
+      698.0,
+      57.3,
+      937.9,
+      219.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1373,
+     "box_px": [
+      1020.1,
+      0.0,
+      1749.2,
+      1074.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.087,
+     "box_px": [
+      1.8,
+      758.9,
+      507.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.0825,
+     "box_px": [
+      1225.9,
+      868.3,
+      1754.1,
+      1067.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.0688,
+     "box_px": [
+      1020.1,
+      0.0,
+      1749.2,
+      1074.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0896,
+     "box_px": [
+      1020.1,
+      0.0,
+      1749.2,
+      1074.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0688,
+     "box_px": [
+      389.0,
+      865.7,
+      605.1,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0506,
+     "box_px": [
+      853.3,
+      804.2,
+      1133.6,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.0601,
+     "box_px": [
+      372.1,
+      561.6,
+      1049.3,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "floor_lamp",
+     "text": "floor lamp",
+     "score": 0.1599,
+     "box_px": [
+      698.0,
+      57.3,
+      937.9,
+      219.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0728,
+     "box_px": [
+      1.8,
+      758.9,
+      507.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bench",
+     "text": "bench",
+     "score": 0.0546,
+     "box_px": [
+      386.0,
+      773.4,
+      956.9,
+      1073.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bar_stool",
+     "text": "bar stool",
+     "score": 0.0986,
+     "box_px": [
+      505.0,
+      633.1,
+      700.0,
+      911.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bar_stool",
+     "text": "bar stool",
+     "score": 0.054,
+     "box_px": [
+      513.6,
+      567.5,
+      853.4,
+      914.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "console_table",
+     "text": "console table",
+     "score": 0.0698,
+     "box_px": [
+      372.1,
+      561.6,
+      1049.3,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sideboard",
+     "text": "sideboard",
+     "score": 0.13,
+     "box_px": [
+      1.8,
+      758.9,
+      507.5,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sideboard",
+     "text": "sideboard",
+     "score": 0.095,
+     "box_px": [
+      372.1,
+      561.6,
+      1049.3,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "display_cabinet",
+     "text": "display cabinet",
+     "score": 0.0505,
+     "box_px": [
+      28.7,
+      4.1,
+      444.9,
+      485.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0592,
+     "box_px": [
+      1833.2,
+      0.0,
+      1918.1,
+      1080.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0585,
+     "box_px": [
+      1645.9,
+      0.0,
+      1911.7,
+      1074.8
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0581,
+     "box_px": [
+      0.3,
+      8.0,
+      39.8,
+      812.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wall_cabinet",
+     "text": "wall cabinet",
+     "score": 0.0501,
+     "box_px": [
+      28.7,
+      4.1,
+      444.9,
+      485.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.156,
+     "box_px": [
+      1704.7,
+      0.0,
+      1835.9,
+      1080.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.125,
+     "box_px": [
+      1833.2,
+      0.0,
+      1918.1,
+      1080.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.1208,
+     "box_px": [
+      1645.9,
+      0.0,
+      1911.7,
+      1074.8
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0565,
+     "box_px": [
+      1020.1,
+      0.0,
+      1749.2,
+      1074.3
+     ],
+     "class": "door"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.2832,
+     "box_px": [
+      34.1,
+      177.6,
+      428.9,
+      477.7
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0863,
+     "box_px": [
+      34.0,
+      8.0,
+      444.6,
+      229.8
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0539,
+     "box_px": [
+      1833.2,
+      0.0,
+      1918.1,
+      1080.0
+     ],
+     "class": "window"
+    },
+    {
+     "group": "lamp",
+     "text": "lamp",
+     "score": 0.2169,
+     "box_px": [
+      698.0,
+      57.3,
+      937.9,
+      219.9
+     ],
+     "class": "fixture"
+    },
+    {
+     "group": "lamp",
+     "text": "lamp",
+     "score": 0.0536,
+     "box_px": [
+      783.6,
+      161.4,
+      882.4,
+      217.4
+     ],
+     "class": "fixture"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.133,
+     "box_px": [
+      34.1,
+      177.6,
+      428.9,
+      477.7
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "television",
+     "text": "television",
+     "score": 0.086,
+     "box_px": [
+      34.1,
+      177.6,
+      428.9,
+      477.7
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "television",
+     "text": "television",
+     "score": 0.0522,
+     "box_px": [
+      34.0,
+      8.0,
+      444.6,
+      229.8
+     ],
+     "class": "decor"
+    }
+   ],
+   "seconds": 0.062,
+   "k": 3
+  }
+ },
+ "controls": {}
+}

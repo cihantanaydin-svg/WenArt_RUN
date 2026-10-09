@@ -1,0 +1,118 @@
+{
+ "room_id": "r_L0_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "window:win_L0_002",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_002"
+  },
+  {
+   "id": "window:win_L0_006",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_006"
+  },
+  {
+   "id": "ceiling:centre_r_L0_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "window:win_L0_002",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens light while maintaining minimalism and warmth."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Adds subtle warmth and complements natural wood floors."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.215
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "window:win_L0_002",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens light while maintaining minimalism and warmth."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_banyo",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Bright, neutral light enhances the clean, modern aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.199
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L0_002",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens light while maintaining minimalism and warmth.",
+    "Softens light while maintaining minimalism and warmth."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_banyo",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds subtle warmth and complements natural wood floors.",
+    "Bright, neutral light enhances the clean, modern aesthetic."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_008",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L0_002"
+  },
+  {
+   "id": "dec_L0_009",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_005 wall: mirror: f_L0_005 has no wall behind it"
+ ]
+}

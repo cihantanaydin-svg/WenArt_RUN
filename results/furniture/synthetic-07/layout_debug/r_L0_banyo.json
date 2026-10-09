@@ -1,0 +1,275 @@
+{
+ "room_id": "r_L0_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing to ask: no changeable drawn piece and nothing the room may get",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_003",
+   "type": "shower",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.7,
+     0.8
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_004",
+   "type": "toilet",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.4,
+     2.4
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_005",
+   "type": "washbasin",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.525,
+     1.4
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "missing": {},
+ "anchor_missing": false,
+ "addable": {},
+ "change_types": [],
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_004": [
+    "inside_room"
+   ],
+   "f_L0_005": [
+    "inside_room"
+   ]
+  },
+  "walkways": []
+ },
+ "latency_s": 0,
+ "question": {
+  "room": {
+   "room_id": "r_L0_banyo",
+   "label": "Banyo",
+   "room_type": "bathroom",
+   "room_subtype": null,
+   "area_m2": 13.32,
+   "polygon_m": [
+    [
+     6.15,
+     0.25
+    ],
+    [
+     9.75,
+     0.25
+    ],
+    [
+     9.75,
+     3.95
+    ],
+    [
+     6.15,
+     3.95
+    ]
+   ],
+   "doors": [
+    {
+     "id": "d_L0_002",
+     "center": [
+      7.6,
+      4.0
+     ],
+     "width": 0.8,
+     "opens_into_this_room": true,
+     "approach": [
+      7.6,
+      3.49
+     ]
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_002",
+     "center": [
+      8.0,
+      0.12
+     ],
+     "width": 0.6,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_006",
+     "center": [
+      9.88,
+      3.0
+     ],
+     "width": 0.6,
+     "sill_height": 0.9
+    }
+   ]
+  },
+  "drawn": [
+   {
+    "id": "f_L0_003",
+    "type": "shower",
+    "kind": "fixed",
+    "center": [
+     6.7,
+     0.8
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      6.7,
+      0.8
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L0_004",
+    "type": "toilet",
+    "kind": "fixed",
+    "center": [
+     9.4,
+     2.4
+    ],
+    "size": [
+     0.7,
+     0.4
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.4,
+      2.4
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L0_005",
+    "type": "washbasin",
+    "kind": "fixed",
+    "center": [
+     9.53,
+     1.4
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.53,
+      1.4
+     ]
+    },
+    "against_wall": null
+   }
+  ],
+  "change_ids": [],
+  "change_types": [],
+  "add": {},
+  "missing": {},
+  "anchor_missing": false,
+  "anchors": [
+   "washbasin",
+   "toilet"
+  ],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 0
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 0
+   }
+  }
+ },
+ "placements": {}
+}

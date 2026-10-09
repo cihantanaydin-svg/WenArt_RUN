@@ -1,0 +1,419 @@
+{
+ "schema_version": "0.1",
+ "kind": "run_manifest",
+ "run_id": "20261009-134613-full-20261009T135146Z",
+ "job": "20261009-134613-full",
+ "git_commit": "7e95d4e1b113604d58ffe612cb4b8dc46a8bb1e4",
+ "profile": "full",
+ "deadline": 1791556329.0,
+ "started_utc": "2026-10-09T13:51:46Z",
+ "finished_utc": "2026-10-09T14:21:44Z",
+ "final": true,
+ "exit_code": 0,
+ "projects": [
+  {
+   "name": "synthetic-07",
+   "private": false,
+   "state": "ok",
+   "out_dir": "outputs/synthetic-07",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "sheets",
+     "status": "ok",
+     "seconds": 5.2,
+     "note": null
+    },
+    {
+     "stage": "pipeline",
+     "status": "ok",
+     "seconds": 5.0,
+     "note": null
+    },
+    {
+     "stage": "recognize",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "pipeline_final",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "photos",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no style photos"
+    },
+    {
+     "stage": "style",
+     "status": "ok",
+     "seconds": 0.2,
+     "note": null
+    },
+    {
+     "stage": "assets",
+     "status": "ok",
+     "seconds": 1.4,
+     "note": null
+    },
+    {
+     "stage": "fit",
+     "status": "ok",
+     "seconds": 1.5,
+     "note": null
+    },
+    {
+     "stage": "layout",
+     "status": "ok",
+     "seconds": 53.8,
+     "note": null
+    },
+    {
+     "stage": "decor_ask",
+     "status": "ok",
+     "seconds": 12.2,
+     "note": null
+    },
+    {
+     "stage": "decor",
+     "status": "ok",
+     "seconds": 3.3,
+     "note": null
+    },
+    {
+     "stage": "refit",
+     "status": "ok",
+     "seconds": 3.9,
+     "note": null
+    },
+    {
+     "stage": "build",
+     "status": "ok",
+     "seconds": 113.7,
+     "note": null
+    },
+    {
+     "stage": "render",
+     "status": "ok",
+     "seconds": 199.9,
+     "note": null
+    },
+    {
+     "stage": "export",
+     "status": "ok",
+     "seconds": 48.9,
+     "note": null
+    },
+    {
+     "stage": "controls",
+     "status": "ok",
+     "seconds": 61.6,
+     "note": null
+    },
+    {
+     "stage": "gate",
+     "status": "ok",
+     "seconds": 91.7,
+     "note": "gate decision ok"
+    },
+    {
+     "stage": "polish",
+     "status": "ok",
+     "seconds": 374.3,
+     "note": null
+    },
+    {
+     "stage": "detect",
+     "status": "ok",
+     "seconds": 10.3,
+     "note": null
+    },
+    {
+     "stage": "expected",
+     "status": "ok",
+     "seconds": 15.0,
+     "note": null
+    },
+    {
+     "stage": "check",
+     "status": "ok",
+     "seconds": 150.3,
+     "note": null
+    },
+    {
+     "stage": "combine",
+     "status": "ok",
+     "seconds": 24.0,
+     "note": null
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 9.9,
+     "note": null
+    }
+   ],
+   "gate_decision": "ok",
+   "views": 30,
+   "variants": [
+    {
+     "name": "synthetic-07/l-1b-acik-mutfak",
+     "private": false,
+     "state": "ok",
+     "variant": "l-1b-acik-mutfak",
+     "out_dir": "outputs/synthetic-07/variants/l-1b-acik-mutfak",
+     "stages": [
+      {
+       "stage": "build",
+       "status": "ok",
+       "seconds": 92.6,
+       "note": null
+      },
+      {
+       "stage": "render",
+       "status": "ok",
+       "seconds": 39.9,
+       "note": null
+      },
+      {
+       "stage": "export",
+       "status": "ok",
+       "seconds": 31.3,
+       "note": null
+      },
+      {
+       "stage": "controls",
+       "status": "ok",
+       "seconds": 28.1,
+       "note": null
+      },
+      {
+       "stage": "gate",
+       "status": "ok",
+       "seconds": 1.1,
+       "note": "gate decision ok (the base project's calibration)"
+      },
+      {
+       "stage": "polish",
+       "status": "ok",
+       "seconds": 43.6,
+       "note": null
+      },
+      {
+       "stage": "detect",
+       "status": "ok",
+       "seconds": 5.0,
+       "note": null
+      },
+      {
+       "stage": "expected",
+       "status": "ok",
+       "seconds": 6.7,
+       "note": null
+      },
+      {
+       "stage": "check",
+       "status": "ok",
+       "seconds": 44.1,
+       "note": null
+      },
+      {
+       "stage": "combine",
+       "status": "ok",
+       "seconds": 5.9,
+       "note": null
+      },
+      {
+       "stage": "report",
+       "status": "ok",
+       "seconds": 2.8,
+       "note": null
+      }
+     ],
+     "gate_decision": "ok",
+     "views": 3
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "ok": 1,
+  "needs_review": 0,
+  "failed": 0,
+  "incomplete": 0
+ },
+ "ab_phase": "all",
+ "ab_controls": null,
+ "ab": [],
+ "realism_summary": null,
+ "phases": [
+  {
+   "phase": 1,
+   "name": "cpu: intake, pipeline, fit, style",
+   "start_utc": "2026-10-09T13:51:46Z",
+   "end_utc": "2026-10-09T13:52:03Z",
+   "seconds": 17.3
+  },
+  {
+   "phase": 2,
+   "name": "vlm glm: recognition, style photos",
+   "start_utc": "2026-10-09T13:52:03Z",
+   "end_utc": "2026-10-09T13:52:03Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 3,
+   "name": "vlm qwen: recognition, pipeline_final, fit, style photos, layout, decor questions",
+   "start_utc": "2026-10-09T13:52:03Z",
+   "end_utc": "2026-10-09T13:55:43Z",
+   "seconds": 220.0
+  },
+  {
+   "phase": 4,
+   "name": "cpu: assets, decor, refit, A/B prepare",
+   "start_utc": "2026-10-09T13:55:43Z",
+   "end_utc": "2026-10-09T13:55:53Z",
+   "seconds": 10.1
+  },
+  {
+   "phase": 5,
+   "name": "blender: build, render, 3D export, controls, A/B control renders",
+   "start_utc": "2026-10-09T13:55:53Z",
+   "end_utc": "2026-10-09T14:06:10Z",
+   "seconds": 616.5
+  },
+  {
+   "phase": 6,
+   "name": "diffusion: gate, polish, detect",
+   "start_utc": "2026-10-09T14:06:10Z",
+   "end_utc": "2026-10-09T14:14:57Z",
+   "seconds": 526.9
+  },
+  {
+   "phase": 7,
+   "name": "cpu: expected, plan crops, A/B pairs",
+   "start_utc": "2026-10-09T14:14:57Z",
+   "end_utc": "2026-10-09T14:15:18Z",
+   "seconds": 21.8
+  },
+  {
+   "phase": 8,
+   "name": "vlm qwen: check, realism",
+   "start_utc": "2026-10-09T14:15:18Z",
+   "end_utc": "2026-10-09T14:17:29Z",
+   "seconds": 130.6
+  },
+  {
+   "phase": 9,
+   "name": "vlm glm: check, realism",
+   "start_utc": "2026-10-09T14:17:29Z",
+   "end_utc": "2026-10-09T14:20:25Z",
+   "seconds": 175.6
+  },
+  {
+   "phase": 10,
+   "name": "cpu: combine, realism summary, report",
+   "start_utc": "2026-10-09T14:20:25Z",
+   "end_utc": "2026-10-09T14:21:07Z",
+   "seconds": 42.7
+  },
+  {
+   "phase": 11,
+   "name": "gpu tests, run manifest",
+   "start_utc": "2026-10-09T14:21:07Z",
+   "end_utc": "2026-10-09T14:21:44Z",
+   "seconds": 37.1
+  }
+ ],
+ "servers": [
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 150.0,
+   "ok": true,
+   "phase": 3,
+   "started_utc": "2026-10-09T13:55:43Z"
+  },
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 30.0,
+   "ok": true,
+   "phase": 8,
+   "started_utc": "2026-10-09T14:17:29Z"
+  },
+  {
+   "key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seqs": 8,
+   "seconds_to_ready": 80.0,
+   "ok": true,
+   "phase": 9,
+   "started_utc": "2026-10-09T14:20:25Z"
+  }
+ ],
+ "tests": [
+  {
+   "group": "full",
+   "files": [
+    "tests/gpu/test_full_run.py",
+    "tests/gpu/test_render.py",
+    "tests/gpu/test_look_m6.py",
+    "tests/gpu/test_furnish.py",
+    "tests/gpu/test_check.py",
+    "tests/gpu/test_m9.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-full.xml",
+   "seconds": 8.6
+  },
+  {
+   "group": "polish",
+   "files": [
+    "tests/gpu/test_polish.py",
+    "tests/gpu/test_polish_backend.py",
+    "tests/gpu/test_detect.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-polish.xml",
+   "seconds": 13.9
+  }
+ ],
+ "test_lists": {
+  "RUN_TEST_PROJECTS": "synthetic-07",
+  "NEEDS_REVIEW_TEST_PROJECTS": "",
+  "RENDER_TEST_PROJECTS": "synthetic-07",
+  "FURNISH_TEST_PROJECTS": "synthetic-07",
+  "CHECK_TEST_PROJECTS": "synthetic-07",
+  "POLISH_TEST_PROJECTS": "synthetic-07",
+  "GATE_TEST_PROJECTS": "synthetic-07",
+  "DETECT_TEST_PROJECTS": "synthetic-07",
+  "AB_TEST_PROJECTS": "",
+  "AB_CONTROL_PROJECT": "",
+  "SELFTEST_TEST_ALIAS": ""
+ },
+ "force": [],
+ "gpu": {
+  "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_mib": 97887,
+  "speed": 1.634,
+  "speed_of": "RTX PRO 6000",
+  "seqs": {
+   "qwen": 8,
+   "glm": 8
+  }
+ }
+}

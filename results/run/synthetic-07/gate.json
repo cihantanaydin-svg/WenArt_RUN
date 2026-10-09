@@ -1,0 +1,46 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-07",
+ "stage": "gate",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 91.72,
+ "fingerprint": "075ab33cfa3d4ff8d756aafac6d8d4fe27b5d40e8fef90edca2e61fef5360f4e",
+ "inputs": {
+  "outputs/synthetic-07/renders/render_manifest.json": "7527baa9f85558623ba2d091eeae5c74358edcac47ef5dd1bf90cad9994229b6",
+  "outputs/synthetic-07/check/controls.json": "ba46265dfb9eb19d0df1ce0c29d76ca6ce9d2c393323469467f952c9f45b152f",
+  "outputs/synthetic-07/polish/sweep/polish_manifest.json": null,
+  "outputs/synthetic-07/controls/hide_d_L-1_002/render_manifest.json": "bcc606db170133d418963280e668dad825f3ef48d184cd102552e9b1e399b4de",
+  "outputs/synthetic-07/controls/hide_d_L0_003/render_manifest.json": "3d51d8b3ff626230d94ff584a9d3cf19d6f42b0254361ca9fdd9d3d255b9d321",
+  "outputs/synthetic-07/controls/hide_f_L-1_005/render_manifest.json": "9cb594dfeecca3acd57a512f8000daa32c1c692e83ab5bbf8306fe2b46fce63a",
+  "outputs/synthetic-07/controls/hide_f_L0_002/render_manifest.json": "d520ee1842bf64e530da13f70d998e959234325f918212fdefe9a15b7b24865c",
+  "outputs/synthetic-07/controls/hide_f_L0_003/render_manifest.json": "20a36f2abff8364182af24f9549575b6771cbeb4c74843f7149ad39aaf4c6b2d",
+  "outputs/synthetic-07/controls/hide_win_L-1_003/render_manifest.json": "1e6a17b7a6f41cecb91f48947b4ff4ece8d3d3b807290660538b60b0e45d19dc",
+  "outputs/synthetic-07/controls/hide_win_L-1_005/render_manifest.json": "8ceac1ae36085586e7fb720303597851924456b48ef263afa1caa6ec1f46f193",
+  "outputs/synthetic-07/controls/hide_win_L0_005/render_manifest.json": "8b5849558975dfeeb87447372bad67a695df29cc172e6b6a25bce3e44e8d612f",
+  "outputs/synthetic-07/controls/hide_win_L1_001/render_manifest.json": "747a9c8c268b327e635a2c2100121cd3a64374cae4af5681d4313c913d804f8e"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-09T14:07:42Z",
+ "git_commit": "7e95d4e1b113604d58ffe612cb4b8dc46a8bb1e4",
+ "log": "logs/gate.log",
+ "note": "gate decision ok",
+ "run_id": "20261009-134613-full-20261009T135146Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 90.59
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.13
+  }
+ ],
+ "written": {}
+}
