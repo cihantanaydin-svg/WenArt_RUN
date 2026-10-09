@@ -48,6 +48,29 @@ lens (searched: 18 mm, 16 mm in rooms narrower than 2.2 m, or the brief's
 lens; m5: 24 mm) and the render entry records it; the near distance of the
 blocked rule is 0.9 m x lens / 24 (camsearch.near_distance: 0.675 m at 18 mm,
 0.6 m at 16 mm).
+
+Milestone 10 (docs/milestone10.md §1.6b row 10, §3.2, §3.3; fixed after pod F1,
+9 Oct 2026; CPU replays in tests/test_render_gpu_logic_m10.py):
+
+- the interior views are counted for the rooms the variant renders
+  (``views.views_for`` of the ``id`` of the scene manifest's ``variant``
+  record, the object ``build.variant_summary`` writes; its stored ``views``
+  must name the same rooms); the exterior views are tests/gpu/test_m10.py's;
+- depth: every view is checked and every bad one listed in one failure. An
+  exterior view: 0.1 m < min < max < the exterior clip end
+  (``exterior.CLIP_END``, 500 m) and over 0.25 of the pixels hit (the sky
+  fills the rest by design); an interior view of a room open to the sky (a
+  roof terrace: ``roof.openings[].room_id``) keeps the interior depth range
+  and has no coverage bound; every other view keeps 0.1 m < min < max < 60 m
+  and coverage over 0.9;
+- index pass: a library piece (``asset.method`` library) the model sees only
+  at the outer edge of its fitted box (``asset.bbox_m``: the mesh lies inside
+  it and fills it only at some heights) may be absent: its model share falls
+  under ``MODEL_HIDDEN_SHARE`` once the box shrinks by ``LIBRARY_BOX_SLACK_M``
+  per side, and the scene manifest's ``box3d`` of the built mesh has the
+  footprint centre and the fitted width and depth (± ``BOX3D_TOLERANCE_M``).
+  Listed as "library box edge only"; parametric pieces and proxies, which fill
+  their boxes, keep the strict rule.
 """
 import hashlib
 import json
@@ -69,6 +92,15 @@ BLOCKED_NEAR = 0.35          # over this share of the pixels nearer than the cam
 NEAR_MM = 900                # at 24 mm; Milestone 8: times lens / 24 (camsearch.near_distance), 675 mm at 18 mm
 LOW_OBJECT_SHARE = 0.10
 MODEL_HIDDEN_SHARE = 0.005   # a piece the ray-cast model sees on less than this share (192 x 108 rays) is hidden
+# Milestone 10 (pod F1): a library mesh lies inside its fitted box (asset.bbox_m) and fills it only at some heights
+# (cornice, plinth, feet, rounded corners); the model draws the whole box.
+LIBRARY_BOX_SLACK_M = 0.02   # per side: the box the model must still see a library piece in when it is absent
+BOX3D_TOLERANCE_M = 0.01     # the built mesh's box3d against the footprint centre and the fitted width and depth
+MIN_DEPTH_M = 0.1            # every view: nearest surface (interior clip start 0.05 m, exterior 0.1 m)
+MAX_INDOOR_DEPTH_M = 60.0    # interior views: farthest surface
+MIN_COVERAGE = 0.9           # interior views: share of the pixels that hit a surface
+EXTERIOR_MIN_COVERAGE = 0.25  # exterior views: the sky fills the rest by design (pod F1 real02: 0.646-0.864)
+MAX_PREVIEW_BYTES = 300_000
 
 
 def _load(project: str, name: str) -> dict:
@@ -131,8 +163,16 @@ def test_every_room_has_three_views(project):
     building = _building(name, scene)
     levels = {lv["id"] for lv in scene["levels"]}
     # Milestone 10 (§1.6b row 10): the rooms this variant renders (no second twin, an alternative's changed rooms).
+    # The scene manifest's ``variant`` is the build's variant record (build.variant_summary: id, levels, views, ...);
+    # a manifest from before Milestone 10 has none (the base).
     from wenart.views import views_for
-    shown = set(views_for(building, scene.get("variant") or "base")["rooms"])
+    record = scene.get("variant")
+    variant = (record.get("id") if isinstance(record, dict) else record) or "base"
+    shown = set(views_for(building, variant)["rooms"])
+    if isinstance(record, dict) and isinstance(record.get("views"), dict):
+        stored = sorted(record["views"].get("rooms") or [])
+        assert stored == sorted(shown), \
+            f"{name}: the scene's variant {variant} renders the rooms {stored}, views_for gives {sorted(shown)}"
     rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels and r["id"] in shown}
     listed = {r["room_id"]: r for r in scene.get("rooms_without_view") or [] if r["room_id"] in rooms}
     expected = {r["room_id"] for lv in levels for r in camsearch.rooms_without_view(building, lv)} & set(rooms)
@@ -252,23 +292,88 @@ def test_render_matches_the_scene_build(project):
     assert render["pass_index"] == scene["pass_index"], f"{name}: the two pass index tables differ"
 
 
+def _open_sky_rooms(building: dict) -> set:
+    """Rooms open to the sky: the rooms of the roof's openings (Milestone 10, docs/milestone10.md §3.2: a roof
+    terrace has no ceiling, its views see the sky over the parapet)."""
+    return {o["room_id"] for o in (building.get("roof") or {}).get("openings") or [] if o.get("room_id")}
+
+
 def test_passes_exist_and_depth_is_plausible(project):
-    name, _scene, render = project
+    """Files and depth range of every view, all bad views listed in one failure. Interior views: MIN_DEPTH_M <
+    min < max < MAX_INDOOR_DEPTH_M and coverage over MIN_COVERAGE; Milestone 10: an interior view of a room open
+    to the sky has no coverage bound; an exterior view: MIN_DEPTH_M < min < max < ``exterior.CLIP_END`` and
+    coverage over EXTERIOR_MIN_COVERAGE (sky by design)."""
+    from wenart.blender import exterior
+
+    name, scene, render = project
     out = OUTPUTS / name / "renders"
+    plans = {c["name"]: c for c in scene.get("cameras") or []}
+    open_sky = None                     # read from the building only when an interior view needs it
+    bad, sky = [], []
     for r in render["renders"]:
-        assert (out / r["png"]).exists() and (out / r["exr"]).exists(), r["camera"]
-        assert (out / r["preview"]).stat().st_size <= 300_000, r["camera"]
-        depth = r["depth"]
-        assert depth is not None, f"{r['camera']}: no depth statistics"
-        assert 0.1 < depth["min"] < depth["max"] < 60.0, (r["camera"], depth)
-        assert depth["coverage"] > 0.9, (r["camera"], depth)
+        cam = r["camera"]
+        lost = [r[k] for k in ("png", "exr", "preview") if not (out / r[k]).exists()]
+        if lost:
+            bad.append((cam, f"missing {lost}"))
+        elif (out / r["preview"]).stat().st_size > MAX_PREVIEW_BYTES:
+            bad.append((cam, f"preview over {MAX_PREVIEW_BYTES} bytes"))
+        depth = r.get("depth")
+        if depth is None:
+            bad.append((cam, "no depth statistics"))
+            continue
+        plan = plans.get(cam) or {}
+        if plan.get("kind") == "exterior":
+            far, coverage = exterior.CLIP_END, EXTERIOR_MIN_COVERAGE
+        else:
+            far, coverage = MAX_INDOOR_DEPTH_M, MIN_COVERAGE
+            if not depth["coverage"] > coverage:
+                if open_sky is None:
+                    open_sky = _open_sky_rooms(_building(name, scene))
+                if (plan.get("room_id") or r.get("room_id")) in open_sky:
+                    sky.append((cam, round(depth["coverage"], 3)))
+                    coverage = None
+        if not MIN_DEPTH_M < depth["min"] < depth["max"] < far:
+            bad.append((cam, f"depth not {MIN_DEPTH_M:g} < min < max < {far:g} m", depth))
+        if coverage is not None and not depth["coverage"] > coverage:
+            bad.append((cam, f"coverage not over {coverage:g}", depth))
+    if sky:
+        print(f"{name}: views of rooms open to the sky, no coverage bound (camera, coverage): {sky}")
+    assert not bad, f"{name}: views with missing files or an implausible depth pass: {bad}"
+
+
+def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dict) -> bool:
+    """True when the model sees a library piece only at the outer edge of its fitted box (Milestone 10, pod F1):
+    with ``asset.bbox_m`` shrunk by ``LIBRARY_BOX_SLACK_M`` per side (height kept) its model share falls under
+    ``MODEL_HIDDEN_SHARE``, and the scene manifest's ``box3d`` of the piece (the built mesh, measured in the piece
+    frame) has the footprint centre and the fitted width and depth (± ``BOX3D_TOLERANCE_M``). The mesh then
+    stands where the model puts it and reaches its box, so the absence comes from the mesh's shape (a cornice
+    wider than the doors), not from where it was placed."""
+    from wenart.blender import camsearch
+
+    pieces = building.get("furniture") or []
+    piece = next((f for f in pieces if f.get("id") == piece_id), None)
+    asset = (piece or {}).get("asset") or {}
+    box = box3d.get(piece_id)
+    if asset.get("method") != "library" or not asset.get("bbox_m") or not box:
+        return False
+    width, depth = (float(v) for v in asset["bbox_m"][:2])
+    if math.dist([float(v) for v in box["center"][:2]], [float(v) for v in piece["footprint"]["center"][:2]]) \
+            > BOX3D_TOLERANCE_M:
+        return False
+    if abs(float(box["size"][0]) - width) > BOX3D_TOLERANCE_M or abs(float(box["size"][1]) - depth) > BOX3D_TOLERANCE_M:
+        return False
+    shrunk = [max(width - 2.0 * LIBRARY_BOX_SLACK_M, 0.0), max(depth - 2.0 * LIBRARY_BOX_SLACK_M, 0.0)]
+    smaller = dict(piece, asset=dict(asset, bbox_m=shrunk + list(asset["bbox_m"][2:])))
+    model = dict(building, furniture=[smaller if f is piece else f for f in pieces])
+    return camsearch.model_shares(model, plan).get(piece_id, 0.0) < MODEL_HIDDEN_SHARE
 
 
 def test_index_pass_contains_every_visible_proxy(project):
     name, scene, render = project
     table = scene["pass_index"]
     plans = {c["name"]: c for c in scene["cameras"]}
-    missing, hidden = [], []
+    box3d = {o["wenart_id"]: o.get("box3d") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
+    missing, hidden, edge = [], [], []
     building = None
     for r in render["renders"]:
         plan = plans[r["camera"]]
@@ -288,10 +393,18 @@ def test_index_pass_contains_every_visible_proxy(project):
             shares = camsearch.model_shares(building, plan)
             hidden.extend((r["camera"], f) for f in absent if shares.get(f, 0.0) < MODEL_HIDDEN_SHARE)
             absent = [f for f in absent if shares.get(f, 0.0) >= MODEL_HIDDEN_SHARE]
+            # Milestone 10: a library mesh is smaller than its fitted box; seen only at the box's edge it may be
+            # outside the frame (the box3d guard keeps a misplaced or mis-scaled mesh a failure).
+            edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d)]
+            edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
+            absent = [f for f in absent if f not in edge_only]
         if absent:
             missing.append((r["camera"], sorted(absent)))
     if hidden:
         print(f"{name}: pieces in a searched frustum but hidden by the model too (allowed): {hidden}")
+    if edge:
+        print(f"{name}: library box edge only, pieces the model sees only at the edge of their fitted box "
+              f"(allowed; camera, piece, model share): {edge}")
     assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
 
 
