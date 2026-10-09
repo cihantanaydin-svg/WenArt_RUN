@@ -18,7 +18,7 @@ from wenart.gate import decide
 from wenart.gate import validate as GV
 from wenart.gate.__main__ import main as gate_main
 from wenart.gate.api import load_thresholds
-from wenart.gate.calibrate import summarise
+from wenart.gate.calibrate import exterior_block, exterior_validation, summarise
 
 ROOT = Path(__file__).resolve().parents[1]
 LIMITS = {"benign_accept_min": 0.95, "negative_reject_min": 0.90}
@@ -225,3 +225,66 @@ def test_committed_calibrations_validate_as_recorded(project):
     assert (got["decision"], got["benign_accept"], got["negative_reject"]) == \
         (want["decision"], want["benign_accept"], want["negative_reject"]), got
     assert got["decision"] in ("ok", "flagged"), got
+
+
+# --------------------------------------------------------------------------
+# Milestone 10: the rooms are validated on the interior comparisons only
+# --------------------------------------------------------------------------
+
+def mixed_calibration(th: dict) -> dict:
+    """A calibration with an exterior view (Milestone 10), made the way ``gate calibrate`` makes it: 8 interior
+    benign edits accepted and 8 interior negatives rejected (half of them without ``view_kind``, as in
+    calibrations before Milestone 10), 8 exterior benign edits accepted and 8 exterior negatives of which 2 get
+    through."""
+    def records(camera, control, goods, kind):
+        out = [record(camera, control, i, good, th) for i, good in enumerate(goods)]
+        for i, r in enumerate(out):
+            if kind == "exterior" or i % 2:
+                r["view_kind"] = kind
+        return out
+
+    cal = {"schema_version": "0.1", "kind": "gate_calibration", "project": "toy", "incomplete": False,
+           "gate_code": "m10", "thresholds": copy.deepcopy(th), "views": ["cam_a", "ext_1"],
+           "benign": records("cam_a", "jpeg", [True] * 8, "interior") + records("ext_1", "jpeg", [True] * 8,
+                                                                                 "exterior"),
+           "negative": (records("cam_a", "shift", [False] * 8, "interior")
+                        + records("ext_1", "shift", [False] * 6 + [True] * 2, "exterior")),
+           "presumed_bad": [], "skipped": [], "warnings": [], "seconds": 1.0}
+    cal.update(summarise(cal, th))
+    cal["exterior"] = exterior_block(cal, th, ["ext_1"])
+    return cal
+
+
+def test_the_room_validation_counts_the_interior_comparisons_only(tmp_path):
+    """Pod F1 (real02): the rates of the rooms are over the interior comparisons (64/176), but n_benign /
+    n_negative counted every comparison, the exterior ones too (88/228), and the final report printed
+    "98.3 %, 228 comparisons". The counts now describe the same comparisons as the rates; the exterior views
+    keep their own validation with their own counts."""
+    th = load_thresholds()
+    cal = mixed_calibration(th)
+    out = tmp_path / "outputs" / "toy"
+    write_cal(out, cal)
+    data = GV.validate(out)
+    assert data["decision"] == "ok" and data["polish_allowed"] is True
+    assert (data["benign_accept"], data["negative_reject"]) == (1.0, 1.0)
+    assert (data["n_benign"], data["n_negative"]) == (8, 8)
+    ext = exterior_validation(cal, LIMITS, th)
+    assert ext["decision"] == "polish_disabled" and ext["polish_allowed"] is False
+    assert (ext["benign_accept"], ext["negative_reject"]) == (1.0, 0.75)
+    assert (ext["n_benign"], ext["n_negative"]) == (8, 8)
+    assert "(8 comparisons)" in ext["reasons"][0]
+
+
+def test_the_gpu_test_recomputes_the_interior_comparisons_only(tmp_path, monkeypatch):
+    """``tests/gpu/test_polish.py::test_gate_validation_recorded`` decides again the same comparisons as the
+    rooms' rates (pod F1 real02 failed it: 0.983 recorded, 0.9518 recomputed over the exterior ones too). The
+    GPU test module reads its environment at import (the pattern of tests/test_m5_gpu_logic.py)."""
+    out = tmp_path / "outputs" / "toy"
+    write_cal(out, mixed_calibration(load_thresholds()))
+    GV.validate(out)
+    monkeypatch.setenv("WENART_OUTPUTS", str(tmp_path / "outputs"))
+    monkeypatch.setenv("GATE_TEST_PROJECTS", "toy")
+    spec = importlib.util.spec_from_file_location("gpu_test_polish_cpu", ROOT / "tests" / "gpu" / "test_polish.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.test_gate_validation_recorded("toy")

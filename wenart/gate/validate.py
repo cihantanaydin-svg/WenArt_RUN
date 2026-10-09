@@ -31,6 +31,12 @@ the ``calibration:`` notes block is ignored). The GPU test
 ``tests/gpu/test_polish.py::test_gate_validation_recorded`` recomputes the rates from the stored
 metrics with the current thresholds and checks this file against them.
 
+Milestone 10: the calibration also holds the comparisons of the exterior views (each record has its
+``view_kind``; a record without one is an interior one). The top-level ``rates`` count the interior
+comparisons only, so ``n_benign`` / ``n_negative`` here count the interior ones too: the same comparisons
+as the rates. The exterior views are validated apart (``wenart.gate.calibrate.exterior_validation``, which
+calls ``decide_validation`` with ``kind="exterior"``).
+
 Exit code 0 whenever ``gate_validation.json`` was written, whatever the decision (it is data: the
 orchestrator reads ``decision``); 2 when ``--project-out`` is not a folder.
 """
@@ -71,11 +77,14 @@ def limit_thresholds(thresholds: Any) -> dict:
     return {k: v for k, v in thresholds.items() if k not in NOT_THRESHOLDS}
 
 
-def decide_validation(cal: Optional[dict], limits: dict, thresholds: Optional[dict] = None) -> dict:
+def decide_validation(cal: Optional[dict], limits: dict, thresholds: Optional[dict] = None,
+                      kind: str = "interior") -> dict:
     """The validation result of one calibration dict (pure; ``cal`` None = no calibration file).
 
     ``thresholds``: the thresholds the polish will use; None skips the comparison with the ones the
-    calibration recorded.
+    calibration recorded. ``kind``: the view kind whose comparisons are counted (``interior``, the rooms,
+    by default; a record without ``view_kind`` is an interior one), the same comparisons the rates
+    describe.
     """
     out: dict[str, Any] = {"decision": "not_validated", "benign_accept": None, "negative_reject": None,
                            "n_benign": 0, "n_negative": 0, "pass_benign": False, "pass_negative": False,
@@ -87,7 +96,10 @@ def decide_validation(cal: Optional[dict], limits: dict, thresholds: Optional[di
     if not isinstance(cal, dict):
         reasons.append(f"gate/{CALIBRATION_NAME} is not a calibration (not a JSON object)")
         return out
-    benign, negative = cal.get("benign") or [], cal.get("negative") or []
+    # The filter of calibrate.of_kind, inline (calibrate imports numpy and the controls).
+    benign, negative = ([r for r in cal.get(key) or []
+                         if isinstance(r, dict) and (r.get("view_kind") or "interior") == kind]
+                        for key in ("benign", "negative"))
     out["n_benign"], out["n_negative"] = len(benign), len(negative)
     rates = cal.get("rates") if isinstance(cal.get("rates"), dict) else {}
     b, n = rates.get("benign_accept"), rates.get("negative_reject")

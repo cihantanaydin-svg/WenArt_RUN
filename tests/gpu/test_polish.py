@@ -247,12 +247,20 @@ test_gate_calibration_separates_benign_from_negative.__test__ = False
 
 def recompute_rates(cal: dict, thresholds: dict) -> dict:
     """``{benign_accept, negative_reject, n_benign, n_negative}`` decided again from the stored metrics
-    (rounded like ``wenart.gate.calibrate.summarise``; a record without metrics is decided on none)."""
+    (rounded like ``wenart.gate.calibrate.summarise``; a record without metrics is decided on none).
+
+    Only the interior comparisons count, the same ones as the calibration's top-level ``rates`` and
+    ``gate_validation.json`` (Milestone 10; a record without ``view_kind`` is an interior one, as in
+    calibrations made before it). The exterior comparisons are validated apart
+    (``wenart.gate.calibrate.exterior_validation``, checked by ``tests/gpu/test_m10.py``). The filter is
+    written here, not imported from ``wenart.gate.calibrate``, so this test does not depend on the code it
+    checks."""
     def decided(records, want):
         return sum(1 for r in records
                    if decide(r["metrics"] if isinstance(r.get("metrics"), dict) else {}, thresholds)[0] == want)
 
-    benign, negative = cal.get("benign") or [], cal.get("negative") or []
+    benign, negative = ([r for r in cal.get(key) or [] if (r.get("view_kind") or "interior") == "interior"]
+                        for key in ("benign", "negative"))
     return {"benign_accept": round(decided(benign, "accept") / len(benign), 4) if benign else None,
             "negative_reject": round(decided(negative, "reject") / len(negative), 4) if negative else None,
             "n_benign": len(benign), "n_negative": len(negative)}
