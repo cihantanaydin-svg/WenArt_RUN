@@ -752,6 +752,8 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 | diagnostic `2aw8p6a9m8kvsw` | RTX PRO 4000 | 5 | $0.04 | `volume_report.sh`: prep 34 GB (19 GB material-slot GLB copies), pip cache 17 GB, assets 14 GB, jobs 8 GB; L2b's logs | ok |
 | L2c `6d8e6zae3wsqxt` | RTX PRO 6000 | 81 | $3.37 | generation for the 13 thinnest new types (`WENART_GENERATE_TYPES`, 40 min: 387 generated candidates in all), thumbnails, 1769 judging sheets, both sessions (GLM: the material sheets), catalogue 669 + 363 decor models, copy (47 s), GPU tests | GPU tests: 3 wrong expectations fixed (a `mixed` slot material, `wall_cabinet` parametric only, an accepted record write-catalog refused); the runner's retries re-fetched everything (fixed: a retry fetches only the missing files) |
 | F1 `puc0tntgfvz5he` | RTX PRO 6000 | 59 | $2.44 | full run of real02 (base 48 views, variant `l-1b-acik-mutfak` 17 views, 5 exterior views each, gate ok, polish on for the rooms, 3D files 854 MB) | real02 end state **ok**; 5 GPU tests failed (§10.6): diagnosed by a workflow (one agent per failure, an adversarial verifier each), fixed in 4 worktrees |
+| F1b `twdf5bhj1h28ou` | RTX PRO 6000 WK | 54 | $2.33 | real02 again after the F1 fixes (base 47 views, variant 17) | end state ok, **every GPU test green** (full 34 + 5 skipped, polish 13); gate ok for the rooms (97.7 % of 176 comparisons), exterior polish off (84.6 % < 90 %) |
+| F2 `3ywy7xcrpf1fn3` | RTX PRO 6000 WK | 85 | $3.66 | full runs of real01 (20 views), synthetic-03 (44), synthetic-07 (30 + variant 3) | every project ok; 3 GPU tests failed (§10.6): all code bugs, fixed |
 
 ### 10.6 The GPU test failures of pod F1 (real02)
 
@@ -762,3 +764,14 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 | `test_index_pass_contains_every_visible_proxy` | test expectation: a library wardrobe's fitted box grazes the frame edge by 1 cm while its mesh (domed cornice) stays outside | a library piece may be absent when shrinking its box by 2 cm per side hides it and its built box matches its footprint (± 1 cm) |
 | `test_ai_decor_is_built` | test bug: it checked the base scene only; L-1b decor is built in the variant's scene | every variant scene, decor on its own levels; every AI item in some scene. Also a code bug found on the way: decor copies along a chain of partner rooms (same_as of a twin) missed the root's decor (`decor.copy_partner_decor` copies in dependency order) |
 | `test_gate_validation_recorded` | test bug and a count bug: M10's exterior comparisons share the calibration file; the rates count the interior ones, the test recomputed over all, and `n_benign`/`n_negative` counted all | `decide_validation(kind=...)` counts the comparisons of one view kind; the test recomputes the interior ones |
+
+### 10.7 The GPU test failures of pod F2 (synthetic-03, synthetic-07)
+
+| Test | Cause | Fix |
+|---|---|---|
+| `test_index_pass_contains_every_visible_proxy[synthetic-03]` | code bug in the camera model: an AI-added library toilet was modelled with a 0.8 m bowl (its JSON height is the cistern top; the builder's toilet height is the bowl) | `camsearch.piece_profile`: a library toilet takes the type's 0.4 m bowl; no camera moves (a rebuild swaps the names of synthetic-03's `cam_r_L1_banyo_1` and `_2`) |
+| `test_passes_exist_and_depth_is_plausible[synthetic-07]` | code bug: the attic's east gable wall (a parapet piece and a gable piece) was lost by the exact boolean that cuts its window (touching pieces need `use_self`); the hall looked out through the missing wall | `shell.build_walls`: `use_self` for walls built from pieces; a guard after the cuts stops the build when a wall loses faces or volume outside its cutters (`shell.wall_cut_problems`); only this wall of all projects changes |
+| `test_every_empty_room_was_laid_out[synthetic-07]` | code bug in ingest: the attic plan's 11 m roof ridge line touched a door leaf and became an unknown "furniture" piece, so the empty play room looked furnished | `symbols.furniture`: a long straight stroke that crosses the building outline is no furniture stroke (noted); only synthetic-07 changes, and it now matches its truth |
+
+Open (§10.4): an AI-added parametric toilet is built 1.2 m tall (the builder reads its 0.8 m JSON height as the bowl);
+fixing the meaning of a toilet's height changes real01's renders and is left for a later milestone.
