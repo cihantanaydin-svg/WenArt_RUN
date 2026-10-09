@@ -1,5 +1,6 @@
 """CPU tests of the Milestone 10 parts of the GPU render tests (tests/gpu/test_render.py), fixed after the
-full run of pod F1 (real02, 9 Oct 2026, runs/20261009-062657-full).
+full runs of pod F1 (real02, 9 Oct 2026, runs/20261009-062657-full) and pod F2 (real01, synthetic-03,
+synthetic-07, 9 Oct 2026, runs/20261009-092258-full).
 
 The GPU test module is imported against hand-made outputs in tmp_path (``_gpu_test_module`` of
 tests/test_blender_render.py) and its test functions are called directly. No Blender needed.
@@ -16,6 +17,11 @@ tests/test_blender_render.py) and its test functions are called directly. No Ble
   render manifests: the model sees the wardrobe's fitted box only at the frame edge (1.2 cm inside the
   frustum), so it is allowed as "library box edge only"; it still fails when the wardrobe is parametric,
   built 5 cm off its footprint, or 5 cm larger per side.
+- Index pass, pod F2 (runs/20261009-092258-full, synthetic-03): ``cam_r_L1_banyo_3`` without the added library
+  toilet ``f_L1_020`` in its index pass, replayed from the run's building_final.json cut to that bathroom and
+  its three views: the camera model gave the toilet a 0.8 m bowl (its JSON height is the cistern top) and saw
+  0.056 of it beside the camera; with the type's 0.4 m bowl (``camsearch.piece_profile``) it sees none, so the
+  toilet is "hidden by the model too"; it still fails when the toilet is parametric (built with a 0.77 m bowl).
 """
 import copy
 import json
@@ -313,3 +319,108 @@ def test_the_strict_rule_still_holds_for_a_box_the_mesh_fills_or_a_misplaced_mes
     gpu = _gpu_test_module(monkeypatch, tmp_path / "outputs")
     with pytest.raises(AssertionError, match=r"cam_r_L0_yatak_odasi_3', \['f_L0_012'\]"):
         gpu.test_index_pass_contains_every_visible_proxy(_index_project(tmp_path / "outputs", building, objects))
+
+
+# --------------------------------------------------------------------------
+# Index pass: synthetic-03's library toilet beside the camera (pod F2)
+# --------------------------------------------------------------------------
+
+# runs/20261009-092258-full/results/furniture/synthetic-03/building_final.json cut to r_L1_banyo: level L1, the
+# room, its two openings and their walls, its three pieces (asset reduced to method and bbox_m).
+# camsearch.model_shares of this cut equals that of the whole building for the three cameras below.
+SYN03_BATHROOM = {
+    "project": {"id": "synthetic-03"}, "status": "ok",
+    "levels": [{"id": "L1", "elevation": 3.0, "ceiling_height": 2.7}],
+    "walls": [{"id": "w_L1_003", "level_id": "L1", "start": [0.0, 7.675], "end": [10.2, 7.675], "thickness": 0.25},
+              {"id": "w_L1_006", "level_id": "L1", "start": [6.0, 0.25], "end": [6.0, 7.55], "thickness": 0.1}],
+    "openings": [{"id": "d_L1_004", "type": "door", "level_id": "L1", "wall_id": "w_L1_006", "center": [6.0, 5.9],
+                  "width": 0.8, "height": None, "sill_height": None},
+                 {"id": "win_L1_006", "type": "window", "level_id": "L1", "wall_id": "w_L1_003",
+                  "center": [7.0, 7.675], "width": 0.6, "height": None, "sill_height": None}],
+    "rooms": [{"id": "r_L1_banyo", "level_id": "L1", "label": "Banyo",
+               "polygon": [[6.05, 4.25], [7.95, 4.25], [7.95, 7.55], [6.05, 7.55]]}],
+    "furniture": [
+        {"id": "f_L1_018", "level_id": "L1", "room_id": "r_L1_banyo", "type": "shower", "source": "added_by_ai",
+         "footprint": {"center": [7.479, 6.3], "size": [0.9, 0.9], "rotation_deg": 270.0}, "front_deg": 180.0,
+         "height": 2.0, "asset": {"method": "library", "bbox_m": [0.9, 0.9, 1.6888]}},
+        {"id": "f_L1_019", "level_id": "L1", "room_id": "r_L1_banyo", "type": "washbasin", "source": "added_by_ai",
+         "footprint": {"center": [6.296, 4.571], "size": [0.6, 0.45], "rotation_deg": 90.0}, "front_deg": 0.0,
+         "height": 0.85, "asset": {"method": "library", "bbox_m": [0.6, 0.45, 0.539]}},
+        # Objaverse c901dfa1 "Animated low poly toilet": a close-coupled toilet, added at the type's 0.8 m.
+        {"id": "f_L1_020", "level_id": "L1", "room_id": "r_L1_banyo", "type": "toilet", "source": "added_by_ai",
+         "footprint": {"center": [7.579, 5.5], "size": [0.4, 0.7], "rotation_deg": 270.0}, "front_deg": 180.0,
+         "height": 0.8, "asset": {"method": "library", "bbox_m": [0.4, 0.7, 0.8205]}},
+    ],
+}
+# scene_manifest.json: the room's three searched views (16 mm, the room is 1.90 m wide; score and placement text
+# left out), the furniture objects (box3d of the built meshes) and the pass indices of the room's elements.
+_SYN03_PLAN = {"room_id": "r_L1_banyo", "level_id": "L1", "lens_mm": 16.0, "sensor_mm": 36.0,
+               "resolution": [1920, 1080], "shift_x": 0.0, "shift_y": -0.1, "policy": "search", "warning": None,
+               "kind": "interior", "variant": "base"}
+SYN03_CAMERAS = [
+    dict(_SYN03_PLAN, name="cam_r_L1_banyo_1", index=1, position=[7.05, 4.75, 4.25], target=[7.05, 5.75, 4.25],
+         visible_openings=["d_L1_004", "win_L1_006"], visible_furniture=["f_L1_018", "f_L1_020"]),
+    dict(_SYN03_PLAN, name="cam_r_L1_banyo_2", index=2, position=[6.368198, 7.231802, 4.25],
+         target=[6.868198, 6.365777, 4.25], visible_openings=["d_L1_004"],
+         visible_furniture=["f_L1_018", "f_L1_019", "f_L1_020"]),
+    # The failing view: beside the toilet, looking away from it towards the door.
+    dict(_SYN03_PLAN, name="cam_r_L1_banyo_3", index=3, position=[7.631802, 4.568198, 4.25],
+         target=[6.765777, 5.068198, 4.25], visible_openings=["d_L1_004"],
+         visible_furniture=["f_L1_018", "f_L1_019", "f_L1_020"]),
+]
+SYN03_OBJECTS = [
+    {"name": "furn_f_L1_018", "wenart_id": "f_L1_018", "kind": "furniture", "pass_index": 117, "method": "library",
+     "box3d": {"center": [7.479, 6.3, 3.8444], "size": [0.9001, 0.9001, 1.6889], "rotation_deg": 270.0}},
+    {"name": "furn_f_L1_019", "wenart_id": "f_L1_019", "kind": "furniture", "pass_index": 118, "method": "library",
+     "box3d": {"center": [6.296, 4.571, 3.2695], "size": [0.5999, 0.45, 0.5391], "rotation_deg": 90.0}},
+    {"name": "furn_f_L1_020", "wenart_id": "f_L1_020", "kind": "furniture", "pass_index": 119, "method": "library",
+     "box3d": {"center": [7.579, 5.5, 3.4103], "size": [0.4, 0.7, 0.8205], "rotation_deg": 270.0}},
+]
+SYN03_PASS_INDEX = {"d_L1_004": 91, "win_L1_006": 98, "f_L1_018": 117, "f_L1_019": 118, "f_L1_020": 119,
+                    "dec_L1_024": 131, "dec_L1_025": 132, "dec_L1_026": 133}
+# render_manifest.json: the toilet (119) is in the index pass of banyo_1 and banyo_2, not of banyo_3.
+SYN03_INDEX_VALUES = {"cam_r_L1_banyo_1": [91, 98, 117, 119, 132], "cam_r_L1_banyo_2": [91, 117, 118, 119, 131],
+                      "cam_r_L1_banyo_3": [91, 117, 118, 131]}
+
+
+def _toilet(building: dict) -> dict:
+    return next(f for f in building["furniture"] if f["id"] == "f_L1_020")
+
+
+def _syn03_project(outputs: Path, building: dict) -> tuple:
+    path = _write_building(outputs, "synthetic-03", building)
+    scene = {"building": str(path), "pass_index": SYN03_PASS_INDEX, "cameras": SYN03_CAMERAS,
+             "objects": SYN03_OBJECTS}
+    render = {"renders": [{"camera": c["name"], "index_values": SYN03_INDEX_VALUES[c["name"]]}
+                          for c in SYN03_CAMERAS]}
+    return "synthetic-03", scene, render
+
+
+def test_the_synthetic03_library_toilet_is_modelled_with_its_bowl_not_its_cistern_top():
+    """The pod F2 case: the added toilet's JSON height (0.8 m) is its cistern top; modelled as a 0.8 m bowl it
+    covered 0.056 of cam_r_L1_banyo_3 (the top of a phantom bowl at the bottom right of the frame) while the
+    render shows no toilet. With the type's 0.4 m bowl the model sees none of it there, and in banyo_1, where
+    the render shows the toilet (index pass share 0.044), the model's share comes down from 0.127 to 0.052."""
+    shares = {c["name"]: camsearch.model_shares(SYN03_BATHROOM, c) for c in SYN03_CAMERAS}
+    assert shares["cam_r_L1_banyo_3"].get("f_L1_020", 0.0) == 0.0
+    assert shares["cam_r_L1_banyo_3"]["f_L1_019"] == pytest.approx(0.0744, abs=1e-4)      # the washbasin
+    assert shares["cam_r_L1_banyo_1"]["f_L1_020"] == pytest.approx(0.0519, abs=1e-4)
+
+
+def test_the_synthetic03_toilet_beside_the_camera_is_hidden_by_the_model_too(tmp_path, monkeypatch, capsys):
+    gpu = _gpu_test_module(monkeypatch, tmp_path / "outputs")
+    gpu.test_index_pass_contains_every_visible_proxy(_syn03_project(tmp_path / "outputs", SYN03_BATHROOM))
+    out = capsys.readouterr().out
+    assert "hidden by the model too (allowed): [('cam_r_L1_banyo_3', 'f_L1_020')]" in out
+    assert "library box edge only" not in out
+
+
+def test_a_parametric_toilet_beside_the_camera_still_fails(tmp_path, monkeypatch):
+    """Built parametrically at 0.8 m the toilet has a 0.77 m bowl and a 1.2 m cistern: that bowl reaches into
+    banyo_3's frame, so a render without it is a failure."""
+    building = copy.deepcopy(SYN03_BATHROOM)
+    _toilet(building)["asset"] = None
+    assert camsearch.model_shares(building, SYN03_CAMERAS[2])["f_L1_020"] > 0.005
+    gpu = _gpu_test_module(monkeypatch, tmp_path / "outputs")
+    with pytest.raises(AssertionError, match=r"cam_r_L1_banyo_3', \['f_L1_020'\]"):
+        gpu.test_index_pass_contains_every_visible_proxy(_syn03_project(tmp_path / "outputs", building))
