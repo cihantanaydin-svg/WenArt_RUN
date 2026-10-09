@@ -1,0 +1,24 @@
+{
+ "key": "93781b2236dcbc6b03f1c7247345af9c1dab7d6d8ee6529f493d87ffbde6bd16",
+ "pair": "ceiling_light__classic",
+ "type": "ceiling_light",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style flush mount ceiling light with a round shade, polished brass with a cream fabric shade and glass drops, moulded details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 777328678,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d8d94eb88f3edf10051f1ab857cae27f7847a0536b8eaec683c355c6faf1a366",
+ "seconds": 4.19,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:08Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "753db5bed2d9906613989f0d9ccda4c60d064e3b253ba9e7fb1c8a8ef5343c2f",
+ "pair": "plant_large__modern_minimal",
+ "type": "plant_large",
+ "family": "modern minimal",
+ "index": 4,
+ "prompt": "a single modern minimal style tall indoor fiddle-leaf fig tree with large violin-shaped leaves, about 1.6 m high, in a cream ceramic floor pot, healthy green leaves, clean and simple, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1151297504,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "64d149fe578fff689e678c163e6005303573407ef4ba36be47962fb28d4a80d9",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:46Z"
+}

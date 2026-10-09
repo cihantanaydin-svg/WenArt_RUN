@@ -1,0 +1,24 @@
+{
+ "key": "e6c58097bbc970a61b4158be669b1d806db98070b49c1802fa08baa0fa9332a4",
+ "pair": "plant_large__scandinavian",
+ "type": "plant_large",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style tall indoor olive tree with a slim trunk and narrow silvery leaves, about 1.6 m high, in a matte white ceramic floor pot, healthy green leaves, bright and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 553008135,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "5b2fc31e3ab91edf66c57ecfc294fa9afd7023c8cdd9d613386f5bf39905875a",
+ "seconds": 4.35,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:04:42Z"
+}

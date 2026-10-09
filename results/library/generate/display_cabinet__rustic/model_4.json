@@ -1,0 +1,63 @@
+{
+ "key": "c4000b89745003e9a3fbac64cc7a3de393565a6f74e7737a92ed686bc5f062c9",
+ "pair": "display_cabinet__rustic",
+ "type": "display_cabinet",
+ "family": "rustic",
+ "index": 4,
+ "seed": 48217331,
+ "prompt": "a single rustic style tall display cabinet with glass doors and shelves, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "d5fb411eaa5c6f5cd2793f588e6a94237a9a97b5273aec5aa5779bd955f72778",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:38:03Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "dddd4a3ba26b1163b4b7e0b5afc1919bcc886ca5fd97452b7b228b2083e710b7",
+ "glb_bytes": 17099628,
+ "face_count": 198195,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 75.38,
+ "backend": {
+  "seconds_generate": 44.32,
+  "seconds_export": 30.69,
+  "raw_faces": 12213130,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 24.99,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

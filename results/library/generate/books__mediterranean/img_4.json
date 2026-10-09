@@ -1,0 +1,24 @@
+{
+ "key": "a17add1955c9af7f31b06490d63b6eebfc337d2be896f66e531656c4a96a9294",
+ "pair": "books__mediterranean",
+ "type": "books",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style stack of three hardcover books lying flat, woven rattan and seagrass, terracotta and sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1024085657,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c8751bb2ea162725a8d76879760446b9def2cac168433caaf2fead237df339be",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:11:17Z"
+}

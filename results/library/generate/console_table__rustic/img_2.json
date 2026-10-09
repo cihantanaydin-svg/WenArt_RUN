@@ -1,0 +1,24 @@
+{
+ "key": "2d1a56f59134c8cb42689fccb5618db4ecd6b1c6f298a541eb19a3a4a508766b",
+ "pair": "console_table__rustic",
+ "type": "console_table",
+ "family": "rustic",
+ "index": 2,
+ "prompt": "a single rustic style narrow console table with two drawers for a hallway, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 672930181,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2fd3d3dbf73bb60023af79e1f199e8db1f60bd71e248d25c1ccaba3fab8a0ce8",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:08:07Z"
+}

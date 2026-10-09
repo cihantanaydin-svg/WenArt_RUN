@@ -1,0 +1,24 @@
+{
+ "key": "e091f3b6ea981c16fabb82a1fc6602a03c22f299efe6c13beef8261802662bc6",
+ "pair": "ceiling_light__scandinavian",
+ "type": "ceiling_light",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style flush mount ceiling light with a round shade, white opal glass or a light oak and white fabric shade, simple rounded shape, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1461149748,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "325d63089009ab131401bdf7f1e088f4e40062d32d19a54909a2a5c04b7c5c1c",
+ "seconds": 4.16,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:19Z"
+}

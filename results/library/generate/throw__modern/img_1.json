@@ -1,0 +1,24 @@
+{
+ "key": "d3e11bbce47f98940ae5dcf82fa7f167d728e52fc0897edd2df275eb21b35f78",
+ "pair": "throw__modern",
+ "type": "throw",
+ "family": "modern",
+ "index": 1,
+ "prompt": "a single modern style folded throw blanket, smooth charcoal and warm grey fabric, tailored fall, subtle texture, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 242032293,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "044f8b774669e40485cfbdbb56207ae2558ff577f986031d8a5fd8dff5cc2077",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:18Z"
+}

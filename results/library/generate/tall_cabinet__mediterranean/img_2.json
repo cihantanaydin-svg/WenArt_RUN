@@ -1,0 +1,24 @@
+{
+ "key": "e220eabe2f87367493ffc01cfa76e708199629d4de1c333cf394e53582d03fa7",
+ "pair": "tall_cabinet__mediterranean",
+ "type": "tall_cabinet",
+ "family": "mediterranean",
+ "index": 2,
+ "prompt": "a single mediterranean style tall narrow storage cabinet with two doors, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1835610850,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3038b315fc2b29e9f85788876d99e56d2fdfb1af719be2fe9a97f96fb552d87e",
+ "seconds": 4.02,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:01:15Z"
+}

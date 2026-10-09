@@ -1,0 +1,24 @@
+{
+ "key": "414c9e44a61672a42c9b15d2258fdd466c62d123554c8370ef84effd8df29209",
+ "pair": "curtain__japandi",
+ "type": "curtain",
+ "family": "japandi",
+ "index": 2,
+ "prompt": "a single japandi style pair of floor-length curtains hanging in soft folds from a curtain rod, undyed linen and raw cotton in oatmeal and stone grey, soft drape, calm, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1738836417,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c24bd3555a438762aad30d7427c6be81bce0e885b71d47b8741c51c227f4a52f",
+ "seconds": 4.33,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:08:57Z"
+}

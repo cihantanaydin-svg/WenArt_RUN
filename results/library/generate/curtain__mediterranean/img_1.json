@@ -1,0 +1,24 @@
+{
+ "key": "f76ea517a4406c1f522d0454f57fb7f7d1523dc95a6a64e3fa272c7ac46faca1",
+ "pair": "curtain__mediterranean",
+ "type": "curtain",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style pair of floor-length curtains hanging in soft folds from a curtain rod, sandy cream linen and white cotton with a loose weave, relaxed folds, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 127391176,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a1019b7aa14fba28e8744a34e3f8101188b51aaf75b8b6d74c371c2ef699024e",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:56Z"
+}

@@ -1,0 +1,63 @@
+{
+ "key": "0e981ff81fd66a116ceca35dc3c3f256b786ee950fc31189f8e774e4a2a5bfcf",
+ "pair": "tall_cabinet__modern_minimal",
+ "type": "tall_cabinet",
+ "family": "modern minimal",
+ "index": 3,
+ "seed": 1365421752,
+ "prompt": "a single modern minimal style tall narrow storage cabinet with two doors, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "b95e482842b8ec3713c745d448c26b9878ae6bd21662cc5452acceffe76c741b",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:44:20Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "bed2c84dfc4435c89965784d9339d877a83edfc613d88a2ec306d7df2ee21857",
+ "glb_bytes": 18439992,
+ "face_count": 191663,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 86.23,
+ "backend": {
+  "seconds_generate": 51.87,
+  "seconds_export": 33.81,
+  "raw_faces": 14166862,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 27.85,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

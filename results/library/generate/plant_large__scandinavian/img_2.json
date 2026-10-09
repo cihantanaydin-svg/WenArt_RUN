@@ -1,0 +1,24 @@
+{
+ "key": "c8f0f57d17fa1bbf7e5d728c5c4547523ea8d183e2c56adad06b4bacbffeb08d",
+ "pair": "plant_large__scandinavian",
+ "type": "plant_large",
+ "family": "scandinavian",
+ "index": 2,
+ "prompt": "a single scandinavian style tall indoor monstera deliciosa with large split leaves, about 1.6 m high, in a cream ceramic floor pot, healthy green leaves, bright and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 238347016,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f15e48cf38bbd8fbf9f004a8065b1c11ec407e61a219484c5c7971d6fc60458d",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:00:17Z"
+}

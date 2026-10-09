@@ -1,0 +1,24 @@
+{
+ "key": "c26b2016be33d732d0d0d42cb65491cd5a3274d9d89c0a4d60a203af04b906f7",
+ "pair": "curtain__scandinavian",
+ "type": "curtain",
+ "family": "scandinavian",
+ "index": 2,
+ "prompt": "a single scandinavian style pair of floor-length curtains hanging in soft folds from a curtain rod, natural white linen and soft grey wool, simple weave, light and airy, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 256531117,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "074fddb677193472625c3dd7c6e2091862072c84598f703bb3aa0a703cf8819c",
+ "seconds": 4.14,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:08:31Z"
+}

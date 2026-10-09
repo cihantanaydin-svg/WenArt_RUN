@@ -1,0 +1,24 @@
+{
+ "key": "3e4e7a9dc874190f4a7f2d772070fd1c73f460eda15b19a9cf7645f1ea696d90",
+ "pair": "plant_large__modern_minimal",
+ "type": "plant_large",
+ "family": "modern minimal",
+ "index": 5,
+ "prompt": "a single modern minimal style tall indoor olive tree with a slim trunk and narrow silvery leaves, about 1.6 m high, in a terracotta floor pot, healthy green leaves, clean and simple, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1268061448,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "bfbd966b22bfeef1a0eedd982670c2223edaab6bbf65e8a9e6995ece2100785a",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:11:26Z"
+}

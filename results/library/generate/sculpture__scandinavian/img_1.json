@@ -1,0 +1,24 @@
+{
+ "key": "180cc9148da168209de79397e2bbe7b061dfca0b03b8105f9632a27ce0151f01",
+ "pair": "sculpture__scandinavian",
+ "type": "sculpture",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style abstract tabletop sculpture on a small base, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1281165532,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "814e297009fcc1eea1c79b94b864cefd3cfd56715229ba492abe7d8190fbe5a8",
+ "seconds": 4.13,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:19Z"
+}

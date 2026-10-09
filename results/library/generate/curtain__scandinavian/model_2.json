@@ -1,0 +1,63 @@
+{
+ "key": "1638c13dbc1ae0652d00cdb18478ea0c28887e753af3ce9b2efe2d7538d7a670",
+ "pair": "curtain__scandinavian",
+ "type": "curtain",
+ "family": "scandinavian",
+ "index": 2,
+ "seed": 256531117,
+ "prompt": "a single scandinavian style pair of floor-length curtains hanging in soft folds from a curtain rod, natural white linen and soft grey wool, simple weave, light and airy, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "074fddb677193472625c3dd7c6e2091862072c84598f703bb3aa0a703cf8819c",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:33:43Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_2.glb",
+ "glb_sha256": "8e241991f28281f010ef936c44ac8afa481bdfd1764cf1a8ff08efcd16ce0c29",
+ "glb_bytes": 15853844,
+ "face_count": 195519,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 28.45,
+ "backend": {
+  "seconds_generate": 12.87,
+  "seconds_export": 15.28,
+  "raw_faces": 4573198,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 19.3,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

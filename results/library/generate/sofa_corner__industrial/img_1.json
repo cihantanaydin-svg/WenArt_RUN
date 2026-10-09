@@ -1,0 +1,24 @@
+{
+ "key": "e2b8d1f643da38f8f7a3cfee91a513c8c374ef8af10c81c3222b170fc4a52128",
+ "pair": "sofa_corner__industrial",
+ "type": "sofa_corner",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style L-shaped corner sofa with a chaise section and loose back cushions, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1268345801,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b13331ce555abb409d62199abcd1c0dd5671d32052e958c101765456818a4ac4",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:58Z"
+}

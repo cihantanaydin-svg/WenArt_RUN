@@ -1,0 +1,24 @@
+{
+ "key": "8cdd118187a349b1d0b6fe942c6cadae1303ac696e788c5a40c1b1a8caa5723e",
+ "pair": "sculpture__rustic",
+ "type": "sculpture",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style abstract tabletop sculpture on a small base, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1501055900,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b6c08d432551fece69ca160c5ba57c0bded0a8ecad918f2f972c1a59d9e26782",
+ "seconds": 4.26,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:47Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "e3c6269ad37c1f2c35d5433d9a53cfbccaf4834bd36d29d0061031a9b966bf9e",
+ "pair": "books__modern_minimal",
+ "type": "books",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style stack of three hardcover books lying flat, matte white and warm grey with thin black metal, crisp forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 766303807,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c1d7bc2cb3b9173e98b78aa0f5af82391e5b19a49228d42f3a8e10b3d01443c3",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:01Z"
+}

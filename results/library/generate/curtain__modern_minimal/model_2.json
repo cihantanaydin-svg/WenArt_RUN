@@ -1,0 +1,63 @@
+{
+ "key": "cd2a245c9196c371f6309bcfb0c7b1e9dda833d21a9784d1aa48d3373a941a4b",
+ "pair": "curtain__modern_minimal",
+ "type": "curtain",
+ "family": "modern minimal",
+ "index": 2,
+ "seed": 1571684275,
+ "prompt": "a single modern minimal style pair of floor-length curtains hanging in soft folds from a curtain rod, plain matte white and warm grey fabric, flat clean fall, no pattern, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "00aab0d0948261d2c342fd55cc5d388a904bcd5cb43f0e155e20208c40251812",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:46:08Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_2.glb",
+ "glb_sha256": "235eed17e699d9e50e11504832ccb504367201a73d3d123b2f8a6583a1e329f7",
+ "glb_bytes": 15612216,
+ "face_count": 192700,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 39.33,
+ "backend": {
+  "seconds_generate": 19.42,
+  "seconds_export": 19.56,
+  "raw_faces": 11104800,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 23.09,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

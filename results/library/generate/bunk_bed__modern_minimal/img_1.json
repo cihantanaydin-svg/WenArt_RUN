@@ -1,0 +1,24 @@
+{
+ "key": "735442e570036489e5f6d5837a3764f5bc8f70355d60b7120814347b7a8a41d2",
+ "pair": "bunk_bed__modern_minimal",
+ "type": "bunk_bed",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style wooden bunk bed with a ladder and safety rails, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 602754619,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f879cf3b375312d11e65555139873d33857d7f14074adeb63e179bbc304f452f",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:20Z"
+}

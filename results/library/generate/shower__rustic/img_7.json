@@ -1,0 +1,24 @@
+{
+ "key": "3ec310249bb027801da166b1af2f590cfd403c74aec498c6c4f044388cb4ae08",
+ "pair": "shower__rustic",
+ "type": "shower",
+ "family": "rustic",
+ "index": 7,
+ "prompt": "a single rustic style square glass shower enclosure with a shower tray, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 204620790,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "173fb24797b2bc830ac992aeb4777abe8a0bfea2013ec2b0ccae150bb5b8e2a7",
+ "seconds": 4.32,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:21Z"
+}

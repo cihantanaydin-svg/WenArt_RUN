@@ -1,0 +1,24 @@
+{
+ "key": "db726e63290ec2574292467d0559d49646058df161e15d931a202254fbd17143",
+ "pair": "blind__classic",
+ "type": "blind",
+ "family": "classic",
+ "index": 2,
+ "prompt": "a single classic style window roller blind, half lowered, on its mounting bracket, heavy cream and gold damask or velvet with pleats and tassels, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 334795534,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d8acf7557ea603bd3190b33bc232c34c32381598c1e330a03e6f65ae53c45c2a",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:37Z"
+}

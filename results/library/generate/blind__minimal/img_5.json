@@ -1,0 +1,24 @@
+{
+ "key": "d85610ae97a9bb46a4981d370595fbabde2f4f00c8ee7f12f06cac26d59b458d",
+ "pair": "blind__minimal",
+ "type": "blind",
+ "family": "minimal",
+ "index": 5,
+ "prompt": "a single minimal style window roller blind, half lowered, on its mounting bracket, plain matte beige and grey fabric, straight clean fall, no pattern, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 906093228,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4f36ba36c556b6edd44a3c48098b06217924aabde89b99ca544d15a70afe61fd",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:11:41Z"
+}

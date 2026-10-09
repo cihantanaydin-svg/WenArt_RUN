@@ -1,0 +1,24 @@
+{
+ "key": "455e6d5481604d2b267639be28157d34af50f0a9fe4898ba295d8284dfcef828",
+ "pair": "ceiling_light__mediterranean",
+ "type": "ceiling_light",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style flush mount ceiling light with a round shade, woven rattan or white glass shade, warm natural tones, soft round form, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 863061666,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "28e6d9d4c3f4721713f83c5e7978367e46884cfc0930831f3474a12236a68f1d",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:31Z"
+}

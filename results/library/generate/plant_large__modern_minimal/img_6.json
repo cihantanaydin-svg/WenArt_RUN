@@ -1,0 +1,24 @@
+{
+ "key": "b5f672d30f19fa38ab32423041a98596a72cdece9f341b760bdac3da215d6c43",
+ "pair": "plant_large__modern_minimal",
+ "type": "plant_large",
+ "family": "modern minimal",
+ "index": 6,
+ "prompt": "a single modern minimal style tall indoor large boston fern with arching fronds, about 1.6 m high, in a matte white ceramic floor pot, healthy green leaves, clean and simple, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1046577121,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "1a98cfdcd8c87e68c92e6010f9bb9cc88fd5328acdec378a24edb813da62a6d8",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:40Z"
+}

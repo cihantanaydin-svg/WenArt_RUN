@@ -1,0 +1,24 @@
+{
+ "key": "5a28e7328cbba353a953c3a3869a80c73691c8695f9d087bbe15f62be4f4f236",
+ "pair": "plant_large__japandi",
+ "type": "plant_large",
+ "family": "japandi",
+ "index": 5,
+ "prompt": "a single japandi style tall indoor monstera deliciosa with large split leaves, about 1.6 m high, in a woven rattan basket floor pot, healthy green leaves, calm and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1377441336,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "90a1af96b556a0279ecfacdccf98ce04f376369bbfdec456cbf00cfff82a32f1",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:22Z"
+}

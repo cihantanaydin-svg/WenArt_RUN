@@ -1,0 +1,24 @@
+{
+ "key": "f975606827fb5048c1dbde69b9c8d7aeb5292c3e28da3778de1e846c99aeffa9",
+ "pair": "shoe_cabinet__classic",
+ "type": "shoe_cabinet",
+ "family": "classic",
+ "index": 3,
+ "prompt": "a single classic style slim shoe cabinet with flap doors, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1072459741,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "09f29c52200e6bb69d38a2eea68d7020bada0c5ec96379d39106097c0a110331",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:08:02Z"
+}

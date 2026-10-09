@@ -1,0 +1,63 @@
+{
+ "key": "17e29a0efe7eff12e78ecb17445996eb90d64261b59d800dd9afb1a62ac72692",
+ "pair": "plant_large__minimal",
+ "type": "plant_large",
+ "family": "minimal",
+ "index": 4,
+ "seed": 139954786,
+ "prompt": "a single minimal style tall indoor large boston fern with arching fronds, about 1.6 m high, in a matte white ceramic floor pot, healthy green leaves, plain and simple, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "9d1599c7fbf4179833dfeb08b7356e93f7347d19eb46ec767aae8d456e5165b2",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:30:47Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "71886746199c2418b1ca6f04dda76956e91754edd16d60d8d0a4b5c981391904",
+ "glb_bytes": 19503280,
+ "face_count": 188030,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 34.26,
+ "backend": {
+  "seconds_generate": 10.63,
+  "seconds_export": 23.31,
+  "raw_faces": 5637394,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 19.28,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

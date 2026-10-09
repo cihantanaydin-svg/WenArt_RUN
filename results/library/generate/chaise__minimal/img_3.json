@@ -1,0 +1,24 @@
+{
+ "key": "edbf7153bf02683e553391e2e39ee6af7452d7b856ef11bd2e9fd89bcfd79b63",
+ "pair": "chaise__minimal",
+ "type": "chaise",
+ "family": "minimal",
+ "index": 3,
+ "prompt": "a single minimal style upholstered chaise longue with one raised head end, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 577182387,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "907ebb927e65c1e1187a7876221c6b8db6c13b48c46ea6212e599b608b09aed4",
+ "seconds": 4.32,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:14Z"
+}

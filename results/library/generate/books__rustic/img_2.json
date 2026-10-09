@@ -1,0 +1,24 @@
+{
+ "key": "374996c4056b19d49dfc314750c0baf00f29eb85ab3ddc207ca9bba7654d4fa6",
+ "pair": "books__rustic",
+ "type": "books",
+ "family": "rustic",
+ "index": 2,
+ "prompt": "a single rustic style stack of three hardcover books lying flat, rough natural wood and wrought iron, earthy colours, sturdy forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1975240017,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2eb139f1cde054e04fc745c816e761993a1f3ca2e1dbcf29326c919d0b5548ae",
+ "seconds": 3.99,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:01:43Z"
+}

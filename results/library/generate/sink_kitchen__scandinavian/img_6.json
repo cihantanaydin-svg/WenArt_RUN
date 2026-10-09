@@ -1,0 +1,24 @@
+{
+ "key": "92e59b89a42b69f643931ddb86004e05ca5a3b24bff7e16819fb322dddfc8138",
+ "pair": "sink_kitchen__scandinavian",
+ "type": "sink_kitchen",
+ "family": "scandinavian",
+ "index": 6,
+ "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1565521289,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "76b11d3437efbbd0d8a64481279c543b749ed97fb8ca209d4d0d00029ddd65df",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:37Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "3b5f3f2b1b953ece0cbb066c48ddaf1e173985ec73d27f5c776d97c2eac71760",
+ "pair": "display_cabinet__modern_minimal",
+ "type": "display_cabinet",
+ "family": "modern minimal",
+ "index": 3,
+ "prompt": "a single modern minimal style tall display cabinet with glass doors and shelves, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2110252897,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "1e603e59cf38a9280e38eaea05ad267ad10b10fe28fb713ec28c276a1673ca73",
+ "seconds": 4.37,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:04:20Z"
+}

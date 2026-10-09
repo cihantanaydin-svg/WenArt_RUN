@@ -1,0 +1,24 @@
+{
+ "key": "b1ac0397692761f182478b55dd6ec996b098b36e2141fcefcb3c04b79fbf2a78",
+ "pair": "sculpture__mediterranean",
+ "type": "sculpture",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style abstract tabletop sculpture on a small base, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 930103988,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cbca35e1e672fab61bc2d1fb3d0f3271bc5aaade1f5cfc39652890e5e2cae6e3",
+ "seconds": 4.21,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:14Z"
+}

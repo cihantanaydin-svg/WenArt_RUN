@@ -1,0 +1,63 @@
+{
+ "key": "b72d5a001846634d3117d2bd675798a917801193047e3b1c8ebcf1f1a987c1c0",
+ "pair": "chaise__rustic",
+ "type": "chaise",
+ "family": "rustic",
+ "index": 3,
+ "seed": 9529510,
+ "prompt": "a single rustic style upholstered chaise longue with one raised head end, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "2cf7aa1c74f7c1ff7286e612592ac0995bc2ee95c78e61a3694e70bd44f4f0af",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:36:53Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "f14ebacbe1f364e72f9d9c413c2699e4852f3cf00508a80e67991a87d824f472",
+ "glb_bytes": 17324100,
+ "face_count": 199337,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 37.22,
+ "backend": {
+  "seconds_generate": 15.94,
+  "seconds_export": 20.94,
+  "raw_faces": 7776664,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 21.68,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

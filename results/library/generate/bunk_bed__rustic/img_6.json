@@ -1,0 +1,24 @@
+{
+ "key": "2506b8a219350943b1b6b2c967dd45c5bccc120fa208c09626d66c91da25c9f4",
+ "pair": "bunk_bed__rustic",
+ "type": "bunk_bed",
+ "family": "rustic",
+ "index": 6,
+ "prompt": "a single rustic style wooden bunk bed with a ladder and safety rails, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1193491664,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "6820bd3cd898b64174831d4b2abcdfe9968a46c8096330125471d14a5c8fa344",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:14:09Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "297f6c2bf143ec13687bfa465efb900c1d9fef4595757cbfc26dd66e1ebca88e",
+ "pair": "crib__scandinavian",
+ "type": "crib",
+ "family": "scandinavian",
+ "index": 3,
+ "prompt": "a single scandinavian style baby crib with slatted sides, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1363219627,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "25fcab3e4a4aa153e5b4c74a2a423a2e69b61f98653cf35067925443d6af45e4",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:10:24Z"
+}

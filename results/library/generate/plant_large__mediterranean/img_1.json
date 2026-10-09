@@ -1,0 +1,24 @@
+{
+ "key": "4e59318a3bef7f051a86f0a74d2daeb8575e2e3c24685bdc2014e65650a9a1f8",
+ "pair": "plant_large__mediterranean",
+ "type": "plant_large",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style tall indoor fiddle-leaf fig tree with large violin-shaped leaves, about 1.6 m high, in a woven rattan basket floor pot, healthy green leaves, sunlit and relaxed, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2002340290,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "5fc87a23055ea223e723e1bb632306bdcfefa6a26ae227fddb144ea25da2ca14",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:44Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "c9f1cefb438535a4ac4f90279f686ab6e74065be0819cfcdddbbb43be1ff15fb",
+ "pair": "tall_cabinet__industrial",
+ "type": "tall_cabinet",
+ "family": "industrial",
+ "index": 3,
+ "prompt": "a single industrial style tall narrow storage cabinet with two doors, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 333402282,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3f50483b88fc9e714c4d43027fe2293ef1b23794550e0260da10c9682d9bb16c",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:30Z"
+}

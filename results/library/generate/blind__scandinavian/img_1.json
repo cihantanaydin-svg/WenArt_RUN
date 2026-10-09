@@ -1,0 +1,24 @@
+{
+ "key": "b2758f7df0233042fa8e7d0724de92ec03ea992060f27f27603adb941c438d4f",
+ "pair": "blind__scandinavian",
+ "type": "blind",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style window roller blind, half lowered, on its mounting bracket, natural white linen and soft grey wool, simple weave, light and airy, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 670061378,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e07ef4fc9df5d9e1c7cd85f2c2e0ca5d3648e1422d8adeb47834e722a5891f0f",
+ "seconds": 4.6,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:54:51Z"
+}

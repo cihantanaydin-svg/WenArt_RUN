@@ -1,0 +1,63 @@
+{
+ "key": "6fd88c98bd29864b063fd6c92668881c1bddb420222c5521ccb2a977fbcaaa81",
+ "pair": "plant_large__scandinavian",
+ "type": "plant_large",
+ "family": "scandinavian",
+ "index": 1,
+ "seed": 691165787,
+ "prompt": "a single scandinavian style tall indoor areca palm with many arching fronds, about 1.6 m high, in a woven rattan basket floor pot, healthy green leaves, bright and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "c8f4a6733dcab2fdc6bb9c557112d425abe055c907bb4fb2b77af340c6a4e45b",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T04:05:44Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "2265e7c5165f2bd7641c5fef583831c5ffcc631fed2f9f44e1ca66c9200e9318",
+ "glb_bytes": 18204148,
+ "face_count": 197051,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 56.41,
+ "backend": {
+  "seconds_generate": 28.27,
+  "seconds_export": 27.81,
+  "raw_faces": 3636326,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 18.96,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

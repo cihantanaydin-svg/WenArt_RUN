@@ -1,0 +1,24 @@
+{
+ "key": "91f2c8e510c92cdcc9a279932c7a63c8c8594c5926000191f23936e5ffdf79cd",
+ "pair": "plant_large__mediterranean",
+ "type": "plant_large",
+ "family": "mediterranean",
+ "index": 5,
+ "prompt": "a single mediterranean style tall indoor monstera deliciosa with large split leaves, about 1.6 m high, in a black ceramic floor pot, healthy green leaves, sunlit and relaxed, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 863639623,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "91c65c1457d22bad761747a0202e943d6ca4b5fca21b58052cb5f480aceb8297",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:12:34Z"
+}

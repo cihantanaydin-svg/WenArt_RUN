@@ -1,0 +1,63 @@
+{
+ "key": "620189478e4842671a4b6311cfd46fc1b26bd42d8923c337871f732b53a5fefe",
+ "pair": "display_cabinet__scandinavian",
+ "type": "display_cabinet",
+ "family": "scandinavian",
+ "index": 5,
+ "seed": 162426969,
+ "prompt": "a single scandinavian style tall display cabinet with glass doors and shelves, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "d06ff86ce77a0330e02249731f63d6f6ddd65a87726536663b4e299e5f46269a",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:16:42Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_5.glb",
+ "glb_sha256": "4b2b7b6d9a9ce31ea0766978ce41c9822507df05e94335c2c6c0f958ed65ec3c",
+ "glb_bytes": 14223412,
+ "face_count": 197403,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 47.03,
+ "backend": {
+  "seconds_generate": 29.26,
+  "seconds_export": 17.3,
+  "raw_faces": 11893438,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 24.93,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

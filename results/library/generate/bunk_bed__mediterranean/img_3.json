@@ -1,0 +1,24 @@
+{
+ "key": "538b97e129b43802993a79d561480518b3c855dde501bfd52e6e6eba78ed29a7",
+ "pair": "bunk_bed__mediterranean",
+ "type": "bunk_bed",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style wooden bunk bed with a ladder and safety rails, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1336354442,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cbeaa5c22dcec266083ef924923f536211e55788b3376790dce2f2d2befaf5a3",
+ "seconds": 4.3,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:03:24Z"
+}

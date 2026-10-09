@@ -1,0 +1,63 @@
+{
+ "key": "9512f65a266da37d83c05e639efe1acb3ae226e84e77919c15f7f72426950b70",
+ "pair": "plant_large__modern",
+ "type": "plant_large",
+ "family": "modern",
+ "index": 4,
+ "seed": 642976015,
+ "prompt": "a single modern style tall indoor monstera deliciosa with large split leaves, about 1.6 m high, in a grey concrete floor pot, healthy green leaves, sleek and sculptural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "56f8a224f9ec993fc80244039ce6b61766b569285115331952e8bf7343d7b0d3",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:35:01Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "2b0c9146eb9706b7d2f74bb8f986dfcf364642efba57044b63496a4fb68de297",
+ "glb_bytes": 16040728,
+ "face_count": 185648,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 66.26,
+ "backend": {
+  "seconds_generate": 12.22,
+  "seconds_export": 53.7,
+  "raw_faces": 2284802,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 18.35,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

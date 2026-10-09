@@ -1,0 +1,24 @@
+{
+ "key": "6b2c1339b4594e0d25a5f290c12130f0471266a89f86a164557738c30f7e8405",
+ "pair": "chaise__japandi",
+ "type": "chaise",
+ "family": "japandi",
+ "index": 6,
+ "prompt": "a single japandi style upholstered chaise longue with one raised head end, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1393977308,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "30fcf045bcd40c6a316cd84da7936999c93e668a8db05104afb55ef9f3f160f5",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:36Z"
+}

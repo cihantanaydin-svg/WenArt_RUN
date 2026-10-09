@@ -1,0 +1,24 @@
+{
+ "key": "7e3aec6f0aa4b084d9f2f8f458fe211ef5b595eb838842c4e7e4ccf2f18ef174",
+ "pair": "sink_kitchen__rustic",
+ "type": "sink_kitchen",
+ "family": "rustic",
+ "index": 4,
+ "prompt": "a single rustic style kitchen sink base cabinet with a worktop and an inset sink, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1475802798,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "78d9afaeab995670c78d56fb17c91d42448093594f18ea0ba53753a48ce4ae15",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:27Z"
+}

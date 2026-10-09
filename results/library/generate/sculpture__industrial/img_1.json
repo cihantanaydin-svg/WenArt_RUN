@@ -1,0 +1,24 @@
+{
+ "key": "f8c7af3c8b34711efd7f94e1dce6f0593d9bd570e2ea4c82fb41f3be8f87687f",
+ "pair": "sculpture__industrial",
+ "type": "sculpture",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style abstract tabletop sculpture on a small base, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 813559791,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d1e1d65bdb83190f9c3bdb7bd5712227f114a6d322b605c7aeaa96139390a88e",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:41Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "bf4911dd90c8884154acaed3ec81c1dfaba60b506b0fb7b82621e69b244560ab",
+ "pair": "books__scandinavian",
+ "type": "books",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style stack of three hardcover books lying flat, light oak, natural linen, white and pale grey, simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1433306946,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ad391ebbcbc8c1d81915b2f661524841bff95fbcf07b79c0ae7fcb5a57335689",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:56Z"
+}

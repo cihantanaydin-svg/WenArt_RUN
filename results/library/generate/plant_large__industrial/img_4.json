@@ -1,0 +1,24 @@
+{
+ "key": "18e118c04b1c8792e5d453eeeaca8bebb29fd64bec179321a069f61cd547f530",
+ "pair": "plant_large__industrial",
+ "type": "plant_large",
+ "family": "industrial",
+ "index": 4,
+ "prompt": "a single industrial style tall indoor olive tree with a slim trunk and narrow silvery leaves, about 1.6 m high, in a cream ceramic floor pot, healthy green leaves, bold and graphic, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 697286059,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "52fa85366c4edb02e6ad4c00b15aee64bd8e1122723f35d2f9bf28b532f38f6e",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:05Z"
+}

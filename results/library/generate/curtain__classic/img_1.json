@@ -1,0 +1,24 @@
+{
+ "key": "fc1963d795eddf87d4770fe600c849b14a0f142e6803dad4af7b77edc5c55cfa",
+ "pair": "curtain__classic",
+ "type": "curtain",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style pair of floor-length curtains hanging in soft folds from a curtain rod, heavy cream and gold damask or velvet with pleats and tassels, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1953714048,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "17c80e5e321c06fe0e947bd1198872b8c9fc305c0349834b77fc81013cd5e073",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:32Z"
+}

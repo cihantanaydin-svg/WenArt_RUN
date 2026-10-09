@@ -1,0 +1,24 @@
+{
+ "key": "7b5e96c582f1bff7dc4109db88512256235a3edab33e6588bd2c9a940f129411",
+ "pair": "crib__industrial",
+ "type": "crib",
+ "family": "industrial",
+ "index": 4,
+ "prompt": "a single industrial style baby crib with slatted sides, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1039187516,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d6b69ba2c947fb94fe8c1ef945129ded153fff2c2a92ffb14ab1a6f82567faf9",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:08:19Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "311a2e1a1d594eacdb046d9c95f029feb7404334543c0d3b78585dbabe461b29",
+ "pair": "shower__classic",
+ "type": "shower",
+ "family": "classic",
+ "index": 7,
+ "prompt": "a single classic style square glass shower enclosure with a shower tray, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 94553647,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f32269f8106f342ed796bc5a315322002ee35d26b6481163c4a4cded4494262f",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:00Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "8ac70b95affbf79ea2159e51ccba67c08df160608f488c124fab2615e7082a04",
+ "pair": "tall_cabinet__modern",
+ "type": "tall_cabinet",
+ "family": "modern",
+ "index": 1,
+ "prompt": "a single modern style tall narrow storage cabinet with two doors, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 198533581,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cb806fd9ac7cc9c20e63dab966495af4feb3e18fed34e67552ed4a0f1761ba43",
+ "seconds": 4.18,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:00:05Z"
+}

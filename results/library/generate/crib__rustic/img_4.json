@@ -1,0 +1,24 @@
+{
+ "key": "2c628d165dbfba47856faef4384fc835581d73cb6a776a679f7b7a90fa176d5d",
+ "pair": "crib__rustic",
+ "type": "crib",
+ "family": "rustic",
+ "index": 4,
+ "prompt": "a single rustic style baby crib with slatted sides, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 401442325,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "08900d2320b71d1f5b3c64d16683e36bddfe9e6a7558285219887bfa4c92faf3",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:35Z"
+}

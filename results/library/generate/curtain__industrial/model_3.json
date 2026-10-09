@@ -1,0 +1,63 @@
+{
+ "key": "b37cf06bfe59a03b7767dc96a1d28a04ab3779bcb1fb2ecb920bd203767b3da2",
+ "pair": "curtain__industrial",
+ "type": "curtain",
+ "family": "industrial",
+ "index": 3,
+ "seed": 1782167177,
+ "prompt": "a single industrial style pair of floor-length curtains hanging in soft folds from a curtain rod, heavy dark grey canvas and black cotton, raw textured weave, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "2371ace7f7844b49d15193814979e84c411eb824d634edad395a32bda26c8e97",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:19:28Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "203a25127f866e9c3b19a07ea46c3a085f1622ba0e1daf5db570f240ce3a6c93",
+ "glb_bytes": 13407044,
+ "face_count": 194206,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 31.23,
+ "backend": {
+  "seconds_generate": 20.21,
+  "seconds_export": 10.71,
+  "raw_faces": 4733366,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 18.35,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

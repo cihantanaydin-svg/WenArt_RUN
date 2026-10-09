@@ -1,0 +1,24 @@
+{
+ "key": "98de2cc26a3f1ecebac7e14bc69b4cfd63d4ff92a0249063c6f54b59b7d40082",
+ "pair": "bunk_bed__modern",
+ "type": "bunk_bed",
+ "family": "modern",
+ "index": 3,
+ "prompt": "a single modern style wooden bunk bed with a ladder and safety rails, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 926951641,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e6f11629ae5435647860a6f4d96488e95798563fbd8e8ccebe6b2448388b4765",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:59Z"
+}

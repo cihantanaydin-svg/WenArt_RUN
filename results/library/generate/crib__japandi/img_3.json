@@ -1,0 +1,24 @@
+{
+ "key": "658660d1ea10b34a94cf9fabaa94b98d00b011060b8a1797c5a5327ffaa8cde7",
+ "pair": "crib__japandi",
+ "type": "crib",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style baby crib with slatted sides, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1611842430,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4ffc3e16a47ac3358b86303bb80faea0143a6e42ef4a5b163de2f43aac373b46",
+ "seconds": 4.18,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:03:11Z"
+}

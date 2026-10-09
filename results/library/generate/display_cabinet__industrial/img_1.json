@@ -1,0 +1,24 @@
+{
+ "key": "bb81bea7302cc9a01e24cccee8cc12dc5c818e2594030defea3c6bdf8fee2daf",
+ "pair": "display_cabinet__industrial",
+ "type": "display_cabinet",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style tall display cabinet with glass doors and shelves, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1929717150,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f5a6289e544484e5a4a1c75404f2bf180a5a62e34adad5e69d0f6c52341366b0",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:25Z"
+}

@@ -1,0 +1,63 @@
+{
+ "key": "c29027eb4129ee01876fc92285343591659186bba831f69de7c1af5cab9f4ac3",
+ "pair": "chaise__japandi",
+ "type": "chaise",
+ "family": "japandi",
+ "index": 4,
+ "seed": 1612157906,
+ "prompt": "a single japandi style upholstered chaise longue with one raised head end, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "b6efcc5985f40ea60b3f8bd7253b32b36b52e873e5330528ae46ac484b16f1dc",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:21:53Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "d279126b855a08851b2258baf7f325130cd0d77daaefc183dc4fe60ff5ef12a0",
+ "glb_bytes": 15201784,
+ "face_count": 195082,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 46.36,
+ "backend": {
+  "seconds_generate": 28.66,
+  "seconds_export": 17.36,
+  "raw_faces": 10596000,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 23.51,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

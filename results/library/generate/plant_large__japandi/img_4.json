@@ -1,0 +1,24 @@
+{
+ "key": "552d09802699cc3112b83ba7fefaf9f776d1ab4ea74841a9ff8334031e780412",
+ "pair": "plant_large__japandi",
+ "type": "plant_large",
+ "family": "japandi",
+ "index": 4,
+ "prompt": "a single japandi style tall indoor areca palm with many arching fronds, about 1.6 m high, in a grey concrete floor pot, healthy green leaves, calm and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1124330313,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "812443c6840392d995706e09f393731d02cb47b1372f5dc4276f80c373639c1f",
+ "seconds": 4.36,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:04:46Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "9209859f1adf781eb736aa85ebde3c11f702384ac67c8b35f6f116e65ef8f8d4",
+ "pair": "plant_large__japandi",
+ "type": "plant_large",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style tall indoor fiddle-leaf fig tree with large violin-shaped leaves, about 1.6 m high, in a terracotta floor pot, healthy green leaves, calm and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 428952101,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "8b704d6026a5c13dd1cc8f504e157c355fb5e3cce239483af714fd50b65e6ba6",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:35Z"
+}

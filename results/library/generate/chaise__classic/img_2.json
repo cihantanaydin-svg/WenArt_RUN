@@ -1,0 +1,24 @@
+{
+ "key": "637196c17032a62131562f8436bbe1609e04e645b90791af2342d88bf897ed74",
+ "pair": "chaise__classic",
+ "type": "chaise",
+ "family": "classic",
+ "index": 2,
+ "prompt": "a single classic style upholstered chaise longue with one raised head end, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 542466869,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ff1a62e19d839bf097d9db75a236e6ae061013d801c819b3ebfb04f432a744b7",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:33Z"
+}

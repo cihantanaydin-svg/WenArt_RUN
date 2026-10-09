@@ -1,0 +1,24 @@
+{
+ "key": "ef55b379a988ab2236cdf122ffae434209e34dd00cd74e4607e1807a839a0f36",
+ "pair": "throw__industrial",
+ "type": "throw",
+ "family": "industrial",
+ "index": 2,
+ "prompt": "a single industrial style folded throw blanket, heavy dark grey canvas and black cotton, raw textured weave, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1141851249,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9fa1fc850dd908b0e754b4a3fd9278a94c17bd600d97df9c50bf81c170877c8b",
+ "seconds": 3.99,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:04Z"
+}

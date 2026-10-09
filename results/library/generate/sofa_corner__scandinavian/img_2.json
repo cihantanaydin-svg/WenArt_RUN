@@ -1,0 +1,24 @@
+{
+ "key": "c11a87874f7c54dcb972d643ae578d4c47c39bbf441e99e1f44e081d5db4fc7b",
+ "pair": "sofa_corner__scandinavian",
+ "type": "sofa_corner",
+ "family": "scandinavian",
+ "index": 2,
+ "prompt": "a single scandinavian style L-shaped corner sofa with a chaise section and loose back cushions, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 844524694,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a5e672367c6d10278dbbbafb529acc920061401b42a1dcf737b6b0f762923559",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:18Z"
+}

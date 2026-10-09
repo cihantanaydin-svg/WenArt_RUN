@@ -1,0 +1,24 @@
+{
+ "key": "cbf94f7235720f749f3e66a07470113923a5767255c9debaad1af5984713b8d4",
+ "pair": "display_cabinet__modern",
+ "type": "display_cabinet",
+ "family": "modern",
+ "index": 5,
+ "prompt": "a single modern style tall display cabinet with glass doors and shelves, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 352942969,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2e4f40c2520961c0b452df1e1820c3302d2620ed1db2c4ef8ce137ff98c56b09",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:03Z"
+}

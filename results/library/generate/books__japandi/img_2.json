@@ -1,0 +1,24 @@
+{
+ "key": "7666b99bd4bd96e86263a28baf431446c357b496d89c44f2c35ac7ae5b169676",
+ "pair": "books__japandi",
+ "type": "books",
+ "family": "japandi",
+ "index": 2,
+ "prompt": "a single japandi style stack of three hardcover books lying flat, light ash wood, natural fibres, stone grey, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 995213963,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "eed7814b5503a99ce55c0f8ae76b09b42ca61fae7347898f8c91c18a0255de81",
+ "seconds": 4.31,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:18Z"
+}

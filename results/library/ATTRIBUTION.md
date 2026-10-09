@@ -570,8 +570,27 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated rustic bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated rustic bed single (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial blind (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi blind (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi blind (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean blind (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal blind (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern blind (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal blind (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian blind (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian blind (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic books (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial books (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial books (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi books (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean books (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean books (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal books (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic books (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian books (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial bowl (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi bowl (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated mediterranean bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -588,6 +607,44 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated scandinavian bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bowl (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bowl (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial bunk bed (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bunk bed (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bunk bed (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bunk bed (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bunk bed (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic bunk bed (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi ceiling light (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian ceiling light (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial chaise (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi chaise (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi chaise (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal chaise (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian chaise (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic console table (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic console table (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial console table (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean console table (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian console table (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic crib (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi crib (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean crib (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern crib (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal crib (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal crib (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic curtain (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial curtain (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean curtain (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean curtain (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal curtain (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic curtain (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian curtain (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic display cabinet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial display cabinet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi display cabinet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean display cabinet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic display cabinet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian display cabinet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian display cabinet (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi floor lamp (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi floor lamp (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated classic fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -596,6 +653,7 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated japandi fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi fridge (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi fridge (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated mediterranean fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated mediterranean fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -603,6 +661,16 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated rustic fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian fridge (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial plant large (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi plant large (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi plant large (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean plant large (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal plant large (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern plant large (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal plant large (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal plant large (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian plant large (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian plant large (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated classic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated classic plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -637,16 +705,26 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated scandinavian potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi sculpture (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian sculpture (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic shoe cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial shoe cabinet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial shoe cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi shoe cabinet (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean shoe cabinet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean shoe cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic shoe cabinet (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian shoe cabinet (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial shower (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi shower (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
-- "Generated mediterranean shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
-- "Generated mediterranean shower (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi shower (9)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated minimal shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal shower (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian shower (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian shower (9)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial sink kitchen (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -662,6 +740,7 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated scandinavian sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian sink kitchen (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial sofa corner (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sofa (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sofa (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated classic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -671,6 +750,7 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated japandi stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi stove (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi stove (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi stove (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern stove (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -679,25 +759,43 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "Generated scandinavian stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian stove (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian stove (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic tall cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial tall cabinet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial tall cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi tall cabinet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi tall cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean tall cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic tall cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian tall cabinet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi throw (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi throw (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean throw (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal throw (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern throw (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal throw (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal throw (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated classic toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi toilet (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated mediterranean toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated mediterranean toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated minimal toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated rustic toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian toilet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian toilet (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated classic wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated rustic wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
-- "Generated classic washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated industrial washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial washbasin (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated mediterranean washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean washbasin (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit

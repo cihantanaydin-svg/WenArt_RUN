@@ -1,0 +1,24 @@
+{
+ "key": "a0cb07959b8bb489fb516c5bf6f73ba158e0ffc7ca78391ade91b203362c6c4e",
+ "pair": "display_cabinet__rustic",
+ "type": "display_cabinet",
+ "family": "rustic",
+ "index": 2,
+ "prompt": "a single rustic style tall display cabinet with glass doors and shelves, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1235859175,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4bab3911a42fe6d1d51890b34b98d93ea5ab139549232ea9b61e03375bf77137",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:08Z"
+}

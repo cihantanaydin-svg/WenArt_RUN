@@ -1,0 +1,24 @@
+{
+ "key": "4acee181e5acc20158ce7b31cfbed44cf1e9bcb0e3c67ce731f7e247575d5bc4",
+ "pair": "plant_large__japandi",
+ "type": "plant_large",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style tall indoor large boston fern with arching fronds, about 1.6 m high, in a black ceramic floor pot, healthy green leaves, calm and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1302354142,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cd522fb1ce65edaad04cc5a922ee23cfb875561688b96e9edc9377a840ec7aa2",
+ "seconds": 4.29,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:03:19Z"
+}

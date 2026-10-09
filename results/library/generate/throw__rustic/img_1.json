@@ -1,0 +1,24 @@
+{
+ "key": "66b096349810c68581c9ce6291114f7651d260b086ae776f17d1486f5bc54a7e",
+ "pair": "throw__rustic",
+ "type": "throw",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style folded throw blanket, coarse natural linen and chunky knit wool in oatmeal and brown, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1266981439,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "43a1aaa0e6d93e202e58a905a2d4343722dd5f7278d20f0440038b7c9fc65f6d",
+ "seconds": 4.16,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:35Z"
+}

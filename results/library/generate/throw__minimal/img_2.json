@@ -1,0 +1,24 @@
+{
+ "key": "78ba5f8487f711b100c57cdb95eca2aa323cf52cacfbed635ce991bfd6f92a63",
+ "pair": "throw__minimal",
+ "type": "throw",
+ "family": "minimal",
+ "index": 2,
+ "prompt": "a single minimal style folded throw blanket, plain matte beige and grey fabric, straight clean fall, no pattern, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1814321244,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "8120ad322f10d68966679f4a080d93d0b06cdd08ac761f5a7158a5bd8c5bf302",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:01:19Z"
+}

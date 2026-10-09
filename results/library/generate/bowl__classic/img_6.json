@@ -1,0 +1,24 @@
+{
+ "key": "8b3d12a38ffbc0943fc1a4d2c0a66a3fe537bb88da23dcbd7ed739cffa758ce0",
+ "pair": "bowl__classic",
+ "type": "bowl",
+ "family": "classic",
+ "index": 6,
+ "prompt": "a single classic style shallow decorative bowl for a coffee table, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 884887192,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "948366a4d144ac48774bcd8d2177c1e62b5e6bf9ce4bedec039cd7440d8b422d",
+ "seconds": 3.99,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:27Z"
+}

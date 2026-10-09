@@ -1,0 +1,24 @@
+{
+ "key": "ae2ad55e987587bbd2fb102126fe19706ed9ea3d1f09756345a93dc09f58e485",
+ "pair": "curtain__minimal",
+ "type": "curtain",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style pair of floor-length curtains hanging in soft folds from a curtain rod, plain matte beige and grey fabric, straight clean fall, no pattern, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1597455092,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ebb36b238daa8848f4452b8c53429aacafcba095dcd3c72e1506d9762d26788e",
+ "seconds": 4.25,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:39Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "7f4044051a49d52ba10d5f7f160304de83a896dbe6e5cdca426abe9639a4281b",
+ "pair": "curtain__modern",
+ "type": "curtain",
+ "family": "modern",
+ "index": 2,
+ "prompt": "a single modern style pair of floor-length curtains hanging in soft folds from a curtain rod, smooth charcoal and warm grey fabric, tailored fall, subtle texture, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 146959358,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0176f3fbaa2a98417afcf2c18b54719d4c7dc6a6478fb11a810929e86b483dd3",
+ "seconds": 3.97,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:10:36Z"
+}

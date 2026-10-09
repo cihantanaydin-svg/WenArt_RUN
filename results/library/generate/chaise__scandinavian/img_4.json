@@ -1,0 +1,24 @@
+{
+ "key": "2ec8e96ce5a0191edb9ed7503d02d49b15be0c9717633e1e006e8825ae9f2a5a",
+ "pair": "chaise__scandinavian",
+ "type": "chaise",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style upholstered chaise longue with one raised head end, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 352522885,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4fab6bbbb58061c906f660c4015ab1c73da4d050dcbb7faaf09796ef369d2268",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:01Z"
+}

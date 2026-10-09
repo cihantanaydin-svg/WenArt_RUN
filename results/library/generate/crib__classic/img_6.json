@@ -1,0 +1,24 @@
+{
+ "key": "ff1f2691a57f501d927bed17ce10bc5c6ce6cd366c464898314573a7a2d17b58",
+ "pair": "crib__classic",
+ "type": "crib",
+ "family": "classic",
+ "index": 6,
+ "prompt": "a single classic style baby crib with slatted sides, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1863633985,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "85b5d3d7ed868fc85338f302c2c4af56d8f8e935e1693b4f317255c978cbde6f",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:14:17Z"
+}

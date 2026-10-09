@@ -1,0 +1,24 @@
+{
+ "key": "4989d221178d7e6f64578c0f6353b64868f911be76f9ebb982e06f1f5fda994d",
+ "pair": "sink_kitchen__industrial",
+ "type": "sink_kitchen",
+ "family": "industrial",
+ "index": 6,
+ "prompt": "a single industrial style kitchen sink base cabinet with a worktop and an inset sink, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1896641935,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f9e78f599090b9a1d820c3eb1514734d8ff13a778153cd213b5282182a4cc8ff",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:00Z"
+}

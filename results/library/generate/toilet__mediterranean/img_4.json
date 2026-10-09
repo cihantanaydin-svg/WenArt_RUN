@@ -1,0 +1,24 @@
+{
+ "key": "5699c173f111fbeebb9bb6f40ade7273bbf497552be20dcf89e0988b36f222d8",
+ "pair": "toilet__mediterranean",
+ "type": "toilet",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style floor-standing toilet with a cistern, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 53312156,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "08db87ecc6f8597c79949c42d4378acf51c7f67714ae5edbb8540f394b0a1157",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:35Z"
+}

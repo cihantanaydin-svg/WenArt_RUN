@@ -1,0 +1,24 @@
+{
+ "key": "b22eb1d6eedceaa471f8a68fff7a4607d57f79e55a413c5f0765cdebb22cd0b9",
+ "pair": "chaise__modern",
+ "type": "chaise",
+ "family": "modern",
+ "index": 4,
+ "prompt": "a single modern style upholstered chaise longue with one raised head end, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1787600845,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "7727f8a7d6da56518e4bed030f2f2f501a37d05c5cb58671907d8720016c0e8c",
+ "seconds": 3.92,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:12Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "f57d71285c36dac571c176aafd03a74e651f7aa23dfc28a9e67d349151d0af57",
+ "pair": "console_table__modern",
+ "type": "console_table",
+ "family": "modern",
+ "index": 2,
+ "prompt": "a single modern style narrow console table with two drawers for a hallway, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1937735078,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "bb45637f9e105419107b4bd7b346d95dd3e5d5679e7f8d436b2e5f05a4b78f71",
+ "seconds": 4.18,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:10:16Z"
+}

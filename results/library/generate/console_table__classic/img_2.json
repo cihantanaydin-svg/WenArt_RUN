@@ -1,0 +1,24 @@
+{
+ "key": "9f97e41761c1d5a490fd740246b6b9d80a464d4acc04374f3d242059355a57cc",
+ "pair": "console_table__classic",
+ "type": "console_table",
+ "family": "classic",
+ "index": 2,
+ "prompt": "a single classic style narrow console table with two drawers for a hallway, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 624776653,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "bcd93c048e05149598dfe3707ed69a6652b792d5f6924deea1a96c0e1133afa5",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:42Z"
+}

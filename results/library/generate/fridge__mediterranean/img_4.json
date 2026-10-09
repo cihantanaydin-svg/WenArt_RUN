@@ -1,0 +1,24 @@
+{
+ "key": "6d52bccec0d0fc85818ff09a5abb244a503bbe8cb62ba7134fecb9d5020a90e3",
+ "pair": "fridge__mediterranean",
+ "type": "fridge",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style freestanding refrigerator, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1642083132,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "168a5092d92aad5b88a790f59b80076d4e70f3fed78274e899506d6b423e792a",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:53Z"
+}

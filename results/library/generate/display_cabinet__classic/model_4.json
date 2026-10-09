@@ -1,0 +1,63 @@
+{
+ "key": "82a195399f6a1cac2b074ad821b0aab6cc795dce86e73d70cdb89f5763091ee9",
+ "pair": "display_cabinet__classic",
+ "type": "display_cabinet",
+ "family": "classic",
+ "index": 4,
+ "seed": 1824348373,
+ "prompt": "a single classic style tall display cabinet with glass doors and shelves, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "28ef20603874a50dd7c7c06dcd4b5437b8872a089551b11bdb05d3210f9fb570",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:34:35Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "4ee0e3d66f279f138023667fe18a32912c7066175b2a843d4138818017da7731",
+ "glb_bytes": 16587740,
+ "face_count": 195809,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 35.08,
+ "backend": {
+  "seconds_generate": 12.71,
+  "seconds_export": 22.06,
+  "raw_faces": 9472870,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 22.57,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "key": "01c90859af31160789dae421c0e7a0a09e8ceae0fe1fc384bd5874fc96ad3ef2",
+ "pair": "blind__rustic",
+ "type": "blind",
+ "family": "rustic",
+ "index": 5,
+ "prompt": "a single rustic style window roller blind, half lowered, on its mounting bracket, coarse natural linen and chunky knit wool in oatmeal and brown, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1702075223,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ae2cd92ed8de3e20aa54adc0fc9f180876e8e1d844e7cfda0973752ae2734849",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:12:59Z"
+}

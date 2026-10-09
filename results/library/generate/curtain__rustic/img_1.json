@@ -1,0 +1,24 @@
+{
+ "key": "a3922afa837894ee5416b0ed8c6df969aa659ba91841a9ccff1ceeaa548541a2",
+ "pair": "curtain__rustic",
+ "type": "curtain",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style pair of floor-length curtains hanging in soft folds from a curtain rod, coarse natural linen and chunky knit wool in oatmeal and brown, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1388995465,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "52ee0210ffa2cc6819fd5c44092a8248bb947ed00748ae7f68ac138e8230eb72",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:41Z"
+}

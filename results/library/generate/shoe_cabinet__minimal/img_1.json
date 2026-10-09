@@ -1,0 +1,24 @@
+{
+ "key": "bb34cc83134e2ac53e7ea733d83f02b1e6c34f8232bbf02923b3b7c3b6ad1479",
+ "pair": "shoe_cabinet__minimal",
+ "type": "shoe_cabinet",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style slim shoe cabinet with flap doors, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 925707670,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "5e608a028a281a3664bf9f25f1f62e4ffb1b7c286a74c09577ea9bda7c25c3b1",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:39Z"
+}

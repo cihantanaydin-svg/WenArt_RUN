@@ -1,0 +1,24 @@
+{
+ "key": "657cdcc980c6591ec93ea3f3d02651a6fef95d5df1a1d5720bcfe1313bff9085",
+ "pair": "crib__modern_minimal",
+ "type": "crib",
+ "family": "modern minimal",
+ "index": 3,
+ "prompt": "a single modern minimal style baby crib with slatted sides, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1630009911,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a6972da02248e7f37ff00fb6e60fc852c3a272b0ffe3a8fbdeb92e25f8fc1413",
+ "seconds": 4.31,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:03:24Z"
+}

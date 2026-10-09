@@ -1,0 +1,24 @@
+{
+ "key": "d90da3677740d745a8af3da2c19ac8633149e9fb64600ce8751453e170762a51",
+ "pair": "plant_large__classic",
+ "type": "plant_large",
+ "family": "classic",
+ "index": 4,
+ "prompt": "a single classic style tall indoor fiddle-leaf fig tree with large violin-shaped leaves, about 1.6 m high, in a grey concrete floor pot, healthy green leaves, lush and formal, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 527835595,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f78e0b0920a007c0d80329477b610cc556c50c43d265de92923d4476546c2055",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:56Z"
+}

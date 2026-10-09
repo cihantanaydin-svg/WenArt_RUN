@@ -1,0 +1,24 @@
+{
+ "key": "0065a181ac37d180ff433e29aa1a64d9984728054512ffa1089c3600a4ba9c31",
+ "pair": "crib__modern",
+ "type": "crib",
+ "family": "modern",
+ "index": 5,
+ "prompt": "a single modern style baby crib with slatted sides, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 621604095,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c34d75df9bc50d464c87dd15c4ce5e05bd0974de49752766286b95b37d44e79d",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:11:30Z"
+}

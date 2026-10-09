@@ -1,0 +1,24 @@
+{
+ "key": "067a5ca5a9f26643cf53a993aeec10e5d87fb05f9e281a1e57f5010d8c9ff629",
+ "pair": "bunk_bed__scandinavian",
+ "type": "bunk_bed",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style wooden bunk bed with a ladder and safety rails, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1527659259,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ac43b4356a8353870574d46870fea427954a086f7f50ba5dab4592ee5f0d15ba",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:07Z"
+}

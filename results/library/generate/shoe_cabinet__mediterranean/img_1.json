@@ -1,0 +1,24 @@
+{
+ "key": "a5d284bfb5c66dc22b8533a9085098ee1bf275b03b9a2f8bf4e7efe32362e0ac",
+ "pair": "shoe_cabinet__mediterranean",
+ "type": "shoe_cabinet",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style slim shoe cabinet with flap doors, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 665395761,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e2c78c4fc494b57fef4eb07b7aab5b64172e67d30f36305edba09ac20b86f35b",
+ "seconds": 4.02,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:56Z"
+}

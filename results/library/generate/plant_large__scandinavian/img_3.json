@@ -1,0 +1,24 @@
+{
+ "key": "e3d28d05aa814187807322e818850d9ce840c88dc12d1105a5be24ed285677a9",
+ "pair": "plant_large__scandinavian",
+ "type": "plant_large",
+ "family": "scandinavian",
+ "index": 3,
+ "prompt": "a single scandinavian style tall indoor fiddle-leaf fig tree with large violin-shaped leaves, about 1.6 m high, in a terracotta floor pot, healthy green leaves, bright and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 20440648,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9e067ab7655e6d00c690192a2e7e1d265f90ee7d24c6b4768ec591e494daa7c2",
+ "seconds": 4.13,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:03:07Z"
+}

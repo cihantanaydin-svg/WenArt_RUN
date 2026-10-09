@@ -1,0 +1,63 @@
+{
+ "key": "95b362ee6e4aacefa7ca5271ffbbc703b26e171f9d45b30dcc8668531b310cad",
+ "pair": "bunk_bed__rustic",
+ "type": "bunk_bed",
+ "family": "rustic",
+ "index": 4,
+ "seed": 1008015757,
+ "prompt": "a single rustic style wooden bunk bed with a ladder and safety rails, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "f0a0e4884a3a3b29cfe7833259a552d5aa7c0066d4caed6470e64a97fdbedd8c",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:35:10Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "c03d21d42e6edee3a30ce634dcf9670427053aac5170cd783d28e7aeade229c6",
+ "glb_bytes": 17534700,
+ "face_count": 186406,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 68.09,
+ "backend": {
+  "seconds_generate": 39.83,
+  "seconds_export": 27.87,
+  "raw_faces": 19891522,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 29.53,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

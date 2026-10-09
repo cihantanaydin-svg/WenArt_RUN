@@ -1,0 +1,24 @@
+{
+ "key": "5215f43b98bbab09f38a4c22487a15fb364cd7961f56f53d6dac7f8cad6cc7ab",
+ "pair": "display_cabinet__mediterranean",
+ "type": "display_cabinet",
+ "family": "mediterranean",
+ "index": 6,
+ "prompt": "a single mediterranean style tall display cabinet with glass doors and shelves, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2055109077,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "1a9b7b84fa0aa6b41e5bad97b7614339eff847ef32b52e1738d6e418a66fa5d1",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:52Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "53367641b39c7ea25f28927a0342ee6a731df9d2a3efeefb32ab5ab7ebaea188",
+ "pair": "display_cabinet__japandi",
+ "type": "display_cabinet",
+ "family": "japandi",
+ "index": 2,
+ "prompt": "a single japandi style tall display cabinet with glass doors and shelves, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1733363562,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4abf2a3b23cc033251a90b6c0c4b5507e5ca72c15bed099d83df59c4c87967c4",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:00:47Z"
+}

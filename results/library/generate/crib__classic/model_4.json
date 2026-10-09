@@ -1,0 +1,63 @@
+{
+ "key": "46f161bb83272145f1940eaa54afcf31f486e28731a6b926a380b5bd9b9a2755",
+ "pair": "crib__classic",
+ "type": "crib",
+ "family": "classic",
+ "index": 4,
+ "seed": 1367177228,
+ "prompt": "a single classic style baby crib with slatted sides, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "b718629cf5b540567525bd5b7f38e89de0660f4824b0deb1f7c09eec6e97b87d",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:41:07Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "d4e0813916132f9cfd26f7cf19c8b47582ac21f9d7c580889af2c6fd3fa222a6",
+ "glb_bytes": 18600568,
+ "face_count": 190007,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 61.58,
+ "backend": {
+  "seconds_generate": 39.17,
+  "seconds_export": 21.98,
+  "raw_faces": 17327042,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 27.97,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

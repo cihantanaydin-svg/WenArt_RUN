@@ -1,0 +1,24 @@
+{
+ "key": "665dd5b67bdc10d81b4b4f9568e82a2fa9516030ba814f7370bb0b296fe772a0",
+ "pair": "throw__mediterranean",
+ "type": "throw",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style folded throw blanket, sandy cream linen and white cotton with a loose weave, relaxed folds, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1294937142,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "368493d4ba538a659a70931085d84278cf1b9d892d635deae421250f502fb236",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:12:30Z"
+}

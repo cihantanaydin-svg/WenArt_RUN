@@ -1,0 +1,24 @@
+{
+ "key": "f5d0311e60f08dafc2ffbed17637bf3c65de7dd284a60174aacb1de9b936e3e5",
+ "pair": "plant_large__minimal",
+ "type": "plant_large",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style tall indoor monstera deliciosa with large split leaves, about 1.6 m high, in a woven rattan basket floor pot, healthy green leaves, plain and simple, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 949432854,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "edd0a7b5fa889557e822268a7410c07894467ab23518813db0a1788376c310b3",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:02Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "f3b222de7e36c1d1378acecd3852f23e401cc6cdbfe30525206c209d89c8356c",
+ "pair": "shower__industrial",
+ "type": "shower",
+ "family": "industrial",
+ "index": 7,
+ "prompt": "a single industrial style square glass shower enclosure with a shower tray, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1765089429,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0a3dff2052ba229e9ff985a798ea37c54a2d01d2bf950dd6ce930a8c55b1f7d5",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:01:19Z"
+}

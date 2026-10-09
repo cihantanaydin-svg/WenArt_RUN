@@ -1,0 +1,63 @@
+{
+ "key": "9015ea097f4e55bc3025caf3f3649bd1c2951148521337aac011838a87277c1a",
+ "pair": "bunk_bed__japandi",
+ "type": "bunk_bed",
+ "family": "japandi",
+ "index": 4,
+ "seed": 954783867,
+ "prompt": "a single japandi style wooden bunk bed with a ladder and safety rails, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "4edb5c2b073c01c47964b0068058ca6516fef0d58acd0076b223d2be93be4774",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-09T05:31:29Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "12e05792aca0ae250bab1f7e1e9ebf577d3c0da491618a9568a5d8f2e2ce2b1b",
+ "glb_bytes": 14882688,
+ "face_count": 190217,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 62.58,
+ "backend": {
+  "seconds_generate": 36.95,
+  "seconds_export": 25.26,
+  "raw_faces": 15476078,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 27.71,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

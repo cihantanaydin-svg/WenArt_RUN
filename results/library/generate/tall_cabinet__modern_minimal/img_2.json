@@ -1,0 +1,24 @@
+{
+ "key": "0fceefa12ea6a475e4bb7533c3be099d55dba90aea6b06ef1da1653b605a11f4",
+ "pair": "tall_cabinet__modern_minimal",
+ "type": "tall_cabinet",
+ "family": "modern minimal",
+ "index": 2,
+ "prompt": "a single modern minimal style tall narrow storage cabinet with two doors, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1313254737,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "8b276c163a6a6bb6d3873f8e24161044822c9afdba958dd32fb7b45fc3939b45",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:02:38Z"
+}

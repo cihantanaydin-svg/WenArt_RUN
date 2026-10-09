@@ -1,0 +1,24 @@
+{
+ "key": "c7d960669224978cbe34f5d48d6176fd0e480d4e2bfb2e9e1bf132ee9937e5ae",
+ "pair": "bunk_bed__classic",
+ "type": "bunk_bed",
+ "family": "classic",
+ "index": 6,
+ "prompt": "a single classic style wooden bunk bed with a ladder and safety rails, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 15579739,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ee66d5ae77073f65f6668c7c979244e392c8b8fd463ad4dc783f804c8708adec",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:13:44Z"
+}

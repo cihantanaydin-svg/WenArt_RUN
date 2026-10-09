@@ -1,0 +1,24 @@
+{
+ "key": "0b6cde6a662ebf7ee5b079021ed5d0ee33823a0c3872540e44aba0b2c5e805e5",
+ "pair": "shoe_cabinet__rustic",
+ "type": "shoe_cabinet",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style slim shoe cabinet with flap doors, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1583921033,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "147bc6f81c9d1fefe58cac1437497de6ad7bf7e695117dd1b4b6bf8a8aa63cad",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:23Z"
+}

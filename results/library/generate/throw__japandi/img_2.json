@@ -1,0 +1,24 @@
+{
+ "key": "e114a1f427131eb934ec8956f8ca28df6a405b6397a187c4d6b2c0326cc5637b",
+ "pair": "throw__japandi",
+ "type": "throw",
+ "family": "japandi",
+ "index": 2,
+ "prompt": "a single japandi style folded throw blanket, undyed linen and raw cotton in oatmeal and stone grey, soft drape, calm, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1540267492,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "1cbcc594512076ff32e65dad833e8e36e3b41a30eb450069435d4a10521146d0",
+ "seconds": 4.17,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:00:34Z"
+}

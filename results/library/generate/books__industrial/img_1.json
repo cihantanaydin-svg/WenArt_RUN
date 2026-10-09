@@ -1,0 +1,24 @@
+{
+ "key": "1f8163bbfb24409be93050879cba1e4077119bdaad9e730a84c1abb5e53fe814",
+ "pair": "books__industrial",
+ "type": "books",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style stack of three hardcover books lying flat, black steel and dark wood, raw textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1664967771,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0b9a9d4434ba09a55090911352a76b5507df144d62e509ca0b9f29942cd7549f",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:07Z"
+}

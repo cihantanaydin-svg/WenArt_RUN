@@ -1,0 +1,24 @@
+{
+ "key": "3e9b13c31015f215705fd6b55dd86f208745dd569a5b4c83c842d8cfaa9c870d",
+ "pair": "display_cabinet__classic",
+ "type": "display_cabinet",
+ "family": "classic",
+ "index": 6,
+ "prompt": "a single classic style tall display cabinet with glass doors and shelves, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1222337800,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "90912ba00a30d0134e65f43a1ab70f8c4c4b778ccde0bae77268941edbf1bacb",
+ "seconds": 3.96,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:14:04Z"
+}

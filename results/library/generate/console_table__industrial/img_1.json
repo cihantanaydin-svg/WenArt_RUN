@@ -1,0 +1,24 @@
+{
+ "key": "cdf12364b34770291bfb60dc7868d25afc8e4e5f30d939b5dcbaf275f885bf22",
+ "pair": "console_table__industrial",
+ "type": "console_table",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style narrow console table with two drawers for a hallway, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1715502173,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "fc2bd9575ecc6dab7728e92e761246ebb7d2d1f68fff9514e2166b4482a5d2e2",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:26Z"
+}

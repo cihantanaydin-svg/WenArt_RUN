@@ -1,0 +1,24 @@
+{
+ "key": "3e32f19a05350e1dfd2461b5ae1f58a07868c0b26913a86f3570a4e76b42d05f",
+ "pair": "tall_cabinet__japandi",
+ "type": "tall_cabinet",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style tall narrow storage cabinet with two doors, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1583094667,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a7014254dce62a66447b1a51406210e7325e3ca9ade33f01374484c58076bf77",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:06Z"
+}

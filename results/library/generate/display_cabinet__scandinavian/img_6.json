@@ -1,0 +1,24 @@
+{
+ "key": "0a3b2620ee7efaf944f12518fe8197816efde2ed62282bad807ef245231d585b",
+ "pair": "display_cabinet__scandinavian",
+ "type": "display_cabinet",
+ "family": "scandinavian",
+ "index": 6,
+ "prompt": "a single scandinavian style tall display cabinet with glass doors and shelves, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 824112946,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b8111483f9bcae19b6235b59e3f8d1078c8d65be5b02a7a2cdc4e993a10dcf92",
+ "seconds": 4.15,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:10:45Z"
+}

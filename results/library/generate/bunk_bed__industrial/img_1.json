@@ -1,0 +1,24 @@
+{
+ "key": "af851fd3b0f3d375922010364f04c0c24e647734ae4451a07f966d17c4d29a5d",
+ "pair": "bunk_bed__industrial",
+ "type": "bunk_bed",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style wooden bunk bed with a ladder and safety rails, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 581958570,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "53f5dfbe48604f9e906bd44b8466d3b839236fa4f8e518c73a85d30aa553f5cd",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:54:59Z"
+}

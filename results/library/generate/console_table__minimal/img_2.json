@@ -1,0 +1,24 @@
+{
+ "key": "9d69bd7b43f8aac33ddab72387cd1e1ee3cb86d5bec4c96bbbd1db232f7e82cf",
+ "pair": "console_table__minimal",
+ "type": "console_table",
+ "family": "minimal",
+ "index": 2,
+ "prompt": "a single minimal style narrow console table with two drawers for a hallway, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1918745941,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "988389617436051e0d35bab1ec2041bb133c643539f9bca637f565351cdb4fb4",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:51Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "af7f797f406db55b1c4150513adb7f5c96b04c0e8731ca8b2cfec59fdc8c3792",
+ "pair": "shower__mediterranean",
+ "type": "shower",
+ "family": "mediterranean",
+ "index": 6,
+ "prompt": "a single mediterranean style square glass shower enclosure with a shower tray, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 178055265,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "01c14b6108e6fadfac107400b9674f1040fc25841aa1766e94bd5a81b185a85d",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:14Z"
+}

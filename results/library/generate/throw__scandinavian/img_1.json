@@ -1,0 +1,24 @@
+{
+ "key": "9ab36ebe8c55ff95e25f0d34d8246bd8c90f249919937bb3a9b6b7ccfeee147f",
+ "pair": "throw__scandinavian",
+ "type": "throw",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style folded throw blanket, natural white linen and soft grey wool, simple weave, light and airy, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 771751551,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d552df2bb04c946970ed8ba08cd72e0594c2e9a2b9c123dc3b06aa84c8ff3afe",
+ "seconds": 4.26,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:00:09Z"
+}

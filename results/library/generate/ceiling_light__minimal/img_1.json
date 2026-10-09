@@ -1,0 +1,24 @@
+{
+ "key": "d7fa922546d9e98b94ae6127fa6c9dae828802524217a1a040b5ae9c8cca763b",
+ "pair": "ceiling_light__minimal",
+ "type": "ceiling_light",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style flush mount ceiling light with a round shade, plain matte white shade, simple geometric form, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1095847403,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "aae7fb63be67950be5bd01d0d0b47c55b68ec7dade1c1248efbe6d0a4316cc03",
+ "seconds": 4.29,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:59:47Z"
+}

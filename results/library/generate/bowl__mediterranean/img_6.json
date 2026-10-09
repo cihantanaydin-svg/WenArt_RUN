@@ -1,0 +1,24 @@
+{
+ "key": "e6c3f84bc5c4fa91af4edce8f1e6221e0f4338aaf98ae84e8b297422927e31ce",
+ "pair": "bowl__mediterranean",
+ "type": "bowl",
+ "family": "mediterranean",
+ "index": 6,
+ "prompt": "a single mediterranean style shallow decorative bowl for a coffee table, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 423342285,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c7e17a7e7b279693d19cfa1349b3cb46243569d0fa749be9fac50097f40f9325",
+ "seconds": 4.15,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:58Z"
+}

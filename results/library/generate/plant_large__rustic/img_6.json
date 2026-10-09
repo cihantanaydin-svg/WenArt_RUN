@@ -1,0 +1,24 @@
+{
+ "key": "6304f7e2cbace5823781b8ddbaf71c2a91090d35d6b9366f6841a9a8e0d2e057",
+ "pair": "plant_large__rustic",
+ "type": "plant_large",
+ "family": "rustic",
+ "index": 6,
+ "prompt": "a single rustic style tall indoor monstera deliciosa with large split leaves, about 1.6 m high, in a matte white ceramic floor pot, healthy green leaves, natural and lush, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2133406047,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "5590c481fda73385540a01880fd4b0ea41ac95a5591434aa9b65e360ffce4683",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:14:37Z"
+}

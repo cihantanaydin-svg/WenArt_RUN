@@ -1,0 +1,24 @@
+{
+ "key": "1d146b946d9f67fd75a88a2e4719714a729253ad901823137f1c9a666db55742",
+ "pair": "blind__modern",
+ "type": "blind",
+ "family": "modern",
+ "index": 3,
+ "prompt": "a single modern style window roller blind, half lowered, on its mounting bracket, smooth charcoal and warm grey fabric, tailored fall, subtle texture, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 955162991,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "77e3d032205e6215b7dc594aaa02b5d8595ef90d56211959950c1b81fecc0ab8",
+ "seconds": 4.29,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:03:54Z"
+}

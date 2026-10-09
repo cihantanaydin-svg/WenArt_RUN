@@ -1,0 +1,24 @@
+{
+ "key": "18ca305149d2f4a7200f50e99d97747402d0db9402f185eaae9ea05c9817440e",
+ "pair": "shoe_cabinet__japandi",
+ "type": "shoe_cabinet",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style slim shoe cabinet with flap doors, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1096034443,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c32413256c09acfe268c2c78099a1c3daec140a6c725a8892ac6d8043dfa6dc9",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:58:33Z"
+}

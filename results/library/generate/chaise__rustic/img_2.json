@@ -1,0 +1,24 @@
+{
+ "key": "44b6956273d6b2a0c0c2dc9f4034737768f12f178f4f9139f08ce1733a631e29",
+ "pair": "chaise__rustic",
+ "type": "chaise",
+ "family": "rustic",
+ "index": 2,
+ "prompt": "a single rustic style upholstered chaise longue with one raised head end, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 34318406,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "06af7dac9a9d1afba62f5422d9b74cc9b71b263b7bea5ff1abec4f25f6826a9b",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:01:56Z"
+}

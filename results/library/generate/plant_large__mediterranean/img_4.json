@@ -1,0 +1,24 @@
+{
+ "key": "f66080726ee7dcf5ce0eabad4c53790d5091f1290ec07e10000d35633bef1c1d",
+ "pair": "plant_large__mediterranean",
+ "type": "plant_large",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style tall indoor areca palm with many arching fronds, about 1.6 m high, in a matte white ceramic floor pot, healthy green leaves, sunlit and relaxed, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2133051072,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "375277abd4eed330f4386dce2fd247dc44bc29160cbd6ec229354ad40f80bd32",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:09:31Z"
+}

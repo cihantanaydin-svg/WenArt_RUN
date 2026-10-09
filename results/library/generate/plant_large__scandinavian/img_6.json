@@ -1,0 +1,24 @@
+{
+ "key": "a05dd3ed159e020ac7a83ce74698fad8953560d36b4bb3b72b6f069c20a085ad",
+ "pair": "plant_large__scandinavian",
+ "type": "plant_large",
+ "family": "scandinavian",
+ "index": 6,
+ "prompt": "a single scandinavian style tall indoor areca palm with many arching fronds, about 1.6 m high, in a grey concrete floor pot, healthy green leaves, bright and natural, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 58311945,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3418af3af18e382e6173915c647bb98d0f9dbe37c3fc98df6d501ca8cfa94432",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:10:40Z"
+}

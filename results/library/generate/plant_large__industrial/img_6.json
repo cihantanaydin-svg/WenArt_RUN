@@ -1,0 +1,24 @@
+{
+ "key": "a676fcfadebf8ca514b5485fb6ae741377d57418f551e272b5e6213d97c21f23",
+ "pair": "plant_large__industrial",
+ "type": "plant_large",
+ "family": "industrial",
+ "index": 6,
+ "prompt": "a single industrial style tall indoor areca palm with many arching fronds, about 1.6 m high, in a matte white ceramic floor pot, healthy green leaves, bold and graphic, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1401075112,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "08f8ce9d636b6d451c5375ed8a950706c6b423c50606be48b3f097810047bc1f",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:14:13Z"
+}

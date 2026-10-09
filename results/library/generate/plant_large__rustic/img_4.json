@@ -1,0 +1,24 @@
+{
+ "key": "11e565d6350aa14bfb9d56382455ba75a4964610020a56e040d46f845faa7e92",
+ "pair": "plant_large__rustic",
+ "type": "plant_large",
+ "family": "rustic",
+ "index": 4,
+ "prompt": "a single rustic style tall indoor large boston fern with arching fronds, about 1.6 m high, in a cream ceramic floor pot, healthy green leaves, natural and lush, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 840101099,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "68f001b19ca93c303fd12e63becb67e5403a5572f54c49b2e6086c8832eb4289",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:10:20Z"
+}

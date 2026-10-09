@@ -1,0 +1,24 @@
+{
+ "key": "1fe182c519ccb933dfbffa10cf1753b9ce4036d749645d2ab5491b33f0d4bc85",
+ "pair": "tall_cabinet__scandinavian",
+ "type": "tall_cabinet",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style tall narrow storage cabinet with two doors, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 478484331,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2f0d8ceecc866538cb3e7e9b60f47f4d0983305e793edb055b9b99e26d4a3f28",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:12:31Z"
+}

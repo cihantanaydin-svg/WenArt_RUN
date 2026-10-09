@@ -1,0 +1,24 @@
+{
+ "key": "8d2d7acbfc131121e55d7e5518bca8477ab1337432674884eba6c9a18ac1de6c",
+ "pair": "crib__mediterranean",
+ "type": "crib",
+ "family": "mediterranean",
+ "index": 5,
+ "prompt": "a single mediterranean style baby crib with slatted sides, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1862773677,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9aebdda5db6b994b5af14a44a9762af16985376d19d5d12b03e73c29accafcd8",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:12:06Z"
+}

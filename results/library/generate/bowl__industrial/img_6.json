@@ -1,0 +1,24 @@
+{
+ "key": "2f4364546de3f0756e8811605979feae771ba0bdfd4a037d1e0871a6761af50f",
+ "pair": "bowl__industrial",
+ "type": "bowl",
+ "family": "industrial",
+ "index": 6,
+ "prompt": "a single industrial style shallow decorative bowl for a coffee table, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1143165712,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "23e29a0ed8bfe5a951865d4d20c2939f33ca51616baaf940c58145754349d9cd",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:12Z"
+}

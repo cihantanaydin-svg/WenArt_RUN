@@ -1,0 +1,24 @@
+{
+ "key": "a0ca767d178f65bd81aa5687f9f71a4041c67102b54dec944619da5ae3d12cc8",
+ "pair": "tall_cabinet__rustic",
+ "type": "tall_cabinet",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style tall narrow storage cabinet with two doors, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 264045325,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3fa6833eb9c48b20a06136a1dd8cee889e262b7dedc5bcad757a3c64409a4e88",
+ "seconds": 4.17,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:47Z"
+}

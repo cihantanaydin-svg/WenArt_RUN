@@ -1,0 +1,24 @@
+{
+ "key": "9096eede215d5598f30b8dd3c6b367a2def5c22f159927b7d6c43bb232cb9206",
+ "pair": "chaise__industrial",
+ "type": "chaise",
+ "family": "industrial",
+ "index": 4,
+ "prompt": "a single industrial style upholstered chaise longue with one raised head end, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 672541614,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a9b01d424fdb1869364b2ae3bf9373525ca69115519dfb013ea79684c79013bd",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:07:54Z"
+}

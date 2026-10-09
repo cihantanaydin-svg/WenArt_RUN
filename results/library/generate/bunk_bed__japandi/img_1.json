@@ -1,0 +1,24 @@
+{
+ "key": "e402a2a3a7d254220a1b4711ddfb31b29089f60e908ef0a634bce11490756238",
+ "pair": "bunk_bed__japandi",
+ "type": "bunk_bed",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style wooden bunk bed with a ladder and safety rails, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 598631059,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "859b791eca85e88584209bb7b2e9e9d148909bb3971fea5dc81302152ab4f1a2",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:10Z"
+}

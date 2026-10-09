@@ -1,0 +1,24 @@
+{
+ "key": "239f75eaf3b6ee42e2499ad85b290e94e83a3d0e94cd95de6a059d7f12359351",
+ "pair": "plant_large__modern_minimal",
+ "type": "plant_large",
+ "family": "modern minimal",
+ "index": 2,
+ "prompt": "a single modern minimal style tall indoor areca palm with many arching fronds, about 1.6 m high, in a grey concrete floor pot, healthy green leaves, clean and simple, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 820485600,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e0184d87ad66bdeddb92689055011f830a284af878b4a996ff47875bfe218f44",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T04:01:07Z"
+}

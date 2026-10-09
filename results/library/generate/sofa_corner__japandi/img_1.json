@@ -1,0 +1,24 @@
+{
+ "key": "7cca1eeee289bfb86e75912e215f5d3f7ce8099094d358c540bc93e3f6d6a525",
+ "pair": "sofa_corner__japandi",
+ "type": "sofa_corner",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style L-shaped corner sofa with a chaise section and loose back cushions, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 715447520,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e8a51053cefae3f40faee927dc739ca0e89dcbafe15e6930f6e594ad44e0645f",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:56:13Z"
+}

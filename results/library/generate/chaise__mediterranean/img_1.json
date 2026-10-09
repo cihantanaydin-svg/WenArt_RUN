@@ -1,0 +1,24 @@
+{
+ "key": "a1a0adf1157af0b7b70e6a62492d4e4cc32a6dae55cd3aeec857aba82a4beb85",
+ "pair": "chaise__mediterranean",
+ "type": "chaise",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style upholstered chaise longue with one raised head end, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 62896205,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3edabf4a5eac24a0070d102ed1cb97eef4bebbea82835694ebbea03d9b87ffaf",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:57:10Z"
+}

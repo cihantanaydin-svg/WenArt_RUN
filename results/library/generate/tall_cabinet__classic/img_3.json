@@ -1,0 +1,24 @@
+{
+ "key": "23aa4cebcbe27628e1b8dfb95e6d3e519ff2f206f0fab31e5108274797f44e8e",
+ "pair": "tall_cabinet__classic",
+ "type": "tall_cabinet",
+ "family": "classic",
+ "index": 3,
+ "prompt": "a single classic style tall narrow storage cabinet with two doors, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 134446116,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "8d8f966425121056c8bc946221d9df148c0e11d2cdf0f989b108e04f2e4cef5c",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T05:08:23Z"
+}

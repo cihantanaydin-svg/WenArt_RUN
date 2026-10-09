@@ -1,0 +1,24 @@
+{
+ "key": "368d474244a787a9d94bdc6be705f27378adee501c4278661b288042060cefa0",
+ "pair": "blind__japandi",
+ "type": "blind",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style window roller blind, half lowered, on its mounting bracket, undyed linen and raw cotton in oatmeal and stone grey, soft drape, calm, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1196112567,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2629e3ad95f662cbe13f89a3a5ad04a1b1889bd19f69f51d9e284b7c2ae6017d",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-09T03:55:36Z"
+}
