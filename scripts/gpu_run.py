@@ -12,6 +12,7 @@ Usage:
   gpu_run.py status                      pods, volumes, today's spend
   gpu_run.py gpus [--dc EU-RO-1]         live prices and availability of the allowed GPUs
   gpu_run.py volume-create [--size 120]  create the Network Volume (asks first)
+  gpu_run.py volume-resize --size N      grow the network volume (user's OK first; never shrinks)
   gpu_run.py run --job scripts/jobs/smoke.sh [--gpu "RTX PRO 6000"] [--max-minutes 120] [--no-volume]
   gpu_run.py logs POD_ID | stop POD_ID | terminate POD_ID | sweep [--yes]
   gpu_run.py attach POD_ID [--purpose TEXT]  re-attach after the runner died: wait, collect, stop, log
@@ -440,6 +441,23 @@ def cmd_volume_create(a: argparse.Namespace) -> int:
         print("cancelled"); return 1
     v = api("POST", "/v2/network-volumes", {"name": VOLUME_NAME, "size": a.size, "dataCenter": a.dc, "type": "STANDARD"})
     print(f"created {v['id']}")
+    return 0
+
+
+def cmd_volume_resize(a: argparse.Namespace) -> int:
+    """Grow the project volume (REST v2 ``PATCH /v2/network-volumes/{id}``; a volume only grows). It changes the
+    monthly storage cost, so it runs only with ``--yes`` after the user's OK (CLAUDE.md)."""
+    v = find_volume()
+    if not v:
+        print(f"no volume named '{VOLUME_NAME}'"); return 1
+    if a.size <= v["size"]:
+        print(f"volume {v['id']} is {v['size']} GB; a network volume only grows (asked {a.size} GB)"); return 1
+    extra = (a.size - v["size"]) * 0.07
+    print(f"growing volume {v['id']} from {v['size']} to {a.size} GB (+~${extra:.2f}/month, ~${a.size * 0.07:.2f}/month)")
+    if not a.yes and input("type 'yes' to confirm: ").strip() != "yes":
+        print("cancelled"); return 1
+    r = api("PATCH", f"/v2/network-volumes/{v['id']}", {"size": a.size}, retries=1)
+    print(f"volume {v['id']} is now {(r or {}).get('size', '?')} GB")
     return 0
 
 
@@ -985,6 +1003,9 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("gpus"); g.add_argument("--dc"); g.set_defaults(fn=cmd_gpus)
     v = sub.add_parser("volume-create"); v.add_argument("--size", type=int, default=VOLUME_SIZE_GB)
     v.add_argument("--dc", default=DATACENTER); v.add_argument("--yes", action="store_true"); v.set_defaults(fn=cmd_volume_create)
+    vr = sub.add_parser("volume-resize", help="grow the project volume (asks first; a volume never shrinks)")
+    vr.add_argument("--size", type=int, required=True, help="new size in GB")
+    vr.add_argument("--yes", action="store_true"); vr.set_defaults(fn=cmd_volume_resize)
     r = sub.add_parser("run")
     r.add_argument("--job", required=True, help="job script path relative to the repo root (scripts/jobs/<name>.sh)")
     r.add_argument("--gpu", help="force one GPU name, e.g. 'RTX PRO 4500' (L4 is refused)")

@@ -629,3 +629,25 @@ def test_attach_leaves_a_foreign_pod_alone(monkeypatch):
     fake = FakeRunPod()
     monkeypatch.setattr(gpu_run, "api", lambda m, p, *a, **k: {"id": POD_ID, "name": "someone-else", "status": "RUNNING"})
     assert gpu_run.cmd_attach(argparse.Namespace(pod_id=POD_ID, purpose="x")) == 1
+
+
+def test_volume_resize_only_grows_and_needs_the_ok(monkeypatch, capsys):
+    calls = []
+    vol = {"id": "vol1", "name": gpu_run.VOLUME_NAME, "size": 120, "dataCenter": "EU-RO-1"}
+
+    def api(method, path, body=None, *a, **k):
+        calls.append((method, path, body))
+        if method == "GET":
+            return {"networkVolumes": [vol]}
+        return {**vol, "size": body["size"]}
+
+    monkeypatch.setattr(gpu_run, "api", api)
+    run = lambda *argv: gpu_run.main(["volume-resize", *argv])
+    assert run("--size", "100", "--yes") == 1 and "only grows" in capsys.readouterr().out
+    monkeypatch.setattr("builtins.input", lambda prompt="": "no")
+    assert run("--size", "250") == 1 and "cancelled" in capsys.readouterr().out
+    assert not [c for c in calls if c[0] == "PATCH"]
+    assert run("--size", "250", "--yes") == 0
+    assert calls[-1] == ("PATCH", "/v2/network-volumes/vol1", {"size": 250})
+    out = capsys.readouterr().out
+    assert "from 120 to 250 GB (+~$9.10/month" in out and "now 250 GB" in out
