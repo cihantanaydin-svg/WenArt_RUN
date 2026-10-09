@@ -730,6 +730,7 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 - `completion_report.md` shows the drawn type for a reverted change (the final report shows the refused proposal).
 - A private project's report names its sheet debug image paths (staged names, never copied).
 - Objaverse LVIS category names are checked against the LVIS v1 list, not the Objaverse file (unverified until a pod).
+- `recolour slots` rebuilds every model's record and sheet after Blender on each run (reads the masks and renders from the network volume, about 15 min for 1646 models) and does not watch the deadline there; the GLB copies with renamed materials before Blender neither. The prep job therefore runs `recolour_slots` only where the slots are new (L2b leaves it out: the generated models get no material fields, and the fit chooses them by their own colours).
 
 ### 10.5 Pods
 
@@ -739,5 +740,6 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 | L1b `3qvwb0h3gzt94o` | RTX PRO 4000 | 139 | $1.32 | `--types new` surveys: ABO 1217 candidates (7 min), Objaverse 825 (30 min); thumbnails cut after 54 min | the job ran into the watchdog (library copy), nothing collected; the work is on the volume |
 | L1c `5j6x21hcj34t42` | RTX PRO 6000 | 115 | $4.76 | the rest of the thumbnails (50 min), 1646 judging sheets, material slots cut after 18 min | the same: the byte-for-byte library copy after every late step outran the watchdog → size and mtime compare, 16 copies at once; the runner collects 16 files at once; `--max-minutes 95 --grace 1200` |
 | L1d `5wbmxoz3cdezq6` | RTX PRO 6000 | 68 | $2.81 | sheets and pipelines of the four prep projects (real02: 92 questions, synthetic-07 and real02: no sheet_region question), both sessions (recognition, library judging), final pipelines, catalogue 618 + 316 decor models, copy, GPU tests | GPU tests: 2 library failures (a kept ABO record has no GLB on the pod: the test fixed; crib in 2 style families: L2's generation); real02 failed the schema (drawn wall cabinets without `mount_bottom_m`: fixed, real02 `ok` locally with the answers) |
+| L2a `md5uwkua9n8mey` | RTX PRO 6000 | 112 | $4.65 | the rest of the material slots (1264 of 1646 ready models with slots, 1275 sheets, 57 min), Qwen judged them (7 min) | GLM could not start before the deadline: the slots step overran its reserve by 15 min (it rebuilds every model's record and sheet after Blender, unbounded by the deadline), then the late steps ran into the watchdog; nothing collected. The generation's input images (310 MB) no longer go to `$RESULTS` |
 
 
