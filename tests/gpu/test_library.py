@@ -133,10 +133,13 @@ def test_abo_candidates_are_cc_by_with_known_units_and_the_documented_front(surv
     fresh = {c["uid"] for c in surv["candidates"] if not listed or c["group"] in listed}
     surveyed_here = any(Path(c["glb"]).is_file() for c in surv["candidates"] if c["uid"] in fresh)
     accepted = {a["uid"] for a in (OV.read_json(LIBRARY / "accepted.json") or {}).get("accepted", [])}
+    # write-catalog leaves out (and lists) an accepted model whose GLB it cannot read (a kept record whose GLB was
+    # in an earlier pod's container cache: ``glb_changed``); such a model is not in the catalogue.
+    refused = {r["uid"] for r in (OV.read_json(LIBRARY / OV.CATALOG_NAME) or {}).get("refused_at_write") or []}
     for c in surv["candidates"]:
         if surveyed_here and c["uid"] in fresh:
             assert Path(c["glb"]).is_file(), c["uid"]
-        elif c["uid"] in accepted:
+        elif c["uid"] in accepted and c["uid"] not in refused:
             assert OV.glb_source(c, ASSETS) is not None, f"{c['uid']}: accepted, but no GLB in {ASSETS}"
 
 
@@ -327,6 +330,8 @@ def test_new_types_have_models_in_three_style_families_and_credits():
     if short:
         warnings.warn("new types below their target (docs/milestone10.md §4.11 coverage table): " + "; ".join(short))
     assert not thin, f"fewer than {MIN_FAMILIES} style families: {thin}"
+    parametric = set(OV.load_config().get("parametric_only") or ())         # wall_cabinet: built along the counter
+    empty = [t for t in empty if t not in parametric]
     if generated:
         assert not empty, f"after the generation these new types still have no model: {empty}"
     elif empty:
@@ -390,11 +395,15 @@ def test_material_tags_of_the_catalogue_follow_both_judges(cfg):
         covered: dict = {}
         total = 0.0
         for slot in e["material_slots"]:
-            assert slot["material"] in R.MATERIALS and 0.0 <= slot["share"] <= 1.0 + 1e-6, e["id"]
+            # ``material``: the one material, ``mixed`` for several, ``other`` for none (recolour.slot_material);
+            # a tag counts every material both judges name for a slot (recolour.model_tags).
+            assert slot["material"] in R.MATERIALS + ("mixed",) and 0.0 <= slot["share"] <= 1.0 + 1e-6, e["id"]
+            assert slot["material"] == R.slot_material(slot["materials"]), e["id"]
             assert slot["separable"] <= slot["agreed"], e["id"]
             total += slot["share"]
-            if slot["agreed"] and slot["material"] != "other":
-                covered[slot["material"]] = covered.get(slot["material"], 0.0) + slot["share"]
+            for material in slot["materials"]:
+                if material != "other":
+                    covered[material] = covered.get(material, 0.0) + slot["share"]
         assert total <= 1.0 + 1e-3, (e["id"], total)
         assert set(e["material_tags"]) == {t for t, s in covered.items() if s >= rcfg["min_tag_share"]}, e["id"]
         for material, flag in (("fabric", e["recolourable_fabric"]), ("wood", e["recolourable_wood"])):
