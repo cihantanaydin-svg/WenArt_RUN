@@ -2,108 +2,93 @@
  "schema_version": "0.1",
  "project": "real02",
  "model_keys": [
-  "qwen",
-  "glm"
+  "agent"
  ],
- "single_pass": false,
+ "single_pass": true,
  "metrics": {
   "baseline": {
-   "views": 12,
-   "views_computed": 12,
-   "required_elements": 19,
-   "fa_missing": 0.0,
-   "fa_extra": 0.0,
-   "count_error": 0.0,
-   "disputed": 0.0
+   "views": 9,
+   "views_computed": 9,
+   "required_elements": 7,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
   },
   "models": {
-   "qwen": {
-    "calls": 12,
-    "answered": 12,
+   "agent": {
+    "calls": 9,
+    "answered": 9,
     "answer_rate": 1.0,
-    "decoys": 12,
-    "decoy_accept": 0.0,
-    "fa_missing_single": 0.0
-   },
-   "glm": {
-    "calls": 12,
-    "answered": 12,
-    "answer_rate": 1.0,
-    "decoys": 12,
+    "decoys": 9,
     "decoy_accept": 0.0,
     "fa_missing_single": 0.0
    }
   },
-  "fa_missing": 0.0,
-  "fa_extra": 0.0,
-  "count_error": 0.0,
-  "removal_flagged": 0.5,
-  "removal_confirmed": 0.0,
-  "insertion": 0.5,
-  "insertion_flagged": 0.5,
+  "fa_missing": null,
+  "fa_extra": null,
+  "count_error": null,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": 1.0,
   "swap_flagged": null,
   "swap_confirmed": null,
   "detector_insertion": {
-   "n": 2,
-   "advisory": false,
-   "found": 1.0,
-   "flagged": 1.0,
-   "confirmed": 1.0,
-   "rows": [
-    {
-     "camera": "cam_r_L-1b_acik_mutfak_2_2",
-     "kind": "insertion:f_L-1b_017",
-     "hit_score": 0.5973,
-     "hit_group": "kitchen_island",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L-1b_oda_1",
-     "kind": "insertion:f_L-1b_040",
-     "hit_score": 0.4112,
-     "hit_group": "bookshelf",
-     "flagged": true,
-     "confirmed": true
-    }
-   ]
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
   },
   "controls": {
    "removal": {
-    "n": 2,
-    "flagged": 0.5,
+    "n": 3,
+    "flagged": 1.0,
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L-1b_acik_mutfak_2_2",
-      "kind": "removal:f_L-1b_017",
-      "flagged": false,
+      "camera": "cam_r_L-1b_acik_mutfak_3",
+      "kind": "removal:f_L-1b_011",
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L-1b_oda_1",
-      "kind": "removal:f_L-1b_040",
+      "kind": "removal:f_L-1b_062",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L-1b_oda_3",
+      "kind": "removal:d_L-1b_001",
       "flagged": true,
       "confirmed": false
      }
     ]
    },
    "insertion": {
-    "n": 2,
-    "flagged": 0.5,
-    "confirmed": 0.5,
+    "n": 3,
+    "flagged": 1.0,
+    "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L-1b_acik_mutfak_2_2",
-      "kind": "insertion:f_L-1b_017",
-      "flagged": false,
+      "camera": "cam_r_L-1b_acik_mutfak_3",
+      "kind": "insertion:f_L-1b_011",
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L-1b_oda_1",
-      "kind": "insertion:f_L-1b_040",
+      "kind": "insertion:f_L-1b_062",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L-1b_oda_3",
+      "kind": "insertion:d_L-1b_001",
+      "flagged": true,
+      "confirmed": false
      }
     ]
    },
@@ -115,13 +100,12 @@
    }
   },
   "exterior": {
-   "views": 5,
-   "views_computed": 5,
-   "required_elements": 9,
-   "fa_missing": 0.1111,
-   "fa_extra": 0.0,
-   "count_error": 0.2,
-   "disputed": 0.0
+   "views": 6,
+   "views_computed": 6,
+   "required_elements": 12,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
   }
  },
  "targets": {
@@ -134,32 +118,54 @@
  },
  "missed": [
   {
+   "target": "fa_missing_max",
+   "metric": "fa_missing",
+   "value": null,
+   "threshold": 0.05,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "fa_extra_max",
+   "metric": "fa_extra",
+   "value": null,
+   "threshold": 0.1,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
    "target": "removal_flagged_min",
    "metric": "removal_flagged",
-   "value": 0.5,
+   "value": null,
    "threshold": 0.8,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   },
   {
    "target": "removal_confirmed_min",
    "metric": "removal_confirmed",
-   "value": 0.0,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   },
   {
    "target": "insertion_min",
    "metric": "insertion",
-   "value": 0.5,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   }
  ],
  "advisory": true,
  "advisory_reasons": [
-  "removal_flagged 0.5 misses >= 0.8",
-  "removal_confirmed 0.0 misses >= 0.6",
-  "insertion 0.5 misses >= 0.6"
+  "single pass: no two-model agreement",
+  "fa_missing None misses <= 0.05 (single pass)",
+  "fa_extra None misses <= 0.1 (single pass)",
+  "removal_flagged None misses >= 0.8 (single pass)",
+  "removal_confirmed None misses >= 0.6 (single pass)",
+  "insertion None misses >= 0.6 (single pass)"
  ],
  "plan_ab": {
   "cameras": [],

@@ -23,36 +23,36 @@
  },
  "drawn": [
   {
-   "id": "f_L0_014",
+   "id": "f_L0_012",
    "type": "wardrobe",
    "kind": "changeable",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
      14.2457,
-     6.7436
+     7.0436
     ],
-    "wall_id": null
+    "wall_id": "w_L0_004"
    }
   },
   {
-   "id": "f_L0_022",
+   "id": "f_L0_020",
    "type": "bed_double",
    "kind": "changeable",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
-     14.0224,
+     14.9724,
      3.0087
     ],
-    "wall_id": null
+    "wall_id": "w_L0_016"
    }
   },
   {
-   "id": "f_L0_029",
-   "type": "unknown",
+   "id": "f_L0_027",
+   "type": "desk",
    "kind": "changeable",
    "unverified": true,
    "anchor": {
@@ -72,7 +72,6 @@
  "addable": {
   "nightstand": 2,
   "dresser": 1,
-  "desk": 1,
   "office_chair": 1,
   "bench": 1,
   "armchair": 1,
@@ -98,52 +97,52 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L0_053",
+   "id": "f_L0_051",
    "type": "nightstand",
    "center": [
     14.752,
-    4.08
+    4.01
    ],
    "size": [
-    0.5,
-    0.4
-   ],
-   "rotation_deg": 270.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": "f_L0_041"
-  },
-  {
-   "id": "f_L0_054",
-   "type": "nightstand",
-   "center": [
-    14.752,
-    1.98
-   ],
-   "size": [
-    0.5,
-    0.4
-   ],
-   "rotation_deg": 270.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": "f_L0_042"
-  },
-  {
-   "id": "f_L0_055",
-   "type": "bench",
-   "center": [
-    12.823,
-    2.333
-   ],
-   "size": [
-    1.2,
+    0.4,
     0.4
    ],
    "rotation_deg": 270.0,
    "confidence": 0.6,
    "method": "ai",
-   "mirrored_from": "f_L0_043"
+   "mirrored_from": "f_L0_039"
+  },
+  {
+   "id": "f_L0_052",
+   "type": "nightstand",
+   "center": [
+    13.423,
+    1.921
+   ],
+   "size": [
+    0.5,
+    0.4
+   ],
+   "rotation_deg": 180.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": "f_L0_040"
+  },
+  {
+   "id": "f_L0_053",
+   "type": "bench",
+   "center": [
+    14.272,
+    1.945
+   ],
+   "size": [
+    1.0,
+    0.4
+   ],
+   "rotation_deg": 0.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": "f_L0_041"
   }
  ],
  "refused": [],
@@ -151,14 +150,13 @@
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L0_014": [
+   "f_L0_012": [
     "inside_room"
    ],
-   "f_L0_022": [
-    "clearance_ok",
+   "f_L0_020": [
     "inside_room"
    ],
-   "f_L0_029": [
+   "f_L0_027": [
     "inside_room"
    ]
   },
@@ -219,7 +217,7 @@
   },
   "drawn": [
    {
-    "id": "f_L0_014",
+    "id": "f_L0_012",
     "type": "wardrobe",
     "kind": "changeable",
     "center": [
@@ -231,18 +229,18 @@
      0.6
     ],
     "rotation_deg": 0.0,
-    "front_deg": null,
+    "front_deg": 270.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       14.25,
-      6.74
+      7.04
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L0_004"
    },
    {
-    "id": "f_L0_022",
+    "id": "f_L0_020",
     "type": "bed_double",
     "kind": "changeable",
     "center": [
@@ -253,20 +251,20 @@
      1.55,
      1.9
     ],
-    "rotation_deg": 90.0,
-    "front_deg": null,
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
-      14.02,
+      14.97,
       3.01
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L0_016"
    },
    {
-    "id": "f_L0_029",
-    "type": "unknown",
+    "id": "f_L0_027",
+    "type": "desk",
     "kind": "changeable",
     "center": [
      14.52,
@@ -290,9 +288,9 @@
    }
   ],
   "change_ids": [
-   "f_L0_014",
-   "f_L0_022",
-   "f_L0_029"
+   "f_L0_012",
+   "f_L0_020",
+   "f_L0_027"
   ],
   "change_types": [
    "bed_double",
@@ -311,7 +309,6 @@
   "add": {
    "nightstand": 2,
    "dresser": 1,
-   "desk": 1,
    "office_chair": 1,
    "bench": 1,
    "armchair": 1,

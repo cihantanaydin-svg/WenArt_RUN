@@ -1825,6 +1825,39 @@ class Orchestrator:
             ov.save()
         return n
 
+    def rollback_locked(self, pr: ProjectRun, round_no: int) -> int:
+        """The edits of ``round_no`` that the refit's locked check would refuse (``wenart.furniture.locked``, run on
+        ``building_agent.json`` against ``building.json`` as the refit does) are rolled back; returns their number."""
+        from wenart.agent import overrides as OV
+        from wenart.furniture import locked
+        agent_b, source = read_json(pr.out / S.AGENT_BUILDING), read_json(pr.out / "building.json")
+        if not agent_b or not source:
+            return 0
+        completion = read_json(pr.out / "completion.json")
+        try:
+            problems = locked.check(source, agent_b, locked.mode_of(completion),
+                                    keep_rooms=locked.keep_rooms_of(completion))
+        except Exception:  # noqa: BLE001 - the refit reports it
+            return 0
+        if not problems:
+            return 0
+        text = " ".join(problems)
+        ov = OV.Overrides(pr.out)
+        n = 0
+        for e in ov.edits:
+            res = e.get("result") or {}
+            if int(e.get("round") or 0) != int(round_no) or not res.get("accepted"):
+                continue
+            ids = {str(x) for x in [(e.get("args") or {}).get("piece_id"), (e.get("args") or {}).get("room_id"),
+                                    *(res.get("changed_ids") or [])] if x}
+            if any(i in text for i in ids):
+                res.update(accepted=False, rolled_back="locked check: " + "; ".join(
+                    p for p in problems if any(i in p for i in ids))[:500])
+                n += 1
+        if n:
+            ov.save()
+        return n
+
     def agent_rerun(self, pr: ProjectRun, stage: str, views: list, round_no: int, final: bool) -> dict:
         """The re-run of the router (§8 step 4): every routed stage of M11 restarts at ``agent_apply`` (``layout``
         too: ``relayout_room`` is done by the layout engine inside ``edit_ops``, the layout's VLM session is over;
@@ -1836,6 +1869,11 @@ class Orchestrator:
         self.stage_agent_apply(pr)
         if self.status_of(pr, "agent_apply") not in ("ok", "reused"):
             return {"status": "failed", "note": "agent_apply failed", "seconds": round(self.now() - t0, 1)}
+        # Pod G2b: a refit that refuses one edit used to roll back the whole round (and stop the loop). The locked
+        # check runs here first, in-process; only the edits it names are rolled back, then apply runs again.
+        partial = self.rollback_locked(pr, round_no)
+        if partial:
+            self.stage_agent_apply(pr)
         before = pr.terminal
         rec = self.stage_refit(pr)
         if rec.status not in ST.GOING_ON:

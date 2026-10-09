@@ -1,0 +1,167 @@
+{
+ "room_id": "r_L-1_mutfak",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "slots": [
+  {
+   "id": "f_L-1_095.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "candle"
+   ],
+   "host_id": "f_L-1_095",
+   "host_type": "table_dining",
+   "note": "centre part",
+   "center": [
+    1.66,
+    10.26
+   ],
+   "max_size": [
+    0.7,
+    0.5,
+    2.0
+   ]
+  },
+  {
+   "id": "window:win_L-1_003",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L-1_003"
+  },
+  {
+   "id": "ceiling:over_f_L-1_095",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light"
+   ],
+   "host_id": "f_L-1_095",
+   "host_type": null,
+   "note": "over f L-1 095"
+  },
+  {
+   "id": "ceiling:centre_r_L-1_mutfak",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1 mutfak"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1_095.centre",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds natural warmth and complements the rattan pots and greige walls."
+    },
+    {
+     "slot": "ceiling:over_f_L-1_095",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light enhances the natural, modern feel and matches the dark bronze frames."
+    },
+    {
+     "slot": "window:win_L-1_003",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Cream blind softens natural light and harmonizes with the neutral palette."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.126
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1_095.centre",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds natural warmth and complements rattan pots and greige walls."
+    },
+    {
+     "slot": "window:win_L-1_003",
+     "type": "blind",
+     "colour": "light grey",
+     "reason": "Softens natural light and matches sofa fabric without overpowering."
+    },
+    {
+     "slot": "ceiling:over_f_L-1_095",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow enhances modern natural style and complements dark bronze frames."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.071
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1_095.centre",
+   "type": "vase",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds natural warmth and complements the rattan pots and greige walls.",
+    "Adds natural warmth and complements rattan pots and greige walls."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L-1_095",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm brass light enhances the natural, modern feel and matches the dark bronze frames.",
+    "Warm metallic glow enhances modern natural style and complements dark bronze frames."
+   ]
+  },
+  {
+   "slot": "window:win_L-1_003",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Cream blind softens natural light and harmonizes with the neutral palette.",
+    "Softens natural light and matches sofa fabric without overpowering."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1_013",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L-1_095.centre"
+  },
+  {
+   "id": "dec_L-1_014",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1_095"
+  },
+  {
+   "id": "dec_L-1_015",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L-1_003"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

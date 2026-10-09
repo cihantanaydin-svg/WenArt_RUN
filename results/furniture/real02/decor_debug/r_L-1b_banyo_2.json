@@ -2,22 +2,105 @@
  "room_id": "r_L-1b_banyo_2",
  "label": "Banyo",
  "room_type": "bathroom",
- "slots": [],
- "passes": {},
- "agreed": [],
+ "slots": [
+  {
+   "id": "f_L-1b_035.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L-1b_035",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L-1b_banyo_2",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1b banyo 2"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1b_035.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Reflects light and complements the modern natural style."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1b_banyo_2",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light enhances the natural, warm ambiance."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.381
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1b_035.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Complements natural wood furniture and enhances light in modern bathroom."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1b_banyo_2",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light adds cozy glow matching daylight and bronze accents."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.408
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1b_035.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Reflects light and complements the modern natural style.",
+    "Complements natural wood furniture and enhances light in modern bathroom."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L-1b_banyo_2",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm brass light enhances the natural, warm ambiance.",
+    "Warm brass light adds cozy glow matching daylight and bronze accents."
+   ]
+  }
+ ],
  "not_agreed": [],
  "rejected": [],
  "refused": [],
  "items": [
   {
    "id": "dec_L-1b_006",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L-1b_035.wall"
+  },
+  {
+   "id": "dec_L-1b_007",
    "type": "ceiling_light",
    "method": "ai",
-   "slot": "ceiling:centre_r_L-1_banyo"
+   "slot": "ceiling:centre_r_L-1b_banyo_2"
   }
  ],
  "fallback": null,
- "notes": [
-  "decor copied from r_L-1_banyo_2 (same_as, not asked)"
- ]
+ "notes": []
 }

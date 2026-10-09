@@ -10,46 +10,46 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_031",
+   "id": "dec_L0_036",
    "type": "cushion",
    "method": "ai",
-   "slot": "f_L0_021.cushions"
+   "slot": "f_L0_019.cushions"
   },
   {
-   "id": "dec_L0_032",
+   "id": "dec_L0_037",
    "type": "cushion",
    "method": "ai",
-   "slot": "f_L0_021.cushions"
+   "slot": "f_L0_019.cushions"
   },
   {
-   "id": "dec_L0_033",
+   "id": "dec_L0_038",
    "type": "throw",
    "method": "ai",
-   "slot": "f_L0_021.throw"
+   "slot": "f_L0_019.throw"
   },
   {
-   "id": "dec_L0_034",
+   "id": "dec_L0_039",
    "type": "wall_art",
    "method": "ai",
-   "slot": "f_L0_021.wall"
+   "slot": "f_L0_019.wall"
   },
   {
-   "id": "dec_L0_035",
+   "id": "dec_L0_040",
    "type": "rug",
    "method": "ai",
    "slot": "r_L0_yatak_odasi.rug1"
   },
   {
-   "id": "dec_L0_036",
+   "id": "dec_L0_041",
    "type": "curtain",
    "method": "ai",
    "slot": "window:win_L0_001"
   },
   {
-   "id": "dec_L0_037",
+   "id": "dec_L0_042",
    "type": "pendant_light",
    "method": "ai",
-   "slot": "ceiling:over_f_L0_021"
+   "slot": "ceiling:over_f_L0_019"
   }
  ],
  "fallback": null,

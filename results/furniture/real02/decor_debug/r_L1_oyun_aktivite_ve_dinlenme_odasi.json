@@ -77,10 +77,7 @@
    "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
    "kind": "floor",
    "types": [
-    "plant",
-    "plant_large",
-    "basket",
-    "sculpture"
+    "basket"
    ],
    "host_id": null,
    "host_type": null,
@@ -94,10 +91,7 @@
    "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
    "kind": "floor",
    "types": [
-    "plant",
-    "plant_large",
-    "basket",
-    "sculpture"
+    "basket"
    ],
    "host_id": null,
    "host_type": null,
@@ -137,71 +131,71 @@
      "slot": "f_L1_009.cushions",
      "type": "cushion",
      "colour": "mustard",
-     "reason": "Adds warm accent to the light grey sofa, matching the style brief."
+     "reason": "Adds warmth and color contrast to the greige walls and light oak floor."
     },
     {
      "slot": "f_L1_012.cushions",
      "type": "cushion",
      "colour": "cream",
-     "reason": "Complements the natural and neutral palette while enhancing comfort."
+     "reason": "Complements the natural wood and light grey sofa for a soft, cohesive look."
+    },
+    {
+     "slot": "f_L1_029.cushions",
+     "type": "cushion",
+     "colour": "terracotta",
+     "reason": "Brings a subtle earthy pop to the armchair, enhancing the natural, modern aesthetic."
     },
     {
      "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
-     "type": "plant_large",
+     "type": "basket",
      "colour": "natural wood",
-     "reason": "Large indoor plant in rattan pot brings life and warmth to the corner."
+     "reason": "Provides storage and matches the wood furniture while keeping the corner tidy."
     },
     {
-     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
-     "type": "plant_large",
-     "colour": "natural wood",
-     "reason": "Balances the room with another large plant, enhancing the natural aesthetic."
-    },
-    {
-     "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
-     "type": "pendant_light",
-     "colour": "brass",
-     "reason": "Warm brass pendant light adds modern elegance and ambient glow."
+     "slot": "window:win_L1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens the dark bronze frames and lets in warm daylight without overpowering the space."
     }
    ],
    "error": null,
-   "latency_s": 3.406
+   "latency_s": 3.595
   },
   "2": {
    "items": [
     {
-     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
-     "type": "plant_large",
-     "colour": "natural wood",
-     "reason": "Adds lush greenery and warmth with a large plant in a natural wood pot."
-    },
-    {
-     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
-     "type": "plant_large",
-     "colour": "natural wood",
-     "reason": "Balances the room with another large plant, enhancing the natural, modern aesthetic."
-    },
-    {
      "slot": "f_L1_009.cushions",
      "type": "cushion",
      "colour": "mustard",
-     "reason": "Adds a warm pop of color that complements the greige walls and natural tones."
+     "reason": "Adds warmth and color contrast to the greige walls and light grey sofa."
     },
     {
      "slot": "f_L1_029.cushions",
      "type": "cushion",
      "colour": "cream",
-     "reason": "Softens the armchair with a neutral, cozy accent that harmonizes with the room’s palette."
+     "reason": "Complements the natural wood and rattan elements while softening the armchair."
+    },
+    {
+     "slot": "window:win_L1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens natural light and matches the warm, natural aesthetic."
     },
     {
      "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
      "type": "pendant_light",
      "colour": "brass",
-     "reason": "Warm brass light fixture enhances the modern natural feel and complements dark bronze frames."
+     "reason": "Adds a warm metallic accent that enhances the daylight and modern natural style."
+    },
+    {
+     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
+     "type": "basket",
+     "colour": "natural wood",
+     "reason": "Provides storage and matches the floor and furniture while keeping the space tidy."
     }
    ],
    "error": null,
-   "latency_s": 3.602
+   "latency_s": 3.589
   }
  },
  "agreed": [
@@ -211,38 +205,38 @@
    "colour": "mustard",
    "colour_agreed": true,
    "reasons": [
-    "Adds warm accent to the light grey sofa, matching the style brief.",
-    "Adds a warm pop of color that complements the greige walls and natural tones."
+    "Adds warmth and color contrast to the greige walls and light oak floor.",
+    "Adds warmth and color contrast to the greige walls and light grey sofa."
+   ]
+  },
+  {
+   "slot": "f_L1_029.cushions",
+   "type": "cushion",
+   "colour": "terracotta",
+   "colour_agreed": false,
+   "reasons": [
+    "Brings a subtle earthy pop to the armchair, enhancing the natural, modern aesthetic.",
+    "Complements the natural wood and rattan elements while softening the armchair."
    ]
   },
   {
    "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
-   "type": "plant_large",
+   "type": "basket",
    "colour": "natural wood",
    "colour_agreed": true,
    "reasons": [
-    "Large indoor plant in rattan pot brings life and warmth to the corner.",
-    "Adds lush greenery and warmth with a large plant in a natural wood pot."
+    "Provides storage and matches the wood furniture while keeping the corner tidy.",
+    "Provides storage and matches the floor and furniture while keeping the space tidy."
    ]
   },
   {
-   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
-   "type": "plant_large",
-   "colour": "natural wood",
+   "slot": "window:win_L1_001",
+   "type": "curtain",
+   "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Balances the room with another large plant, enhancing the natural aesthetic.",
-    "Balances the room with another large plant, enhancing the natural, modern aesthetic."
-   ]
-  },
-  {
-   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
-   "type": "pendant_light",
-   "colour": "brass",
-   "colour_agreed": true,
-   "reasons": [
-    "Warm brass pendant light adds modern elegance and ambient glow.",
-    "Warm brass light fixture enhances the modern natural feel and complements dark bronze frames."
+    "Softens the dark bronze frames and lets in warm daylight without overpowering the space.",
+    "Softens natural light and matches the warm, natural aesthetic."
    ]
   }
  ],
@@ -251,16 +245,16 @@
    "slot": "f_L1_012.cushions",
    "type": "cushion",
    "colour": "cream",
-   "reason": "Complements the natural and neutral palette while enhancing comfort.",
+   "reason": "Complements the natural wood and light grey sofa for a soft, cohesive look.",
    "passes": [
     1
    ]
   },
   {
-   "slot": "f_L1_029.cushions",
-   "type": "cushion",
-   "colour": "cream",
-   "reason": "Softens the armchair with a neutral, cozy accent that harmonizes with the room’s palette.",
+   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Adds a warm metallic accent that enhances the daylight and modern natural style.",
    "passes": [
     2
    ]
@@ -283,21 +277,21 @@
   },
   {
    "id": "dec_L1_003",
-   "type": "plant_large",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_029.cushions"
+  },
+  {
+   "id": "dec_L1_004",
+   "type": "basket",
    "method": "ai",
    "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1"
   },
   {
-   "id": "dec_L1_004",
-   "type": "plant_large",
-   "method": "ai",
-   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2"
-  },
-  {
    "id": "dec_L1_005",
-   "type": "pendant_light",
+   "type": "curtain",
    "method": "ai",
-   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi"
+   "slot": "window:win_L1_001"
   }
  ],
  "fallback": null,

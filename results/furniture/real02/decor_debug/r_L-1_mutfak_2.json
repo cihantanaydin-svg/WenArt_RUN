@@ -1,0 +1,35 @@
+{
+ "room_id": "r_L-1_mutfak_2",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1_020",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L-1_095.centre"
+  },
+  {
+   "id": "dec_L-1_021",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1_095"
+  },
+  {
+   "id": "dec_L-1_022",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L-1_003"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L-1_mutfak (twin, not asked)"
+ ]
+}

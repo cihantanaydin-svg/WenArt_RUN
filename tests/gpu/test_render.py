@@ -326,10 +326,13 @@ def test_passes_exist_and_depth_is_plausible(project):
             far, coverage = exterior.CLIP_END, EXTERIOR_MIN_COVERAGE
         else:
             far, coverage = MAX_INDOOR_DEPTH_M, MIN_COVERAGE
-            if not depth["coverage"] > coverage:
-                if open_sky is None:
-                    open_sky = _open_sky_rooms(_building(name, scene))
-                if (plan.get("room_id") or r.get("room_id")) in open_sky:
+            if open_sky is None:
+                open_sky = _open_sky_rooms(_building(name, scene))
+            if (plan.get("room_id") or r.get("room_id")) in open_sky:
+                # M11 (pod G2b): a room open to the sky (a roof terrace) sees the ground to the horizon (site
+                # HORIZON_M): the exterior clip end applies, and no coverage bound.
+                far = exterior.CLIP_END
+                if not depth["coverage"] > coverage:
                     sky.append((cam, round(depth["coverage"], 3)))
                     coverage = None
         if not MIN_DEPTH_M < depth["min"] < depth["max"] < far:

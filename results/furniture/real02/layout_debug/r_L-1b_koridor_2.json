@@ -23,7 +23,7 @@
  },
  "drawn": [
   {
-   "id": "f_L-1b_003",
+   "id": "f_L-1b_015",
    "type": "stair",
    "kind": "fixed",
    "unverified": false,
@@ -50,7 +50,7 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L-1b_055",
+   "id": "f_L-1b_081",
    "type": "console_table",
    "center": [
     11.6602,
@@ -63,7 +63,7 @@
    "rotation_deg": 270.0,
    "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1b_054"
+   "mirrored_from": "f_L-1b_075"
   }
  ],
  "refused": [],
@@ -71,7 +71,7 @@
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L-1b_003": [
+   "f_L-1b_015": [
     "inside_room"
    ]
   },
@@ -164,7 +164,7 @@
   },
   "drawn": [
    {
-    "id": "f_L-1b_003",
+    "id": "f_L-1b_015",
     "type": "stair",
     "kind": "fixed",
     "center": [

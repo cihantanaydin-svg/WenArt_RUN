@@ -95,6 +95,7 @@ def footprints_overlap(a: dict, b: dict) -> bool:
 # cluster around its fridge; a rug outline under a sofa group) was a solid 0.8 m box that swallowed them. Such a
 # proxy is drawn flat (an outline plate on the floor, still striped as unverified), recorded as assumed.
 FLAT_PROXY_HEIGHT_M = 0.02
+FLAT_MIN_SIDE_M = 1.0      # M11: a holder is drawn flat only when both sides are at least this long
 HOLDS_SHARE = 0.5          # another piece counts as held when this share of its footprint area lies inside ...
 HOLDER_AREA_RATIO = 2.0    # ... and the holder is at least twice its area (two overlapping drawn pieces of one
                            # size, e.g. real02's armchair and its ottoman, are no holder and its content)
@@ -143,6 +144,10 @@ def flat_reason(piece: dict, others: list[dict] | None) -> str | None:
     """Why the proxy of ``piece`` is drawn flat (``FLAT_PROXY_HEIGHT_M``), or None: only an ``unknown`` piece
     without a height in the JSON whose footprint holds other built pieces."""
     if piece.get("type") != "unknown" or piece.get("height") or not others:
+        return None
+    # M11 pod G2b (real02 f_L-1_021): a 5.5 x 0.6 m wall unit holding a small piece is no rug or room-wide outline;
+    # only outlines wide in both directions (the kitchen cluster, a rug under a sofa group) are drawn flat.
+    if min(float(v) for v in piece["footprint"]["size"]) < FLAT_MIN_SIDE_M:
         return None
     held = held_pieces(piece, others)
     if not held:

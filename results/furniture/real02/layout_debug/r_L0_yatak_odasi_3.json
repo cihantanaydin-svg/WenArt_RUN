@@ -8,36 +8,36 @@
  "partner": null,
  "drawn": [
   {
-   "id": "f_L0_011",
+   "id": "f_L0_009",
    "type": "wardrobe",
    "kind": "changeable",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
      1.1273,
-     7.4436
+     7.1436
     ],
-    "wall_id": null
+    "wall_id": "w_L0_003"
    }
   },
   {
-   "id": "f_L0_023",
+   "id": "f_L0_021",
    "type": "bed_double",
    "kind": "changeable",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
-     1.1506,
+     0.2006,
      10.5069
     ],
-    "wall_id": null
+    "wall_id": "w_L0_009"
    }
   },
   {
-   "id": "f_L0_031",
-   "type": "unknown",
+   "id": "f_L0_029",
+   "type": "desk",
    "kind": "changeable",
    "unverified": true,
    "anchor": {
@@ -57,7 +57,6 @@
  "addable": {
   "nightstand": 2,
   "dresser": 1,
-  "desk": 1,
   "office_chair": 1,
   "bench": 1,
   "armchair": 1,
@@ -82,28 +81,28 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 3.47,
+   "latency_s": 3.711,
    "error": null,
    "transport_error": false,
    "data": {
     "changes": [
      {
-      "id": "f_L0_011",
-      "type": "wardrobe",
+      "id": "f_L0_021",
+      "type": "bed_double",
       "size": [
-       2.4,
-       0.6
+       1.6,
+       2.0
       ],
       "style": "modern",
       "colour": "natural wood",
-      "reason": "Larger size better fits modern natural style and provides more storage."
+      "reason": "Larger size better fits room and style; maintains wall alignment."
      }
     ],
     "added": [
      {
       "type": "nightstand",
       "center": [
-       0.65,
+       0.2,
        10.51
       ],
       "rotation_deg": 0,
@@ -112,12 +111,12 @@
        0.4
       ],
       "against_wall": true,
-      "reason": "Nightstand beside bed for convenience and style match."
+      "reason": "Placed beside bed to match style and keep 0.6m clearance."
      },
      {
       "type": "nightstand",
       "center": [
-       1.75,
+       1.8,
        10.51
       ],
       "rotation_deg": 0,
@@ -126,7 +125,7 @@
        0.4
       ],
       "against_wall": true,
-      "reason": "Second nightstand for symmetry and function."
+      "reason": "Symmetrical placement for balance and style."
      },
      {
       "type": "bench",
@@ -136,23 +135,23 @@
       ],
       "rotation_deg": 0,
       "size": [
-       1.4,
-       0.45
+       1.2,
+       0.4
       ],
       "against_wall": false,
-      "reason": "Bench at foot of bed for seating and storage, keeps room open."
+      "reason": "At foot of bed for functional and aesthetic use."
      }
     ]
    },
-   "prompt": "Task: complete this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Yatak Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yatak_odasi_3\", \"label\": \"Yatak Odası\", \"room_type\": \"bedroom\", \"room_subtype\": null, \"area_m2\": 14.05, \"polygon_m\": [[0.2, 7.14], [3.22, 7.14], [3.22, 11.8], [0.2, 11.8]], \"doors\": [{\"id\": \"d_L0_006\", \"center\": [3.27, 7.69], \"width\": 0.78, \"opens_into_this_room\": true, \"approach\": [2.76, 7.69]}], \"windows\": []}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_011\", \"type\": \"wardrobe\", \"kind\": \"changeable\", \"center\": [1.13, 7.44], \"size\": [1.45, 0.6], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.13, 7.44]}, \"against_wall\": null}, {\"id\": \"f_L0_023\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [1.15, 10.51], \"size\": [1.55, 1.9], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.15, 10.51]}, \"against_wall\": null}, {\"id\": \"f_L0_031\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [0.65, 8.64], \"size\": [1.45, 0.91], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 8.64]}, \"against_wall\": \"w_L0_009\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nWhat the room misses:\n- expected for this room type and missing: nightstand (2)\n- you may add at most: nightstand (2), dresser (1), desk (1), office_chair (1), bench (1), armchair (1), bookshelf (1), ottoman (1)\nA good completion: a nightstand on each free side of a double bed (one beside a single bed), touching the headboard wall; a wardrobe against a free wall, not in front of a window; a bench at the foot of the bed or a desk with an office_chair only when the room stays open.\n\nTypes with their size options [width, depth]:\n- bed_double: height 0.5 m, size options [1.4, 2.0], [1.6, 2.0], [1.8, 2.0] (usually against a wall)\n- bed_single: height 0.5 m, size options [0.9, 1.9], [0.9, 2.0], [1.2, 2.0] (usually against a wall)\n- nightstand: height 0.5 m, size options [0.4, 0.4], [0.5, 0.4], [0.6, 0.45]\n- wardrobe: height 2.1 m, size options [1.2, 0.6], [1.8, 0.6], [2.4, 0.6] (usually against a wall)\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- office_chair: height 1.0 m, size options [0.55, 0.55], [0.6, 0.6], [0.65, 0.65]\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (bed_double, bed_single) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of bed_double, bed_single, nightstand, wardrobe, dresser, desk, chair, bookshelf, armchair, bench, ottoman, office_chair), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of nightstand, dresser, desk, office_chair, bench, armchair, bookshelf, ottoman), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [\n    {\n      \"id\": \"f_L0_011\",\n      \"type\": \"wardrobe\",\n      \"size\": [2.4, 0.6],\n      \"style\": \"modern\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Larger size better fits modern natural style and provides more storage.\"\n    }\n  ],\n  \"added\": [\n    {\n      \"type\": \"nightstand\",\n      \"center\": [0.65, 10.51],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Nightstand beside bed for convenience and style match.\"\n    },\n    {\n      \"type\": \"nightstand\",\n      \"center\": [1.75, 10.51],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Second nightstand for symmetry and function.\"\n    },\n    {\n      \"type\": \"bench\",\n      \"center\": [1.15, 12.3],\n      \"rotation_deg\": 0,\n      \"size\": [1.4, 0.45],\n      \"against_wall\": false,\n      \"reason\": \"Bench at foot of bed for seating and storage, keeps room open.\"\n    }\n  ]\n}",
+   "prompt": "Task: complete this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Yatak Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yatak_odasi_3\", \"label\": \"Yatak Odası\", \"room_type\": \"bedroom\", \"room_subtype\": null, \"area_m2\": 14.05, \"polygon_m\": [[0.2, 7.14], [3.22, 7.14], [3.22, 11.8], [0.2, 11.8]], \"doors\": [{\"id\": \"d_L0_006\", \"center\": [3.27, 7.69], \"width\": 0.78, \"opens_into_this_room\": true, \"approach\": [2.76, 7.69]}], \"windows\": []}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_009\", \"type\": \"wardrobe\", \"kind\": \"changeable\", \"center\": [1.13, 7.44], \"size\": [1.45, 0.6], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [1.13, 7.14]}, \"against_wall\": \"w_L0_003\"}, {\"id\": \"f_L0_021\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [1.15, 10.51], \"size\": [1.55, 1.9], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 10.51]}, \"against_wall\": \"w_L0_009\"}, {\"id\": \"f_L0_029\", \"type\": \"desk\", \"kind\": \"changeable\", \"center\": [0.65, 8.64], \"size\": [1.45, 0.91], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 8.64]}, \"against_wall\": \"w_L0_009\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nWhat the room misses:\n- expected for this room type and missing: nightstand (2)\n- you may add at most: nightstand (2), dresser (1), office_chair (1), bench (1), armchair (1), bookshelf (1), ottoman (1)\nA good completion: a nightstand on each free side of a double bed (one beside a single bed), touching the headboard wall; a wardrobe against a free wall, not in front of a window; a bench at the foot of the bed or a desk with an office_chair only when the room stays open.\n\nTypes with their size options [width, depth]:\n- bed_double: height 0.5 m, size options [1.4, 2.0], [1.6, 2.0], [1.8, 2.0] (usually against a wall)\n- bed_single: height 0.5 m, size options [0.9, 1.9], [0.9, 2.0], [1.2, 2.0] (usually against a wall)\n- nightstand: height 0.5 m, size options [0.4, 0.4], [0.5, 0.4], [0.6, 0.45]\n- wardrobe: height 2.1 m, size options [1.2, 0.6], [1.8, 0.6], [2.4, 0.6] (usually against a wall)\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- office_chair: height 1.0 m, size options [0.55, 0.55], [0.6, 0.6], [0.65, 0.65]\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (bed_double, bed_single) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of bed_double, bed_single, nightstand, wardrobe, dresser, desk, chair, bookshelf, armchair, bench, ottoman, office_chair), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of nightstand, dresser, office_chair, bench, armchair, bookshelf, ottoman), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [\n    {\n      \"id\": \"f_L0_021\",\n      \"type\": \"bed_double\",\n      \"size\": [1.6, 2.0],\n      \"style\": \"modern\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Larger size better fits room and style; maintains wall alignment.\"\n    }\n  ],\n  \"added\": [\n    {\n      \"type\": \"nightstand\",\n      \"center\": [0.2, 10.51],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Placed beside bed to match style and keep 0.6m clearance.\"\n    },\n    {\n      \"type\": \"nightstand\",\n      \"center\": [1.8, 10.51],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Symmetrical placement for balance and style.\"\n    },\n    {\n      \"type\": \"bench\",\n      \"center\": [1.15, 12.3],\n      \"rotation_deg\": 0,\n      \"size\": [1.2, 0.4],\n      \"against_wall\": false,\n      \"reason\": \"At foot of bed for functional and aesthetic use.\"\n    }\n  ]\n}",
    "changes": 1,
    "added": 3
   },
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 2.633,
+   "latency_s": 2.823,
    "error": null,
    "transport_error": false,
    "data": {
@@ -161,7 +160,7 @@
      {
       "type": "nightstand",
       "center": [
-       0.65,
+       0.2,
        10.51
       ],
       "rotation_deg": 90.0,
@@ -170,12 +169,12 @@
        0.4
       ],
       "against_wall": true,
-      "reason": "Place beside the bed for symmetry and accessibility."
+      "reason": "Place beside the bed for symmetry and function."
      },
      {
       "type": "nightstand",
       "center": [
-       1.65,
+       1.8,
        10.51
       ],
       "rotation_deg": 90.0,
@@ -184,26 +183,26 @@
        0.4
       ],
       "against_wall": true,
-      "reason": "Place beside the bed for symmetry and accessibility."
+      "reason": "Place beside the bed for symmetry and function."
      },
      {
       "type": "bench",
       "center": [
        1.15,
-       12.31
+       12.3
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
        1.2,
        0.4
       ],
-      "against_wall": false,
+      "against_wall": true,
       "reason": "Place at foot of bed for storage and seating."
      }
     ]
    },
-   "prompt": "Task: complete this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Yatak Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- expected for this room type and missing: nightstand (2)\n- you may add at most: nightstand (2), dresser (1), desk (1), office_chair (1), bench (1), armchair (1), bookshelf (1), ottoman (1)\nA good completion: a nightstand on each free side of a double bed (one beside a single bed), touching the headboard wall; a wardrobe against a free wall, not in front of a window; a bench at the foot of the bed or a desk with an office_chair only when the room stays open.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (bed_double, bed_single) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- bed_double: height 0.5 m, size options [1.4, 2.0], [1.6, 2.0], [1.8, 2.0] (usually against a wall)\n- bed_single: height 0.5 m, size options [0.9, 1.9], [0.9, 2.0], [1.2, 2.0] (usually against a wall)\n- nightstand: height 0.5 m, size options [0.4, 0.4], [0.5, 0.4], [0.6, 0.45]\n- wardrobe: height 2.1 m, size options [1.2, 0.6], [1.8, 0.6], [2.4, 0.6] (usually against a wall)\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- office_chair: height 1.0 m, size options [0.55, 0.55], [0.6, 0.6], [0.65, 0.65]\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_011\", \"type\": \"wardrobe\", \"kind\": \"changeable\", \"center\": [1.13, 7.44], \"size\": [1.45, 0.6], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.13, 7.44]}, \"against_wall\": null}, {\"id\": \"f_L0_023\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [1.15, 10.51], \"size\": [1.55, 1.9], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.15, 10.51]}, \"against_wall\": null}, {\"id\": \"f_L0_031\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [0.65, 8.64], \"size\": [1.45, 0.91], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 8.64]}, \"against_wall\": \"w_L0_009\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yatak_odasi_3\", \"label\": \"Yatak Odası\", \"room_type\": \"bedroom\", \"room_subtype\": null, \"area_m2\": 14.05, \"polygon_m\": [[0.2, 7.14], [3.22, 7.14], [3.22, 11.8], [0.2, 11.8]], \"doors\": [{\"id\": \"d_L0_006\", \"center\": [3.27, 7.69], \"width\": 0.78, \"opens_into_this_room\": true, \"approach\": [2.76, 7.69]}], \"windows\": []}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of bed_double, bed_single, nightstand, wardrobe, dresser, desk, chair, bookshelf, armchair, bench, ottoman, office_chair), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of nightstand, dresser, desk, office_chair, bench, armchair, bookshelf, ottoman), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"nightstand\",\n      \"center\": [0.65, 10.51],\n      \"rotation_deg\": 90.0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Place beside the bed for symmetry and accessibility.\"\n    },\n    {\n      \"type\": \"nightstand\",\n      \"center\": [1.65, 10.51],\n      \"rotation_deg\": 90.0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Place beside the bed for symmetry and accessibility.\"\n    },\n    {\n      \"type\": \"bench\",\n      \"center\": [1.15, 12.31],\n      \"rotation_deg\": 0.0,\n      \"size\": [1.2, 0.4],\n      \"against_wall\": false,\n      \"reason\": \"Place at foot of bed for storage and seating.\"\n    }\n  ]\n}",
+   "prompt": "Task: complete this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Yatak Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- expected for this room type and missing: nightstand (2)\n- you may add at most: nightstand (2), dresser (1), office_chair (1), bench (1), armchair (1), bookshelf (1), ottoman (1)\nA good completion: a nightstand on each free side of a double bed (one beside a single bed), touching the headboard wall; a wardrobe against a free wall, not in front of a window; a bench at the foot of the bed or a desk with an office_chair only when the room stays open.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (bed_double, bed_single) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- bed_double: height 0.5 m, size options [1.4, 2.0], [1.6, 2.0], [1.8, 2.0] (usually against a wall)\n- bed_single: height 0.5 m, size options [0.9, 1.9], [0.9, 2.0], [1.2, 2.0] (usually against a wall)\n- nightstand: height 0.5 m, size options [0.4, 0.4], [0.5, 0.4], [0.6, 0.45]\n- wardrobe: height 2.1 m, size options [1.2, 0.6], [1.8, 0.6], [2.4, 0.6] (usually against a wall)\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- office_chair: height 1.0 m, size options [0.55, 0.55], [0.6, 0.6], [0.65, 0.65]\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_009\", \"type\": \"wardrobe\", \"kind\": \"changeable\", \"center\": [1.13, 7.44], \"size\": [1.45, 0.6], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [1.13, 7.14]}, \"against_wall\": \"w_L0_003\"}, {\"id\": \"f_L0_021\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [1.15, 10.51], \"size\": [1.55, 1.9], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 10.51]}, \"against_wall\": \"w_L0_009\"}, {\"id\": \"f_L0_029\", \"type\": \"desk\", \"kind\": \"changeable\", \"center\": [0.65, 8.64], \"size\": [1.45, 0.91], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 8.64]}, \"against_wall\": \"w_L0_009\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yatak_odasi_3\", \"label\": \"Yatak Odası\", \"room_type\": \"bedroom\", \"room_subtype\": null, \"area_m2\": 14.05, \"polygon_m\": [[0.2, 7.14], [3.22, 7.14], [3.22, 11.8], [0.2, 11.8]], \"doors\": [{\"id\": \"d_L0_006\", \"center\": [3.27, 7.69], \"width\": 0.78, \"opens_into_this_room\": true, \"approach\": [2.76, 7.69]}], \"windows\": []}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of bed_double, bed_single, nightstand, wardrobe, dresser, desk, chair, bookshelf, armchair, bench, ottoman, office_chair), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of nightstand, dresser, office_chair, bench, armchair, bookshelf, ottoman), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"nightstand\",\n      \"center\": [0.2, 10.51],\n      \"rotation_deg\": 90.0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Place beside the bed for symmetry and function.\"\n    },\n    {\n      \"type\": \"nightstand\",\n      \"center\": [1.8, 10.51],\n      \"rotation_deg\": 90.0,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Place beside the bed for symmetry and function.\"\n    },\n    {\n      \"type\": \"bench\",\n      \"center\": [1.15, 12.3],\n      \"rotation_deg\": 90.0,\n      \"size\": [1.2, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Place at foot of bed for storage and seating.\"\n    }\n  ]\n}",
    "changes": 0,
    "added": 3
   }
@@ -211,8 +210,8 @@
  "chosen_pass": 1,
  "changes": [
   {
-   "id": "f_L0_011",
-   "type": "wardrobe",
+   "id": "f_L0_021",
+   "type": "bed_double",
    "status": "not_agreed",
    "passes": [
     1
@@ -222,7 +221,7 @@
  ],
  "added": [
   {
-   "id": "f_L0_047",
+   "id": "f_L0_045",
    "type": "nightstand",
    "center": [
     2.321,
@@ -238,10 +237,10 @@
    "mirrored_from": null
   },
   {
-   "id": "f_L0_048",
+   "id": "f_L0_046",
    "type": "nightstand",
    "center": [
-    1.75,
+    1.8,
     11.579
    ],
    "size": [
@@ -254,14 +253,14 @@
    "mirrored_from": null
   },
   {
-   "id": "f_L0_049",
+   "id": "f_L0_047",
    "type": "bench",
    "center": [
-    0.905,
-    11.515
+    0.895,
+    11.564
    ],
    "size": [
-    1.0,
+    1.2,
     0.4
    ],
    "rotation_deg": 0.0,
@@ -275,20 +274,20 @@
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L0_011": [
+   "f_L0_009": [
     "clearance_ok",
     "inside_room"
    ],
-   "f_L0_023": [
+   "f_L0_021": [
     "inside_room"
    ],
-   "f_L0_031": [
+   "f_L0_029": [
     "inside_room"
    ]
   },
   "walkways": []
  },
- "latency_s": 6.103,
+ "latency_s": 6.534,
  "question": {
   "room": {
    "room_id": "r_L0_yatak_odasi_3",
@@ -333,7 +332,7 @@
   },
   "drawn": [
    {
-    "id": "f_L0_011",
+    "id": "f_L0_009",
     "type": "wardrobe",
     "kind": "changeable",
     "center": [
@@ -344,19 +343,19 @@
      1.45,
      0.6
     ],
-    "rotation_deg": 0.0,
-    "front_deg": null,
+    "rotation_deg": 180.0,
+    "front_deg": 90.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       1.13,
-      7.44
+      7.14
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L0_003"
    },
    {
-    "id": "f_L0_023",
+    "id": "f_L0_021",
     "type": "bed_double",
     "kind": "changeable",
     "center": [
@@ -368,19 +367,19 @@
      1.9
     ],
     "rotation_deg": 90.0,
-    "front_deg": null,
+    "front_deg": 0.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
-      1.15,
+      0.2,
       10.51
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L0_009"
    },
    {
-    "id": "f_L0_031",
-    "type": "unknown",
+    "id": "f_L0_029",
+    "type": "desk",
     "kind": "changeable",
     "center": [
      0.65,
@@ -404,9 +403,9 @@
    }
   ],
   "change_ids": [
-   "f_L0_011",
-   "f_L0_023",
-   "f_L0_031"
+   "f_L0_009",
+   "f_L0_021",
+   "f_L0_029"
   ],
   "change_types": [
    "bed_double",
@@ -425,7 +424,6 @@
   "add": {
    "nightstand": 2,
    "dresser": 1,
-   "desk": 1,
    "office_chair": 1,
    "bench": 1,
    "armchair": 1,
@@ -504,9 +502,9 @@
      "properties": {
       "id": {
        "enum": [
-        "f_L0_011",
-        "f_L0_023",
-        "f_L0_031"
+        "f_L0_009",
+        "f_L0_021",
+        "f_L0_029"
        ]
       },
       "type": {
@@ -583,7 +581,7 @@
    },
    "added": {
     "type": "array",
-    "maxItems": 9,
+    "maxItems": 8,
     "items": {
      "type": "object",
      "additionalProperties": false,
@@ -600,7 +598,6 @@
        "enum": [
         "nightstand",
         "dresser",
-        "desk",
         "office_chair",
         "bench",
         "armchair",
@@ -657,10 +654,10 @@
       0.4
      ],
      "against_wall": true,
-     "reason": "Nightstand beside bed for convenience and style match.",
+     "reason": "Placed beside bed to match style and keep 0.6m clearance.",
      "proposed": {
       "center": [
-       0.65,
+       0.2,
        10.51
       ],
       "rotation_deg": 0.0,
@@ -671,12 +668,12 @@
      },
      "repairs": [
       {
-       "iteration": 8,
+       "iteration": 4,
        "type": "nightstand",
        "step": "snap",
        "before": {
         "center": [
-         0.65,
+         0.2,
          10.51
         ],
         "rotation_deg": 0.0,
@@ -697,13 +694,14 @@
         ]
        },
        "failed": [
+        "inside_room",
         "no_overlap",
         "wall_contact"
        ],
        "ok": false
       },
       {
-       "iteration": 9,
+       "iteration": 5,
        "type": "nightstand",
        "step": "slide",
        "before": {
@@ -735,7 +733,7 @@
        "note": "no free position on this wall"
       },
       {
-       "iteration": 10,
+       "iteration": 6,
        "type": "nightstand",
        "step": "shrink",
        "before": {
@@ -766,7 +764,7 @@
        "ok": false
       },
       {
-       "iteration": 11,
+       "iteration": 7,
        "type": "nightstand",
        "step": "slide",
        "before": {
@@ -798,7 +796,7 @@
        "note": "no free position on this wall"
       },
       {
-       "iteration": 12,
+       "iteration": 8,
        "type": "nightstand",
        "step": "relocate",
        "before": {
@@ -841,7 +839,7 @@
     {
      "type": "nightstand",
      "center": [
-      1.75,
+      1.8,
       11.579
      ],
      "rotation_deg": 0.0,
@@ -850,10 +848,10 @@
       0.4
      ],
      "against_wall": true,
-     "reason": "Second nightstand for symmetry and function.",
+     "reason": "Symmetrical placement for balance and style.",
      "proposed": {
       "center": [
-       1.75,
+       1.8,
        10.51
       ],
       "rotation_deg": 0.0,
@@ -869,7 +867,7 @@
        "step": "snap",
        "before": {
         "center": [
-         1.75,
+         1.8,
          10.51
         ],
         "rotation_deg": 0.0,
@@ -880,7 +878,7 @@
        },
        "after": {
         "center": [
-         1.75,
+         1.8,
          11.579
         ],
         "rotation_deg": 0.0,
@@ -908,16 +906,16 @@
     {
      "type": "bench",
      "center": [
-      0.905,
-      11.515
+      0.895,
+      11.564
      ],
      "rotation_deg": 0.0,
      "size": [
-      1.0,
+      1.2,
       0.4
      ],
      "against_wall": false,
-     "reason": "Bench at foot of bed for seating and storage, keeps room open.",
+     "reason": "At foot of bed for functional and aesthetic use.",
      "proposed": {
       "center": [
        1.15,
@@ -925,8 +923,8 @@
       ],
       "rotation_deg": 0.0,
       "size": [
-       1.4,
-       0.45
+       1.2,
+       0.4
       ]
      },
      "repairs": [
@@ -941,19 +939,19 @@
         ],
         "rotation_deg": 0.0,
         "size": [
-         1.4,
-         0.45
+         1.2,
+         0.4
         ]
        },
        "after": {
         "center": [
-         1.305,
-         11.515
+         1.295,
+         11.564
         ],
         "rotation_deg": 0.0,
         "size": [
-         1.4,
-         0.45
+         1.2,
+         0.4
         ]
        },
        "failed": [
@@ -967,71 +965,8 @@
        "step": "slide",
        "before": {
         "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.4,
-         0.45
-        ]
-       },
-       "after": {
-        "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.4,
-         0.45
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": false,
-       "note": "no free position within 1 m"
-      },
-      {
-       "iteration": 4,
-       "type": "bench",
-       "step": "shrink",
-       "before": {
-        "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.4,
-         0.45
-        ]
-       },
-       "after": {
-        "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.2,
-         0.4
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": false
-      },
-      {
-       "iteration": 5,
-       "type": "bench",
-       "step": "slide",
-       "before": {
-        "center": [
-         1.305,
-         11.515
+         1.295,
+         11.564
         ],
         "rotation_deg": 0.0,
         "size": [
@@ -1041,75 +976,12 @@
        },
        "after": {
         "center": [
-         1.305,
-         11.515
+         0.895,
+         11.564
         ],
         "rotation_deg": 0.0,
         "size": [
          1.2,
-         0.4
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": false,
-       "note": "no free position within 1 m"
-      },
-      {
-       "iteration": 6,
-       "type": "bench",
-       "step": "shrink",
-       "before": {
-        "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.2,
-         0.4
-        ]
-       },
-       "after": {
-        "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.0,
-         0.4
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": false
-      },
-      {
-       "iteration": 7,
-       "type": "bench",
-       "step": "slide",
-       "before": {
-        "center": [
-         1.305,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.0,
-         0.4
-        ]
-       },
-       "after": {
-        "center": [
-         0.905,
-         11.515
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         1.0,
          0.4
         ]
        },
@@ -1143,19 +1015,19 @@
       ],
       "rotation_deg": 0.0,
       "size": [
-       1.4,
-       0.45
+       1.2,
+       0.4
       ]
      },
      "after": {
       "center": [
-       1.305,
-       11.515
+       1.295,
+       11.564
       ],
       "rotation_deg": 0.0,
       "size": [
-       1.4,
-       0.45
+       1.2,
+       0.4
       ]
      },
      "failed": [
@@ -1170,7 +1042,7 @@
      "step": "snap",
      "before": {
       "center": [
-       1.75,
+       1.8,
        10.51
       ],
       "rotation_deg": 0.0,
@@ -1181,7 +1053,7 @@
      },
      "after": {
       "center": [
-       1.75,
+       1.8,
        11.579
       ],
       "rotation_deg": 0.0,
@@ -1203,52 +1075,19 @@
      "step": "slide",
      "before": {
       "center": [
-       1.305,
-       11.515
+       1.295,
+       11.564
       ],
       "rotation_deg": 0.0,
       "size": [
-       1.4,
-       0.45
+       1.2,
+       0.4
       ]
      },
      "after": {
       "center": [
-       1.305,
-       11.515
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       1.4,
-       0.45
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": false,
-     "note": "no free position within 1 m"
-    },
-    {
-     "iteration": 4,
-     "piece": 2,
-     "type": "bench",
-     "step": "shrink",
-     "before": {
-      "center": [
-       1.305,
-       11.515
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       1.4,
-       0.45
-      ]
-     },
-     "after": {
-      "center": [
-       1.305,
-       11.515
+       0.895,
+       11.564
       ],
       "rotation_deg": 0.0,
       "size": [
@@ -1258,33 +1097,67 @@
      },
      "failed": [
       "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 4,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "snap",
+     "before": {
+      "center": [
+       0.2,
+       10.51
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       0.421,
+       10.51
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "wall_contact"
      ],
      "ok": false
     },
     {
      "iteration": 5,
-     "piece": 2,
-     "type": "bench",
+     "piece": 0,
+     "type": "nightstand",
      "step": "slide",
      "before": {
       "center": [
-       1.305,
-       11.515
+       0.421,
+       10.51
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
-       1.2,
+       0.5,
        0.4
       ]
      },
      "after": {
       "center": [
-       1.305,
-       11.515
+       0.421,
+       10.51
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
-       1.2,
+       0.5,
        0.4
       ]
      },
@@ -1292,32 +1165,32 @@
       "no_overlap"
      ],
      "ok": false,
-     "note": "no free position within 1 m"
+     "note": "no free position on this wall"
     },
     {
      "iteration": 6,
-     "piece": 2,
-     "type": "bench",
+     "piece": 0,
+     "type": "nightstand",
      "step": "shrink",
      "before": {
       "center": [
-       1.305,
-       11.515
+       0.421,
+       10.51
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
-       1.2,
+       0.5,
        0.4
       ]
      },
      "after": {
       "center": [
-       1.305,
-       11.515
+       0.421,
+       10.51
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
-       1.0,
+       0.4,
        0.4
       ]
      },
@@ -1328,169 +1201,39 @@
     },
     {
      "iteration": 7,
-     "piece": 2,
-     "type": "bench",
+     "piece": 0,
+     "type": "nightstand",
      "step": "slide",
      "before": {
       "center": [
-       1.305,
-       11.515
+       0.421,
+       10.51
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
-       1.0,
+       0.4,
        0.4
       ]
      },
      "after": {
       "center": [
-       0.905,
-       11.515
+       0.421,
+       10.51
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
-       1.0,
+       0.4,
        0.4
       ]
      },
      "failed": [
       "no_overlap"
      ],
-     "ok": true
+     "ok": false,
+     "note": "no free position on this wall"
     },
     {
      "iteration": 8,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "snap",
-     "before": {
-      "center": [
-       0.65,
-       10.51
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap",
-      "wall_contact"
-     ],
-     "ok": false
-    },
-    {
-     "iteration": 9,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "slide",
-     "before": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": false,
-     "note": "no free position on this wall"
-    },
-    {
-     "iteration": 10,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "shrink",
-     "before": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": false
-    },
-    {
-     "iteration": 11,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "slide",
-     "before": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": false,
-     "note": "no free position on this wall"
-    },
-    {
-     "iteration": 12,
      "piece": 0,
      "type": "nightstand",
      "step": "relocate",
@@ -1522,7 +1265,7 @@
      "ok": true
     }
    ],
-   "iterations": 12,
+   "iterations": 8,
    "anchor_first": false
   },
   "2": {
@@ -1530,7 +1273,7 @@
     {
      "type": "nightstand",
      "center": [
-      2.221,
+      2.321,
       11.579
      ],
      "rotation_deg": 0.0,
@@ -1539,10 +1282,10 @@
       0.4
      ],
      "against_wall": true,
-     "reason": "Place beside the bed for symmetry and accessibility.",
+     "reason": "Place beside the bed for symmetry and function.",
      "proposed": {
       "center": [
-       0.65,
+       0.2,
        10.51
       ],
       "rotation_deg": 90.0,
@@ -1553,12 +1296,12 @@
      },
      "repairs": [
       {
-       "iteration": 6,
+       "iteration": 4,
        "type": "nightstand",
        "step": "snap",
        "before": {
         "center": [
-         0.65,
+         0.2,
          10.51
         ],
         "rotation_deg": 90.0,
@@ -1579,13 +1322,14 @@
         ]
        },
        "failed": [
+        "inside_room",
         "no_overlap",
         "wall_contact"
        ],
        "ok": false
       },
       {
-       "iteration": 7,
+       "iteration": 5,
        "type": "nightstand",
        "step": "slide",
        "before": {
@@ -1617,7 +1361,7 @@
        "note": "no free position on this wall"
       },
       {
-       "iteration": 8,
+       "iteration": 6,
        "type": "nightstand",
        "step": "shrink",
        "before": {
@@ -1648,7 +1392,7 @@
        "ok": false
       },
       {
-       "iteration": 9,
+       "iteration": 7,
        "type": "nightstand",
        "step": "slide",
        "before": {
@@ -1680,7 +1424,7 @@
        "note": "no free position on this wall"
       },
       {
-       "iteration": 10,
+       "iteration": 8,
        "type": "nightstand",
        "step": "relocate",
        "before": {
@@ -1696,7 +1440,7 @@
        },
        "after": {
         "center": [
-         2.221,
+         2.321,
          11.579
         ],
         "rotation_deg": 0.0,
@@ -1723,19 +1467,19 @@
     {
      "type": "nightstand",
      "center": [
-      0.421,
-      11.51
+      1.8,
+      11.579
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "size": [
-      0.4,
+      0.5,
       0.4
      ],
      "against_wall": true,
-     "reason": "Place beside the bed for symmetry and accessibility.",
+     "reason": "Place beside the bed for symmetry and function.",
      "proposed": {
       "center": [
-       1.65,
+       1.8,
        10.51
       ],
       "rotation_deg": 90.0,
@@ -1751,7 +1495,7 @@
        "step": "snap",
        "before": {
         "center": [
-         1.65,
+         1.8,
          10.51
         ],
         "rotation_deg": 90.0,
@@ -1762,10 +1506,10 @@
        },
        "after": {
         "center": [
-         0.421,
-         10.51
+         1.8,
+         11.579
         ],
-        "rotation_deg": 90.0,
+        "rotation_deg": 0.0,
         "size": [
          0.5,
          0.4
@@ -1776,100 +1520,6 @@
         "wall_contact"
        ],
        "ok": false
-      },
-      {
-       "iteration": 3,
-       "type": "nightstand",
-       "step": "slide",
-       "before": {
-        "center": [
-         0.421,
-         10.51
-        ],
-        "rotation_deg": 90.0,
-        "size": [
-         0.5,
-         0.4
-        ]
-       },
-       "after": {
-        "center": [
-         0.421,
-         10.51
-        ],
-        "rotation_deg": 90.0,
-        "size": [
-         0.5,
-         0.4
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": false,
-       "note": "no free position on this wall"
-      },
-      {
-       "iteration": 4,
-       "type": "nightstand",
-       "step": "shrink",
-       "before": {
-        "center": [
-         0.421,
-         10.51
-        ],
-        "rotation_deg": 90.0,
-        "size": [
-         0.5,
-         0.4
-        ]
-       },
-       "after": {
-        "center": [
-         0.421,
-         10.51
-        ],
-        "rotation_deg": 90.0,
-        "size": [
-         0.4,
-         0.4
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": false
-      },
-      {
-       "iteration": 5,
-       "type": "nightstand",
-       "step": "slide",
-       "before": {
-        "center": [
-         0.421,
-         10.51
-        ],
-        "rotation_deg": 90.0,
-        "size": [
-         0.4,
-         0.4
-        ]
-       },
-       "after": {
-        "center": [
-         0.421,
-         11.51
-        ],
-        "rotation_deg": 90.0,
-        "size": [
-         0.4,
-         0.4
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": true
       }
      ],
      "checks": {
@@ -1884,22 +1534,22 @@
     {
      "type": "bench",
      "center": [
-      1.295,
-      11.574
+      0.95,
+      11.579
      ],
      "rotation_deg": 0.0,
      "size": [
       1.2,
       0.4
      ],
-     "against_wall": false,
+     "against_wall": true,
      "reason": "Place at foot of bed for storage and seating.",
      "proposed": {
       "center": [
        1.15,
-       12.31
+       12.3
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
        1.2,
        0.4
@@ -1913,7 +1563,39 @@
        "before": {
         "center": [
          1.15,
-         12.31
+         12.3
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         1.15,
+         11.579
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "wall_contact"
+       ],
+       "ok": true
+      },
+      {
+       "iteration": 3,
+       "type": "bench",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.15,
+         11.579
         ],
         "rotation_deg": 0.0,
         "size": [
@@ -1923,8 +1605,8 @@
        },
        "after": {
         "center": [
-         1.295,
-         11.574
+         0.95,
+         11.579
         ],
         "rotation_deg": 0.0,
         "size": [
@@ -1933,7 +1615,7 @@
         ]
        },
        "failed": [
-        "inside_room"
+        "no_overlap"
        ],
        "ok": true
       }
@@ -1958,9 +1640,9 @@
      "before": {
       "center": [
        1.15,
-       12.31
+       12.3
       ],
-      "rotation_deg": 0.0,
+      "rotation_deg": 90.0,
       "size": [
        1.2,
        0.4
@@ -1968,8 +1650,8 @@
      },
      "after": {
       "center": [
-       1.295,
-       11.574
+       1.15,
+       11.579
       ],
       "rotation_deg": 0.0,
       "size": [
@@ -1978,7 +1660,8 @@
       ]
      },
      "failed": [
-      "inside_room"
+      "inside_room",
+      "wall_contact"
      ],
      "ok": true
     },
@@ -1989,7 +1672,72 @@
      "step": "snap",
      "before": {
       "center": [
-       1.65,
+       1.8,
+       10.51
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       1.8,
+       11.579
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 3,
+     "piece": 2,
+     "type": "bench",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.15,
+       11.579
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       0.95,
+       11.579
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 4,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "snap",
+     "before": {
+      "center": [
+       0.2,
        10.51
       ],
       "rotation_deg": 90.0,
@@ -2010,14 +1758,15 @@
       ]
      },
      "failed": [
+      "inside_room",
       "no_overlap",
       "wall_contact"
      ],
      "ok": false
     },
     {
-     "iteration": 3,
-     "piece": 1,
+     "iteration": 5,
+     "piece": 0,
      "type": "nightstand",
      "step": "slide",
      "before": {
@@ -2049,8 +1798,8 @@
      "note": "no free position on this wall"
     },
     {
-     "iteration": 4,
-     "piece": 1,
+     "iteration": 6,
+     "piece": 0,
      "type": "nightstand",
      "step": "shrink",
      "before": {
@@ -2077,71 +1826,6 @@
      },
      "failed": [
       "no_overlap"
-     ],
-     "ok": false
-    },
-    {
-     "iteration": 5,
-     "piece": 1,
-     "type": "nightstand",
-     "step": "slide",
-     "before": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       11.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": true
-    },
-    {
-     "iteration": 6,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "snap",
-     "before": {
-      "center": [
-       0.65,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap",
-      "wall_contact"
      ],
      "ok": false
     },
@@ -2157,7 +1841,7 @@
       ],
       "rotation_deg": 90.0,
       "size": [
-       0.5,
+       0.4,
        0.4
       ]
      },
@@ -2168,7 +1852,7 @@
       ],
       "rotation_deg": 90.0,
       "size": [
-       0.5,
+       0.4,
        0.4
       ]
      },
@@ -2180,71 +1864,6 @@
     },
     {
      "iteration": 8,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "shrink",
-     "before": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.5,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": false
-    },
-    {
-     "iteration": 9,
-     "piece": 0,
-     "type": "nightstand",
-     "step": "slide",
-     "before": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "after": {
-      "center": [
-       0.421,
-       10.51
-      ],
-      "rotation_deg": 90.0,
-      "size": [
-       0.4,
-       0.4
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": false,
-     "note": "no free position on this wall"
-    },
-    {
-     "iteration": 10,
      "piece": 0,
      "type": "nightstand",
      "step": "relocate",
@@ -2261,7 +1880,7 @@
      },
      "after": {
       "center": [
-       2.221,
+       2.321,
        11.579
       ],
       "rotation_deg": 0.0,
@@ -2276,7 +1895,7 @@
      "ok": true
     }
    ],
-   "iterations": 10,
+   "iterations": 8,
    "anchor_first": false
   }
  }

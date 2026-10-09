@@ -11,7 +11,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.836,
+     "latency_s": 5.15,
      "error": null,
      "pieces_proposed": 5,
      "pieces_placed": 5,
@@ -24,23 +24,23 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.217,
+     "latency_s": 3.5,
      "error": null,
      "pieces_proposed": 4,
      "pieces_placed": 4,
      "pieces_dropped": 0,
-     "iterations": 3,
-     "repair_steps": 3,
+     "iterations": 4,
+     "repair_steps": 4,
      "anchor_first": false,
      "rejected_types": []
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 8.053,
+   "latency_s": 8.649,
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L-1b_039",
+     "id": "f_L-1b_061",
      "type": "desk",
      "confidence": 0.9,
      "checks": {
@@ -53,7 +53,7 @@
      }
     },
     {
-     "id": "f_L-1b_040",
+     "id": "f_L-1b_062",
      "type": "bookshelf",
      "confidence": 0.6,
      "checks": {
@@ -66,9 +66,9 @@
      }
     },
     {
-     "id": "f_L-1b_041",
+     "id": "f_L-1b_063",
      "type": "armchair",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -79,7 +79,7 @@
      }
     },
     {
-     "id": "f_L-1b_042",
+     "id": "f_L-1b_064",
      "type": "chair",
      "confidence": 0.6,
      "checks": {
@@ -92,7 +92,7 @@
      }
     },
     {
-     "id": "f_L-1b_043",
+     "id": "f_L-1b_065",
      "type": "table_dining",
      "confidence": 0.6,
      "checks": {
@@ -116,7 +116,7 @@
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L-1b_044",
+     "id": "f_L-1b_066",
      "type": "desk",
      "confidence": 0.9,
      "checks": {
@@ -129,7 +129,7 @@
      }
     },
     {
-     "id": "f_L-1b_045",
+     "id": "f_L-1b_067",
      "type": "bookshelf",
      "confidence": 0.6,
      "checks": {
@@ -142,9 +142,9 @@
      }
     },
     {
-     "id": "f_L-1b_046",
+     "id": "f_L-1b_068",
      "type": "armchair",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -155,7 +155,7 @@
      }
     },
     {
-     "id": "f_L-1b_047",
+     "id": "f_L-1b_069",
      "type": "chair",
      "confidence": 0.6,
      "checks": {
@@ -168,7 +168,7 @@
      }
     },
     {
-     "id": "f_L-1b_048",
+     "id": "f_L-1b_070",
      "type": "table_dining",
      "confidence": 0.6,
      "checks": {
@@ -207,20 +207,20 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.362,
+     "latency_s": 2.76,
      "error": null,
-     "pieces_proposed": 4,
+     "pieces_proposed": 3,
      "pieces_placed": 2,
-     "pieces_dropped": 2,
-     "iterations": 16,
-     "repair_steps": 16,
+     "pieces_dropped": 1,
+     "iterations": 11,
+     "repair_steps": 11,
      "anchor_first": false,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.823,
+     "latency_s": 1.959,
      "error": null,
      "pieces_proposed": 2,
      "pieces_placed": 2,
@@ -232,11 +232,11 @@
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 5.185,
+   "latency_s": 4.718,
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L0_037",
+     "id": "f_L0_035",
      "type": "console_table",
      "confidence": 0.6,
      "checks": {
@@ -249,7 +249,7 @@
      }
     },
     {
-     "id": "f_L0_038",
+     "id": "f_L0_036",
      "type": "shoe_cabinet",
      "confidence": 0.6,
      "checks": {
@@ -273,7 +273,7 @@
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L0_039",
+     "id": "f_L0_037",
      "type": "console_table",
      "confidence": 0.6,
      "checks": {
@@ -286,7 +286,7 @@
      }
     },
     {
-     "id": "f_L0_040",
+     "id": "f_L0_038",
      "type": "shoe_cabinet",
      "confidence": 0.6,
      "checks": {
@@ -319,13 +319,13 @@
   }
  ],
  "pieces_added": 14,
- "latency_s": 13.238,
+ "latency_s": 13.368,
  "completion": {
-  "rooms_completed": 21,
-  "rooms_copied": 11,
+  "rooms_completed": 18,
+  "rooms_copied": 14,
   "changes_applied": 0,
-  "pieces_added": 58,
-  "wall_cabinets": 0,
-  "latency_s": 117.79
+  "pieces_added": 56,
+  "wall_cabinets": 6,
+  "latency_s": 74.378
  }
 }

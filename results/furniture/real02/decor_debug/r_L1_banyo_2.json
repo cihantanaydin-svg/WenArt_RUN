@@ -10,7 +10,13 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L1_007",
+   "id": "dec_L1_009",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_007.wall"
+  },
+  {
+   "id": "dec_L1_010",
    "type": "ceiling_light",
    "method": "ai",
    "slot": "ceiling:centre_r_L1_banyo"

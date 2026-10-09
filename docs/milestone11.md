@@ -238,7 +238,8 @@ code measures it (C), the vision critic judges it (V) or both.
   the clear errors it lists, with the evidence.
 - Drawn fixed equipment (stairs, kitchen runs, island, appliances, sanitary ware): type, place, orientation and
   footprint locked; only a clear drawing error may be fixed (`adjusted_by_ai`, reason, evidence).
-- Drawn furniture: kept by default. The agent may rotate (front), snap to the nearest wall (≤ 0.3 m), resize to a
+- Drawn furniture: kept by default. The agent may rotate (front), move it ≤ 0.3 m or snap its back onto a wall
+  (≤ 1.2 m, pod G2b), resize to a
   real product size, change the type within the room type, or fix a clear drawing error (e.g. a rug outline read as
   a piece, a cushion read as a sofa, a table footprint that includes its chairs). Each change keeps `drawn_type`,
   `drawn_footprint`, `drawn_front_deg` and gets `adjusted_by_ai: {reason, round, model}`.
@@ -684,3 +685,27 @@ The agent did little, for four reasons, all fixed before G2b:
 
 Also seen: the recognition passes exited 2 with 2 answers stale (two crops changed between the first pipeline run
 and `pipeline_final`); those 2 pieces stay untyped (open item).
+
+### 19.3 Pod G2b – real02 orchestrated again, polish off (9 Oct 2026, `9hlndobqs3awg5`, 67 min, $2.80)
+
+2 rounds, 12 edits accepted, 99 rejected; the final check (agent model, one pass) ran this time. Accepted edits (all
+with a reason, labelled `adjusted_by_ai`): a 40 m² lounge retyped `other` → `living`; two 0.10 m² details inside the
+kitchen counter run and a misread 1.34 m² outline removed; armchairs turned to face the sofa group; an oversized
+drawn bed resized to 2.0 × 1.6 m (room score 50 → 87); console tables snapped to walls; a floor lamp moved off a
+window. Rejections: the 0.3 m drawn-piece limit 45, a type not allowed in the room 14, no free place on the wall 10.
+
+Again the refit refused round 2 and the whole round (7 edits) was rolled back, so the loop stopped early (67 of
+115 min used). GPU tests: 4 failures. Causes and fixes (all with CPU tests):
+
+| # | What happened | Cause | Fix |
+|---|---|---|---|
+| 1 | refit refused round 2 | the locked check wanted every room byte-equal; the agent's `set_room_type` changed one | a room whose only change is its type, with the agent's reason, passes |
+| 2 | one refused edit rolled back the whole round and stopped the loop | rollback was per round | `rollback_locked`: the scheduler runs the locked check first and rolls back only the edits it names |
+| 3 | 45 edits refused at 0.3 m (e.g. sofas 0.8–1.1 m off a wall) | the design's 0.3 m limit; CLAUDE.md says "snap it to a wall" without a distance | a wall snap may move a drawn piece ≤ 1.2 m (`schemas.WALL_SNAP_MAX_M`, both validators); a free move stays ≤ 0.3 m |
+| 4 | GPU test: attic bathroom camera 0.05 m from an object ("a view of mostly ceiling") | a ceiling light hung flush under a 1.45 m slope, at eye height | a ceiling light whose bottom would be under 2.0 m is not built (listed) |
+| 5 | GPU test: a 5.5 × 0.6 m wall unit missing from the index pass | the step-0 rule drew it flat because it holds a small piece | only holders whose both sides are ≥ 1.0 m are drawn flat |
+| 6 | GPU test: terrace view depth 192 m > 60 m | the ground now reaches the horizon | open-sky rooms use the exterior clip end (test) |
+| 7 | GPU test: skirting in kitchens | M2 decision (kitchens get style walls) | test updated |
+| 8 | GPU test: a library sofa in `oyun_1` absent from the index pass | not found yet | open |
+
+The real02 results in `results/` are now the G2b ones (M10's images are kept in `results/compare/real02/m10/`).

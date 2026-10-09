@@ -803,24 +803,36 @@
   },
   "cam_r_L-1_koridor_2_2": {
    "status": "skipped",
-   "reason": "final cycles (gate)"
+   "reason": "final cycles (room)"
   },
   "cam_r_L-1_koridor_2_3": {
    "status": "skipped",
    "reason": "final cycles (room)"
   },
-  "cam_r_L-1_salon_1": {
+  "cam_r_L-1_mutfak_1": {
    "status": "skipped",
    "reason": "final cycles (room)"
   },
-  "cam_r_L-1_salon_2": {
+  "cam_r_L-1_mutfak_2": {
+   "status": "skipped",
+   "reason": "final cycles (room)"
+  },
+  "cam_r_L-1_mutfak_3": {
+   "status": "skipped",
+   "reason": "final cycles (room)"
+  },
+  "cam_r_L-1_salon_1": {
    "status": "skipped",
    "reason": "final cycles (room)",
-   "file": "cam_r_L-1_salon_2.json",
+   "file": "cam_r_L-1_salon_1.json",
    "polished": false,
    "controls": [
     "win_L-1_001"
    ]
+  },
+  "cam_r_L-1_salon_2": {
+   "status": "skipped",
+   "reason": "final cycles (room)"
   },
   "cam_r_L-1_salon_3": {
    "status": "skipped",
@@ -828,13 +840,7 @@
   },
   "cam_r_L0_e_yatak_odasi_1": {
    "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L0_e_yatak_odasi_1.json",
-   "polished": false,
-   "controls": [
-    "f_L0_009",
-    "win_L0_002"
-   ]
+   "reason": "final cycles (room)"
   },
   "cam_r_L0_e_yatak_odasi_2": {
    "status": "skipped",
@@ -842,16 +848,16 @@
   },
   "cam_r_L0_e_yatak_odasi_3": {
    "status": "skipped",
-   "reason": "final cycles (room)"
+   "reason": "final cycles (room)",
+   "file": "cam_r_L0_e_yatak_odasi_3.json",
+   "polished": false,
+   "controls": [
+    "d_L0_002"
+   ]
   },
   "cam_r_L0_koridor_1": {
    "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L0_koridor_1.json",
-   "polished": false,
-   "controls": [
-    "d_L0_001"
-   ]
+   "reason": "final cycles (room)"
   },
   "cam_r_L0_koridor_2": {
    "status": "skipped",
@@ -861,56 +867,23 @@
    "status": "skipped",
    "reason": "final cycles (room)"
   },
-  "cam_r_L0_yatak_odasi_1": {
-   "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L0_yatak_odasi_1.json",
-   "polished": false,
-   "controls": [
-    "win_L0_001"
-   ]
-  },
-  "cam_r_L0_yatak_odasi_2": {
-   "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L0_yatak_odasi_2.json",
-   "polished": false,
-   "controls": [
-    "f_L0_012"
-   ]
-  },
-  "cam_r_L0_yatak_odasi_3": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L1_koridor_1": {
-   "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L1_koridor_1.json",
-   "polished": false,
-   "controls": [
-    "d_L1_001"
-   ]
-  },
-  "cam_r_L1_koridor_2": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L1_koridor_2_2": {
-   "status": "skipped",
-   "reason": "final cycles (gate)"
-  },
-  "cam_r_L1_koridor_3": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
   "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1": {
    "status": "skipped",
-   "reason": "final cycles (room)"
+   "reason": "final cycles (room)",
+   "file": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1.json",
+   "polished": false,
+   "controls": [
+    "win_L1_001"
+   ]
   },
   "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
    "status": "skipped",
-   "reason": "final cycles (room)"
+   "reason": "final cycles (room)",
+   "file": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2.json",
+   "polished": false,
+   "controls": [
+    "f_L1_009"
+   ]
   },
   "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3": {
    "status": "skipped",
@@ -936,6 +909,10 @@
    "status": "skipped",
    "reason": "final cycles (gate)"
   },
+  "ext_6": {
+   "status": "skipped",
+   "reason": "final cycles (gate)"
+  },
   "cam_r_L-1_banyo_1": {
    "status": "ok",
    "file": "cam_r_L-1_banyo_1.json",
@@ -945,24 +922,6 @@
   "cam_r_L-1_banyo_2": {
    "status": "ok",
    "file": "cam_r_L-1_banyo_2.json",
-   "polished": true,
-   "controls": []
-  },
-  "cam_r_L-1_mutfak_1": {
-   "status": "ok",
-   "file": "cam_r_L-1_mutfak_1.json",
-   "polished": true,
-   "controls": []
-  },
-  "cam_r_L-1_mutfak_2": {
-   "status": "ok",
-   "file": "cam_r_L-1_mutfak_2.json",
-   "polished": true,
-   "controls": []
-  },
-  "cam_r_L-1_mutfak_3": {
-   "status": "ok",
-   "file": "cam_r_L-1_mutfak_3.json",
    "polished": true,
    "controls": []
   },
@@ -990,21 +949,25 @@
    "polished": true,
    "controls": []
   },
-  "cam_r_L0_oda_1": {
+  "cam_r_L0_yatak_odasi_1": {
    "status": "ok",
-   "file": "cam_r_L0_oda_1.json",
+   "file": "cam_r_L0_yatak_odasi_1.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "win_L0_001"
+   ]
   },
-  "cam_r_L0_oda_2": {
+  "cam_r_L0_yatak_odasi_2": {
    "status": "ok",
-   "file": "cam_r_L0_oda_2.json",
+   "file": "cam_r_L0_yatak_odasi_2.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "f_L0_010"
+   ]
   },
-  "cam_r_L0_oda_2_1": {
+  "cam_r_L0_yatak_odasi_3": {
    "status": "ok",
-   "file": "cam_r_L0_oda_2_1.json",
+   "file": "cam_r_L0_yatak_odasi_3.json",
    "polished": true,
    "controls": []
   },
@@ -1012,15 +975,15 @@
    "status": "ok",
    "file": "cam_r_L0_yatak_odasi_3_1.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "f_L0_009"
+   ]
   },
   "cam_r_L0_yatak_odasi_3_2": {
    "status": "ok",
    "file": "cam_r_L0_yatak_odasi_3_2.json",
    "polished": true,
-   "controls": [
-    "f_L0_011"
-   ]
+   "controls": []
   },
   "cam_r_L0_yatak_odasi_3_3": {
    "status": "ok",
@@ -1034,23 +997,25 @@
    "polished": true,
    "controls": []
   },
-  "cam_r_L1_banyo_2": {
+  "cam_r_L1_koridor_1": {
    "status": "ok",
-   "file": "cam_r_L1_banyo_2.json",
+   "file": "cam_r_L1_koridor_1.json",
    "polished": true,
    "controls": []
   },
-  "cam_r_L1_koridor_2_1": {
+  "cam_r_L1_koridor_2": {
    "status": "ok",
-   "file": "cam_r_L1_koridor_2_1.json",
+   "file": "cam_r_L1_koridor_2.json",
    "polished": true,
    "controls": []
   },
-  "cam_r_L1_koridor_2_3": {
+  "cam_r_L1_koridor_3": {
    "status": "ok",
-   "file": "cam_r_L1_koridor_2_3.json",
+   "file": "cam_r_L1_koridor_3.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "d_L1_001"
+   ]
   },
   "cam_r_L1_teras_1": {
    "status": "ok",
@@ -1061,7 +1026,7 @@
  },
  "incomplete": false,
  "warnings": [],
- "detected_images": 54,
+ "detected_images": 46,
  "reused_images": 0,
- "seconds": 10.8
+ "seconds": 9.78
 }

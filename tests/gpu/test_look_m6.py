@@ -38,7 +38,7 @@ PULL_MIN_SHARE = 0.90
 DIM_MAX_EV = 6.0
 BED_TYPES = ("bed", "bed_single", "bed_double")
 COUNTER_TYPES = ("kitchen_counter", "kitchen_island")
-NO_SKIRTING_TYPES = ("bathroom", "wc", "kitchen", "balcony")
+NO_SKIRTING_TYPES = ("bathroom", "wc", "balcony")   # M11 (M2): kitchens get style walls and skirting
 # The rooms of the four Milestone 5 views metered at the +8 EV limit (synthetic-03 basement).
 S03_DARK_ROOMS = {"r_L-1_kiler_2", "r_L-1_yatak_odasi"}
 

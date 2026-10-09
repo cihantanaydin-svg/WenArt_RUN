@@ -3350,346 +3350,6 @@
     "room_label": "AÇIK MUTFAK",
     "footprint": {
      "center": [
-      7265.8393,
-      44906.3026
-     ],
-     "size": [
-      0.6,
-      0.6
-     ],
-     "rotation_deg": 0.0
-    },
-    "bbox": [
-     7265.5393,
-     44906.0026,
-     7266.1393,
-     44906.6026
-    ],
-    "crop": {
-     "object_box": [
-      7265539,
-      44906003,
-      7266139,
-      44906603
-     ],
-     "ctx_box": [
-      7264589,
-      44905053,
-      7267089,
-      44907553
-     ],
-     "iso_box": [
-      7265268,
-      44905731,
-      7266411,
-      44906874
-     ],
-     "units": "mm",
-     "px": 512,
-     "kind": "vector",
-     "crop_version": "m7.1"
-    }
-   },
-   "question": {
-    "kind": "vector",
-    "choices": [
-     "armchair",
-     "table_coffee",
-     "chair",
-     "kitchen_counter",
-     "fridge",
-     "stove",
-     "sink_kitchen",
-     "washbasin",
-     "nightstand",
-     "washing_machine",
-     "side_table",
-     "floor_lamp",
-     "potted_plant",
-     "ottoman",
-     "office_chair",
-     "display_cabinet",
-     "tall_cabinet",
-     "unknown",
-     "not_furniture"
-    ],
-    "size_m": [
-     0.6,
-     0.6
-    ],
-    "room": {
-     "label": "AÇIK MUTFAK",
-     "type": "kitchen"
-    },
-    "neighbours": {
-     "similar": 2,
-     "next_to": null,
-     "around": null
-    }
-   },
-   "input_sha256": "fed1ed4c0b0042a1cc31e1b6454cf83ce5866e9a9a91ae1467d7cc22f7a72709"
-  },
-  {
-   "key": "sym_L-1b_002",
-   "task": "symbol_type",
-   "page": null,
-   "images": [
-    "crops/sym_L-1b_002_ctx.png",
-    "crops/sym_L-1b_002_iso.png"
-   ],
-   "context": {
-    "file": "one_building.dwg",
-    "level": "L-1b",
-    "room_id": null,
-    "room_type": "kitchen",
-    "room_label": "AÇIK MUTFAK",
-    "footprint": {
-     "center": [
-      7268.5013,
-      44906.4526
-     ],
-     "size": [
-      0.3,
-      0.2
-     ],
-     "rotation_deg": 90.0
-    },
-    "bbox": [
-     7268.4013,
-     44906.3026,
-     7268.6013,
-     44906.6026
-    ],
-    "crop": {
-     "object_box": [
-      7268401,
-      44906303,
-      7268601,
-      44906603
-     ],
-     "ctx_box": [
-      7267251,
-      44905203,
-      7269751,
-      44907703
-     ],
-     "iso_box": [
-      7267930,
-      44905881,
-      7269073,
-      44907024
-     ],
-     "units": "mm",
-     "px": 512,
-     "kind": "vector",
-     "crop_version": "m7.1"
-    }
-   },
-   "question": {
-    "kind": "vector",
-    "choices": [
-     "potted_plant",
-     "unknown",
-     "not_furniture"
-    ],
-    "size_m": [
-     0.3,
-     0.2
-    ],
-    "room": {
-     "label": "AÇIK MUTFAK",
-     "type": "kitchen"
-    },
-    "neighbours": null
-   },
-   "input_sha256": "68f24631e1f7243debbd855e7e4a6ece3e417a0a38abb7eaea374267babdb09b"
-  },
-  {
-   "key": "sym_L-1b_003",
-   "task": "symbol_type",
-   "page": null,
-   "images": [
-    "crops/sym_L-1b_003_ctx.png",
-    "crops/sym_L-1b_003_iso.png"
-   ],
-   "context": {
-    "file": "one_building.dwg",
-    "level": "L-1b",
-    "room_id": null,
-    "room_type": "kitchen",
-    "room_label": "AÇIK MUTFAK",
-    "footprint": {
-     "center": [
-      7256.5915,
-      44906.3026
-     ],
-     "size": [
-      0.6,
-      0.6
-     ],
-     "rotation_deg": 0.0
-    },
-    "bbox": [
-     7256.2915,
-     44906.0026,
-     7256.8915,
-     44906.6026
-    ],
-    "crop": {
-     "object_box": [
-      7256292,
-      44906003,
-      7256892,
-      44906603
-     ],
-     "ctx_box": [
-      7255342,
-      44905053,
-      7257842,
-      44907553
-     ],
-     "iso_box": [
-      7256020,
-      44905731,
-      7257163,
-      44906874
-     ],
-     "units": "mm",
-     "px": 512,
-     "kind": "vector",
-     "crop_version": "m7.1"
-    }
-   },
-   "question": {
-    "kind": "vector",
-    "choices": [
-     "armchair",
-     "table_coffee",
-     "chair",
-     "kitchen_counter",
-     "fridge",
-     "stove",
-     "sink_kitchen",
-     "washbasin",
-     "nightstand",
-     "washing_machine",
-     "side_table",
-     "floor_lamp",
-     "potted_plant",
-     "ottoman",
-     "office_chair",
-     "display_cabinet",
-     "tall_cabinet",
-     "unknown",
-     "not_furniture"
-    ],
-    "size_m": [
-     0.6,
-     0.6
-    ],
-    "room": {
-     "label": "AÇIK MUTFAK",
-     "type": "kitchen"
-    },
-    "neighbours": {
-     "similar": 2,
-     "next_to": null,
-     "around": null
-    }
-   },
-   "input_sha256": "2ba5443cde32be78f18eb6469c6d902e0c837ce7f788d343f1c8f7faa52a061b"
-  },
-  {
-   "key": "sym_L-1b_004",
-   "task": "symbol_type",
-   "page": null,
-   "images": [
-    "crops/sym_L-1b_004_ctx.png",
-    "crops/sym_L-1b_004_iso.png"
-   ],
-   "context": {
-    "file": "one_building.dwg",
-    "level": "L-1b",
-    "room_id": null,
-    "room_type": "kitchen",
-    "room_label": "AÇIK MUTFAK",
-    "footprint": {
-     "center": [
-      7253.9295,
-      44906.4526
-     ],
-     "size": [
-      0.3,
-      0.2
-     ],
-     "rotation_deg": 90.0
-    },
-    "bbox": [
-     7253.8295,
-     44906.3026,
-     7254.0295,
-     44906.6026
-    ],
-    "crop": {
-     "object_box": [
-      7253830,
-      44906303,
-      7254030,
-      44906603
-     ],
-     "ctx_box": [
-      7252680,
-      44905203,
-      7255180,
-      44907703
-     ],
-     "iso_box": [
-      7253358,
-      44905881,
-      7254501,
-      44907024
-     ],
-     "units": "mm",
-     "px": 512,
-     "kind": "vector",
-     "crop_version": "m7.1"
-    }
-   },
-   "question": {
-    "kind": "vector",
-    "choices": [
-     "potted_plant",
-     "unknown",
-     "not_furniture"
-    ],
-    "size_m": [
-     0.3,
-     0.2
-    ],
-    "room": {
-     "label": "AÇIK MUTFAK",
-     "type": "kitchen"
-    },
-    "neighbours": null
-   },
-   "input_sha256": "3f7c59c85f59306a93843aa82573ae5017e8fbf95c215f5ab3d2070b774a2983"
-  },
-  {
-   "key": "sym_L-1b_005",
-   "task": "symbol_type",
-   "page": null,
-   "images": [
-    "crops/sym_L-1b_005_ctx.png",
-    "crops/sym_L-1b_005_iso.png"
-   ],
-   "context": {
-    "file": "one_building.dwg",
-    "level": "L-1b",
-    "room_id": null,
-    "room_type": "kitchen",
-    "room_label": "AÇIK MUTFAK",
-    "footprint": {
-     "center": [
       7264.6129,
       44903.7411
      ],
@@ -3758,12 +3418,12 @@
    "input_sha256": "a865555eea894ff5e4aa25113ec7eda27d12b56fc7c5a27f3a2b0aadb7c3931f"
   },
   {
-   "key": "sym_L-1b_006",
+   "key": "sym_L-1b_002",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_006_ctx.png",
-    "crops/sym_L-1b_006_iso.png"
+    "crops/sym_L-1b_002_ctx.png",
+    "crops/sym_L-1b_002_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -3841,12 +3501,12 @@
    "input_sha256": "fa97ef8bdad932a801a421ab38fc71e0837424ece8282a6553a88fb64e61fac7"
   },
   {
-   "key": "sym_L-1b_007",
+   "key": "sym_L-1b_003",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_007_ctx.png",
-    "crops/sym_L-1b_007_iso.png"
+    "crops/sym_L-1b_003_ctx.png",
+    "crops/sym_L-1b_003_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -3927,12 +3587,12 @@
    "input_sha256": "fe0546e65808c4691fcc4baffe082d942ee2369a0ee6a10d83868818d7ff354b"
   },
   {
-   "key": "sym_L-1b_008",
+   "key": "sym_L-1b_004",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_008_ctx.png",
-    "crops/sym_L-1b_008_iso.png"
+    "crops/sym_L-1b_004_ctx.png",
+    "crops/sym_L-1b_004_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4013,12 +3673,12 @@
    "input_sha256": "cbb09fb7af4094841c550d9cd426c4a4e84cfecf635ed433ddcd2e7010d491dd"
   },
   {
-   "key": "sym_L-1b_009",
+   "key": "sym_L-1b_005",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_009_ctx.png",
-    "crops/sym_L-1b_009_iso.png"
+    "crops/sym_L-1b_005_ctx.png",
+    "crops/sym_L-1b_005_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4098,12 +3758,12 @@
    "input_sha256": "2f98cc9e5ffdb1eddee8a9acac2081a210656a2695f6a6bdabac8283f3c20be3"
   },
   {
-   "key": "sym_L-1b_010",
+   "key": "sym_L-1b_006",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_010_ctx.png",
-    "crops/sym_L-1b_010_iso.png"
+    "crops/sym_L-1b_006_ctx.png",
+    "crops/sym_L-1b_006_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4183,12 +3843,12 @@
    "input_sha256": "8ca0aa9e273e01e35da3d38aa9fddee26d8288b84a3f1e728d51133d664b5371"
   },
   {
-   "key": "sym_L-1b_011",
+   "key": "sym_L-1b_007",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_011_ctx.png",
-    "crops/sym_L-1b_011_iso.png"
+    "crops/sym_L-1b_007_ctx.png",
+    "crops/sym_L-1b_007_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4269,21 +3929,17 @@
      "label": "AÇIK MUTFAK",
      "type": "kitchen"
     },
-    "neighbours": {
-     "similar": 2,
-     "next_to": null,
-     "around": null
-    }
+    "neighbours": null
    },
-   "input_sha256": "53734457563891eb204751840e0680b97cd5128b105192218f781de9ee0db612"
+   "input_sha256": "6c9cd0685749ddc173f52a66b11c3e4b5687a96e69160a62b2cdf2356d4bddea"
   },
   {
-   "key": "sym_L-1b_012",
+   "key": "sym_L-1b_008",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_012_ctx.png",
-    "crops/sym_L-1b_012_iso.png"
+    "crops/sym_L-1b_008_ctx.png",
+    "crops/sym_L-1b_008_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4371,12 +4027,12 @@
    "input_sha256": "96a0b1ee452ca967b65f9c8f08cf09a36e66158dc9e81b1889c1a849cdd74636"
   },
   {
-   "key": "sym_L-1b_013",
+   "key": "sym_L-1b_009",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_013_ctx.png",
-    "crops/sym_L-1b_013_iso.png"
+    "crops/sym_L-1b_009_ctx.png",
+    "crops/sym_L-1b_009_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4457,21 +4113,17 @@
      "label": "AÇIK MUTFAK",
      "type": "kitchen"
     },
-    "neighbours": {
-     "similar": 2,
-     "next_to": null,
-     "around": null
-    }
+    "neighbours": null
    },
-   "input_sha256": "5aa12305a29692c92dc1d02979fd89da1219d33cb70018bbdc4985bcd73216fc"
+   "input_sha256": "3e7b7db33ce271317b850ed98a1d0e4f7bb88d323ca3625d57471799fa2b3d4f"
   },
   {
-   "key": "sym_L-1b_014",
+   "key": "sym_L-1b_010",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_014_ctx.png",
-    "crops/sym_L-1b_014_iso.png"
+    "crops/sym_L-1b_010_ctx.png",
+    "crops/sym_L-1b_010_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4559,12 +4211,12 @@
    "input_sha256": "f7d773c833fd6b2a8f36b479dc7e38f7b4a8f060ce4a3d50c3531387662af731"
   },
   {
-   "key": "sym_L-1b_015",
+   "key": "sym_L-1b_011",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_015_ctx.png",
-    "crops/sym_L-1b_015_iso.png"
+    "crops/sym_L-1b_011_ctx.png",
+    "crops/sym_L-1b_011_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4650,12 +4302,12 @@
    "input_sha256": "a2cb1a0425e62730adc4e8f600a9ff046b5bfaec77ec05a18f4fd932e80e177b"
   },
   {
-   "key": "sym_L-1b_016",
+   "key": "sym_L-1b_012",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_016_ctx.png",
-    "crops/sym_L-1b_016_iso.png"
+    "crops/sym_L-1b_012_ctx.png",
+    "crops/sym_L-1b_012_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4741,12 +4393,12 @@
    "input_sha256": "a4d1312b1cde25f430dab4f606e1163934289f213d9051677347d3417a891ac4"
   },
   {
-   "key": "sym_L-1b_017",
+   "key": "sym_L-1b_013",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_017_ctx.png",
-    "crops/sym_L-1b_017_iso.png"
+    "crops/sym_L-1b_013_ctx.png",
+    "crops/sym_L-1b_013_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4832,12 +4484,12 @@
    "input_sha256": "cb705455adab39d00d11c1ff2ce9f20833fa0d32a9f2ba5250e0cdae5200e456"
   },
   {
-   "key": "sym_L-1b_018",
+   "key": "sym_L-1b_014",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_018_ctx.png",
-    "crops/sym_L-1b_018_iso.png"
+    "crops/sym_L-1b_014_ctx.png",
+    "crops/sym_L-1b_014_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -4923,12 +4575,12 @@
    "input_sha256": "701dd9386412bc58a7ddbb081a101336ac1c386688143cb04a060a55a5a9477d"
   },
   {
-   "key": "sym_L-1b_019",
+   "key": "sym_L-1b_015",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_019_ctx.png",
-    "crops/sym_L-1b_019_iso.png"
+    "crops/sym_L-1b_015_ctx.png",
+    "crops/sym_L-1b_015_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5017,12 +4669,12 @@
    "input_sha256": "e9768b25673661b5d6e2c66095a831724f187dd62ddbd79a68fa73d12e3f349b"
   },
   {
-   "key": "sym_L-1b_020",
+   "key": "sym_L-1b_016",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_020_ctx.png",
-    "crops/sym_L-1b_020_iso.png"
+    "crops/sym_L-1b_016_ctx.png",
+    "crops/sym_L-1b_016_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5111,12 +4763,12 @@
    "input_sha256": "ab2e564a7ba61de48a7c985c94a2e72aba5e4a8109433750971902508b052819"
   },
   {
-   "key": "sym_L-1b_021",
+   "key": "sym_L-1b_017",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_021_ctx.png",
-    "crops/sym_L-1b_021_iso.png"
+    "crops/sym_L-1b_017_ctx.png",
+    "crops/sym_L-1b_017_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5200,12 +4852,12 @@
    "input_sha256": "e7d5f10544a042200d13c03faffb365435151dab9462946aa77b54dc501bbc21"
   },
   {
-   "key": "sym_L-1b_022",
+   "key": "sym_L-1b_018",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_022_ctx.png",
-    "crops/sym_L-1b_022_iso.png"
+    "crops/sym_L-1b_018_ctx.png",
+    "crops/sym_L-1b_018_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5289,12 +4941,12 @@
    "input_sha256": "0f32b01f217be6d6e5ef0d98ac977c44d7eb1647c69f6dbe86ab8cd984cbf961"
   },
   {
-   "key": "sym_L-1b_023",
+   "key": "sym_L-1b_019",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_023_ctx.png",
-    "crops/sym_L-1b_023_iso.png"
+    "crops/sym_L-1b_019_ctx.png",
+    "crops/sym_L-1b_019_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5383,12 +5035,12 @@
    "input_sha256": "250f753ca1f6e7905a79d716d125c5c32461d9ecf9acad9480070662e5bddcb3"
   },
   {
-   "key": "sym_L-1b_024",
+   "key": "sym_L-1b_020",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_024_ctx.png",
-    "crops/sym_L-1b_024_iso.png"
+    "crops/sym_L-1b_020_ctx.png",
+    "crops/sym_L-1b_020_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5477,12 +5129,12 @@
    "input_sha256": "1a2994875eac35055f59d9b226534104edb0db09f075f8b06f4317a4674f466d"
   },
   {
-   "key": "sym_L-1b_025",
+   "key": "sym_L-1b_021",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_025_ctx.png",
-    "crops/sym_L-1b_025_iso.png"
+    "crops/sym_L-1b_021_ctx.png",
+    "crops/sym_L-1b_021_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -5571,12 +5223,12 @@
    "input_sha256": "3e4841c891c9f1f24928e35ba56283f96af5cb4a6874429dd6144f486e193b2d"
   },
   {
-   "key": "sym_L-1b_026",
+   "key": "sym_L-1b_022",
    "task": "symbol_type",
    "page": null,
    "images": [
-    "crops/sym_L-1b_026_ctx.png",
-    "crops/sym_L-1b_026_iso.png"
+    "crops/sym_L-1b_022_ctx.png",
+    "crops/sym_L-1b_022_iso.png"
    ],
    "context": {
     "file": "one_building.dwg",
@@ -6042,7 +5694,7 @@
     },
     "neighbours": null
    },
-   "input_sha256": "ff160023ee5638bf1ec95bd0b890584fe74122b8fba5b189f5dd6aaa132467cb"
+   "input_sha256": "6f05369703670b2b99c88c83fbd62425c5704249a9cd2c4aad6aeeee00f1f6cf"
   },
   {
    "key": "sym_L0_006",
@@ -6118,7 +5770,7 @@
     },
     "neighbours": null
    },
-   "input_sha256": "9ca81ebe45542ae06a232c6b4564365574b95458da636022a0d1a8556913038f"
+   "input_sha256": "b9884c87f2f225ecd53674473a0aa0e6f5b4d305d96b60f0c2cc0f6953cc7b14"
   },
   {
    "key": "sym_L0_007",

@@ -4,6 +4,16 @@
  "room_type": "bathroom",
  "slots": [
   {
+   "id": "f_L1_007.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
    "id": "ceiling:centre_r_L1_banyo",
    "kind": "ceiling",
    "types": [
@@ -18,37 +28,59 @@
   "1": {
    "items": [
     {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "cream",
+     "reason": "Complements warm greige walls and natural light wood furniture."
+    },
+    {
      "slot": "ceiling:centre_r_L1_banyo",
      "type": "ceiling_light",
-     "colour": "natural wood",
-     "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+     "colour": "brass",
+     "reason": "Warm brass light enhances natural daylight and matches dark bronze window frames."
     }
    ],
    "error": null,
-   "latency_s": 0.81
+   "latency_s": 1.359
   },
   "2": {
    "items": [
     {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Complements natural wood furniture and enhances light in modern bathroom."
+    },
+    {
      "slot": "ceiling:centre_r_L1_banyo",
      "type": "ceiling_light",
-     "colour": "natural wood",
-     "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     "colour": "brass",
+     "reason": "Warm brass light adds cozy glow matching daylight and bronze accents."
     }
    ],
    "error": null,
-   "latency_s": 0.85
+   "latency_s": 1.341
   }
  },
  "agreed": [
   {
+   "slot": "f_L1_007.wall",
+   "type": "mirror",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Complements warm greige walls and natural light wood furniture.",
+    "Complements natural wood furniture and enhances light in modern bathroom."
+   ]
+  },
+  {
    "slot": "ceiling:centre_r_L1_banyo",
    "type": "ceiling_light",
-   "colour": "natural wood",
+   "colour": "brass",
    "colour_agreed": true,
    "reasons": [
-    "Warm wood tone complements natural light wood furniture and enhances the modern natural style.",
-    "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+    "Warm brass light enhances natural daylight and matches dark bronze window frames.",
+    "Warm brass light adds cozy glow matching daylight and bronze accents."
    ]
   }
  ],
@@ -57,14 +89,18 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L1_006",
+   "id": "dec_L1_007",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_007.wall"
+  },
+  {
+   "id": "dec_L1_008",
    "type": "ceiling_light",
    "method": "ai",
    "slot": "ceiling:centre_r_L1_banyo"
   }
  ],
  "fallback": null,
- "notes": [
-  "f_L1_007 wall: mirror: f_L1_007 has no wall behind it"
- ]
+ "notes": []
 }

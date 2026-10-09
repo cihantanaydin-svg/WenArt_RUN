@@ -2,146 +2,65 @@
  "schema_version": "0.1",
  "project": "real02",
  "model_keys": [
-  "qwen",
-  "glm"
+  "agent"
  ],
- "single_pass": false,
+ "single_pass": true,
  "metrics": {
   "baseline": {
-   "views": 42,
-   "views_computed": 42,
-   "required_elements": 53,
-   "fa_missing": 0.0,
-   "fa_extra": 0.0,
-   "count_error": 0.0,
-   "disputed": 0.0
+   "views": 35,
+   "views_computed": 35,
+   "required_elements": 71,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
   },
   "models": {
-   "qwen": {
-    "calls": 42,
-    "answered": 42,
+   "agent": {
+    "calls": 35,
+    "answered": 35,
     "answer_rate": 1.0,
-    "decoys": 42,
-    "decoy_accept": 0.0238,
-    "fa_missing_single": 0.0
-   },
-   "glm": {
-    "calls": 42,
-    "answered": 42,
-    "answer_rate": 1.0,
-    "decoys": 42,
+    "decoys": 31,
     "decoy_accept": 0.0,
     "fa_missing_single": 0.0
    }
   },
-  "fa_missing": 0.0,
-  "fa_extra": 0.0,
-  "count_error": 0.0,
-  "removal_flagged": 0.875,
-  "removal_confirmed": 0.75,
-  "insertion": 0.0,
-  "insertion_flagged": 0.375,
+  "fa_missing": null,
+  "fa_extra": null,
+  "count_error": null,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": 0.75,
   "swap_flagged": 1.0,
-  "swap_confirmed": 0.0,
+  "swap_confirmed": null,
   "detector_insertion": {
-   "n": 8,
-   "advisory": false,
-   "found": 1.0,
-   "flagged": 0.875,
-   "confirmed": 0.875,
-   "rows": [
-    {
-     "camera": "cam_r_L-1_salon_2",
-     "kind": "insertion:win_L-1_001",
-     "hit_score": 0.1911,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_e_yatak_odasi_1",
-     "kind": "insertion:f_L0_009",
-     "hit_score": 0.2363,
-     "hit_group": "desk",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_e_yatak_odasi_1",
-     "kind": "insertion:win_L0_002",
-     "hit_score": 0.252,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_koridor_1",
-     "kind": "insertion:d_L0_001",
-     "hit_score": 0.056,
-     "hit_group": "wall_cabinet",
-     "flagged": false,
-     "confirmed": false
-    },
-    {
-     "camera": "cam_r_L0_yatak_odasi_1",
-     "kind": "insertion:win_L0_001",
-     "hit_score": 0.3796,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_yatak_odasi_2",
-     "kind": "insertion:f_L0_012",
-     "hit_score": 0.4459,
-     "hit_group": "wall_cabinet",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_yatak_odasi_3_2",
-     "kind": "insertion:f_L0_011",
-     "hit_score": 0.4032,
-     "hit_group": "dresser",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L1_koridor_1",
-     "kind": "insertion:d_L1_001",
-     "hit_score": 0.673,
-     "hit_group": "door",
-     "flagged": true,
-     "confirmed": true
-    }
-   ]
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
   },
   "controls": {
    "removal": {
     "n": 8,
-    "flagged": 0.875,
-    "confirmed": 0.75,
+    "flagged": 0.625,
+    "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L-1_salon_2",
+      "camera": "cam_r_L-1_salon_1",
       "kind": "removal:win_L-1_001",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_e_yatak_odasi_1",
-      "kind": "removal:f_L0_009",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L0_e_yatak_odasi_1",
+      "camera": "cam_r_L0_e_yatak_odasi_3",
       "kind": "removal:win_L0_002",
-      "flagged": true,
-      "confirmed": true
+      "flagged": false,
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L0_koridor_1",
+      "camera": "cam_r_L0_koridor_2",
       "kind": "removal:d_L0_001",
       "flagged": false,
       "confirmed": false
@@ -149,54 +68,54 @@
      {
       "camera": "cam_r_L0_yatak_odasi_1",
       "kind": "removal:win_L0_001",
-      "flagged": true,
-      "confirmed": true
+      "flagged": false,
+      "confirmed": false
      },
      {
       "camera": "cam_r_L0_yatak_odasi_2",
-      "kind": "removal:f_L0_012",
+      "kind": "removal:f_L0_010",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_3_2",
-      "kind": "removal:f_L0_011",
+      "camera": "cam_r_L0_yatak_odasi_3_3",
+      "kind": "removal:f_L0_009",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L1_koridor_1",
+      "camera": "cam_r_L1_koridor_3",
       "kind": "removal:d_L1_001",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+      "kind": "removal:f_L1_009",
+      "flagged": true,
+      "confirmed": false
      }
     ]
    },
    "insertion": {
     "n": 8,
-    "flagged": 0.375,
+    "flagged": 0.75,
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L-1_salon_2",
+      "camera": "cam_r_L-1_salon_1",
       "kind": "insertion:win_L-1_001",
       "flagged": false,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_e_yatak_odasi_1",
-      "kind": "insertion:f_L0_009",
-      "flagged": false,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_e_yatak_odasi_1",
+      "camera": "cam_r_L0_e_yatak_odasi_3",
       "kind": "insertion:win_L0_002",
-      "flagged": false,
+      "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_koridor_1",
+      "camera": "cam_r_L0_koridor_2",
       "kind": "insertion:d_L0_001",
       "flagged": false,
       "confirmed": false
@@ -204,24 +123,30 @@
      {
       "camera": "cam_r_L0_yatak_odasi_1",
       "kind": "insertion:win_L0_001",
-      "flagged": false,
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L0_yatak_odasi_2",
-      "kind": "insertion:f_L0_012",
+      "kind": "insertion:f_L0_010",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_3_2",
-      "kind": "insertion:f_L0_011",
+      "camera": "cam_r_L0_yatak_odasi_3_3",
+      "kind": "insertion:f_L0_009",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L1_koridor_1",
+      "camera": "cam_r_L1_koridor_3",
       "kind": "insertion:d_L1_001",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+      "kind": "insertion:f_L1_009",
       "flagged": true,
       "confirmed": false
      }
@@ -233,20 +158,20 @@
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_e_yatak_odasi_1",
-      "kind": "swap:f_L0_009",
+      "camera": "cam_r_L0_yatak_odasi_1",
+      "kind": "swap:f_L0_019",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_1",
+      "camera": "cam_r_L0_yatak_odasi_3_2",
       "kind": "swap:f_L0_021",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_3_3",
-      "kind": "swap:f_L0_023",
+      "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+      "kind": "swap:f_L1_009",
       "flagged": true,
       "confirmed": false
      }
@@ -254,13 +179,12 @@
    }
   },
   "exterior": {
-   "views": 5,
-   "views_computed": 5,
-   "required_elements": 9,
-   "fa_missing": 0.1111,
-   "fa_extra": 0.0,
-   "count_error": 0.2,
-   "disputed": 0.0
+   "views": 6,
+   "views_computed": 6,
+   "required_elements": 12,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
   }
  },
  "targets": {
@@ -273,16 +197,54 @@
  },
  "missed": [
   {
+   "target": "fa_missing_max",
+   "metric": "fa_missing",
+   "value": null,
+   "threshold": 0.05,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "fa_extra_max",
+   "metric": "fa_extra",
+   "value": null,
+   "threshold": 0.1,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": null,
+   "threshold": 0.8,
+   "op": ">=",
+   "reason": "single pass"
+  },
+  {
+   "target": "removal_confirmed_min",
+   "metric": "removal_confirmed",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "single pass"
+  },
+  {
    "target": "insertion_min",
    "metric": "insertion",
-   "value": 0.0,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   }
  ],
  "advisory": true,
  "advisory_reasons": [
-  "insertion 0.0 misses >= 0.6"
+  "single pass: no two-model agreement",
+  "fa_missing None misses <= 0.05 (single pass)",
+  "fa_extra None misses <= 0.1 (single pass)",
+  "removal_flagged None misses >= 0.8 (single pass)",
+  "removal_confirmed None misses >= 0.6 (single pass)",
+  "insertion None misses >= 0.6 (single pass)"
  ],
  "plan_ab": {
   "cameras": [],

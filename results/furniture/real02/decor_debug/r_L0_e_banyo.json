@@ -4,12 +4,12 @@
  "room_type": "bathroom",
  "slots": [
   {
-   "id": "f_L0_008.wall",
+   "id": "f_L0_006.wall",
    "kind": "wall",
    "types": [
     "mirror"
    ],
-   "host_id": "f_L0_008",
+   "host_id": "f_L0_006",
    "host_type": "washbasin",
    "note": ""
   },
@@ -28,25 +28,25 @@
   "1": {
    "items": [
     {
-     "slot": "f_L0_008.wall",
+     "slot": "f_L0_006.wall",
      "type": "mirror",
-     "colour": "white",
-     "reason": "Modern clean look above washbasin, complements greige walls."
+     "colour": "cream",
+     "reason": "Complements warm greige walls and natural light wood, enhancing brightness."
     },
     {
      "slot": "ceiling:centre_r_L0_e_banyo",
      "type": "ceiling_light",
-     "colour": "natural wood",
-     "reason": "Warm daylight ambiance with wood finish matches natural style."
+     "colour": "brass",
+     "reason": "Warm brass light adds modern natural glow matching daylight and bronze frames."
     }
    ],
    "error": null,
-   "latency_s": 1.351
+   "latency_s": 1.383
   },
   "2": {
    "items": [
     {
-     "slot": "f_L0_008.wall",
+     "slot": "f_L0_006.wall",
      "type": "mirror",
      "colour": "natural wood",
      "reason": "Complements natural wood furniture and enhances light in modern bathroom."
@@ -59,27 +59,27 @@
     }
    ],
    "error": null,
-   "latency_s": 1.356
+   "latency_s": 1.354
   }
  },
  "agreed": [
   {
-   "slot": "f_L0_008.wall",
+   "slot": "f_L0_006.wall",
    "type": "mirror",
-   "colour": "white",
+   "colour": "cream",
    "colour_agreed": false,
    "reasons": [
-    "Modern clean look above washbasin, complements greige walls.",
+    "Complements warm greige walls and natural light wood, enhancing brightness.",
     "Complements natural wood furniture and enhances light in modern bathroom."
    ]
   },
   {
    "slot": "ceiling:centre_r_L0_e_banyo",
    "type": "ceiling_light",
-   "colour": "natural wood",
-   "colour_agreed": false,
+   "colour": "brass",
+   "colour_agreed": true,
    "reasons": [
-    "Warm daylight ambiance with wood finish matches natural style.",
+    "Warm brass light adds modern natural glow matching daylight and bronze frames.",
     "Warm brass light adds cozy glow matching daylight and bronze accents."
    ]
   }
@@ -89,13 +89,13 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_021",
+   "id": "dec_L0_017",
    "type": "mirror",
    "method": "ai",
-   "slot": "f_L0_008.wall"
+   "slot": "f_L0_006.wall"
   },
   {
-   "id": "dec_L0_022",
+   "id": "dec_L0_018",
    "type": "ceiling_light",
    "method": "ai",
    "slot": "ceiling:centre_r_L0_e_banyo"

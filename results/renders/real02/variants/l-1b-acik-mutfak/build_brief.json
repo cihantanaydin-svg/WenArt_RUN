@@ -33,6 +33,11 @@
    "exterior_views": true,
    "twin_rooms": "one"
   },
+  "markers_in_final": false,
+  "roof_terraces": "auto",
+  "site_options": {
+   "front_court": "auto"
+  },
   "style": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight"
  },
  "assumed": [
@@ -58,7 +63,10 @@
   "render.samples",
   "render.lens_mm",
   "render.exterior_views",
-  "render.twin_rooms"
+  "render.twin_rooms",
+  "markers_in_final",
+  "roof_terraces",
+  "site_options.front_court"
  ],
  "path": "projects/real02/brief.yaml",
  "warnings": []

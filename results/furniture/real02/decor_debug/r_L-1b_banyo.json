@@ -2,22 +2,105 @@
  "room_id": "r_L-1b_banyo",
  "label": "Banyo",
  "room_type": "bathroom",
- "slots": [],
- "passes": {},
- "agreed": [],
+ "slots": [
+  {
+   "id": "f_L-1b_036.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L-1b_036",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L-1b_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1b banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1b_036.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Reflects light and complements the modern natural style."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1b_banyo",
+     "type": "ceiling_light",
+     "colour": "natural wood",
+     "reason": "Warm daylight effect with natural wood finish matches the room’s palette."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.384
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1b_036.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Complements natural wood furniture and enhances light in modern bathroom."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1b_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light adds cozy glow matching daylight and bronze accents."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.386
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1b_036.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Reflects light and complements the modern natural style.",
+    "Complements natural wood furniture and enhances light in modern bathroom."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L-1b_banyo",
+   "type": "ceiling_light",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "Warm daylight effect with natural wood finish matches the room’s palette.",
+    "Warm brass light adds cozy glow matching daylight and bronze accents."
+   ]
+  }
+ ],
  "not_agreed": [],
  "rejected": [],
  "refused": [],
  "items": [
   {
-   "id": "dec_L-1b_003",
+   "id": "dec_L-1b_004",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L-1b_036.wall"
+  },
+  {
+   "id": "dec_L-1b_005",
    "type": "ceiling_light",
    "method": "ai",
-   "slot": "ceiling:centre_r_L-1_banyo"
+   "slot": "ceiling:centre_r_L-1b_banyo"
   }
  ],
  "fallback": null,
- "notes": [
-  "decor copied from r_L-1_banyo (same_as, not asked)"
- ]
+ "notes": []
 }

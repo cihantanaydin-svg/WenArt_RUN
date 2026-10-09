@@ -252,3 +252,45 @@ def test_refit_accepts_a_validated_move_of_a_documented_only_piece():
     stove = dict(copy.deepcopy(fin), type="stove")
     stove_src = dict(src, type="stove")
     assert any("fixed equipment moved" in p for p in locked._agent_problems(stove_src, stove, keep=False))
+
+
+def test_refit_accepts_a_reasoned_room_type_change():
+    """Pod G2b (real02): the agent retyped a 40 m² lounge from other to living (set_room_type, with a reason); the
+    locked check wanted every room byte-equal and the round was rolled back. A reasoned type change passes; any other
+    room change (or one without a reason) still fails."""
+    import copy
+    from wenart.furniture import locked
+
+    room = {"id": "r1", "level_id": "L1", "room_type": "other", "polygon": [[0, 0], [5, 0], [5, 8], [0, 8]]}
+    src = {"walls": [], "openings": [], "rooms": [room], "furniture": []}
+    fin = copy.deepcopy(src)
+    fin["rooms"][0].update(room_type="living", adjusted_by_ai={"reason": "two sofas and a coffee table", "round": 2,
+                                                               "changed": {"room_type": "other"}})
+    assert locked._block_problems(src, fin) == []
+    no_reason = copy.deepcopy(fin)
+    no_reason["rooms"][0]["adjusted_by_ai"]["reason"] = ""
+    assert locked._block_problems(src, no_reason)
+    moved = copy.deepcopy(fin)
+    moved["rooms"][0]["polygon"][0] = [0.1, 0]
+    assert locked._block_problems(src, moved)
+
+
+def test_a_wall_snap_may_move_a_drawn_piece_up_to_1_2_m():
+    """Pod G2b (real02): 45 of 99 agent edits were refused by the 0.3 m drawn-piece limit, among them wall snaps of
+    sofas 0.8-1.1 m off the wall. CLAUDE.md lets the AI snap drawn furniture to a wall: a snap may move it up to
+    WALL_SNAP_MAX_M; a free move stays within 0.3 m; the refit's locked check agrees."""
+    import copy
+    from wenart.furniture import locked, schemas
+
+    assert schemas.WALL_SNAP_MAX_M == 1.2
+    src = {"id": "f1", "type": "sofa", "source": "from_documents", "level_id": "L0", "room_id": "r1",
+           "footprint": {"center": [2.0, 1.5], "size": [2.0, 0.9], "rotation_deg": 0.0}, "front_deg": 270.0}
+    fin = copy.deepcopy(src)
+    fin["footprint"]["center"] = [2.0, 0.45]                                   # 1.05 m onto the wall
+    fin["drawn_footprint"] = copy.deepcopy(src["footprint"])
+    fin["adjusted_by_ai"] = {"reason": "back onto the wall", "changed": {"footprint": src["footprint"]},
+                             "snapped_wall": "w1"}
+    assert locked._agent_problems(src, fin, keep=False) == []
+    free = copy.deepcopy(fin)
+    del free["adjusted_by_ai"]["snapped_wall"]
+    assert any("moved 1.050 m" in p for p in locked._agent_problems(src, free, keep=False))

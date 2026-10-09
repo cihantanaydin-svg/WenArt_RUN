@@ -10,16 +10,22 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L-1b_004",
+   "id": "dec_L-1b_008",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L-1b_061.back_left"
+  },
+  {
+   "id": "dec_L-1b_009",
    "type": "plant_large",
    "method": "ai",
    "slot": "r_L-1b_oda.corner1"
   },
   {
-   "id": "dec_L-1b_005",
+   "id": "dec_L-1b_010",
    "type": "cushion",
    "method": "ai",
-   "slot": "f_L-1b_041.cushions"
+   "slot": "f_L-1b_063.cushions"
   }
  ],
  "fallback": null,

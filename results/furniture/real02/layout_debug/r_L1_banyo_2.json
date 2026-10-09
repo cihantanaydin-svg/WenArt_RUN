@@ -28,12 +28,12 @@
    "kind": "fixed",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
      9.9548,
-     10.2104
+     9.9354
     ],
-    "wall_id": null
+    "wall_id": "w_L1_004"
    }
   },
   {
@@ -56,12 +56,12 @@
    "kind": "fixed",
    "unverified": false,
    "anchor": {
-    "kind": "back_edge",
+    "kind": "centre",
     "point": [
      8.1865,
-     11.801
+     10.884
     ],
-    "wall_id": "w_L1_007"
+    "wall_id": null
    }
   }
  ],
@@ -147,16 +147,16 @@
      1.0,
      0.55
     ],
-    "rotation_deg": 0.0,
-    "front_deg": null,
+    "rotation_deg": 180.0,
+    "front_deg": 90.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       9.95,
-      10.21
+      9.94
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L1_004"
    },
    {
     "id": "f_L1_014",
@@ -190,19 +190,19 @@
      10.88
     ],
     "size": [
-     0.8,
-     1.83
+     1.83,
+     0.8
     ],
-    "rotation_deg": 0.0,
-    "front_deg": 270.0,
+    "rotation_deg": 90.0,
+    "front_deg": null,
     "anchor": {
-     "kind": "back_edge",
+     "kind": "centre",
      "point": [
       8.19,
-      11.8
+      10.88
      ]
     },
-    "against_wall": "w_L1_007"
+    "against_wall": null
    }
   ],
   "change_ids": [],

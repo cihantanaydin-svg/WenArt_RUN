@@ -12,8 +12,8 @@
  "fallback": null,
  "notes": [
   "decor copied from r_L1_teras (twin, not asked)",
-  "r_L-1_mutfak_2: its twin partner r_L-1_mutfak cannot be mapped (the twin's drawn furniture does not map onto this room: drawn fridge f_L-1_031 has no counterpart here); decorated itself",
-  "r_L0_e_yatak_odasi_2: its twin partner r_L0_e_yatak_odasi cannot be mapped (the twin's drawn furniture does not map onto this room: drawn wardrobe f_L0_025 has no counterpart here); decorated itself",
-  "r_L0_yatak_odasi_4: its twin partner r_L0_yatak_odasi_3 cannot be mapped (the twin's drawn furniture does not map onto this room: drawn bed_double f_L0_023 has no counterpart here); decorated itself"
+  "r_L-1b_acik_mutfak_2: its twin partner r_L-1b_acik_mutfak cannot be mapped (the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_040 has no counterpart here); decorated itself",
+  "r_L-1b_banyo: its same_as partner r_L-1_banyo cannot be mapped (the same_as's drawn furniture does not map onto this room: drawn toilet f_L-1_051 has no counterpart here); decorated itself",
+  "r_L-1b_banyo_2: its same_as partner r_L-1_banyo_2 cannot be mapped (the same_as's drawn furniture does not map onto this room: drawn toilet f_L-1_052 has no counterpart here); decorated itself"
  ]
 }

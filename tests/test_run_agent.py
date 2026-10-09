@@ -281,3 +281,28 @@ def test_run_polish_off_and_the_calibrated_final_estimate(monkeypatch, tmp_path)
     assert S.est_final(10, polish=True) > S.est_final(10, polish=False) > base
     text = (Path(__file__).resolve().parents[1] / "scripts" / "jobs" / "full.sh").read_text()
     assert 'if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi' in text
+
+
+def test_only_the_edits_the_locked_check_refuses_are_rolled_back(tmp_path):
+    """Pod G2b: one refused edit used to roll back the whole round; now only the edits the locked check names."""
+    import json as _json
+    import types
+    from wenart.agent import overrides as OV
+    from wenart.run import scheduler as SC
+
+    out = tmp_path / "real02"
+    (out / "orchestrator").mkdir(parents=True)
+    room = {"id": "r1", "level_id": "L0", "room_type": "other", "polygon": [[0, 0], [5, 0], [5, 5], [0, 5]]}
+    src = {"walls": [], "openings": [], "rooms": [room], "furniture": []}
+    bad = dict(room, polygon=[[0, 0], [6, 0], [6, 5], [0, 5]])            # an outline change: refused
+    (out / "building.json").write_text(_json.dumps(src))
+    (out / "building_agent.json").write_text(_json.dumps(dict(src, rooms=[bad])))
+    edits = [{"seq": 1, "round": 2, "tool": "set_room_type", "args": {"room_id": "r1"},
+              "result": {"accepted": True, "changed_ids": ["r1"]}},
+             {"seq": 2, "round": 2, "tool": "move_piece", "args": {"piece_id": "f9"},
+              "result": {"accepted": True, "changed_ids": ["f9"]}}]
+    (out / "orchestrator" / "overrides.json").write_text(_json.dumps({"project": "real02", "edits": edits}))
+    pr = types.SimpleNamespace(out=out)
+    assert SC.Orchestrator.rollback_locked(None, pr, 2) == 1
+    kept = {e["seq"]: e["result"] for e in OV.Overrides(out).edits}
+    assert kept[1]["accepted"] is False and "locked check" in kept[1]["rolled_back"] and kept[2]["accepted"] is True

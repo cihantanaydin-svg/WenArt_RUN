@@ -3,41 +3,26 @@
  "label": "Banyo",
  "room_type": "bathroom",
  "room_subtype": null,
- "state": "copied",
- "reason": "decisions of r_L-1_banyo_2 (same_as), not asked again",
- "partner": {
-  "id": "r_L-1_banyo_2",
-  "kind": "same_as",
-  "transform": {
-   "kind": "identity",
-   "affine": [
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    0.0
-   ],
-   "deviation_m": 0.001
-  }
- },
+ "state": "completed",
+ "reason": "nothing to ask: no changeable drawn piece and nothing the room may get; partner r_L-1_banyo_2 (same_as) not used: the same_as's drawn furniture does not map onto this room: drawn toilet f_L-1_052 has no counterpart here; asked itself",
+ "partner": null,
  "drawn": [
   {
-   "id": "f_L-1b_009",
+   "id": "f_L-1b_035",
    "type": "washbasin",
    "kind": "fixed",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
      9.9548,
-     10.2104
+     9.9354
     ],
-    "wall_id": null
+    "wall_id": "w_L-1b_005"
    }
   },
   {
-   "id": "f_L-1b_011",
+   "id": "f_L-1b_037",
    "type": "toilet",
    "kind": "fixed",
    "unverified": false,
@@ -51,17 +36,17 @@
    }
   },
   {
-   "id": "f_L-1b_019",
+   "id": "f_L-1b_041",
    "type": "bathtub",
    "kind": "fixed",
    "unverified": false,
    "anchor": {
-    "kind": "back_edge",
+    "kind": "centre",
     "point": [
      8.1865,
-     11.801
+     10.884
     ],
-    "wall_id": "w_L-1b_006"
+    "wall_id": null
    }
   }
  ],
@@ -78,14 +63,14 @@
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L-1b_009": [
+   "f_L-1b_035": [
     "doors_free",
     "inside_room"
    ],
-   "f_L-1b_011": [
+   "f_L-1b_037": [
     "inside_room"
    ],
-   "f_L-1b_019": [
+   "f_L-1b_041": [
     "inside_room"
    ]
   },
@@ -136,7 +121,7 @@
   },
   "drawn": [
    {
-    "id": "f_L-1b_009",
+    "id": "f_L-1b_035",
     "type": "washbasin",
     "kind": "fixed",
     "center": [
@@ -147,19 +132,19 @@
      1.0,
      0.55
     ],
-    "rotation_deg": 0.0,
-    "front_deg": null,
+    "rotation_deg": 180.0,
+    "front_deg": 90.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       9.95,
-      10.21
+      9.94
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L-1b_005"
    },
    {
-    "id": "f_L-1b_011",
+    "id": "f_L-1b_037",
     "type": "toilet",
     "kind": "fixed",
     "center": [
@@ -182,7 +167,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1b_019",
+    "id": "f_L-1b_041",
     "type": "bathtub",
     "kind": "fixed",
     "center": [
@@ -190,19 +175,19 @@
      10.88
     ],
     "size": [
-     0.8,
-     1.83
+     1.83,
+     0.8
     ],
-    "rotation_deg": 0.0,
-    "front_deg": 270.0,
+    "rotation_deg": 90.0,
+    "front_deg": null,
     "anchor": {
-     "kind": "back_edge",
+     "kind": "centre",
      "point": [
       8.19,
-      11.8
+      10.88
      ]
     },
-    "against_wall": "w_L-1b_006"
+    "against_wall": null
    }
   ],
   "change_ids": [],
@@ -253,6 +238,23 @@
   ],
   "keep_size": false
  },
- "schema": null,
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 0
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 0
+   }
+  }
+ },
  "placements": {}
 }

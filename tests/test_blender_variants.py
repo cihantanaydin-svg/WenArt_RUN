@@ -219,7 +219,7 @@ def test_attic_decor_stays_under_the_roof():
         {"id": "dec_plant_flat", "type": "plant_large", "level_id": "L1", "room_id": room, "host_id": None,
          "center": [3.0, 4.0], "size": [0.6, 0.6, 1.6]},                       # under the flat part: fits
         {"id": "dec_light_low", "type": "ceiling_light", "level_id": "L1", "room_id": room, "host_id": None,
-         "center": [3.0, 0.9, attic["ceiling_height"] - 0.12], "size": [0.4, 0.4, 0.12]},
+         "center": [3.0, 2.4, attic["ceiling_height"] - 0.12], "size": [0.4, 0.4, 0.12]},   # slope 2.23 m
         {"id": "dec_light_flat", "type": "ceiling_light", "level_id": "L1", "room_id": room, "host_id": None,
          "center": [3.0, 4.0, attic["ceiling_height"] - 0.12], "size": [0.4, 0.4, 0.12]},
         {"id": "dec_cushion", "type": "cushion", "level_id": "L1", "host_id": "f_x", "center": [3.0, 0.6]},
@@ -231,7 +231,7 @@ def test_attic_decor_stays_under_the_roof():
     assert ids == ["dec_plant_flat", "dec_light_low", "dec_light_flat", "dec_cushion"]
     assert [n["id"] for n in not_built] == ["dec_plant_knee"] and "through the roof" in not_built[0]["reason"]
     low = next(d for d in decor if d["id"] == "dec_light_low")
-    assert low["center"] == [3.0, 0.9]                     # no height: the builder hangs it flush under the slope
+    assert low["center"] == [3.0, 2.4]                     # no height: the builder hangs it flush under the slope
     assert next(d for d in decor if d["id"] == "dec_light_flat")["center"][2] == pytest.approx(attic["ceiling_height"] - 0.12)
     assert sorted(w.split(":")[0] for w in warnings) == ["dec_light_low", "dec_plant_knee"]
     # a level without a roof over it keeps its decor as it is
@@ -581,3 +581,15 @@ def test_each_attic_room_light_hangs_under_its_own_ceiling(tmp_path):
         own = lighting.light_ceiling(at, level, (x, y), sizes[rid], 99.0)
         assert z == pytest.approx(own - lighting.AREA_LIGHT_CEILING_GAP, abs=2e-3), rid
     assert lights["r_high"][2] > lights["r_low"][2] + 0.3      # (0.5 with the centre-only rule of M10)
+
+
+def test_a_ceiling_light_under_a_very_low_slope_is_not_built():
+    """M11 pod G2b (real02 attic bathroom, sloped ceiling 1.45 m): the light hung flush under the slope hung at eye
+    height in front of the camera. A light whose bottom would be under 2.0 m is not built (listed)."""
+    prep = B.prepare(EXAMPLE, "base")
+    attic = prep["building"]["levels"][-1]
+    b = copy.deepcopy(prep["building"])
+    b["decor"] = [{"id": "dec_low_light", "type": "ceiling_light", "level_id": "L1", "room_id": "r_L1_oyun_odasi",
+                   "host_id": None, "center": [3.0, 0.3, attic["ceiling_height"] - 0.12], "size": [0.4, 0.4, 0.12]}]
+    decor, warnings, not_built = B.decor_under_roof(b, attic)
+    assert decor == [] and [n["id"] for n in not_built] == ["dec_low_light"] and "< 2.0 m" in not_built[0]["reason"]

@@ -216,6 +216,8 @@ def _label(item: dict, before: dict, args: dict, fields: list[str]) -> None:
         if args.get(k) is not None:
             label[k] = args[k]
     label["changed"] = changed
+    if old.get("snapped_wall"):                    # M11: a later edit keeps the snap's wider move allowance
+        label["snapped_wall"] = old["snapped_wall"]
     item["adjusted_by_ai"] = label
 
 
@@ -313,21 +315,25 @@ def _move(b: dict, args: dict) -> list[str]:
         seg, sign = _wall_segment(b, ctx, args["snap_wall_id"], p.center)
         others = [placer.drawn_piece(f) for f in _floor_items(b, room["id"]) if f["id"] != item["id"]]
         found = placer.snap_to_wall(p, ctx, seg_index=seg, offset=sign * float(args.get("offset") or 0.0),
-                                    max_shift=SNAP_MAX_M if _drawn(item) else None, others=others)
+                                    max_shift=schemas.WALL_SNAP_MAX_M if _drawn(item) else None, others=others)
         if found is None:
             raise EditRejected("snap", f"{item['id']}: no free place on wall {args['snap_wall_id']} (doors, windows"
-                                       + (f", at most {SNAP_MAX_M} m from the drawn place" if _drawn(item) else "")
-                                       + ")")
+                                       + (f", at most {schemas.WALL_SNAP_MAX_M} m from the drawn place"
+                                          if _drawn(item) else "") + ")")
         center, rotation = found[0], found[1]
+    limit = schemas.WALL_SNAP_MAX_M if args.get("snap_wall_id") else SNAP_MAX_M
     if _drawn(item):
         drawn_center = (item.get("drawn_footprint") or item["footprint"])["center"]
-        if G.distance(center, drawn_center) > SNAP_MAX_M + 1e-6:
-            raise EditRejected("drawn_lock", f"{item['id']}: a drawn piece moves at most {SNAP_MAX_M} m (this move: "
+        if G.distance(center, drawn_center) > limit + 1e-6:
+            raise EditRejected("drawn_lock", f"{item['id']}: a drawn piece moves at most {SNAP_MAX_M} m, or "
+                                             f"{schemas.WALL_SNAP_MAX_M} m when its back snaps onto a wall (this move: "
                                              f"{G.distance(center, drawn_center):.2f} m)")
     front = G.front_direction_deg(rotation) if (item.get("front_deg") is not None or args.get("snap_wall_id")) \
         else None
     _set_footprint(item, center, rotation, p.size, front)
     _label(item, before, args, ["footprint", "front_deg"])
+    if args.get("snap_wall_id"):
+        item["adjusted_by_ai"]["snapped_wall"] = str(args["snap_wall_id"])
     return [item["id"]]
 
 

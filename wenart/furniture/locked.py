@@ -125,11 +125,34 @@ def _front_ok(a: Optional[float], b: Optional[float]) -> bool:
     return G.angle_difference_deg(float(a), float(b)) <= FRONT_TOL_DEG + 1e-9
 
 
+# Milestone 11 (pod G2b): the agent's set_room_type changes a room's type with a reason (``adjusted_by_ai``);
+# the room's geometry and every other field stay as drawn.
+AGENT_ROOM_KEYS = ("room_type", "adjusted_by_ai", "inferred")
+
+
+def _agent_retyped(room: Optional[dict]) -> bool:
+    """True when the agent changed only the room's type, with a reason (``adjusted_by_ai.changed`` names only
+    ``AGENT_ROOM_KEYS``)."""
+    adj = (room or {}).get("adjusted_by_ai")
+    return (isinstance(adj, dict) and bool(str(adj.get("reason") or "").strip())
+            and not set(adj.get("changed") or {}) - set(AGENT_ROOM_KEYS))
+
+
+def _without_agent_keys(room: dict) -> dict:
+    return {k: v for k, v in room.items() if k not in AGENT_ROOM_KEYS}
+
+
 def _block_problems(source: dict, final: dict) -> list[str]:
     out = []
     for key in BYTE_EQUAL_BLOCKS:
         before = {e.get("id"): _dump(e) for e in source.get(key) or []}
         after = {e.get("id"): _dump(e) for e in final.get(key) or []}
+        if key == "rooms":                     # a reasoned room type change of the agent (set_room_type)
+            src_rooms = {e.get("id"): e for e in source.get(key) or []}
+            for e in final.get(key) or []:
+                if _agent_retyped(e) and e.get("id") in src_rooms:
+                    before[e["id"]] = _dump(_without_agent_keys(src_rooms[e["id"]]))
+                    after[e["id"]] = _dump(_without_agent_keys(e))
         if before == after:
             continue
         changed = sorted(i for i in before.keys() & after.keys() if before[i] != after[i])
@@ -216,8 +239,9 @@ def _agent_problems(src: dict, fin: dict, keep: bool) -> list[str]:
                        f"orientation may change)")
         if fixed and fin.get("build") is False and src.get("build") is not False:
             out.append(f"{pid}: fixed equipment removed")
-    elif moved > AGENT_SNAP_M + 1e-6:
-        out.append(f"{pid}: moved {moved:.3f} m by the agent (> {AGENT_SNAP_M} m)")
+    elif moved > (schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M) + 1e-6:
+        limit = schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M
+        out.append(f"{pid}: moved {moved:.3f} m by the agent (> {limit} m)")
     return out
 
 

@@ -924,3 +924,16 @@ def test_unknown_proxy_holding_other_pieces_is_flat():
     assert proxies.flat_reason(alone, pieces) is None                       # holds nothing: the 0.8 m box stays
     assert proxies.flat_reason(fridge, pieces) is None                      # only unknown pieces
     assert proxies.flat_reason(dict(cluster, height=0.9), pieces) is None   # a drawn height is kept
+
+
+def test_a_narrow_unknown_holder_is_not_flat():
+    """M11 pod G2b (real02 f_L-1_021): a 5.5 x 0.6 m wall unit holding a small piece stays a box; only an outline
+    wide in both directions (kitchen cluster, rug) is drawn flat."""
+    from wenart.blender import proxies
+
+    unit = {"id": "f_u", "type": "unknown", "footprint": {"center": [3.0, 0.3], "size": [5.5, 0.6], "rotation_deg": 0.0}}
+    tv = {"id": "f_tv", "type": "unknown", "footprint": {"center": [3.0, 0.3], "size": [1.2, 0.4], "rotation_deg": 0.0}}
+    assert proxies.flat_reason(unit, [unit, tv]) is None
+    rug = {"id": "f_r", "type": "unknown", "footprint": {"center": [3.0, 3.0], "size": [3.0, 2.0], "rotation_deg": 0.0}}
+    sofa = {"id": "f_s", "type": "sofa", "footprint": {"center": [3.0, 3.0], "size": [2.0, 0.9], "rotation_deg": 0.0}}
+    assert proxies.flat_reason(rug, [rug, sofa])

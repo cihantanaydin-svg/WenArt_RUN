@@ -2,68 +2,774 @@
  "room_id": "r_L-1_salon",
  "label": "Salon",
  "room_type": "living",
- "slots": [],
- "passes": {},
- "agreed": [],
- "not_agreed": [],
- "rejected": [],
+ "slots": [
+  {
+   "id": "f_L-1_027.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "candle"
+   ],
+   "host_id": "f_L-1_027",
+   "host_type": "table_dining",
+   "note": "centre part",
+   "center": [
+    6.045,
+    4.227
+   ],
+   "max_size": [
+    0.7,
+    0.5,
+    2.0
+   ]
+  },
+  {
+   "id": "f_L-1_049.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_049",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_049.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1_049",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_053.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_053",
+   "host_type": "sofa_corner",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_053.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1_053",
+   "host_type": "sofa_corner",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_061.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_061",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_061.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1_061",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_073.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
+   ],
+   "host_id": "f_L-1_073",
+   "host_type": "table_coffee",
+   "note": "centre part",
+   "center": [
+    6.117,
+    1.004
+   ],
+   "max_size": [
+    0.499,
+    0.499,
+    2.3
+   ]
+  },
+  {
+   "id": "f_L-1_075.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_075",
+   "host_type": "ottoman",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_077.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_077",
+   "host_type": "ottoman",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_080.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_080",
+   "host_type": "ottoman",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_089.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L-1_089",
+   "host_type": "tv_unit",
+   "note": "left part, under a window",
+   "center": [
+    3.48,
+    0.447
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L-1_089.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L-1_089",
+   "host_type": "tv_unit",
+   "note": "right part, under a window",
+   "center": [
+    2.68,
+    0.447
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L-1_090.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_090",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_090.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1_090",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_091.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
+   ],
+   "host_id": "f_L-1_091",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    1.8,
+    4.3
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.95
+   ]
+  },
+  {
+   "id": "f_L-1_091.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
+   ],
+   "host_id": "f_L-1_091",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    1.2,
+    4.3
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.95
+   ]
+  },
+  {
+   "id": "f_L-1_092.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1_092",
+   "host_type": "chaise",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_092.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1_092",
+   "host_type": "chaise",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_093.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L-1_093",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "r_L-1_salon.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L-1_027",
+   "host_type": null,
+   "note": "f_L-1_027"
+  },
+  {
+   "id": "window:win_L-1_001",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L-1_001"
+  },
+  {
+   "id": "ceiling:over_f_L-1_027",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light"
+   ],
+   "host_id": "f_L-1_027",
+   "host_type": null,
+   "note": "over f L-1 027"
+  },
+  {
+   "id": "ceiling:over_f_L-1_073",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L-1_073",
+   "host_type": null,
+   "note": "over f L-1 073"
+  },
+  {
+   "id": "ceiling:centre_r_L-1_salon",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1 salon"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1_053.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and style to the sofa corner with a modern natural tone."
+    },
+    {
+     "slot": "f_L-1_053.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the sofa corner and complements the greige walls."
+    },
+    {
+     "slot": "f_L-1_073.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Brings life to the coffee table with a natural, modern touch."
+    },
+    {
+     "slot": "f_L-1_091.left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm light enhances the natural wood and greige tones."
+    },
+    {
+     "slot": "f_L-1_091.right",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds elegance and complements the light oak floor."
+    },
+    {
+     "slot": "f_L-1_089.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Balances the TV unit with a natural element under the window."
+    },
+    {
+     "slot": "f_L-1_089.right",
+     "type": "book_set",
+     "colour": "cream",
+     "reason": "Adds texture and a cozy, intellectual vibe."
+    },
+    {
+     "slot": "f_L-1_049.cushions",
+     "type": "cushion",
+     "colour": "sand",
+     "reason": "Softens the armchair and harmonizes with the warm palette."
+    },
+    {
+     "slot": "f_L-1_090.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds a pop of color while maintaining modern warmth."
+    },
+    {
+     "slot": "f_L-1_092.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Enhances comfort and matches the neutral base."
+    },
+    {
+     "slot": "f_L-1_075.cushions",
+     "type": "cushion",
+     "colour": "beige",
+     "reason": "Adds subtle texture and warmth to the ottoman."
+    },
+    {
+     "slot": "f_L-1_077.cushions",
+     "type": "cushion",
+     "colour": "sand",
+     "reason": "Complements the natural wood and greige walls."
+    },
+    {
+     "slot": "r_L-1_salon.rug1",
+     "type": "rug",
+     "colour": "cream",
+     "reason": "Defines the seating area and adds softness underfoot."
+    },
+    {
+     "slot": "window:win_L-1_001",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens natural light and matches the warm, neutral palette."
+    },
+    {
+     "slot": "ceiling:over_f_L-1_073",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm glow enhances the modern natural aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 9.698
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1_061.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and light grey sofa."
+    },
+    {
+     "slot": "f_L-1_053.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Complements the natural wood and light grey sofa for a soft, modern look."
+    },
+    {
+     "slot": "f_L-1_073.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Brings life to the space with a small indoor plant in a natural wood pot."
+    },
+    {
+     "slot": "f_L-1_091.left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm brass light adds cozy ambiance and matches the dark bronze window frames."
+    },
+    {
+     "slot": "f_L-1_091.right",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Symmetrical brass lamps enhance balance and warmth on the console table."
+    },
+    {
+     "slot": "r_L-1_salon.rug1",
+     "type": "rug",
+     "colour": "sand",
+     "reason": "A sand-colored rug grounds the space and complements the light oak floor."
+    },
+    {
+     "slot": "ceiling:over_f_L-1_073",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "A brass pendant light adds modern elegance over the coffee table."
+    },
+    {
+     "slot": "window:win_L-1_001",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Cream blinds soften natural light and match the warm, neutral palette."
+    },
+    {
+     "slot": "f_L-1_093.shelf",
+     "type": "book_set",
+     "colour": "natural wood",
+     "reason": "Books in natural wood tones enhance the modern natural aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 6.748
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1_053.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds warmth and style to the sofa corner with a modern natural tone.",
+    "Complements the natural wood and light grey sofa for a soft, modern look."
+   ]
+  },
+  {
+   "slot": "f_L-1_073.centre",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Brings life to the coffee table with a natural, modern touch.",
+    "Brings life to the space with a small indoor plant in a natural wood pot."
+   ]
+  },
+  {
+   "slot": "f_L-1_091.left",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm light enhances the natural wood and greige tones.",
+    "Warm brass light adds cozy ambiance and matches the dark bronze window frames."
+   ]
+  },
+  {
+   "slot": "r_L-1_salon.rug1",
+   "type": "rug",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Defines the seating area and adds softness underfoot.",
+    "A sand-colored rug grounds the space and complements the light oak floor."
+   ]
+  },
+  {
+   "slot": "window:win_L-1_001",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens natural light and matches the warm, neutral palette.",
+    "Cream blinds soften natural light and match the warm, neutral palette."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L-1_073",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm glow enhances the modern natural aesthetic.",
+    "A brass pendant light adds modern elegance over the coffee table."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L-1_053.throw",
+   "type": "throw",
+   "colour": "cream",
+   "reason": "Softens the sofa corner and complements the greige walls.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_091.right",
+   "type": "vase",
+   "colour": "cream",
+   "reason": "Adds elegance and complements the light oak floor.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_089.left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "reason": "Balances the TV unit with a natural element under the window.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_089.right",
+   "type": "book_set",
+   "colour": "cream",
+   "reason": "Adds texture and a cozy, intellectual vibe.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_049.cushions",
+   "type": "cushion",
+   "colour": "sand",
+   "reason": "Softens the armchair and harmonizes with the warm palette.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_090.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "reason": "Adds a pop of color while maintaining modern warmth.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_092.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "reason": "Enhances comfort and matches the neutral base.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_075.cushions",
+   "type": "cushion",
+   "colour": "beige",
+   "reason": "Adds subtle texture and warmth to the ottoman.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_077.cushions",
+   "type": "cushion",
+   "colour": "sand",
+   "reason": "Complements the natural wood and greige walls.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1_061.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "reason": "Adds warmth and color contrast to the greige walls and light grey sofa.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L-1_091.right",
+   "type": "table_lamp",
+   "colour": "brass",
+   "reason": "Symmetrical brass lamps enhance balance and warmth on the console table.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L-1_093.shelf",
+   "type": "book_set",
+   "colour": "natural wood",
+   "reason": "Books in natural wood tones enhance the modern natural aesthetic.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "slot": "f_L-1_073.centre",
+   "type": "tray",
+   "colour": "natural wood",
+   "reason": "A natural wood tray adds texture and functionality to the coffee table.",
+   "why": "a second item for the same slot",
+   "passes": [
+    2
+   ]
+  }
+ ],
  "refused": [],
  "items": [
   {
    "id": "dec_L-1_001",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_002",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_003",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_004",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_005",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_006",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_007",
    "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
   },
   {
    "id": "dec_L-1_008",
-   "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L-1_073.centre"
   },
   {
    "id": "dec_L-1_009",
-   "type": "cushion",
-   "method": "rule",
-   "slot": null
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L-1_091.left"
+  },
+  {
+   "id": "dec_L-1_010",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L-1_salon.rug1"
+  },
+  {
+   "id": "dec_L-1_011",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L-1_001"
+  },
+  {
+   "id": "dec_L-1_012",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1_073"
   }
  ],
- "fallback": "no slot for AI decor",
- "notes": []
+ "fallback": null,
+ "notes": [
+  "f_L-1_053 wall: wall_art: f_L-1_053 has no wall behind it",
+  "f_L-1_061 wall: wall_art: f_L-1_061 has no wall behind it",
+  "f_L-1_091 wall: mirror: f_L-1_091 has no wall behind it; wall_art: f_L-1_091 has no wall behind it",
+  "no rug: no coffee table in front of a sofa",
+  "no free corner for a floor plant",
+  "window win_L-1_001: no room for a curtain rod (doors, windows or wall ends)"
+ ]
 }

@@ -1,0 +1,193 @@
+{
+ "room_id": "r_L1_koridor",
+ "label": "Koridor",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L1_032.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L1_032",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    3.489,
+    10.437
+   ],
+   "max_size": [
+    0.39,
+    0.24,
+    0.419
+   ]
+  },
+  {
+   "id": "f_L1_032.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L1_032",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    3.489,
+    10.887
+   ],
+   "max_size": [
+    0.39,
+    0.24,
+    0.419
+   ]
+  },
+  {
+   "id": "f_L1_032.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L1_032",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L1_koridor",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 koridor"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_032.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in modern natural style."
+    },
+    {
+     "slot": "f_L1_032.left",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds natural elegance with a neutral tone matching the decor."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_koridor",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements the natural wood and greige walls."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.941
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_032.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in modern natural style."
+    },
+    {
+     "slot": "f_L1_032.left",
+     "type": "plant_small",
+     "colour": "mustard",
+     "reason": "Adds warmth and life with a pop of mustard against greige walls."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_koridor",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light complements natural wood and enhances daylight ambiance."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.953
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_032.wall",
+   "type": "mirror",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Reflects light and enhances space in modern natural style.",
+    "Reflects light and enhances space in modern natural style."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L1_032.left",
+   "type": "vase",
+   "colour": "cream",
+   "reason": "Adds natural elegance with a neutral tone matching the decor.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_koridor",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm metallic glow complements the natural wood and greige walls.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L1_032.left",
+   "type": "plant_small",
+   "colour": "mustard",
+   "reason": "Adds warmth and life with a pop of mustard against greige walls.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_koridor",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "Warm brass light complements natural wood and enhances daylight ambiance.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_006",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_032.wall"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant"
+ ]
+}

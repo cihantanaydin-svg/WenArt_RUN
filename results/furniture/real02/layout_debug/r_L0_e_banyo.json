@@ -8,21 +8,21 @@
  "partner": null,
  "drawn": [
   {
-   "id": "f_L0_008",
+   "id": "f_L0_006",
    "type": "washbasin",
    "kind": "fixed",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
      5.2182,
-     7.1686
+     7.4436
     ],
-    "wall_id": null
+    "wall_id": "w_L0_005"
    }
   },
   {
-   "id": "f_L0_015",
+   "id": "f_L0_013",
    "type": "shower",
    "kind": "fixed",
    "unverified": false,
@@ -36,17 +36,17 @@
    }
   },
   {
-   "id": "f_L0_017",
+   "id": "f_L0_015",
    "type": "toilet",
    "kind": "fixed",
    "unverified": false,
    "anchor": {
-    "kind": "centre",
+    "kind": "back_edge",
     "point": [
      6.1646,
-     7.1168
+     7.4552
     ],
-    "wall_id": null
+    "wall_id": "w_L0_005"
    }
   }
  ],
@@ -63,13 +63,13 @@
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L0_008": [
+   "f_L0_006": [
+    "inside_room"
+   ],
+   "f_L0_013": [
     "inside_room"
    ],
    "f_L0_015": [
-    "inside_room"
-   ],
-   "f_L0_017": [
     "inside_room"
    ]
   },
@@ -120,7 +120,7 @@
   },
   "drawn": [
    {
-    "id": "f_L0_008",
+    "id": "f_L0_006",
     "type": "washbasin",
     "kind": "fixed",
     "center": [
@@ -132,18 +132,18 @@
      0.55
     ],
     "rotation_deg": 0.0,
-    "front_deg": null,
+    "front_deg": 270.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       5.22,
-      7.17
+      7.44
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L0_005"
    },
    {
-    "id": "f_L0_015",
+    "id": "f_L0_013",
     "type": "shower",
     "kind": "fixed",
     "center": [
@@ -166,7 +166,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L0_017",
+    "id": "f_L0_015",
     "type": "toilet",
     "kind": "fixed",
     "center": [
@@ -174,19 +174,19 @@
      7.12
     ],
     "size": [
-     0.68,
-     0.5
+     0.5,
+     0.68
     ],
-    "rotation_deg": 90.0,
-    "front_deg": null,
+    "rotation_deg": 0.0,
+    "front_deg": 270.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       6.16,
-      7.12
+      7.46
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L0_005"
    }
   ],
   "change_ids": [],

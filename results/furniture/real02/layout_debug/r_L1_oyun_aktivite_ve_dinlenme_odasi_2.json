@@ -25,8 +25,8 @@
   {
    "id": "f_L1_004",
    "type": "unknown",
-   "kind": "changeable",
-   "unverified": true,
+   "kind": "outline",
+   "unverified": false,
    "anchor": {
     "kind": "centre",
     "point": [
@@ -170,17 +170,33 @@
  "changes": [],
  "added": [
   {
+   "id": "f_L1_033",
+   "type": "armchair",
+   "center": [
+    12.473,
+    4.1
+   ],
+   "size": [
+    0.9,
+    0.9
+   ],
+   "rotation_deg": 90.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": "f_L1_029"
+  },
+  {
    "id": "f_L1_034",
    "type": "chair",
    "center": [
-    12.673,
+    12.873,
     3.4
    ],
    "size": [
     0.5,
     0.5
    ],
-   "rotation_deg": 0.0,
+   "rotation_deg": 270.0,
    "confidence": 0.6,
    "method": "ai",
    "mirrored_from": "f_L1_030"
@@ -203,37 +219,15 @@
   }
  ],
  "refused": [],
- "dropped": [
-  {
-   "type": "armchair",
-   "mirrored_from": "f_L1_029",
-   "center": [
-    3.3,
-    3.6
-   ],
-   "reason": "the copy fails clearance_ok here"
-  }
- ],
+ "dropped": [],
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L1_004": [
-    "inside_room",
-    "no_overlap"
-   ],
    "f_L1_006": [
     "inside_room"
    ],
    "f_L1_010": [
-    "clearance_ok",
-    "no_overlap"
-   ],
-   "f_L1_011": [
-    "clearance_ok",
-    "no_overlap"
-   ],
-   "f_L1_016": [
-    "no_overlap"
+    "clearance_ok"
    ]
   },
   "walkways": []
@@ -293,30 +287,6 @@
   },
   "drawn": [
    {
-    "id": "f_L1_004",
-    "type": "unknown",
-    "kind": "changeable",
-    "center": [
-     9.3,
-     4.26
-    ],
-    "size": [
-     4.49,
-     3.02
-    ],
-    "rotation_deg": 90.0,
-    "front_deg": null,
-    "anchor": {
-     "kind": "centre",
-     "point": [
-      9.3,
-      4.26
-     ]
-    },
-    "against_wall": null,
-    "status": "unverified (type not sure; only its type may change, the footprint stays)"
-   },
-   {
     "id": "f_L1_006",
     "type": "unknown",
     "kind": "changeable",
@@ -353,7 +323,7 @@
      0.9
     ],
     "rotation_deg": 90.0,
-    "front_deg": null,
+    "front_deg": 0.0,
     "anchor": {
      "kind": "centre",
      "point": [
@@ -375,8 +345,8 @@
      2.1,
      0.9
     ],
-    "rotation_deg": 0.0,
-    "front_deg": null,
+    "rotation_deg": 180.0,
+    "front_deg": 90.0,
     "anchor": {
      "kind": "centre",
      "point": [
@@ -508,7 +478,6 @@
    }
   ],
   "change_ids": [
-   "f_L1_004",
    "f_L1_006",
    "f_L1_010",
    "f_L1_011",

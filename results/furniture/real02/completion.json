@@ -28,7 +28,7 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L-1_005",
+     "id": "f_L-1_021",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -42,35 +42,175 @@
      }
     },
     {
-     "id": "f_L-1_008",
+     "id": "f_L-1_024",
      "type": "wardrobe",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       5.9023,
+       7.4435
+      ],
+      "wall_id": "w_L-1_004"
+     }
+    },
+    {
+     "id": "f_L-1_027",
+     "type": "table_dining",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       5.9023,
-       7.0722
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1_011",
-     "type": "table_dining",
-     "kind": "changeable",
-     "unverified": true,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       6.0375,
+       6.0448,
        4.2269
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1_013",
+     "id": "f_L-1_028",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.5955,
+       5.4232
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_029",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.5955,
+       4.2248
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_030",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.5955,
+       3.6337
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_031",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.5955,
+       3.0425
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_032",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       5.4795,
+       5.4233
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_033",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       5.4795,
+       4.2249
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_034",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       5.4795,
+       3.6337
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_035",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       5.4795,
+       3.0426
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_036",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.5955,
+       4.8375
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_037",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       5.4795,
+       4.8376
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_049",
      "type": "armchair",
      "kind": "changeable",
      "unverified": false,
@@ -84,7 +224,7 @@
      }
     },
     {
-     "id": "f_L-1_017",
+     "id": "f_L-1_053",
      "type": "sofa_corner",
      "kind": "changeable",
      "unverified": false,
@@ -98,7 +238,7 @@
      }
     },
     {
-     "id": "f_L-1_023",
+     "id": "f_L-1_059",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
@@ -112,7 +252,7 @@
      }
     },
     {
-     "id": "f_L-1_024",
+     "id": "f_L-1_060",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -126,7 +266,7 @@
      }
     },
     {
-     "id": "f_L-1_025",
+     "id": "f_L-1_061",
      "type": "sofa",
      "kind": "changeable",
      "unverified": false,
@@ -140,7 +280,7 @@
      }
     },
     {
-     "id": "f_L-1_027",
+     "id": "f_L-1_063",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
@@ -154,7 +294,7 @@
      }
     },
     {
-     "id": "f_L-1_028",
+     "id": "f_L-1_064",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
@@ -168,7 +308,7 @@
      }
     },
     {
-     "id": "f_L-1_034",
+     "id": "f_L-1_070",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -182,7 +322,7 @@
      }
     },
     {
-     "id": "f_L-1_035",
+     "id": "f_L-1_071",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -196,7 +336,7 @@
      }
     },
     {
-     "id": "f_L-1_037",
+     "id": "f_L-1_073",
      "type": "table_coffee",
      "kind": "changeable",
      "unverified": false,
@@ -210,7 +350,7 @@
      }
     },
     {
-     "id": "f_L-1_039",
+     "id": "f_L-1_075",
      "type": "ottoman",
      "kind": "changeable",
      "unverified": false,
@@ -224,7 +364,7 @@
      }
     },
     {
-     "id": "f_L-1_041",
+     "id": "f_L-1_077",
      "type": "ottoman",
      "kind": "changeable",
      "unverified": false,
@@ -238,7 +378,7 @@
      }
     },
     {
-     "id": "f_L-1_044",
+     "id": "f_L-1_080",
      "type": "ottoman",
      "kind": "changeable",
      "unverified": false,
@@ -252,7 +392,7 @@
      }
     },
     {
-     "id": "f_L-1_051",
+     "id": "f_L-1_087",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -267,13 +407,11 @@
     }
    ],
    "missing": {
-    "tv_unit": 1,
-    "chair": 8
+    "tv_unit": 1
    },
    "anchor_missing": false,
    "addable": {
     "tv_unit": 1,
-    "chair": 8,
     "armchair": 1,
     "chaise": 1,
     "console_table": 1,
@@ -300,35 +438,35 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 9.943,
+     "latency_s": 5.078,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 12
+     "added": 5
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 9.68,
+     "latency_s": 3.936,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 12
+     "added": 4
     }
    ],
-   "chosen_pass": 2,
+   "chosen_pass": 1,
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_053",
+     "id": "f_L-1_089",
      "type": "tv_unit",
      "center": [
-      5.565,
-      0.422
+      3.08,
+      0.447
      ],
      "size": [
-      1.2,
-      0.4
+      1.6,
+      0.45
      ],
      "rotation_deg": 180.0,
      "confidence": 0.6,
@@ -336,139 +474,43 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1_054",
-     "type": "chair",
-     "center": [
-      5.0,
-      2.5
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_055",
-     "type": "chair",
-     "center": [
-      5.0,
-      3.0
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_056",
-     "type": "chair",
-     "center": [
-      5.3,
-      2.0
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_057",
-     "type": "chair",
-     "center": [
-      5.8,
-      2.0
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_058",
-     "type": "chair",
-     "center": [
-      7.1,
-      2.6
-     ],
-     "size": [
-      0.45,
-      0.45
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_059",
-     "type": "chair",
-     "center": [
-      6.274,
-      2.045
-     ],
-     "size": [
-      0.4,
-      0.4
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_060",
-     "type": "chair",
-     "center": [
-      6.69,
-      1.972
-     ],
-     "size": [
-      0.4,
-      0.4
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_061",
+     "id": "f_L-1_090",
      "type": "armchair",
      "center": [
-      1.5,
-      4.5
+      1.3,
+      5.0
      ],
      "size": [
       0.9,
       0.9
      ],
-     "rotation_deg": 270.0,
+     "rotation_deg": 180.0,
      "confidence": 0.9,
      "method": "ai",
      "mirrored_from": null
     },
     {
-     "id": "f_L-1_062",
+     "id": "f_L-1_091",
+     "type": "console_table",
+     "center": [
+      1.5,
+      4.3
+     ],
+     "size": [
+      1.2,
+      0.35
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1_092",
      "type": "chaise",
      "center": [
-      1.185,
-      5.847
+      1.5,
+      3.0
      ],
      "size": [
       0.75,
@@ -480,31 +522,15 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1_063",
-     "type": "console_table",
+     "id": "f_L-1_093",
+     "type": "bookshelf",
      "center": [
-      6.765,
-      0.397
+      7.19,
+      1.872
      ],
      "size": [
-      1.2,
+      1.0,
       0.35
-     ],
-     "rotation_deg": 180.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_064",
-     "type": "sideboard",
-     "center": [
-      7.155,
-      3.8
-     ],
-     "size": [
-      1.4,
-      0.42
      ],
      "rotation_deg": 270.0,
      "confidence": 0.6,
@@ -512,109 +538,36 @@
      "mirrored_from": null
     }
    ],
-   "refused": [
-    {
-     "type": "chair",
-     "center": [
-      7.4,
-      6.0
-     ],
-     "reason": "covered: at most 8 chair",
-     "pass": 1
-    }
-   ],
-   "dropped": [
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      6.7,
-      6.0
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap",
-      "clearance_ok"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      6.0,
-      6.0
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap",
-      "clearance_ok"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      3.9,
-      6.0
-     ],
-     "reason": "1.02 m from the nearest table_dining (> 0.6 m)",
-     "failed": []
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      3.2,
-      6.0
-     ],
-     "reason": "1.55 m from the nearest table_dining (> 0.6 m)",
-     "failed": []
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      2.5,
-      6.0
-     ],
-     "reason": "3.00 m from the nearest table_dining (> 0.6 m)",
-     "failed": []
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      1.8,
-      6.0
-     ],
-     "reason": "3.21 m from the nearest table_dining (> 0.6 m)",
-     "failed": []
-    }
-   ],
+   "refused": [],
+   "dropped": [],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_005": [
+     "f_L-1_021": [
       "inside_room"
-     ],
-     "f_L-1_008": [
-      "inside_room"
-     ],
-     "f_L-1_017": [
-      "doors_free"
-     ],
-     "f_L-1_023": [
-      "no_overlap",
-      "windows_free"
      ],
      "f_L-1_024": [
-      "no_overlap"
+      "inside_room"
      ],
      "f_L-1_027": [
-      "no_overlap",
-      "windows_free"
+      "no_overlap"
      ],
      "f_L-1_028": [
+      "no_overlap"
+     ],
+     "f_L-1_029": [
+      "no_overlap"
+     ],
+     "f_L-1_030": [
+      "no_overlap"
+     ],
+     "f_L-1_031": [
+      "no_overlap"
+     ],
+     "f_L-1_032": [
+      "no_overlap"
+     ],
+     "f_L-1_033": [
       "no_overlap"
      ],
      "f_L-1_034": [
@@ -623,10 +576,46 @@
      "f_L-1_035": [
       "no_overlap"
      ],
-     "f_L-1_039": [
+     "f_L-1_036": [
       "no_overlap"
      ],
-     "f_L-1_041": [
+     "f_L-1_037": [
+      "no_overlap"
+     ],
+     "f_L-1_049": [
+      "clearance_ok",
+      "no_overlap"
+     ],
+     "f_L-1_053": [
+      "doors_free"
+     ],
+     "f_L-1_059": [
+      "no_overlap",
+      "windows_free"
+     ],
+     "f_L-1_060": [
+      "no_overlap"
+     ],
+     "f_L-1_063": [
+      "no_overlap",
+      "windows_free"
+     ],
+     "f_L-1_064": [
+      "no_overlap"
+     ],
+     "f_L-1_070": [
+      "no_overlap"
+     ],
+     "f_L-1_071": [
+      "no_overlap"
+     ],
+     "f_L-1_075": [
+      "no_overlap"
+     ],
+     "f_L-1_077": [
+      "no_overlap"
+     ],
+     "f_L-1_087": [
       "no_overlap"
      ]
     },
@@ -639,7 +628,7 @@
      ]
     ]
    },
-   "latency_s": 19.623
+   "latency_s": 9.014
   },
   {
    "room_id": "r_L-1_salon_2",
@@ -666,7 +655,7 @@
    },
    "drawn": [
     {
-     "id": "f_L-1_006",
+     "id": "f_L-1_022",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -680,35 +669,175 @@
      }
     },
     {
-     "id": "f_L-1_007",
+     "id": "f_L-1_023",
      "type": "wardrobe",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       9.2708,
+       7.4435
+      ],
+      "wall_id": "w_L-1_004"
+     }
+    },
+    {
+     "id": "f_L-1_038",
+     "type": "table_dining",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       9.2708,
-       7.0722
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1_012",
-     "type": "table_dining",
-     "kind": "changeable",
-     "unverified": true,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       9.1356,
+       9.1284,
        4.2269
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1_014",
+     "id": "f_L-1_039",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.5776,
+       5.4232
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_040",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.5776,
+       4.2248
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_041",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.5776,
+       3.6337
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_042",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.5776,
+       3.0425
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_043",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       9.6937,
+       5.4233
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_044",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       9.6937,
+       4.2249
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_045",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       9.6937,
+       3.6337
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_046",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       9.6937,
+       3.0426
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_047",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.5776,
+       4.8375
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_048",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       9.6937,
+       4.8376
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_050",
      "type": "armchair",
      "kind": "changeable",
      "unverified": false,
@@ -722,7 +851,7 @@
      }
     },
     {
-     "id": "f_L-1_018",
+     "id": "f_L-1_054",
      "type": "sofa_corner",
      "kind": "changeable",
      "unverified": false,
@@ -736,7 +865,7 @@
      }
     },
     {
-     "id": "f_L-1_021",
+     "id": "f_L-1_057",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
@@ -750,7 +879,7 @@
      }
     },
     {
-     "id": "f_L-1_022",
+     "id": "f_L-1_058",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -764,7 +893,7 @@
      }
     },
     {
-     "id": "f_L-1_026",
+     "id": "f_L-1_062",
      "type": "sofa",
      "kind": "changeable",
      "unverified": false,
@@ -778,7 +907,7 @@
      }
     },
     {
-     "id": "f_L-1_029",
+     "id": "f_L-1_065",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
@@ -792,7 +921,7 @@
      }
     },
     {
-     "id": "f_L-1_030",
+     "id": "f_L-1_066",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
@@ -806,7 +935,7 @@
      }
     },
     {
-     "id": "f_L-1_033",
+     "id": "f_L-1_069",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -820,7 +949,7 @@
      }
     },
     {
-     "id": "f_L-1_036",
+     "id": "f_L-1_072",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -834,7 +963,7 @@
      }
     },
     {
-     "id": "f_L-1_038",
+     "id": "f_L-1_074",
      "type": "table_coffee",
      "kind": "changeable",
      "unverified": false,
@@ -848,7 +977,7 @@
      }
     },
     {
-     "id": "f_L-1_040",
+     "id": "f_L-1_076",
      "type": "ottoman",
      "kind": "changeable",
      "unverified": false,
@@ -862,7 +991,7 @@
      }
     },
     {
-     "id": "f_L-1_042",
+     "id": "f_L-1_078",
      "type": "ottoman",
      "kind": "changeable",
      "unverified": false,
@@ -876,7 +1005,7 @@
      }
     },
     {
-     "id": "f_L-1_043",
+     "id": "f_L-1_079",
      "type": "ottoman",
      "kind": "changeable",
      "unverified": false,
@@ -890,7 +1019,7 @@
      }
     },
     {
-     "id": "f_L-1_052",
+     "id": "f_L-1_088",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -905,13 +1034,11 @@
     }
    ],
    "missing": {
-    "tv_unit": 1,
-    "chair": 8
+    "tv_unit": 1
    },
    "anchor_missing": false,
    "addable": {
     "tv_unit": 1,
-    "chair": 8,
     "armchair": 1,
     "chaise": 1,
     "console_table": 1,
@@ -939,237 +1066,159 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_066",
+     "id": "f_L-1_102",
      "type": "tv_unit",
      "center": [
-      9.6072,
-      0.422
+      12.0922,
+      0.447
      ],
      "size": [
-      1.2,
-      0.4
+      1.6,
+      0.45
      ],
      "rotation_deg": 180.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": "f_L-1_053"
+     "mirrored_from": "f_L-1_089"
     },
     {
-     "id": "f_L-1_067",
-     "type": "chair",
-     "center": [
-      10.1722,
-      2.5
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_054"
-    },
-    {
-     "id": "f_L-1_068",
-     "type": "chair",
-     "center": [
-      10.1722,
-      3.0
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_055"
-    },
-    {
-     "id": "f_L-1_069",
-     "type": "chair",
-     "center": [
-      9.8722,
-      2.0
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_056"
-    },
-    {
-     "id": "f_L-1_070",
-     "type": "chair",
-     "center": [
-      9.3722,
-      2.0
-     ],
-     "size": [
-      0.5,
-      0.5
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_057"
-    },
-    {
-     "id": "f_L-1_071",
-     "type": "chair",
-     "center": [
-      8.0722,
-      2.6
-     ],
-     "size": [
-      0.45,
-      0.45
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_058"
-    },
-    {
-     "id": "f_L-1_072",
-     "type": "chair",
-     "center": [
-      8.8982,
-      2.045
-     ],
-     "size": [
-      0.4,
-      0.4
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_059"
-    },
-    {
-     "id": "f_L-1_073",
-     "type": "chair",
-     "center": [
-      8.4822,
-      1.972
-     ],
-     "size": [
-      0.4,
-      0.4
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_060"
-    },
-    {
-     "id": "f_L-1_074",
+     "id": "f_L-1_103",
      "type": "armchair",
      "center": [
-      13.6722,
-      4.5
+      13.8722,
+      5.0
      ],
      "size": [
       0.9,
       0.9
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 180.0,
      "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_061"
+     "mirrored_from": "f_L-1_090"
     },
     {
-     "id": "f_L-1_075",
-     "type": "chaise",
-     "center": [
-      13.9872,
-      5.847
-     ],
-     "size": [
-      0.75,
-      1.7
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L-1_062"
-    },
-    {
-     "id": "f_L-1_076",
+     "id": "f_L-1_104",
      "type": "console_table",
      "center": [
-      8.4072,
-      0.397
+      13.6722,
+      4.3
      ],
      "size": [
       1.2,
       0.35
      ],
      "rotation_deg": 180.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_063"
+     "mirrored_from": "f_L-1_091"
     },
     {
-     "id": "f_L-1_077",
-     "type": "sideboard",
+     "id": "f_L-1_105",
+     "type": "bookshelf",
      "center": [
-      8.0172,
-      3.8
+      7.9822,
+      1.872
      ],
      "size": [
-      1.4,
-      0.42
+      1.0,
+      0.35
      ],
      "rotation_deg": 90.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": "f_L-1_064"
+     "mirrored_from": "f_L-1_093"
     }
    ],
    "refused": [],
-   "dropped": [],
+   "dropped": [
+    {
+     "type": "chaise",
+     "mirrored_from": "f_L-1_092",
+     "center": [
+      1.5,
+      3.0
+     ],
+     "reason": "the copy fails clearance_ok here"
+    }
+   ],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_006": [
+     "f_L-1_022": [
       "inside_room"
      ],
-     "f_L-1_007": [
+     "f_L-1_023": [
       "doors_free",
       "inside_room"
      ],
-     "f_L-1_018": [
-      "doors_free"
-     ],
-     "f_L-1_021": [
-      "no_overlap",
-      "windows_free"
-     ],
-     "f_L-1_022": [
+     "f_L-1_038": [
       "no_overlap"
      ],
-     "f_L-1_029": [
-      "no_overlap",
-      "windows_free"
-     ],
-     "f_L-1_030": [
-      "no_overlap"
-     ],
-     "f_L-1_033": [
-      "no_overlap"
-     ],
-     "f_L-1_036": [
+     "f_L-1_039": [
       "no_overlap"
      ],
      "f_L-1_040": [
       "no_overlap"
      ],
+     "f_L-1_041": [
+      "no_overlap"
+     ],
      "f_L-1_042": [
+      "no_overlap"
+     ],
+     "f_L-1_043": [
+      "no_overlap"
+     ],
+     "f_L-1_044": [
+      "no_overlap"
+     ],
+     "f_L-1_045": [
+      "no_overlap"
+     ],
+     "f_L-1_046": [
+      "no_overlap"
+     ],
+     "f_L-1_047": [
+      "no_overlap"
+     ],
+     "f_L-1_048": [
+      "no_overlap"
+     ],
+     "f_L-1_050": [
+      "clearance_ok",
+      "no_overlap"
+     ],
+     "f_L-1_054": [
+      "doors_free"
+     ],
+     "f_L-1_057": [
+      "no_overlap",
+      "windows_free"
+     ],
+     "f_L-1_058": [
+      "no_overlap"
+     ],
+     "f_L-1_065": [
+      "no_overlap",
+      "windows_free"
+     ],
+     "f_L-1_066": [
+      "no_overlap"
+     ],
+     "f_L-1_069": [
+      "no_overlap"
+     ],
+     "f_L-1_072": [
+      "no_overlap"
+     ],
+     "f_L-1_076": [
+      "no_overlap"
+     ],
+     "f_L-1_078": [
+      "no_overlap"
+     ],
+     "f_L-1_088": [
       "no_overlap"
      ]
     },
@@ -1195,20 +1244,132 @@
    "drawn": [
     {
      "id": "f_L-1_001",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       3.122,
+       9.9731
+      ],
+      "wall_id": "w_L-1_008"
+     }
+    },
+    {
+     "id": "f_L-1_002",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       1.3613,
+       11.801
+      ],
+      "wall_id": "w_L-1_006"
+     }
+    },
+    {
+     "id": "f_L-1_003",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       0.2007,
+       10.2627
+      ],
+      "wall_id": "w_L-1_007"
+     }
+    },
+    {
+     "id": "f_L-1_004",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       0.2007,
+       8.234
+      ],
+      "wall_id": "w_L-1_007"
+     }
+    },
+    {
+     "id": "f_L-1_005",
+     "type": "unknown",
+     "kind": "obstacle",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       2.8111,
+       8.5474
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_006",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
       "kind": "centre",
       "point": [
-       1.6613,
-       9.4431
+       0.9151,
+       7.9812
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1_031",
+     "id": "f_L-1_007",
+     "type": "unknown",
+     "kind": "changeable",
+     "unverified": true,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       0.9151,
+       8.6974
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_008",
+     "type": "stove",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.5832,
+       11.4681
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_009",
+     "type": "unknown",
+     "kind": "obstacle",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       0.4521,
+       10.2601
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_067",
      "type": "fridge",
      "kind": "fixed",
      "unverified": false,
@@ -1222,10 +1383,10 @@
      }
     },
     {
-     "id": "f_L-1_045",
+     "id": "f_L-1_081",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -1236,10 +1397,10 @@
      }
     },
     {
-     "id": "f_L-1_047",
+     "id": "f_L-1_083",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -1250,7 +1411,7 @@
      }
     },
     {
-     "id": "f_L-1_049",
+     "id": "f_L-1_085",
      "type": "unknown",
      "kind": "obstacle",
      "unverified": false,
@@ -1281,7 +1442,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.385,
+     "latency_s": 5.688,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -1290,101 +1451,162 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.002,
+     "latency_s": 5.832,
      "error": null,
      "transport_error": false,
      "changes": 0,
      "added": 6
     }
    ],
-   "chosen_pass": null,
+   "chosen_pass": 2,
    "changes": [],
-   "added": [],
+   "added": [
+    {
+     "id": "f_L-1_094",
+     "type": "tall_cabinet",
+     "center": [
+      1.412,
+      7.454
+     ],
+     "size": [
+      0.4,
+      0.58
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1_095",
+     "type": "table_dining",
+     "center": [
+      1.66,
+      10.26
+     ],
+     "size": [
+      1.6,
+      0.9
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1_096",
+     "type": "chair",
+     "center": [
+      1.86,
+      10.96
+     ],
+     "size": [
+      0.45,
+      0.45
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1_097",
+     "type": "chair",
+     "center": [
+      1.36,
+      10.96
+     ],
+     "size": [
+      0.45,
+      0.45
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    }
+   ],
    "refused": [],
    "dropped": [
     {
      "pass": 1,
      "type": "chair",
      "center": [
-      1.66,
-      9.44
+      1.5,
+      8.7
      ],
      "reason": "no repair left",
      "failed": [
-      "no_overlap"
+      "doors_free"
      ]
     },
     {
      "pass": 1,
      "type": "chair",
      "center": [
-      1.66,
-      9.44
+      1.2,
+      8.7
      ],
      "reason": "no repair left",
      "failed": [
-      "no_overlap"
+      "doors_free"
      ]
     },
     {
      "pass": 1,
      "type": "chair",
      "center": [
-      1.66,
-      9.44
+      1.5,
+      8.3
      ],
      "reason": "no repair left",
      "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      1.66,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
+      "doors_free"
      ]
     },
     {
      "pass": 1,
      "type": "table_dining",
      "center": [
-      1.66,
-      9.44
+      1.36,
+      8.5
      ],
      "reason": "no repair left",
      "failed": [
-      "no_overlap"
+      "doors_free"
      ]
     },
     {
      "pass": 1,
      "type": "tall_cabinet",
      "center": [
-      0.45,
+      3.12,
+      8.15
+     ],
+     "reason": "no repair left",
+     "failed": [
+      "doors_free"
+     ]
+    },
+    {
+     "pass": 1,
+     "type": "chair",
+     "center": [
+      1.2,
+      8.3
+     ],
+     "reason": "no table_dining in the room",
+     "failed": []
+    },
+    {
+     "pass": 2,
+     "type": "chair",
+     "center": [
+      1.36,
       10.26
      ],
      "reason": "no repair left",
      "failed": [
-      "no_overlap",
-      "clearance_ok",
-      "windows_free"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.66,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
       "no_overlap"
      ]
     },
@@ -1392,144 +1614,273 @@
      "pass": 2,
      "type": "chair",
      "center": [
-      1.66,
-      9.44
+      1.36,
+      10.26
      ],
      "reason": "no repair left",
      "failed": [
       "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.66,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.66,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "table_dining",
-     "center": [
-      1.66,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "tall_cabinet",
-     "center": [
-      3.12,
-      11.8
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap",
-      "clearance_ok"
      ]
     }
    ],
-   "wall_cabinets": [],
+   "wall_cabinets": [
+    {
+     "id": "f_L-1_098",
+     "run": "f_L-1_001",
+     "size": [
+      3.35,
+      0.35
+     ],
+     "excluded": [
+      "door d_L-1_003"
+     ]
+    },
+    {
+     "id": "f_L-1_099",
+     "run": "f_L-1_002",
+     "size": [
+      0.69,
+      0.35
+     ],
+     "excluded": [
+      "stove f_L-1_008",
+      "window win_L-1_003"
+     ]
+    },
+    {
+     "id": "f_L-1_100",
+     "run": "f_L-1_002",
+     "size": [
+      0.561,
+      0.35
+     ],
+     "excluded": [
+      "stove f_L-1_008",
+      "window win_L-1_003"
+     ]
+    }
+   ],
    "drawn_layout": {
     "pieces": {
      "f_L-1_001": [
       "doors_free",
       "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_002": [
+      "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_003": [
+      "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_004": [
+      "inside_room"
+     ],
+     "f_L-1_005": [
+      "doors_free",
+      "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_008": [
+      "no_overlap"
+     ],
+     "f_L-1_009": [
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_031": [
+     "f_L-1_067": [
       "inside_room",
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_045": [
+     "f_L-1_081": [
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_047": [
+     "f_L-1_083": [
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_049": [
+     "f_L-1_085": [
       "inside_room",
       "no_overlap"
      ]
     },
-    "walkways": [
-     [
-      "door",
-      "d_L-1_003",
-      "window",
-      "win_L-1_003"
-     ]
-    ]
+    "walkways": []
    },
-   "latency_s": 10.387
+   "latency_s": 11.52
   },
   {
    "room_id": "r_L-1_mutfak_2",
    "label": "Mutfak",
    "room_type": "kitchen",
    "room_subtype": null,
-   "state": "completed",
-   "reason": "partner r_L-1_mutfak (twin) not used: the twin's drawn furniture does not map onto this room: drawn fridge f_L-1_031 has no counterpart here; asked itself",
-   "partner": null,
+   "state": "mirrored",
+   "reason": "decisions of r_L-1_mutfak (twin), not asked again",
+   "partner": {
+    "id": "r_L-1_mutfak",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.1722,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.0045
+    }
+   },
    "drawn": [
     {
-     "id": "f_L-1_002",
+     "id": "f_L-1_010",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       12.0541,
+       9.9731
+      ],
+      "wall_id": "w_L-1_014"
+     }
+    },
+    {
+     "id": "f_L-1_011",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       13.8118,
+       11.801
+      ],
+      "wall_id": "w_L-1_006"
+     }
+    },
+    {
+     "id": "f_L-1_012",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       14.9721,
+       10.2627
+      ],
+      "wall_id": "w_L-1_015"
+     }
+    },
+    {
+     "id": "f_L-1_013",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       14.9721,
+       8.234
+      ],
+      "wall_id": "w_L-1_015"
+     }
+    },
+    {
+     "id": "f_L-1_014",
+     "type": "unknown",
+     "kind": "obstacle",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       12.362,
+       8.5474
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_015",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
       "kind": "centre",
       "point": [
-       13.5118,
-       9.4431
+       14.258,
+       7.9812
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1_032",
-     "type": "fridge",
+     "id": "f_L-1_016",
+     "type": "unknown",
+     "kind": "changeable",
+     "unverified": true,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       14.258,
+       8.6974
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_017",
+     "type": "stove",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       14.7225,
+       13.59,
+       11.4681
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1_018",
+     "type": "unknown",
+     "kind": "obstacle",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       14.721,
        10.2601
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1_046",
+     "id": "f_L-1_068",
+     "type": "fridge",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       14.9725,
+       10.2601
+      ],
+      "wall_id": "w_L-1_015"
+     }
+    },
+    {
+     "id": "f_L-1_082",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -1540,10 +1891,10 @@
      }
     },
     {
-     "id": "f_L-1_048",
+     "id": "f_L-1_084",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -1554,10 +1905,10 @@
      }
     },
     {
-     "id": "f_L-1_050",
+     "id": "f_L-1_086",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -1581,216 +1932,165 @@
     "bar_stool",
     "tall_cabinet"
    ],
-   "passes": [
-    {
-     "pass": 1,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.253,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 6
-    },
-    {
-     "pass": 2,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.089,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 6
-    }
-   ],
+   "passes": [],
    "chosen_pass": null,
    "changes": [],
-   "added": [],
+   "added": [
+    {
+     "id": "f_L-1_106",
+     "type": "tall_cabinet",
+     "center": [
+      13.7602,
+      7.454
+     ],
+     "size": [
+      0.4,
+      0.58
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L-1_094"
+    },
+    {
+     "id": "f_L-1_107",
+     "type": "table_dining",
+     "center": [
+      13.5122,
+      10.26
+     ],
+     "size": [
+      1.6,
+      0.9
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L-1_095"
+    },
+    {
+     "id": "f_L-1_108",
+     "type": "chair",
+     "center": [
+      13.3122,
+      10.96
+     ],
+     "size": [
+      0.45,
+      0.45
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L-1_096"
+    },
+    {
+     "id": "f_L-1_109",
+     "type": "chair",
+     "center": [
+      13.8122,
+      10.96
+     ],
+     "size": [
+      0.45,
+      0.45
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L-1_097"
+    }
+   ],
    "refused": [],
-   "dropped": [
+   "dropped": [],
+   "wall_cabinets": [
     {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
+     "id": "f_L-1_110",
+     "run": "f_L-1_010",
+     "size": [
+      3.356,
+      0.35
      ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
+     "excluded": [
+      "door d_L-1_004"
      ]
     },
     {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
+     "id": "f_L-1_111",
+     "run": "f_L-1_011",
+     "size": [
+      0.56,
+      0.35
      ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
+     "excluded": [
+      "stove f_L-1_017",
+      "window win_L-1_004"
      ]
     },
     {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
+     "id": "f_L-1_112",
+     "run": "f_L-1_011",
+     "size": [
+      0.69,
+      0.35
      ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "table_dining",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "tall_cabinet",
-     "center": [
-      12.03,
-      11.8
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap",
-      "clearance_ok"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "table_dining",
-     "center": [
-      13.51,
-      9.44
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "tall_cabinet",
-     "center": [
-      14.97,
-      11.8
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap",
-      "clearance_ok",
-      "windows_free"
+     "excluded": [
+      "stove f_L-1_017",
+      "window win_L-1_004"
      ]
     }
    ],
-   "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_002": [
+     "f_L-1_010": [
       "doors_free",
       "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_011": [
+      "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_012": [
+      "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_013": [
+      "inside_room"
+     ],
+     "f_L-1_014": [
+      "doors_free",
+      "inside_room",
+      "no_overlap"
+     ],
+     "f_L-1_017": [
+      "no_overlap"
+     ],
+     "f_L-1_018": [
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_032": [
+     "f_L-1_068": [
       "inside_room",
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_046": [
+     "f_L-1_082": [
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_048": [
+     "f_L-1_084": [
       "no_overlap",
       "windows_free"
      ],
-     "f_L-1_050": [
+     "f_L-1_086": [
       "inside_room",
       "no_overlap"
      ]
     },
-    "walkways": [
-     [
-      "door",
-      "d_L-1_004",
-      "window",
-      "win_L-1_004"
-     ]
-    ]
+    "walkways": []
    },
-   "latency_s": 10.342
+   "latency_s": 0
   },
   {
    "room_id": "r_L-1_koridor",
@@ -1817,7 +2117,7 @@
    },
    "drawn": [
     {
-     "id": "f_L-1_004",
+     "id": "f_L-1_020",
      "type": "stair",
      "kind": "fixed",
      "unverified": false,
@@ -1844,7 +2144,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_078",
+     "id": "f_L-1_113",
      "type": "console_table",
      "center": [
       11.7582,
@@ -1857,7 +2157,7 @@
      "rotation_deg": 270.0,
      "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_065"
+     "mirrored_from": "f_L-1_101"
     }
    ],
    "refused": [],
@@ -1865,7 +2165,7 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_004": [
+     "f_L-1_020": [
       "inside_room"
      ]
     },
@@ -1883,7 +2183,7 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L-1_003",
+     "id": "f_L-1_019",
      "type": "stair",
      "kind": "fixed",
      "unverified": false,
@@ -1909,7 +2209,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.042,
+     "latency_s": 1.16,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -1918,7 +2218,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.036,
+     "latency_s": 1.127,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -1929,7 +2229,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_065",
+     "id": "f_L-1_101",
      "type": "console_table",
      "center": [
       3.414,
@@ -1950,13 +2250,13 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_003": [
+     "f_L-1_019": [
       "inside_room"
      ]
     },
     "walkways": []
    },
-   "latency_s": 2.078
+   "latency_s": 2.287
   },
   {
    "room_id": "r_L-1_banyo",
@@ -1968,45 +2268,45 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L-1_010",
+     "id": "f_L-1_026",
      "type": "washbasin",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       5.2183,
-       10.2103
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1_015",
-     "type": "toilet",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       6.0523,
-       10.2673
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1_020",
-     "type": "bathtub",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       6.9866,
-       11.801
+       5.2183,
+       9.9353
       ],
-      "wall_id": "w_L-1_006"
+      "wall_id": "w_L-1_005"
+     }
+    },
+    {
+     "id": "f_L-1_051",
+     "type": "toilet",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       6.0523,
+       9.9223
+      ],
+      "wall_id": "w_L-1_005"
+     }
+    },
+    {
+     "id": "f_L-1_056",
+     "type": "bathtub",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.9866,
+       10.884
+      ],
+      "wall_id": null
      }
     }
    ],
@@ -2023,14 +2323,14 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_010": [
+     "f_L-1_026": [
       "doors_free",
       "inside_room"
      ],
-     "f_L-1_015": [
+     "f_L-1_051": [
       "inside_room"
      ],
-     "f_L-1_020": [
+     "f_L-1_056": [
       "inside_room"
      ]
     },
@@ -2063,45 +2363,45 @@
    },
    "drawn": [
     {
-     "id": "f_L-1_009",
+     "id": "f_L-1_025",
      "type": "washbasin",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       9.9549,
-       10.2103
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1_016",
-     "type": "toilet",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       9.1208,
-       10.2673
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1_019",
-     "type": "bathtub",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       8.1866,
-       11.801
+       9.9549,
+       9.9353
       ],
-      "wall_id": "w_L-1_006"
+      "wall_id": "w_L-1_005"
+     }
+    },
+    {
+     "id": "f_L-1_052",
+     "type": "toilet",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       9.1208,
+       9.9223
+      ],
+      "wall_id": "w_L-1_005"
+     }
+    },
+    {
+     "id": "f_L-1_055",
+     "type": "bathtub",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.1866,
+       10.884
+      ],
+      "wall_id": null
      }
     }
    ],
@@ -2118,14 +2418,14 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1_009": [
+     "f_L-1_025": [
       "doors_free",
       "inside_room"
      ],
-     "f_L-1_016": [
+     "f_L-1_052": [
       "inside_room"
      ],
-     "f_L-1_019": [
+     "f_L-1_055": [
       "inside_room"
      ]
     },
@@ -2145,8 +2445,8 @@
     {
      "id": "f_L-1b_002",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "outline",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -2157,63 +2457,217 @@
      }
     },
     {
-     "id": "f_L-1b_006",
-     "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "id": "f_L-1b_009",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       1.7596,
+       7.343
+      ],
+      "wall_id": "w_L-1b_002"
+     }
+    },
+    {
+     "id": "f_L-1b_010",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       0.2011,
+       5.533
+      ],
+      "wall_id": "w_L-1b_007"
+     }
+    },
+    {
+     "id": "f_L-1b_011",
+     "type": "kitchen_island",
+     "kind": "fixed",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       1.8176,
-       5.8212
+       1.5944,
+       4.6223
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1b_008",
+     "id": "f_L-1b_012",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       1.7383,
+       2.9626,
+       7.0327
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_013",
+     "type": "stove",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.1755,
+       7.0182
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_014",
+     "type": "unknown",
+     "kind": "obstacle",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       0.5053,
+       5.8794
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_026",
+     "type": "table_dining",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.7456,
        2.3964
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1b_015",
-     "type": "stove",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "back_edge",
-      "point": [
-       2.9626,
-       7.3436
-      ],
-      "wall_id": "w_L-1b_002"
-     }
-    },
-    {
-     "id": "f_L-1b_016",
-     "type": "unknown",
+     "id": "f_L-1b_027",
+     "type": "chair",
      "kind": "changeable",
-     "unverified": true,
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       0.3006,
-       7.1936
+       2.2963,
+       1.7813
       ],
       "wall_id": null
      }
     },
     {
-     "id": "f_L-1b_018",
+     "id": "f_L-1b_028",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.1803,
+       1.7814
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_029",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       2.2963,
+       2.394
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_030",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.1803,
+       2.3941
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_031",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       2.2963,
+       3.0393
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_032",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.1803,
+       3.0394
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_033",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.741,
+       3.6058
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_034",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       1.741,
+       1.1871
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_040",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2227,7 +2681,7 @@
      }
     },
     {
-     "id": "f_L-1b_022",
+     "id": "f_L-1b_044",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2241,7 +2695,7 @@
      }
     },
     {
-     "id": "f_L-1b_025",
+     "id": "f_L-1b_047",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2255,7 +2709,7 @@
      }
     },
     {
-     "id": "f_L-1b_026",
+     "id": "f_L-1b_048",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2269,7 +2723,7 @@
      }
     },
     {
-     "id": "f_L-1b_027",
+     "id": "f_L-1b_049",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2283,7 +2737,7 @@
      }
     },
     {
-     "id": "f_L-1b_028",
+     "id": "f_L-1b_050",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2297,7 +2751,7 @@
      }
     },
     {
-     "id": "f_L-1b_032",
+     "id": "f_L-1b_054",
      "type": "fridge",
      "kind": "fixed",
      "unverified": false,
@@ -2311,7 +2765,7 @@
      }
     },
     {
-     "id": "f_L-1b_034",
+     "id": "f_L-1b_056",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2325,10 +2779,10 @@
      }
     },
     {
-     "id": "f_L-1b_036",
+     "id": "f_L-1b_058",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -2339,7 +2793,7 @@
      }
     },
     {
-     "id": "f_L-1b_038",
+     "id": "f_L-1b_060",
      "type": "wall_cabinet",
      "kind": "mounted",
      "unverified": false,
@@ -2356,8 +2810,7 @@
    "missing": {},
    "anchor_missing": false,
    "addable": {
-    "table_dining": 1,
-    "chair": 4,
+    "bar_stool": 3,
     "tall_cabinet": 1
    },
    "change_types": [
@@ -2370,38 +2823,86 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.514,
+     "latency_s": 4.077,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 6
+     "added": 4
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.4,
+     "latency_s": 4.075,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 6
+     "added": 4
     }
    ],
-   "chosen_pass": 1,
+   "chosen_pass": 2,
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_049",
-     "type": "tall_cabinet",
+     "id": "f_L-1b_071",
+     "type": "bar_stool",
      "center": [
-      0.512,
-      0.712
+      1.59,
+      4.1
      ],
      "size": [
-      0.4,
-      0.58
+      0.42,
+      0.42
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 180.0,
      "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_072",
+     "type": "bar_stool",
+     "center": [
+      2.09,
+      4.1
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_073",
+     "type": "bar_stool",
+     "center": [
+      1.09,
+      3.8
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_074",
+     "type": "tall_cabinet",
+     "center": [
+      7.066,
+      4.48
+     ],
+     "size": [
+      0.6,
+      0.6
+     ],
+     "rotation_deg": 270.0,
+     "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
     }
@@ -2410,154 +2911,36 @@
    "dropped": [
     {
      "pass": 1,
-     "type": "chair",
+     "type": "bar_stool",
      "center": [
-      1.82,
-      6.04
+      1.59,
+      2.4
      ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      1.82,
-      5.6
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      2.0,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      1.6,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "table_dining",
-     "center": [
-      1.82,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.82,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.82,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.82,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      1.82,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "table_dining",
-     "center": [
-      1.82,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
+     "reason": "1.71 m from the nearest kitchen_island (> 0.6 m)",
+     "failed": []
     }
    ],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1b_002": [
-      "inside_room",
-      "no_overlap"
-     ],
-     "f_L-1b_006": [
+     "f_L-1b_009": [
       "doors_free",
       "inside_room",
       "no_overlap"
      ],
-     "f_L-1b_015": [
+     "f_L-1b_010": [
       "inside_room",
       "no_overlap"
      ],
-     "f_L-1b_016": [
-      "inside_room"
-     ],
-     "f_L-1b_018": [
-      "doors_free",
+     "f_L-1b_012": [
+      "inside_room",
       "no_overlap"
      ],
-     "f_L-1b_022": [
+     "f_L-1b_013": [
       "no_overlap"
      ],
-     "f_L-1b_025": [
-      "no_overlap",
-      "windows_free"
+     "f_L-1b_014": [
+      "no_overlap"
      ],
      "f_L-1b_026": [
       "no_overlap"
@@ -2568,23 +2951,41 @@
      "f_L-1b_028": [
       "no_overlap"
      ],
+     "f_L-1b_029": [
+      "no_overlap"
+     ],
+     "f_L-1b_030": [
+      "no_overlap"
+     ],
+     "f_L-1b_031": [
+      "no_overlap"
+     ],
      "f_L-1b_032": [
       "no_overlap"
      ],
-     "f_L-1b_036": [
+     "f_L-1b_033": [
+      "no_overlap"
+     ],
+     "f_L-1b_034": [
+      "no_overlap"
+     ],
+     "f_L-1b_047": [
+      "no_overlap",
+      "windows_free"
+     ],
+     "f_L-1b_048": [
+      "no_overlap"
+     ],
+     "f_L-1b_054": [
+      "no_overlap"
+     ],
+     "f_L-1b_058": [
       "no_overlap"
      ]
     },
-    "walkways": [
-     [
-      "door",
-      "o_L-1b_001",
-      "window",
-      "win_L-1b_001"
-     ]
-    ]
+    "walkways": []
    },
-   "latency_s": 10.914
+   "latency_s": 8.152
   },
   {
    "room_id": "r_L-1b_acik_mutfak_2",
@@ -2592,14 +2993,14 @@
    "room_type": "kitchen",
    "room_subtype": null,
    "state": "completed",
-   "reason": "",
+   "reason": "partner r_L-1b_acik_mutfak (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_040 has no counterpart here; asked itself",
    "partner": null,
    "drawn": [
     {
      "id": "f_L-1b_001",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "outline",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -2610,63 +3011,217 @@
      }
     },
     {
-     "id": "f_L-1b_005",
-     "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       13.3555,
-       5.8212
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1b_007",
-     "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       13.4348,
-       2.3964
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L-1b_013",
-     "type": "stove",
+     "id": "f_L-1b_003",
+     "type": "kitchen_counter",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       12.2104,
-       7.3436
+       13.4138,
+       7.343
       ],
       "wall_id": "w_L-1b_003"
      }
     },
     {
-     "id": "f_L-1b_014",
+     "id": "f_L-1b_004",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       14.9724,
+       5.533
+      ],
+      "wall_id": "w_L-1b_013"
+     }
+    },
+    {
+     "id": "f_L-1b_005",
+     "type": "kitchen_island",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.5786,
+       4.6223
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_006",
      "type": "unknown",
      "kind": "obstacle",
      "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
-       14.8724,
-       7.1936
+       12.2104,
+       7.0327
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_007",
+     "type": "stove",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.9976,
+       7.0182
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_008",
+     "type": "unknown",
+     "kind": "obstacle",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       14.6678,
+       5.8794
       ],
       "wall_id": null
      }
     },
     {
      "id": "f_L-1b_017",
+     "type": "table_dining",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.4275,
+       2.3964
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_018",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       12.8768,
+       1.7813
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_019",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.9928,
+       1.7814
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_020",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       12.8768,
+       2.394
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_021",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.9928,
+       2.3941
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_022",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       12.8768,
+       3.0393
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_023",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.9928,
+       3.0394
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_024",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.432,
+       3.6058
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_025",
+     "type": "chair",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       13.432,
+       1.1871
+      ],
+      "wall_id": null
+     }
+    },
+    {
+     "id": "f_L-1b_039",
      "type": "kitchen_island",
      "kind": "fixed",
      "unverified": false,
@@ -2680,7 +3235,7 @@
      }
     },
     {
-     "id": "f_L-1b_021",
+     "id": "f_L-1b_043",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2694,7 +3249,7 @@
      }
     },
     {
-     "id": "f_L-1b_023",
+     "id": "f_L-1b_045",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2708,7 +3263,7 @@
      }
     },
     {
-     "id": "f_L-1b_024",
+     "id": "f_L-1b_046",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2722,7 +3277,7 @@
      }
     },
     {
-     "id": "f_L-1b_029",
+     "id": "f_L-1b_051",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2736,7 +3291,7 @@
      }
     },
     {
-     "id": "f_L-1b_030",
+     "id": "f_L-1b_052",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2750,7 +3305,7 @@
      }
     },
     {
-     "id": "f_L-1b_031",
+     "id": "f_L-1b_053",
      "type": "fridge",
      "kind": "fixed",
      "unverified": false,
@@ -2764,7 +3319,7 @@
      }
     },
     {
-     "id": "f_L-1b_033",
+     "id": "f_L-1b_055",
      "type": "unknown",
      "kind": "changeable",
      "unverified": true,
@@ -2778,10 +3333,10 @@
      }
     },
     {
-     "id": "f_L-1b_035",
+     "id": "f_L-1b_057",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "obstacle",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -2792,7 +3347,7 @@
      }
     },
     {
-     "id": "f_L-1b_037",
+     "id": "f_L-1b_059",
      "type": "wall_cabinet",
      "kind": "mounted",
      "unverified": false,
@@ -2810,8 +3365,6 @@
    "anchor_missing": false,
    "addable": {
     "bar_stool": 4,
-    "table_dining": 1,
-    "chair": 4,
     "tall_cabinet": 1
    },
    "change_types": [
@@ -2824,31 +3377,79 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 8.426,
+     "latency_s": 5.233,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 10
+     "added": 5
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 6.012,
+     "latency_s": 4.914,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 7
+     "added": 5
     }
    ],
    "chosen_pass": 1,
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_050",
+     "id": "f_L-1b_076",
+     "type": "tall_cabinet",
+     "center": [
+      8.108,
+      5.732
+     ],
+     "size": [
+      0.6,
+      0.6
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_077",
+     "type": "bar_stool",
+     "center": [
+      10.28,
+      4.98
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_078",
+     "type": "bar_stool",
+     "center": [
+      10.28,
+      3.98
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_079",
      "type": "bar_stool",
      "center": [
       11.68,
-      4.2
+      4.48
      ],
      "size": [
       0.42,
@@ -2860,49 +3461,17 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1b_051",
+     "id": "f_L-1b_080",
      "type": "bar_stool",
      "center": [
-      11.68,
-      3.7
+      10.28,
+      4.48
      ],
      "size": [
       0.42,
       0.42
      ],
-     "rotation_deg": 270.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1b_052",
-     "type": "bar_stool",
-     "center": [
-      11.48,
-      3.2
-     ],
-     "size": [
-      0.42,
-      0.42
-     ],
-     "rotation_deg": 270.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1b_053",
-     "type": "bar_stool",
-     "center": [
-      10.98,
-      2.9
-     ],
-     "size": [
-      0.42,
-      0.42
-     ],
-     "rotation_deg": 270.0,
+     "rotation_deg": 90.0,
      "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
@@ -2911,201 +3480,81 @@
    "refused": [],
    "dropped": [
     {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.36,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.36,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.36,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "chair",
-     "center": [
-      13.36,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "table_dining",
-     "center": [
-      13.36,
-      5.82
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "tall_cabinet",
-     "center": [
-      14.67,
-      6.07
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap",
-      "clearance_ok"
-     ]
-    },
-    {
      "pass": 2,
-     "type": "chair",
+     "type": "bar_stool",
      "center": [
-      12.1,
-      5.8
+      13.58,
+      3.2
      ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "table_dining",
-     "center": [
-      11.86,
-      5.8
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "tall_cabinet",
-     "center": [
-      13.43,
-      2.4
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "clearance_ok"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      11.95,
-      5.8
-     ],
-     "reason": "no table_dining in the room",
-     "failed": []
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      11.6,
-      5.8
-     ],
-     "reason": "no table_dining in the room",
-     "failed": []
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      11.86,
-      5.8
-     ],
-     "reason": "no table_dining in the room",
+     "reason": "0.61 m from the nearest kitchen_island (> 0.6 m)",
      "failed": []
     }
    ],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1b_001": [
+     "f_L-1b_003": [
       "inside_room",
       "no_overlap"
      ],
-     "f_L-1b_005": [
-      "doors_free",
+     "f_L-1b_004": [
       "inside_room",
       "no_overlap"
      ],
-     "f_L-1b_013": [
+     "f_L-1b_006": [
       "inside_room",
       "no_overlap"
      ],
-     "f_L-1b_014": [
-      "inside_room"
+     "f_L-1b_007": [
+      "no_overlap"
+     ],
+     "f_L-1b_008": [
+      "no_overlap"
      ],
      "f_L-1b_017": [
-      "doors_free",
+      "no_overlap"
+     ],
+     "f_L-1b_018": [
+      "no_overlap"
+     ],
+     "f_L-1b_019": [
+      "no_overlap"
+     ],
+     "f_L-1b_020": [
       "no_overlap"
      ],
      "f_L-1b_021": [
       "no_overlap"
      ],
+     "f_L-1b_022": [
+      "no_overlap"
+     ],
      "f_L-1b_023": [
-      "no_overlap",
-      "windows_free"
+      "no_overlap"
      ],
      "f_L-1b_024": [
       "no_overlap"
      ],
-     "f_L-1b_029": [
+     "f_L-1b_025": [
       "no_overlap"
      ],
-     "f_L-1b_030": [
+     "f_L-1b_045": [
+      "no_overlap",
+      "windows_free"
+     ],
+     "f_L-1b_046": [
       "no_overlap"
      ],
-     "f_L-1b_031": [
+     "f_L-1b_053": [
       "no_overlap"
      ],
-     "f_L-1b_035": [
+     "f_L-1b_057": [
       "no_overlap"
      ]
     },
-    "walkways": [
-     [
-      "door",
-      "o_L-1b_002",
-      "window",
-      "win_L-1b_002"
-     ]
-    ]
+    "walkways": []
    },
-   "latency_s": 14.438
+   "latency_s": 10.147
   },
   {
    "room_id": "r_L-1b_koridor",
@@ -3117,7 +3566,7 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L-1b_004",
+     "id": "f_L-1b_016",
      "type": "stair",
      "kind": "fixed",
      "unverified": false,
@@ -3143,7 +3592,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.081,
+     "latency_s": 1.123,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3152,7 +3601,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.067,
+     "latency_s": 1.125,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3163,7 +3612,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_054",
+     "id": "f_L-1b_075",
      "type": "console_table",
      "center": [
       3.513,
@@ -3184,13 +3633,13 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1b_004": [
+     "f_L-1b_016": [
       "inside_room"
      ]
     },
     "walkways": []
    },
-   "latency_s": 2.148
+   "latency_s": 2.248
   },
   {
    "room_id": "r_L-1b_koridor_2",
@@ -3217,7 +3666,7 @@
    },
    "drawn": [
     {
-     "id": "f_L-1b_003",
+     "id": "f_L-1b_015",
      "type": "stair",
      "kind": "fixed",
      "unverified": false,
@@ -3244,7 +3693,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_055",
+     "id": "f_L-1b_081",
      "type": "console_table",
      "center": [
       11.6602,
@@ -3257,7 +3706,7 @@
      "rotation_deg": 270.0,
      "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1b_054"
+     "mirrored_from": "f_L-1b_075"
     }
    ],
    "refused": [],
@@ -3265,7 +3714,7 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1b_003": [
+     "f_L-1b_015": [
       "inside_room"
      ]
     },
@@ -3278,41 +3727,26 @@
    "label": "Banyo",
    "room_type": "bathroom",
    "room_subtype": null,
-   "state": "copied",
-   "reason": "decisions of r_L-1_banyo (same_as), not asked again",
-   "partner": {
-    "id": "r_L-1_banyo",
-    "kind": "same_as",
-    "transform": {
-     "kind": "identity",
-     "affine": [
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0
-     ],
-     "deviation_m": 0.001
-    }
-   },
+   "state": "completed",
+   "reason": "nothing to ask: no changeable drawn piece and nothing the room may get; partner r_L-1_banyo (same_as) not used: the same_as's drawn furniture does not map onto this room: drawn toilet f_L-1_051 has no counterpart here; asked itself",
+   "partner": null,
    "drawn": [
     {
-     "id": "f_L-1b_010",
+     "id": "f_L-1b_036",
      "type": "washbasin",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        5.2182,
-       10.2104
+       9.9354
       ],
-      "wall_id": null
+      "wall_id": "w_L-1b_005"
      }
     },
     {
-     "id": "f_L-1b_012",
+     "id": "f_L-1b_038",
      "type": "toilet",
      "kind": "fixed",
      "unverified": false,
@@ -3326,17 +3760,17 @@
      }
     },
     {
-     "id": "f_L-1b_020",
+     "id": "f_L-1b_042",
      "type": "bathtub",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "back_edge",
+      "kind": "centre",
       "point": [
        6.9865,
-       11.801
+       10.884
       ],
-      "wall_id": "w_L-1b_006"
+      "wall_id": null
      }
     }
    ],
@@ -3353,14 +3787,14 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1b_010": [
+     "f_L-1b_036": [
       "doors_free",
       "inside_room"
      ],
-     "f_L-1b_012": [
+     "f_L-1b_038": [
       "inside_room"
      ],
-     "f_L-1b_020": [
+     "f_L-1b_042": [
       "inside_room"
      ]
     },
@@ -3373,41 +3807,26 @@
    "label": "Banyo",
    "room_type": "bathroom",
    "room_subtype": null,
-   "state": "copied",
-   "reason": "decisions of r_L-1_banyo_2 (same_as), not asked again",
-   "partner": {
-    "id": "r_L-1_banyo_2",
-    "kind": "same_as",
-    "transform": {
-     "kind": "identity",
-     "affine": [
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0
-     ],
-     "deviation_m": 0.001
-    }
-   },
+   "state": "completed",
+   "reason": "nothing to ask: no changeable drawn piece and nothing the room may get; partner r_L-1_banyo_2 (same_as) not used: the same_as's drawn furniture does not map onto this room: drawn toilet f_L-1_052 has no counterpart here; asked itself",
+   "partner": null,
    "drawn": [
     {
-     "id": "f_L-1b_009",
+     "id": "f_L-1b_035",
      "type": "washbasin",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        9.9548,
-       10.2104
+       9.9354
       ],
-      "wall_id": null
+      "wall_id": "w_L-1b_005"
      }
     },
     {
-     "id": "f_L-1b_011",
+     "id": "f_L-1b_037",
      "type": "toilet",
      "kind": "fixed",
      "unverified": false,
@@ -3421,17 +3840,17 @@
      }
     },
     {
-     "id": "f_L-1b_019",
+     "id": "f_L-1b_041",
      "type": "bathtub",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "back_edge",
+      "kind": "centre",
       "point": [
        8.1865,
-       11.801
+       10.884
       ],
-      "wall_id": "w_L-1b_006"
+      "wall_id": null
      }
     }
    ],
@@ -3448,14 +3867,14 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L-1b_009": [
+     "f_L-1b_035": [
       "doors_free",
       "inside_room"
      ],
-     "f_L-1b_011": [
+     "f_L-1b_037": [
       "inside_room"
      ],
-     "f_L-1b_019": [
+     "f_L-1b_041": [
       "inside_room"
      ]
     },
@@ -3473,36 +3892,36 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L0_012",
+     "id": "f_L0_010",
      "type": "wardrobe",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        0.9273,
-       6.7436
+       7.0436
       ],
-      "wall_id": null
+      "wall_id": "w_L0_003"
      }
     },
     {
-     "id": "f_L0_021",
+     "id": "f_L0_019",
      "type": "bed_double",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       1.1506,
+       0.2006,
        3.0087
       ],
-      "wall_id": null
+      "wall_id": "w_L0_009"
      }
     },
     {
-     "id": "f_L0_032",
-     "type": "unknown",
+     "id": "f_L0_030",
+     "type": "desk",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
@@ -3522,7 +3941,6 @@
    "addable": {
     "nightstand": 2,
     "dresser": 1,
-    "desk": 1,
     "office_chair": 1,
     "bench": 1,
     "armchair": 1,
@@ -3547,16 +3965,16 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 6.634,
+     "latency_s": 4.733,
      "error": null,
      "transport_error": false,
-     "changes": 2,
-     "added": 6
+     "changes": 1,
+     "added": 4
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.656,
+     "latency_s": 3.098,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3566,17 +3984,8 @@
    "chosen_pass": 2,
    "changes": [
     {
-     "id": "f_L0_021",
+     "id": "f_L0_019",
      "type": "bed_double",
-     "status": "not_agreed",
-     "passes": [
-      1
-     ],
-     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
-    },
-    {
-     "id": "f_L0_032",
-     "type": "dresser",
      "status": "not_agreed",
      "passes": [
       1
@@ -3586,49 +3995,49 @@
    ],
    "added": [
     {
+     "id": "f_L0_039",
+     "type": "nightstand",
+     "center": [
+      0.421,
+      4.01
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_040",
+     "type": "nightstand",
+     "center": [
+      1.75,
+      1.921
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
      "id": "f_L0_041",
-     "type": "nightstand",
-     "center": [
-      0.421,
-      4.08
-     ],
-     "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 90.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L0_042",
-     "type": "nightstand",
-     "center": [
-      0.421,
-      1.98
-     ],
-     "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 90.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L0_043",
      "type": "bench",
      "center": [
-      2.35,
-      2.333
+      0.901,
+      1.945
      ],
      "size": [
-      1.2,
+      1.0,
       0.4
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
@@ -3638,34 +4047,10 @@
    "dropped": [
     {
      "pass": 1,
-     "type": "armchair",
+     "type": "dresser",
      "center": [
-      2.8,
-      3.5
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "doors_free"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "ottoman",
-     "center": [
-      2.8,
-      3.0
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "doors_free"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "bench",
-     "center": [
-      1.15,
-      6.74
+      2.5,
+      5.06
      ],
      "reason": "no repair left",
      "failed": [
@@ -3676,19 +4061,19 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_012": [
+     "f_L0_010": [
       "inside_room"
      ],
-     "f_L0_021": [
+     "f_L0_019": [
       "inside_room"
      ],
-     "f_L0_032": [
+     "f_L0_030": [
       "inside_room"
      ]
     },
     "walkways": []
    },
-   "latency_s": 9.29
+   "latency_s": 7.831
   },
   {
    "room_id": "r_L0_e_yatak_odasi",
@@ -3700,73 +4085,59 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L0_003",
-     "type": "kitchen_counter",
-     "kind": "fixed",
+     "id": "f_L0_007",
+     "type": "bed_double",
+     "kind": "changeable",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       3.3181,
-       3.8521
+       7.3865,
+       3.8159
+      ],
+      "wall_id": "w_L0_013"
+     }
+    },
+    {
+     "id": "f_L0_023",
+     "type": "wardrobe",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       3.3639,
+       3.255
       ],
       "wall_id": "w_L0_010"
      }
     },
     {
-     "id": "f_L0_009",
-     "type": "bed_double",
-     "kind": "changeable",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       6.3865,
-       3.8159
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_025",
-     "type": "wardrobe",
-     "kind": "changeable",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       3.6639,
-       3.255
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_033",
+     "id": "f_L0_031",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       7.1615,
+       7.3865,
        2.6601
       ],
-      "wall_id": null
+      "wall_id": "w_L0_013"
      }
     },
     {
-     "id": "f_L0_034",
+     "id": "f_L0_032",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       7.1615,
+       7.3865,
        4.8409
       ],
-      "wall_id": null
+      "wall_id": "w_L0_013"
      }
     }
    ],
@@ -3802,7 +4173,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.598,
+     "latency_s": 3.905,
      "error": null,
      "transport_error": false,
      "changes": 1,
@@ -3811,17 +4182,17 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.836,
+     "latency_s": 2.062,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 3
+     "added": 2
     }
    ],
    "chosen_pass": 1,
    "changes": [
     {
-     "id": "f_L0_009",
+     "id": "f_L0_007",
      "type": "bed_double",
      "status": "not_agreed",
      "passes": [
@@ -3832,43 +4203,43 @@
    ],
    "added": [
     {
+     "id": "f_L0_042",
+     "type": "nightstand",
+     "center": [
+      6.665,
+      1.921
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_043",
+     "type": "nightstand",
+     "center": [
+      7.165,
+      2.12
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 270.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
      "id": "f_L0_044",
-     "type": "nightstand",
-     "center": [
-      7.14,
-      2.021
-     ],
-     "size": [
-      0.6,
-      0.45
-     ],
-     "rotation_deg": 270.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L0_045",
-     "type": "nightstand",
-     "center": [
-      7.14,
-      5.42
-     ],
-     "size": [
-      0.6,
-      0.45
-     ],
-     "rotation_deg": 270.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L0_046",
      "type": "bench",
      "center": [
-      6.278,
-      5.617
+      6.39,
+      5.32
      ],
      "size": [
       1.2,
@@ -3885,26 +4256,19 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_003": [
-      "inside_room",
-      "no_overlap"
-     ],
-     "f_L0_009": [
-      "clearance_ok",
+     "f_L0_007": [
       "doors_free",
       "inside_room",
       "no_overlap"
      ],
-     "f_L0_025": [
-      "clearance_ok",
+     "f_L0_023": [
+      "inside_room"
+     ],
+     "f_L0_031": [
       "inside_room",
       "no_overlap"
      ],
-     "f_L0_033": [
-      "inside_room",
-      "no_overlap"
-     ],
-     "f_L0_034": [
+     "f_L0_032": [
       "inside_room",
       "no_overlap"
      ]
@@ -3930,85 +4294,86 @@
      ]
     ]
    },
-   "latency_s": 6.434
+   "latency_s": 5.967
   },
   {
    "room_id": "r_L0_e_yatak_odasi_2",
    "label": "E.yatak Odası",
    "room_type": "bedroom",
    "room_subtype": null,
-   "state": "completed",
-   "reason": "partner r_L0_e_yatak_odasi (twin) not used: the twin's drawn furniture does not map onto this room: drawn wardrobe f_L0_025 has no counterpart here; asked itself",
-   "partner": null,
+   "state": "mirrored",
+   "reason": "decisions of r_L0_e_yatak_odasi (twin), not asked again",
+   "partner": {
+    "id": "r_L0_e_yatak_odasi",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.173,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
    "drawn": [
     {
-     "id": "f_L0_004",
-     "type": "kitchen_counter",
-     "kind": "fixed",
+     "id": "f_L0_008",
+     "type": "bed_double",
+     "kind": "changeable",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       11.856,
-       3.8521
+       7.7865,
+       3.8159
+      ],
+      "wall_id": "w_L0_013"
+     }
+    },
+    {
+     "id": "f_L0_024",
+     "type": "wardrobe",
+     "kind": "changeable",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       11.8091,
+       3.255
       ],
       "wall_id": "w_L0_015"
      }
     },
     {
-     "id": "f_L0_010",
-     "type": "bed_double",
-     "kind": "changeable",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       8.7865,
-       3.8159
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_026",
-     "type": "wardrobe",
-     "kind": "changeable",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       11.5091,
-       3.255
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_035",
+     "id": "f_L0_033",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       8.0115,
+       7.7865,
        2.6601
       ],
-      "wall_id": null
+      "wall_id": "w_L0_013"
      }
     },
     {
-     "id": "f_L0_036",
+     "id": "f_L0_034",
      "type": "floor_lamp",
      "kind": "kept",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       8.0115,
+       7.7865,
        4.8409
       ],
-      "wall_id": null
+      "wall_id": "w_L0_013"
      }
     }
    ],
@@ -4040,34 +4405,31 @@
     "ottoman",
     "office_chair"
    ],
-   "passes": [
-    {
-     "pass": 1,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.93,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 3
-    },
-    {
-     "pass": 2,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.731,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 3
-    }
-   ],
-   "chosen_pass": 1,
+   "passes": [],
+   "chosen_pass": null,
    "changes": [],
    "added": [
     {
-     "id": "f_L0_050",
+     "id": "f_L0_048",
      "type": "nightstand",
      "center": [
-      8.007,
+      8.508,
+      1.921
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L0_042"
+    },
+    {
+     "id": "f_L0_049",
+     "type": "nightstand",
+     "center": [
+      8.008,
       2.12
      ],
      "size": [
@@ -4075,41 +4437,25 @@
       0.4
      ],
      "rotation_deg": 90.0,
-     "confidence": 0.9,
+     "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": null
+     "mirrored_from": "f_L0_043"
     },
     {
-     "id": "f_L0_051",
-     "type": "nightstand",
-     "center": [
-      8.007,
-      5.42
-     ],
-     "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 90.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L0_052",
+     "id": "f_L0_050",
      "type": "bench",
      "center": [
-      8.905,
-      5.295
+      8.783,
+      5.32
      ],
      "size": [
       1.2,
       0.4
      ],
-     "rotation_deg": 180.0,
+     "rotation_deg": 0.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": null
+     "mirrored_from": "f_L0_044"
     }
    ],
    "refused": [],
@@ -4117,25 +4463,19 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_004": [
-      "inside_room",
-      "no_overlap"
-     ],
-     "f_L0_010": [
+     "f_L0_008": [
       "doors_free",
       "inside_room",
       "no_overlap"
      ],
-     "f_L0_026": [
-      "clearance_ok",
+     "f_L0_024": [
+      "inside_room"
+     ],
+     "f_L0_033": [
       "inside_room",
       "no_overlap"
      ],
-     "f_L0_035": [
-      "inside_room",
-      "no_overlap"
-     ],
-     "f_L0_036": [
+     "f_L0_034": [
       "inside_room",
       "no_overlap"
      ]
@@ -4161,7 +4501,7 @@
      ]
     ]
    },
-   "latency_s": 5.661
+   "latency_s": 0
   },
   {
    "room_id": "r_L0_yatak_odasi_2",
@@ -4188,36 +4528,36 @@
    },
    "drawn": [
     {
-     "id": "f_L0_014",
+     "id": "f_L0_012",
      "type": "wardrobe",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        14.2457,
-       6.7436
+       7.0436
       ],
-      "wall_id": null
+      "wall_id": "w_L0_004"
      }
     },
     {
-     "id": "f_L0_022",
+     "id": "f_L0_020",
      "type": "bed_double",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       14.0224,
+       14.9724,
        3.0087
       ],
-      "wall_id": null
+      "wall_id": "w_L0_016"
      }
     },
     {
-     "id": "f_L0_029",
-     "type": "unknown",
+     "id": "f_L0_027",
+     "type": "desk",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
@@ -4237,7 +4577,6 @@
    "addable": {
     "nightstand": 2,
     "dresser": 1,
-    "desk": 1,
     "office_chair": 1,
     "bench": 1,
     "armchair": 1,
@@ -4263,52 +4602,52 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L0_053",
+     "id": "f_L0_051",
      "type": "nightstand",
      "center": [
       14.752,
-      4.08
+      4.01
      ],
      "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 270.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": "f_L0_041"
-    },
-    {
-     "id": "f_L0_054",
-     "type": "nightstand",
-     "center": [
-      14.752,
-      1.98
-     ],
-     "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 270.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": "f_L0_042"
-    },
-    {
-     "id": "f_L0_055",
-     "type": "bench",
-     "center": [
-      12.823,
-      2.333
-     ],
-     "size": [
-      1.2,
+      0.4,
       0.4
      ],
      "rotation_deg": 270.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": "f_L0_043"
+     "mirrored_from": "f_L0_039"
+    },
+    {
+     "id": "f_L0_052",
+     "type": "nightstand",
+     "center": [
+      13.423,
+      1.921
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": "f_L0_040"
+    },
+    {
+     "id": "f_L0_053",
+     "type": "bench",
+     "center": [
+      14.272,
+      1.945
+     ],
+     "size": [
+      1.0,
+      0.4
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L0_041"
     }
    ],
    "refused": [],
@@ -4316,14 +4655,13 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_014": [
+     "f_L0_012": [
       "inside_room"
      ],
-     "f_L0_022": [
-      "clearance_ok",
+     "f_L0_020": [
       "inside_room"
      ],
-     "f_L0_029": [
+     "f_L0_027": [
       "inside_room"
      ]
     },
@@ -4341,21 +4679,21 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L0_008",
+     "id": "f_L0_006",
      "type": "washbasin",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        5.2182,
-       7.1686
+       7.4436
       ],
-      "wall_id": null
+      "wall_id": "w_L0_005"
      }
     },
     {
-     "id": "f_L0_015",
+     "id": "f_L0_013",
      "type": "shower",
      "kind": "fixed",
      "unverified": false,
@@ -4369,17 +4707,17 @@
      }
     },
     {
-     "id": "f_L0_017",
+     "id": "f_L0_015",
      "type": "toilet",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        6.1646,
-       7.1168
+       7.4552
       ],
-      "wall_id": null
+      "wall_id": "w_L0_005"
      }
     }
    ],
@@ -4396,13 +4734,13 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_008": [
+     "f_L0_006": [
+      "inside_room"
+     ],
+     "f_L0_013": [
       "inside_room"
      ],
      "f_L0_015": [
-      "inside_room"
-     ],
-     "f_L0_017": [
       "inside_room"
      ]
     },
@@ -4435,21 +4773,21 @@
    },
    "drawn": [
     {
-     "id": "f_L0_006",
+     "id": "f_L0_004",
      "type": "washbasin",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        9.9548,
-       7.1686
+       7.4436
       ],
-      "wall_id": null
+      "wall_id": "w_L0_005"
      }
     },
     {
-     "id": "f_L0_016",
+     "id": "f_L0_014",
      "type": "shower",
      "kind": "fixed",
      "unverified": false,
@@ -4463,17 +4801,17 @@
      }
     },
     {
-     "id": "f_L0_018",
+     "id": "f_L0_016",
      "type": "toilet",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        9.0085,
-       7.1168
+       7.4552
       ],
-      "wall_id": null
+      "wall_id": "w_L0_005"
      }
     }
    ],
@@ -4490,13 +4828,13 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_006": [
+     "f_L0_004": [
+      "inside_room"
+     ],
+     "f_L0_014": [
       "inside_room"
      ],
      "f_L0_016": [
-      "inside_room"
-     ],
-     "f_L0_018": [
       "inside_room"
      ]
     },
@@ -4514,36 +4852,36 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L0_011",
+     "id": "f_L0_009",
      "type": "wardrobe",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        1.1273,
-       7.4436
+       7.1436
       ],
-      "wall_id": null
+      "wall_id": "w_L0_003"
      }
     },
     {
-     "id": "f_L0_023",
+     "id": "f_L0_021",
      "type": "bed_double",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       1.1506,
+       0.2006,
        10.5069
       ],
-      "wall_id": null
+      "wall_id": "w_L0_009"
      }
     },
     {
-     "id": "f_L0_031",
-     "type": "unknown",
+     "id": "f_L0_029",
+     "type": "desk",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
@@ -4563,7 +4901,6 @@
    "addable": {
     "nightstand": 2,
     "dresser": 1,
-    "desk": 1,
     "office_chair": 1,
     "bench": 1,
     "armchair": 1,
@@ -4588,7 +4925,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.47,
+     "latency_s": 3.711,
      "error": null,
      "transport_error": false,
      "changes": 1,
@@ -4597,7 +4934,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.633,
+     "latency_s": 2.823,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -4607,8 +4944,8 @@
    "chosen_pass": 1,
    "changes": [
     {
-     "id": "f_L0_011",
-     "type": "wardrobe",
+     "id": "f_L0_021",
+     "type": "bed_double",
      "status": "not_agreed",
      "passes": [
       1
@@ -4618,7 +4955,7 @@
    ],
    "added": [
     {
-     "id": "f_L0_047",
+     "id": "f_L0_045",
      "type": "nightstand",
      "center": [
       2.321,
@@ -4634,10 +4971,10 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L0_048",
+     "id": "f_L0_046",
      "type": "nightstand",
      "center": [
-      1.75,
+      1.8,
       11.579
      ],
      "size": [
@@ -4650,14 +4987,14 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L0_049",
+     "id": "f_L0_047",
      "type": "bench",
      "center": [
-      0.905,
-      11.515
+      0.895,
+      11.564
      ],
      "size": [
-      1.0,
+      1.2,
       0.4
      ],
      "rotation_deg": 0.0,
@@ -4671,46 +5008,61 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_011": [
+     "f_L0_009": [
       "clearance_ok",
       "inside_room"
      ],
-     "f_L0_023": [
+     "f_L0_021": [
       "inside_room"
      ],
-     "f_L0_031": [
+     "f_L0_029": [
       "inside_room"
      ]
     },
     "walkways": []
    },
-   "latency_s": 6.103
+   "latency_s": 6.534
   },
   {
    "room_id": "r_L0_yatak_odasi_4",
    "label": "Yatak Odası",
    "room_type": "bedroom",
    "room_subtype": null,
-   "state": "completed",
-   "reason": "partner r_L0_yatak_odasi_3 (twin) not used: the twin's drawn furniture does not map onto this room: drawn bed_double f_L0_023 has no counterpart here; asked itself",
-   "partner": null,
+   "state": "mirrored",
+   "reason": "decisions of r_L0_yatak_odasi_3 (twin), not asked again",
+   "partner": {
+    "id": "r_L0_yatak_odasi_3",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.173,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
    "drawn": [
     {
-     "id": "f_L0_013",
+     "id": "f_L0_011",
      "type": "wardrobe",
      "kind": "changeable",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        14.0457,
-       7.4436
+       7.1436
       ],
-      "wall_id": null
+      "wall_id": "w_L0_004"
      }
     },
     {
-     "id": "f_L0_024",
+     "id": "f_L0_022",
      "type": "bed_double",
      "kind": "changeable",
      "unverified": false,
@@ -4724,8 +5076,8 @@
      }
     },
     {
-     "id": "f_L0_030",
-     "type": "unknown",
+     "id": "f_L0_028",
+     "type": "desk",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
@@ -4745,7 +5097,6 @@
    "addable": {
     "nightstand": 2,
     "dresser": 1,
-    "desk": 1,
     "office_chair": 1,
     "bench": 1,
     "armchair": 1,
@@ -4766,95 +5117,57 @@
     "ottoman",
     "office_chair"
    ],
-   "passes": [
-    {
-     "pass": 1,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.279,
-     "error": null,
-     "transport_error": false,
-     "changes": 2,
-     "added": 3
-    },
-    {
-     "pass": 2,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.891,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 2
-    }
-   ],
-   "chosen_pass": 1,
-   "changes": [
-    {
-     "id": "f_L0_013",
-     "type": "wardrobe",
-     "status": "not_agreed",
-     "passes": [
-      1
-     ],
-     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
-    },
-    {
-     "id": "f_L0_024",
-     "type": "bed_double",
-     "status": "not_agreed",
-     "passes": [
-      1
-     ],
-     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
-    }
-   ],
+   "passes": [],
+   "chosen_pass": null,
+   "changes": [],
    "added": [
     {
-     "id": "f_L0_056",
+     "id": "f_L0_054",
      "type": "nightstand",
      "center": [
-      12.177,
-      10.51
+      12.852,
+      11.579
      ],
      "size": [
       0.5,
       0.4
      ],
-     "rotation_deg": 90.0,
-     "confidence": 0.6,
+     "rotation_deg": 0.0,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": null
+     "mirrored_from": "f_L0_045"
     },
     {
-     "id": "f_L0_057",
+     "id": "f_L0_055",
      "type": "nightstand",
      "center": [
-      14.751,
-      11.51
+      13.373,
+      11.579
      ],
      "size": [
-      0.4,
+      0.5,
       0.4
      ],
-     "rotation_deg": 270.0,
-     "confidence": 0.6,
+     "rotation_deg": 0.0,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": null
+     "mirrored_from": "f_L0_046"
     },
     {
-     "id": "f_L0_058",
+     "id": "f_L0_056",
      "type": "bench",
      "center": [
-      13.42,
-      9.5
+      14.278,
+      11.564
      ],
      "size": [
       1.2,
       0.4
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": null
+     "mirrored_from": "f_L0_047"
     }
    ],
    "refused": [],
@@ -4862,24 +5175,24 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_013": [
+     "f_L0_011": [
       "clearance_ok",
       "inside_room"
      ],
-     "f_L0_024": [
+     "f_L0_022": [
       "inside_room"
      ],
-     "f_L0_030": [
+     "f_L0_028": [
       "inside_room"
      ]
     },
     "walkways": []
    },
-   "latency_s": 6.17
+   "latency_s": 0
   },
   {
-   "room_id": "r_L0_oda",
-   "label": "Oda",
+   "room_id": "r_L0_merdiven",
+   "label": "Merdiven",
    "room_type": "hall",
    "room_subtype": null,
    "state": "completed",
@@ -4913,7 +5226,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.042,
+     "latency_s": 1.115,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -4922,7 +5235,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 0.994,
+     "latency_s": 1.094,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -4952,7 +5265,7 @@
      "type": "console_table",
      "center": [
       7.39,
-      9.0
+      8.97
      ],
      "reason": "no repair left",
      "failed": [
@@ -4970,16 +5283,31 @@
     },
     "walkways": []
    },
-   "latency_s": 2.036
+   "latency_s": 2.209
   },
   {
-   "room_id": "r_L0_oda_2",
-   "label": "Oda",
+   "room_id": "r_L0_merdiven_2",
+   "label": "Merdiven",
    "room_type": "hall",
    "room_subtype": null,
-   "state": "completed",
-   "reason": "",
-   "partner": null,
+   "state": "mirrored",
+   "reason": "decisions of r_L0_merdiven (twin), not asked again",
+   "partner": {
+    "id": "r_L0_merdiven",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.173,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
    "drawn": [
     {
      "id": "f_L0_002",
@@ -5004,56 +5332,12 @@
     "bench": 1
    },
    "change_types": [],
-   "passes": [
-    {
-     "pass": 1,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.028,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 1
-    },
-    {
-     "pass": 2,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 0.973,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 1
-    }
-   ],
+   "passes": [],
    "chosen_pass": null,
    "changes": [],
    "added": [],
    "refused": [],
-   "dropped": [
-    {
-     "pass": 1,
-     "type": "console_table",
-     "center": [
-      7.79,
-      9.0
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    },
-    {
-     "pass": 2,
-     "type": "console_table",
-     "center": [
-      7.79,
-      9.27
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    }
-   ],
+   "dropped": [],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
@@ -5064,7 +5348,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.001
+   "latency_s": 0
   },
   {
    "room_id": "r_L0_banyo",
@@ -5076,45 +5360,45 @@
    "partner": null,
    "drawn": [
     {
-     "id": "f_L0_005",
+     "id": "f_L0_003",
      "type": "washbasin",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       5.2182,
-       10.2104
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_020",
-     "type": "toilet",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       6.0523,
-       10.2673
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_027",
-     "type": "bathtub",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       6.9865,
-       11.801
+       5.2182,
+       9.9354
       ],
-      "wall_id": "w_L0_007"
+      "wall_id": "w_L0_006"
+     }
+    },
+    {
+     "id": "f_L0_018",
+     "type": "toilet",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       6.0523,
+       9.9223
+      ],
+      "wall_id": "w_L0_006"
+     }
+    },
+    {
+     "id": "f_L0_025",
+     "type": "bathtub",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       6.9865,
+       10.884
+      ],
+      "wall_id": null
      }
     }
    ],
@@ -5131,14 +5415,14 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_005": [
+     "f_L0_003": [
       "doors_free",
       "inside_room"
      ],
-     "f_L0_020": [
+     "f_L0_018": [
       "inside_room"
      ],
-     "f_L0_027": [
+     "f_L0_025": [
       "inside_room"
      ]
     },
@@ -5171,45 +5455,45 @@
    },
    "drawn": [
     {
-     "id": "f_L0_007",
+     "id": "f_L0_005",
      "type": "washbasin",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       9.9548,
-       10.2104
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_019",
-     "type": "toilet",
-     "kind": "fixed",
-     "unverified": false,
-     "anchor": {
-      "kind": "centre",
-      "point": [
-       9.1208,
-       10.2673
-      ],
-      "wall_id": null
-     }
-    },
-    {
-     "id": "f_L0_028",
-     "type": "bathtub",
      "kind": "fixed",
      "unverified": false,
      "anchor": {
       "kind": "back_edge",
       "point": [
-       8.1865,
-       11.801
+       9.9548,
+       9.9354
       ],
-      "wall_id": "w_L0_007"
+      "wall_id": "w_L0_006"
+     }
+    },
+    {
+     "id": "f_L0_017",
+     "type": "toilet",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "back_edge",
+      "point": [
+       9.1208,
+       9.9223
+      ],
+      "wall_id": "w_L0_006"
+     }
+    },
+    {
+     "id": "f_L0_026",
+     "type": "bathtub",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       8.1865,
+       10.884
+      ],
+      "wall_id": null
      }
     }
    ],
@@ -5226,14 +5510,14 @@
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L0_007": [
+     "f_L0_005": [
       "doors_free",
       "inside_room"
      ],
-     "f_L0_019": [
+     "f_L0_017": [
       "inside_room"
      ],
-     "f_L0_028": [
+     "f_L0_026": [
       "inside_room"
      ]
     },
@@ -5253,8 +5537,8 @@
     {
      "id": "f_L1_003",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "outline",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -5397,7 +5681,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.851,
+     "latency_s": 3.013,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5406,7 +5690,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.75,
+     "latency_s": 2.979,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5420,14 +5704,14 @@
      "id": "f_L1_029",
      "type": "armchair",
      "center": [
-      3.3,
-      3.6
+      2.7,
+      4.1
      ],
      "size": [
       0.9,
       0.9
      ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 270.0,
      "confidence": 0.9,
      "method": "ai",
      "mirrored_from": null
@@ -5436,14 +5720,14 @@
      "id": "f_L1_030",
      "type": "chair",
      "center": [
-      2.5,
+      2.3,
       3.4
      ],
      "size": [
       0.5,
       0.5
      ],
-     "rotation_deg": 0.0,
+     "rotation_deg": 90.0,
      "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
@@ -5466,45 +5750,20 @@
     }
    ],
    "refused": [],
-   "dropped": [
-    {
-     "pass": 2,
-     "type": "table_dining",
-     "center": [
-      3.5,
-      2.5
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "no_overlap"
-     ]
-    }
-   ],
+   "dropped": [],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L1_003": [
-      "inside_room",
-      "no_overlap"
-     ],
      "f_L1_005": [
       "inside_room"
      ],
      "f_L1_009": [
-      "clearance_ok",
-      "no_overlap"
-     ],
-     "f_L1_012": [
-      "clearance_ok",
-      "no_overlap"
-     ],
-     "f_L1_015": [
-      "no_overlap"
+      "clearance_ok"
      ]
     },
     "walkways": []
    },
-   "latency_s": 5.601
+   "latency_s": 5.992
   },
   {
    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
@@ -5533,8 +5792,8 @@
     {
      "id": "f_L1_004",
      "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "kind": "outline",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -5678,17 +5937,33 @@
    "changes": [],
    "added": [
     {
+     "id": "f_L1_033",
+     "type": "armchair",
+     "center": [
+      12.473,
+      4.1
+     ],
+     "size": [
+      0.9,
+      0.9
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": "f_L1_029"
+    },
+    {
      "id": "f_L1_034",
      "type": "chair",
      "center": [
-      12.673,
+      12.873,
       3.4
      ],
      "size": [
       0.5,
       0.5
      ],
-     "rotation_deg": 0.0,
+     "rotation_deg": 270.0,
      "confidence": 0.6,
      "method": "ai",
      "mirrored_from": "f_L1_030"
@@ -5711,37 +5986,15 @@
     }
    ],
    "refused": [],
-   "dropped": [
-    {
-     "type": "armchair",
-     "mirrored_from": "f_L1_029",
-     "center": [
-      3.3,
-      3.6
-     ],
-     "reason": "the copy fails clearance_ok here"
-    }
-   ],
+   "dropped": [],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
-     "f_L1_004": [
-      "inside_room",
-      "no_overlap"
-     ],
      "f_L1_006": [
       "inside_room"
      ],
      "f_L1_010": [
-      "clearance_ok",
-      "no_overlap"
-     ],
-     "f_L1_011": [
-      "clearance_ok",
-      "no_overlap"
-     ],
-     "f_L1_016": [
-      "no_overlap"
+      "clearance_ok"
      ]
     },
     "walkways": []
@@ -5773,16 +6026,16 @@
     },
     {
      "id": "f_L1_021",
-     "type": "unknown",
+     "type": "bench",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
-       2.5592,
+       1.8005,
        9.901
       ],
-      "wall_id": null
+      "wall_id": "w_L1_009"
      }
     }
    ],
@@ -5790,8 +6043,7 @@
    "anchor_missing": false,
    "addable": {
     "console_table": 1,
-    "shoe_cabinet": 1,
-    "bench": 1
+    "shoe_cabinet": 1
    },
    "change_types": [
     "dresser",
@@ -5805,7 +6057,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.099,
+     "latency_s": 1.195,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5814,7 +6066,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.12,
+     "latency_s": 1.282,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5828,15 +6080,15 @@
      "id": "f_L1_032",
      "type": "console_table",
      "center": [
-      3.514,
-      10.812
+      3.489,
+      10.662
      ],
      "size": [
-      1.2,
-      0.35
+      0.9,
+      0.3
      ],
      "rotation_deg": 90.0,
-     "confidence": 0.9,
+     "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
     }
@@ -5855,16 +6107,31 @@
     },
     "walkways": []
    },
-   "latency_s": 2.219
+   "latency_s": 2.477
   },
   {
    "room_id": "r_L1_koridor_2",
    "label": "Koridor",
    "room_type": "hall",
    "room_subtype": null,
-   "state": "completed",
-   "reason": "",
-   "partner": null,
+   "state": "mirrored",
+   "reason": "decisions of r_L1_koridor (twin), not asked again",
+   "partner": {
+    "id": "r_L1_koridor",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.173,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.0001
+    }
+   },
    "drawn": [
     {
      "id": "f_L1_001",
@@ -5909,44 +6176,25 @@
     "shoe_cabinet",
     "bench"
    ],
-   "passes": [
-    {
-     "pass": 1,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.16,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 1
-    },
-    {
-     "pass": 2,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.185,
-     "error": null,
-     "transport_error": false,
-     "changes": 0,
-     "added": 1
-    }
-   ],
-   "chosen_pass": 1,
+   "passes": [],
+   "chosen_pass": null,
    "changes": [],
    "added": [
     {
-     "id": "f_L1_033",
+     "id": "f_L1_036",
      "type": "console_table",
      "center": [
-      11.659,
-      10.812
+      11.684,
+      10.662
      ],
      "size": [
-      1.2,
-      0.35
+      0.9,
+      0.3
      ],
      "rotation_deg": 270.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": null
+     "mirrored_from": "f_L1_032"
     }
    ],
    "refused": [],
@@ -5963,7 +6211,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.345
+   "latency_s": 0
   },
   {
    "room_id": "r_L1_banyo",
@@ -5980,12 +6228,12 @@
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        5.2182,
-       10.2104
+       9.9354
       ],
-      "wall_id": null
+      "wall_id": "w_L1_004"
      }
     },
     {
@@ -6008,12 +6256,12 @@
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "back_edge",
+      "kind": "centre",
       "point": [
        6.9865,
-       11.801
+       10.884
       ],
-      "wall_id": "w_L1_007"
+      "wall_id": null
      }
     }
    ],
@@ -6075,12 +6323,12 @@
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        9.9548,
-       10.2104
+       9.9354
       ],
-      "wall_id": null
+      "wall_id": "w_L1_004"
      }
     },
     {
@@ -6103,12 +6351,12 @@
      "kind": "fixed",
      "unverified": false,
      "anchor": {
-      "kind": "back_edge",
+      "kind": "centre",
       "point": [
        8.1865,
-       11.801
+       10.884
       ],
-      "wall_id": "w_L1_007"
+      "wall_id": null
      }
     }
    ],
@@ -6141,11 +6389,11 @@
    "latency_s": 0
   }
  ],
- "rooms_completed": 21,
- "rooms_copied": 11,
+ "rooms_completed": 18,
+ "rooms_copied": 14,
  "changes_applied": 0,
- "pieces_added": 58,
- "wall_cabinets": 0,
+ "pieces_added": 56,
+ "wall_cabinets": 6,
  "locked_violations": [],
- "latency_s": 117.79
+ "latency_s": 74.378
 }

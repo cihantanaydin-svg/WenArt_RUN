@@ -10,34 +10,34 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L1_008",
+   "id": "dec_L1_012",
    "type": "cushion",
    "method": "ai",
    "slot": "f_L1_009.cushions"
   },
   {
-   "id": "dec_L1_009",
+   "id": "dec_L1_013",
    "type": "cushion",
    "method": "ai",
    "slot": "f_L1_009.cushions"
   },
   {
-   "id": "dec_L1_010",
-   "type": "plant_large",
+   "id": "dec_L1_014",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_029.cushions"
+  },
+  {
+   "id": "dec_L1_015",
+   "type": "basket",
    "method": "ai",
    "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1"
   },
   {
-   "id": "dec_L1_011",
-   "type": "plant_large",
+   "id": "dec_L1_016",
+   "type": "curtain",
    "method": "ai",
-   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2"
-  },
-  {
-   "id": "dec_L1_012",
-   "type": "pendant_light",
-   "method": "ai",
-   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi"
+   "slot": "window:win_L1_001"
   }
  ],
  "fallback": null,

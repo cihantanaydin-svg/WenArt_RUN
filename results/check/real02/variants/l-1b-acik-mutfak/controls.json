@@ -3,37 +3,49 @@
  "dir_relative_to": "project_out",
  "controls": [
   {
-   "id": "f_L-1b_040",
-   "index": 43,
+   "id": "f_L-1b_062",
+   "index": 58,
    "kind": "furniture",
    "type": "bookshelf",
    "camera": "cam_r_L-1b_oda_1",
    "room_id": "r_L-1b_oda",
-   "area_frac": 0.0768,
+   "area_frac": 0.10995,
    "source": "added_by_ai",
    "modified_by_ai": false,
    "drawn_type": null,
    "completes_room": false,
    "plug": false,
-   "dir": "controls/hide_f_L-1b_040"
+   "dir": "controls/hide_f_L-1b_062"
   },
   {
-   "id": "f_L-1b_017",
-   "index": 35,
+   "id": "f_L-1b_011",
+   "index": 26,
    "kind": "furniture",
    "type": "kitchen_island",
-   "camera": "cam_r_L-1b_acik_mutfak_2_2",
-   "room_id": "r_L-1b_acik_mutfak_2",
-   "area_frac": 0.0626,
+   "camera": "cam_r_L-1b_acik_mutfak_3",
+   "room_id": "r_L-1b_acik_mutfak",
+   "area_frac": 0.08928,
    "source": "from_documents",
    "modified_by_ai": false,
    "drawn_type": null,
    "completes_room": false,
    "plug": false,
-   "dir": "controls/hide_f_L-1b_017"
+   "dir": "controls/hide_f_L-1b_011"
+  },
+  {
+   "id": "d_L-1b_001",
+   "index": 1,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L-1b_oda_3",
+   "room_id": "r_L-1b_oda",
+   "area_frac": 0.11088,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L-1b_001"
   }
  ],
  "swaps": [],
  "project": "real02",
- "hide_sets": "cam_r_L-1b_oda_1:f_L-1b_040;cam_r_L-1b_acik_mutfak_2_2:f_L-1b_017"
+ "hide_sets": "cam_r_L-1b_oda_1:f_L-1b_062;cam_r_L-1b_acik_mutfak_3:f_L-1b_011;cam_r_L-1b_oda_3:d_L-1b_001"
 }

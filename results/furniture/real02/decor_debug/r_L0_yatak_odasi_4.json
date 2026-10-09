@@ -10,18 +10,20 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_025",
+   "id": "dec_L0_043",
    "type": "cushion",
    "method": "rule",
    "slot": null
   },
   {
-   "id": "dec_L0_026",
+   "id": "dec_L0_044",
    "type": "cushion",
    "method": "rule",
    "slot": null
   }
  ],
- "fallback": "no slot for AI decor",
- "notes": []
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L0_yatak_odasi_3 (twin, not asked)"
+ ]
 }

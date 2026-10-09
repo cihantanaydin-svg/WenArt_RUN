@@ -214,6 +214,9 @@ UNDER_WINDOW_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "tabl
 # --------------------------------------------------------------------------
 
 # Fixed equipment (user, 8 Oct 2026): only the look may change; a locked obstacle for the placer.
+# Milestone 11 (pod G2b, real02): CLAUDE.md lets the AI "snap it to a wall"; a free move of a drawn piece stays within
+# 0.3 m, a snap of its back onto a wall may move it up to this far (45 of 99 agent edits were refused at 0.3 m).
+WALL_SNAP_MAX_M = 1.2
 FIXED_TYPES: tuple[str, ...] = ("stair", "kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
                                 "washing_machine", "toilet", "washbasin", "shower", "bathtub")
 # Drawn pieces of these types keep their type and size (no room type lists a type to change them into).

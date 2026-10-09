@@ -1205,6 +1205,7 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
 # Hostless decor that stands on the floor (a piece taller than the sloped ceiling over it would show through the
 # roof) and decor hung flush under the ceiling.
 FLOOR_DECOR_TYPES = ("plant_large", "plant", "sculpture", "basket")
+MIN_LIGHT_BOTTOM_M = 2.0   # M11: a ceiling light under a slope hangs no lower than this above the floor
 
 
 def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str], list[dict]]:
@@ -1234,6 +1235,14 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
         z = float(center[2]) if len(center) > 2 and center[2] is not None else 0.0
         if z + h <= ceiling + 1e-3:
             out.append(item)
+            continue
+        if dtype == "ceiling_light" and ceiling - h < MIN_LIGHT_BOTTOM_M:
+            # M11 pod G2b (real02 attic bathroom, ceiling 1.45 m): a light hung flush under such a low slope hangs
+            # at eye height, in front of the camera (depth 0.05 m); it is not built.
+            reason = (f"ceiling light: the sloped ceiling over it is {ceiling:.2f} m high, its bottom would be "
+                      f"{ceiling - h:.2f} m above the floor (< {MIN_LIGHT_BOTTOM_M} m)")
+            warnings.append(f"{item.get('id')}: {reason}; not built")
+            not_built.append({"id": item.get("id"), "type": dtype, "reason": reason})
             continue
         if dtype == "ceiling_light":
             out.append(dict(item, center=center[:2]))

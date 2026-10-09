@@ -23,7 +23,7 @@
  },
  "drawn": [
   {
-   "id": "f_L-1_006",
+   "id": "f_L-1_022",
    "type": "unknown",
    "kind": "changeable",
    "unverified": true,
@@ -37,35 +37,175 @@
    }
   },
   {
-   "id": "f_L-1_007",
+   "id": "f_L-1_023",
    "type": "wardrobe",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     9.2708,
+     7.4435
+    ],
+    "wall_id": "w_L-1_004"
+   }
+  },
+  {
+   "id": "f_L-1_038",
+   "type": "table_dining",
    "kind": "changeable",
    "unverified": false,
    "anchor": {
     "kind": "centre",
     "point": [
-     9.2708,
-     7.0722
-    ],
-    "wall_id": null
-   }
-  },
-  {
-   "id": "f_L-1_012",
-   "type": "table_dining",
-   "kind": "changeable",
-   "unverified": true,
-   "anchor": {
-    "kind": "centre",
-    "point": [
-     9.1356,
+     9.1284,
      4.2269
     ],
     "wall_id": null
    }
   },
   {
-   "id": "f_L-1_014",
+   "id": "f_L-1_039",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     8.5776,
+     5.4232
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_040",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     8.5776,
+     4.2248
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_041",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     8.5776,
+     3.6337
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_042",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     8.5776,
+     3.0425
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_043",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.6937,
+     5.4233
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_044",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.6937,
+     4.2249
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_045",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.6937,
+     3.6337
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_046",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.6937,
+     3.0426
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_047",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     8.5776,
+     4.8375
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_048",
+   "type": "chair",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.6937,
+     4.8376
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_050",
    "type": "armchair",
    "kind": "changeable",
    "unverified": false,
@@ -79,7 +219,7 @@
    }
   },
   {
-   "id": "f_L-1_018",
+   "id": "f_L-1_054",
    "type": "sofa_corner",
    "kind": "changeable",
    "unverified": false,
@@ -93,7 +233,7 @@
    }
   },
   {
-   "id": "f_L-1_021",
+   "id": "f_L-1_057",
    "type": "floor_lamp",
    "kind": "kept",
    "unverified": false,
@@ -107,7 +247,7 @@
    }
   },
   {
-   "id": "f_L-1_022",
+   "id": "f_L-1_058",
    "type": "unknown",
    "kind": "changeable",
    "unverified": true,
@@ -121,7 +261,7 @@
    }
   },
   {
-   "id": "f_L-1_026",
+   "id": "f_L-1_062",
    "type": "sofa",
    "kind": "changeable",
    "unverified": false,
@@ -135,7 +275,7 @@
    }
   },
   {
-   "id": "f_L-1_029",
+   "id": "f_L-1_065",
    "type": "floor_lamp",
    "kind": "kept",
    "unverified": false,
@@ -149,7 +289,7 @@
    }
   },
   {
-   "id": "f_L-1_030",
+   "id": "f_L-1_066",
    "type": "floor_lamp",
    "kind": "kept",
    "unverified": false,
@@ -163,7 +303,7 @@
    }
   },
   {
-   "id": "f_L-1_033",
+   "id": "f_L-1_069",
    "type": "unknown",
    "kind": "changeable",
    "unverified": true,
@@ -177,7 +317,7 @@
    }
   },
   {
-   "id": "f_L-1_036",
+   "id": "f_L-1_072",
    "type": "unknown",
    "kind": "changeable",
    "unverified": true,
@@ -191,7 +331,7 @@
    }
   },
   {
-   "id": "f_L-1_038",
+   "id": "f_L-1_074",
    "type": "table_coffee",
    "kind": "changeable",
    "unverified": false,
@@ -205,7 +345,7 @@
    }
   },
   {
-   "id": "f_L-1_040",
+   "id": "f_L-1_076",
    "type": "ottoman",
    "kind": "changeable",
    "unverified": false,
@@ -219,7 +359,7 @@
    }
   },
   {
-   "id": "f_L-1_042",
+   "id": "f_L-1_078",
    "type": "ottoman",
    "kind": "changeable",
    "unverified": false,
@@ -233,7 +373,7 @@
    }
   },
   {
-   "id": "f_L-1_043",
+   "id": "f_L-1_079",
    "type": "ottoman",
    "kind": "changeable",
    "unverified": false,
@@ -247,7 +387,7 @@
    }
   },
   {
-   "id": "f_L-1_052",
+   "id": "f_L-1_088",
    "type": "unknown",
    "kind": "changeable",
    "unverified": true,
@@ -262,13 +402,11 @@
   }
  ],
  "missing": {
-  "tv_unit": 1,
-  "chair": 8
+  "tv_unit": 1
  },
  "anchor_missing": false,
  "addable": {
   "tv_unit": 1,
-  "chair": 8,
   "armchair": 1,
   "chaise": 1,
   "console_table": 1,
@@ -296,237 +434,159 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L-1_066",
+   "id": "f_L-1_102",
    "type": "tv_unit",
    "center": [
-    9.6072,
-    0.422
+    12.0922,
+    0.447
    ],
    "size": [
-    1.2,
-    0.4
+    1.6,
+    0.45
    ],
    "rotation_deg": 180.0,
    "confidence": 0.6,
    "method": "ai",
-   "mirrored_from": "f_L-1_053"
+   "mirrored_from": "f_L-1_089"
   },
   {
-   "id": "f_L-1_067",
-   "type": "chair",
-   "center": [
-    10.1722,
-    2.5
-   ],
-   "size": [
-    0.5,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_054"
-  },
-  {
-   "id": "f_L-1_068",
-   "type": "chair",
-   "center": [
-    10.1722,
-    3.0
-   ],
-   "size": [
-    0.5,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_055"
-  },
-  {
-   "id": "f_L-1_069",
-   "type": "chair",
-   "center": [
-    9.8722,
-    2.0
-   ],
-   "size": [
-    0.5,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_056"
-  },
-  {
-   "id": "f_L-1_070",
-   "type": "chair",
-   "center": [
-    9.3722,
-    2.0
-   ],
-   "size": [
-    0.5,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_057"
-  },
-  {
-   "id": "f_L-1_071",
-   "type": "chair",
-   "center": [
-    8.0722,
-    2.6
-   ],
-   "size": [
-    0.45,
-    0.45
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_058"
-  },
-  {
-   "id": "f_L-1_072",
-   "type": "chair",
-   "center": [
-    8.8982,
-    2.045
-   ],
-   "size": [
-    0.4,
-    0.4
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_059"
-  },
-  {
-   "id": "f_L-1_073",
-   "type": "chair",
-   "center": [
-    8.4822,
-    1.972
-   ],
-   "size": [
-    0.4,
-    0.4
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_060"
-  },
-  {
-   "id": "f_L-1_074",
+   "id": "f_L-1_103",
    "type": "armchair",
    "center": [
-    13.6722,
-    4.5
+    13.8722,
+    5.0
    ],
    "size": [
     0.9,
     0.9
    ],
-   "rotation_deg": 90.0,
+   "rotation_deg": 180.0,
    "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1_061"
+   "mirrored_from": "f_L-1_090"
   },
   {
-   "id": "f_L-1_075",
-   "type": "chaise",
-   "center": [
-    13.9872,
-    5.847
-   ],
-   "size": [
-    0.75,
-    1.7
-   ],
-   "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L-1_062"
-  },
-  {
-   "id": "f_L-1_076",
+   "id": "f_L-1_104",
    "type": "console_table",
    "center": [
-    8.4072,
-    0.397
+    13.6722,
+    4.3
    ],
    "size": [
     1.2,
     0.35
    ],
    "rotation_deg": 180.0,
-   "confidence": 0.6,
+   "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1_063"
+   "mirrored_from": "f_L-1_091"
   },
   {
-   "id": "f_L-1_077",
-   "type": "sideboard",
+   "id": "f_L-1_105",
+   "type": "bookshelf",
    "center": [
-    8.0172,
-    3.8
+    7.9822,
+    1.872
    ],
    "size": [
-    1.4,
-    0.42
+    1.0,
+    0.35
    ],
    "rotation_deg": 90.0,
    "confidence": 0.6,
    "method": "ai",
-   "mirrored_from": "f_L-1_064"
+   "mirrored_from": "f_L-1_093"
   }
  ],
  "refused": [],
- "dropped": [],
+ "dropped": [
+  {
+   "type": "chaise",
+   "mirrored_from": "f_L-1_092",
+   "center": [
+    1.5,
+    3.0
+   ],
+   "reason": "the copy fails clearance_ok here"
+  }
+ ],
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {
-   "f_L-1_006": [
+   "f_L-1_022": [
     "inside_room"
    ],
-   "f_L-1_007": [
+   "f_L-1_023": [
     "doors_free",
     "inside_room"
    ],
-   "f_L-1_018": [
-    "doors_free"
-   ],
-   "f_L-1_021": [
-    "no_overlap",
-    "windows_free"
-   ],
-   "f_L-1_022": [
+   "f_L-1_038": [
     "no_overlap"
    ],
-   "f_L-1_029": [
-    "no_overlap",
-    "windows_free"
-   ],
-   "f_L-1_030": [
-    "no_overlap"
-   ],
-   "f_L-1_033": [
-    "no_overlap"
-   ],
-   "f_L-1_036": [
+   "f_L-1_039": [
     "no_overlap"
    ],
    "f_L-1_040": [
     "no_overlap"
    ],
+   "f_L-1_041": [
+    "no_overlap"
+   ],
    "f_L-1_042": [
+    "no_overlap"
+   ],
+   "f_L-1_043": [
+    "no_overlap"
+   ],
+   "f_L-1_044": [
+    "no_overlap"
+   ],
+   "f_L-1_045": [
+    "no_overlap"
+   ],
+   "f_L-1_046": [
+    "no_overlap"
+   ],
+   "f_L-1_047": [
+    "no_overlap"
+   ],
+   "f_L-1_048": [
+    "no_overlap"
+   ],
+   "f_L-1_050": [
+    "clearance_ok",
+    "no_overlap"
+   ],
+   "f_L-1_054": [
+    "doors_free"
+   ],
+   "f_L-1_057": [
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L-1_058": [
+    "no_overlap"
+   ],
+   "f_L-1_065": [
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L-1_066": [
+    "no_overlap"
+   ],
+   "f_L-1_069": [
+    "no_overlap"
+   ],
+   "f_L-1_072": [
+    "no_overlap"
+   ],
+   "f_L-1_076": [
+    "no_overlap"
+   ],
+   "f_L-1_078": [
+    "no_overlap"
+   ],
+   "f_L-1_088": [
     "no_overlap"
    ]
   },
@@ -610,7 +670,7 @@
   },
   "drawn": [
    {
-    "id": "f_L-1_006",
+    "id": "f_L-1_022",
     "type": "unknown",
     "kind": "changeable",
     "center": [
@@ -634,7 +694,7 @@
     "status": "unverified (type not sure; only its type may change, the footprint stays)"
    },
    {
-    "id": "f_L-1_007",
+    "id": "f_L-1_023",
     "type": "wardrobe",
     "kind": "changeable",
     "center": [
@@ -646,42 +706,271 @@
      0.74
     ],
     "rotation_deg": 0.0,
-    "front_deg": null,
+    "front_deg": 270.0,
     "anchor": {
-     "kind": "centre",
+     "kind": "back_edge",
      "point": [
       9.27,
-      7.07
+      7.44
      ]
     },
-    "against_wall": null
+    "against_wall": "w_L-1_004"
    },
    {
-    "id": "f_L-1_012",
+    "id": "f_L-1_038",
     "type": "table_dining",
     "kind": "changeable",
     "center": [
-     9.14,
+     9.13,
      4.23
     ],
     "size": [
      3.35,
-     1.57
+     1.0
     ],
     "rotation_deg": 90.0,
     "front_deg": null,
     "anchor": {
      "kind": "centre",
      "point": [
-      9.14,
+      9.13,
       4.23
      ]
     },
-    "against_wall": null,
-    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+    "against_wall": null
    },
    {
-    "id": "f_L-1_014",
+    "id": "f_L-1_039",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     8.58,
+     5.42
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      8.58,
+      5.42
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_040",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     8.58,
+     4.22
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      8.58,
+      4.22
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_041",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     8.58,
+     3.63
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      8.58,
+      3.63
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_042",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     8.58,
+     3.04
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      8.58,
+      3.04
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_043",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     9.69,
+     5.42
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.69,
+      5.42
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_044",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     9.69,
+     4.22
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.69,
+      4.22
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_045",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     9.69,
+     3.63
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.69,
+      3.63
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_046",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     9.69,
+     3.04
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.69,
+      3.04
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_047",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     8.58,
+     4.84
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      8.58,
+      4.84
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_048",
+    "type": "chair",
+    "kind": "changeable",
+    "center": [
+     9.69,
+     4.84
+    ],
+    "size": [
+     0.5,
+     0.45
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.69,
+      4.84
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L-1_050",
     "type": "armchair",
     "kind": "changeable",
     "center": [
@@ -692,8 +981,8 @@
      0.99,
      0.84
     ],
-    "rotation_deg": 36.8,
-    "front_deg": null,
+    "rotation_deg": 180.0,
+    "front_deg": 90.0,
     "anchor": {
      "kind": "centre",
      "point": [
@@ -704,7 +993,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_018",
+    "id": "f_L-1_054",
     "type": "sofa_corner",
     "kind": "changeable",
     "center": [
@@ -728,7 +1017,7 @@
     "shape": "L, long seat on the left"
    },
    {
-    "id": "f_L-1_021",
+    "id": "f_L-1_057",
     "type": "floor_lamp",
     "kind": "fixed",
     "center": [
@@ -751,7 +1040,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_022",
+    "id": "f_L-1_058",
     "type": "unknown",
     "kind": "changeable",
     "center": [
@@ -775,7 +1064,7 @@
     "status": "unverified (type not sure; only its type may change, the footprint stays)"
    },
    {
-    "id": "f_L-1_026",
+    "id": "f_L-1_062",
     "type": "sofa",
     "kind": "changeable",
     "center": [
@@ -798,7 +1087,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_029",
+    "id": "f_L-1_065",
     "type": "floor_lamp",
     "kind": "fixed",
     "center": [
@@ -821,7 +1110,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_030",
+    "id": "f_L-1_066",
     "type": "floor_lamp",
     "kind": "fixed",
     "center": [
@@ -844,7 +1133,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_033",
+    "id": "f_L-1_069",
     "type": "unknown",
     "kind": "changeable",
     "center": [
@@ -868,7 +1157,7 @@
     "status": "unverified (type not sure; only its type may change, the footprint stays)"
    },
    {
-    "id": "f_L-1_036",
+    "id": "f_L-1_072",
     "type": "unknown",
     "kind": "changeable",
     "center": [
@@ -892,7 +1181,7 @@
     "status": "unverified (type not sure; only its type may change, the footprint stays)"
    },
    {
-    "id": "f_L-1_038",
+    "id": "f_L-1_074",
     "type": "table_coffee",
     "kind": "changeable",
     "center": [
@@ -915,7 +1204,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_040",
+    "id": "f_L-1_076",
     "type": "ottoman",
     "kind": "changeable",
     "center": [
@@ -938,7 +1227,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_042",
+    "id": "f_L-1_078",
     "type": "ottoman",
     "kind": "changeable",
     "center": [
@@ -961,7 +1250,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_043",
+    "id": "f_L-1_079",
     "type": "ottoman",
     "kind": "changeable",
     "center": [
@@ -984,7 +1273,7 @@
     "against_wall": null
    },
    {
-    "id": "f_L-1_052",
+    "id": "f_L-1_088",
     "type": "unknown",
     "kind": "changeable",
     "center": [
@@ -1009,20 +1298,30 @@
    }
   ],
   "change_ids": [
-   "f_L-1_006",
-   "f_L-1_007",
-   "f_L-1_012",
-   "f_L-1_014",
-   "f_L-1_018",
    "f_L-1_022",
-   "f_L-1_026",
-   "f_L-1_033",
-   "f_L-1_036",
+   "f_L-1_023",
    "f_L-1_038",
+   "f_L-1_039",
    "f_L-1_040",
+   "f_L-1_041",
    "f_L-1_042",
    "f_L-1_043",
-   "f_L-1_052"
+   "f_L-1_044",
+   "f_L-1_045",
+   "f_L-1_046",
+   "f_L-1_047",
+   "f_L-1_048",
+   "f_L-1_050",
+   "f_L-1_054",
+   "f_L-1_058",
+   "f_L-1_062",
+   "f_L-1_069",
+   "f_L-1_072",
+   "f_L-1_074",
+   "f_L-1_076",
+   "f_L-1_078",
+   "f_L-1_079",
+   "f_L-1_088"
   ],
   "change_types": [
    "sofa",
@@ -1041,7 +1340,6 @@
   ],
   "add": {
    "tv_unit": 1,
-   "chair": 8,
    "armchair": 1,
    "chaise": 1,
    "console_table": 1,
@@ -1050,8 +1348,7 @@
    "display_cabinet": 1
   },
   "missing": {
-   "tv_unit": 1,
-   "chair": 8
+   "tv_unit": 1
   },
   "anchor_missing": false,
   "anchors": [
