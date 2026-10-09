@@ -1421,6 +1421,20 @@ def test_m9_generation_targets_every_type_over_every_source(tmp_path):
         P._generate_target(0)
 
 
+def test_m10_generation_plan_for_some_types(tmp_path, monkeypatch):
+    """$WENART_GENERATE_TYPES limits a target plan to those types (``generate plan --types``), in the step record."""
+    monkeypatch.setenv("WENART_GENERATE_TYPES", "crib, plant_large,blind")
+    w = World(tmp_path)
+    w.generation_tools()
+    _judged_library(w)
+    assert w.prep(l2=True, generate_target=20).run_all() == 0, w.lines
+    cmd = w.call("generate plan")["cmd"]
+    assert cmd[-4:] == ["--target", "20", "--types", "crib,plant_large,blind"]
+    assert w.steps()["generate"]["types"] == ["crib", "plant_large", "blind"]
+    from wenart.assets import generate as G                   # the flags the real parser takes
+    assert G.parse_args(cmd[3:]).types == "crib,plant_large,blind"
+
+
 def test_m9_generation_keeps_time_to_judge_what_it_made(tmp_path, monkeypatch):
     """docs/milestone9.md §6: with thumbnails and judging in the same job the generation's own deadline is
     GENERATE_RESERVE_MIN before the job's (``--deadline``); $WENART_GENERATE_RESERVE_MIN overrides it; a job that

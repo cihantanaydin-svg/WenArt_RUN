@@ -22,8 +22,10 @@ section() { echo; echo "== $*"; }
   echo "volume report $(ts)"
   section "df"
   df -h "$WS" /opt 2>/dev/null || true
-  section "du -sh $WS/* (largest first)"
-  timeout 600 du -sh "$WS"/* 2>/dev/null | sort -rh || true
+  section "du -sh $WS/* and the hidden $WS/.* (largest first)"
+  timeout 600 du -sh "$WS"/* "$WS"/.[!.]* 2>/dev/null | sort -rh || true
+  section "du -sh $WS/.repo-broken-*/* (moved aside by pod_entry.sh)"
+  timeout 300 du -sh "$WS"/.repo-broken-*/* 2>/dev/null | sort -rh | head -20 || true
   for d in prep prep/library prep/library-work prep/cache outputs outputs-prep assets jobs; do
     if [ -d "$WS/$d" ]; then
       section "du -sh $WS/$d/* (largest first)"

@@ -956,6 +956,12 @@ class Prep:
                 return "failed", f"first accept (every source) exit {rc_acc}"
             families = ["all"]
             plan_args = ["--target", str(int(target))]
+            types = split_names(os.environ.get("WENART_GENERATE_TYPES", ""))
+            if types:
+                # Milestone 10: only these types (pod L2b of 9 Oct 2026: the target plan of every type had 438
+                # pairs, one pod generates about 50; the new types below their target come first).
+                plan_args += ["--types", ",".join(types)]
+                entry["types"] = types
         else:
             rc_acc = self.run(self.objaverse("accept", "--out", lib, "--sources", ",".join(REAL_SOURCES)), late=True,
                               what="accept (real sources)")
