@@ -714,6 +714,7 @@ $33.80 of $100). real02 without twin rooms rendered once would need about twice 
 | 6 | Window frames | a metal frame word with a colour that has its own metal look takes it ("dark bronze aluminium" → `dark_bronze`) |
 | 7 | Library pods | new types only (`--types new`, §7), M9 models kept; GLB caches on the volume so a cut pod keeps its downloads |
 | 8 | Alternative in a second document | not supported (needs a contract change; no project has it) |
+| 9 | Network volume | full on 9 Oct 2026 (pod L2b and a diagnostic pod failed: the M10 GLB caches, the material-slot GLB copies and the new assets, about 35 GB); grown from 120 to 250 GB with your OK (`gpu_run.py volume-resize`, about $17.50/month, +$9.10) |
 
 ### 10.3 Code review (workflow: 8 subsystem reviewers, one adversarial verifier per finding)
 

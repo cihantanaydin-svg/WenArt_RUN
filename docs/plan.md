@@ -375,7 +375,7 @@ in Milestone 2 (the RunPod base image provides CUDA 12.8.1).
 |---|---|---|
 | API | **REST v2 `https://api.runpod.io/v2`** (v1 `rest.runpod.io/v1` is retired on 15 Nov 2026; GraphQL early 2027) | current, documented OpenAPI at `api.runpod.io/v2/openapi.json` |
 | Datacenter | **EU-RO-1** (Secure Cloud, STANDARD network volumes, S3-compatible API available) | large DC, Europe. Checked 1 Oct 2026: RTX A5000 / 4090 / A6000 had no stock in any volume-capable EU DC; EU-RO-1 had RTX PRO 4000 (24 GB, $0.57), RTX PRO 4500 (32 GB, $0.72) and L4 (24 GB, $0.49). Stock changes hourly; the runner picks live from `GPU_PRIORITY` in `scripts/gpu_run.py` |
-| Network Volume | 120 GB STANDARD in EU-RO-1 ≈ $8.40/month ($0.07/GB/month) | models ≈ 60 GB, venv + Blender ≈ 15 GB, assets ≈ 10 GB, projects/outputs ≈ 10 GB |
+| Network Volume | 120 GB STANDARD in EU-RO-1 ≈ $8.40/month ($0.07/GB/month); grown to 250 GB on 9 Oct 2026 (M10, ≈ $17.50/month) | models ≈ 60 GB, venv + Blender ≈ 15 GB, assets ≈ 10 GB, projects/outputs ≈ 10 GB |
 | GPU (default, quick tests + recognition + renders) | **RTX A5000 24 GB, Secure ≈ $0.27/h (S)**; has RT cores (Ampere) | cheapest 24 GB card with RT cores; fits Qwen3-VL-8B, Z-Image, Cycles |
 | GPU (faster renders / TRELLIS.2) | RTX 4090 24 GB ≈ $0.74/h (S); RTX A6000 48 GB ≈ $0.53/h (S) when 24 GB is too tight | RT cores, more VRAM |
 | GPU (fine-tuning, Milestone 7 only) | RTX A6000 48 GB ≈ $0.53/h; spot/interruptible via console if REST v2 has no field (UNVERIFIED) | |
