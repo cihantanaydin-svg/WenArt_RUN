@@ -577,16 +577,17 @@ lights emit; HDRI at dusk), each with a verified Poly Haven HDRI.
 | Floors | 8 | ≥ 25 | 32 |
 | Cabinet front styles / worktops / handles | 0 / 1 / 0 | 4 / 4 / 3 | 4 / 4 / 3 |
 | Furniture types | 24 (+ 4 documented-only) | 38 | 38: 37 with library models, `wall_cabinet` parametric by design (built along the counter run) |
-| Models per furniture type | 10–20 (18 of 24 at 20) | ≥ 20 per type where sources allow; reasons listed | 669 models; 23 of 37 at 20. Below: crib 8, display_cabinet 8, bunk_bed 10, chaise 10, shower 10, sink_kitchen 15, tall_cabinet 17, dresser 18, nightstand 18, chair 19 (one accepted M9 model's GLB was on M9's container disk), fridge 19, sofa_corner 19, stove 19, toilet 19. Reasons: few real models in ABO / Objaverse for the new types; the judges refuse many generated sanitary and kitchen models (M9); the generation ran in one pod (L2c, 40 min, the 13 thinnest new types first) |
-| Style families per type | ≥ 3 for all 24 | ≥ 3 for all 38 | ≥ 3 for all 37 library types (GPU test, pod L2c) |
+| Models per furniture type | 10–20 (18 of 24 at 20) | ≥ 20 per type where sources allow; reasons listed | 669 models; 23 of 37 at 20. Below: crib 8, display_cabinet 8, bunk_bed 10, chaise 10, shower 10, sink_kitchen 15, tall_cabinet 17, dresser 18, nightstand 18, chair 19 (L1d accepted a kept M9-survey ABO chair whose GLB was on M9's container disk; write-catalog refused it and it had displaced an M9 chair), fridge 19, sofa_corner 19, stove 19, toilet 19. Reasons: few real models in ABO / Objaverse for the new types; the judges refuse many generated sanitary and kitchen models (M9); the generation ran in one pod (L2c, 40 min, the 13 thinnest new types first) |
+| Style families per type | ≥ 3 for all 24 | ≥ 3 for all 38 | ≥ 3 for all 37 library types (the catalogue; the GPU test of pod L2c checks the 13 new types with models) |
 | Decor types | 8 | 20, ≥ 15 models each | 20 types, 363 models; 18 of 20 with ≥ 15. Below: blind 9, plant_large 10 (generated only: no real source) |
-| Material slots and tags | — | judged by both models | 1264 models judged (recolourable: fabric 184, wood 207); 101 generated models have none (made after the slot renders, or their GLB changed; §10.4) |
+| Material slots and tags | — | judged by both models | 931 of the 1032 catalogue models (recolourable: fabric 117, wood 157; 1264 candidates judged in all); 101 generated models have none (made after the slot renders, or their GLB changed; §10.4) |
 | Door styles / window frames | 1 / 1 | 8 / 6 + colours | 8 / 6 + frame colours |
 | Exterior materials | 1 | ≥ 13 | 28 |
 | Lighting moods | 5 | 9 | 9 |
 
 `python -m wenart.style projects/real02` (9 Oct 2026): all 10 brief terms matched, no unmatched term; the exterior values the
-brief does not name are assumed (facade render warm greige, roof concrete tiles anthracite, paving grey, garden grass).
+brief does not name are assumed (facade render warm greige, roof concrete tiles anthracite, the door as inside
+(light oak), paving grey, garden grass).
 
 ## 5. Acceptance
 
@@ -754,7 +755,7 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 | L2c `6d8e6zae3wsqxt` | RTX PRO 6000 | 81 | $3.37 | generation for the 13 thinnest new types (`WENART_GENERATE_TYPES`, 40 min: 387 generated candidates in all), thumbnails, 1769 judging sheets, both sessions (GLM: the material sheets), catalogue 669 + 363 decor models, copy (47 s), GPU tests | GPU tests: 3 wrong expectations fixed (a `mixed` slot material, `wall_cabinet` parametric only, an accepted record write-catalog refused); the runner's retries re-fetched everything (fixed: a retry fetches only the missing files) |
 | F1 `puc0tntgfvz5he` | RTX PRO 6000 | 59 | $2.44 | full run of real02 (base 48 views, variant `l-1b-acik-mutfak` 17 views, 5 exterior views each, gate ok, polish on for the rooms, 3D files 854 MB) | real02 end state **ok**; 5 GPU tests failed (§10.6): diagnosed by a workflow (one agent per failure, an adversarial verifier each), fixed in 4 worktrees |
 | F1b `twdf5bhj1h28ou` | RTX PRO 6000 WK | 54 | $2.33 | real02 again after the F1 fixes (base 47 views, variant 17) | end state ok, **every GPU test green** (full 34 + 5 skipped, polish 13); gate ok for the rooms (97.7 % of 176 comparisons), exterior polish off (84.6 % < 90 %) |
-| F2 `3ywy7xcrpf1fn3` | RTX PRO 6000 WK | 85 | $3.66 | full runs of real01 (20 views), synthetic-03 (44), synthetic-07 (30 + variant 3) | every project ok; 3 GPU tests failed (§10.6): all code bugs, fixed |
+| F2 `3ywy7xcrpf1fn3` | RTX PRO 6000 WK | 85 | $3.66 | full runs of real01 (20 views), synthetic-03 (44), synthetic-07 (30 + variant 3) | every project ok; 3 GPU tests failed (§10.7): all code bugs, fixed |
 | F3 `grh4sjjh2lggsq` | RTX PRO 6000 | 37 | $1.53 | synthetic-07 again after the F2 fixes (30 views, variant 3) | end state ok, **every GPU test green** (full 34 + 5 skipped, polish 13); 0 unverified items; the empty play room laid out (4 pieces); the attic stair is the upper end of the ground-floor stair |
 | — | — | — | — | you asked to stop after F3 | real02 and synthetic-03 are not re-run with the later fixes (§10.9) |
 
@@ -772,7 +773,7 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 
 | Test | Cause | Fix |
 |---|---|---|
-| `test_index_pass_contains_every_visible_proxy[synthetic-03]` | code bug in the camera model: an AI-added library toilet was modelled with a 0.8 m bowl (its JSON height is the cistern top; the builder's toilet height is the bowl) | `camsearch.piece_profile`: a library toilet takes the type's 0.4 m bowl; no camera moves (a rebuild swaps the names of synthetic-03's `cam_r_L1_banyo_1` and `_2`) |
+| `test_index_pass_contains_every_visible_proxy[synthetic-03]` | code bug in the camera model: two AI-added library toilets (`f_L-1_007`, `f_L1_020`) were modelled with a 0.8 m bowl (its JSON height is the cistern top; the builder's toilet height is the bowl) | `camsearch.piece_profile`: a library toilet takes the type's 0.4 m bowl; no camera moves (a rebuild swaps the names of synthetic-03's `cam_r_L1_banyo_1` and `_2`) |
 | `test_passes_exist_and_depth_is_plausible[synthetic-07]` | code bug: the attic's east gable wall (a parapet piece and a gable piece) was lost by the exact boolean that cuts its window (touching pieces need `use_self`); the hall looked out through the missing wall | `shell.build_walls`: `use_self` for walls built from pieces; a guard after the cuts stops the build when a wall loses faces or volume outside its cutters (`shell.wall_cut_problems`); only this wall of all projects changes |
 | `test_every_empty_room_was_laid_out[synthetic-07]` | code bug in ingest: the attic plan's 11 m roof ridge line touched a door leaf and became an unknown "furniture" piece, so the empty play room looked furnished | `symbols.furniture`: a long straight stroke that crosses the building outline is no furniture stroke (noted); only synthetic-07 changes, and it now matches its truth |
 
@@ -792,8 +793,9 @@ below. Fix (whole M10 buildings only; M3–M9 buildings keep the M7 path):
   assumed `stair_arrival` entry; the attic ceilings are no longer cut for it.
 - A top-level stair over no stair stops 5 mm under the roof underside (assumed, a warning "the roof access is not
   drawn (needs review)"); with less than 0.30 m of room it is not built (a warning).
-- The camera model (`camsearch.RoomModel`) and the vision check's JSON cross-check (`expected.json_crosscheck`)
-  leave out a stair the builder does not build.
+- The camera model (`camsearch.RoomModel`) leaves out both kinds of top-level stair the builder does not build; the
+  vision check's JSON cross-check (`expected.json_crosscheck`) skips the upper end (`arrives_from`). A stair left out
+  for lack of headroom is still tested there, so it shows as a mismatch next to its "needs review" warning.
 
 ### 10.9 Acceptance (§5), 9 Oct 2026
 
@@ -802,10 +804,10 @@ below. Fix (whole M10 buildings only; M3–M9 buildings keep the M7 path):
 | 1 | real02 end state | **ok** (pods F1 and F1b; was `needs review`) |
 | 2 | real02 sheet analysis | **met**: 4 plans (basement, basement "Açık mutfak", ground, attic) + 1 section; the stray HATCH and the two DIMENSIONs outside the frame listed; levels −1, 0, 1 (attic) and the basement variant group; units cm with the `$INSUNITS` mm conflict listed (`results/furniture/real02/sheets_report.md`) |
 | 3 | real02 build | **met, one defect fixed after the run**: 3 levels stacked on 3 slabs, the stairs aligned and arriving through the slab openings, sloped attic ceilings, the mansard roof from the plan's roof lines and the section profile (eaves 3.65, ridge 6.79), heights from the section (vector). The committed F1b renders still show the two attic stairs built as new flights with their shafts above the ridge (white boxes in the exterior views); fixed in code (§10.8), real02 not re-run |
-| 4 | real02 renders | **met**: base 42 interior + 5 exterior views; the alternative `l-1b-acik-mutfak` 12 interior views of its changed rooms + 5 exterior views. 20 of 38 rooms are unverified (area labels differ from the measured areas by 4–510 %: corridors with their stair halls, the 8.5 m² label of a 52 m² open kitchen) and 66 pieces (58 of unknown type): their red stripes show in the renders, as the no-hallucination rules want |
+| 4 | real02 renders | **met**: base 42 interior + 5 exterior views; the alternative `l-1b-acik-mutfak` 12 interior views of its changed rooms + 5 exterior views. 20 of 38 rooms are unverified (18: area labels differ from the measured areas by 4–510 %, corridors with their stair halls and the 8.5 m² label of a 52 m² open kitchen; 2: unlabelled stair cores) and 66 pieces (58 of unknown type): their red stripes show in the renders, as the no-hallucination rules want |
 | 5 | synthetic-07 | **met**: the CPU truth tests pass (regions, levels, variant, registration, heights, the stray; with the F2 ingest fix also every drawn piece and empty room); pod F3: end state ok, every GPU test green |
-| 6 | Feature 1 | **met** on real01 and real02: every furnished bedroom and living room that misses an expected type got at least one added piece (real01: nightstands, a TV unit, a tall cabinet, wall cabinets; real02: nightstands, benches, a TV unit, chairs, an armchair, a chaise, a console table, a sideboard); the locked check passes (anchors ± 5 cm, fronts ± 1°); no type or size change was made (13 proposals by one pass only, each listed `not_agreed`); every refused proposal listed, no placer violation by the AI |
-| 7 | Feature 3 | **met**: the real02 brief has no unmatched term (all 10 matched); the coverage table (§4.11) meets the targets except the listed types below 20 models and 2 decor types below 15, with reasons |
+| 6 | Feature 1 | **met** on real01 and real02: every furnished bedroom and living room that misses an expected type got at least one added piece (real01: two nightstands, a TV unit, a tall cabinet, a wall cabinet, a sideboard; real02: nightstands, benches, a TV unit, chairs, an armchair, a chaise, a console table, a sideboard); the locked check passes (anchors ± 5 cm, fronts ± 1°); no type or size change was made (12 proposals, 6 in each, by one pass only, each listed `not_agreed`); every refused proposal listed, no placer violation by the AI |
+| 7 | Feature 3 | **met**: the real02 brief has no unmatched term (all 10 matched); the coverage table (§4.11) meets the targets except the listed types below 20 models, 2 decor types below 15 and the 101 generated models without material fields, with reasons |
 | 8 | No regressions | real01 ok (its gate now allows the polish; M9: `polish_disabled`), synthetic-03 ok; `pytest -m "not gpu"`: 4100 passed, 6 skipped, 4 xfailed; `pytest -m gpu`: green on real02 (F1b), real01 (F2) and synthetic-07 (F3). synthetic-03's one F2 failure is a camera-model bug fixed in code (§10.7); the GPU test passes on the collected F2 outputs (CPU replay), not re-run on a pod |
 
 Not re-run after the last fixes (you asked to stop after F3): real02 (the top-floor stair fix, §10.8) and
