@@ -444,7 +444,7 @@ def cmd_volume_create(a: argparse.Namespace) -> int:
 
 
 COLLECT_MAX_DEPTH = 4
-COLLECT_WORKERS = 8           # parallel result downloads (one at a time: 0.81 s per file)
+COLLECT_WORKERS = 16          # parallel result downloads (one at a time: 0.81 s per file; M10: ~10000 library files)
 COLLECT_MAX_FILE = 20_000_000
 COLLECT_MAX_TOTAL = 400_000_000   # one total over results/ and results-private/
 COLLECT_TRIES = 3             # collection attempts while the pod runs (a failed one is retried at the next poll)
