@@ -53,6 +53,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-09 00:14 | 5j6x21hcj34t42 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 115 | 4.76 | M10 L1c: the rest of the thumbnails of the new types, judge requests, material slots (recolour), library copy | timeout (watchdog), self-stop ok |
 | 2026-10-09 01:23 | 5wbmxoz3cdezq6 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 68 | 2.81 | M10 L1d: sheet analysis and pipelines, both judge sessions (sheet and recognition answers, library judging, material slots so far), final pipelines, catalogue, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-09 03:42 | md5uwkua9n8mey | NVIDIA RTX PRO 6000 Blackwell Server Edition | 112 | 4.65 | M10 L2a: the rest of the material slots (recolour), both judge sessions (material slots), catalogue with material fields, GPU tests | timeout (watchdog), self-stop ok |
-| 2026-10-09 03:43 | pending:20261009-034343-prep | RTX PRO 6000 | 100 | 4.15 | M10 L2b: TRELLIS.2 generation for the thin new types (target 20, decor 15), thumbnails, both judge sessions (GLM: the material slots too), catalogue with material fields, GPU tests | creating (provisional, worst case) |
+| 2026-10-09 04:42 | k5vdwxva8alqyr | NVIDIA RTX PRO 6000 Blackwell Server Edition | 58 | 2.43 | M10 L2b: TRELLIS.2 generation for the thin new types (target 20, decor 15), thumbnails, both judge sessions (GLM: the material slots too), catalogue with material fields, GPU tests | unknown |
 
-**Total spent so far: $53.97** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $52.25** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
