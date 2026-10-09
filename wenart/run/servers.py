@@ -29,6 +29,16 @@ else 2). There is no runtime fallback: a server that does not start with
 these sizes is a server error. ``--vlm-url`` (smoke profile) uses an
 external server instead (``external_server``).
 
+Milestone 11 (docs/milestone11.md §11): per model in check.yaml
+``gpu_memory_utilization`` (the agent: 0.55, so Blender renders next to it),
+``limit_mm`` (images per prompt; the agent: 4), ``prequantized`` (an official
+FP8 checkpoint never gets ``--quantization fp8``), ``env`` (e.g.
+``VLLM_USE_DEEP_GEMM=0``) and size flags inside ``server_flags`` (then no
+size tier is added); ``sleep_mode`` adds ``--enable-sleep-mode`` and
+``VLLM_SERVER_DEV_MODE=1`` so ``server_control(url, "sleep" | "wake")``
+(``POST /sleep?level=1``, ``POST /wake_up``) can free the VRAM for the gate
+and the polish; ``extra_flags`` (pod G1: MTP speculative decoding).
+
 How: the process start (``spawn``), the health probe, the clock and the
 sleep are injectable, so the CPU tests drive a fake process.
 """
@@ -114,15 +124,52 @@ def server_args(seqs: int, mem_mib: Optional[int] = None) -> list[str]:
     return ["--max-model-len", "32768", "--max-num-seqs", str(int(seqs))]
 
 
+SIZE_FLAGS = ("--max-model-len", "--max-num-seqs")
+
+
+def limit_mm_text(images: Optional[int]) -> str:
+    """``--limit-mm-per-prompt`` value: ``LIMIT_MM`` (2 images) unless the model sets ``limit_mm``."""
+    return LIMIT_MM if images is None else '{"image":%d}' % int(images)
+
+
 def serve_command(vllm: str, model: str, revision: str, flags: str, seqs: int, port: int = VLM_PORT,
-                  mem_mib: Optional[int] = None) -> list[str]:
-    """The ``vllm serve`` command line (polish.sh start_server)."""
+                  mem_mib: Optional[int] = None, *, gpu_memory_utilization: Optional[float] = None,
+                  limit_mm: Optional[int] = None, prequantized: bool = False, sleep_mode: bool = False) -> list[str]:
+    """The ``vllm serve`` command line (polish.sh start_server). Milestone 11 (docs/milestone11.md §11), per model
+    from check.yaml: ``gpu_memory_utilization`` (the agent model: 0.55, so Blender renders next to it),
+    ``limit_mm`` images per prompt (the agent: 4), ``prequantized`` (an official FP8 checkpoint: never
+    ``--quantization fp8``), size flags in the model's own ``server_flags`` (then no size flags are added), and
+    ``sleep_mode`` (``--enable-sleep-mode``: the server can free its VRAM for the gate and the polish)."""
     cmd = [vllm, "serve", model]
     if revision:
         cmd += ["--revision", revision]
-    cmd += ["--served-model-name", model, "--port", str(port), "--limit-mm-per-prompt", LIMIT_MM,
-            "--gpu-memory-utilization", GPU_MEMORY_UTILIZATION]
-    return cmd + shlex.split(flags or "") + server_args(seqs, mem_mib)
+    util = GPU_MEMORY_UTILIZATION if gpu_memory_utilization is None else f"{float(gpu_memory_utilization):.2f}"
+    cmd += ["--served-model-name", model, "--port", str(port), "--limit-mm-per-prompt", limit_mm_text(limit_mm),
+            "--gpu-memory-utilization", util]
+    own = shlex.split(flags or "")
+    size = [] if any(f in own for f in SIZE_FLAGS) else server_args(seqs, mem_mib)
+    if prequantized and "--quantization" in size:
+        i = size.index("--quantization")
+        size = size[:i] + size[i + 2:]
+    return cmd + own + size + (["--enable-sleep-mode"] if sleep_mode else [])
+
+
+def server_root_url(url: str) -> str:
+    """``http://host:port/v1`` -> ``http://host:port``."""
+    return url[:-3] if url.rstrip("/").endswith("/v1") else url.rstrip("/")
+
+
+def server_control(url: str, action: str, timeout_s: float = 300.0) -> bool:
+    """Milestone 11 (§11): ``sleep`` (``POST /sleep?level=1``: the weights go to CPU RAM, the KV cache is freed) or
+    ``wake`` (``POST /wake_up``) of a server started with ``--enable-sleep-mode`` (vLLM serves these endpoints with
+    ``VLLM_SERVER_DEV_MODE=1``, set by ``VLMServer.start``; to be confirmed on pod G1). True when it answered 2xx."""
+    path = {"sleep": "/sleep?level=1", "wake": "/wake_up"}[action]
+    req = urllib.request.Request(server_root_url(url) + path, data=b"", method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+            return 200 <= resp.status < 300
+    except (urllib.error.URLError, OSError, ValueError):
+        return False
 
 
 def base_url(port: int = VLM_PORT) -> str:
@@ -219,6 +266,8 @@ class VLMServer:
     proc: object = None
     seconds_to_ready: Optional[float] = None
     model: str = ""
+    sleep_mode: bool = False                  # Milestone 11: --enable-sleep-mode (+ VLLM_SERVER_DEV_MODE=1)
+    extra_flags: str = ""                     # Milestone 11 (pod G1): e.g. the MTP --speculative-config
 
     @property
     def url(self) -> str:
@@ -238,8 +287,17 @@ class VLMServer:
             raise ServerError(self.key, "config", f"no model '{self.key}' in {self.check_yaml}")
         m = models[self.key]
         self.model = str(m["id"])
-        return serve_command(self.vllm, self.model, str(m.get("revision") or ""), str(m.get("server_flags") or ""),
-                             self.seqs, self.port, self.mem_mib)
+        flags = " ".join(f for f in (str(m.get("server_flags") or ""), self.extra_flags) if f)
+        return serve_command(self.vllm, self.model, str(m.get("revision") or ""), flags,
+                             self.seqs, self.port, self.mem_mib,
+                             gpu_memory_utilization=m.get("gpu_memory_utilization"), limit_mm=m.get("limit_mm"),
+                             prequantized=bool(m.get("prequantized")), sleep_mode=self.sleep_mode)
+
+    def model_env(self) -> dict:
+        """``check.yaml models.<key>.env`` (e.g. ``VLLM_USE_DEEP_GEMM: 0`` of agent_fast) as text values."""
+        m = check_models(self.check_yaml).get(self.key) or {}
+        env = m.get("env") or {}
+        return {str(k): str(v) for k, v in env.items()} if isinstance(env, dict) else {}
 
     def _is_healthy(self) -> bool:
         return (self.health or (lambda: http_health(self.port)))()
@@ -249,6 +307,9 @@ class VLMServer:
         cmd = self.command()
         env = dict(os.environ)
         env["VLLM_USE_FLASHINFER_SAMPLER"] = "0"
+        env.update(self.model_env())
+        if self.sleep_mode:
+            env["VLLM_SERVER_DEV_MODE"] = "1"         # the /sleep and /wake_up endpoints
         self.out(f"starting vllm serve {self.model} for '{self.key}' (seqs {self.seqs}, log {self.log_path})")
         try:
             self.proc = self.spawn(cmd, env, self.log_path)

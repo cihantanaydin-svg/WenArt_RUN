@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "wenart/agent/log.schema.json",
+  "title": "The decision log of the AI orchestrator (docs/milestone11.md §9): outputs/<p>/orchestrator/log.json",
+  "type": "object",
+  "required": ["schema_version", "kind", "project", "model", "revision", "events", "calls"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "kind": {"const": "agent_log"},
+    "project": {"type": "string"},
+    "model": {"type": "string"},
+    "revision": {"type": "string"},
+    "started_utc": {"type": ["string", "null"]},
+    "finished_utc": {"type": ["string", "null"]},
+    "stop": {"type": ["object", "null"]},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+    "calls": {"type": "array", "items": {"$ref": "#/$defs/call"}}
+  },
+  "$defs": {
+    "severity": {"enum": ["critical", "major", "minor", null]},
+    "validation": {
+      "type": "object",
+      "required": ["accepted", "failed_checks", "score_before", "score_after"],
+      "properties": {
+        "accepted": {"type": "boolean"},
+        "failed_checks": {"type": "array", "items": {"type": "string"}},
+        "score_before": {"type": ["number", "null"]},
+        "score_after": {"type": ["number", "null"]}
+      }
+    },
+    "event": {
+      "type": "object",
+      "required": ["seq", "round", "t", "kind"],
+      "properties": {
+        "seq": {"type": "integer", "minimum": 1},
+        "round": {"type": "integer", "minimum": 0},
+        "t": {"type": "string"},
+        "kind": {"enum": ["check", "finding", "edit", "rejected_edit", "rerun", "render", "stop"]},
+        "model": {"type": ["string", "null"]},
+        "revision": {"type": ["string", "null"]},
+        "call_id": {"type": ["string", "null"]},
+        "pass": {"type": ["integer", "null"]},
+        "source": {"enum": ["code", "vision", "final", null]},
+        "checklist": {"type": ["string", "null"]},
+        "severity": {"$ref": "#/$defs/severity"},
+        "target": {"type": ["string", "null"]},
+        "room_id": {"type": ["string", "null"]},
+        "finding": {"type": ["string", "null"]},
+        "dropped": {"type": ["string", "null"]},
+        "evidence": {"type": ["object", "null"]},
+        "tool": {"type": ["string", "null"]},
+        "args": {"type": ["object", "null"]},
+        "validation": {"$ref": "#/$defs/validation"},
+        "label": {"type": ["string", "null"]},
+        "reason": {"type": ["string", "null"]},
+        "before": {"type": ["string", "null"]},
+        "after": {"type": ["string", "null"]},
+        "rerun_from": {"type": ["string", "null"]},
+        "overrides_id": {"type": ["integer", "null"]},
+        "views": {"type": ["array", "null"], "items": {"type": "string"}},
+        "status": {"type": ["string", "null"]},
+        "note": {"type": ["string", "null"]},
+        "counts": {"type": ["object", "null"]},
+        "seconds": {"type": ["number", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"enum": ["edit", "rejected_edit"]}}},
+          "then": {"required": ["tool", "args", "validation", "reason", "model"],
+                   "properties": {"tool": {"type": "string"}, "args": {"type": "object"},
+                                  "reason": {"type": "string", "minLength": 1}, "model": {"type": "string"}}}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "finding"}}},
+          "then": {"required": ["source", "checklist", "severity", "target", "finding"]}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "stop"}}},
+          "then": {"required": ["reason"]}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "rerun"}}},
+          "then": {"required": ["rerun_from", "status"]}
+        }
+      ]
+    },
+    "call": {
+      "type": "object",
+      "required": ["call_id", "kind", "model", "revision", "seconds", "attempts"],
+      "properties": {
+        "call_id": {"type": "string"},
+        "kind": {"enum": ["chat", "critic"]},
+        "model": {"type": "string"},
+        "revision": {"type": "string"},
+        "seconds": {"type": ["number", "null"]},
+        "attempts": {"type": "integer"},
+        "prompt_tokens": {"type": ["integer", "null"]},
+        "completion_tokens": {"type": ["integer", "null"]},
+        "images": {"type": ["integer", "null"]},
+        "tool_calls": {"type": ["integer", "null"]},
+        "error": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

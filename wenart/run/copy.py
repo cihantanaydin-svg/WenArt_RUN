@@ -24,6 +24,8 @@ What: ``python -m wenart.run copy --projects ... [--private ...] [--ab ...]
 | ``export/<p>.blend``, ``export/<p>.glb``, ``export/export_manifest.json`` (Milestone 9) | ``final/<p>/3d/`` |
 | ``sheets/requests.json``, ``sheets/answers_*.json``, ``sheets/crops/*.png`` (Milestone 10) | ``recognition/<p>/sheets/`` |
 | ``sheets_debug/*.png`` (<= 3 MB, Milestone 10) | ``furniture/<p>/sheets_debug/`` |
+| ``orchestrator/`` (+ ``images/``, ``compare/``), ``agent/previews/`` (Milestone 11) | ``agent/<p>/`` (+ the same sub-folders) |
+| ``final/agent/`` (the report's before/after images, Milestone 11) | ``final/<p>/agent/`` |
 | ``variants/<id>/<the rows above>`` (Milestone 10, an alternative) | ``<area>/<p>/variants/<id>/...`` |
 
 Milestone 10 (docs/milestone10.md §1.6b row 9): an alternative's sub-output ``variants/<id>/`` has a project
@@ -110,7 +112,7 @@ LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fb
 # they filled the runner's 400 MB collection cap, so later result files were left out (pod L1d of 9 Oct 2026);
 # their prompts and records (``generate/**/*.json``) still go, as M9 committed them.
 LIBRARY_SKIP_GENERATE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
-IMAGE_AREAS = ("renders", "polish", "gate", "check", "realism", "final")   # folders that show a project's images
+IMAGE_AREAS = ("renders", "polish", "gate", "check", "realism", "final", "agent")   # folders with images
 VARIANTS_DIR = "variants"          # = wenart.run.stages.VARIANTS_DIR (Milestone 10)
 LOG_TAIL_LINES = 400
 STAMP_OVERLAP_S = 2
@@ -164,6 +166,13 @@ PUBLIC_RULES = (
     Rule("sheets", "recognition", "sheets", "recognition"),
     Rule("sheets/crops", "recognition", "sheets/crops", "crops"),
     Rule("sheets_debug", "furniture", "sheets_debug", "png"),
+    # Milestone 11 (docs/milestone11.md §9): the orchestrator's decision log, overrides and images, the round
+    # previews, and the before/after images the final report links (final/agent/).
+    Rule("orchestrator", "agent", "", "agent"),
+    Rule("orchestrator/images", "agent", "images", "agent"),
+    Rule("orchestrator/compare", "agent", "compare", "agent"),
+    Rule("agent/previews", "agent", "previews", "general"),
+    Rule("final/agent", "final", "agent", "agent"),
 )
 PRIVATE_RULES = (
     Rule("final", "final", "", "private_final"),
@@ -206,6 +215,12 @@ def wanted(rule: Rule, path: Path) -> Optional[str]:
         return "copy" if ok and size <= MAX_TEXT_BYTES else None
     if kind.startswith("names:"):
         return "copy" if name in kind[6:].split(",") and size <= MAX_TEXT_BYTES else None
+    if kind == "agent":                       # Milestone 11: log.json / log.md / overrides.json and the log's images
+        if text:
+            return "copy"
+        if name.endswith(".png") and size <= MAX_PNG_BYTES:
+            return "copy"
+        return "copy" if small_jpg else None
     if kind == "private_final":
         if name in ("final_report.md", "final_manifest.json") and size <= MAX_TEXT_BYTES:
             return "copy"

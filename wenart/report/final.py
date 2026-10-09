@@ -150,6 +150,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+from wenart.report import agent as AG
 from wenart.report import common as C
 from wenart.report import m10 as M
 
@@ -316,6 +317,8 @@ FINAL_MANIFEST = {
         "variants": {"type": ["object", "null"]},
         "variant_sheets": {"type": "object", "additionalProperties": {"type": "object"}},
         "base_exterior_views": {"type": ["array", "null"]},
+        # Milestone 11 (docs/milestone11.md §8 "report"; wenart/report/agent.py)
+        "agent": {"type": ["object", "null"]},
     },
 }
 
@@ -2207,6 +2210,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "files_3d": None if inp.private else files_3d_summary(inp.project_out),
         # Milestone 10
         **blocks,
+        # Milestone 11: the AI orchestrator (None without orchestrator/log.json: the M10 report is unchanged)
+        "agent": AG.agent_block(inp.project_out, inp.out_dir, inp.private, inp.building),
         "warnings": list(inp.warnings),
     }
 
@@ -2972,6 +2977,7 @@ def report_markdown(manifest: dict) -> str:
         lines.append("Plan crops and debug images of a private project are never copied into `final/`. They "
                      "stay in the project output on the volume (paths relative to it; see docs/intake.md):")
         lines += [""] + C.bullets(manifest.get("kept_on_volume") or [], empty="No plan crop was made.")
+    lines += AG.agent_lines(manifest)
     lines += ["", "## Warnings", ""]
     lines += C.bullets(manifest["warnings"])
     return "\n".join(lines) + "\n"

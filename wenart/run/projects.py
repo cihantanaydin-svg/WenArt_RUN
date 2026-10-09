@@ -33,7 +33,8 @@ FIXTURE_PROJECTS = Path("tests") / "fixtures" / "projects"
 # Result areas in the committed layout ($RESULTS/<area>/<p>/ for public projects,
 # results-private/<alias>/<area>/ for private ones). recognition: the questions and answers of the pipeline's
 # AI typing (docs/milestone7.md §1.4; results/recognition/<p>/ seeds the next run's answers).
-RESULT_AREAS = ("renders", "furniture", "polish", "gate", "check", "final", "run", "realism", "recognition")
+RESULT_AREAS = ("renders", "furniture", "polish", "gate", "check", "final", "run", "realism", "recognition",
+                "agent")             # Milestone 11: the orchestrator's log, overrides and previews (wenart/run/copy.py)
 
 
 class ProjectError(ValueError):

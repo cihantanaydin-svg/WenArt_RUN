@@ -221,10 +221,37 @@ STAGE_LIST = (
     Stage(None, "ab_realism", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
     Stage(None, "ab_combine", "cpu", "always", "failed", VISION_CODE, ("check/realism/realism2_ab.json",)),
 )
-STAGES = {s.name: s for s in STAGE_LIST}
+# Milestone 11 (docs/milestone11.md §2, §8, §17.3): the orchestrator's stages. Only orchestrated runs (the default of
+# ``python -m wenart.run pod``) record them; the M10 chain (``--no-orchestrator``, STAGE_LIST) is unchanged. They
+# never decide a project's state (not in PROJECT_STAGES): a failed agent leaves the M10 result.
+# - agent_apply: ``python -m wenart.agent apply <out>`` (overrides.json replayed on building_decor.json ->
+#   building_agent.json, which refit then reads); the code list is the import closure of ``python -m wenart.agent``
+#   with the packages the edit validators of track B and the exterior checks of track C may import;
+# - agent_previews: the round previews (960x540, 32 samples) of the views a round changed, in agent/previews;
+# - agent: the critic and planner rounds (wenart.agent.loop) on the agent model's server session.
+AGENT_DIR = "orchestrator"
+AGENT_BUILDING = "building_agent.json"
+DECOR_BUILDING = "building_decor.json"
+PREVIEW_DIR = "agent/previews"
+AGENT_PREVIEW_RES = "960x540"
+AGENT_PREVIEW_SAMPLES = 32
+AGENT_KEY = "agent"                  # check.yaml models.agent (Qwen/Qwen3.8-27B-FP8); agent_fast = the fallback
+AGENT_CODE = ("wenart/agent/**", "wenart/furniture/**", "wenart/blender/**", "wenart/style/**", "wenart/recognition/**",
+              "wenart/synthetic/**", "wenart/ingest/**", "wenart/sheets/**", "wenart/schema/**", "wenart/building.py",
+              "wenart/geometry.py", "wenart/units.py", "wenart/brief.py", "wenart/defaults.yaml", "wenart/views.py",
+              "wenart/canonical.py", "wenart/run/servers.py", "wenart/__init__.py", CHECK_YAML)
+AGENT_STAGE_LIST = (
+    Stage(None, "agent_apply", "cpu", "fingerprint", "failed", AGENT_CODE, (AGENT_BUILDING,)),
+    Stage(None, "agent_previews", "blender", "own", "warning", BLENDER_CODE, (f"{PREVIEW_DIR}/render_manifest.json",),
+          heavy=True),
+    Stage(None, "agent", "vlm", "own", "warning", AGENT_CODE,
+          (f"{AGENT_DIR}/log.json", f"{AGENT_DIR}/log.md", f"{AGENT_DIR}/overrides.json"), heavy=True),
+)
+AGENT_STAGES = tuple(s.name for s in AGENT_STAGE_LIST)
+STAGES = {s.name: s for s in STAGE_LIST + AGENT_STAGE_LIST}
 PROJECT_STAGES = tuple(s.name for s in STAGE_LIST if s.number is not None)
 AB_STAGES = tuple(s.name for s in STAGE_LIST if s.number is None)
-STAGE_VERSION = {s.name: s.version for s in STAGE_LIST}
+STAGE_VERSION = {s.name: s.version for s in STAGE_LIST + AGENT_STAGE_LIST}
 # A/B stages that never count for the exit code: none in M7 (look_alt is the decided set of realism v2, §8.2; in
 # M6 the ab_look_alt stage was not counted).
 AB_NOT_COUNTED: tuple = ()
@@ -380,12 +407,13 @@ def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:
             _out(ref, "decor_debug")]
 
 
-def refit(tools: Tools, ref: ProjectRef, completion: bool = False) -> list[str]:
+def refit(tools: Tools, ref: ProjectRef, completion: bool = False, source: str = DECOR_BUILDING) -> list[str]:
     """The fit after layout and decor, with the project's final style (``--style``: the library style filter,
     M7 §6.3; ``fit`` stays style-free). Milestone 10 (§2.7, §1.6b row 16): ``--source building.json`` runs the
     locked check of the drawn furniture (exit 1 on a violation); ``completion``: the layout ran in this run, so its
-    ``completion.json`` gives the check's mode and kept rooms (without it: mode ``complete``)."""
-    cmd = [tools.py, "-m", "wenart.furniture.fit", _out(ref, "building_decor.json"), "--catalog", CATALOG,
+    ``completion.json`` gives the check's mode and kept rooms (without it: mode ``complete``). Milestone 11
+    (§17.3): ``source`` = ``building_agent.json`` in an orchestrated run once ``agent_apply`` wrote it."""
+    cmd = [tools.py, "-m", "wenart.furniture.fit", _out(ref, source), "--catalog", CATALOG,
            "--out", _out(ref, "building_final.json"), "--assets", t(tools.assets), "--style",
            _out(ref, "style.json"), "--source", _out(ref, "building.json")]
     return cmd + (["--completion", _out(ref, "completion.json")] if completion else [])
@@ -420,15 +448,36 @@ def render_quality(tools: Tools, samples: Optional[int] = None) -> list[str]:
     return ["--samples", str(samples if samples is not None else tools.render_samples), "--res", RENDER_RES]
 
 
-def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = False) -> list[str]:
+def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = False,
+           cameras: Optional[Sequence[str]] = None) -> list[str]:
     """``alt_look``: a project of the realism A/B also saves ``<cam>_alt_preview.jpg`` with ``ALT_LOOK`` from the
-    same render result (the look_alt pairs of M7 §8.2)."""
+    same render result (the look_alt pairs of M7 §8.2). ``cameras`` (Milestone 11, the final critical round): only
+    these views (the render merges them into its manifest)."""
     cmd = [tools.py, "-m", "wenart.blender.cli", "render", "--scene", _out(ref, "scene/scene.blend"), "--out",
-           _out(ref, "renders"), "--cameras", "all"] + render_quality(tools)[:4] + [
+           _out(ref, "renders"), "--cameras", ",".join(cameras) if cameras else "all"] + render_quality(tools)[:4] + [
            "--exposure", "auto", "--white-balance", "auto"] + render_quality(tools)[4:]
     if alt_look:
         cmd += ["--alt-look", ALT_LOOK]
     return cmd + (["--force"] if force else [])
+
+
+def agent_apply(tools: Tools, ref: ProjectRef) -> list[str]:
+    """Milestone 11 (§17.3): ``orchestrator/overrides.json`` replayed on ``building_decor.json`` ->
+    ``building_agent.json`` (``python -m wenart.agent apply``)."""
+    return [tools.py, "-m", "wenart.agent", "apply", _out(ref)]
+
+
+def agent_previews(tools: Tools, ref: ProjectRef, cameras: Optional[Sequence[str]] = None) -> list[str]:
+    """Milestone 11 (§8): the round previews, 960x540 at 32 samples (smoke: the smoke size on the CPU), of
+    ``cameras`` (all for None) into ``agent/previews`` (the final renders in ``renders/`` stay untouched)."""
+    if tools.smoke:
+        quality = ["--samples", str(SMOKE_PREVIEW_SAMPLES), "--res", SMOKE_RES]
+    else:
+        quality = ["--samples", str(AGENT_PREVIEW_SAMPLES), "--res", AGENT_PREVIEW_RES]
+    cmd = [tools.py, "-m", "wenart.blender.cli", "render", "--scene", _out(ref, "scene/scene.blend"), "--out",
+           _out(ref, PREVIEW_DIR), "--cameras", ",".join(cameras) if cameras else "all"] + quality + [
+           "--exposure", "auto", "--white-balance", "auto"]
+    return cmd + (["--device", "cpu"] if tools.smoke else [])
 
 
 def export(tools: Tools, ref: ProjectRef, variant: str = BASE_VARIANT) -> list[str]:
@@ -641,3 +690,27 @@ def est_server(key: str) -> float:
 
 def est_calls(calls: int, seqs: int) -> float:
     return EST_VLM_CALL_S * max(0, calls) / max(1, seqs)
+
+
+# Milestone 11 (docs/milestone11.md §8, §12; estimates until pod G1 measures them): a preview is a quarter of the
+# pixels at a quarter of the samples of a final view; a final check call of the agent model is a vision call of
+# ~6-10 s (§11), about 6 element checks per view; the report ~60 s.
+EST_PREVIEW_PER_VIEW_S = 2.5
+EST_AGENT_SERVER_START_S = 420.0
+EST_AGENT_CHECK_CALL_S = 8.0
+EST_CHECK_CALLS_PER_VIEW = 6
+EST_REPORT_S = 60.0
+
+
+def est_previews(views: int) -> float:
+    return EST_RENDER_FIXED_S + EST_PREVIEW_PER_VIEW_S * max(0, views)
+
+
+def est_final(views: int, seqs: int = 4, polish: bool = True) -> float:
+    """The final stages of an orchestrated project (§8 "final"): build, full renders, export, controls, gate,
+    polish, detect, the agent's check (one pass) and the report, in seconds on the RTX PRO 4500 scale."""
+    total = EST_BUILD_S + est_render(views) + EST_EXPORT_S + est_controls(min(views, CONTROL_VIEWS))
+    if polish:
+        total += EST_GATE_S + est_polish(views) + est_detect(views)
+    total += EST_AGENT_CHECK_CALL_S * EST_CHECK_CALLS_PER_VIEW * max(0, views) / max(1, seqs)
+    return total + EST_REPORT_S

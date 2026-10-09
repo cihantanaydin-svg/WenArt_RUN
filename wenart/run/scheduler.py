@@ -69,6 +69,19 @@ most 4: 3 without style photos or questions, 2 without empty rooms, photos
 or questions, 2 for ``--ab-phase judge``), and a pod that the deadline cuts
 resumes from the volume with the same command.
 
+Milestone 11 (docs/milestone11.md §2, §8, §11, §17.3; ``RunOptions.orchestrator``, the default of ``python -m
+wenart.run pod``; ``--no-orchestrator`` and the smoke profile keep the M10 chain above unchanged): phases 1-4 as
+above (with ``agent_apply`` before refit when ``orchestrator/overrides.json`` exists: a resumed run), then the
+agent block (phase 12) on ONE server session of ``check.yaml models.agent`` (0.55 of the VRAM, so Blender renders
+next to it): per project round 0 (build + ``agent_previews``: every view at 960x540, 32 samples, in
+``agent/previews``), the rounds of ``wenart.agent.loop.AgentLoop`` (its re-runs: ``agent_apply`` -> refit from
+``building_agent.json`` -> build -> previews of the changed views only; a refit that refuses a round's edits rolls
+them back), then phases 5-8 inside the block (full renders, export, controls; the server sleeps for gate / polish /
+detect below 80 GB; expected; the check with the agent model alone, one pass, D8; combine with
+``CHECK_MODELS=agent``) and the final round for critical findings; then phases 10 and 11. The agent stages
+(``agent_apply``, ``agent_previews``, ``agent``) never decide a project's state; a failed agent server leaves the
+M10 result (the check then fails as in M10).
+
 How: every subprocess goes through ONE injectable function
 ``runner(cmd, env, cwd, timeout, log_path) -> rc`` (cwd = repo root, output
 into ``<out>/run/logs/<stage>.log``); the clock, the server sessions, the
@@ -122,7 +135,11 @@ PHASE_NAMES = {
     9: "vlm glm: check, realism",
     10: "cpu: combine, realism summary, report",
     11: "gpu tests, run manifest",
+    12: "agent (M11): previews, critic and planner rounds; inside: phases 5-8 with the agent model's one-pass check",
 }
+AGENT_PHASE = 12
+OVERRIDES_REL = f"{S.AGENT_DIR}/overrides.json"
+AGENT_SLEEP_ENV = "WENART_AGENT_SLEEP"         # on | off | auto (default: sleep only below 80 GB of VRAM)
 # The control renders of the control project (M6 §6.2): ab/renders plus one render folder per control set.
 CONTROL_RENDER_MANIFESTS = ("ab/renders/render_manifest.json",) + tuple(
     f"ab/{name}/renders/render_manifest.json" for name in S.CONTROL_RENDERS)
@@ -314,6 +331,12 @@ class RunOptions:
     logs_dir: Path = Path("/workspace/logs")
     job_id: str = "run"
     tests: bool = True                                    # phase 11 GPU tests (never in the smoke profile)
+    # Milestone 11 (docs/milestone11.md §2, §8): the AI orchestrator. ``python -m wenart.run pod`` sets it (the
+    # default; ``--no-orchestrator`` = the M10 chain); the dataclass default keeps the M10 chain for the callers
+    # that build RunOptions themselves (plan, prep, the CPU tests of M6-M10).
+    orchestrator: bool = False
+    agent_key: str = S.AGENT_KEY                          # check.yaml models key of the agent (agent | agent_fast)
+    agent_rounds: int = 4
 
     @property
     def smoke(self) -> bool:
@@ -351,6 +374,7 @@ class ProjectRun:
     base: Optional[ProjectRun] = None
     label: Optional[str] = None
     no_views: bool = False              # an alternative whose scene has no camera: build and export only
+    agent_loop: object = None           # Milestone 11: the project's wenart.agent.loop.AgentLoop (orchestrated runs)
 
     @property
     def name(self) -> str:
@@ -378,8 +402,15 @@ class Orchestrator:
                  clock: Callable[[], float] = time.time, server_factory: Optional[Callable] = None,
                  out: Optional[Callable[[str], None]] = None, control_views: Optional[Callable] = None,
                  gpu_mem: Optional[Callable[[], int]] = None, check_models: Optional[dict] = None,
-                 gpu_name: Optional[Callable[[], Optional[str]]] = None):
+                 gpu_name: Optional[Callable[[], Optional[str]]] = None,
+                 agent_model_factory: Optional[Callable] = None, server_control: Optional[Callable] = None,
+                 agent_loop_kwargs: Optional[dict] = None):
         self.opts = opts
+        # Milestone 11: the agent model client per project (url, project run) -> model, the sleep/wake call of the
+        # agent server (url, "sleep" | "wake") -> bool and extra AgentLoop arguments (the CPU tests inject fakes).
+        self.agent_model_factory = agent_model_factory
+        self.server_control = server_control or SV.server_control
+        self.agent_loop_kwargs = dict(agent_loop_kwargs or {})
         self.runner = runner
         self.clock = clock
         self.server_factory = server_factory
@@ -792,9 +823,16 @@ class Orchestrator:
         self.out(f"run {self.run_id}: projects [{' '.join(pr.name for pr in self.runs)}], A/B "
                  f"[{' '.join(pr.name for pr in self.ab_runs)}] ({self.opts.ab_phase}), profile {self.opts.profile}, "
                  f"{left}")
-        steps = [self.phase1, self.phase2, self.phase3, self.phase4, self.phase5, self.phase6, self.phase7,
-                 lambda: self.vlm_phase(8, "qwen"), lambda: self.vlm_phase(9, "glm"), self.phase10]
-        for n, fn in enumerate(steps, start=1):
+        if self.opts.orchestrator:
+            # Milestone 11 (§8): phases 1-4 as in M10, then the agent block (previews, rounds, and inside it phases
+            # 5-8 on the agent server's session: final renders, gate, polish, the one-pass check), then phase 10.
+            plan = [(1, self.phase1), (2, self.phase2), (3, self.phase3), (4, self.phase4),
+                    (AGENT_PHASE, self.phase_agent), (10, self.phase10)]
+        else:
+            plan = list(enumerate([self.phase1, self.phase2, self.phase3, self.phase4, self.phase5, self.phase6,
+                                   self.phase7, lambda: self.vlm_phase(8, "qwen"), lambda: self.vlm_phase(9, "glm"),
+                                   self.phase10], start=1))
+        for n, fn in plan:
             with self.phase_block(n):
                 fn()
         with self.phase_block(11):
@@ -1302,7 +1340,8 @@ class Orchestrator:
             elif self.opts.vlm_url:
                 cm = SV.external_server(self.opts.vlm_url, key, stats=stats)
             else:
-                cm = SV.server(key, self.deadline, stats=stats, seqs=self.seqs(key),
+                extra = {"sleep_mode": True} if key == self.opts.agent_key and self.agent_sleep_mode() else {}
+                cm = SV.server(key, self.deadline, stats=stats, seqs=self.seqs(key), **extra,
                                mem_mib=self.gpu_info().get("memory_mib") or None, logs_dir=self.opts.logs_dir,
                                job_dir=self.job_dir, private=self.any_private, clock=self.clock, out=self.out)
             with cm as url:
@@ -1615,12 +1654,10 @@ class Orchestrator:
                           [src, pr.out / "style.json", pr.out / S.DECOR_ANSWERS])
             if not pr.active:
                 continue
-            # Milestone 10: the locked check against the pipeline's building (and the layout's completion.json).
-            completion = furnished and (pr.out / "completion.json").is_file()
-            self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref, completion),
-                          [pr.out / "building_decor.json", pr.out / "style.json", self.repo_root / S.CATALOG,
-                           self.repo_root / S.CATALOG_OBJAVERSE, self.repo_root / S.CATALOG_LIBRARY,
-                           pr.out / "building.json"] + ([pr.out / "completion.json"] if completion else []))
+            if self.agent_on() and (pr.out / OVERRIDES_REL).is_file():
+                # Milestone 11: a resumed orchestrated run replays the accepted edits of the earlier run.
+                self.stage_agent_apply(pr)
+            self.stage_refit(pr)
         if self.opts.ab_phase == "judge":
             return
         for pr in self.ab_runs:
@@ -1633,6 +1670,249 @@ class Orchestrator:
             self.simple_stage(pr, "ab_m5", [("ab-m5", S.ab_m5(self.tools, pr.ref), None)])
             if self.status_of(pr, "ab_m5") != "ok":
                 pr.ab_dropped = "ab_m5 failed"
+
+    def stage_refit(self, pr: ProjectRun) -> ST.StageRecord:
+        """Stage refit (Milestone 10: the locked check against the pipeline's building and the layout's
+        completion.json); Milestone 11: from ``building_agent.json`` once ``agent_apply`` wrote it in an orchestrated
+        run (``refit_source``)."""
+        furnished = self.status_of(pr, "layout") in ("ok", "reused")
+        completion = furnished and (pr.out / "completion.json").is_file()
+        source = self.refit_source(pr)
+        return self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref, completion, source),
+                             [pr.out / source, pr.out / "style.json", self.repo_root / S.CATALOG,
+                              self.repo_root / S.CATALOG_OBJAVERSE, self.repo_root / S.CATALOG_LIBRARY,
+                              pr.out / "building.json"] + ([pr.out / "completion.json"] if completion else []))
+
+    # ----- Milestone 11: the AI orchestrator (docs/milestone11.md §2, §8, §11, §17.3) ------------------------
+
+    def agent_on(self) -> bool:
+        """An orchestrated run (the smoke profile always keeps the M10 chain: its fake server cannot plan)."""
+        return bool(self.opts.orchestrator) and not self.opts.smoke
+
+    def check_keys(self) -> list:
+        """The model keys of the final check: the agent model alone in an orchestrated run (D8: one pass, checked by
+        the object-index code check of combine), else ``CHECK_MODELS``."""
+        return [self.opts.agent_key] if self.agent_on() else list(self.opts.check_models)
+
+    def check_env(self) -> Optional[dict]:
+        """``CHECK_MODELS`` for combine and calibrate in an orchestrated run (the job exports ``qwen glm``)."""
+        return {"CHECK_MODELS": " ".join(self.check_keys())} if self.agent_on() else None
+
+    def refit_source(self, pr: ProjectRun) -> str:
+        if self.agent_on() and self.status_of(pr, "agent_apply") in ("ok", "reused") \
+                and (pr.out / S.AGENT_BUILDING).is_file():
+            return S.AGENT_BUILDING
+        return S.DECOR_BUILDING
+
+    def stage_agent_apply(self, pr: ProjectRun) -> ST.StageRecord:
+        return self.fp_stage(pr, "agent_apply", S.agent_apply(self.tools, pr.ref),
+                             [pr.out / S.DECOR_BUILDING, pr.out / OVERRIDES_REL])
+
+    def stage_agent_previews(self, pr: ProjectRun, cameras: Optional[list] = None) -> str:
+        """The round previews (960x540, 32 samples) of ``cameras`` (all for None) into ``agent/previews``; its
+        status (a failure is a warning: the loop stops, the final chain goes on)."""
+        n = len(cameras) if cameras else (pr.views or self.scene_views(pr))
+        if not self.can_start(S.est_previews(n)):
+            self.not_started(pr, "agent_previews", "agent previews")
+            return "incomplete"
+        rc = self.run_step(pr, "agent_previews", "previews", S.agent_previews(self.tools, pr.ref, cameras))
+        status, note = self.render_status(rc, pr.out / S.PREVIEW_DIR / "render_manifest.json")
+        status = "warning" if status == "failed" else status
+        what = f"{len(cameras)} view(s)" if cameras else "all views"
+        self.finish(pr, "agent_previews", status, f"{what}{': ' + note if note else ''}")
+        return status
+
+    def agent_sleep_mode(self) -> bool:
+        """Sleep the agent server for the gate and the polish: ``WENART_AGENT_SLEEP`` on / off, else (auto) when the
+        GPU has less than 80 GB (§11: on 96 GB the agent server (0.55) and the polish fit side by side)."""
+        mode = os.environ.get(AGENT_SLEEP_ENV, "auto").strip().lower()
+        if mode in ("on", "1", "true", "yes"):
+            return True
+        if mode in ("off", "0", "false", "no") or self.opts.vlm_url:
+            return False
+        mem = self.gpu_info().get("memory_mib") or 0
+        return 0 < mem < SV.VRAM_LARGE_MIB
+
+    def agent_server(self, url: Optional[str], action: str) -> bool:
+        if url is None or not self.agent_sleep_mode():
+            return False
+        ok = bool(self.server_control(url, action))
+        self.out(f"agent server {action}: {'ok' if ok else 'no answer (it keeps its VRAM)'}")
+        return ok
+
+    def make_agent_model(self, url: str, pr: ProjectRun):
+        if self.agent_model_factory is not None:
+            return self.agent_model_factory(url, pr)
+        from wenart.agent.model import AgentModel
+        m = self.models.get(self.opts.agent_key) or {}
+        return AgentModel(url, str(m.get("id") or self.opts.agent_key), str(m.get("revision") or ""))
+
+    def final_estimate(self, pr: ProjectRun) -> float:
+        """Seconds the final stages of ``pr`` need (``stages.est_final`` / GPU speed): the loop stops when they
+        would not fit before the deadline - 20 min (§8)."""
+        views = pr.views or self.scene_views(pr)
+        return S.est_final(views, self.seqs(self.opts.agent_key), self.polish_on(pr)) / self.gpu_speed()
+
+    def phase_agent(self) -> None:
+        """Milestone 11 (§8): one agent server session for every project: round 0 (build + previews), the rounds
+        (``wenart.agent.loop.AgentLoop``), then the final chain on the same session (phases 5-8: final renders,
+        gate, polish, detect, expected, the one-pass check) and the final round for critical findings."""
+        bases = [pr for pr in self.runs if pr.active and pr.base is None]
+        key = self.opts.agent_key
+
+        def fail(pr, status, note):
+            self.finish(pr, "agent", "incomplete" if status == "incomplete" else "warning",
+                        f"{note}: the M10 result without agent rounds", outputs=[])
+
+        cm = self.start_session(key, bases, fail) if bases else None
+        if cm is None:
+            self.final_chain(None)
+            return
+        try:
+            with cm as url:
+                for pr in bases:
+                    if pr.active:
+                        self.agent_project(pr, url)
+                self.final_chain(url)
+                return
+        except SV.ServerError as exc:
+            self.out(f"agent phase: {exc}")
+            for pr in bases:
+                if "agent" not in pr.records:
+                    fail(pr, "incomplete" if exc.reason == "deadline" else "warning", f"server {key}: {exc.reason}")
+        self.final_chain(None)
+
+    def agent_project(self, pr: ProjectRun, url: str) -> None:
+        """Round 0 (the scene and the previews of every view), then the loop (``AgentLoop.run``)."""
+        from wenart.agent.loop import AgentLoop
+        self.stage_build(pr)
+        if not pr.active or self.status_of(pr, "build") != "ok":
+            self.finish(pr, "agent", "warning", "no scene: no agent rounds", outputs=[])
+            return
+        pr.views = self.scene_views(pr)
+        if self.stage_agent_previews(pr) not in ("ok", "warning") or \
+                not (pr.out / S.PREVIEW_DIR / "render_manifest.json").is_file():
+            self.finish(pr, "agent", "warning", "no previews: no agent rounds", outputs=[])
+            return
+        kwargs = dict(self.agent_loop_kwargs)
+        loop = AgentLoop(pr.out, self.make_agent_model(url, pr),
+                         rerun=lambda stage, views, rnd, final: self.agent_rerun(pr, stage, views, rnd, final),
+                         clock=self.clock, deadline=self.deadline, final_estimate=lambda: self.final_estimate(pr),
+                         max_rounds=self.opts.agent_rounds, out=self.out, project=pr.name, **kwargs)
+        t0 = self.now()
+        try:
+            summary = loop.run()
+        except Exception as exc:  # noqa: BLE001 - the agent never stops the project: the M10 result stands
+            self.finish(pr, "agent", "warning", f"the loop stopped: {type(exc).__name__}: {exc}", outputs=[])
+            return
+        pr.agent_loop = loop
+        pr.parts.setdefault("agent", []).append({"name": "rounds", "rc": 0, "seconds": round(self.now() - t0, 2)})
+        stop = (summary.get("stop") or {}).get("reason")
+        from wenart.agent.loop import STOPS
+        self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary['accepted']} edit(s) accepted, "
+                                       f"{summary['rejected']} rejected; stop: {STOPS.get(stop, stop)}")
+
+    def rollback_round(self, pr: ProjectRun, round_no: int, why: str) -> int:
+        """The accepted edits of ``round_no`` are taken back (a refit that refuses them would fail the project)."""
+        from wenart.agent import overrides as OV
+        ov = OV.Overrides(pr.out)
+        n = 0
+        for e in ov.edits:
+            if int(e.get("round") or 0) == int(round_no) and (e.get("result") or {}).get("accepted"):
+                e["result"].update(accepted=False, rolled_back=why)
+                n += 1
+        if n:
+            ov.save()
+        return n
+
+    def agent_rerun(self, pr: ProjectRun, stage: str, views: list, round_no: int, final: bool) -> dict:
+        """The re-run of the router (§8 step 4): every routed stage of M11 restarts at ``agent_apply`` (``layout``
+        too: ``relayout_room`` is done by the layout engine inside ``edit_ops``, the layout's VLM session is over;
+        ``build``: the camera, material and exterior overrides reach the build through ``building_agent.json`` and
+        refit), then refit, build and the changed views (previews, or full renders in the final round)."""
+        t0 = self.now()
+        if stage == "polish":
+            return {"status": "skipped", "note": "the polish setting is used by the final stages", "seconds": 0.0}
+        self.stage_agent_apply(pr)
+        if self.status_of(pr, "agent_apply") not in ("ok", "reused"):
+            return {"status": "failed", "note": "agent_apply failed", "seconds": round(self.now() - t0, 1)}
+        before = pr.terminal
+        rec = self.stage_refit(pr)
+        if rec.status not in ST.GOING_ON:
+            n = self.rollback_round(pr, round_no, f"refit {rec.status} ({rec.note})")
+            pr.terminal = before
+            self.stage_agent_apply(pr)
+            self.stage_refit(pr)
+            return {"status": "failed", "note": f"refit refused the round's edits: {n} edit(s) rolled back",
+                    "seconds": round(self.now() - t0, 1)}
+        self.stage_build(pr)
+        if self.status_of(pr, "build") != "ok":
+            return {"status": "failed", "note": "build failed", "seconds": round(self.now() - t0, 1)}
+        live = {c.get("name") for c in (read_json(pr.out / "scene" / "scene_manifest.json") or {}).get("cameras") or []}
+        cams = [v for v in views if v in live]
+        if not cams:
+            return {"status": "ok", "note": "no view to render", "seconds": round(self.now() - t0, 1), "views": []}
+        if final:
+            self.stage_render(pr, cameras=cams)
+            status = self.status_of(pr, "render") or "failed"
+        else:
+            status = self.stage_agent_previews(pr, cams)
+        return {"status": status, "views": cams, "seconds": round(self.now() - t0, 1)}
+
+    def final_chain(self, url: Optional[str]) -> None:
+        """Phases 5-8 of an orchestrated run (the agent server stays up while Blender renders; it sleeps for the
+        gate and the polish below 80 GB), then the final round for critical findings."""
+        with self.phase_block(5):
+            self.phase5()
+        slept = self.agent_server(url, "sleep")
+        with self.phase_block(6):
+            self.phase6()
+        if slept:
+            self.agent_server(url, "wake")
+        with self.phase_block(7):
+            self.phase7()
+        with self.phase_block(8):
+            self.agent_check(url)
+        if url is not None:
+            self.final_critical_rounds(url)
+
+    def agent_check(self, url: Optional[str]) -> None:
+        """Phase 8 of an orchestrated run: the M5 check with the agent model alone (one pass, D8)."""
+        key = self.opts.agent_key
+        checks = [pr for pr in self.runs if pr.active and self.status_of(pr, "expected") == "ok"]
+        if url is None:
+            for pr in checks:
+                self.finish(pr, "check", "failed", f"server {key} not available", merge=True, outputs=[])
+            return
+        seqs = self.seqs(key)
+        for pr in checks:
+            if pr.active:
+                self.check_part(pr, key, url, seqs)
+
+    def final_critical_rounds(self, url: str) -> None:
+        """§8 "final": critical findings on the final renders go back once more when time allows; the changed views
+        are rendered again and the stages after the render run again for that project (each reuses its own work)."""
+        for pr in [p for p in self.runs if p.agent_loop is not None and p.active]:
+            loop = pr.agent_loop
+            k = int((loop.stop or {}).get("round") or 0) + 1
+            try:
+                res = loop.final_round(k)
+            except Exception as exc:  # noqa: BLE001
+                self.out(f"{pr.name} agent final round: {type(exc).__name__}")
+                continue
+            if not res.get("accepted") or not res.get("rerun_from") or res.get("stop") in ("rerun_failed", "deadline"):
+                continue
+            if not res.get("views"):
+                continue
+            self.stage_export(pr)
+            slept = self.agent_server(url, "sleep")
+            self.phase6_project(pr)
+            if slept:
+                self.agent_server(url, "wake")
+            self.simple_stage(pr, "expected", [("expected", S.expected(self.tools, pr.ref), None),
+                                               ("plan-crops", S.plan_crops(self.tools, pr.ref), None)])
+            if self.status_of(pr, "expected") == "ok":
+                self.check_part(pr, self.opts.agent_key, url, self.seqs(self.opts.agent_key))
 
     # ----- phase 5: Blender --------------------------------------------------
 
@@ -1723,13 +2003,14 @@ class Orchestrator:
             return "failed", f"exit {rc}"
         return "ok", None
 
-    def stage_render(self, pr: ProjectRun) -> None:
-        """Stage render; a look_alt project of the A/B also saves the alt previews (``--alt-look None``)."""
+    def stage_render(self, pr: ProjectRun, cameras: Optional[list] = None) -> None:
+        """Stage render; a look_alt project of the A/B also saves the alt previews (``--alt-look None``).
+        ``cameras`` (Milestone 11, the final critical round): only these views."""
         pr.views = self.scene_views(pr)
-        if not self.can_start(S.est_render(pr.views)):
+        if not self.can_start(S.est_render(len(cameras) if cameras else pr.views)):
             self.not_started(pr, "render")
             return
-        cmd = S.render(self.tools, pr.ref, force=self.forced("render"), alt_look=pr.look_alt)
+        cmd = S.render(self.tools, pr.ref, force=self.forced("render"), alt_look=pr.look_alt, cameras=cameras)
         rc = self.run_step(pr, "render", "render", cmd)
         status, note = self.render_status(rc, pr.out / "renders" / "render_manifest.json")
         self.finish(pr, "render", status, note)
@@ -1872,6 +2153,13 @@ class Orchestrator:
             return None
 
     def polish_on(self, pr: ProjectRun) -> bool:
+        """The brief's ``polish`` (default on); Milestone 11: off when the agent accepted ``rerun_stage polish
+        {enabled: false}`` (``agent_overrides.reruns`` of the building the run built)."""
+        if self.agent_on():
+            src = (pr.base.out if pr.base is not None else pr.out) / S.AGENT_BUILDING
+            reruns = ((read_json(src) or {}).get("agent_overrides") or {}).get("reruns") or {}
+            if (reruns.get("polish") or {}).get("enabled") is False:
+                return False
         from wenart.brief import load_brief, value
         try:
             return bool(value(load_brief(pr.ref.project_dir), "polish", True))
@@ -1880,26 +2168,28 @@ class Orchestrator:
 
     def phase6(self) -> None:
         for pr in self.runs:
-            if not pr.active:
-                continue
-            if self.opts.smoke:
-                for stage in ("gate", "polish", "detect"):
-                    self.skip(pr, stage, "smoke profile")
-                continue
-            if not self.polish_on(pr):
-                for stage in ("gate", "polish", "detect"):
-                    self.skip(pr, stage, "polish off")
-                continue
-            self.stage_gate(pr)
-            if not pr.active:
-                continue
-            if pr.gate_decision in ("ok", "flagged"):
-                self.stage_polish(pr)
-                if pr.active:
-                    self.stage_detect(pr)
-            else:
-                self.skip(pr, "polish", "gate not validated")
-                self.skip(pr, "detect", "gate not validated")
+            if pr.active:
+                self.phase6_project(pr)
+
+    def phase6_project(self, pr: ProjectRun) -> None:
+        if self.opts.smoke:
+            for stage in ("gate", "polish", "detect"):
+                self.skip(pr, stage, "smoke profile")
+            return
+        if not self.polish_on(pr):
+            for stage in ("gate", "polish", "detect"):
+                self.skip(pr, stage, "polish off")
+            return
+        self.stage_gate(pr)
+        if not pr.active:
+            return
+        if pr.gate_decision in ("ok", "flagged"):
+            self.stage_polish(pr)
+            if pr.active:
+                self.stage_detect(pr)
+        else:
+            self.skip(pr, "polish", "gate not validated")
+            self.skip(pr, "detect", "gate not validated")
 
     def gate_inputs(self, pr: ProjectRun) -> dict:
         """What a calibration depends on besides the gate code: the renders, the control selection and its hidden
@@ -2204,7 +2494,7 @@ class Orchestrator:
             pr.out / "check" / "style_photo_test.json")
         if cut and status != "incomplete":
             status, note = "incomplete", f"deadline: {key} answers incomplete"
-        out = [f"check/answers_{self.tools.model_slug(k)}.json" for k in self.opts.check_models]
+        out = [f"check/answers_{self.tools.model_slug(k)}.json" for k in self.check_keys()]
         self.finish(pr, "check", status, note, merge=True, outputs=out)
 
     def realism_part(self, pr: ProjectRun, key: str, url: str, seqs: int) -> None:
@@ -2233,8 +2523,9 @@ class Orchestrator:
         for pr in self.runs:
             if not any((pr.out / "check").glob("answers_*.json")) or "check" not in pr.records:
                 continue
-            self.simple_stage(pr, "combine", [("combine", S.combine(self.tools, pr.ref), None),
-                                              ("calibrate", S.calibrate(self.tools, pr.ref), None)], late=True)
+            env = self.check_env()
+            self.simple_stage(pr, "combine", [("combine", S.combine(self.tools, pr.ref), env),
+                                              ("calibrate", S.calibrate(self.tools, pr.ref), env)], late=True)
         combined = []
         if self.opts.ab_phase != "render":
             for pr in self.ab_runs:
@@ -2420,7 +2711,7 @@ class Orchestrator:
             entry["variant"] = pr.variant if details else None
         if details:
             entry.update(out_dir=S.t(pr.out),
-                         stages=[pr.records[s].brief() for s in S.PROJECT_STAGES if s in pr.records],
+                         stages=[pr.records[s].brief() for s in S.PROJECT_STAGES + S.AGENT_STAGES if s in pr.records],
                          gate_decision=pr.gate_decision, views=pr.views or None)
             if pr.archived:
                 entry["archived_outputs"] = pr.archived
