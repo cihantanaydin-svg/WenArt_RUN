@@ -80,11 +80,19 @@ def test_framing_keeps_the_camera_level_and_the_building_in_the_frame():
     assert aerial[1] == 0.0                                            # a pitched camera needs no shift
 
 
-def test_a_blocked_camera_moves_along_its_diagonal_and_a_wall_all_around_drops_it():
-    # a 3 m wall piece across the south-east diagonal, 12 m out (the nominal place): the camera moves to 10 m
+def test_a_blocked_camera_moves_along_its_line_and_a_wall_all_around_drops_it():
+    # Milestone 11 (docs/milestone11.md §1.1 E14): a corner camera stands 30 degrees off the facade it faces at the
+    # distance where the building fills ~70 % of the frame (the M10 rule: 12 m out on the exact 45 degree
+    # diagonal). A 3 m wall piece across that nominal place: the camera moves along its line, 2 m further out.
+    b0 = _box_building()
+    m0, _ = _box_model(b0)
+    nominal = next(p for p in E.plan_exterior(m0, b0, b0["levels"])[0] if p.get("corner") == 2)
     corner = (10.125, -0.125)
-    d = (1 / math.sqrt(2), -1 / math.sqrt(2))
-    c = (corner[0] + d[0] * 12.0, corner[1] + d[1] * 12.0)
+    dist = math.hypot(nominal["position"][0] - corner[0], nominal["position"][1] - corner[1])
+    d = ((nominal["position"][0] - corner[0]) / dist, (nominal["position"][1] - corner[1]) / dist)
+    assert nominal["placement"] == f"{dist:.1f} m from the building corner, 30 degrees off the front facade"
+    assert math.degrees(math.acos(-d[1])) == pytest.approx(30.0, abs=1e-3)     # 30 off the front (-Y) normal
+    c = nominal["position"]
     piece = {"id": "pw", "start": [c[0] - d[1] * 2.0, c[1] + d[0] * 2.0], "end": [c[0] + d[1] * 2.0, c[1] - d[0] * 2.0],
              "thickness": 0.3, "kind": "other", "height": {"value": 3.0, "method": "vector"}, "build": True}
     b = _box_building(walls=[piece])
@@ -92,8 +100,12 @@ def test_a_blocked_camera_moves_along_its_diagonal_and_a_wall_all_around_drops_i
     plans, dropped = E.plan_exterior(m, b, b["levels"])
     names = {p["name"] for p in plans}
     se = next((p for p in plans if p.get("corner") == 2), None)
-    assert se is not None and se["warning"] and "moved" in se["warning"] and "inside the plot_wall" in se["warning"]
-    assert se["placement"] == "10 m from the building corner along its diagonal"
+    assert se is not None and se["warning"] and "moved" in se["warning"]
+    moved = math.hypot(se["position"][0] - corner[0], se["position"][1] - corner[1])
+    assert abs(moved - dist) >= 1.4 and se["placement"] == f"{moved:.1f} m from the building corner, 30 degrees off " \
+                                                            f"the front facade"
+    assert (se["position"][0] - corner[0]) / moved == pytest.approx(d[0], abs=1e-4)     # on the same line
+    assert se["lens_mm"] == E.EYE_LENS_MM and E.FILL_RANGE[0] - 0.1 <= se["fill"] <= E.FILL_RANGE[1]
     assert {"ext_1", "ext_3", "ext_4", "ext_5"} <= names
     # a 4 m wall all around, 5 m out: no corner camera (10-15 m out along the diagonals) sees the building over it
     ring = [(-5, -5), (15, -5), (15, 13), (-5, 13)]

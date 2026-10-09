@@ -277,13 +277,18 @@ def _ridge_axis(rect: dict, roof: dict) -> tuple[tuple[float, float], tuple[floa
 
 
 def _profile_tiers(prof: dict, outline: Sequence[Sequence[float]], rtype: str, eaves: Optional[float],
-                   ) -> tuple[list[Plane], list[str], dict]:
+                   break_line: Optional[Sequence[Sequence[float]]] = None) -> tuple[list[Plane], list[str], dict]:
     """The mansard or gambrel tiers of a drawn section (``section_profile``; pure): on both sides of the cut the
     lower plane from the eaves point to the break point and the upper plane from the break point to the peak,
     their slopes as drawn; the upper planes meet in the ridge across the cut at the peak. A mansard also gets
-    the two lower planes on the sides the section does not cut (``eaves`` at the outline edges, the mean drawn
-    lower slope; assumed): with no drawn upper slopes there, they run up to the ridge. Returns ``(planes, tier
-    names, info)`` with ``info`` = ``{"breaks": [(s, z) per side], "lower_deg", "upper_deg", "notes"}``."""
+    planes on the two sides the section does not cut (``eaves`` at the outline edges; assumed). Milestone 11
+    (docs/milestone11.md §1.1 E7): with the plan's closed ``break_line`` the lower plane there rises from the
+    eaves to the break line, at the section's break height (the mean of its two breaks), and an upper plane rises
+    from the break line at the section's upper pitch, steeper when that cannot reach the section's ridge height
+    (the hip then meets the ridge, so the roof still matches its section); without a break line the M10 rule:
+    the mean drawn lower slope up to the ridge. Returns ``(planes, tier names, info)`` with ``info`` =
+    ``{"breaks": [(s, z) per side], "lower_deg", "upper_deg", "notes", "ends"}`` (``ends``: how the uncut sides
+    were made, None for a gambrel)."""
     cut, ridge_dir = prof["cut"], prof["ridge_dir"]
     s_p, z_p = prof["peak"]
     planes, names, notes, breaks, lower_deg, upper_deg = [], [], [], [], [], []
@@ -305,15 +310,41 @@ def _profile_tiers(prof: dict, outline: Sequence[Sequence[float]], rtype: str, e
             names.append("upper")
             upper_deg.append(math.degrees(math.atan(tan_up)))
         breaks.append((s_b, z_b))
+    ends = None
     if rtype == "mansard":
         t_side = math.tan(math.radians(sum(lower_deg) / len(lower_deg)))
         z0 = eaves if eaves is not None else sum(e[1] for e in prof["eaves"]) / 2.0
         proj = [x * ridge_dir[0] + y * ridge_dir[1] for x, y in outline]
-        for side, w in ((1.0, min(proj)), (-1.0, max(proj))):
-            planes.append(_ramp((ridge_dir[0] * w, ridge_dir[1] * w), (ridge_dir[0] * side, ridge_dir[1] * side),
-                                z0, t_side))
-            names.append("lower")
-    return planes, names, {"breaks": breaks, "lower_deg": lower_deg, "upper_deg": upper_deg, "notes": notes}
+        brk = geom2d.ccw(break_line or [])
+        bproj = [x * ridge_dir[0] + y * ridge_dir[1] for x, y in brk]
+        inside = len(brk) >= 3 and min(proj) + 1e-3 < min(bproj) < max(bproj) < max(proj) - 1e-3
+        if inside:
+            # E7: the plan's break line on the uncut sides (a four-sided mansard as the attic plan draws it).
+            z_b = sum(b[1] for b in breaks) / len(breaks)
+            half = (max(bproj) - min(bproj)) / 2.0
+            tan_up = math.tan(math.radians(sum(upper_deg) / len(upper_deg))) if upper_deg else 0.0
+            tan_end = max(tan_up, (z_p - z_b) / half) if half > 1e-6 else tan_up
+            lows = []
+            for side, w, wb in ((1.0, min(proj), min(bproj)), (-1.0, max(proj), max(bproj))):
+                inward = (ridge_dir[0] * side, ridge_dir[1] * side)
+                tan_low = (z_b - z0) / abs(wb - w)
+                planes.append(_ramp((ridge_dir[0] * w, ridge_dir[1] * w), inward, z0, tan_low))
+                names.append("lower")
+                planes.append(_ramp((ridge_dir[0] * wb, ridge_dir[1] * wb), inward, z_b, tan_end))
+                names.append("upper")
+                lows.append(math.degrees(math.atan(tan_low)))
+            ends = {"source": "break_line", "lower_deg": [round(d, 2) for d in lows],
+                    "upper_deg": round(math.degrees(math.atan(tan_end)), 2), "break_z": round(z_b, 4),
+                    "steepened": tan_end > tan_up + 1e-9}
+        else:
+            for side, w in ((1.0, min(proj)), (-1.0, max(proj))):
+                planes.append(_ramp((ridge_dir[0] * w, ridge_dir[1] * w), (ridge_dir[0] * side, ridge_dir[1] * side),
+                                    z0, t_side))
+                names.append("lower")
+            ends = {"source": "section lower pitch", "lower_deg": [round(math.degrees(math.atan(t_side)), 2)] * 2,
+                    "upper_deg": None, "break_z": None, "steepened": False}
+    return planes, names, {"breaks": breaks, "lower_deg": lower_deg, "upper_deg": upper_deg, "notes": notes,
+                           "ends": ends}
 
 
 def profile_check(planes: Sequence[Plane], prof: dict, outline: Sequence[Sequence[float]],
@@ -503,7 +534,7 @@ def derive(roof: dict, building: dict) -> dict:
             warnings.append(f"eaves height {eaves:.3f} m vs the section's "
                             f"{', '.join(f'{z:.3f}' for _s, z in prof['eaves'])} m: the section is kept")
         eaves = eaves_drawn
-        eqs, tiers, info = _profile_tiers(prof, outline, rtype, eaves)
+        eqs, tiers, info = _profile_tiers(prof, outline, rtype, eaves, roof.get("break_line"))
         notes += info["notes"]
         top = prof["peak"][1]
         notes.append(f"tiers from the drawn section ({rtype}): lower "
@@ -514,11 +545,22 @@ def derive(roof: dict, building: dict) -> dict:
         assumed.append({"field": "ridge_direction", "value": "across the section cut",
                         "reason": f"read from one section profile (cut along {roof['profile']['cut_axis']}): the ridge "
                                   f"runs across the cut through its highest point"})
-        if rtype == "mansard":
+        ends = info.get("ends") or {}
+        if rtype == "mansard" and ends.get("source") == "break_line":
+            assumed.append({"field": "mansard_ends", "value": {"lower_deg": ends["lower_deg"],
+                                                               "upper_deg": ends["upper_deg"]},
+                            "reason": f"the section does not cut the two other sides: their lower slopes rise from "
+                                      f"the eaves to the plan's break line at the section's break height "
+                                      f"{ends['break_z']:.3f} m, the upper slopes from there "
+                                      + ("at the pitch that reaches the section's ridge height (its upper pitch "
+                                         "would stay under it)" if ends["steepened"]
+                                         else "at the section's upper pitch")
+                                      + " (docs/milestone11.md §1.1 E7)"})
+        elif rtype == "mansard":
             assumed.append({"field": "mansard_ends", "value": round(sum(info["lower_deg"]) / len(info["lower_deg"]), 2),
                             "reason": "the section does not cut the two other sides: their lower slopes take the "
                                       "section's lower pitch from the eaves height and, with no upper slope drawn "
-                                      "there, run up to the ridge"})
+                                      "there (and no closed break line on the plan), run up to the ridge"})
         for drawn, got, what in ((pitches[0] if pitches else None, info["lower_deg"], "lower"),
                                  (pitches[1] if len(pitches) > 1 else None, info["upper_deg"], "upper")):
             if drawn is not None and got and max(abs(g - drawn) for g in got) > 0.5:
@@ -726,6 +768,187 @@ def knee_wall_check(model: dict, roof: dict, building: dict) -> Optional[dict]:
         return None
     derived = min(heights)
     return {"drawn": drawn, "derived": round(derived, 4), "difference": round(derived - drawn, 4)}
+
+
+TERRACE_MODES = ("auto", "cut", "closed")
+
+
+def terrace_decisions(roof: dict, building: dict, mode: str = "auto") -> tuple[dict, list[dict], list[str]]:
+    """Which roof terraces are cut into the roof (pure; docs/milestone11.md §1.1 E6, decision D5, brief
+    ``roof_terraces``): ``cut`` keeps every terrace opening, ``closed`` drops them (the roof runs over the terrace
+    rooms; their outer walls become knee walls), ``auto`` cuts a terrace when the plan of its level draws it as a
+    room with a door to it (``cameras.room_openings``: a door on the room's edge), else keeps the roof closed.
+    The section is vector geometry and the terrace a label (trust order): when the roof has a drawn section
+    (``profile``) that runs over the terrace, the conflict is listed either way. Returns ``(roof, decisions,
+    warnings)``: a copy of the roof with the kept openings, ``[{"opening_id", "room_id", "decision": cut |
+    closed, "reason", "doors", "conflict"}]`` and one warning per conflict."""
+    from wenart.blender import cameras
+
+    mode = mode if mode in TERRACE_MODES else "auto"
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    kept, decisions, warnings = [], [], []
+    prof = roof.get("profile") if isinstance(roof.get("profile"), dict) else None
+    for o in roof.get("openings") or []:
+        room = rooms.get(o.get("room_id"))
+        doors = []
+        if room is not None and len(room.get("polygon") or []) >= 3:
+            doors = [x["id"] for x in cameras.room_openings(room, [tuple(p[:2]) for p in room["polygon"]], building)
+                     if x.get("type") == "door"]
+        if mode == "cut":
+            cut, why = True, "brief roof_terraces: cut"
+        elif mode == "closed":
+            cut, why = False, "brief roof_terraces: closed"
+        elif doors:
+            cut, why = True, (f"brief roof_terraces: auto: the plan draws {o.get('room_id')} as a room with a door to "
+                              f"it ({', '.join(doors)})")
+        else:
+            cut, why = False, (f"brief roof_terraces: auto: {o.get('room_id') or 'the terrace'} has no door on the "
+                               f"plan: the roof stays closed")
+        conflict = None
+        if prof is not None:
+            conflict = (f"roof terrace {o.get('id')} ({o.get('room_id')}): the plan labels a terrace, the section "
+                        f"{prof.get('region_id') or ''} draws the roof closed over it; "
+                        + ("cut into the roof" if cut else "the roof is kept closed") + f" ({why})")
+            warnings.append(conflict)
+        decisions.append({"opening_id": o.get("id"), "room_id": o.get("room_id"), "decision": "cut" if cut else "closed",
+                          "reason": why, "doors": doors, "conflict": conflict})
+        if cut:
+            kept.append(o)
+    out = dict(roof, openings=kept)
+    return out, decisions, warnings
+
+
+# The roof keys the agent may change (docs/milestone11.md §17.3 ``agent_overrides.exterior.roof``).
+OVERRIDE_TYPES = ("flat", "gable", "hip", "mansard", "gambrel", "shed")
+
+
+def override_of(building: dict) -> Optional[dict]:
+    """The agent's roof override of a building (``agent_overrides.exterior.roof``, §17.3), None without one. Here
+    (not only in ``overrides``) so the gate's import closure stays roof.py (wenart/run/stages.py GATE_CODE)."""
+    ov = building.get("agent_overrides") if isinstance(building, dict) else None
+    ext = ov.get("exterior") if isinstance(ov, dict) and isinstance(ov.get("exterior"), dict) else {}
+    r = ext.get("roof")
+    return r if isinstance(r, dict) and r else None
+
+
+def apply_override(roof: Optional[dict], override: Optional[dict]) -> tuple[Optional[dict], list[dict]]:
+    """The roof with the agent's ``exterior.roof`` override on top (pure; §17.3: ``{type, pitch_deg, overhang_m}``,
+    every key optional): ``type`` replaces the type; ``pitch_deg`` the first pitch; ``overhang_m`` the overhang,
+    and the roof outline is then grown from the walls (a drawn outline fixes the overhang). Each change is
+    ``{"field", "value", "was", "reason"}`` (method ``ai`` on the value). No override: the roof unchanged."""
+    if not isinstance(override, dict) or not override or roof is None:
+        return roof, []
+    out = dict(roof)
+    changes = []
+    note = "agent override (docs/milestone11.md §17.3)"
+    if override.get("type") in OVERRIDE_TYPES:
+        changes.append({"field": "type", "value": override["type"], "was": roof.get("type"), "reason": note})
+        out["type"], out["type_source"] = override["type"], "agent"
+    if isinstance(override.get("pitch_deg"), (int, float)) and not isinstance(override.get("pitch_deg"), bool):
+        p = float(override["pitch_deg"])
+        old = [dict(x) if isinstance(x, dict) else x for x in roof.get("pitches_deg") or []]
+        new = {"value": p, "method": "ai", "confidence": 1.0, "evidence": [], "note": note}
+        out["pitches_deg"] = [new] + old[1:]
+        changes.append({"field": "pitch_deg", "value": p, "was": _value(old[0]) if old else None, "reason": note})
+        if out.get("profile"):        # the section's own pitch would win over the plan's pitch: the agent's wins
+            out["profile"] = None
+            changes.append({"field": "profile", "value": None, "was": "section profile",
+                            "reason": note + ": the agent's pitch replaces the section's tiers"})
+        out["ridge_height"] = None
+    if isinstance(override.get("overhang_m"), (int, float)) and not isinstance(override.get("overhang_m"), bool):
+        h = float(override["overhang_m"])
+        changes.append({"field": "overhang_m", "value": h, "was": _value(roof.get("overhang")), "reason": note})
+        out["overhang"] = {"value": h, "method": "ai", "confidence": 1.0, "evidence": [], "note": note}
+        out["outline"] = None
+        out["openings"] = [dict(o) for o in roof.get("openings") or []]
+    return out, changes
+
+
+OPENING_ROOF_GAP = 0.05          # an opening with an assumed height stops this far under the roof underside
+MIN_OPENING_HEIGHT = {"window": 0.4, "door": 1.6}
+
+
+def clip_openings_to_roof(building: dict, level: dict, model: Optional[dict]) -> list[dict]:
+    """E8 (docs/milestone11.md §1.1): the doors and windows of the level under the roof whose height is not drawn
+    (assumed: ``null`` or listed in the opening's ``assumed``) and whose top would reach over the roof underside
+    at their wall are clipped ``OPENING_ROOF_GAP`` under it (pure). The underside is sampled at both ends of the
+    opening on both wall faces (the lowest counts). A window whose clipped height is under
+    ``MIN_OPENING_HEIGHT`` also lowers an assumed sill. Returns ``[{"opening_id", "height", "sill_height",
+    "was", "underside_z", "reason", "fits"}]``; ``apply_clips`` writes them into a building copy. A drawn
+    height is never changed (``build.openings_through_roof`` warns about it)."""
+    from wenart.blender import shell
+
+    cut = wall_cut(model) if model else None
+    if not cut or level is None or model.get("over_level_id") != level["id"]:
+        return []
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level["id"]}
+    out = []
+    floor_z = float(level["elevation"])
+    for o in building.get("openings") or []:
+        wall = walls.get(o.get("wall_id"))
+        if o.get("level_id") != level["id"] or wall is None or o.get("type") not in ("door", "window"):
+            continue
+        listed = o.get("assumed") or ()
+        height_assumed = o.get("height") is None or "height" in listed
+        if not height_assumed:
+            continue
+        bottom, top, _ = shell.opening_vertical(o, level, False)
+        cx, cy, _ = shell.opening_centre_on_wall(o, wall)
+        ux, uy = _unit(wall)
+        nx, ny = -uy, ux
+        half_w, half_t = float(o["width"]) / 2.0, float(wall["thickness"]) / 2.0
+        under = min(surface_z(cut["planes"], cx + ux * a + nx * b, cy + uy * a + ny * b)
+                    for a in (-half_w, half_w) for b in (-half_t, half_t))
+        limit = under - OPENING_ROOF_GAP
+        if top <= limit + 1e-6:
+            continue
+        sill = bottom - floor_z
+        height = limit - bottom
+        sill_assumed = o["type"] == "window" and (o.get("sill_height") is None or "sill_height" in listed)
+        minimum = MIN_OPENING_HEIGHT[o["type"]]
+        if height < minimum and sill_assumed:
+            sill = max(0.0, limit - floor_z - minimum)
+            height = limit - floor_z - sill
+        fits = height >= minimum - 1e-6
+        reason = (f"{o['type']} height not drawn: its top {top - floor_z:.2f} m above the floor would reach over the "
+                  f"roof underside ({under - floor_z:.2f} m) at its wall; clipped {OPENING_ROOF_GAP:.2f} m under it "
+                  f"(docs/milestone11.md §1.1 E8)" + ("" if fits else "; still lower than a usable "
+                                                        f"{o['type']} (needs a dormer: review)"))
+        out.append({"opening_id": o["id"], "height": round(max(height, 0.05), 4), "sill_height": round(sill, 4),
+                    "was": {"height": round(top - bottom, 4), "sill_height": round(bottom - floor_z, 4)},
+                    "underside_z": round(under, 4), "reason": reason, "fits": fits})
+    return out
+
+
+def _unit(wall: dict) -> tuple[float, float]:
+    (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+    n = math.hypot(x1 - x0, y1 - y0) or 1.0
+    return (x1 - x0) / n, (y1 - y0) / n
+
+
+def apply_clips(building: dict, clips: Sequence[dict]) -> dict:
+    """A copy of ``building`` with the clipped openings of ``clip_openings_to_roof`` (height, and a lowered sill,
+    both listed in the opening's ``assumed``)."""
+    if not clips:
+        return building
+    by_id = {c["opening_id"]: c for c in clips}
+    openings = []
+    for o in building.get("openings") or []:
+        c = by_id.get(o.get("id"))
+        if c is None:
+            openings.append(o)
+            continue
+        listed = list(o.get("assumed") or [])
+        new = dict(o, height=c["height"], clipped_by_roof=c["reason"])
+        if "height" not in listed:
+            listed.append("height")
+        if o.get("type") == "window" and abs(c["sill_height"] - c["was"]["sill_height"]) > 1e-6:
+            new["sill_height"] = c["sill_height"]
+            if "sill_height" not in listed:
+                listed.append("sill_height")
+        new["assumed"] = listed
+        openings.append(new)
+    return dict(building, openings=openings)
 
 
 def flat_roof(building: dict) -> dict:

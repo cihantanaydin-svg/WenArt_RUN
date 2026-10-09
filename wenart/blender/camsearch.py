@@ -179,7 +179,12 @@ SCORE = {
         "wall": (2.0, 0.55),
         "window": (2.0, 0.20),
         "ceiling": (1.0, 0.15),
+        # Milestone 11 (docs/milestone11.md §1.3 M6): one element close to the lens at the frame edge (a door leaf
+        # filling a quarter of the frame, a wardrobe side): its share of the rays nearer than edge_near_factor x the
+        # near distance, for an element that touches the frame border
+        "edge_near": (4.0, 0.05),
     },
+    "edge_near_factor": 2.0,
     "blocked_near": 0.30,             # blocked: near > 0.30 ...
     "blocked_single": 0.50,           # ... or one piece / opening > 0.50 ...
     "blocked_min_depth": 0.12,        # ... or the nearest surface < 0.12 m (planar; pod run F1)
@@ -214,6 +219,8 @@ VIEW_AREAS = ((6.0, 3), (3.0, 2))    # (minimum area m2, views); smaller rooms g
 # Milestone 7 (§6.2): a room with nothing to show gets one view, none below this area (listed).
 EMPTY_ROOM_VIEWS = 1
 MIN_EMPTY_ROOM_AREA_M2 = 2.5
+# Milestone 11 (docs/milestone11.md §1.3 M6): a piece at least this tall (a wardrobe) looms at the frame edge.
+EDGE_TALL_M = 1.4
 BLOCKED_WARNING = "blocked unavoidable"
 SCORE_DECIMALS = 6                   # scores are rounded before sorting (deterministic ties)
 
@@ -267,17 +274,44 @@ def shown_pieces(room: dict, building: dict) -> list[dict]:
 def room_view_count(room: dict, building: Optional[dict] = None) -> int:
     """Views of ``room``: by the area of its polygon (§4.1; without ``building`` this area rule alone,
     the pre-layout estimate of ``wenart.run plan``); with ``building``, a room without ``shown_pieces``
-    gets ``EMPTY_ROOM_VIEWS``, or 0 below ``MIN_EMPTY_ROOM_AREA_M2`` (docs/milestone7.md §6.2)."""
+    gets ``EMPTY_ROOM_VIEWS``, or 0 below ``MIN_EMPTY_ROOM_AREA_M2`` (docs/milestone7.md §6.2), and a stair
+    core (``stair_core``, Milestone 11) gets 0."""
     area = G.polygon_area(room_polygon(room))
     if building is not None and not shown_pieces(room, building):
         return EMPTY_ROOM_VIEWS if area >= MIN_EMPTY_ROOM_AREA_M2 else 0
+    if building is not None and stair_core(room, building):
+        return 0
     return views_for_area(area)
+
+
+STAIR_CORE_REASON = ("stair core: the stair fills the room, its only camera point is inside the stair; the hall "
+                     "shows it (docs/milestone11.md §1.3 M5)")
+
+
+def stair_core(room: dict, building: dict) -> bool:
+    """True when ``room`` is a stair core (pure; Milestone 11, docs/milestone11.md §1.3 M5): it has no free camera
+    point (``candidate_positions`` falls back) and the fallback point lies inside the footprint of one of its
+    stairs. real02's unlabelled cores ("Oda") got two views from inside the stair: a bare wall and the steps."""
+    stairs = [f for f in shown_pieces(room, building) if f.get("type") in P.SHELL_TYPES]
+    if not stairs:
+        return False
+    points, fallback = candidate_positions(room, building)
+    if fallback is None or not points:
+        return False
+    p = points[0]
+    for f in stairs:
+        r = obstacle_rect(f)
+        if geom2d.distance_to_rect(p, r["center"], r["size"], r["rotation_deg"]) <= 1e-9:
+            return True
+    return False
 
 
 def no_view_reason(room: dict, building: dict) -> Optional[str]:
     """Why ``room`` gets no camera (None when it gets at least one)."""
     if room_view_count(room, building) > 0:
         return None
+    if shown_pieces(room, building) and stair_core(room, building):
+        return STAIR_CORE_REASON
     area = G.polygon_area(room_polygon(room))
     return (f"no furniture after layout and decor and {area:.2f} m2 < {MIN_EMPTY_ROOM_AREA_M2:g} m2: "
             f"no view (docs/milestone7.md §6.2)")
@@ -329,7 +363,7 @@ def score_terms(m: dict) -> dict:
     depth = min(float(m["d_wall"]) / SCORE["depth_ref_m"], 1.0)
     penalties = 0.0
     for name, (factor, allowed) in SCORE["penalties"].items():
-        penalties += factor * max(0.0, float(m[name]) - allowed)
+        penalties += factor * max(0.0, float(m.get(name, 0.0)) - allowed)   # edge_near: Milestone 11
     total = furniture + openings + floor + depth - penalties
     return {"total": total, "furniture": furniture, "openings": openings, "floor": floor, "depth": depth,
             "penalties": penalties, "blocked": is_blocked(m)}
@@ -561,7 +595,14 @@ class RoomModel:
         self.piece_codes = idx[[k == "furniture" for k in kinds]] if kinds else idx
         self.opening_codes = idx[[k in ("door", "window") for k in kinds]] if kinds else idx
         self.window_codes = idx[[k == "window" for k in kinds]] if kinds else idx
+        self.door_codes = idx[[k == "door" for k in kinds]] if kinds else idx
         self.piece_weights = np.array([e["weight"] for e in self.elements if e["kind"] == "furniture"])
+        # Milestone 11 (§1.3 M6): the elements that loom at the frame edge when near the lens: door leaves and tall
+        # pieces (a wardrobe side), not the low pieces a room view is about (a bed, a sofa)
+        tall = {f["id"] for f in self.pieces if mount_bottom(f) + piece_bbox(f)[2] >= EDGE_TALL_M}
+        self.edge_codes = np.array([FIRST_ELEMENT + k for k, e in enumerate(self.elements)
+                                    if e["kind"] == "door" or (e["kind"] == "furniture" and e["id"] in tall)],
+                                   dtype=int)
 
         # Walls: one per polygon edge, with the openings whose centre lies on it.
         self.edges = []
@@ -698,6 +739,11 @@ class RoomModel:
         labels = np.asarray(labels).reshape(-1, labels.shape[-1])
         depth = np.asarray(depth).reshape(-1, depth.shape[-1])
         C, P = labels.shape
+        # Milestone 11 (§1.3 M6): a door counts as an opening only beyond the near distance (a leaf beside the
+        # lens is no view of a door), and one element near the lens at the frame edge is a penalty (edge_near)
+        near_door = np.isin(labels, self.door_codes) & (depth < near_m) if len(self.door_codes) else \
+            np.zeros(labels.shape, dtype=bool)
+        edge_m = near_m * SCORE["edge_near_factor"]
         L = self.n_labels
         offsets = (np.arange(C) * L)[:, None]
         counts = np.bincount((labels + offsets).ravel(), minlength=C * L).reshape(C, L)
@@ -717,13 +763,20 @@ class RoomModel:
         for i in np.nonzero(~has_wall)[0]:
             finite = depth[i][np.isfinite(depth[i])]
             d_wall[i] = float(np.median(finite)) if finite.size else 0.0
+        close = depth < edge_m
         out = []
         for i in range(C):
             pc = self.piece_codes
             furn = furniture_share(shares[i, pc], bcounts[i, pc] > 0, self.piece_weights) if len(pc) else 0.0
+            edge = 0.0
+            for c in self.edge_codes:
+                if bcounts[i, c] and counts[i, c]:
+                    edge = max(edge, float(((labels[i] == c) & close[i]).sum()) / float(P))
+            opened = float(shares[i, self.opening_codes].sum()) if len(self.opening_codes) else 0.0
             out.append({
                 "furn": furn,
-                "open": float(shares[i, self.opening_codes].sum()) if len(self.opening_codes) else 0.0,
+                "open": max(0.0, opened - float(near_door[i].sum()) / float(P)),
+                "edge_near": edge,
                 "window": float(shares[i, self.window_codes].sum()) if len(self.window_codes) else 0.0,
                 "floor": float(shares[i, FLOOR]), "ceiling": float(shares[i, CEILING]),
                 "wall": float(shares[i, WALL]), "near": float(near[i]), "max_single": float(max_single[i]),
@@ -777,6 +830,12 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     level = next((lv for lv in building.get("levels") or [] if lv["id"] == room.get("level_id")), None)
     if level is not None and level.get("ceiling_planes"):
         points = [p for p in points if headroom_ok(level, p)]
+    # Milestone 11 (docs/milestone11.md §1.3 M6, §4.4 V1): no camera pressed against a door leaf (the corner
+    # points beside a door saw the leaf fill a quarter of the frame); a room with no other point keeps them.
+    doors = cameras.door_segments(room, building)
+    clear = [p for p in points if all(G.point_segment_distance(p, a, b) >= cameras.DOOR_CLEARANCE_M - 1e-9
+                                      for _id, a, b in doors)]
+    points = clear or points
     if points:
         return points, None
     tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT]
@@ -960,6 +1019,8 @@ def plan_room(room: dict, building: dict, level: Optional[dict] = None,
         return [], 0
     lens, rule = cameras.room_lens(room, lens_mm)
     positions, fallback = candidate_positions(room, building)
+    if fallback:                       # Milestone 11 (§1.3 M4): one cramped point gives one view, not three
+        n = 1
     cands = score_candidates(model, positions, lens_mm=lens)
     picks, blocked = select_views(cands, n)
     warning = "; ".join(w for w in (fallback, blocked) if w) or None

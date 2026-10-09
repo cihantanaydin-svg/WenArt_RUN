@@ -94,10 +94,15 @@ WINDOW_PULL = {
 # Milestone 10 (docs/milestone10.md §1.6b row 11): object kinds of the whole building; views.KIND_MAP never maps
 # them to furniture.
 WHOLE_BUILDING_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_area", "site_decor", "light_well",
-                        "railing")
+                        "railing",
+                        # Milestone 11 (docs/milestone11.md §1.1 E10, E11): the inferred site and the facade details
+                        "site_steps", "site_boundary", "facade_detail", "splashback")
 # wenart/schema/building.schema.json $defs/side.
 SIDES = ("all", "north", "east", "south", "west", "front", "back", "left", "right")
-CAMERA_VIEWS = ("corner", "aerial", "elevation")
+CAMERA_VIEWS = ("corner", "aerial", "elevation",
+                # Milestone 11 (docs/milestone11.md §1.1 E14, §17.3): the frontal view of the entrance facade and
+                # the agent's fixed exterior cameras
+                "frontal", "agent")
 ASSUMED_ENTRY = {
     "type": "object",
     "required": ["object", "field", "value", "reason"],
@@ -211,7 +216,7 @@ SCENE_CAMERA = {
         # Milestone 6 (docs/milestone6.md §1.3); optional so M5 manifests stay valid.
         "shift_x": {"type": "number"},
         "shift_y": {"type": "number"},
-        "policy": {"enum": ["search", "m5"]},
+        "policy": {"enum": ["search", "m5", "agent"]},      # agent: a fixed camera of the agent (M11 §17.3)
         "score": {"type": ["object", "null"]},
         # Milestone 8 (docs/milestone8.md §5): why the camera has its lens (search policy; optional).
         "lens_rule": {"type": ["string", "null"]},
@@ -231,7 +236,7 @@ EXTERIOR_LOOK = {
     "required": ["material", "colour", "source", "assumed", "reason"],
     "properties": {"material": {"type": "string"}, "colour": {"type": ["string", "null"]},
                    "rgb": {"oneOf": [{"type": "null"}, _VEC3]}, "asset": {"type": ["string", "null"]},
-                   "source": {"enum": ["documents", "brief", "style", "fallback", "build"]},
+                   "source": {"enum": ["documents", "brief", "style", "fallback", "build", "agent"]},   # agent: M11
                    "assumed": {"type": "boolean"}, "reason": {"type": "string"},
                    "warnings": {"type": "array", "items": {"type": "string"}}},
 }

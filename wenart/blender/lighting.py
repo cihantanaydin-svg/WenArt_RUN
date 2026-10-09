@@ -224,6 +224,17 @@ def fill_light_reason(windows: list[dict], ratio: float | None) -> str | None:
     return None
 
 
+def light_ceiling(ceiling_at, level: dict, center, size: float, ceil_z: float) -> float:
+    """The ceiling height a square ceiling light of ``size`` at ``center`` hangs under (pure): the lowest of the
+    flat ceiling and the sloped ceiling at its centre and its four corners. Milestone 11 (track C): under a slope
+    the centre alone let the downhill half of the square rise through the roof, where it lit the roof's top
+    surface (glowing slits on real02's mansard)."""
+    h = float(size) / 2.0
+    cx, cy = float(center[0]), float(center[1])
+    pts = [(cx, cy)] + [(cx + sx * h, cy + sy * h) for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)]
+    return min([float(ceil_z)] + [float(ceiling_at(level, x, y)) for x, y in pts])
+
+
 def stair_openings(building: dict, level: dict) -> list[list[tuple[float, float]]]:
     """The ceiling openings of the stairs of a level (pure, ``shell.plan_stairs``): every void loop."""
     from wenart.blender.shell import plan_stairs
@@ -254,12 +265,16 @@ def world_lighting(lighting: dict, azimuth_building_deg: float) -> dict:
 
 def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: str | None, collection,
                    manifest_objects: list, assumed: list, north_deg: float | None = None,
-                   north_source: str | None = None, ceiling_at=None) -> dict:
+                   north_source: str | None = None, ceiling_at=None, exterior: bool = False) -> dict:
     """World + sun + area lights for the windowless rooms of ``levels``.
 
     Milestone 10: ``north_deg`` (the compass bearing of the building's +Y axis, ``site.north_deg``) turns
     the style's compass sun azimuth into the building frame (``building_azimuth``); ``ceiling_at(level,
-    x, y)`` gives the ceiling height of a room under the roof (sloped), so its ceiling light hangs under it."""
+    x, y)`` gives the ceiling height of a room under the roof (sloped), so its ceiling light hangs under it.
+
+    Milestone 11 (docs/milestone11.md §1.1 E13): ``exterior`` (a build with exterior views) also makes the
+    exterior world (``materials.exterior_world_nodes``: a physical sky whose sun is the lamp's), which render.py
+    uses for the exterior cameras; the record is ``world_exterior``."""
     import bpy
     from mathutils import Vector
 
@@ -275,6 +290,10 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     in_building = building_azimuth(azimuth, north_deg or 0.0)
 
     world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path)
+    world_exterior = None
+    if exterior:
+        from wenart.blender.materials import exterior_world_nodes
+        world_exterior = exterior_world_nodes(scene, world_lighting(lighting, in_building))
 
     sun = bpy.data.lights.new("sun", "SUN")
     sun.energy = strength
@@ -339,7 +358,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             lob = bpy.data.objects.new(f"light_{room['id']}", light)
             # The room's own ceiling at the light (review #28: a sloped ceiling of one room never carries over to
             # the next room of the level).
-            room_ceil = ceil_z if ceiling_at is None else min(ceil_z, ceiling_at(level, *plan["center"][:2]))
+            room_ceil = ceil_z if ceiling_at is None else light_ceiling(ceiling_at, level, plan["center"], size, ceil_z)
             lob.location = (plan["center"][0], plan["center"][1], room_ceil - AREA_LIGHT_CEILING_GAP)
             lob.visible_camera = False      # lighting mood only: no lamp in the picture
             collection.objects.link(lob)
@@ -364,7 +383,9 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     sun_info = {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength, "temperature_k": temperature}
     if north_deg is not None:
         sun_info.update(azimuth_building_deg=round(in_building, 3), north_deg=north_deg, north_source=north_source)
-    return {"world": world, "sun": sun_info,
+    if lighting.get("sun_source"):
+        sun_info["source"] = lighting["sun_source"]
+    return {"world": world, "world_exterior": world_exterior, "sun": sun_info,
             "area_lights": [o.name for o in area_lights], "portals": [o.name for o in portals]}
 
 

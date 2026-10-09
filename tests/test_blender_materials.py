@@ -227,9 +227,10 @@ def test_default_style_build_refuses_non_cc0_assets(built_default):
     for record in m["materials"].values():
         assert record["asset"] not in ("Tiles074", "WoodFloor051"), record
         assert record["licence"] in (None, "CC0")
-    # The wet floor asks for Tiles074: flat, and the record says why.
-    tiles = [r for r in m["materials"].values() if r["slug"] == "tiles_light" and "Tiles074" in r["reason"]]
-    assert tiles and all(r["textured"] is False and "CC BY 4.0" in r["reason"] and "refused" in r["reason"]
+    # Milestone 11 step 0 (docs/milestone11.md §1.3 M1, commit ad86494): tiles_light is a procedural light
+    # ceramic, it asks for no image asset (Tiles074, the dark checkerboard, is refused but no longer used).
+    tiles = [r for r in m["materials"].values() if r["slug"] == "tiles_light"]
+    assert tiles and all(r["textured"] is False and r["procedural"] == "wenart_tiles" and r["asset"] is None
                          for r in tiles)
     assert m["lighting"]["world"]["kind"] == "sky"
 

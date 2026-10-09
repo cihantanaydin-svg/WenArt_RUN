@@ -911,6 +911,28 @@ def look_from_values(entry: dict | None) -> dict | None:
 # Blender side
 # --------------------------------------------------------------------------
 
+def world_for(scene_props: dict, camera_kind: str | None) -> str | None:
+    """The world name a camera renders under (pure; Milestone 11, docs/milestone11.md §1.1 E13): an exterior camera
+    the build's exterior world (``wenart_world_exterior``: a physical sky matched to the sun lamp), any other the
+    interior one (``wenart_world_interior``: the style's HDRI); None when the scene has no such property (a scene
+    built before Milestone 11 keeps its one world)."""
+    key = "wenart_world_exterior" if camera_kind == "exterior" else "wenart_world_interior"
+    name = scene_props.get(key)
+    return str(name) if name else None
+
+
+def select_world(scene, cam) -> str | None:
+    """Switch ``scene.world`` to the world of ``cam`` (``world_for``); returns the world's name."""
+    import bpy
+
+    want = world_for({k: scene.get(k) for k in ("wenart_world_exterior", "wenart_world_interior")},
+                     cam.get("wenart_camera_kind"))
+    world = bpy.data.worlds.get(want) if want else None
+    if world is not None:
+        scene.world = world
+    return scene.world.name if scene.world is not None else None
+
+
 def configure_device(scene, requested: str = "auto") -> str:
     """Cycles device: OPTIX, then CUDA, then CPU. Returns the one in use."""
     import bpy
@@ -1568,6 +1590,7 @@ class RenderRun:
             print(f"RERENDER {cam.name}: {reason}")
         scene = ctx.scene
         scene.camera = cam
+        world = select_world(scene, cam)          # Milestone 11 E13: the exterior views under the physical sky
         look = ctx.look.decide(cam, self.out, ctx.res)
         ctx.look.apply(look)
         set_output(scene, "OPEN_EXR_MULTILAYER")
@@ -1616,6 +1639,7 @@ class RenderRun:
             "window_pull": pull,
             "alt_preview": f["alt_preview"].name if alt_bytes is not None else None,
             "alt_preview_bytes": alt_bytes,
+            "world": world,
         }
         self.rendered += 1
         self.write_manifest()   # after every camera: a killed run keeps what it rendered

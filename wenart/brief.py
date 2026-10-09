@@ -24,6 +24,13 @@ fills every key the brief does not set from the ``brief:`` block of
   ``auto`` (the default: 18 mm, 16 mm in narrow rooms) or a number from 14
   to 35 (mm); anything else is reported and the default is used.
 
+Milestone 11 (docs/milestone11.md §17, the user's decisions of 9 Oct 2026): ``markers_in_final`` (D3, default
+false: no unverified stripes in any render), ``roof_terraces`` (D5: ``auto`` | ``cut`` | ``closed``) and
+``site_options.front_court`` (D6: ``auto`` | ``yes`` | ``no``; YAML reads a bare yes / no as a boolean, both
+spellings are taken). ``site`` stays the word ``full`` / ``ground`` every M10 reader expects; a brief that writes
+``site: {mode: full, front_court: yes}`` (the contract's ``site.front_court``) is read as ``site: full`` plus
+``site_options: {front_court: yes}`` (``split_site``); ``front_court(brief)`` reads either.
+
 Why one loader: the brief stored in ``building.project.brief`` is the brief
 at ingest/layout time and can be stale (docs/milestone5.md §1.1), so the
 Milestone 5 readers (polish, vision check, report) load ``brief.yaml``
@@ -123,7 +130,35 @@ VALUE_RULES = {
     "failed_levels": _one_of("leave_out", "stop"),
     "site": _one_of("full", "ground"),
     "render.twin_rooms": _one_of("one", "all"),
+    # Milestone 11 (docs/milestone11.md §17: D5, D6)
+    "roof_terraces": _one_of("auto", "cut", "closed"),
+    "site_options.front_court": lambda v: None if v in ("auto", "yes", "no") or isinstance(v, bool) else
+    f"expected one of auto, yes, no, got {v!r}",
 }
+
+# Values YAML reads as booleans that a rule takes as words (``front_court: yes``).
+BOOL_WORDS = {"site_options.front_court": {True: "yes", False: "no"}}
+
+
+def split_site(raw: dict) -> dict:
+    """A brief whose ``site`` is a mapping (``{mode: full, front_court: yes}``, the contract's
+    ``site.front_court``, docs/milestone11.md §17) as ``site: <mode>`` plus ``site_options`` (pure; a copy). The
+    mode is left out when the mapping names none (the default then applies, assumed); an explicit
+    ``site_options`` key wins over the same key inside ``site``."""
+    site = raw.get("site")
+    if not isinstance(site, dict):
+        return raw
+    out = dict(raw)
+    if site.get("mode") is not None:
+        out["site"] = site["mode"]
+    else:
+        out.pop("site")
+    opts = {k: v for k, v in site.items() if k != "mode"}
+    if isinstance(raw.get("site_options"), dict):
+        opts.update(raw["site_options"])
+    if opts:
+        out["site_options"] = opts
+    return out
 
 
 def _merge(raw: dict, defaults: dict, prefix: str, assumed: list[str], warnings: list[str]) -> dict:
@@ -149,7 +184,8 @@ def _merge(raw: dict, defaults: dict, prefix: str, assumed: list[str], warnings:
                 values[key] = copy.deepcopy(default)
                 assumed.append(path)
             else:
-                values[key] = copy.deepcopy(given)
+                values[key] = copy.deepcopy(BOOL_WORDS.get(path, {}).get(given, given)
+                                            if isinstance(given, bool) else given)
             continue
         want, got = _kind(default), _kind(given)
         if want == "dict" and got == "dict":
@@ -187,7 +223,7 @@ def merge_brief(raw: Optional[dict], defaults: Optional[dict] = None) -> dict:
         warnings.append(f"brief.yaml is not a mapping ({type(raw).__name__}); defaults used")
         raw = {}
     assumed: list[str] = []
-    values = _merge(raw or {}, defaults, "", assumed, warnings)
+    values = _merge(split_site(raw or {}), defaults, "", assumed, warnings)
     return {"values": values, "assumed": assumed, "warnings": warnings}
 
 
@@ -230,6 +266,15 @@ def lens_mm(brief: Optional[dict]) -> Optional[float]:
     if isinstance(v, bool) or not isinstance(v, (int, float)):
         return None
     return float(v)
+
+
+def front_court(brief: Optional[dict]) -> str:
+    """D6 ``site_options.front_court`` of a ``load_brief`` result (docs/milestone11.md §17): ``auto`` (the
+    default), ``yes`` or ``no``."""
+    v = value(brief, "site_options.front_court", "auto")
+    if isinstance(v, bool):
+        v = BOOL_WORDS["site_options.front_court"][v]
+    return v if v in ("auto", "yes", "no") else "auto"
 
 
 def is_assumed(brief: Optional[dict], key: str) -> bool:

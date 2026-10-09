@@ -100,25 +100,41 @@ HOLDER_AREA_RATIO = 2.0    # ... and the holder is at least twice its area (two 
                            # size, e.g. real02's armchair and its ottoman, are no holder and its content)
 
 
-def _footprint_polygon(fp: dict):
-    from shapely.geometry import Polygon
+def _footprint_polygon(fp: dict) -> list[tuple[float, float]]:
+    """The footprint rectangle, counter-clockwise (pure Python: Blender's Python has no shapely; M11 track C: the
+    shapely version stopped every build inside Blender)."""
+    return geom2d.ccw(G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0)))
 
-    return Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
+
+def _convex_overlap(a: list, b: list) -> float:
+    """Area of the overlap of two convex counter-clockwise polygons (``b`` clipped by every edge of ``a``)."""
+    poly = list(b)
+    n = len(a)
+    for i in range(n):
+        p, q = a[i], a[(i + 1) % n]
+        # keep the left of p->q (inside a counter-clockwise polygon): -(cross) <= 0
+        ex, ey = q[0] - p[0], q[1] - p[1]
+        poly = geom2d.clip_half_plane(poly, ey, -ex, -(ey * p[0] - ex * p[1]))
+        if not poly:
+            return 0.0
+    return G.polygon_area(poly)
 
 
 def held_pieces(piece: dict, others: list[dict]) -> list[str]:
     """Ids of the ``others`` (built pieces of the level) whose footprint lies at least ``HOLDS_SHARE`` inside the
     footprint of ``piece``, which is at least ``HOLDER_AREA_RATIO`` times larger (pure)."""
     outer = _footprint_polygon(piece["footprint"])
-    if outer.area <= 1e-9:
+    outer_area = G.polygon_area(outer)
+    if outer_area <= 1e-9:
         return []
     out = []
     for other in others:
         if other is piece or other.get("id") == piece.get("id"):
             continue
         poly = _footprint_polygon(other["footprint"])
-        if (poly.area > 1e-9 and outer.area >= HOLDER_AREA_RATIO * poly.area
-                and outer.intersection(poly).area >= HOLDS_SHARE * poly.area):
+        area = G.polygon_area(poly)
+        if (area > 1e-9 and outer_area >= HOLDER_AREA_RATIO * area
+                and _convex_overlap(outer, poly) >= HOLDS_SHARE * area):
             out.append(other.get("id"))
     return out
 

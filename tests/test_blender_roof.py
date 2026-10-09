@@ -141,10 +141,26 @@ def test_real02_mansard_follows_its_section_ridge_on_the_party_wall():
     peak = prof["points"][2][1]
     roof = _real02_roof(floor, profile=prof, ridge_height=_v(peak))
     d = R.derive(roof, _attic(floor))
-    upper = [p for p in d["planes"] if p["id"].endswith("_upper")]
+    upper = [p for p in d["planes"] if p["id"].endswith("_upper") and p["aspect_deg"] in (0.0, 180.0)]
     assert sorted(p["aspect_deg"] for p in upper) == pytest.approx([0.0, 180.0])        # slopes east and west
     assert all(p["slope_deg"] == pytest.approx(13.0, abs=0.01) for p in upper)
-    assert all(p["slope_deg"] == pytest.approx(40.0, abs=0.01) for p in d["planes"] if p["id"].endswith("_lower"))
+    lower = [p for p in d["planes"] if p["id"].endswith("_lower")]
+    assert all(p["slope_deg"] == pytest.approx(40.0, abs=0.01) for p in lower if p["aspect_deg"] in (0.0, 180.0))
+    # Milestone 11 (docs/milestone11.md §1.1 E7): the sides the section does not cut follow the plan's closed break
+    # line (2.20 m in): the lower slope up to it at the section's break height, an upper hip above it, steeper than
+    # the section's 13 degrees so it still meets the section's ridge (the M10 roof ran the 40 degree slope up to the
+    # ridge there: front and back far too steep)
+    ends = [p for p in d["planes"] if p["aspect_deg"] in (90.0, 270.0)]
+    assert sorted(p["id"] for p in ends) == ["rp_north_lower", "rp_north_upper", "rp_south_lower", "rp_south_upper"]
+    brk = prof["points"][1][1]
+    tan_low = (brk - (floor + 0.5)) / 2.2
+    for p in ends:
+        want = math.degrees(math.atan(tan_low)) if p["id"].endswith("_lower") else \
+            math.degrees(math.atan((peak - brk) / 4.3))
+        assert p["slope_deg"] == pytest.approx(want, abs=0.01), p["id"]
+    assert R.surface_z(d["equations"], 7.585, 0.95) == pytest.approx(brk, abs=1e-6)   # on the break line
+    (ends_rec,) = [a for a in d["assumed"] if a["field"] == "mansard_ends"]
+    assert "break line" in ends_rec["reason"] and ends_rec["value"]["upper_deg"] > 13.0
     assert d["ridge_z"] == pytest.approx(peak) and d["eaves_z"] == pytest.approx(floor + 0.5)
     ridge = {round(q[0], 3) for p in upper for q in p["points"] if abs(q[2] - peak) < 1e-3}
     assert ridge == {7.585}
