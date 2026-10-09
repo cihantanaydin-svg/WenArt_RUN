@@ -34,7 +34,8 @@
 #            prep jobs, docs/milestone7.md §5.1, reused from /workspace/tools/libredwg/bin once built)
 #            and BAKEOFF_MODELS = the ids of CHECK_MODELS (default "qwen glm") from
 #            wenart/vision_check/check.yaml, each with its pinned revision ("<id>@<revision>").
-#            Needed by the phase check.
+#            Needed by the phase check. Milestone 11: AGENT_MODELS (check.yaml keys, e.g. "agent") adds the agent
+#            model(s) of an orchestrated run (scripts/jobs/full.sh, scripts/jobs/agent_check.sh).
 # Writes setup_polish.json ($WENART_RESULTS, else /workspace/logs): per part state and seconds,
 # model sizes and seconds, free disk, MemTotal, MemAvailable, nproc (the host's: /proc/meminfo and
 # os.cpu_count() in a container), pod_limits (the pod's cgroup v2/v1 CPU quota, memory limit and
@@ -80,6 +81,10 @@ PINS=("diffusers==$DIFFUSERS_VERSION" "transformers==$TRANSFORMERS_VERSION" "acc
 MODE="${POLISH_MODE:-final}"
 read -r -a PHASES <<< "${POLISH_PHASES:-look controls polish gate check report tests}"
 read -r -a CHECK_KEYS <<< "${CHECK_MODELS:-qwen glm}"
+# Milestone 11 (docs/milestone11.md §11, §12): the agent model(s) of an orchestrated run, check.yaml keys (agent,
+# agent_fast), downloaded with the VLMs by the part check (hf download with the pinned revision into HF_HOME on the
+# container disk, about 31 GB for agent at ~1.1 GB/s). Empty (the default): no agent model.
+read -r -a AGENT_KEYS <<< "${AGENT_MODELS:-}"
 RECOG_PARTS="${POLISH_RECOG_PARTS:-vllm libredwg models}"   # the recognition setup's parts for the phase check
 
 log() { echo "[$(date -u +%H:%M:%S)] setup-polish: $*"; }
@@ -94,16 +99,18 @@ if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" 
 if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" ]; then NEED_MODELS=1; NEED_VENV=1; fi
 if has_phase check; then NEED_CHECK=1; fi
 
-# vlm_entries: "<id>@<revision> ..." of CHECK_MODELS from check.yaml (the single source, §1.6).
+# vlm_entries: "<id>@<revision> ..." of CHECK_MODELS (+ AGENT_MODELS, Milestone 11) from check.yaml (the single
+# source, §1.6; a key named twice is downloaded once).
 vlm_entries() {
-  "$PY" - "$REPO_DIR/wenart/vision_check/check.yaml" "${CHECK_KEYS[@]}" <<'PY'
+  "$PY" - "$REPO_DIR/wenart/vision_check/check.yaml" "${CHECK_KEYS[@]}" "${AGENT_KEYS[@]}" <<'PY'
 import sys
 
 import yaml
 
 with open(sys.argv[1], encoding="utf-8") as fh:
     models = yaml.safe_load(fh)["models"]
-print(" ".join(f"{models[k]['id']}@{models[k]['revision']}" for k in sys.argv[2:]))
+keys = list(dict.fromkeys(sys.argv[2:]))
+print(" ".join(f"{models[k]['id']}@{models[k]['revision']}" for k in keys))
 PY
 }
 

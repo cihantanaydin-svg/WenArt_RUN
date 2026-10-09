@@ -26,7 +26,12 @@
 #   AB_PHASE            all (default) | render | judge
 #   RUN_FORCE           stages whose fingerprint is ignored, comma separated (e.g. photos,layout)
 #   RENDER_SAMPLES      Cycles samples (default 128)
-#   CHECK_MODELS        check.yaml model keys (default "qwen glm")
+#   CHECK_MODELS        check.yaml model keys (default "qwen glm"; recognition, layout and --no-orchestrator checks)
+#   NO_ORCHESTRATOR=1   Milestone 11: the M10 chain (`pod --no-orchestrator`); default: the AI orchestrator
+#                       (docs/milestone11.md §8: agent rounds, the agent model's one-pass check; its model is
+#                       downloaded by the setup, AGENT_MODELS)
+#   AGENT_MODEL         agent (default, Qwen/Qwen3.8-27B-FP8) | agent_fast (Qwen/Qwen3.6-35B-A3B-FP8)
+#   WENART_AGENT_SLEEP  on | off | auto (default: the agent server sleeps for the gate and polish below 80 GB)
 #   RUN_THREADS         CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
 #
 # Results: the background loop (every 300 s, under flock) and the EXIT trap run `python -m wenart.run copy`
@@ -108,6 +113,10 @@ if [ -n "${AB_PROJECTS:-}" ]; then
   if [ -n "${AB_CONTROL_PROJECT:-}" ]; then POD_ARGS+=(--ab-controls "$AB_CONTROL_PROJECT"); fi
 fi
 if [ -n "${RUN_FORCE:-}" ]; then POD_ARGS+=(--force "$RUN_FORCE"); fi
+# Milestone 11: orchestrated by default (the CLI's default); the agent model is downloaded with the VLMs.
+AGENT_SETUP="${AGENT_MODEL:-agent}"
+if [ "${NO_ORCHESTRATOR:-0}" = "1" ]; then POD_ARGS+=(--no-orchestrator); AGENT_SETUP=""; fi
+if [ -n "${AGENT_MODEL:-}" ]; then POD_ARGS+=(--agent-model "$AGENT_MODEL"); fi
 
 # stamp <file>: an empty file whose mtime is the volume's own time minus COPY_OVERLAP_S, so a file
 # written in the same second as the stamp still counts as newer (polish.sh).
@@ -252,16 +261,17 @@ cd "$REPO"
 mkdir -p "$RESULTS" "$ASSETS" "$WENART_OUTPUTS" "$JOB_DIR"
 log "job $JOB: projects [${RUN_PROJECTS:-}], private [${PRIVATE_PROJECTS:-}] selftest ${PRIVATE_SELFTEST:-0}," \
     "A/B [${AB_PROJECTS:-}] (${AB_PHASE}, controls ${AB_CONTROL_PROJECT:-none}), force [${RUN_FORCE:-}]," \
-    "samples $RENDER_SAMPLES, check models $CHECK_MODELS, deadline ${WENART_DEADLINE:-none}"
+    "samples $RENDER_SAMPLES, check models $CHECK_MODELS, agent ${AGENT_SETUP:-off}, deadline ${WENART_DEADLINE:-none}"
 set_threads
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 copy_loop &
 COPY_PID=$!
 
-# Setup: venv-polish, the polish + gate models (+ the OWLv2 detector), vLLM + both VLMs and LibreDWG 0.14 for
-# DWG projects (every part: the phases list asks for all; M7 §5.1: the recognition setup's 'libredwg' part).
+# Setup: venv-polish, the polish + gate models (+ the OWLv2 detector), vLLM + both VLMs (+ the agent model, M11)
+# and LibreDWG 0.14 for DWG projects (every part: the phases list asks for all; M7 §5.1: the recognition setup's
+# 'libredwg' part).
 setup_rc=0
-POLISH_RECOG_PARTS="vllm libredwg models" POLISH_MODE=final \
+AGENT_MODELS="$AGENT_SETUP" POLISH_RECOG_PARTS="vllm libredwg models" POLISH_MODE=final \
   POLISH_PHASES="look controls polish gate check report tests" bash scripts/pod_setup_polish.sh || setup_rc=$?
 if [ "$setup_rc" -ne 0 ]; then
   log "warning: pod_setup_polish.sh exit $setup_rc (see setup_polish.json): the stages that need a missing part fail"

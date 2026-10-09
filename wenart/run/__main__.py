@@ -4,7 +4,8 @@
     python -m wenart.run pod  --projects "synthetic-01 synthetic-03" [--private "real-01"] [--private-selftest]
                               [--ab "synthetic-01 synthetic-03"] [--ab-controls synthetic-01]
                               [--ab-phase all|render|judge] --results $RESULTS [--profile full|smoke]
-                              [--force stage[,stage]] [--vlm-url URL]
+                              [--force stage[,stage]] [--vlm-url URL] [--no-orchestrator]
+                              [--agent-model agent|agent_fast] [--agent-rounds 4]
     python -m wenart.run copy --projects ... [--private ...] [--ab ...] --results $RESULTS [--since STAMP]
     python -m wenart.run ab-m5 --project <p> --project-out <out> [--commit SHA]   (A/B prepare part 2)
     python -m wenart.run prep ...      (the prep pod's job, M7 §9.2: ``wenart.run.prep.main(argv)``)
@@ -13,7 +14,10 @@
   split for the GPU ``--gpu`` (default ``GPU_PRIORITY[0]`` of
   ``scripts/gpu_run.py``; ``wenart/run/plan.py``).
 - ``pod`` (inside ``scripts/jobs/full.sh``): the whole run
-  (``wenart/run/scheduler.py``). Exit 0 when every project ended ``ok`` or
+  (``wenart/run/scheduler.py``). Milestone 11: orchestrated by default (the
+  agent rounds of ``wenart.agent`` between refit and the final renders, the
+  agent model's one-pass check); ``--no-orchestrator`` runs the M10 chain
+  unchanged (the smoke profile always does). Exit 0 when every project ended ``ok`` or
   ``needs_review``, no A/B stage failed or ended incomplete (``look_alt``
   excluded) and every GPU test group passed; else 1 (2 for bad options).
 - ``copy``: the small result files into the results layout
@@ -88,6 +92,12 @@ def parse_args(argv) -> argparse.Namespace:
     pod.add_argument("--render-samples", type=int, default=None, help="default $RENDER_SAMPLES or 128")
     pod.add_argument("--deadline", type=float, default=None, help="epoch seconds (default $WENART_DEADLINE)")
     pod.add_argument("--no-tests", action="store_true", help="skip the GPU tests of phase 11")
+    pod.add_argument("--no-orchestrator", action="store_true",
+                     help="the M10 stage chain without the AI orchestrator (Milestone 11; the default is orchestrated, "
+                          "the smoke profile always runs the M10 chain)")
+    pod.add_argument("--agent-model", default=None, choices=["agent", "agent_fast"],
+                     help="check.yaml models key of the agent (default $WENART_AGENT_MODEL or agent)")
+    pod.add_argument("--agent-rounds", type=int, default=4, help="max rounds of the orchestrator (default 4)")
 
     cp = sub.add_parser("copy", help="small result files into the results layout (counts only)")
     cp.add_argument("--projects", default="")
@@ -148,7 +158,11 @@ def cmd_pod(args) -> int:
         py=sys.executable,
         polish_py=os.environ.get("WENART_POLISH_PY") or "/opt/wenart/venv-polish/bin/python",
         logs_dir=_env_path("WENART_LOGS", "/workspace/logs"), job_id=os.environ.get("JOB_ID") or "run",
-        tests=not args.no_tests)
+        tests=not args.no_tests,
+        # Milestone 11: orchestrated by default; the smoke profile's fake server cannot plan (M10 chain).
+        orchestrator=not args.no_orchestrator and args.profile != "smoke",
+        agent_key=args.agent_model or os.environ.get("WENART_AGENT_MODEL") or "agent",
+        agent_rounds=max(1, int(args.agent_rounds)))
     return SC.run_pod(opts)
 
 

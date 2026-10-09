@@ -174,7 +174,8 @@ def test_plan_reuses_stage_1_and_writes_records(golden):
 def test_gpu_speed_and_sequences_change_the_minutes(golden, monkeypatch):
     out, plan = golden
     slow = P.make_plan(["synthetic-01", "real01"], outputs=out, gpu="RTX PRO 4500")
-    assert slow["gpu"]["seqs"] == {"qwen": 2, "glm": 2}
+    # Milestone 11: check.yaml also lists the agent models (docs/milestone11.md §11); the plan shows their sequences.
+    assert slow["gpu"]["seqs"] == {"qwen": 2, "glm": 2, "agent": 2, "agent_fast": 2}
     r_fast = next(e for e in plan["projects"] if e["project"] == "real01")
     r_slow = slow["projects"][1]
     assert r_slow["minutes"] > r_fast["minutes"]                     # speed 1.0 (and, unseeded, 34 calls at 2)
