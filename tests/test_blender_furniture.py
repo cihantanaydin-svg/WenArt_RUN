@@ -572,7 +572,25 @@ def _build(tmp: Path, assets: Path, extra=()) -> dict:
 @pytest.fixture(scope="module")
 def scene(tmp_path_factory, glb):
     pytest.importorskip("jsonschema")
-    return _build(tmp_path_factory.mktemp("furniture_scene"), glb)
+    # Milestone 11 decision D3: the unverified stripes are a debug option now (--markers); this scene pins them.
+    return _build(tmp_path_factory.mktemp("furniture_scene"), glb, extra=["--markers"])
+
+
+def test_no_stripes_without_markers_d3(tmp_path, glb):
+    """Milestone 11 decision D3 (docs/milestone11.md §17, brief markers_in_final: false by default): the same scene
+    built without --markers has no stripe in any material, the unknown piece is the plain grey proxy and the
+    unverified library piece keeps its own materials; the manifest says markers_in_final false and lists the
+    unverified items for the report."""
+    s = _build(tmp_path, glb)
+    assert not any(m["stripes"] for m in s["materials"].values())
+    assert not [n for n in s["materials"] if n.endswith("__unverified")]
+    m = s["manifest"]
+    assert m["markers_in_final"] is False
+    unknown = next(o for o in m["objects"] if o["kind"] == "furniture_proxy" and o.get("status") == "unverified")
+    assert unknown["material"] == "proxy"
+    ids = {i["id"] for i in m["unverified_items"]}
+    assert {f["id"] for f in s["building"]["furniture"] if f.get("status") == "unverified"} <= ids
+    assert all(not rec.get("unverified") for rec in m["materials"].values())
 
 
 @needs_blender

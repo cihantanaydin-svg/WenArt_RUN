@@ -334,6 +334,28 @@ def room_openings(room: dict, polygon, building: dict) -> list[dict]:
     return out
 
 
+def door_segments(room: dict, building: dict) -> list[tuple[str, tuple, tuple]]:
+    """``[(door id, a, b)]``: the doors on the room's edges as segments on their wall's centre line, as wide as the
+    door (pure; Milestone 11 §4.4 V1: a camera stays ``DOOR_CLEARANCE_M`` from a door leaf)."""
+    from wenart.blender.shell import opening_centre_on_wall
+
+    walls = {w["id"]: w for w in building.get("walls", []) if w["level_id"] == room["level_id"]}
+    out = []
+    for o in room_openings(room, [tuple(p[:2]) for p in room["polygon"]], building):
+        wall = walls.get(o.get("wall_id"))
+        if o.get("type") != "door" or wall is None:
+            continue
+        cx, cy, _ = opening_centre_on_wall(o, wall)
+        ux, uy = _unit(wall["start"], wall["end"])
+        h = float(o["width"]) / 2.0
+        out.append((o["id"], (cx - ux * h, cy - uy * h), (cx + ux * h, cy + uy * h)))
+    return out
+
+
+# Milestone 11 (docs/milestone11.md §4.4 V1): a camera stands at least this far from a door leaf.
+DOOR_CLEARANCE_M = 0.6
+
+
 def opening_rooms(building: dict, level_id: str | None = None) -> dict[str, list[str]]:
     """``{opening_id: [room_id, ...]}``: the rooms whose polygon edge carries
     each opening (``room_openings``), in building order; an opening between

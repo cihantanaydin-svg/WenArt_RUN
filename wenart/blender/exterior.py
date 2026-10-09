@@ -53,6 +53,13 @@ MIN_BUILDING_SHARE = 0.08
 MAX_BLOCKED = 0.35
 CLEARANCE = 0.3
 CLIP_END = 3000.0                                       # beyond the flat ground (site.HORIZON_M)
+# Milestone 11 (docs/milestone11.md §1.1 E14, §4.1 X6, §7): the eye-level views of the main (entrance) facade.
+EYE_LENS_MM = 26.0                                      # 24-28 mm
+CORNER_ANGLE_DEG = 30.0                                 # off the facade a corner view faces (30/60 instead of 45)
+FILL_RANGE = (0.6, 0.8)                                 # the building's share of the frame width
+FILL_TARGET = 0.7
+DISTANCE_SCAN_M = (6.0, 80.0, 0.5)
+MOVE_STEPS_M = (0.0, 2.0, 4.0, -1.5, 6.0, 9.0, 12.0)      # a blocked eye-level view moves out (or a little in)
 KIND = "exterior"
 LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4}
 
@@ -353,6 +360,11 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
             v, f, info = S.plot_wall_parts(wall, m.terrain)
             m.add_mesh(v, f, "plot_wall")
             m.walls.append((tuple(wall["start"]), tuple(wall["end"]), info["thickness"] / 2.0, info["z_range"][1]))
+        for seg in (site_plan.get("inferred") or {}).get("boundary") or []:     # Milestone 11: hedge or fence
+            v, f, info = S.boundary_parts(seg, m.terrain)
+            m.add_mesh(v, f, "plot_wall")
+            half = (S.INFERRED["hedge_thickness"] if seg["kind"] == "hedge" else S.INFERRED["fence_post"]) / 2.0
+            m.walls.append((tuple(seg["start"]), tuple(seg["end"]), half, info["z_range"][1]))
         for item in site_plan["trees"]:
             parts = S.tree_parts(item, m.terrain)
             for mesh in (parts["trunk"], parts["crown"]):
@@ -445,6 +457,68 @@ def frame(position, target, points: np.ndarray, level: bool = True) -> tuple[flo
     if SENSOR_MM / (2.0 * th) < LENS_RANGE_MM[0] - 1e-6:
         warning = (warning + "; " if warning else "") + f"the building does not fit at {LENS_RANGE_MM[0]:g} mm"
     return round(float(lens), 2), round(float(shift_y), 4), [round(float(c), 4) for c in tgt], warning
+
+
+def frame_fixed(position, target, points: np.ndarray, lens: float) -> dict:
+    """A level camera with a fixed ``lens`` (Milestone 11 E14): the yaw re-centred on the points' horizontal extent
+    (as ``frame``), the vertical lens shift that centres them (at most ``MAX_SHIFT_Y``). Returns ``{"lens_mm",
+    "shift_y", "target", "fill": the share of the frame width the points span, "fits": every point in the frame,
+    "warning"}``."""
+    pos = np.asarray(position, dtype=np.float64)
+    tgt = np.array([float(target[0]), float(target[1]), pos[2]])
+    for _ in range(2):
+        f, r, u = _basis(pos, tgt)
+        v = points - pos
+        depth = v @ f
+        ok = depth > 0.1
+        if not ok.any():
+            return {"lens_mm": lens, "shift_y": 0.0, "target": tgt.tolist(), "fill": 0.0, "fits": False,
+                    "warning": "the building is behind the camera"}
+        a = (v[ok] @ r) / depth[ok]
+        ac = (a.min() + a.max()) / 2.0
+        dist = np.linalg.norm(tgt - pos)
+        c, s_ = math.cos(-math.atan(ac)), math.sin(-math.atan(ac))
+        d = tgt - pos
+        tgt = pos + np.array([c * d[0] - s_ * d[1], s_ * d[0] + c * d[1], d[2]]) * (dist / max(np.linalg.norm(d), 1e-9))
+    f, r, u = _basis(pos, tgt)
+    v = points - pos
+    depth = v @ f
+    ok = depth > 0.1
+    a = (v[ok] @ r) / depth[ok]
+    b = (v[ok] @ u) / depth[ok]
+    tan_h = SENSOR_MM / (2.0 * lens)
+    tan_v = tan_h * RESOLUTION[1] / RESOLUTION[0]
+    fill = float((a.max() - a.min()) / (2.0 * tan_h))
+    bc = (b.min() + b.max()) / 2.0
+    shift_y = bc * lens / SENSOR_MM
+    warning = None
+    if abs(shift_y) > MAX_SHIFT_Y:
+        warning = f"lens shift {shift_y:+.2f} limited to {math.copysign(MAX_SHIFT_Y, shift_y):+.2f}"
+        shift_y = math.copysign(MAX_SHIFT_Y, shift_y)
+    centre_b = shift_y * SENSOR_MM / lens
+    fits = bool(ok.all() and fill <= 1.0 and b.max() - centre_b <= tan_v and centre_b - b.min() <= tan_v)
+    return {"lens_mm": float(lens), "shift_y": round(float(shift_y), 4), "target": [round(float(c), 4) for c in tgt],
+            "fill": round(fill, 4), "fits": fits, "warning": warning}
+
+
+def fill_distance(model: "ExteriorModel", origin, direction, aim, points: np.ndarray, lens: float = EYE_LENS_MM
+                  ) -> tuple[float, dict]:
+    """The distance along ``direction`` from ``origin`` (a building corner or a facade centre) at which a level
+    camera with ``lens`` sees the whole building filling about ``FILL_TARGET`` of the frame width (the first scanned
+    distance with the fill at most ``FILL_TARGET`` and every point in the frame); ``(distance, frame_fixed
+    record)``."""
+    lo, hi, step = DISTANCE_SCAN_M
+    best = None
+    dist = lo
+    while dist <= hi + 1e-9:
+        p = (origin[0] + direction[0] * dist, origin[1] + direction[1] * dist)
+        pos = (p[0], p[1], _eye(model, *p))
+        rec = frame_fixed(pos, aim, points, lens)
+        best = (dist, rec)
+        if rec["fits"] and rec["fill"] <= FILL_TARGET + 1e-9:
+            return dist, rec
+        dist += step
+    return best
 
 
 def view_check(model: ExteriorModel, position, target, lens: float, shift_y: float, aim) -> dict:
@@ -562,9 +636,11 @@ def _opening_counts(building: dict, levels: Sequence[dict], outline) -> dict[str
     return counts
 
 
-def _try(model, building, levels, name, view, candidates, aim, level_cam=True, extra=None) -> dict:
+def _try(model, building, levels, name, view, candidates, aim, level_cam=True, extra=None,
+         lens_mm: Optional[float] = None) -> dict:
     """The first candidate position that is free and sees the building; the plan or the drop record (the
-    camera record with ``dropped: true`` and ``dropped_reason``)."""
+    camera record with ``dropped: true`` and ``dropped_reason``). ``lens_mm`` (Milestone 11): a fixed lens for a
+    level camera (``frame_fixed``; the plan records the ``fill``)."""
     extra = dict({"sides": [], "region_id": None, "variant": None}, **(extra or {}))
     pts = building_points(model)
     reasons = []
@@ -573,7 +649,14 @@ def _try(model, building, levels, name, view, candidates, aim, level_cam=True, e
         if inside:
             reasons.append(f"{how}: inside the {inside}")
             continue
-        lens, shift_y, target, warn = frame(pos, aim, pts, level=level_cam)
+        fill = None
+        if lens_mm is not None and level_cam:
+            rec = frame_fixed(pos, aim, pts, lens_mm)
+            lens, shift_y, target, warn, fill = rec["lens_mm"], rec["shift_y"], rec["target"], rec["warning"], rec["fill"]
+            if not rec["fits"]:
+                warn = "; ".join(w for w in (warn, "the building does not fit the frame") if w)
+        else:
+            lens, shift_y, target, warn = frame(pos, aim, pts, level=level_cam)
         check = view_check(model, pos, target, lens, shift_y, aim)
         if not check["ok"]:
             reasons.append(f"{how}: {check['why']}")
@@ -587,6 +670,8 @@ def _try(model, building, levels, name, view, candidates, aim, level_cam=True, e
                 "visible_openings": visible_openings(model, building, levels, pos, target, lens, shift_y),
                 "visible_furniture": [], "score": {**check, "tried": k + 1}, "status": "assumed",
                 "dropped_reason": None}
+        if fill is not None:
+            plan["fill"] = fill
         plan.update(extra)
         return plan
     return {"name": name, "kind": KIND, "view": view, "room_id": None, "level_id": None,
@@ -642,21 +727,33 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
     def sides_at(corner):
         return [S.side_of(v, north, north_known) for v in _corner_axes(corner, rect)]
 
+    terrain = model.terrain or {"kind": "flat", "z": {a: model.z_range[0] for a in S.AXES}}
+    main = S.main_facade(building, levels, terrain, model.outline)
+    md = main["direction"]
+    pts_all = building_points(model)
     for k, corner in enumerate(corners):
-        d = (corner[0] - cx, corner[1] - cy)
-        n = math.hypot(*d)
-        d = (d[0] / n, d[1] / n)
-        cands = []
-        if plot:
-            pc = _plot_corner(plot, (cx, cy), d)
-            if pc is not None:
-                cands.append(((pc[0], pc[1], _eye(model, *pc)), f"plot corner ({pc[0]:.2f}, {pc[1]:.2f})"))
-        for dist in DIAGONAL_M:
-            p = (corner[0] + d[0] * dist, corner[1] + d[1] * dist)
-            cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:g} m from the building corner along its diagonal"))
+        # Milestone 11 E14: the camera stands CORNER_ANGLE_DEG off the facade it faces (the main facade at the two
+        # front corners, the back facade at the two back ones), at the distance where the building fills about
+        # FILL_TARGET of the frame through EYE_LENS_MM (straight verticals: level, lens shift).
+        n1, n2 = _corner_axes(corner, rect)
+        if abs(n1[0] * md[0] + n1[1] * md[1]) < abs(n2[0] * md[0] + n2[1] * md[1]):
+            n1, n2 = n2, n1
+        ang = math.radians(CORNER_ANGLE_DEG)
+        d = (math.cos(ang) * n1[0] + math.sin(ang) * n2[0], math.cos(ang) * n1[1] + math.sin(ang) * n2[1])
         aim = (corner[0], corner[1], zmid)
-        keep(_try(model, building, levels, f"ext_{k + 1}", "corner", cands, aim,
-                  extra={"corner": k + 1, "sides": sides_at(corner), "variant": variant}))
+        d0, _rec = fill_distance(model, corner, d, aim, pts_all)
+        facing = S.side_of(n1, north, north_known)
+        cands = []
+        for step in MOVE_STEPS_M:
+            dist = d0 + step
+            if dist < DISTANCE_SCAN_M[0]:
+                continue
+            p = (corner[0] + d[0] * dist, corner[1] + d[1] * dist)
+            cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m from the building corner, "
+                                                         f"{CORNER_ANGLE_DEG:g} degrees off the {facing} facade"))
+        keep(_try(model, building, levels, f"ext_{k + 1}", "corner", cands, aim, lens_mm=EYE_LENS_MM,
+                  extra={"corner": k + 1, "sides": sides_at(corner), "variant": variant,
+                         "faces": facing, "main_facade": main["axis"]}))
 
     counts = _opening_counts(building, levels, model.outline)
     best = max(range(4), key=lambda k: (sum(counts[S.nearest_axis(v)] for v in _corner_axes(corners[k], rect)), -k))
@@ -696,6 +793,27 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
             cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m in front of the {side} facade"))
         keep(_try(model, building, levels, name, "elevation", cands, (face[0], face[1], zmid),
                   extra={"side": side, "sides": [side], "region_id": ev["region_id"], "variant": variant}))
+
+    # Milestone 11 E14: one frontal view of the entrance facade, unless a drawn elevation already looks at it.
+    main_side = S.side_of(md, north, north_known)
+    if not any(ev["outward"][0] * md[0] + ev["outward"][1] * md[1] > math.cos(math.radians(30.0)) for ev in views):
+        along = [p[0] * md[0] + p[1] * md[1] for p in model.outline]
+        w = (-md[1], md[0])
+        across = [p[0] * w[0] + p[1] * w[1] for p in model.outline]
+        a, b = max(along), (min(across) + max(across)) / 2.0
+        face = (md[0] * a + w[0] * b, md[1] * a + w[1] * b)
+        aim = (face[0], face[1], zmid)
+        d0, _rec = fill_distance(model, face, md, aim, pts_all)
+        cands = []
+        for step in MOVE_STEPS_M:
+            dist = d0 + step
+            if dist < DISTANCE_SCAN_M[0]:
+                continue
+            p = (face[0] + md[0] * dist, face[1] + md[1] * dist)
+            cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m in front of the {main_side} (entrance) facade"))
+        keep(_try(model, building, levels, f"ext_{6 + len(views)}", "frontal", cands, aim, lens_mm=EYE_LENS_MM,
+                  extra={"side": main_side, "sides": [main_side], "variant": variant, "main_facade": main["axis"],
+                         "main_facade_source": main["source"]}))
     return plans, dropped
 
 

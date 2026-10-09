@@ -34,7 +34,9 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
                                 "failed_levels", "site", "exterior.facade", "exterior.roof", "exterior.window_frame",
                                 "exterior.door", "exterior.paving", "exterior.garden",
                                 "render.views_per_room", "render.resolution", "render.samples", "render.lens_mm",
-                                "render.exterior_views", "render.twin_rooms"]
+                                "render.exterior_views", "render.twin_rooms",
+                                # Milestone 11 (docs/milestone11.md §17: D3, D5, D6)
+                                "markers_in_final", "roof_terraces", "site_options.front_court"]
     assert brief["warnings"] == [] and brief["path"].endswith("brief.yaml")
     styles = B.load_brief(PROJECTS / "synthetic-03")["values"]["styles"]
     assert len(styles) == 2

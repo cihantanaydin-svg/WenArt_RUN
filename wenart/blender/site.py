@@ -363,13 +363,18 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
 # --------------------------------------------------------------------------
 
 def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
-                outlines: Optional[dict] = None) -> tuple[list[dict], list[str]]:
+                outlines: Optional[dict] = None, front_court: str = "no") -> tuple[list[dict], list[str]]:
     """``(wells, warnings)``: the light wells of windows whose sill lies less than ``LIGHT_WELL_CLEARANCE``
     above the ground outside (pure). A drawn light well (``site.ground.light_wells`` with the window's
     ``opening_id``) is used as drawn; any other is assumed: ``light_well_depth`` out from the wall face,
     ``light_well_side`` wider on each side, its floor ``light_well_below_sill`` under the sill. A door below
     the ground outside is a warning (no well is made for it). Each well: ``{"opening_id", "level_id",
-    "polygon", "floor_z", "top_z", "outward", "source", "reason"}``."""
+    "polygon", "floor_z", "top_z", "outward", "source", "reason"}``.
+
+    Milestone 11 (docs/milestone11.md §1.1 E9, decision D6, brief ``site_options.front_court``): ``auto`` makes a
+    sunken front court (``front_courts``, ``source: inferred``, ``kind: front_court``) instead of the light well in
+    front of a window whose sill lies more than ``COURT["min_below"]`` under the ground, ``yes`` in front of every
+    window below the ground, ``no`` (the default here, the M10 build) never; a drawn light well always wins."""
     from wenart.blender.shell import opening_centre_on_wall, opening_vertical
 
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
@@ -407,6 +412,10 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
                           "reason": "drawn light well"})
             continue
         ux, uy = (-out[1], out[0])
+        below = gz - bottom
+        if front_court == "yes" or (front_court == "auto" and below > COURT["min_below"]):
+            wells.append(court_for(o, lv, (cx, cy), out, half_t, gz, below, front_court))
+            continue
         w = float(o["width"]) / 2.0 + DEFAULTS["light_well_side"]
         d0, d1 = half_t, half_t + DEFAULTS["light_well_depth"]
         poly = [(cx + ux * s + out[0] * d, cy + uy * s + out[1] * d) for s, d in ((-w, d0), (w, d0), (w, d1), (-w, d1))]
@@ -415,7 +424,67 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
                       "source": "assumed",
                       "reason": f"window sill {bottom:.2f} m, ground outside {gz:.2f} m: an open concrete light "
                                 f"well {DEFAULTS['light_well_depth']} m deep, {2 * w:.2f} m wide (no light well drawn)"})
-    return wells, warnings
+    return merge_courts(wells), warnings
+
+
+# Milestone 11 (docs/milestone11.md §1.1 E9, decision D6): a sunken front court in front of a deep basement window.
+COURT = {"min_below": 1.0, "depth": 3.0, "side": 0.6, "floor_below": 0.05, "parapet": 0.9, "merge_gap": 1.0}
+
+
+def court_for(opening: dict, level: dict, centre, out, half_t: float, gz: float, below: float, mode: str) -> dict:
+    """The inferred front court of one basement window (pure): ``COURT["depth"]`` out from the wall face,
+    ``COURT["side"]`` wider than the window on each side, its paved floor ``COURT["floor_below"]`` under the
+    basement floor, its retaining walls up to a ``COURT["parapet"]`` parapet above the ground (a drop of over
+    1 m needs a guard)."""
+    cx, cy = centre
+    ux, uy = (-out[1], out[0])
+    w = float(opening["width"]) / 2.0 + COURT["side"]
+    d0, d1 = half_t, half_t + COURT["depth"]
+    poly = [(cx + ux * s + out[0] * d, cy + uy * s + out[1] * d) for s, d in ((-w, d0), (w, d0), (w, d1), (-w, d1))]
+    floor_z = float(level["elevation"]) - COURT["floor_below"]
+    why = (f"window sill {below:.2f} m below the ground outside (> {COURT['min_below']:g} m)" if mode == "auto"
+           else "brief site_options.front_court: yes")
+    return {"opening_id": opening["id"], "opening_ids": [opening["id"]], "level_id": level["id"],
+            "polygon": geom2d.ccw(poly), "floor_z": floor_z, "top_z": gz, "outward": list(out), "source": "inferred",
+            "kind": "front_court", "inferred": True, "curb": COURT["parapet"],
+            "reason": f"{why}: an inferred sunken front court {COURT['depth']:g} m deep, {2 * w:.2f} m wide, its floor "
+                      f"at the basement floor, a {COURT['parapet']:g} m parapet (decision D6; no court drawn)"}
+
+
+def merge_courts(wells: list[dict]) -> list[dict]:
+    """Front courts on the same facade line whose spans overlap or lie within ``COURT["merge_gap"]`` become one
+    court (pure; the other wells unchanged)."""
+    courts = [w for w in wells if w.get("kind") == "front_court"]
+    if len(courts) < 2:
+        return wells
+    rest = [w for w in wells if w.get("kind") != "front_court"]
+    groups: list[dict] = []
+    for c in courts:
+        ox, oy = c["outward"]
+        ux, uy = -oy, ox
+        span = [p[0] * ux + p[1] * uy for p in c["polygon"]]
+        depth = [p[0] * ox + p[1] * oy for p in c["polygon"]]
+        rec = {"court": c, "u": (ux, uy), "s": (min(span), max(span)), "d": (min(depth), max(depth))}
+        for g in groups:
+            if g["court"]["outward"] == c["outward"] and abs(g["d"][0] - rec["d"][0]) < 0.05 \
+                    and rec["s"][0] <= g["s"][1] + COURT["merge_gap"] and g["s"][0] <= rec["s"][1] + COURT["merge_gap"]:
+                g["s"] = (min(g["s"][0], rec["s"][0]), max(g["s"][1], rec["s"][1]))
+                g["d"] = (g["d"][0], max(g["d"][1], rec["d"][1]))
+                g["court"] = dict(g["court"], opening_ids=g["court"]["opening_ids"] + c["opening_ids"],
+                                  floor_z=min(g["court"]["floor_z"], c["floor_z"]), top_z=max(g["court"]["top_z"], c["top_z"]))
+                break
+        else:
+            groups.append(rec)
+    out = list(rest)
+    for g in groups:
+        (ux, uy), (s0, s1), (d0, d1) = g["u"], g["s"], g["d"]
+        ox, oy = g["court"]["outward"]
+        poly = [(ux * s + ox * d, uy * s + oy * d) for s, d in ((s0, d0), (s1, d0), (s1, d1), (s0, d1))]
+        c = dict(g["court"], polygon=geom2d.ccw(poly))
+        if len(c["opening_ids"]) > 1:
+            c["reason"] += f"; one court for {', '.join(c['opening_ids'])}"
+        out.append(c)
+    return out
 
 
 def light_well_faces(well: dict) -> tuple[list, list]:
@@ -423,7 +492,7 @@ def light_well_faces(well: dict) -> tuple[list, list]:
     floor to ``light_well_curb`` above the ground; the side against the building stays open."""
     poly = geom2d.ccw(well["polygon"])
     t = DEFAULTS["light_well_wall"]
-    z0, z1 = float(well["floor_z"]), float(well["top_z"]) + DEFAULTS["light_well_curb"]
+    z0, z1 = float(well["floor_z"]), float(well["top_z"]) + float(well.get("curb", DEFAULTS["light_well_curb"]))
     parts = [geom2d.polygon_face(poly, z0, facing_up=True)]
     ox, oy = well["outward"]
     nearest = min(x * ox + y * oy for x, y in poly)
@@ -537,6 +606,346 @@ def tree_parts(item: dict, terrain: dict) -> dict:
 
 
 # --------------------------------------------------------------------------
+# Milestone 11: the site no drawing gives (docs/milestone11.md §1.1 E11, §7), inferred
+# --------------------------------------------------------------------------
+
+INFERRED = {
+    "plot_margin": 6.0,          # the plot = the outline's rectangle grown by this when no site plan draws one
+    "path_width": 1.2, "entrance_max_rise": 1.5, "step_rise": 0.17, "step_run": 0.30, "landing": 1.2,
+    "landing_side": 0.3,
+    "hedge_height": 0.6, "hedge_thickness": 0.5, "fence_height": 0.9, "fence_post": 0.08, "fence_rail": 0.04,
+    "fence_spacing": 2.0, "gate_gap": 0.4,
+    "tree_crown": 3.5, "tree_inset": 2.5, "tree_from_building": 3.5, "tree_from_path": 2.0, "tree_window_reach": 8.0,
+    "tree_window_side": 2.0, "tree_spacing": 6.0, "tree_step": 1.0, "front_zone_extra": 2.0,
+}
+
+
+def outer_openings(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]],
+                   outlines: Optional[dict] = None, kinds=("door", "window")) -> list[dict]:
+    """The doors and windows on the outside of the building (pure): ``[{"opening", "level", "centre": (x, y),
+    "outward": (x, y), "axis", "bottom", "top", "half_t"}]``, the outward side judged on the opening's own level
+    outline."""
+    from wenart.blender.shell import opening_centre_on_wall, opening_vertical
+
+    ids = {lv["id"]: lv for lv in levels}
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") in ids}
+    out = []
+    for o in building.get("openings") or []:
+        lv = ids.get(o.get("level_id"))
+        wall = walls.get(o.get("wall_id"))
+        if lv is None or wall is None or o.get("type") not in kinds:
+            continue
+        cx, cy, _ = opening_centre_on_wall(o, wall)
+        side = outward_side(wall, (outlines or {}).get(lv["id"]) or outline, (cx, cy))
+        if side is None:
+            continue
+        above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels)
+        bottom, top, _ = opening_vertical(o, lv, above)
+        out.append({"opening": o, "level": lv, "centre": (cx, cy), "outward": side, "axis": nearest_axis(side),
+                    "bottom": bottom, "top": top, "half_t": float(wall["thickness"]) / 2.0})
+    return out
+
+
+def entrances(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
+              outlines: Optional[dict] = None) -> list[dict]:
+    """The entrance doors (pure): outside doors whose bottom lies from ``LIGHT_WELL_CLEARANCE`` under to
+    ``entrance_max_rise`` over the ground outside (a door higher up opens onto a balcony or a terrace). Each:
+    ``{"opening_id", "level_id", "centre", "outward", "axis", "width", "bottom", "ground_z", "rise", "half_t"}``;
+    ``rise`` > ``LIGHT_WELL_CLEARANCE`` needs steps."""
+    out = []
+    for rec in outer_openings(building, levels, outline, outlines, kinds=("door",)):
+        cx, cy = rec["centre"]
+        ox, oy = rec["outward"]
+        gz = ground_z(terrain, cx + ox * (rec["half_t"] + 0.3), cy + oy * (rec["half_t"] + 0.3))
+        rise = rec["bottom"] - gz
+        if rise < -LIGHT_WELL_CLEARANCE or rise > INFERRED["entrance_max_rise"]:
+            continue
+        out.append({"opening_id": rec["opening"]["id"], "level_id": rec["level"]["id"], "centre": (cx, cy),
+                    "outward": (ox, oy), "axis": rec["axis"], "width": float(rec["opening"]["width"]),
+                    "bottom": rec["bottom"], "ground_z": gz, "rise": max(0.0, rise), "half_t": rec["half_t"]})
+    return out
+
+
+def main_facade(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
+                outlines: Optional[dict] = None) -> dict:
+    """The main (entrance) facade (pure; docs/milestone11.md §4.1 X6, X7, §7): the side with the most entrance
+    doors, else the one with the most outside openings, else the drawing's front (-Y). ``{"axis", "direction",
+    "source", "opening_ids"}``."""
+    ents = entrances(building, levels, terrain, outline, outlines) if len(outline) >= 3 else []
+    counts: dict[str, list[str]] = {}
+    source = "entrance doors"
+    for e in ents:
+        counts.setdefault(e["axis"], []).append(e["opening_id"])
+    if not counts and len(outline) >= 3:
+        source = "most outside openings (no entrance door at grade)"
+        for rec in outer_openings(building, levels, outline, outlines):
+            counts.setdefault(rec["axis"], []).append(rec["opening"]["id"])
+    if not counts:
+        return {"axis": "-y", "direction": AXES["-y"], "source": "assumed: the drawing's front (no outside opening)",
+                "opening_ids": []}
+    order = ("-y", "+y", "-x", "+x")
+    axis = max(counts, key=lambda k: (len(counts[k]), -order.index(k)))
+    return {"axis": axis, "direction": AXES[axis], "source": source, "opening_ids": counts[axis]}
+
+
+def inferred_plot(outline: Sequence[Sequence[float]], margin: float = INFERRED["plot_margin"]) -> list:
+    """The plot of a project without a site plan: the outline's rectangle grown by ``margin`` (assumed)."""
+    return geom2d.ccw(geom2d.rectangle_corners(geom2d.oriented_rectangle(outline), margin))
+
+
+def ray_exit(p, d, polygon) -> Optional[float]:
+    """The distance from ``p`` (inside ``polygon``) along the unit direction ``d`` to the polygon boundary."""
+    best = None
+    n = len(polygon)
+    for i in range(n):
+        a, b = polygon[i], polygon[(i + 1) % n]
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        den = d[0] * ey - d[1] * ex
+        if abs(den) < 1e-12:
+            continue
+        rx, ry = a[0] - p[0], a[1] - p[1]
+        t = (rx * ey - ry * ex) / den
+        s = (rx * d[1] - ry * d[0]) / den
+        if t > 1e-9 and -1e-9 <= s <= 1.0 + 1e-9 and (best is None or t < best):
+            best = t
+    return best
+
+
+def _rect_along(origin, d, start: float, end: float, half_w: float) -> list:
+    ux, uy = -d[1], d[0]
+    return geom2d.ccw([(origin[0] + d[0] * t + ux * s, origin[1] + d[1] * t + uy * s)
+                       for t, s in ((start, -half_w), (start, half_w), (end, half_w), (end, -half_w))])
+
+
+def entrance_steps(e: dict) -> dict:
+    """The landing and steps in front of an entrance door above the ground (pure; assumed): a landing
+    ``landing`` deep at the door's floor, then steps of at most ``step_rise`` and ``step_run`` deep down to the
+    ground, as wide as the door + ``landing_side`` on each side. ``{"opening_id", "blocks": [{"polygon",
+    "z_top"}], "end": distance from the wall face where the path starts, "count", "rise"}``; no blocks for a door
+    at grade."""
+    face = (e["centre"][0] + e["outward"][0] * e["half_t"], e["centre"][1] + e["outward"][1] * e["half_t"])
+    half_w = e["width"] / 2.0 + INFERRED["landing_side"]
+    if e["rise"] <= LIGHT_WELL_CLEARANCE:
+        return {"opening_id": e["opening_id"], "blocks": [], "end": 0.0, "count": 0, "rise": 0.0, "face": face}
+    n = max(1, int(math.ceil(e["rise"] / INFERRED["step_rise"] - 1e-9)))
+    r = e["rise"] / n
+    blocks = [{"polygon": _rect_along(face, e["outward"], 0.0, INFERRED["landing"], half_w), "z_top": e["bottom"]}]
+    for i in range(1, n):
+        a = INFERRED["landing"] + (i - 1) * INFERRED["step_run"]
+        blocks.append({"polygon": _rect_along(face, e["outward"], a, a + INFERRED["step_run"], half_w),
+                       "z_top": e["bottom"] - i * r})
+    return {"opening_id": e["opening_id"], "blocks": blocks, "end": INFERRED["landing"] + (n - 1) * INFERRED["step_run"],
+            "count": n - 1, "rise": round(r, 4), "face": face}
+
+
+def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[dict]:
+    """A path from every entrance (the end of its steps) straight out to the plot edge (pure; assumed),
+    ``path_width`` wide; paths of one facade that overlap are one path. ``[{"opening_ids", "polygon", "outward",
+    "length"}]``."""
+    raw = []
+    for e in ents:
+        st = steps.get(e["opening_id"]) or {"end": 0.0, "face": e["centre"]}
+        face = st["face"]
+        reach = ray_exit(face, e["outward"], plot) if plot else None
+        if reach is None or reach <= st["end"] + 0.2:
+            continue
+        half = INFERRED["path_width"] / 2.0
+        raw.append({"opening_ids": [e["opening_id"]], "outward": tuple(e["outward"]), "face": face,
+                    "start": st["end"], "end": reach + 0.05, "half": half})
+    merged: list[dict] = []
+    for p in raw:
+        ux, uy = -p["outward"][1], p["outward"][0]
+        s = p["face"][0] * ux + p["face"][1] * uy
+        for m in merged:
+            if m["outward"] == p["outward"] and abs(m["s"] - s) <= m["half"] + p["half"] + 1e-6:
+                lo, hi = min(m["s"] - m["half"], s - p["half"]), max(m["s"] + m["half"], s + p["half"])
+                m["s"], m["half"] = (lo + hi) / 2.0, (hi - lo) / 2.0
+                m["opening_ids"] += p["opening_ids"]
+                m["start"] = min(m["start"], p["start"])
+                m["end"] = max(m["end"], p["end"])
+                break
+        else:
+            merged.append(dict(p, s=s))
+    out = []
+    for m in merged:
+        ox, oy = m["outward"]
+        ux, uy = -oy, ox
+        d0 = m["face"][0] * ox + m["face"][1] * oy
+        origin = (ux * m["s"] + ox * d0, uy * m["s"] + oy * d0)
+        out.append({"opening_ids": m["opening_ids"], "outward": list(m["outward"]),
+                    "polygon": _rect_along(origin, m["outward"], m["start"], m["end"], m["half"]),
+                    "length": round(m["end"] - m["start"], 3), "width": round(2 * m["half"], 3)})
+    return out
+
+
+def boundary_segments(plot: Sequence, paths: Sequence[dict], kind: str) -> list[dict]:
+    """The plot edges of the inferred boundary (``hedge`` or ``fence``) with a gate gap where a path crosses
+    (pure): ``[{"kind", "start", "end"}]``."""
+    out = []
+    n = len(plot)
+    for i in range(n):
+        a, b = plot[i], plot[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 1e-6:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        gaps = []
+        for p in paths:
+            ts = [(q[0] - a[0]) * ux + (q[1] - a[1]) * uy for q in p["polygon"]]
+            ds = [abs((q[0] - a[0]) * -uy + (q[1] - a[1]) * ux) for q in p["polygon"]]
+            if min(ds) <= 0.2:
+                gaps.append((min(ts) - INFERRED["gate_gap"] / 2.0, max(ts) + INFERRED["gate_gap"] / 2.0))
+        t = 0.0
+        for g0, g1 in sorted(gaps):
+            if g0 > t + 0.05:
+                out.append({"kind": kind, "start": (a[0] + ux * t, a[1] + uy * t),
+                            "end": (a[0] + ux * min(g0, length), a[1] + uy * min(g0, length))})
+            t = max(t, g1)
+        if t < length - 0.05:
+            out.append({"kind": kind, "start": (a[0] + ux * t, a[1] + uy * t), "end": tuple(b)})
+    return out
+
+
+def boundary_parts(seg: dict, terrain: dict) -> tuple[list, list, dict]:
+    """``(verts, faces, info)`` of one boundary segment: a hedge is a stepped box (``plot_wall_parts``) of
+    ``hedge_thickness`` x ``hedge_height``; a fence posts every ``fence_spacing`` and two rails."""
+    if seg["kind"] == "hedge":
+        wall = {"start": seg["start"], "end": seg["end"], "thickness": INFERRED["hedge_thickness"],
+                "height": {"value": INFERRED["hedge_height"], "method": "assumed"}}
+        return plot_wall_parts(wall, terrain)
+    a, b = seg["start"], seg["end"]
+    length = G.distance(a, b)
+    angle = G.segment_angle_deg(a, b)
+    h = INFERRED["fence_height"]
+    parts = []
+    k = max(1, int(math.ceil(length / INFERRED["fence_spacing"])))
+    zs = []
+    for i in range(k + 1):
+        p = G.point_along_segment(a, b, i / k)
+        gz = ground_z(terrain, *p)
+        parts.append(geom2d.box((p[0], p[1], gz + h / 2.0 - 0.05), (INFERRED["fence_post"], INFERRED["fence_post"],
+                                                                     h + 0.1), angle))
+        zs += [gz - 0.1, gz + h]
+    mid = G.segment_midpoint(a, b)
+    gz = ground_z(terrain, *mid)
+    for z in (0.35, h - 0.12):
+        parts.append(geom2d.box((mid[0], mid[1], gz + z), (length, INFERRED["fence_rail"], 0.09), angle))
+    verts, faces = geom2d.merge(parts)
+    return verts, faces, {"height": h, "height_assumed": True, "thickness": INFERRED["fence_post"],
+                          "segments": k, "steps": 1, "z_range": [round(min(zs), 4), round(max(zs), 4)]}
+
+
+def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], windows: Sequence[dict], main: dict,
+                count: int) -> list[dict]:
+    """Up to ``count`` inferred trees inside the plot (pure; docs/milestone11.md §1.1 E11): candidates every
+    ``tree_step`` along the plot edges ``tree_inset`` inside; a candidate is kept ``tree_from_building`` clear
+    of the building, ``tree_from_path`` of every path, out of the band in front of every outside window
+    (``tree_window_reach`` out, its width + ``tree_window_side`` on each side) and out of the front garden
+    (nothing nearer the main facade's side than ``front_zone_extra`` behind its face, so the frontal and corner
+    views of the entrance stay open); picked greedily, beside the side facades first (nearest their middle), then
+    behind the building, at least ``tree_spacing`` apart. Each tree is site decor ``{"id",
+    "kind": "tree", "center", "size", "inferred": true, "reason"}``."""
+    if count <= 0 or len(plot) < 3 or len(outline) < 3:
+        return []
+    inner = geom2d.offset_polygon(plot, INFERRED["tree_inset"])
+    if len(inner) < 3:
+        return []
+    md = main["direction"]
+    proj = [p[0] * md[0] + p[1] * md[1] for p in outline]
+    across = [p[0] * -md[1] + p[1] * md[0] for p in outline]
+    front_edge = max(proj)
+    cands = []
+    n = len(inner)
+    for i in range(n):
+        a, b = inner[i], inner[(i + 1) % n]
+        length = G.distance(a, b)
+        k = max(1, int(length // INFERRED["tree_step"]))
+        for j in range(k + 1):
+            p = G.point_along_segment(a, b, j / k)
+            cands.append((round(p[0], 6), round(p[1], 6)))
+    keep = []
+    r = INFERRED["tree_crown"] / 2.0
+    for p in sorted(set(cands)):
+        if G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < INFERRED["tree_from_building"]:
+            continue
+        if any(G.point_in_polygon(p, q["polygon"]) or geom2d.distance_to_polygon_edges(p, q["polygon"])
+               < INFERRED["tree_from_path"] for q in paths):
+            continue
+        blocked = False
+        for w in windows:
+            (cx, cy), (ox, oy) = w["centre"], w["outward"]
+            dx, dy = p[0] - cx, p[1] - cy
+            along, side = dx * ox + dy * oy, abs(dx * -oy + dy * ox)
+            if 0.0 < along < INFERRED["tree_window_reach"] + r and \
+                    side < float(w["opening"]["width"]) / 2.0 + INFERRED["tree_window_side"] + r:
+                blocked = True
+                break
+        if blocked:
+            continue
+        pm = p[0] * md[0] + p[1] * md[1]
+        pa = p[0] * -md[1] + p[1] * md[0]
+        if pm > front_edge - INFERRED["front_zone_extra"]:
+            continue                                  # the front garden and the entrance views stay open
+        # beside the side facades first (nearest their middle), then behind the building
+        rank = 0 if (pa < min(across) or pa > max(across)) else 1
+        keep.append((rank, round(abs(pm - (min(proj) + max(proj)) / 2.0), 6) if rank == 0 else round(pm, 6), p))
+    keep.sort()
+    out = []
+    for _rank, _key, p in keep:
+        if len(out) >= count:
+            break
+        if all(G.distance(p, t["center"]) >= INFERRED["tree_spacing"] for t in out):
+            out.append({"id": f"tree_inferred_{len(out) + 1}", "kind": "tree", "center": [p[0], p[1]],
+                        "size": [INFERRED["tree_crown"], INFERRED["tree_crown"]], "inferred": True,
+                        "reason": "no site plan: a tree clear of the windows, the paths and the front garden "
+                                  "(inferred, docs/milestone11.md §1.1 E11)"})
+    return out
+
+
+def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
+                  outlines: Optional[dict], plot: Sequence, plot_source: str, options: dict,
+                  drawn_trees: bool) -> dict:
+    """What the build adds where the documents are silent (pure; docs/milestone11.md §1.1 E11, §7, CLAUDE.md
+    evidence rules: every item ``inferred`` and listed): the plot (``inferred_plot`` when none is drawn), the
+    entrances with their steps, the paths, the boundary (hedge or fence on an inferred plot), the trees (when
+    none is drawn). ``options``: ``overrides.site_options``. Returns ``{"plot", "plot_inferred", "main",
+    "entrances", "steps", "paths", "boundary", "trees", "assumed"}``."""
+    out = {"plot": list(plot), "plot_inferred": False, "main": None, "entrances": [], "steps": [], "paths": [],
+           "boundary": [], "trees": [], "assumed": []}
+    if len(outline) < 3:
+        return out
+    if not plot:
+        out["plot"] = inferred_plot(outline)
+        out["plot_inferred"] = True
+        out["assumed"].append({"field": "plot", "value": [[round(x, 3), round(y, 3)] for x, y in out["plot"]],
+                               "reason": f"no site plan: the plot is the outline's rectangle + "
+                                         f"{INFERRED['plot_margin']:g} m (inferred)"})
+    out["main"] = main_facade(building, levels, terrain, outline, outlines)
+    ents = entrances(building, levels, terrain, outline, outlines)
+    out["entrances"] = [{k: (list(v) if isinstance(v, tuple) else v) for k, v in e.items()} for e in ents]
+    steps = {e["opening_id"]: entrance_steps(e) for e in ents}
+    out["steps"] = [s for s in steps.values() if s["blocks"]]
+    for s in out["steps"]:
+        out["assumed"].append({"field": f"steps:{s['opening_id']}", "value": s["count"],
+                               "reason": f"entrance door {s['rise'] * (s['count'] + 1):.2f} m above the ground: a "
+                                         f"landing and {s['count']} steps of {s['rise']:.3f} m (inferred)"})
+    if options.get("path", True):
+        out["paths"] = entrance_paths(ents, steps, out["plot"])
+        for p in out["paths"]:
+            out["assumed"].append({"field": f"path:{','.join(p['opening_ids'])}", "value": p["length"],
+                                   "reason": "a paved path from the plot edge to the entrance (inferred)"})
+    kind = options.get("fence", "hedge")
+    if out["plot_inferred"] and kind in ("hedge", "fence"):
+        out["boundary"] = boundary_segments(out["plot"], out["paths"], kind)
+        out["assumed"].append({"field": "boundary", "value": kind,
+                               "reason": f"no site plan: a low {kind} on the inferred plot boundary (inferred)"})
+    if not drawn_trees:
+        windows = outer_openings(building, levels, outline, outlines, kinds=("window",))
+        out["trees"] = place_trees(out["plot"], outline, out["paths"], windows, out["main"], int(options.get("trees", 3)))
+    return out
+
+
+# --------------------------------------------------------------------------
 # The plan of the site (pure) and the Blender objects
 # --------------------------------------------------------------------------
 
@@ -568,13 +977,19 @@ def set_back_levels(levels: Sequence[dict], outline: Sequence[Sequence[float]], 
 
 
 def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full",
-              outlines: Optional[dict] = None) -> dict:
+              outlines: Optional[dict] = None, options: Optional[dict] = None) -> dict:
     """Everything the site build makes (pure): ``{"mode", "terrain", "outline", "plot", "extent", "wells",
     "plot_walls", "areas": [{"id", "kind", "polygon", "z", "material", "source"}], "trees", "not_built",
     "assumed", "warnings", "ground_is_grass"}``. ``mode`` ``full`` (plot, paving, grass, plot walls,
     parking, trees as drawn) or ``ground`` (the ground plane and the light wells). ``outlines``: each level's own
     outline (review #27: a wall's outward side for its light well or basement door is judged on its level's
-    outline, and a level below the ground that differs from the ground hole is a warning)."""
+    outline, and a level below the ground that differs from the ground hole is a warning).
+
+    Milestone 11 (docs/milestone11.md §1.1 E9, E11, §7): ``options`` (``overrides.site_options``: the brief's
+    ``front_court`` and the agent's site keys; None = the M10 site) makes the front courts (D6) and, with
+    ``site: full``, the inferred site (``inferred_site``: the plot when none is drawn, entrance steps, paths, a
+    hedge or fence, trees when none is drawn), returned under ``inferred``; the paths are areas of kind ``path``,
+    the inferred trees join ``trees``; every inferred item is in ``assumed``."""
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
     lowest = min(levels, key=lambda lv: float(lv["elevation"])) if levels else None
     default_z = 0.0 if lowest is None or float(lowest["elevation"]) < 0 else float(lowest["elevation"])
@@ -585,11 +1000,13 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     plot, plot_src = plot_polygon(building) if mode == "full" else ([], "none")
     # Flat ground reaches the horizon (HORIZON_M); a sloped one keeps MARGIN_M.
     extent = ground_extent(outline, plot, HORIZON_M if is_flat(terrain) else MARGIN_M)
-    wells, warnings = light_wells(building, levels, terrain, outline, outlines)
+    court = (options or {}).get("front_court") or "no"
+    wells, warnings = light_wells(building, levels, terrain, outline, outlines,
+                                  front_court=court if options is not None else "no")
     warnings = list(terrain["warnings"]) + warnings + set_back_levels(levels, outline, outlines or {}, terrain)
     assumed = list(terrain["assumed"])
     for w in wells:
-        if w["source"] == "assumed":
+        if w["source"] in ("assumed", "inferred"):
             assumed.append({"field": f"light_well:{w['opening_id']}", "value": [round(w["floor_z"], 3),
                                                                                 round(w["top_z"], 3)],
                             "reason": w["reason"]})
@@ -627,13 +1044,26 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     else:
         not_built.append({"id": None, "kind": "site", "reason": "brief site: ground (the ground plane and the "
                                                                 "light wells only)"})
+    inferred = None
+    if mode == "full" and options is not None:
+        drawn_trees = any(t.get("kind") == "tree" for t in trees)
+        inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees)
+        assumed += inferred["assumed"]
+        for p in inferred["paths"]:
+            areas.append({"id": f"path_{'_'.join(p['opening_ids'])}", "kind": "path", "polygon": p["polygon"],
+                          "z": None, "material": None, "colour": None, "source": "assumed", "area_id": None,
+                          "lift": PAVING_LIFT, "inferred": True})
+        for t in inferred["trees"]:
+            trees.append(t)
+            assumed.append({"field": f"tree:{t['id']}", "value": t["center"], "reason": t["reason"]})
     return {"mode": mode, "terrain": terrain, "outline": geom2d.ccw(outline), "plot": plot, "plot_source": plot_src,
             "extent": extent, "wells": wells, "plot_walls": plot_walls, "areas": areas, "trees": trees,
-            "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass}
+            "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass,
+            "inferred": inferred}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
-AREA_LOOKS = {"grass": "garden", "paving": "paving", "parking": "paving"}
+AREA_LOOKS = {"grass": "garden", "paving": "paving", "parking": "paving", "path": "paving"}
 
 
 def area_look(area: dict, looks: dict) -> dict:
@@ -662,7 +1092,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         "north_deg": terrain["north_deg"], "north_source": terrain["north_source"],
         "changes": terrain.get("changes") or []},
         "light_wells": [{"opening_id": w["opening_id"], "level_id": w["level_id"], "source": w["source"],
-                         "floor_z": round(w["floor_z"], 4), "top_z": round(w["top_z"], 4), "reason": w["reason"]}
+                         "floor_z": round(w["floor_z"], 4), "top_z": round(w["top_z"], 4), "reason": w["reason"],
+                         **({"kind": w["kind"], "inferred": True, "opening_ids": w["opening_ids"]}
+                            if w.get("kind") == "front_court" else {})}
                         for w in plan["wells"]],
         "plot_source": plan["plot_source"], "not_built": plan["not_built"], "warnings": plan["warnings"]}
 
@@ -685,13 +1117,16 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     well_mat = make_material(looks["light_well"])
     for w in plan["wells"]:
         v, f = light_well_faces(w)
-        name = f"lightwell_{w['opening_id']}"
+        name = f"{'court' if w.get('kind') == 'front_court' else 'lightwell'}_{w['opening_id']}"
         status = "verified" if w["source"] == "drawn" else "assumed"
         ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="light_well",
                                     status=status, materials=[well_mat])
         entry(ob.name, name, "light_well", well_mat, status,
               {"assumed": {} if w["source"] == "drawn" else {"reason": w["reason"]}, "parent": w["opening_id"],
-               "z_range": [round(w["floor_z"], 4), round(w["top_z"] + DEFAULTS["light_well_curb"], 4)]})
+               "z_range": [round(w["floor_z"], 4),
+                           round(w["top_z"] + float(w.get("curb", DEFAULTS["light_well_curb"])), 4)],
+               **({"well_kind": "front_court", "inferred": True, "opening_ids": w["opening_ids"]}
+                  if w.get("kind") == "front_court" else {})})
     wall_mat = make_material(looks["plot_wall"]) if plan["plot_walls"] else None
     for wall in plan["plot_walls"]:
         v, f, info = plot_wall_parts(wall, terrain)
@@ -733,6 +1168,44 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                "assumed": {"height_m": parts["height"], "reason": parts["reason"]}, "site_kind": item.get("kind")})
         assumed.append({"object": wid, "field": "tree", "value": parts["height"], "reason": parts["reason"],
                         "parent": str(item.get("id")), "kind": "site_tree"})
+    inferred = plan.get("inferred")
+    if inferred:                                     # Milestone 11 E11: steps and the boundary (inferred)
+        step_mat = make_material(looks.get("steps") or looks["paving"]) if inferred["steps"] else None
+        for st in inferred["steps"]:
+            parts = []
+            for blk in st["blocks"]:
+                z0 = min(ground_z(terrain, *p) for p in blk["polygon"]) - 0.1
+                parts.append(geom2d.prism(blk["polygon"], z0, blk["z_top"]))
+            v, f = geom2d.merge(parts)
+            wid = f"steps_{st['opening_id']}"
+            ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_steps",
+                                        status="assumed", materials=[step_mat])
+            entry(ob.name, wid, "site_steps", step_mat, "assumed",
+                  {"parent": st["opening_id"], "inferred": True,
+                   "assumed": {"steps": st["count"], "rise_m": st["rise"], "reason": "entrance above the ground: a "
+                                                                                     "landing and steps (inferred)"}})
+        kinds = sorted({seg["kind"] for seg in inferred["boundary"]})
+        for kind in kinds:
+            segs = [seg for seg in inferred["boundary"] if seg["kind"] == kind]
+            look = looks.get(kind) or (looks["foliage"] if kind == "hedge" else {"material": "wood_cladding",
+                                                                                   "colour": None})
+            mat = make_material(look)
+            parts = [boundary_parts(seg, terrain)[:2] for seg in segs]
+            v, f = geom2d.merge(parts)
+            wid = f"boundary_{kind}"
+            ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_boundary",
+                                        status="assumed", materials=[mat])
+            entry(ob.name, wid, "site_boundary", mat, "assumed",
+                  {"inferred": True, "boundary_kind": kind, "segments": len(segs),
+                   "assumed": {"height_m": INFERRED[f"{kind}_height"], "reason": f"no site plan: a low {kind} on the "
+                                                                                 f"inferred plot boundary (inferred)"}})
+        summary["inferred"] = {
+            "plot": [[round(x, 3), round(y, 3)] for x, y in inferred["plot"]], "plot_inferred": inferred["plot_inferred"],
+            "main_facade": inferred["main"], "entrances": [e["opening_id"] for e in inferred["entrances"]],
+            "steps": [{"opening_id": s["opening_id"], "count": s["count"], "rise": s["rise"]} for s in inferred["steps"]],
+            "paths": [{"opening_ids": p["opening_ids"], "length": p["length"], "width": p["width"]}
+                      for p in inferred["paths"]],
+            "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]]}
     for a in plan["assumed"]:
         assumed.append({"object": "site", "field": a["field"], "value": a["value"], "reason": a["reason"]})
     return summary

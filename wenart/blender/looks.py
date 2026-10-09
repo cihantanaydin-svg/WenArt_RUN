@@ -56,8 +56,12 @@ def _look(material: Optional[str], asset=None, colour=None, source: str = "style
 
 def wall_face_material(style: dict, room: Optional[dict] = None) -> dict:
     """The look of the inside wall faces of ``room`` (None: the level's default): the style's ``walls`` slot (its
-    material, asset and colour name; a Milestone 3 slug such as ``plaster_cream`` carries no colour)."""
+    material, asset and colour name; a Milestone 3 slug such as ``plaster_cream`` carries no colour). Milestone 11
+    (docs/milestone11.md §1.3 M2, §3.2 ``set_material``): a kitchen takes the ``kitchen_walls`` slot when the agent
+    set one, else the walls like any other room."""
     walls = _slot(style, "walls")
+    if room is not None and room.get("room_type") == "kitchen" and _slot(style, "kitchen_walls"):
+        walls = _slot(style, "kitchen_walls")
     look = {"material": walls.get("material") or "plaster_white", "asset": walls.get("asset"), "tint": None}
     if walls.get("colour"):                      # the Milestone 9 look stays the same dict without a colour
         look["colour"] = walls["colour"]

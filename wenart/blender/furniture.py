@@ -667,9 +667,12 @@ def _material_is_textured(mat) -> bool:
 
 def _unverified_copies(materials_list: list, cache: dict) -> list:
     """Copies of the asset materials with the red stripes mixed over the
-    surface shader (the overlay of docs/milestone4.md §2)."""
-    from wenart.blender.materials import add_unverified_overlay
+    surface shader (the overlay of docs/milestone4.md §2); the materials as they are when the stripes are off
+    (Milestone 11 decision D3, ``materials.set_markers``)."""
+    from wenart.blender.materials import add_unverified_overlay, markers_on
 
+    if not markers_on():
+        return list(materials_list)
     out = []
     for mat in materials_list:
         if mat is None:

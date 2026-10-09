@@ -246,8 +246,11 @@ def test_score_table_holds_the_spec_constants():
     for t in ("wardrobe", "armchair", "stove", "tv_unit", "table_coffee"):
         assert w[t] == 1.5
     assert w["chair"] == 0.8 and C.type_weight("nightstand") == 1.0 and C.type_weight(None) == 1.0
+    # Milestone 11 (docs/milestone11.md §1.3 M6): the edge_near penalty (one door leaf or tall piece near the lens
+    # at the frame edge) is new; the M6 penalties are unchanged.
     assert C.SCORE["penalties"] == {"near": (3.0, 0.08), "max_single": (3.0, 0.40), "wall": (2.0, 0.55),
-                                    "window": (2.0, 0.20), "ceiling": (1.0, 0.15)}
+                                    "window": (2.0, 0.20), "ceiling": (1.0, 0.15), "edge_near": (4.0, 0.05)}
+    assert C.SCORE["edge_near_factor"] == 2.0 and C.EDGE_TALL_M == 1.4
     assert (C.SCORE["grid"], C.SCORE["near_m"], C.SCORE["blocked_near"], C.SCORE["blocked_single"]) == \
         ((64, 36), 0.9, 0.30, 0.50)
     # Milestone 8 (docs/milestone8.md §5): the default lens is 18 mm (was 24 mm); the near distance 0.9 m
@@ -844,8 +847,12 @@ def test_a_camera_in_a_stair_well_is_not_picked_next_to_a_step(monkeypatch):
     well between the flights. The model has the stair's open parts (review dwgblender-2), so the near share
     (0.27) and the largest element (0.35) stayed under the blocked limits and the search picked yaws 180 and
     330, past a step side 0.12 m away: min depth 0.108 / 0.082 m in the model and in the render, under the
-    GPU test's 0.1 m. The min depth rule blocks those two; the picks look along the well (yaws 150 and 0). The
-    fallback point and its warning stay, and a room whose every yaw is blocked still gets its best view."""
+    GPU test's 0.1 m. The min depth rule blocks those two (still true of the candidates).
+
+    Milestone 11 (docs/milestone11.md §1.3 M5, the user's OK of D1-D8 on 9 Oct 2026): the M10 rule kept two views
+    from inside the stair (yaws 150 and 0: a bare wall and the steps, the "Oda" renders of real02); now a room
+    whose only camera point is inside its stair is a stair core: no view (the hall shows the stair), listed in
+    rooms_without_view with the reason. The scored candidates and their blocked flags are the same as before."""
     building = copy.deepcopy(REAL02_STAIR_CORE)
     room = building["rooms"][0]
     points, warning = C.candidate_positions(room, building)
@@ -858,17 +865,11 @@ def test_a_camera_in_a_stair_well_is_not_picked_next_to_a_step(monkeypatch):
         assert c["shares"]["min_depth"] < C.SCORE["blocked_min_depth"] and c["blocked"], c["yaw"]
     fine = [_min_depth(building, C._plan(model, 1, c, warning, 16.0)) for c in pod]
     assert max(fine) < C.SCORE["blocked_min_depth"] and min(fine) < 0.1          # 0.108 and 0.082 m
-    plans, scored = C.plan_room(room, building)
-    assert scored == 12 and len(plans) == C.room_view_count(room, building) == 2
-    assert [p["score"]["yaw_deg"] for p in plans] == [150.0, 0.0]
-    for p in plans:
-        assert p["position"] == [6.052, 8.665, 1.25] and p["lens_mm"] == 16.0
-        assert p["warning"] == warning and not p["score"]["blocked"]
-        assert _min_depth(building, p) >= C.SCORE["blocked_min_depth"], p["name"]
-    # Every yaw blocked (a min depth no view reaches): the best one, with both warnings.
-    monkeypatch.setitem(C.SCORE, "blocked_min_depth", 10.0)
-    (plan,), _ = C.plan_room(room, building)
-    assert plan["score"]["blocked"] and plan["warning"] == f"{warning}; {C.BLOCKED_WARNING}"
+    assert C.stair_core(room, building)
+    assert C.plan_room(room, building) == ([], 0) and C.room_view_count(room, building) == 0
+    (row,) = C.rooms_without_view(building, "L0")
+    assert row["room_id"] == room["id"] and row["reason"] == C.STAIR_CORE_REASON and row["reason"].startswith("stair core")
+    assert C.room_view_count(room) == 2                       # the area rule alone (the pre-layout estimate)
 
 
 # --------------------------------------------------------------------------
@@ -1237,9 +1238,14 @@ def test_synthetic_search_beats_the_m5_cameras_by_the_model(searched):
     best_m5 = {}
     for p, s in zip(m5, m5_scores):
         best_m5[p["room_id"]] = max(best_m5.get(p["room_id"], -9.0), s["terms"]["total"])
+    # Milestone 11 (§1.3 M6): the edge_near penalty is a trade-off the M5 cameras (other heights and pitches, not
+    # among the candidates) need not make: the guarantee holds for the M10 terms (the total without it).
+    factor, allowed = C.SCORE["penalties"]["edge_near"]
     for p in plans:
         if p["index"] == 1:
-            assert p["score"]["total"] >= best_m5[p["room_id"]] - 1e-3, p["name"]
+            again = C.score_camera(building, p)
+            edge = factor * max(0.0, again["shares"]["edge_near"] - allowed)
+            assert p["score"]["total"] + edge >= best_m5[p["room_id"]] - 1e-3, p["name"]
 
 
 def test_plan_count_of_the_committed_buildings_follows_the_area_rule():

@@ -114,3 +114,8 @@ brief:
     lens_mm: auto
     exterior_views: true   # Milestone 10: 4 corner views, one 3/4 aerial view, one per drawn elevation
     twin_rooms: one        # Milestone 10: one = a mirrored twin room of a semi-detached pair is rendered once | all
+  # Milestone 11 (docs/milestone11.md §17, the user's decisions D3, D5, D6 of 9 Oct 2026):
+  markers_in_final: false          # D3: false = no unverified stripes in any render (debug images and the report list them) | true
+  roof_terraces: auto              # D5: auto = a terrace is cut into the roof when the plan of that level draws it as a room with a door to it, else the roof stays closed | cut | closed
+  site_options:                    # brief.yaml may also write these inside site: {mode: full, front_court: auto}
+    front_court: auto              # D6: auto = an inferred sunken court in front of a basement window whose sill is > 1.0 m below the ground, else the light well | yes | no

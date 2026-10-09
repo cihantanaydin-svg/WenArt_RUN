@@ -98,6 +98,23 @@ _LOCAL_FLAT_COLOURS: dict[str, tuple[float, float, float]] = {
 }
 _LOCAL_ROUGHNESS: dict[str, float] = {"plaster_exterior": 0.9, "proxy_grey": 0.6, "unknown": 0.6}
 UNVERIFIED_RED = (1.0, 0.03, 0.02)
+# Milestone 11 decision D3 (docs/milestone11.md §17, brief markers_in_final, default false): the unverified stripes
+# stay out of every render; the build turns them on for a debug build (brief markers_in_final: true, build.py
+# --markers). One switch for every way a stripe is made: MaterialLibrary.get(unverified=), the striped proxy,
+# add_unverified_overlay (furniture assets).
+_MARKERS = {"on": False}
+
+
+def set_markers(on: bool) -> None:
+    """Turn the unverified stripes on (debug) or off (the D3 default) for the materials made from now on."""
+    _MARKERS["on"] = bool(on)
+
+
+def markers_on() -> bool:
+    """True when the unverified stripes are drawn (``set_markers``)."""
+    return bool(_MARKERS["on"])
+
+
 # Sources whose assets are CC0 (the same list as wenart.assets.fetch.LICENCES;
 # repeated here because that module needs packages Blender's Python lacks).
 CC0_SOURCES = ("polyhaven", "ambientcg")
@@ -128,7 +145,7 @@ def _vocabulary_entries() -> tuple[dict, dict]:
         from wenart.style import vocabulary as V
         entries = {}
         for slug, e in list(V.MATERIALS.items()) + list(V.FURNITURE_MATERIALS.items()):
-            entries[slug] = {k: e[k] for k in ("asset", "source", "procedural", "params", "colourable") if k in e}
+            entries[slug] = {k: e[k] for k in ("asset", "source", "procedural", "params", "colourable", "kind") if k in e}
         strength = {mood: float(e["hdri_strength"]) for mood, e in V.LIGHTING.items() if "hdri_strength" in e}
     except Exception:  # noqa: BLE001 - see _vocabulary_tables
         return {}, {}
@@ -257,6 +274,7 @@ class MaterialLibrary:
         slug takes one (``colourable``, or no texture in use), ``params`` over a procedural look's own."""
         import json as _json
 
+        unverified = bool(unverified) and markers_on()      # M11 D3: no stripes unless asked for
         pkey = _json.dumps(params, sort_keys=True) if params else None
         key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey)
         if key in self._cache:
@@ -343,7 +361,10 @@ class MaterialLibrary:
         return self._cache["thin_glass"]
 
     def proxy(self, look: str = "proxy"):
-        """``proxy`` (grey), ``proxy_glass`` (shower) or ``proxy_unverified``."""
+        """``proxy`` (grey), ``proxy_glass`` (shower) or ``proxy_unverified`` (the grey proxy unless the stripes
+        are on, M11 D3)."""
+        if look == "proxy_unverified" and not markers_on():
+            look = "proxy"
         if look in self._cache:
             return self._cache[look]
         if look == "proxy_glass":
@@ -472,9 +493,41 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     else:
         bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
 
+    if is_ground(slug):
+        _matte(nodes, links, bsdf)
+        mat["wenart_matte"] = f"ground: roughness >= {GROUND_MIN_ROUGHNESS}, specular {GROUND_SPECULAR}"
     if unverified:
         _add_unverified_stripes(mat, bsdf, out)
     return mat
+
+
+# Milestone 11 (docs/milestone11.md §1.1 E12): the grass looked wet at low angles (its photo's roughness map and the
+# default specular on a flat plane). Ground looks (vocabulary kind "ground": grass, gravel, soil ...) are matte.
+GROUND_MIN_ROUGHNESS = 0.85
+GROUND_SPECULAR = 0.2
+GROUND_SLUGS = ("soil",)
+
+
+def is_ground(slug: str) -> bool:
+    """True for a ground look (``vocabulary.MATERIALS[slug]["kind"] == "ground"``, or ``soil``)."""
+    return (ENTRIES.get(slug) or {}).get("kind") == "ground" or slug in GROUND_SLUGS
+
+
+def _matte(nodes, links, bsdf) -> None:
+    """Roughness at least ``GROUND_MIN_ROUGHNESS`` (a Math MAXIMUM after whatever feeds it) and the Principled
+    'Specular IOR Level' at ``GROUND_SPECULAR`` (Blender 5.2 input name; 0.5 is the default)."""
+    rough_in = bsdf.inputs["Roughness"]
+    mx = nodes.new("ShaderNodeMath")
+    mx.operation = "MAXIMUM"
+    mx.inputs[1].default_value = GROUND_MIN_ROUGHNESS
+    if rough_in.links:
+        links.new(rough_in.links[0].from_socket, mx.inputs[0])
+    else:
+        mx.inputs[0].default_value = float(rough_in.default_value)
+    links.new(mx.outputs["Value"], rough_in)
+    spec = bsdf.inputs.get("Specular IOR Level")
+    if spec is not None:
+        spec.default_value = GROUND_SPECULAR
 
 
 def glazed_tiles_group():
@@ -651,7 +704,9 @@ def add_unverified_overlay(mat) -> bool:
     """Red stripes over whatever shader feeds the Material Output of an
     existing material (an imported furniture asset of an unverified piece,
     docs/milestone4.md §2). Returns False when the material has no surface
-    link to overlay (left as it is)."""
+    link to overlay (left as it is), and when the stripes are off (M11 D3, ``set_markers``)."""
+    if not markers_on():
+        return False
     if not mat.use_nodes:
         mat.use_nodes = True
     tree = mat.node_tree
@@ -863,6 +918,59 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     links.new(sky.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = strength * 0.5
     return {"kind": "sky", "file": None, "strength": strength * 0.5}
+
+
+EXTERIOR_WORLD = "wenart_world_exterior"
+# The physical sky of the exterior views (Blender 5.2 ShaderNodeTexSky, sky_type MULTIPLE_SCATTERING: the Nishita
+# model of Blender 4.x, checked with bpy.types.ShaderNodeTexSky.bl_rna on 5.2.2; enum SINGLE_SCATTERING,
+# MULTIPLE_SCATTERING, PREETHAM, HOSEK_WILKIE). Clean air, a little haze.
+EXTERIOR_SKY = {"sky_type": "MULTIPLE_SCATTERING", "air_density": 1.0, "aerosol_density": 1.0, "ozone_density": 1.0,
+                "altitude": 0.0, "strength_factor": 0.5}
+
+
+def exterior_world(lighting: dict) -> dict:
+    """The world of the exterior views (pure record; docs/milestone11.md §1.1 E13): a physical sky with no sun disc
+    (the sun lamp carries the direct light) whose sun stands where the lamp is (``sun_elevation_deg``,
+    ``sun_azimuth_deg`` in the building frame), so the sky's bright side, the shadows and the light agree; the HDRI
+    of the style (its own low sun and its own ground showed in the exterior views) stays for the interior views."""
+    mood = str(lighting.get("mood", "")).lower()
+    strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0)) * EXTERIOR_SKY["strength_factor"]
+    return {"kind": "sky", "name": EXTERIOR_WORLD, "sky_type": EXTERIOR_SKY["sky_type"], "file": None,
+            "strength": strength, "sun_elevation_deg": float(lighting.get("sun_elevation_deg", 35.0)),
+            "sun_azimuth_deg": float(lighting.get("sun_azimuth_deg", 210.0)), "sun_disc": False,
+            "reason": "exterior views: a physical sky matched to the sun lamp (E13)"}
+
+
+def exterior_world_nodes(scene, lighting: dict) -> dict:
+    """Make the exterior world (``exterior_world``) as its own Blender world (not assigned to the scene: render.py
+    switches to it for exterior cameras, ``scene["wenart_world_exterior"]``)."""
+    import bpy
+
+    rec = exterior_world(lighting)
+    world = bpy.data.worlds.get(EXTERIOR_WORLD) or bpy.data.worlds.new(EXTERIOR_WORLD)
+    world.use_nodes = True
+    tree = world.node_tree
+    nodes, links = tree.nodes, tree.links
+    for n in list(nodes):
+        nodes.remove(n)
+    out = nodes.new("ShaderNodeOutputWorld")
+    bg = nodes.new("ShaderNodeBackground")
+    links.new(bg.outputs["Background"], out.inputs["Surface"])
+    sky = nodes.new("ShaderNodeTexSky")
+    sky.sky_type = EXTERIOR_SKY["sky_type"]
+    sky.sun_disc = False
+    sky.sun_elevation = math.radians(max(1.0, rec["sun_elevation_deg"]))
+    sky.sun_rotation = math.radians(90.0 - rec["sun_azimuth_deg"])
+    for key in ("air_density", "aerosol_density", "ozone_density", "altitude"):
+        if hasattr(sky, key):
+            setattr(sky, key, EXTERIOR_SKY[key])
+    links.new(sky.outputs["Color"], bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = rec["strength"]
+    world.use_fake_user = True
+    scene["wenart_world_exterior"] = world.name
+    if scene.world is not None:
+        scene["wenart_world_interior"] = scene.world.name
+    return rec
 
 
 # --------------------------------------------------------------------------

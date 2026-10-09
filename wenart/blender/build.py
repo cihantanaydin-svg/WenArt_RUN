@@ -204,6 +204,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--brief", default=None,
                         help="JSON of the project brief (a wenart.brief.load_brief result or a values dict; "
                              "Milestone 10); default: the building's stored brief and the defaults")
+    parser.add_argument("--markers", action="store_true",
+                        help="debug: draw the unverified stripes (Milestone 11 D3: the brief's markers_in_final, "
+                             "default false = no stripes in any render)")
     return parser.parse_args(argv)
 
 
@@ -249,7 +252,25 @@ def brief_args(building: dict, brief: dict | None = None) -> dict:
     for key in V.BUILD_BRIEF_KEYS:
         value, assumed = V.brief_value(building, brief, key)
         out[key] = {"value": value, "assumed": bool(assumed)}
+    # Milestone 11 (docs/milestone11.md §17): the keys of decisions D3, D5 and D6 (wenart/views.py is another
+    # track's file, so their defaults live here: M11_BRIEF_DEFAULTS, kept equal to wenart/defaults.yaml by
+    # tests/test_m11_exterior.py).
+    for key, default in M11_BRIEF_DEFAULTS.items():
+        value, assumed = V.brief_value(building, brief, key)
+        if value is None:
+            value, assumed = default, True
+        if key == "site_options.front_court" and isinstance(value, bool):
+            value = "yes" if value else "no"                 # YAML reads a bare yes / no as a boolean
+        if value not in M11_BRIEF_CHOICES.get(key, (value,)):
+            value, assumed = default, True
+        out[key] = {"value": value, "assumed": bool(assumed)}
     return out
+
+
+# Milestone 11 (docs/milestone11.md §17, decisions D3, D5, D6): the brief keys and their defaults (wenart/defaults.yaml).
+M11_BRIEF_DEFAULTS = {"markers_in_final": False, "roof_terraces": "auto", "site_options.front_court": "auto"}
+M11_BRIEF_CHOICES = {"markers_in_final": (True, False), "roof_terraces": ("auto", "cut", "closed"),
+                     "site_options.front_court": ("auto", "yes", "no")}
 
 
 def _sha256_file(path: Path) -> str | None:
@@ -596,9 +617,17 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     (``views.variant_building``), its ``views_for`` and ``variant_changes``, the brief values
     (``brief_args``), and for a whole building the slab plan, the roof model (``roof: null`` = an assumed flat
     roof; the level under it gets ``ceiling_planes``), the roof terraces, the level outlines, the site plan and
-    the drawn facade parts per wall (``facade_faces``). Raises KeyError for an unknown variant."""
+    the drawn facade parts per wall (``facade_faces``). Raises KeyError for an unknown variant.
+
+    Milestone 11 (docs/milestone11.md §1.1 E6-E9, E11, §17): the agent's roof override (``roof.apply_override``),
+    the roof terraces by the brief's ``roof_terraces`` (D5, ``roof.terrace_decisions``; the conflicts with the
+    section are warnings), the doors and windows of assumed height clipped under the roof (E8,
+    ``roof.clip_openings_to_roof``; the building copy gets them), the site options (``overrides.site_options``:
+    the brief's ``site_options.front_court``, D6, and the agent's site keys) for the front courts and the inferred
+    site. ``overrides_applied`` records what the agent's overrides changed (None without them)."""
     from wenart import views as V
     from wenart.blender import geom2d, shell
+    from wenart.blender import overrides as O
     from wenart.blender import roof as R
     from wenart.blender import site as S
 
@@ -608,7 +637,12 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
            "views": V.views_for(building_all, variant, brief=brief), "changes": V.variant_changes(building_all, variant),
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
            "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
-           "brief": brief_args(building_all, brief)}
+           "brief": brief_args(building_all, brief), "terraces": [], "clips": [], "site_options": None,
+           "overrides_applied": None}
+    agent = O.overrides_of(building_all)
+    if agent is not None:
+        out["overrides_applied"] = {"round": agent.get("round"), "roof": [], "cameras": [], "materials": [],
+                                    "sun": None, "site": None}
     if not whole:
         return out
     slab_t, slab_assumed = out["brief"]["slab_thickness"]["value"], out["brief"]["slab_thickness"]["assumed"]
@@ -623,6 +657,15 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     roof_in = vb.get("roof") if isinstance(vb.get("roof"), dict) else R.flat_roof(vb)
     if not isinstance(vb.get("roof"), dict):
         out["warnings"].append("roof: null (no roof evidence): a flat roof over the top level, assumed")
+    roof_in, changes = R.apply_override(roof_in, O.roof_override(building_all))
+    if changes:
+        out["overrides_applied"]["roof"] = changes
+        out["warnings"] += [f"roof {c['field']}: {c['was']} -> {c['value']} ({c['reason']})" for c in changes]
+    roof_in, out["terraces"], warnings = R.terrace_decisions(roof_in, vb, out["brief"]["roof_terraces"]["value"])
+    out["warnings"] += warnings
+    for d in out["terraces"]:
+        out["assumed"].append({"object": "roof", "field": f"terrace:{d['opening_id']}", "value": d["decision"],
+                               "reason": d["reason"]})
     roof = R.roof_model(roof_in, vb)
     out["roof"] = roof
     out["warnings"] += roof["warnings"]
@@ -630,6 +673,19 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         if roof["convex"] and roof["equations"] and lv["id"] == roof["over_level_id"]:
             lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
     out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
+    over = next((lv for lv in vb["levels"] if lv["id"] == roof.get("over_level_id")), None)
+    out["clips"] = R.clip_openings_to_roof(vb, over, roof) if over is not None else []
+    if out["clips"]:
+        variant_meta = vb.get("_variant")
+        vb = R.apply_clips(vb, out["clips"])
+        if variant_meta is not None:
+            vb["_variant"] = variant_meta
+        out["building"] = vb
+        for c in out["clips"]:
+            out["assumed"].append({"object": c["opening_id"], "field": "height", "value": c["height"],
+                                   "reason": c["reason"], "kind": "opening_clipped_by_roof", "parent": c["opening_id"]})
+            if not c["fits"]:
+                out["warnings"].append(f"{c['opening_id']}: {c['reason']}")
     for lv in vb["levels"]:
         out["outlines"][lv["id"]], method = geom2d.wall_outline([w for w in vb["walls"] if w["level_id"] == lv["id"]])
         if method == "convex_hull":               # review #24: an approximate outline is never silent
@@ -643,8 +699,14 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         mode = site_mode if site_mode in ("full", "ground") else "full"
         if mode != site_mode:
             out["warnings"].append(f"brief site {site_mode!r} unknown: full used")
-        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode, outlines=out["outlines"])
+        out["site_options"] = O.site_options(building_all, out["brief"]["site_options.front_court"]["value"])
+        if agent is not None and O.exterior_of(building_all).get("site"):
+            out["overrides_applied"]["site"] = {k: v for k, v in out["site_options"]["source"].items() if v == "agent"}
+        out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode, outlines=out["outlines"],
+                                  options=out["site_options"])
         out["warnings"] += out["site"]["warnings"]
+        out["main_facade"] = S.main_facade(vb, vb["levels"], out["site"]["terrain"], out["ground_outline"],
+                                           out["outlines"])
     out["faces"], warnings = facade_faces(vb, out["outlines"])
     out["warnings"] += warnings
     return out
@@ -656,6 +718,7 @@ def main(argv: list[str]) -> int:
     from wenart.blender import cameras as cams
     from wenart.blender import common, furniture, lighting, materials, shell
     from wenart.blender import exterior as E
+    from wenart.blender import overrides as O
     from wenart.blender import roof as R
     from wenart.blender import site as S
     from wenart.blender.materials import MaterialLibrary
@@ -680,10 +743,15 @@ def main(argv: list[str]) -> int:
     except (OSError, ValueError) as exc:
         print(f"--brief {args.brief}: {exc}")
         return 2
+    fp_brief = brief_args(building_all, brief)
+    if args.markers:                      # M11 D3: the debug flag turns the stripes on whatever the brief says
+        fp_brief["markers_in_final"] = {"value": True, "assumed": False, "flag": "--markers"}
     fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
                                args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy,
-                               args.lens_mm, args.variant, brief_args(building_all, brief))
+                               args.lens_mm, args.variant, fp_brief)
     fingerprint = build_fingerprint(fp_args)
+    markers = bool(fp_brief["markers_in_final"]["value"])
+    materials.set_markers(markers)
     if building_all.get("status") != "ok":
         print(f"building status is {building_all.get('status')!r}: nothing to build (needs review first)")
         return 2
@@ -704,6 +772,19 @@ def main(argv: list[str]) -> int:
         _loud(f"style vocabulary not importable ({materials.VOCABULARY_IMPORT_ERROR}): "
               "flat colours from the local table of materials.py", warnings)
     style, style_path = load_style(args.style, warnings, assumed)
+    # Milestone 11 (docs/milestone11.md §17.3): the agent's material slots and sun over the style; the sun of an
+    # exterior view from the main facade's side when the north is unknown (§4.1 X7)
+    agent_materials = O.materials_of(building_all)
+    style, applied = O.apply_style(style, agent_materials)
+    style, sun_applied = O.apply_sun(style, building_all)
+    if prep["overrides_applied"] is not None:
+        prep["overrides_applied"]["materials"] += applied
+        prep["overrides_applied"]["sun"] = sun_applied
+    if whole and sun_applied is None:
+        style, sun_rule = sun_from_main_facade(style, prep.get("main_facade"), building)
+        if sun_rule:
+            assumed.append({"object": "sun", "field": "azimuth_deg", "value": sun_rule["azimuth_deg"],
+                            "reason": sun_rule["reason"]})
     textures, hdris, refused = load_assets(args.assets, args.no_textures, warnings)
     hdri = hdri_file(hdris, args.assets, style)
     if (style.get("lighting") or {}).get("hdri") and hdri is None and not args.no_textures:
@@ -732,6 +813,9 @@ def main(argv: list[str]) -> int:
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
     cameras_dropped: list[dict] = []                          # Milestone 10: exterior views no place worked for
     looks = E.resolve_looks(building, style, brief) if whole else None
+    looks, applied = O.apply_looks(looks, agent_materials)
+    if prep["overrides_applied"] is not None:
+        prep["overrides_applied"]["materials"] += applied
     for slot, look in (looks or {}).items():
         warnings.extend(look.get("warnings") or [])
         if look.get("assumed") and slot in E.EXTERIOR_SLOTS:
@@ -789,6 +873,9 @@ def main(argv: list[str]) -> int:
         summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
+        # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
+        splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
+        furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
                                                                     manifest_objects, assumed, warnings, plans=stairs,
                                                                     shaft=not arrives))
@@ -798,6 +885,11 @@ def main(argv: list[str]) -> int:
                    if r.get("room_id") in render_rooms]
         rooms_without_view.extend(no_view)
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
+        entries = O.camera_entries(building_all, "interior")
+        if entries:                                    # Milestone 11 §17.3: the agent's fixed cameras
+            level_rooms = {r["id"] for r in building["rooms"] if r["level_id"] == level["id"]}
+            plans, applied = O.apply_cameras(plans, entries, level["id"], level_rooms)
+            prep["overrides_applied"]["cameras"] += applied
         for plan in plans:
             plan.setdefault("policy", args.camera_policy)
             interior_camera_fields(plan, prep["variant"])
@@ -861,6 +953,19 @@ def main(argv: list[str]) -> int:
             whole_info["site"] = S.build_site(prep["site"], site_col, looks,
                                               lambda look: shell.look_material(library, look), manifest_objects,
                                               assumed)
+        if prep["outlines"]:                           # Milestone 11 E10: plinth, slab bands, coping, surrounds
+            from wenart.blender import facade as FA
+            fac_col = common.get_or_make_collection("facade_details")
+            extra_collections.append(fac_col)
+            fplan = FA.articulation_plan(building, levels, prep["outlines"], prep["ground_outline"],
+                                         (prep["site"] or {}).get("terrain"), roof, style, looks,
+                                         (prep["site"] or {}).get("wells") or [])
+            whole_info["facade_details"] = FA.build_articulation(fplan, fac_col,
+                                                                 lambda look: shell.look_material(library, look),
+                                                                 manifest_objects, assumed)
+        whole_info["terraces"] = prep["terraces"]
+        whole_info["openings_clipped"] = prep["clips"]
+        whole_info["main_facade"] = prep.get("main_facade")
         dropped = []
         if views["exterior"]:
             ext_col = common.get_or_make_collection("exterior")
@@ -868,6 +973,16 @@ def main(argv: list[str]) -> int:
             model = E.build_model(building, levels, roof, prep["site"])
             ext_plans, dropped = E.plan_exterior(model, building, levels, (prep["site"] or {}).get("plot") or [],
                                                  variant=prep["variant"])
+            entries = O.camera_entries(building_all, "exterior")
+            if entries:                                # Milestone 11 §17.3: the agent's fixed exterior cameras
+                ext_plans, applied = O.apply_cameras(ext_plans, entries)
+                for p in ext_plans:
+                    if p.get("policy") == "agent":
+                        p["index"] = int(p["name"].split("_")[1]) if p["name"].split("_")[-1].isdigit() else 0
+                        p["variant"] = prep["variant"]
+                        p["visible_openings"] = E.visible_openings(model, building, levels, p["position"],
+                                                                   p["target"], p["lens_mm"], 0.0)
+                prep["overrides_applied"]["cameras"] += applied
             E.create_cameras(ext_plans, ext_col, manifest_objects)
             camera_plans.extend(ext_plans)
             for d in dropped:
@@ -890,7 +1005,8 @@ def main(argv: list[str]) -> int:
             return min([flat] + [a * x + b * y + c for a, b, c in planes or []])
 
         light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed,
-                                             north_deg=north, north_source=north_source, ceiling_at=ceiling_at)
+                                             north_deg=north, north_source=north_source, ceiling_at=ceiling_at,
+                                             exterior=bool(views["exterior"]))
         if north_source.startswith("assumed"):
             assumed.append({"object": "sun", "field": "north_deg", "value": north, "reason": north_source})
     else:
@@ -971,6 +1087,11 @@ def main(argv: list[str]) -> int:
         "cameras_dropped": cameras_dropped,
         "exterior_looks": looks,
         "brief": prep["brief"],
+        # Milestone 11 (docs/milestone11.md §17): D3 (no stripes in the renders unless asked; the items they would
+        # mark, for the report and the debug images) and the agent's overrides as the build applied them.
+        "markers_in_final": markers,
+        "unverified_items": unverified_items(building),
+        "agent_overrides": prep.get("overrides_applied"),
         "seconds": round(time.time() - t0, 1),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
@@ -980,6 +1101,43 @@ def main(argv: list[str]) -> int:
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+SUN_TO_MAIN_FACADE_DEG = 45.0     # Milestone 11 (§7): the sun 45 degrees off the main facade's normal
+
+
+def sun_from_main_facade(style: dict, main: dict | None, building: dict) -> tuple[dict, dict | None]:
+    """``(style, rule)``: with no north arrow (``site.north_deg`` unknown, so the compass means nothing) the sun
+    comes from the main (entrance) facade's side, ``SUN_TO_MAIN_FACADE_DEG`` off its normal, at the style's
+    elevation (pure; docs/milestone11.md §4.1 X7, §7: the facade the views show is lit, with shadows); with a known
+    north the style's sun stays. ``rule``: ``{"azimuth_deg", "reason"}`` or None."""
+    from wenart.blender import site as S
+
+    north, source = S.north_deg(building)
+    if not main or not source.startswith("assumed"):
+        return style, None
+    dx, dy = main["direction"]
+    facade_az = math.degrees(math.atan2(dx, dy)) % 360.0           # clockwise from +Y (= north, assumed)
+    az = round((facade_az + SUN_TO_MAIN_FACADE_DEG) % 360.0, 3)
+    lighting = dict(style.get("lighting") or {}, sun_azimuth_deg=az)
+    return dict(style, lighting=lighting), {
+        "azimuth_deg": az, "reason": f"no north arrow: the sun {SUN_TO_MAIN_FACADE_DEG:g} degrees off the main "
+                                     f"({main['axis']}) facade, so the views of it show light and shadows "
+                                     f"(docs/milestone11.md §4.1 X7; was {(style.get('lighting') or {}).get('sun_azimuth_deg')})"}
+
+
+def unverified_items(building: dict) -> list[dict]:
+    """The rooms and pieces the unverified stripes mark (pure; Milestone 11 decision D3): ``[{"id", "kind": room |
+    furniture, "level_id"}]``. With ``markers_in_final: false`` (the default) the renders show no stripes; the
+    scene manifest lists these items so the report and the debug images can name them."""
+    out = []
+    for room in building.get("rooms") or []:
+        if room.get("status") == "unverified":
+            out.append({"id": room["id"], "kind": "room", "level_id": room.get("level_id")})
+    for piece in building.get("furniture") or []:
+        if piece.get("status") == "unverified" and piece.get("build", True) is not False:
+            out.append({"id": piece["id"], "kind": "furniture", "level_id": piece.get("level_id")})
+    return out
 
 
 def openings_through_roof(building: dict, level: dict, cut: dict | None) -> list[str]:

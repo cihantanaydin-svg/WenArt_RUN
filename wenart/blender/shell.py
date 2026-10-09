@@ -136,8 +136,16 @@ DEFAULTS = {
 WALL_CUT_TOL_M = 1e-3
 WALL_CUT_TOL_M3 = 1e-3
 WET_ROOM_TYPES = {"bathroom", "wc", "kitchen"}
+# Milestone 11 (docs/milestone11.md §1.3 M2): a kitchen is no wet room for its walls (it had full-height tiles): its
+# walls take the style's walls and a tiled splashback band behind the counter runs (``splashback_plan``); its floor
+# is the brief's floor when that is wet-safe, else the wet floor (``floor_style``).
+WET_WALL_ROOM_TYPES = {"bathroom", "wc"}
+KITCHEN_TYPES = {"kitchen"}
 # Rooms without skirting: wet rooms keep their tiles to the floor, a balcony is outside.
-NO_SKIRTING_TYPES = WET_ROOM_TYPES | {"balcony"}
+NO_SKIRTING_TYPES = WET_WALL_ROOM_TYPES | {"balcony"}
+# The splashback (M2): a tile band this high from the counter top, on the wall behind the counter run.
+SPLASHBACK = {"height": 0.60, "thickness": 0.008, "gap": 0.002, "counter_top": 0.90, "wall_reach": 0.20,
+              "types": ("kitchen_counter", "sink_kitchen", "stove", "hob", "dishwasher", "oven")}
 # Milestone 7 room types that take another type's material slots (docs/milestone7.md §6.4).
 ROOM_SLOT_TYPES = {"dining": "living", "prayer": "living"}
 SKIRTING_H = 0.08
@@ -932,7 +940,7 @@ def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outl
     mesh = ob.data
     polys = [r for r in rooms if len(r["polygon"]) >= 3]
     indoor = [r["polygon"] for r in polys if r.get("room_type") not in OUTDOOR_ROOM_TYPES]
-    wet_polys = [r["polygon"] for r in polys if slot_room_type(r.get("room_type")) in WET_ROOM_TYPES]
+    wet_polys = [r["polygon"] for r in polys if slot_room_type(r.get("room_type")) in WET_WALL_ROOM_TYPES]
     probe = DEFAULTS["face_probe"]
     for poly in mesh.polygons:
         c = poly.center  # wall meshes are built in world coordinates (identity transform)
@@ -1367,11 +1375,141 @@ def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[d
     wc / kitchen, the style floor otherwise (dining and prayer rooms as living
     rooms, ``slot_room_type``). Milestone 10: ``outdoor`` (the exterior ``paving``
     look) is the floor of a room open to the sky (a roof terrace), not the
-    interior floor (real02's terraces showed oak parquet in the rain)."""
+    interior floor (real02's terraces showed oak parquet in the rain). Milestone 11 (docs/milestone11.md §1.3
+    M2): a kitchen takes the style's floor when it is wet-safe (``profile.is_wet_safe``: tiles, stone,
+    terracotta, polished concrete ...), else the wet floor."""
     if outdoor and (outdoor.get("material") or outdoor.get("slug")):
         return dict(outdoor, material=outdoor.get("material") or outdoor.get("slug")), False
-    wet = slot_room_type(room.get("room_type")) in WET_ROOM_TYPES
+    kind = slot_room_type(room.get("room_type"))
+    if kind in KITCHEN_TYPES and isinstance(style.get("floor"), dict) and _wet_safe(style["floor"].get("material")):
+        return style["floor"], True
+    wet = kind in WET_ROOM_TYPES
     return (style.get("wet_floor") if wet else None) or style["floor"], wet
+
+
+def _wet_safe(slug) -> bool:
+    try:
+        from wenart.style.profile import is_wet_safe
+    except ImportError:          # Blender without the style package: the M10 rule (the wet floor)
+        return False
+    return bool(is_wet_safe(slug))
+
+
+def kitchen_counter_back(piece: dict, room: dict, reach: float = SPLASHBACK["wall_reach"]
+                         ) -> tuple[tuple, tuple, float] | None:
+    """The wall stretch behind a kitchen piece (pure; M11 M2): ``(p, q, distance)``, the piece's back edge
+    projected onto the nearest room-polygon edge within ``reach`` that runs parallel to it (the back edge of
+    ``front_deg`` when the piece has one, else its longest edge nearest a wall), None when it stands free (an
+    island)."""
+    fp = piece["footprint"]
+    corners = G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))
+    edges = [(corners[i], corners[(i + 1) % 4]) for i in range(4)]
+    poly = [tuple(p[:2]) for p in room["polygon"]]
+    front = piece.get("front_deg")
+    if front is not None:
+        back = (math.cos(math.radians(float(front) + 180.0)), math.sin(math.radians(float(front) + 180.0)))
+        cx, cy = fp["center"]
+        edges.sort(key=lambda e: -((e[0][0] + e[1][0]) / 2.0 - cx) * back[0] - ((e[0][1] + e[1][1]) / 2.0 - cy) * back[1])
+        edges = edges[:1]
+    else:
+        edges.sort(key=lambda e: -G.distance(*e))
+    best = None
+    for a, b in edges:
+        length = G.distance(a, b)
+        if length < 0.3:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        for i in range(len(poly)):
+            p, q = poly[i], poly[(i + 1) % len(poly)]
+            el = G.distance(p, q)
+            if el < 1e-6:
+                continue
+            ex, ey = (q[0] - p[0]) / el, (q[1] - p[1]) / el
+            if abs(ux * ex + uy * ey) < 0.98:
+                continue
+            d = abs((mid[0] - p[0]) * -ey + (mid[1] - p[1]) * ex)
+            t = (mid[0] - p[0]) * ex + (mid[1] - p[1]) * ey
+            if d > reach or t < -0.05 or t > el + 0.05:
+                continue
+            if best is None or d < best[2]:
+                ta = (a[0] - p[0]) * ex + (a[1] - p[1]) * ey
+                tb = (b[0] - p[0]) * ex + (b[1] - p[1]) * ey
+                lo, hi = max(0.0, min(ta, tb)), min(el, max(ta, tb))
+                best = ((p[0] + ex * lo, p[1] + ey * lo), (p[0] + ex * hi, p[1] + ey * hi), d)
+    return best
+
+
+def splashback_plan(building: dict, level: dict) -> list[dict]:
+    """The splashback bands of a level's kitchens (pure; docs/milestone11.md §1.3 M2): behind every kitchen
+    counter run, sink, hob or stove (``SPLASHBACK["types"]``) of a kitchen that stands against a wall
+    (``kitchen_counter_back``), a band from its counter top (its height, else ``counter_top``) ``height`` high,
+    ``thickness`` thick on the wall face (``gap`` off it, into the room). ``[{"piece_id", "room_id", "center",
+    "size", "rotation_deg"}]``; neighbouring pieces on one wall each get their own band."""
+    rooms = {r["id"]: r for r in building.get("rooms") or [] if r.get("level_id") == level["id"]}
+    out = []
+    floor_z = float(level["elevation"])
+    for piece in building.get("furniture") or []:
+        room = rooms.get(piece.get("room_id"))
+        if room is None or slot_room_type(room.get("room_type")) not in KITCHEN_TYPES \
+                or piece.get("type") not in SPLASHBACK["types"] or piece.get("build", True) is False \
+                or len(room.get("polygon") or []) < 3:
+            continue
+        back = kitchen_counter_back(piece, room)
+        if back is None:
+            continue
+        p, q, _d = back
+        length = G.distance(p, q)
+        if length < 0.2:
+            continue
+        ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+        nx, ny = -uy, ux                                    # towards the piece (into the room)
+        cx, cy = piece["footprint"]["center"]
+        mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
+        if (cx - mid[0]) * nx + (cy - mid[1]) * ny < 0:
+            nx, ny = -nx, -ny
+        off = SPLASHBACK["gap"] + SPLASHBACK["thickness"] / 2.0
+        top = float(piece.get("height") or SPLASHBACK["counter_top"])
+        top = SPLASHBACK["counter_top"] if top > 1.2 else top       # a tall unit (fridge column): the counter top
+        out.append({"piece_id": piece["id"], "room_id": room["id"],
+                    "center": [mid[0] + nx * off, mid[1] + ny * off, floor_z + top + SPLASHBACK["height"] / 2.0],
+                    "size": [length, SPLASHBACK["thickness"], SPLASHBACK["height"]],
+                    "rotation_deg": math.degrees(math.atan2(uy, ux))})
+    return out
+
+
+def build_splashbacks(building: dict, level: dict, collection, library, style: dict, manifest_objects: list,
+                      assumed: list) -> int:
+    """The splashback objects of ``splashback_plan``: one object ``splashback_<room>`` per kitchen (kind
+    ``splashback``, status assumed, the room as parent, pass index 0: a finish on the wall, not an element of the
+    JSON). Its look: the style's ``splashback`` slot (agent override), else the wet walls' tiles."""
+    from wenart.blender import common
+
+    plan = splashback_plan(building, level)
+    if not plan:
+        return 0
+    slot = style.get("splashback") if isinstance(style.get("splashback"), dict) else None
+    look = dict(_slot_look(slot, "tiles_light"), colour=slot.get("colour")) if slot else wet_wall_look(style, None)
+    mat = look_material(library, look)
+    by_room: dict[str, list] = {}
+    for b in plan:
+        by_room.setdefault(b["room_id"], []).append(b)
+    for rid, boxes in sorted(by_room.items()):
+        verts, faces = geom2d.merge([geom2d.box(b["center"], b["size"], b["rotation_deg"]) for b in boxes])
+        name = f"splashback_{rid}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="splashback",
+                                    status="assumed", materials=[mat])
+        ob.pass_index = 0
+        reason = (f"kitchen splashback: tiles {SPLASHBACK['height']:g} m high from the counter top behind "
+                  f"{', '.join(b['piece_id'] for b in boxes)} (docs/milestone11.md §1.3 M2; not drawn)")
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": name, "kind": "splashback", "status": "assumed", "level_id": level["id"],
+            "element_id": rid, "evidence": [], "material": mat.name, "textured": library.textured(mat),
+            "pass_index": None, "detail": "splashback", "pieces": [b["piece_id"] for b in boxes],
+            "assumed": {"reason": reason}})
+        assumed.append({"object": name, "field": "splashback", "value": SPLASHBACK["height"], "reason": reason,
+                        "parent": rid, "kind": "splashback"})
+    return len(plan)
 
 
 def slot_material(library, slot: dict, unverified: bool = False):
