@@ -1,0 +1,1850 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "glm",
+ "model": "zai-org/GLM-4.6V-Flash",
+ "slug": "glm-4.6v-flash",
+ "incomplete": false,
+ "calls": {
+  "sym_L-1_001": {
+   "task": "symbol_type",
+   "input_sha256": "2f5ec0cccd69ad38df6191854c9f94765285de4ac221593b5214f12c058e67fe",
+   "data": {
+    "type": "sofa_corner",
+    "front": "left",
+    "confidence": 1,
+    "reason": "L-shaped outline with seat rows, matches sofa_corner description and size."
+   },
+   "raw_text": "{\n    \"type\": \"sofa_corner\",\n    \"front\": \"left\",\n    \"confidence\": 1,\n    \"reason\": \"L-shaped outline with seat rows, matches sofa_corner description and size.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.413,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_001_ctx.png",
+    "crops/sym_L-1_001_iso.png"
+   ]
+  },
+  "sym_L-1_002": {
+   "task": "symbol_type",
+   "input_sha256": "f8b98aaebc170ae8aadc6f4fe7de674886926857d400588b501aa0519d73d8df",
+   "data": {
+    "type": "sofa_corner",
+    "front": "left",
+    "confidence": 1,
+    "reason": "L-shaped outline with seat rows, matches sofa_corner description and size."
+   },
+   "raw_text": "{\n    \"type\": \"sofa_corner\",\n    \"front\": \"left\",\n    \"confidence\": 1,\n    \"reason\": \"L-shaped outline with seat rows, matches sofa_corner description and size.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.411,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_002_ctx.png",
+    "crops/sym_L-1_002_iso.png"
+   ]
+  },
+  "sym_L-1_003": {
+   "task": "symbol_type",
+   "input_sha256": "89749d47c7e8ffd6e5fde41139a35eba57d3dbfc06d8bdc55516a34e4c861fc0",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.458,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_003_ctx.png",
+    "crops/sym_L-1_003_iso.png"
+   ]
+  },
+  "sym_L-1_004": {
+   "task": "symbol_type",
+   "input_sha256": "4fab92d1f662bec35a73925c4f93b0630655b6fd6220347fba6897d32d08034f",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.443,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_004_ctx.png",
+    "crops/sym_L-1_004_iso.png"
+   ]
+  },
+  "sym_L-1_005": {
+   "task": "symbol_type",
+   "input_sha256": "796387c2e292e66e4f02fd752b9775c981b0f4d67f32c65871b0fa440385e96d",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with spokes, typical of a floor lamp, and its size matches the description."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with spokes, typical of a floor lamp, and its size matches the description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.552,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_005_ctx.png",
+    "crops/sym_L-1_005_iso.png"
+   ]
+  },
+  "sym_L-1_006": {
+   "task": "symbol_type",
+   "input_sha256": "b6767a46f3f50492ed0bc3fe9b24ca6f7e803d619669477a363f0fd81bb01733",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with radiating lines, consistent with a potted plant, and its size matches the typical footprint of a potted plant."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with radiating lines, consistent with a potted plant, and its size matches the typical footprint of a potted plant.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.678,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_006_ctx.png",
+    "crops/sym_L-1_006_iso.png"
+   ]
+  },
+  "sym_L-1_007": {
+   "task": "symbol_type",
+   "input_sha256": "f92cc45e0ee19c3ee470cc0edb0bf691e85d3e3dfce769c702d35b8f42e5edd0",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with spokes, typical of a floor lamp."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with spokes, typical of a floor lamp.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.435,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_007_ctx.png",
+    "crops/sym_L-1_007_iso.png"
+   ]
+  },
+  "sym_L-1_008": {
+   "task": "symbol_type",
+   "input_sha256": "20faac9b571db30807aff6f3cd17c0314d8bdc682033682fa45f4f1bbca9382f",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a circular shape with radial lines, typical of a potted plant, and its size matches the description for a potted plant."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a circular shape with radial lines, typical of a potted plant, and its size matches the description for a potted plant.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.669,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_008_ctx.png",
+    "crops/sym_L-1_008_iso.png"
+   ]
+  },
+  "sym_L-1_009": {
+   "task": "symbol_type",
+   "input_sha256": "6c62e323533d5a2c79711052327238b0bdcc0b8c88e74259e78e425f02936a45",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The footprint is about 1.30 x 0.63 m, which fits the sofa size range, and it is drawn inside a room labelled 'SALON'."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The footprint is about 1.30 x 0.63 m, which fits the sofa size range, and it is drawn inside a room labelled 'SALON'.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.762,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_009_ctx.png",
+    "crops/sym_L-1_009_iso.png"
+   ]
+  },
+  "sym_L-1_010": {
+   "task": "symbol_type",
+   "input_sha256": "c10e92af0a0d1bd0adeb30ff932e936be45e8ada71f004ecdbbf99a9d29fd278",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The footprint is about 1.30 x 0.63 m, which fits the sofa size range, and it is drawn inside a room labelled 'SALON'."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The footprint is about 1.30 x 0.63 m, which fits the sofa size range, and it is drawn inside a room labelled 'SALON'.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.748,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_010_ctx.png",
+    "crops/sym_L-1_010_iso.png"
+   ]
+  },
+  "sym_L-1_011": {
+   "task": "symbol_type",
+   "input_sha256": "80433b5f526f72c6de0fdf99ea17a0488886753a5d0c4713aea1e1bcdf8b4632",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with spokes, typical of a floor lamp, and its size matches the description."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with spokes, typical of a floor lamp, and its size matches the description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.395,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_011_ctx.png",
+    "crops/sym_L-1_011_iso.png"
+   ]
+  },
+  "sym_L-1_012": {
+   "task": "symbol_type",
+   "input_sha256": "a4f512a6d58f884cd11e99fd7149aa4d7ce3cdbbd51b908e39188a2baa8ba11b",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a small circle with spokes, typical of a floor lamp, and its size matches the description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.374,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_012_ctx.png",
+    "crops/sym_L-1_012_iso.png"
+   ]
+  },
+  "sym_L-1_013": {
+   "task": "symbol_type",
+   "input_sha256": "94940dbcf98e6276a9b1bb63bfb5f546f41d2dfbd2382952eb542bb0ddf87f43",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with spokes, typical of a floor lamp, and its size matches the description."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with spokes, typical of a floor lamp, and its size matches the description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.203,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_013_ctx.png",
+    "crops/sym_L-1_013_iso.png"
+   ]
+  },
+  "sym_L-1_014": {
+   "task": "symbol_type",
+   "input_sha256": "dff9e7d5602771accbaa18a6a8d1bbd7a883c68f9109038d81d5a6bada006784",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with spokes, typical of a floor lamp, and its size matches the description for a floor lamp."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with spokes, typical of a floor lamp, and its size matches the description for a floor lamp.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.347,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_014_ctx.png",
+    "crops/sym_L-1_014_iso.png"
+   ]
+  },
+  "sym_L-1_015": {
+   "task": "symbol_type",
+   "input_sha256": "df35cf6182e56f14ef78ed53620e170750de43cc210ea2aeff3403da0f0b19ae",
+   "data": {
+    "type": "fridge",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a fridge's size and it's in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"fridge\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a fridge's size and it's in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.917,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_015_ctx.png",
+    "crops/sym_L-1_015_iso.png"
+   ]
+  },
+  "sym_L-1_016": {
+   "task": "symbol_type",
+   "input_sha256": "1f8669dd9a04308052cec9803b127433570e3cc8435174e9b41a9cbb5fcefd60",
+   "data": {
+    "type": "fridge",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a fridge's size and it's in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"fridge\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a fridge's size and it's in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_016_ctx.png",
+    "crops/sym_L-1_016_iso.png"
+   ]
+  },
+  "sym_L-1_017": {
+   "task": "symbol_type",
+   "input_sha256": "7d115c96c28b774efa60d46439ab92b26f55b97f0fc85e742107776091c76e16",
+   "data": {
+    "type": "armchair",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The U-shaped footprint with a backrest and armrests matches the description of an armchair."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The U-shaped footprint with a backrest and armrests matches the description of an armchair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.531,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_017_ctx.png",
+    "crops/sym_L-1_017_iso.png"
+   ]
+  },
+  "sym_L-1_018": {
+   "task": "symbol_type",
+   "input_sha256": "e01e48742924612b49eef9fd3241b38a7d74d20f57b04092ee1fa722f2a23d18",
+   "data": {
+    "type": "armchair",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The U-shaped footprint with a backrest and armrests matches the description of an armchair."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The U-shaped footprint with a backrest and armrests matches the description of an armchair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.42,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_018_ctx.png",
+    "crops/sym_L-1_018_iso.png"
+   ]
+  },
+  "sym_L-1_019": {
+   "task": "symbol_type",
+   "input_sha256": "f6390d8ff473e0168204db3c528d2d06fc3cf9ca6c189f8f87fa1f91382b2c45",
+   "data": {
+    "type": "armchair",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint and shape match an armchair, with a thick backrest and armrests."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and shape match an armchair, with a thick backrest and armrests.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.428,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_019_ctx.png",
+    "crops/sym_L-1_019_iso.png"
+   ]
+  },
+  "sym_L-1_020": {
+   "task": "symbol_type",
+   "input_sha256": "4b29abe233915fb26108ddb18631903e7c5780c773e27d4288c904280b6d622c",
+   "data": {
+    "type": "armchair",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint and shape match an armchair, with a thick backrest and armrests."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and shape match an armchair, with a thick backrest and armrests.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.348,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_020_ctx.png",
+    "crops/sym_L-1_020_iso.png"
+   ]
+  },
+  "sym_L-1_021": {
+   "task": "symbol_type",
+   "input_sha256": "c15a31b16d3e9ddea045c512c85c76f6bf2b8fc335db1fe7bb2864a41cdc1daf",
+   "data": {
+    "type": "table_coffee",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with a size that fits a coffee table, and it is placed between two armchairs in a living room setting."
+   },
+   "raw_text": "{\n    \"type\": \"table_coffee\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with a size that fits a coffee table, and it is placed between two armchairs in a living room setting.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.761,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_021_ctx.png",
+    "crops/sym_L-1_021_iso.png"
+   ]
+  },
+  "sym_L-1_022": {
+   "task": "symbol_type",
+   "input_sha256": "ed9fc806cee40084f9f95fc802d9c248fe54af22b120518af17db356710b57a4",
+   "data": {
+    "type": "table_coffee",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object is round, low, and the size matches a coffee table in a living room."
+   },
+   "raw_text": "{\n    \"type\": \"table_coffee\",\n    \"front\": \"none\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object is round, low, and the size matches a coffee table in a living room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.246,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_022_ctx.png",
+    "crops/sym_L-1_022_iso.png"
+   ]
+  },
+  "sym_L-1_023": {
+   "task": "symbol_type",
+   "input_sha256": "98cc487ab453559db6f0cb38f6833c546cabd11b9d09201a554103e1f527ae28",
+   "data": {
+    "type": "ottoman",
+    "front": "left",
+    "confidence": 0.8,
+    "reason": "Footprint size and shape match an ottoman, and it's one of three similar objects in a living room."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"left\",\n    \"confidence\": 0.8,\n    \"reason\": \"Footprint size and shape match an ottoman, and it's one of three similar objects in a living room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.446,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_023_ctx.png",
+    "crops/sym_L-1_023_iso.png"
+   ]
+  },
+  "sym_L-1_024": {
+   "task": "symbol_type",
+   "input_sha256": "1dfb84316f19af2caa6f3d4daef06d6aa85ff09062ede4ee34102c7d0d7d0fa4",
+   "data": {
+    "type": "ottoman",
+    "front": "left",
+    "confidence": 0.8,
+    "reason": "The object's footprint and shape match the description of an ottoman, and its size fits the 1m scale bar."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"left\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint and shape match the description of an ottoman, and its size fits the 1m scale bar.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.38,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_024_ctx.png",
+    "crops/sym_L-1_024_iso.png"
+   ]
+  },
+  "sym_L-1_025": {
+   "task": "symbol_type",
+   "input_sha256": "9980ab4432ee8ca6295169371324c7590004aae6db6ecce5115ecf821f98bfbe",
+   "data": {
+    "type": "ottoman",
+    "front": "right",
+    "confidence": 0.8,
+    "reason": "The object's footprint and shape match the description of an ottoman, and the front edge is on the right."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"right\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint and shape match the description of an ottoman, and the front edge is on the right.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.544,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_025_ctx.png",
+    "crops/sym_L-1_025_iso.png"
+   ]
+  },
+  "sym_L-1_026": {
+   "task": "symbol_type",
+   "input_sha256": "7bf156d9e7c08433865e63771e03186ee4deb74761bed7740706d1af0b8cc33e",
+   "data": {
+    "type": "ottoman",
+    "front": "right",
+    "confidence": 0.8,
+    "reason": "Footprint size and shape match an ottoman, and it's one of three similar objects in a living room."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"right\",\n    \"confidence\": 0.8,\n    \"reason\": \"Footprint size and shape match an ottoman, and it's one of three similar objects in a living room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.45,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_026_ctx.png",
+    "crops/sym_L-1_026_iso.png"
+   ]
+  },
+  "sym_L-1_027": {
+   "task": "symbol_type",
+   "input_sha256": "8fdef42aa6d647555e0b3152f5b82ed6e3d53072c7afe446f6a8fe02b35d9aaa",
+   "data": {
+    "type": "ottoman",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches the size and shape of an ottoman, and it is one of two similar objects in the room."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches the size and shape of an ottoman, and it is one of two similar objects in the room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.451,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_027_ctx.png",
+    "crops/sym_L-1_027_iso.png"
+   ]
+  },
+  "sym_L-1_028": {
+   "task": "symbol_type",
+   "input_sha256": "4255b710cf24bd8b3150536fdd06bb4f042e1988406ecfe382708b34f24c090a",
+   "data": {
+    "type": "ottoman",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object's footprint is a square about 0.4x0.4m, which matches the size and shape of an ottoman."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint is a square about 0.4x0.4m, which matches the size and shape of an ottoman.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.462,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_028_ctx.png",
+    "crops/sym_L-1_028_iso.png"
+   ]
+  },
+  "sym_L-1_029": {
+   "task": "symbol_type",
+   "input_sha256": "911d3611e9a99cf21a7e5b51c5330e325220541db7d019dc46c6c503bbf118fa",
+   "data": {
+    "type": "sink_kitchen",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "Footprint matches kitchen sink size and is in kitchen area."
+   },
+   "raw_text": "{\n    \"type\": \"sink_kitchen\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches kitchen sink size and is in kitchen area.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.061,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_029_ctx.png",
+    "crops/sym_L-1_029_iso.png"
+   ]
+  },
+  "sym_L-1_030": {
+   "task": "symbol_type",
+   "input_sha256": "32d19491eda05a346f96bca1c29d23d32423443b245558149078af3d794f3773",
+   "data": {
+    "type": "sink_kitchen",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "Footprint matches kitchen sink size and is in kitchen area."
+   },
+   "raw_text": "{\n    \"type\": \"sink_kitchen\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches kitchen sink size and is in kitchen area.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.942,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_030_ctx.png",
+    "crops/sym_L-1_030_iso.png"
+   ]
+  },
+  "sym_L-1_031": {
+   "task": "symbol_type",
+   "input_sha256": "b321548a57c702a56a7231b4e22ed520e98d9e12b0d63226dc7279a7579dec7a",
+   "data": {
+    "type": "wall_cabinet",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object is a kitchen wall cabinet, drawn dashed, with a footprint matching the size and context of a kitchen wall cabinet."
+   },
+   "raw_text": "{\n    \"type\": \"wall_cabinet\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a kitchen wall cabinet, drawn dashed, with a footprint matching the size and context of a kitchen wall cabinet.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.2,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_031_ctx.png",
+    "crops/sym_L-1_031_iso.png"
+   ]
+  },
+  "sym_L-1_032": {
+   "task": "symbol_type",
+   "input_sha256": "9dc00fe775a4877371336cf1a6dcfcb40e9ad2fff13d1a17e7b52328af997966",
+   "data": {
+    "type": "sink_kitchen",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "Footprint matches kitchen sink size and is in kitchen area."
+   },
+   "raw_text": "{\n    \"type\": \"sink_kitchen\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches kitchen sink size and is in kitchen area.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.901,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_032_ctx.png",
+    "crops/sym_L-1_032_iso.png"
+   ]
+  },
+  "sym_L-1_033": {
+   "task": "symbol_type",
+   "input_sha256": "e95e2eb44df6aeb3cdd4e796a266b7956c81f4fb39910ae615a68597da753f78",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a simple L-shaped line, likely representing a wall or structural element, not furniture."
+   },
+   "raw_text": "{\n    \"type\": \"not_furniture\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a simple L-shaped line, likely representing a wall or structural element, not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.469,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_033_ctx.png",
+    "crops/sym_L-1_033_iso.png"
+   ]
+  },
+  "sym_L-1_034": {
+   "task": "symbol_type",
+   "input_sha256": "dc2e7ec2ded4c966ec716e6fa210b6eebe6f7c538a990a1b3f531d694b13610d",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object's footprint is small and unclear, fitting the unknown category."
+   },
+   "raw_text": "{\n    \"type\": \"unknown\",\n    \"front\": \"none\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint is small and unclear, fitting the unknown category.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.282,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_034_ctx.png",
+    "crops/sym_L-1_034_iso.png"
+   ]
+  },
+  "sym_L-1_035": {
+   "task": "symbol_type",
+   "input_sha256": "93d0e2acdfd73ce50103c502ddf1cd2be7f0af71b4d6e30393201f9e04fe3af6",
+   "data": {
+    "type": "table_coffee",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "Footprint matches a coffee table size, located in a living room (salon) near larger furniture."
+   },
+   "raw_text": "{\n    \"type\": \"table_coffee\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches a coffee table size, located in a living room (salon) near larger furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.404,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_035_ctx.png",
+    "crops/sym_L-1_035_iso.png"
+   ]
+  },
+  "sym_L-1_036": {
+   "task": "symbol_type",
+   "input_sha256": "a39c1bc904a4a7391eb9cb487b6db07740b7e1dc575cddcb2a4c46b9d5718da5",
+   "data": {
+    "type": "table_coffee",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "Footprint matches a coffee table size, located in a living room near a sofa."
+   },
+   "raw_text": "{\n    \"type\": \"table_coffee\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches a coffee table size, located in a living room near a sofa.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.31,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1_036_ctx.png",
+    "crops/sym_L-1_036_iso.png"
+   ]
+  },
+  "sym_L-1b_001": {
+   "task": "symbol_type",
+   "input_sha256": "fed1ed4c0b0042a1cc31e1b6454cf83ce5866e9a9a91ae1467d7cc22f7a72709",
+   "data": {
+    "type": "stove",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object's footprint is about 0.6 x 0.6 m, fitting the size of a kitchen stove, and it is located in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"stove\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint is about 0.6 x 0.6 m, fitting the size of a kitchen stove, and it is located in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.47,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_001_ctx.png",
+    "crops/sym_L-1b_001_iso.png"
+   ]
+  },
+  "sym_L-1b_002": {
+   "task": "symbol_type",
+   "input_sha256": "68f24631e1f7243debbd855e7e4a6ece3e417a0a38abb7eaea374267babdb09b",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a simple L-shaped line, likely representing a wall corner or a structural element, not furniture."
+   },
+   "raw_text": "{\n    \"type\": \"not_furniture\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a simple L-shaped line, likely representing a wall corner or a structural element, not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.127,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_002_ctx.png",
+    "crops/sym_L-1b_002_iso.png"
+   ]
+  },
+  "sym_L-1b_003": {
+   "task": "symbol_type",
+   "input_sha256": "2ba5443cde32be78f18eb6469c6d902e0c837ce7f788d343f1c8f7faa52a061b",
+   "data": {
+    "type": "stove",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object's footprint is about 0.6 x 0.6 m, fitting the size of a kitchen stove, and it is located in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"stove\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint is about 0.6 x 0.6 m, fitting the size of a kitchen stove, and it is located in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.657,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_003_ctx.png",
+    "crops/sym_L-1b_003_iso.png"
+   ]
+  },
+  "sym_L-1b_004": {
+   "task": "symbol_type",
+   "input_sha256": "3f7c59c85f59306a93843aa82573ae5017e8fbf95c215f5ab3d2070b774a2983",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object's footprint is small and unclear, fitting the unknown category."
+   },
+   "raw_text": "{\n    \"type\": \"unknown\",\n    \"front\": \"none\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint is small and unclear, fitting the unknown category.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.821,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_004_ctx.png",
+    "crops/sym_L-1b_004_iso.png"
+   ]
+  },
+  "sym_L-1b_005": {
+   "task": "symbol_type",
+   "input_sha256": "a865555eea894ff5e4aa25113ec7eda27d12b56fc7c5a27f3a2b0aadb7c3931f",
+   "data": {
+    "type": "kitchen_island",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint and placement in a kitchen area match the description of a kitchen island."
+   },
+   "raw_text": "{\n    \"type\": \"kitchen_island\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and placement in a kitchen area match the description of a kitchen island.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.494,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_005_ctx.png",
+    "crops/sym_L-1b_005_iso.png"
+   ]
+  },
+  "sym_L-1b_006": {
+   "task": "symbol_type",
+   "input_sha256": "fa97ef8bdad932a801a421ab38fc71e0837424ece8282a6553a88fb64e61fac7",
+   "data": {
+    "type": "sofa",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a long rectangle with a backrest line, matching the description of a sofa.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.475,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_006_ctx.png",
+    "crops/sym_L-1b_006_iso.png"
+   ]
+  },
+  "sym_L-1b_007": {
+   "task": "symbol_type",
+   "input_sha256": "fe0546e65808c4691fcc4baffe082d942ee2369a0ee6a10d83868818d7ff354b",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.247,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_007_ctx.png",
+    "crops/sym_L-1b_007_iso.png"
+   ]
+  },
+  "sym_L-1b_008": {
+   "task": "symbol_type",
+   "input_sha256": "cbb09fb7af4094841c550d9cd426c4a4e84cfecf635ed433ddcd2e7010d491dd",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.236,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_008_ctx.png",
+    "crops/sym_L-1b_008_iso.png"
+   ]
+  },
+  "sym_L-1b_009": {
+   "task": "symbol_type",
+   "input_sha256": "2f98cc9e5ffdb1eddee8a9acac2081a210656a2695f6a6bdabac8283f3c20be3",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a long rectangle with a backrest line, matching the description of a sofa.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.251,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_009_ctx.png",
+    "crops/sym_L-1b_009_iso.png"
+   ]
+  },
+  "sym_L-1b_010": {
+   "task": "symbol_type",
+   "input_sha256": "8ca0aa9e273e01e35da3d38aa9fddee26d8288b84a3f1e728d51133d664b5371",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a long rectangle with a backrest line, matching the description of a sofa.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.039,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_010_ctx.png",
+    "crops/sym_L-1b_010_iso.png"
+   ]
+  },
+  "sym_L-1b_011": {
+   "task": "symbol_type",
+   "input_sha256": "53734457563891eb204751840e0680b97cd5128b105192218f781de9ee0db612",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a circular shape with spokes, typical of a potted plant symbol in architectural plans."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a circular shape with spokes, typical of a potted plant symbol in architectural plans.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.058,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_011_ctx.png",
+    "crops/sym_L-1b_011_iso.png"
+   ]
+  },
+  "sym_L-1b_012": {
+   "task": "symbol_type",
+   "input_sha256": "96a0b1ee452ca967b65f9c8f08cf09a36e66158dc9e81b1889c1a849cdd74636",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with radiating lines, consistent with a potted plant."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with radiating lines, consistent with a potted plant.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_012_ctx.png",
+    "crops/sym_L-1b_012_iso.png"
+   ]
+  },
+  "sym_L-1b_013": {
+   "task": "symbol_type",
+   "input_sha256": "5aa12305a29692c92dc1d02979fd89da1219d33cb70018bbdc4985bcd73216fc",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a circular shape with spokes, typical of a potted plant drawing, and its size matches the given footprint."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a circular shape with spokes, typical of a potted plant drawing, and its size matches the given footprint.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.596,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_013_ctx.png",
+    "crops/sym_L-1b_013_iso.png"
+   ]
+  },
+  "sym_L-1b_014": {
+   "task": "symbol_type",
+   "input_sha256": "f7d773c833fd6b2a8f36b479dc7e38f7b4a8f060ce4a3d50c3531387662af731",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape with radiating lines, consistent with a potted plant, and its size matches the typical footprint of a potted plant."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape with radiating lines, consistent with a potted plant, and its size matches the typical footprint of a potted plant.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.667,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_014_ctx.png",
+    "crops/sym_L-1b_014_iso.png"
+   ]
+  },
+  "sym_L-1b_015": {
+   "task": "symbol_type",
+   "input_sha256": "a2cb1a0425e62730adc4e8f600a9ff046b5bfaec77ec05a18f4fd932e80e177b",
+   "data": {
+    "type": "armchair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat, backrest, and armrests, matching the armchair description."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat, backrest, and armrests, matching the armchair description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.453,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_015_ctx.png",
+    "crops/sym_L-1b_015_iso.png"
+   ]
+  },
+  "sym_L-1b_016": {
+   "task": "symbol_type",
+   "input_sha256": "a4d1312b1cde25f430dab4f606e1163934289f213d9051677347d3417a891ac4",
+   "data": {
+    "type": "armchair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat, backrest, and armrests, matching the armchair description."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat, backrest, and armrests, matching the armchair description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.241,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_016_ctx.png",
+    "crops/sym_L-1b_016_iso.png"
+   ]
+  },
+  "sym_L-1b_017": {
+   "task": "symbol_type",
+   "input_sha256": "cb705455adab39d00d11c1ff2ce9f20833fa0d32a9f2ba5250e0cdae5200e456",
+   "data": {
+    "type": "armchair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat, backrest, and armrests, matching the armchair description."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat, backrest, and armrests, matching the armchair description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.226,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_017_ctx.png",
+    "crops/sym_L-1b_017_iso.png"
+   ]
+  },
+  "sym_L-1b_018": {
+   "task": "symbol_type",
+   "input_sha256": "701dd9386412bc58a7ddbb081a101336ac1c386688143cb04a060a55a5a9477d",
+   "data": {
+    "type": "armchair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat, backrest, and armrests, matching the armchair description."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat, backrest, and armrests, matching the armchair description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.202,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_018_ctx.png",
+    "crops/sym_L-1b_018_iso.png"
+   ]
+  },
+  "sym_L-1b_019": {
+   "task": "symbol_type",
+   "input_sha256": "e9768b25673661b5d6e2c66095a831724f187dd62ddbd79a68fa73d12e3f349b",
+   "data": {
+    "type": "fridge",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a fridge's size and it's in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"fridge\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a fridge's size and it's in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.937,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_019_ctx.png",
+    "crops/sym_L-1b_019_iso.png"
+   ]
+  },
+  "sym_L-1b_020": {
+   "task": "symbol_type",
+   "input_sha256": "ab2e564a7ba61de48a7c985c94a2e72aba5e4a8109433750971902508b052819",
+   "data": {
+    "type": "fridge",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a fridge's size and it's in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"fridge\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a fridge's size and it's in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.913,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_020_ctx.png",
+    "crops/sym_L-1b_020_iso.png"
+   ]
+  },
+  "sym_L-1b_021": {
+   "task": "symbol_type",
+   "input_sha256": "e7d5f10544a042200d13c03faffb365435151dab9462946aa77b54dc501bbc21",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.8,
+    "reason": "The object's footprint is a square about 0.4x0.4m, consistent with a chair, and it is one of three similar objects in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"right\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint is a square about 0.4x0.4m, consistent with a chair, and it is one of three similar objects in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.72,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_021_ctx.png",
+    "crops/sym_L-1b_021_iso.png"
+   ]
+  },
+  "sym_L-1b_022": {
+   "task": "symbol_type",
+   "input_sha256": "0f32b01f217be6d6e5ef0d98ac977c44d7eb1647c69f6dbe86ab8cd984cbf961",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.8,
+    "reason": "The object's footprint is a square about 0.4x0.4m, consistent with a chair, and it is in a kitchen area."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"right\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint is a square about 0.4x0.4m, consistent with a chair, and it is in a kitchen area.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.66,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_022_ctx.png",
+    "crops/sym_L-1b_022_iso.png"
+   ]
+  },
+  "sym_L-1b_023": {
+   "task": "symbol_type",
+   "input_sha256": "250f753ca1f6e7905a79d716d125c5c32461d9ecf9acad9480070662e5bddcb3",
+   "data": {
+    "type": "sink_kitchen",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "Footprint matches kitchen sink size and is in a kitchen area."
+   },
+   "raw_text": "{\n    \"type\": \"sink_kitchen\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches kitchen sink size and is in a kitchen area.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.345,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_023_ctx.png",
+    "crops/sym_L-1b_023_iso.png"
+   ]
+  },
+  "sym_L-1b_024": {
+   "task": "symbol_type",
+   "input_sha256": "1a2994875eac35055f59d9b226534104edb0db09f075f8b06f4317a4674f466d",
+   "data": {
+    "type": "sink_kitchen",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "Footprint and context in a kitchen match a kitchen sink."
+   },
+   "raw_text": "{\n    \"type\": \"sink_kitchen\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint and context in a kitchen match a kitchen sink.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.11,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_024_ctx.png",
+    "crops/sym_L-1b_024_iso.png"
+   ]
+  },
+  "sym_L-1b_025": {
+   "task": "symbol_type",
+   "input_sha256": "3e4841c891c9f1f24928e35ba56283f96af5cb4a6874429dd6144f486e193b2d",
+   "data": {
+    "type": "wall_cabinet",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's size and position in a kitchen, along with the dashed line, match a wall cabinet."
+   },
+   "raw_text": "{\n    \"type\": \"wall_cabinet\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's size and position in a kitchen, along with the dashed line, match a wall cabinet.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.22,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_025_ctx.png",
+    "crops/sym_L-1b_025_iso.png"
+   ]
+  },
+  "sym_L-1b_026": {
+   "task": "symbol_type",
+   "input_sha256": "8051d833c56a6cdf67ae05bddb586a5d5a9a23eb28537e75578ec5499316f039",
+   "data": {
+    "type": "wall_cabinet",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object's size and dashed border in a kitchen match a wall cabinet."
+   },
+   "raw_text": "{\n    \"type\": \"wall_cabinet\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's size and dashed border in a kitchen match a wall cabinet.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.959,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L-1b_026_ctx.png",
+    "crops/sym_L-1b_026_iso.png"
+   ]
+  },
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "e59f493a7a432d7a934d793a38ec0a096d6b2b458a091d7cedd55291258c433a",
+   "data": {
+    "type": "bed_double",
+    "front": "left",
+    "confidence": 1,
+    "reason": "The object's footprint matches a bed_double, with a headboard line and size fitting the 1.90 x 1.55 m measurement."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"left\",\n    \"confidence\": 1,\n    \"reason\": \"The object's footprint matches a bed_double, with a headboard line and size fitting the 1.90 x 1.55 m measurement.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.158,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "c06ffa94675cef3054c7a9c6862d77c82415ad7d44750b5d394989b1c13909a8",
+   "data": {
+    "type": "bed_double",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "Footprint matches bed_double dimensions and has a headboard line."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches bed_double dimensions and has a headboard line.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.853,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "44f0358a3e0913a927b0202622d3c57fd41e91534600e07c2b7f87e7fbb50207",
+   "data": {
+    "type": "bed_double",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bed_double's size and shape, with a headboard line on the left."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bed_double's size and shape, with a headboard line on the left.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.434,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  },
+  "sym_L0_004": {
+   "task": "symbol_type",
+   "input_sha256": "da08c3ea5c67698f6cbed7bbaeb926f54a616ba76acea95f9e9f42a837b3d33c",
+   "data": {
+    "type": "bed_double",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "Footprint matches bed_double dimensions and has a headboard line."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"Footprint matches bed_double dimensions and has a headboard line.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.231,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ]
+  },
+  "sym_L0_005": {
+   "task": "symbol_type",
+   "input_sha256": "ff160023ee5638bf1ec95bd0b890584fe74122b8fba5b189f5dd6aaa132467cb",
+   "data": {
+    "type": "wardrobe",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a wardrobe's typical size and shape against a wall."
+   },
+   "raw_text": "{\n    \"type\": \"wardrobe\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a wardrobe's typical size and shape against a wall.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.267,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ]
+  },
+  "sym_L0_006": {
+   "task": "symbol_type",
+   "input_sha256": "9ca81ebe45542ae06a232c6b4564365574b95458da636022a0d1a8556913038f",
+   "data": {
+    "type": "wardrobe",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a wardrobe's typical size and shape, and it is placed against a wall."
+   },
+   "raw_text": "{\n    \"type\": \"wardrobe\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a wardrobe's typical size and shape, and it is placed against a wall.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.382,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ]
+  },
+  "sym_L0_007": {
+   "task": "symbol_type",
+   "input_sha256": "918f6fc2c947e7f9c416b5ac35592dacbda074dc32c949300c0d2ac2dc3efe31",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.146,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ]
+  },
+  "sym_L0_008": {
+   "task": "symbol_type",
+   "input_sha256": "9b20e7db57de4f50111f9aff9713858f07d05b92af01e82ebfcf880c8b2dbd2b",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.131,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ]
+  },
+  "sym_L0_009": {
+   "task": "symbol_type",
+   "input_sha256": "ccf6d1ba4a75952aabccf639d495befffd4ec3358a31fde0a256ecf1fc4cf0e8",
+   "data": {
+    "type": "sofa",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches the size and shape of a sofa, and it is located in a bedroom."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches the size and shape of a sofa, and it is located in a bedroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.507,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "bf9af2b6de10e5d490877b6c491e57eb0702eab49a135513a0cbc1bfbc445617",
+   "data": {
+    "type": "sofa",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches the size and shape of a sofa, and it is located in a bedroom."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches the size and shape of a sofa, and it is located in a bedroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.487,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ]
+  },
+  "sym_L0_011": {
+   "task": "symbol_type",
+   "input_sha256": "a6509833970036264b221c0b0f5b96fe21044e852a783baf3ddacc56aab88999",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches the size and shape of a sofa, and it is located in a bedroom."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches the size and shape of a sofa, and it is located in a bedroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.442,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ]
+  },
+  "sym_L0_012": {
+   "task": "symbol_type",
+   "input_sha256": "30ba5449551f6e69375f6d7725a4f2465361a19eddda11c50f38b98418e9b779",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The footprint matches a sofa's dimensions and it's in a bedroom."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The footprint matches a sofa's dimensions and it's in a bedroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.329,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ]
+  },
+  "sym_L0_013": {
+   "task": "symbol_type",
+   "input_sha256": "f52161f1ec985d00d034f5c24fe7774ce18f68669a517077eec969100f16cf39",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a small circle with rings, typical of a floor lamp symbol."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a small circle with rings, typical of a floor lamp symbol.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.366,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ]
+  },
+  "sym_L0_014": {
+   "task": "symbol_type",
+   "input_sha256": "e82c567d127d3e1e91d3b5d014f1f42c09be89c4d51cb684e63da755dd5eaa25",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a small circle with rings, typical of a floor lamp symbol."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a small circle with rings, typical of a floor lamp symbol.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.345,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ]
+  },
+  "sym_L0_015": {
+   "task": "symbol_type",
+   "input_sha256": "9caae70fa5c21aba738b9ea58fb3ca4214d66c4c6291d416be5055f58d050c95",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a small circle with rings, typical of a floor lamp symbol."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a small circle with rings, typical of a floor lamp symbol.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.108,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ]
+  },
+  "sym_L0_016": {
+   "task": "symbol_type",
+   "input_sha256": "2485e6fb6c2d735e9b3f425cb2bee57fd56dd13f168bdb1903936fa6fde26ca1",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a small circle with rings, typical of a floor lamp symbol."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a small circle with rings, typical of a floor lamp symbol.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.096,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ]
+  },
+  "sym_L1_001": {
+   "task": "symbol_type",
+   "input_sha256": "54b6d697180b48f42597af7b4d26ec9f148b0a0c0af6efc34f5af9588fdd71e0",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape, consistent with a potted plant, and its size fits the typical dimensions for such an item."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape, consistent with a potted plant, and its size fits the typical dimensions for such an item.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.578,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_001_ctx.png",
+    "crops/sym_L1_001_iso.png"
+   ]
+  },
+  "sym_L1_002": {
+   "task": "symbol_type",
+   "input_sha256": "5fb16e18738bfa6e1ed9d9ae8bc4b8d9010a8f65ce2271a3cdacb7544f1b89a8",
+   "data": {
+    "type": "potted_plant",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a round shape, consistent with a potted plant, and its size fits the given footprint."
+   },
+   "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a round shape, consistent with a potted plant, and its size fits the given footprint.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.427,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_002_ctx.png",
+    "crops/sym_L1_002_iso.png"
+   ]
+  },
+  "sym_L1_003": {
+   "task": "symbol_type",
+   "input_sha256": "92a3d644bf7f5eeafb9e2c0971e678ed534ad278a69cec0b85f9ef96793b50c9",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a rug outline, not furniture."
+   },
+   "raw_text": "{\n    \"type\": \"not_furniture\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a rug outline, not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.142,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_003_ctx.png",
+    "crops/sym_L1_003_iso.png"
+   ]
+  },
+  "sym_L1_004": {
+   "task": "symbol_type",
+   "input_sha256": "52b6996050812a9fd21d29613d536ac0ac904dbdaa8f5ede1a1c6fd704f7b253",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is an irregular outline with a central circle and curved elements, not matching furniture types like bed or stair."
+   },
+   "raw_text": "{\n    \"type\": \"not_furniture\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is an irregular outline with a central circle and curved elements, not matching furniture types like bed or stair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.553,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_004_ctx.png",
+    "crops/sym_L1_004_iso.png"
+   ]
+  },
+  "sym_L1_005": {
+   "task": "symbol_type",
+   "input_sha256": "6304766f29e8df82cad6d91babe92b0a1b28f4e6765b74a1b64ee73143de1c28",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and shape, and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and shape, and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.471,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_005_ctx.png",
+    "crops/sym_L1_005_iso.png"
+   ]
+  },
+  "sym_L1_006": {
+   "task": "symbol_type",
+   "input_sha256": "1e0fb936d22e46c10819fb420c5653669657e5795073569d8544b3382efcd4dc",
+   "data": {
+    "type": "bathtub",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bathtub's size and it's in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"bathtub\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bathtub's size and it's in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.405,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_006_ctx.png",
+    "crops/sym_L1_006_iso.png"
+   ]
+  },
+  "sym_L1_007": {
+   "task": "symbol_type",
+   "input_sha256": "942cf31e576a7d7ec9696269e1f4cb145926d7e6c0763719338fbbd23bd30262",
+   "data": {
+    "type": "bench",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bench's size and shape, and it's placed in a corridor."
+   },
+   "raw_text": "{\n    \"type\": \"bench\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bench's size and shape, and it's placed in a corridor.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.231,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_007_ctx.png",
+    "crops/sym_L1_007_iso.png"
+   ]
+  },
+  "sym_L1_008": {
+   "task": "symbol_type",
+   "input_sha256": "67a29023e274711f27946b4192c8d1c0103f49d0a6d74570a98ca031b1f1d503",
+   "data": {
+    "type": "bench",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches a bench's size and shape, and it's placed in a corridor."
+   },
+   "raw_text": "{\n    \"type\": \"bench\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches a bench's size and shape, and it's placed in a corridor.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.216,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_008_ctx.png",
+    "crops/sym_L1_008_iso.png"
+   ]
+  },
+  "sym_L1_009": {
+   "task": "symbol_type",
+   "input_sha256": "0e952234ab51f52a672cd185f9b3ff5bfd68c32081201e100649d8715e7af664",
+   "data": {
+    "type": "armchair",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object has a seat and backrest with tufting, typical of an armchair, and its size matches the description."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and backrest with tufting, typical of an armchair, and its size matches the description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.413,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_009_ctx.png",
+    "crops/sym_L1_009_iso.png"
+   ]
+  },
+  "sym_L1_010": {
+   "task": "symbol_type",
+   "input_sha256": "6d229c560ca5cc15eddb0de58b0d5bd75b7afe9ce7a2d544c1ae588984736876",
+   "data": {
+    "type": "armchair",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object has a seat and a backrest with tufting, matching the description of an armchair."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and a backrest with tufting, matching the description of an armchair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.336,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_010_ctx.png",
+    "crops/sym_L1_010_iso.png"
+   ]
+  },
+  "sym_L1_011": {
+   "task": "symbol_type",
+   "input_sha256": "1d292fb9b23587b9d1e7f39346e5af6de80aedfef91425f880a8921c4333b90b",
+   "data": {
+    "type": "armchair",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object has a seat and a backrest with tufting, matching the description of an armchair."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and a backrest with tufting, matching the description of an armchair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.156,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_011_ctx.png",
+    "crops/sym_L1_011_iso.png"
+   ]
+  },
+  "sym_L1_012": {
+   "task": "symbol_type",
+   "input_sha256": "999dde1deb15380fd906ebcc2b884789af3a7593f24926923888e8185854728c",
+   "data": {
+    "type": "armchair",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object has a seat and a backrest with tufting, matching the description of an armchair."
+   },
+   "raw_text": "{\n    \"type\": \"armchair\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and a backrest with tufting, matching the description of an armchair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.065,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_012_ctx.png",
+    "crops/sym_L1_012_iso.png"
+   ]
+  },
+  "sym_L1_013": {
+   "task": "symbol_type",
+   "input_sha256": "45998ac5bcc536b81b7cf08823d928f7a5c05dc97f03b554ae089911f0f4f29e",
+   "data": {
+    "type": "ottoman",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object's footprint is a square, and its size matches the typical dimensions of an ottoman."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint is a square, and its size matches the typical dimensions of an ottoman.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.941,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_013_ctx.png",
+    "crops/sym_L1_013_iso.png"
+   ]
+  },
+  "sym_L1_014": {
+   "task": "symbol_type",
+   "input_sha256": "23f98bdfa9f8e144b95525f8e46cc7f4fc3c30d4e56569701832ae59123c4fc8",
+   "data": {
+    "type": "ottoman",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object's footprint is a square, and its size fits the description of an ottoman."
+   },
+   "raw_text": "{\n    \"type\": \"ottoman\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint is a square, and its size fits the description of an ottoman.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.905,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L1_014_ctx.png",
+    "crops/sym_L1_014_iso.png"
+   ]
+  }
+ }
+}

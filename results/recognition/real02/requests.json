@@ -1,0 +1,8232 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_requests",
+ "project": "real02",
+ "crop_version": "m7.1",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "pass": 1
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "pass": 2
+  }
+ },
+ "items": [
+  {
+   "key": "sym_L-1_001",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_001_ctx.png",
+    "crops/sym_L-1_001_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7256.7076,
+      44918.075
+     ],
+     "size": [
+      4.3761,
+      1.9657
+     ],
+     "rotation_deg": 90.0,
+     "shape": "L"
+    },
+    "bbox": [
+     7255.7247,
+     44915.887,
+     7257.6904,
+     44920.2631
+    ],
+    "crop": {
+     "object_box": [
+      7255725,
+      44915887,
+      7257690,
+      44920263
+     ],
+     "ctx_box": [
+      7253207,
+      44914574,
+      7260208,
+      44921576
+     ],
+     "iso_box": [
+      7253972,
+      44915340,
+      7259443,
+      44920810
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "stair",
+     "sofa_corner",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     4.38,
+     1.97
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": null,
+    "shape": "L"
+   },
+   "input_sha256": "2f5ec0cccd69ad38df6191854c9f94765285de4ac221593b5214f12c058e67fe"
+  },
+  {
+   "key": "sym_L-1_002",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_002_ctx.png",
+    "crops/sym_L-1_002_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7265.7213,
+      44918.075
+     ],
+     "size": [
+      4.3761,
+      1.9657
+     ],
+     "rotation_deg": 90.0,
+     "shape": "L"
+    },
+    "bbox": [
+     7264.7385,
+     44915.887,
+     7266.7042,
+     44920.2631
+    ],
+    "crop": {
+     "object_box": [
+      7264738,
+      44915887,
+      7266704,
+      44920263
+     ],
+     "ctx_box": [
+      7262220,
+      44914574,
+      7269222,
+      44921576
+     ],
+     "iso_box": [
+      7262986,
+      44915340,
+      7268456,
+      44920810
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "stair",
+     "sofa_corner",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     4.38,
+     1.97
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": null,
+    "shape": "L"
+   },
+   "input_sha256": "f8b98aaebc170ae8aadc6f4fe7de674886926857d400588b501aa0519d73d8df"
+  },
+  {
+   "key": "sym_L-1_003",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_003_ctx.png",
+    "crops/sym_L-1_003_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7261.8145,
+      44925.6869
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7261.4145,
+     44924.77,
+     7262.2144,
+     44926.6038
+    ],
+    "crop": {
+     "object_box": [
+      7261414,
+      44924770,
+      7262214,
+      44926604
+     ],
+     "ctx_box": [
+      7260347,
+      44924220,
+      7263282,
+      44927154
+     ],
+     "iso_box": [
+      7260668,
+      44924541,
+      7262961,
+      44926833
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "89749d47c7e8ffd6e5fde41139a35eba57d3dbfc06d8bdc55516a34e4c861fc0"
+  },
+  {
+   "key": "sym_L-1_004",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_004_ctx.png",
+    "crops/sym_L-1_004_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7260.6145,
+      44925.6869
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7260.2145,
+     44924.77,
+     7261.0145,
+     44926.6038
+    ],
+    "crop": {
+     "object_box": [
+      7260214,
+      44924770,
+      7261014,
+      44926604
+     ],
+     "ctx_box": [
+      7259147,
+      44924220,
+      7262082,
+      44927154
+     ],
+     "iso_box": [
+      7259468,
+      44924541,
+      7261761,
+      44926833
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "4fab92d1f662bec35a73925c4f93b0630655b6fd6220347fba6897d32d08034f"
+  },
+  {
+   "key": "sym_L-1_005",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_005_ctx.png",
+    "crops/sym_L-1_005_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7267.5222,
+      44915.5014
+     ],
+     "size": [
+      0.5928,
+      0.5928
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7267.2258,
+     44915.205,
+     7267.8186,
+     44915.7978
+    ],
+    "crop": {
+     "object_box": [
+      7267226,
+      44915205,
+      7267819,
+      44915798
+     ],
+     "ctx_box": [
+      7266272,
+      44914251,
+      7268772,
+      44916751
+     ],
+     "iso_box": [
+      7266951,
+      44914930,
+      7268094,
+      44916073
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.59,
+     0.59
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "796387c2e292e66e4f02fd752b9775c981b0f4d67f32c65871b0fa440385e96d"
+  },
+  {
+   "key": "sym_L-1_006",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_006_ctx.png",
+    "crops/sym_L-1_006_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7267.9174,
+      44915.7961
+     ],
+     "size": [
+      0.7904,
+      0.7904
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7267.5222,
+     44915.4009,
+     7268.3126,
+     44916.1913
+    ],
+    "crop": {
+     "object_box": [
+      7267522,
+      44915401,
+      7268313,
+      44916191
+     ],
+     "ctx_box": [
+      7266667,
+      44914546,
+      7269167,
+      44917046
+     ],
+     "iso_box": [
+      7267346,
+      44915225,
+      7268489,
+      44916368
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.79
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "b6767a46f3f50492ed0bc3fe9b24ca6f7e803d619669477a363f0fd81bb01733"
+  },
+  {
+   "key": "sym_L-1_007",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_007_ctx.png",
+    "crops/sym_L-1_007_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7254.9067,
+      44915.5014
+     ],
+     "size": [
+      0.5928,
+      0.5928
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7254.6103,
+     44915.205,
+     7255.2031,
+     44915.7978
+    ],
+    "crop": {
+     "object_box": [
+      7254610,
+      44915205,
+      7255203,
+      44915798
+     ],
+     "ctx_box": [
+      7253657,
+      44914251,
+      7256157,
+      44916751
+     ],
+     "iso_box": [
+      7254335,
+      44914930,
+      7255478,
+      44916073
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.59,
+     0.59
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "f92cc45e0ee19c3ee470cc0edb0bf691e85d3e3dfce769c702d35b8f42e5edd0"
+  },
+  {
+   "key": "sym_L-1_008",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_008_ctx.png",
+    "crops/sym_L-1_008_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7254.5115,
+      44915.7961
+     ],
+     "size": [
+      0.7904,
+      0.7904
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7254.1163,
+     44915.4009,
+     7254.9067,
+     44916.1913
+    ],
+    "crop": {
+     "object_box": [
+      7254116,
+      44915401,
+      7254907,
+      44916191
+     ],
+     "ctx_box": [
+      7253262,
+      44914546,
+      7255762,
+      44917046
+     ],
+     "iso_box": [
+      7253940,
+      44915225,
+      7255083,
+      44916368
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.79
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "20faac9b571db30807aff6f3cd17c0314d8bdc682033682fa45f4f1bbca9382f"
+  },
+  {
+   "key": "sym_L-1_009",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_009_ctx.png",
+    "crops/sym_L-1_009_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7255.9369,
+      44917.9777
+     ],
+     "size": [
+      1.2958,
+      0.6314
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7255.6212,
+     44917.3299,
+     7256.2526,
+     44918.6256
+    ],
+    "crop": {
+     "object_box": [
+      7255621,
+      44917330,
+      7256253,
+      44918626
+     ],
+     "ctx_box": [
+      7254687,
+      44916728,
+      7257187,
+      44919228
+     ],
+     "iso_box": [
+      7255127,
+      44917168,
+      7256747,
+      44918788
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "sink_kitchen",
+     "shower",
+     "bathtub",
+     "tv_unit",
+     "dresser",
+     "chaise",
+     "bench",
+     "crib",
+     "sideboard",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.3,
+     0.63
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": null,
+     "next_to": [
+      4.38,
+      1.97
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "6c62e323533d5a2c79711052327238b0bdcc0b8c88e74259e78e425f02936a45"
+  },
+  {
+   "key": "sym_L-1_010",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_010_ctx.png",
+    "crops/sym_L-1_010_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7266.492,
+      44917.9777
+     ],
+     "size": [
+      1.2958,
+      0.6314
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7266.1763,
+     44917.3299,
+     7266.8077,
+     44918.6256
+    ],
+    "crop": {
+     "object_box": [
+      7266176,
+      44917330,
+      7266808,
+      44918626
+     ],
+     "ctx_box": [
+      7265242,
+      44916728,
+      7267742,
+      44919228
+     ],
+     "iso_box": [
+      7265682,
+      44917168,
+      7267302,
+      44918788
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "sink_kitchen",
+     "shower",
+     "bathtub",
+     "tv_unit",
+     "dresser",
+     "chaise",
+     "bench",
+     "crib",
+     "sideboard",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.3,
+     0.63
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": null,
+     "next_to": [
+      4.38,
+      1.97
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "c10e92af0a0d1bd0adeb30ff932e936be45e8ada71f004ecdbbf99a9d29fd278"
+  },
+  {
+   "key": "sym_L-1_011",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_011_ctx.png",
+    "crops/sym_L-1_011_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7257.9282,
+      44915.5437
+     ],
+     "size": [
+      0.5928,
+      0.5928
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7257.6318,
+     44915.2473,
+     7258.2246,
+     44915.8401
+    ],
+    "crop": {
+     "object_box": [
+      7257632,
+      44915247,
+      7258225,
+      44915840
+     ],
+     "ctx_box": [
+      7256678,
+      44914294,
+      7259178,
+      44916794
+     ],
+     "iso_box": [
+      7257357,
+      44914972,
+      7258500,
+      44916115
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.59,
+     0.59
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": [
+      4.38,
+      1.97
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "80433b5f526f72c6de0fdf99ea17a0488886753a5d0c4713aea1e1bcdf8b4632"
+  },
+  {
+   "key": "sym_L-1_012",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_012_ctx.png",
+    "crops/sym_L-1_012_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7258.3052,
+      44915.8208
+     ],
+     "size": [
+      0.4446,
+      0.4446
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7258.0829,
+     44915.5985,
+     7258.5275,
+     44916.0431
+    ],
+    "crop": {
+     "object_box": [
+      7258083,
+      44915598,
+      7258528,
+      44916043
+     ],
+     "ctx_box": [
+      7257055,
+      44914571,
+      7259555,
+      44917071
+     ],
+     "iso_box": [
+      7257734,
+      44915249,
+      7258877,
+      44916392
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.44
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 4,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "a4f512a6d58f884cd11e99fd7149aa4d7ce3cdbbd51b908e39188a2baa8ba11b"
+  },
+  {
+   "key": "sym_L-1_013",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_013_ctx.png",
+    "crops/sym_L-1_013_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7264.5007,
+      44915.5437
+     ],
+     "size": [
+      0.5928,
+      0.5928
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7264.2043,
+     44915.2473,
+     7264.7971,
+     44915.8401
+    ],
+    "crop": {
+     "object_box": [
+      7264204,
+      44915247,
+      7264797,
+      44915840
+     ],
+     "ctx_box": [
+      7263251,
+      44914294,
+      7265751,
+      44916794
+     ],
+     "iso_box": [
+      7263929,
+      44914972,
+      7265072,
+      44916115
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.59,
+     0.59
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": [
+      4.38,
+      1.97
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "94940dbcf98e6276a9b1bb63bfb5f546f41d2dfbd2382952eb542bb0ddf87f43"
+  },
+  {
+   "key": "sym_L-1_014",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_014_ctx.png",
+    "crops/sym_L-1_014_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7264.1237,
+      44915.8208
+     ],
+     "size": [
+      0.4446,
+      0.4446
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7263.9014,
+     44915.5985,
+     7264.346,
+     44916.0431
+    ],
+    "crop": {
+     "object_box": [
+      7263901,
+      44915598,
+      7264346,
+      44916043
+     ],
+     "ctx_box": [
+      7262874,
+      44914571,
+      7265374,
+      44917071
+     ],
+     "iso_box": [
+      7263552,
+      44915249,
+      7264695,
+      44916392
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.44
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 4,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "dff9e7d5602771accbaa18a6a8d1bbd7a883c68f9109038d81d5a6bada006784"
+  },
+  {
+   "key": "sym_L-1_015",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_015_ctx.png",
+    "crops/sym_L-1_015_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7254.0786,
+      44925.063
+     ],
+     "size": [
+      0.7885,
+      0.5
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7253.8286,
+     44924.6687,
+     7254.3286,
+     44925.4572
+    ],
+    "crop": {
+     "object_box": [
+      7253829,
+      44924669,
+      7254329,
+      44925457
+     ],
+     "ctx_box": [
+      7252829,
+      44923813,
+      7255329,
+      44926313
+     ],
+     "iso_box": [
+      7253507,
+      44924492,
+      7254650,
+      44925634
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "office_chair",
+     "console_table",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.5
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "df35cf6182e56f14ef78ed53620e170750de43cc210ea2aeff3403da0f0b19ae"
+  },
+  {
+   "key": "sym_L-1_016",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_016_ctx.png",
+    "crops/sym_L-1_016_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7268.3504,
+      44925.063
+     ],
+     "size": [
+      0.7885,
+      0.5
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7268.1004,
+     44924.6687,
+     7268.6004,
+     44925.4572
+    ],
+    "crop": {
+     "object_box": [
+      7268100,
+      44924669,
+      7268600,
+      44925457
+     ],
+     "ctx_box": [
+      7267100,
+      44923813,
+      7269600,
+      44926313
+     ],
+     "iso_box": [
+      7267779,
+      44924492,
+      7268922,
+      44925634
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "office_chair",
+     "console_table",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.5
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "1f8669dd9a04308052cec9803b127433570e3cc8435174e9b41a9cbb5fcefd60"
+  },
+  {
+   "key": "sym_L-1_017",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_017_ctx.png",
+    "crops/sym_L-1_017_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7263.5355,
+      44915.768
+     ],
+     "size": [
+      0.6423,
+      0.569
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7263.251,
+     44915.4469,
+     7263.8199,
+     44916.0891
+    ],
+    "crop": {
+     "object_box": [
+      7263251,
+      44915447,
+      7263820,
+      44916089
+     ],
+     "ctx_box": [
+      7262285,
+      44914518,
+      7264785,
+      44917018
+     ],
+     "iso_box": [
+      7262964,
+      44915197,
+      7264107,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.64,
+     0.57
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "7d115c96c28b774efa60d46439ab92b26f55b97f0fc85e742107776091c76e16"
+  },
+  {
+   "key": "sym_L-1_018",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_018_ctx.png",
+    "crops/sym_L-1_018_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7260.6155,
+      44915.768
+     ],
+     "size": [
+      0.6423,
+      0.569
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7260.331,
+     44915.4469,
+     7260.9,
+     44916.0891
+    ],
+    "crop": {
+     "object_box": [
+      7260331,
+      44915447,
+      7260900,
+      44916089
+     ],
+     "ctx_box": [
+      7259366,
+      44914518,
+      7261866,
+      44917018
+     ],
+     "iso_box": [
+      7260044,
+      44915197,
+      7261187,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.64,
+     0.57
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "e01e48742924612b49eef9fd3241b38a7d74d20f57b04092ee1fa722f2a23d18"
+  },
+  {
+   "key": "sym_L-1_019",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_019_ctx.png",
+    "crops/sym_L-1_019_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7258.8935,
+      44915.768
+     ],
+     "size": [
+      0.6423,
+      0.569
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7258.609,
+     44915.4469,
+     7259.1779,
+     44916.0891
+    ],
+    "crop": {
+     "object_box": [
+      7258609,
+      44915447,
+      7259178,
+      44916089
+     ],
+     "ctx_box": [
+      7257643,
+      44914518,
+      7260143,
+      44917018
+     ],
+     "iso_box": [
+      7258322,
+      44915197,
+      7259465,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.64,
+     0.57
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "f6390d8ff473e0168204db3c528d2d06fc3cf9ca6c189f8f87fa1f91382b2c45"
+  },
+  {
+   "key": "sym_L-1_020",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_020_ctx.png",
+    "crops/sym_L-1_020_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7261.8134,
+      44915.768
+     ],
+     "size": [
+      0.6423,
+      0.569
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7261.529,
+     44915.4469,
+     7262.0979,
+     44916.0891
+    ],
+    "crop": {
+     "object_box": [
+      7261529,
+      44915447,
+      7262098,
+      44916089
+     ],
+     "ctx_box": [
+      7260563,
+      44914518,
+      7263063,
+      44917018
+     ],
+     "iso_box": [
+      7261242,
+      44915197,
+      7262385,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.64,
+     0.57
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "4b29abe233915fb26108ddb18631903e7c5780c773e27d4288c904280b6d622c"
+  },
+  {
+   "key": "sym_L-1_021",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_021_ctx.png",
+    "crops/sym_L-1_021_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7259.7449,
+      44915.8066
+     ],
+     "size": [
+      0.5587,
+      0.5587
+     ],
+     "rotation_deg": 168.586
+    },
+    "bbox": [
+     7259.4599,
+     44915.5216,
+     7260.0299,
+     44916.0916
+    ],
+    "crop": {
+     "object_box": [
+      7259460,
+      44915522,
+      7260030,
+      44916092
+     ],
+     "ctx_box": [
+      7258495,
+      44914557,
+      7260995,
+      44917057
+     ],
+     "iso_box": [
+      7259173,
+      44915235,
+      7260316,
+      44916378
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.56,
+     0.56
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "c15a31b16d3e9ddea045c512c85c76f6bf2b8fc335db1fe7bb2864a41cdc1daf"
+  },
+  {
+   "key": "sym_L-1_022",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_022_ctx.png",
+    "crops/sym_L-1_022_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7262.684,
+      44915.8066
+     ],
+     "size": [
+      0.5587,
+      0.5587
+     ],
+     "rotation_deg": 168.586
+    },
+    "bbox": [
+     7262.399,
+     44915.5216,
+     7262.969,
+     44916.0916
+    ],
+    "crop": {
+     "object_box": [
+      7262399,
+      44915522,
+      7262969,
+      44916092
+     ],
+     "ctx_box": [
+      7261434,
+      44914557,
+      7263934,
+      44917057
+     ],
+     "iso_box": [
+      7262113,
+      44915235,
+      7263255,
+      44916378
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.56,
+     0.56
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 5,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "ed9fc806cee40084f9f95fc802d9c248fe54af22b120518af17db356710b57a4"
+  },
+  {
+   "key": "sym_L-1_023",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_023_ctx.png",
+    "crops/sym_L-1_023_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7260.4976,
+      44915.768
+     ],
+     "size": [
+      0.4797,
+      0.4684
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7260.2578,
+     44915.5338,
+     7260.7375,
+     44916.0022
+    ],
+    "crop": {
+     "object_box": [
+      7260258,
+      44915534,
+      7260738,
+      44916002
+     ],
+     "ctx_box": [
+      7259248,
+      44914518,
+      7261748,
+      44917018
+     ],
+     "iso_box": [
+      7259926,
+      44915197,
+      7261069,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.48,
+     0.47
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "98cc487ab453559db6f0cb38f6833c546cabd11b9d09201a554103e1f527ae28"
+  },
+  {
+   "key": "sym_L-1_024",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_024_ctx.png",
+    "crops/sym_L-1_024_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7263.4176,
+      44915.768
+     ],
+     "size": [
+      0.4797,
+      0.4684
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7263.1777,
+     44915.5338,
+     7263.6575,
+     44916.0022
+    ],
+    "crop": {
+     "object_box": [
+      7263178,
+      44915534,
+      7263658,
+      44916002
+     ],
+     "ctx_box": [
+      7262168,
+      44914518,
+      7264668,
+      44917018
+     ],
+     "iso_box": [
+      7262846,
+      44915197,
+      7263989,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.48,
+     0.47
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "1dfb84316f19af2caa6f3d4daef06d6aa85ff09062ede4ee34102c7d0d7d0fa4"
+  },
+  {
+   "key": "sym_L-1_025",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_025_ctx.png",
+    "crops/sym_L-1_025_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7259.0113,
+      44915.768
+     ],
+     "size": [
+      0.4797,
+      0.4684
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7258.7715,
+     44915.5338,
+     7259.2512,
+     44916.0022
+    ],
+    "crop": {
+     "object_box": [
+      7258772,
+      44915534,
+      7259251,
+      44916002
+     ],
+     "ctx_box": [
+      7257761,
+      44914518,
+      7260261,
+      44917018
+     ],
+     "iso_box": [
+      7258440,
+      44915197,
+      7259583,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.48,
+     0.47
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "9980ab4432ee8ca6295169371324c7590004aae6db6ecce5115ecf821f98bfbe"
+  },
+  {
+   "key": "sym_L-1_026",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_026_ctx.png",
+    "crops/sym_L-1_026_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7261.9313,
+      44915.768
+     ],
+     "size": [
+      0.4797,
+      0.4684
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7261.6914,
+     44915.5338,
+     7262.1712,
+     44916.0022
+    ],
+    "crop": {
+     "object_box": [
+      7261691,
+      44915534,
+      7262171,
+      44916002
+     ],
+     "ctx_box": [
+      7260681,
+      44914518,
+      7263181,
+      44917018
+     ],
+     "iso_box": [
+      7261360,
+      44915197,
+      7262503,
+      44916339
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.48,
+     0.47
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "7bf156d9e7c08433865e63771e03186ee4deb74761bed7740706d1af0b8cc33e"
+  },
+  {
+   "key": "sym_L-1_027",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_027_ctx.png",
+    "crops/sym_L-1_027_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7263.983,
+      44916.5038
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7263.783,
+     44916.3038,
+     7264.183,
+     44916.7038
+    ],
+    "crop": {
+     "object_box": [
+      7263783,
+      44916304,
+      7264183,
+      44916704
+     ],
+     "ctx_box": [
+      7262733,
+      44915254,
+      7265233,
+      44917754
+     ],
+     "iso_box": [
+      7263412,
+      44915932,
+      7264554,
+      44917075
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.4,
+     0.4
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      0.64,
+      0.57
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "8fdef42aa6d647555e0b3152f5b82ed6e3d53072c7afe446f6a8fe02b35d9aaa"
+  },
+  {
+   "key": "sym_L-1_028",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_028_ctx.png",
+    "crops/sym_L-1_028_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7258.446,
+      44916.5038
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7258.246,
+     44916.3038,
+     7258.646,
+     44916.7038
+    ],
+    "crop": {
+     "object_box": [
+      7258246,
+      44916304,
+      7258646,
+      44916704
+     ],
+     "ctx_box": [
+      7257196,
+      44915254,
+      7259696,
+      44917754
+     ],
+     "iso_box": [
+      7257875,
+      44915932,
+      7259017,
+      44917075
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.4,
+     0.4
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      0.64,
+      0.57
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "4255b710cf24bd8b3150536fdd06bb4f042e1988406ecfe382708b34f24c090a"
+  },
+  {
+   "key": "sym_L-1_029",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_029_ctx.png",
+    "crops/sym_L-1_029_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7254.0786,
+      44924.8726
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7253.8586,
+     44924.6987,
+     7254.2986,
+     44925.0465
+    ],
+    "crop": {
+     "object_box": [
+      7253859,
+      44924699,
+      7254299,
+      44925046
+     ],
+     "ctx_box": [
+      7252829,
+      44923623,
+      7255329,
+      44926123
+     ],
+     "iso_box": [
+      7253507,
+      44924301,
+      7254650,
+      44925444
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "911d3611e9a99cf21a7e5b51c5330e325220541db7d019dc46c6c503bbf118fa"
+  },
+  {
+   "key": "sym_L-1_030",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_030_ctx.png",
+    "crops/sym_L-1_030_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7268.3504,
+      44924.8726
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7268.1304,
+     44924.6987,
+     7268.5704,
+     44925.0465
+    ],
+    "crop": {
+     "object_box": [
+      7268130,
+      44924699,
+      7268570,
+      44925046
+     ],
+     "ctx_box": [
+      7267100,
+      44923623,
+      7269600,
+      44926123
+     ],
+     "iso_box": [
+      7267779,
+      44924301,
+      7268922,
+      44925444
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "32d19491eda05a346f96bca1c29d23d32423443b245558149078af3d794f3773"
+  },
+  {
+   "key": "sym_L-1_031",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_031_ctx.png",
+    "crops/sym_L-1_031_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7254.0786,
+      44925.2533
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7253.8586,
+     44925.0794,
+     7254.2986,
+     44925.4272
+    ],
+    "crop": {
+     "object_box": [
+      7253859,
+      44925079,
+      7254299,
+      44925427
+     ],
+     "ctx_box": [
+      7252829,
+      44924003,
+      7255329,
+      44926503
+     ],
+     "iso_box": [
+      7253507,
+      44924682,
+      7254650,
+      44925825
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "b321548a57c702a56a7231b4e22ed520e98d9e12b0d63226dc7279a7579dec7a"
+  },
+  {
+   "key": "sym_L-1_032",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_032_ctx.png",
+    "crops/sym_L-1_032_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7268.3504,
+      44925.2533
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7268.1304,
+     44925.0794,
+     7268.5704,
+     44925.4272
+    ],
+    "crop": {
+     "object_box": [
+      7268130,
+      44925079,
+      7268570,
+      44925427
+     ],
+     "ctx_box": [
+      7267100,
+      44924003,
+      7269600,
+      44926503
+     ],
+     "iso_box": [
+      7267779,
+      44924682,
+      7268922,
+      44925825
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "9dc00fe775a4877371336cf1a6dcfcb40e9ad2fff13d1a17e7b52328af997966"
+  },
+  {
+   "key": "sym_L-1_033",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_033_ctx.png",
+    "crops/sym_L-1_033_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7256.5999,
+      44926.5038
+     ],
+     "size": [
+      0.3,
+      0.2
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7256.4499,
+     44926.4038,
+     7256.7499,
+     44926.6038
+    ],
+    "crop": {
+     "object_box": [
+      7256450,
+      44926404,
+      7256750,
+      44926604
+     ],
+     "ctx_box": [
+      7255350,
+      44925254,
+      7257850,
+      44927754
+     ],
+     "iso_box": [
+      7256028,
+      44925932,
+      7257171,
+      44927075
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.3,
+     0.2
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "e95e2eb44df6aeb3cdd4e796a266b7956c81f4fb39910ae615a68597da753f78"
+  },
+  {
+   "key": "sym_L-1_034",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_034_ctx.png",
+    "crops/sym_L-1_034_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "MUTFAK",
+    "footprint": {
+     "center": [
+      7265.829,
+      44926.5038
+     ],
+     "size": [
+      0.3,
+      0.2
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7265.679,
+     44926.4038,
+     7265.979,
+     44926.6038
+    ],
+    "crop": {
+     "object_box": [
+      7265679,
+      44926404,
+      7265979,
+      44926604
+     ],
+     "ctx_box": [
+      7264579,
+      44925254,
+      7267079,
+      44927754
+     ],
+     "iso_box": [
+      7265258,
+      44925932,
+      7266400,
+      44927075
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.3,
+     0.2
+    ],
+    "room": {
+     "label": "MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "dc2e7ec2ded4c966ec716e6fa210b6eebe6f7c538a990a1b3f531d694b13610d"
+  },
+  {
+   "key": "sym_L-1_035",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_035_ctx.png",
+    "crops/sym_L-1_035_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7255.8674,
+      44920.4369
+     ],
+     "size": [
+      0.7117,
+      0.405
+     ],
+     "rotation_deg": 143.557
+    },
+    "bbox": [
+     7255.4772,
+     44920.0786,
+     7256.2576,
+     44920.7952
+    ],
+    "crop": {
+     "object_box": [
+      7255477,
+      44920079,
+      7256258,
+      44920795
+     ],
+     "ctx_box": [
+      7254617,
+      44919187,
+      7257117,
+      44921687
+     ],
+     "iso_box": [
+      7255296,
+      44919865,
+      7256439,
+      44921008
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "nightstand",
+     "dresser",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "console_table",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.71,
+     0.41
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": null,
+     "next_to": [
+      4.38,
+      1.97
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "93d0e2acdfd73ce50103c502ddf1cd2be7f0af71b4d6e30393201f9e04fe3af6"
+  },
+  {
+   "key": "sym_L-1_036",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1_036_ctx.png",
+    "crops/sym_L-1_036_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "SALON",
+    "footprint": {
+     "center": [
+      7266.5615,
+      44920.4369
+     ],
+     "size": [
+      0.7117,
+      0.405
+     ],
+     "rotation_deg": 36.443
+    },
+    "bbox": [
+     7266.1714,
+     44920.0786,
+     7266.9517,
+     44920.7952
+    ],
+    "crop": {
+     "object_box": [
+      7266171,
+      44920079,
+      7266952,
+      44920795
+     ],
+     "ctx_box": [
+      7265312,
+      44919187,
+      7267812,
+      44921687
+     ],
+     "iso_box": [
+      7265990,
+      44919865,
+      7267133,
+      44921008
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "nightstand",
+     "dresser",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "console_table",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.71,
+     0.41
+    ],
+    "room": {
+     "label": "SALON",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": null,
+     "next_to": [
+      4.38,
+      1.97
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "a39c1bc904a4a7391eb9cb487b6db07740b7e1dc575cddcb2a4c46b9d5718da5"
+  },
+  {
+   "key": "sym_L-1b_001",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_001_ctx.png",
+    "crops/sym_L-1b_001_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7265.8393,
+      44906.3026
+     ],
+     "size": [
+      0.6,
+      0.6
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7265.5393,
+     44906.0026,
+     7266.1393,
+     44906.6026
+    ],
+    "crop": {
+     "object_box": [
+      7265539,
+      44906003,
+      7266139,
+      44906603
+     ],
+     "ctx_box": [
+      7264589,
+      44905053,
+      7267089,
+      44907553
+     ],
+     "iso_box": [
+      7265268,
+      44905731,
+      7266411,
+      44906874
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.6,
+     0.6
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "fed1ed4c0b0042a1cc31e1b6454cf83ce5866e9a9a91ae1467d7cc22f7a72709"
+  },
+  {
+   "key": "sym_L-1b_002",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_002_ctx.png",
+    "crops/sym_L-1b_002_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7268.5013,
+      44906.4526
+     ],
+     "size": [
+      0.3,
+      0.2
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7268.4013,
+     44906.3026,
+     7268.6013,
+     44906.6026
+    ],
+    "crop": {
+     "object_box": [
+      7268401,
+      44906303,
+      7268601,
+      44906603
+     ],
+     "ctx_box": [
+      7267251,
+      44905203,
+      7269751,
+      44907703
+     ],
+     "iso_box": [
+      7267930,
+      44905881,
+      7269073,
+      44907024
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.3,
+     0.2
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "68f24631e1f7243debbd855e7e4a6ece3e417a0a38abb7eaea374267babdb09b"
+  },
+  {
+   "key": "sym_L-1b_003",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_003_ctx.png",
+    "crops/sym_L-1b_003_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7256.5915,
+      44906.3026
+     ],
+     "size": [
+      0.6,
+      0.6
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7256.2915,
+     44906.0026,
+     7256.8915,
+     44906.6026
+    ],
+    "crop": {
+     "object_box": [
+      7256292,
+      44906003,
+      7256892,
+      44906603
+     ],
+     "ctx_box": [
+      7255342,
+      44905053,
+      7257842,
+      44907553
+     ],
+     "iso_box": [
+      7256020,
+      44905731,
+      7257163,
+      44906874
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.6,
+     0.6
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "2ba5443cde32be78f18eb6469c6d902e0c837ce7f788d343f1c8f7faa52a061b"
+  },
+  {
+   "key": "sym_L-1b_004",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_004_ctx.png",
+    "crops/sym_L-1b_004_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7253.9295,
+      44906.4526
+     ],
+     "size": [
+      0.3,
+      0.2
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7253.8295,
+     44906.3026,
+     7254.0295,
+     44906.6026
+    ],
+    "crop": {
+     "object_box": [
+      7253830,
+      44906303,
+      7254030,
+      44906603
+     ],
+     "ctx_box": [
+      7252680,
+      44905203,
+      7255180,
+      44907703
+     ],
+     "iso_box": [
+      7253358,
+      44905881,
+      7254501,
+      44907024
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.3,
+     0.2
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "3f7c59c85f59306a93843aa82573ae5017e8fbf95c215f5ab3d2070b774a2983"
+  },
+  {
+   "key": "sym_L-1b_005",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_005_ctx.png",
+    "crops/sym_L-1b_005_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7264.6129,
+      44903.7411
+     ],
+     "size": [
+      2.1273,
+      0.9
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7264.1629,
+     44902.6775,
+     7265.0629,
+     44904.8047
+    ],
+    "crop": {
+     "object_box": [
+      7264163,
+      44902678,
+      7265063,
+      44904805
+     ],
+     "ctx_box": [
+      7262911,
+      44902039,
+      7266315,
+      44905443
+     ],
+     "iso_box": [
+      7263283,
+      44902412,
+      7265942,
+      44905071
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "kitchen_island",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.13,
+     0.9
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "a865555eea894ff5e4aa25113ec7eda27d12b56fc7c5a27f3a2b0aadb7c3931f"
+  },
+  {
+   "key": "sym_L-1b_006",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_006_ctx.png",
+    "crops/sym_L-1b_006_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7257.8179,
+      44903.7411
+     ],
+     "size": [
+      2.1273,
+      0.9
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7257.3679,
+     44902.6775,
+     7258.2679,
+     44904.8047
+    ],
+    "crop": {
+     "object_box": [
+      7257368,
+      44902678,
+      7258268,
+      44904805
+     ],
+     "ctx_box": [
+      7256116,
+      44902039,
+      7259520,
+      44905443
+     ],
+     "iso_box": [
+      7256488,
+      44902412,
+      7259147,
+      44905071
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "kitchen_island",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.13,
+     0.9
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "fa97ef8bdad932a801a421ab38fc71e0837424ece8282a6553a88fb64e61fac7"
+  },
+  {
+   "key": "sym_L-1b_007",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_007_ctx.png",
+    "crops/sym_L-1b_007_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7261.8154,
+      44910.143
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7261.4154,
+     44909.2261,
+     7262.2154,
+     44911.06
+    ],
+    "crop": {
+     "object_box": [
+      7261415,
+      44909226,
+      7262215,
+      44911060
+     ],
+     "ctx_box": [
+      7260348,
+      44908676,
+      7263283,
+      44911610
+     ],
+     "iso_box": [
+      7260669,
+      44908997,
+      7262962,
+      44911289
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "fe0546e65808c4691fcc4baffe082d942ee2369a0ee6a10d83868818d7ff354b"
+  },
+  {
+   "key": "sym_L-1b_008",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_008_ctx.png",
+    "crops/sym_L-1b_008_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7260.6154,
+      44910.143
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7260.2154,
+     44909.2261,
+     7261.0154,
+     44911.06
+    ],
+    "crop": {
+     "object_box": [
+      7260215,
+      44909226,
+      7261015,
+      44911060
+     ],
+     "ctx_box": [
+      7259148,
+      44908676,
+      7262083,
+      44911610
+     ],
+     "iso_box": [
+      7259469,
+      44908997,
+      7261762,
+      44911289
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "cbb09fb7af4094841c550d9cd426c4a4e84cfecf635ed433ddcd2e7010d491dd"
+  },
+  {
+   "key": "sym_L-1b_009",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_009_ctx.png",
+    "crops/sym_L-1b_009_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7263.2477,
+      44905.7023
+     ],
+     "size": [
+      1.6364,
+      0.8182
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7262.4295,
+     44905.2932,
+     7264.0659,
+     44906.1114
+    ],
+    "crop": {
+     "object_box": [
+      7262430,
+      44905293,
+      7264066,
+      44906111
+     ],
+     "ctx_box": [
+      7261939,
+      44904393,
+      7264557,
+      44907011
+     ],
+     "iso_box": [
+      7262225,
+      44904680,
+      7264270,
+      44906725
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "crib",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.64,
+     0.82
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "2f98cc9e5ffdb1eddee8a9acac2081a210656a2695f6a6bdabac8283f3c20be3"
+  },
+  {
+   "key": "sym_L-1b_010",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_010_ctx.png",
+    "crops/sym_L-1b_010_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7259.1831,
+      44905.7023
+     ],
+     "size": [
+      1.6364,
+      0.8182
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7258.365,
+     44905.2932,
+     7260.0013,
+     44906.1114
+    ],
+    "crop": {
+     "object_box": [
+      7258365,
+      44905293,
+      7260001,
+      44906111
+     ],
+     "ctx_box": [
+      7257874,
+      44904393,
+      7260492,
+      44907011
+     ],
+     "iso_box": [
+      7258160,
+      44904680,
+      7260206,
+      44906725
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "crib",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.64,
+     0.82
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "8ca0aa9e273e01e35da3d38aa9fddee26d8288b84a3f1e728d51133d664b5371"
+  },
+  {
+   "key": "sym_L-1b_011",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_011_ctx.png",
+    "crops/sym_L-1b_011_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7261.8653,
+      44900.0141
+     ],
+     "size": [
+      0.5928,
+      0.5928
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7261.5689,
+     44899.7177,
+     7262.1617,
+     44900.3105
+    ],
+    "crop": {
+     "object_box": [
+      7261569,
+      44899718,
+      7262162,
+      44900310
+     ],
+     "ctx_box": [
+      7260615,
+      44898764,
+      7263115,
+      44901264
+     ],
+     "iso_box": [
+      7261294,
+      44899443,
+      7262437,
+      44900586
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.59,
+     0.59
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "53734457563891eb204751840e0680b97cd5128b105192218f781de9ee0db612"
+  },
+  {
+   "key": "sym_L-1b_012",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_012_ctx.png",
+    "crops/sym_L-1b_012_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7262.125,
+      44900.603
+     ],
+     "size": [
+      0.7904,
+      0.7904
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7261.7298,
+     44900.2078,
+     7262.5203,
+     44900.9983
+    ],
+    "crop": {
+     "object_box": [
+      7261730,
+      44900208,
+      7262520,
+      44900998
+     ],
+     "ctx_box": [
+      7260875,
+      44899353,
+      7263375,
+      44901853
+     ],
+     "iso_box": [
+      7261554,
+      44900032,
+      7262696,
+      44901174
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.79
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "96a0b1ee452ca967b65f9c8f08cf09a36e66158dc9e81b1889c1a849cdd74636"
+  },
+  {
+   "key": "sym_L-1b_013",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_013_ctx.png",
+    "crops/sym_L-1b_013_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7260.5656,
+      44900.0141
+     ],
+     "size": [
+      0.5928,
+      0.5928
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7260.2692,
+     44899.7177,
+     7260.862,
+     44900.3105
+    ],
+    "crop": {
+     "object_box": [
+      7260269,
+      44899718,
+      7260862,
+      44900310
+     ],
+     "ctx_box": [
+      7259316,
+      44898764,
+      7261816,
+      44901264
+     ],
+     "iso_box": [
+      7259994,
+      44899443,
+      7261137,
+      44900586
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_coffee",
+     "chair",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.59,
+     0.59
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "5aa12305a29692c92dc1d02979fd89da1219d33cb70018bbdc4985bcd73216fc"
+  },
+  {
+   "key": "sym_L-1b_014",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_014_ctx.png",
+    "crops/sym_L-1b_014_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7260.3058,
+      44900.603
+     ],
+     "size": [
+      0.7904,
+      0.7904
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7259.9106,
+     44900.2078,
+     7260.701,
+     44900.9983
+    ],
+    "crop": {
+     "object_box": [
+      7259911,
+      44900208,
+      7260701,
+      44900998
+     ],
+     "ctx_box": [
+      7259056,
+      44899353,
+      7261556,
+      44901853
+     ],
+     "iso_box": [
+      7259734,
+      44900032,
+      7260877,
+      44901174
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.79
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "f7d773c833fd6b2a8f36b479dc7e38f7b4a8f060ce4a3d50c3531387662af731"
+  },
+  {
+   "key": "sym_L-1b_015",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_015_ctx.png",
+    "crops/sym_L-1b_015_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7259.5411,
+      44901.8602
+     ],
+     "size": [
+      0.8182,
+      0.7909
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7259.132,
+     44901.4647,
+     7259.9502,
+     44902.2556
+    ],
+    "crop": {
+     "object_box": [
+      7259132,
+      44901465,
+      7259950,
+      44902256
+     ],
+     "ctx_box": [
+      7258291,
+      44900610,
+      7260791,
+      44903110
+     ],
+     "iso_box": [
+      7258970,
+      44901289,
+      7260113,
+      44902432
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.82,
+     0.79
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "a2cb1a0425e62730adc4e8f600a9ff046b5bfaec77ec05a18f4fd932e80e177b"
+  },
+  {
+   "key": "sym_L-1b_016",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_016_ctx.png",
+    "crops/sym_L-1b_016_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7258.6407,
+      44901.8602
+     ],
+     "size": [
+      0.8182,
+      0.7909
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7258.2316,
+     44901.4647,
+     7259.0498,
+     44902.2556
+    ],
+    "crop": {
+     "object_box": [
+      7258232,
+      44901465,
+      7259050,
+      44902256
+     ],
+     "ctx_box": [
+      7257391,
+      44900610,
+      7259891,
+      44903110
+     ],
+     "iso_box": [
+      7258069,
+      44901289,
+      7259212,
+      44902432
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.82,
+     0.79
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "a4d1312b1cde25f430dab4f606e1163934289f213d9051677347d3417a891ac4"
+  },
+  {
+   "key": "sym_L-1b_017",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_017_ctx.png",
+    "crops/sym_L-1b_017_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7263.7901,
+      44901.8602
+     ],
+     "size": [
+      0.8182,
+      0.7909
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7263.3811,
+     44901.4647,
+     7264.1992,
+     44902.2556
+    ],
+    "crop": {
+     "object_box": [
+      7263381,
+      44901465,
+      7264199,
+      44902256
+     ],
+     "ctx_box": [
+      7262540,
+      44900610,
+      7265040,
+      44903110
+     ],
+     "iso_box": [
+      7263219,
+      44901289,
+      7264362,
+      44902432
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.82,
+     0.79
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "cb705455adab39d00d11c1ff2ce9f20833fa0d32a9f2ba5250e0cdae5200e456"
+  },
+  {
+   "key": "sym_L-1b_018",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_018_ctx.png",
+    "crops/sym_L-1b_018_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7262.8897,
+      44901.8602
+     ],
+     "size": [
+      0.8182,
+      0.7909
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7262.4807,
+     44901.4647,
+     7263.2988,
+     44902.2556
+    ],
+    "crop": {
+     "object_box": [
+      7262481,
+      44901465,
+      7263299,
+      44902256
+     ],
+     "ctx_box": [
+      7261640,
+      44900610,
+      7264140,
+      44903110
+     ],
+     "iso_box": [
+      7262318,
+      44901289,
+      7263461,
+      44902432
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.82,
+     0.79
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "701dd9386412bc58a7ddbb081a101336ac1c386688143cb04a060a55a5a9477d"
+  },
+  {
+   "key": "sym_L-1b_019",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_019_ctx.png",
+    "crops/sym_L-1b_019_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7268.2981,
+      44905.1384
+     ],
+     "size": [
+      0.7885,
+      0.5
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7268.0481,
+     44904.7442,
+     7268.5481,
+     44905.5327
+    ],
+    "crop": {
+     "object_box": [
+      7268048,
+      44904744,
+      7268548,
+      44905533
+     ],
+     "ctx_box": [
+      7267048,
+      44903888,
+      7269548,
+      44906388
+     ],
+     "iso_box": [
+      7267727,
+      44904567,
+      7268870,
+      44905710
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "office_chair",
+     "console_table",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.5
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "e9768b25673661b5d6e2c66095a831724f187dd62ddbd79a68fa73d12e3f349b"
+  },
+  {
+   "key": "sym_L-1b_020",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_020_ctx.png",
+    "crops/sym_L-1b_020_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7254.1327,
+      44905.1384
+     ],
+     "size": [
+      0.7885,
+      0.5
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7253.8827,
+     44904.7442,
+     7254.3827,
+     44905.5327
+    ],
+    "crop": {
+     "object_box": [
+      7253883,
+      44904744,
+      7254383,
+      44905533
+     ],
+     "ctx_box": [
+      7252883,
+      44903888,
+      7255383,
+      44906388
+     ],
+     "iso_box": [
+      7253561,
+      44904567,
+      7254704,
+      44905710
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "office_chair",
+     "console_table",
+     "display_cabinet",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.5
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "ab2e564a7ba61de48a7c985c94a2e72aba5e4a8109433750971902508b052819"
+  },
+  {
+   "key": "sym_L-1b_021",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_021_ctx.png",
+    "crops/sym_L-1b_021_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7263.9839,
+      44900.96
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7263.7839,
+     44900.76,
+     7264.1839,
+     44901.16
+    ],
+    "crop": {
+     "object_box": [
+      7263784,
+      44900760,
+      7264184,
+      44901160
+     ],
+     "ctx_box": [
+      7262734,
+      44899710,
+      7265234,
+      44902210
+     ],
+     "iso_box": [
+      7263412,
+      44900389,
+      7264555,
+      44901531
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.4,
+     0.4
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "e7d5f10544a042200d13c03faffb365435151dab9462946aa77b54dc501bbc21"
+  },
+  {
+   "key": "sym_L-1b_022",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_022_ctx.png",
+    "crops/sym_L-1b_022_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7258.4469,
+      44900.96
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7258.2469,
+     44900.76,
+     7258.6469,
+     44901.16
+    ],
+    "crop": {
+     "object_box": [
+      7258247,
+      44900760,
+      7258647,
+      44901160
+     ],
+     "ctx_box": [
+      7257197,
+      44899710,
+      7259697,
+      44902210
+     ],
+     "iso_box": [
+      7257875,
+      44900389,
+      7259018,
+      44901531
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.4,
+     0.4
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "0f32b01f217be6d6e5ef0d98ac977c44d7eb1647c69f6dbe86ab8cd984cbf961"
+  },
+  {
+   "key": "sym_L-1b_023",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_023_ctx.png",
+    "crops/sym_L-1b_023_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7268.2981,
+      44904.9481
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7268.0781,
+     44904.7742,
+     7268.5181,
+     44905.122
+    ],
+    "crop": {
+     "object_box": [
+      7268078,
+      44904774,
+      7268518,
+      44905122
+     ],
+     "ctx_box": [
+      7267048,
+      44903698,
+      7269548,
+      44906198
+     ],
+     "iso_box": [
+      7267727,
+      44904377,
+      7268870,
+      44905520
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "250f753ca1f6e7905a79d716d125c5c32461d9ecf9acad9480070662e5bddcb3"
+  },
+  {
+   "key": "sym_L-1b_024",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_024_ctx.png",
+    "crops/sym_L-1b_024_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7254.1327,
+      44904.9481
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7253.9127,
+     44904.7742,
+     7254.3527,
+     44905.122
+    ],
+    "crop": {
+     "object_box": [
+      7253913,
+      44904774,
+      7254353,
+      44905122
+     ],
+     "ctx_box": [
+      7252883,
+      44903698,
+      7255383,
+      44906198
+     ],
+     "iso_box": [
+      7253561,
+      44904377,
+      7254704,
+      44905520
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "1a2994875eac35055f59d9b226534104edb0db09f075f8b06f4317a4674f466d"
+  },
+  {
+   "key": "sym_L-1b_025",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_025_ctx.png",
+    "crops/sym_L-1b_025_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7268.2981,
+      44905.3288
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7268.0781,
+     44905.1548,
+     7268.5181,
+     44905.5027
+    ],
+    "crop": {
+     "object_box": [
+      7268078,
+      44905155,
+      7268518,
+      44905503
+     ],
+     "ctx_box": [
+      7267048,
+      44904079,
+      7269548,
+      44906579
+     ],
+     "iso_box": [
+      7267727,
+      44904757,
+      7268870,
+      44905900
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "3e4841c891c9f1f24928e35ba56283f96af5cb4a6874429dd6144f486e193b2d"
+  },
+  {
+   "key": "sym_L-1b_026",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L-1b_026_ctx.png",
+    "crops/sym_L-1b_026_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L-1b",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": "AÇIK MUTFAK",
+    "footprint": {
+     "center": [
+      7254.1327,
+      44905.3288
+     ],
+     "size": [
+      0.44,
+      0.3478
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7253.9127,
+     44905.1548,
+     7254.3527,
+     44905.5027
+    ],
+    "crop": {
+     "object_box": [
+      7253913,
+      44905155,
+      7254353,
+      44905503
+     ],
+     "ctx_box": [
+      7252883,
+      44904079,
+      7255383,
+      44906579
+     ],
+     "iso_box": [
+      7253561,
+      44904757,
+      7254704,
+      44905900
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.44,
+     0.35
+    ],
+    "room": {
+     "label": "AÇIK MUTFAK",
+     "type": "kitchen"
+    },
+    "neighbours": {
+     "similar": 3,
+     "next_to": [
+      0.79,
+      0.5
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "8051d833c56a6cdf67ae05bddb586a5d5a9a23eb28537e75578ec5499316f039"
+  },
+  {
+   "key": "sym_L0_001",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7233.3626,
+      44902.0767
+     ],
+     "size": [
+      1.9,
+      1.55
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7232.4126,
+     44901.3017,
+     7234.3126,
+     44902.8517
+    ],
+    "crop": {
+     "object_box": [
+      7232413,
+      44901302,
+      7234313,
+      44902852
+     ],
+     "ctx_box": [
+      7231843,
+      44900557,
+      7234883,
+      44903597
+     ],
+     "iso_box": [
+      7232175,
+      44900889,
+      7234550,
+      44903264
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.9,
+     1.55
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "e59f493a7a432d7a934d793a38ec0a096d6b2b458a091d7cedd55291258c433a"
+  },
+  {
+   "key": "sym_L0_002",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7246.2344,
+      44902.0767
+     ],
+     "size": [
+      1.9,
+      1.55
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7245.2844,
+     44901.3017,
+     7247.1844,
+     44902.8517
+    ],
+    "crop": {
+     "object_box": [
+      7245284,
+      44901302,
+      7247184,
+      44902852
+     ],
+     "ctx_box": [
+      7244714,
+      44900557,
+      7247754,
+      44903597
+     ],
+     "iso_box": [
+      7245047,
+      44900889,
+      7247422,
+      44903264
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.9,
+     1.55
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "c06ffa94675cef3054c7a9c6862d77c82415ad7d44750b5d394989b1c13909a8"
+  },
+  {
+   "key": "sym_L0_003",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7233.3626,
+      44909.5749
+     ],
+     "size": [
+      1.9,
+      1.55
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7232.4126,
+     44908.7999,
+     7234.3126,
+     44910.3499
+    ],
+    "crop": {
+     "object_box": [
+      7232413,
+      44908800,
+      7234313,
+      44910350
+     ],
+     "ctx_box": [
+      7231843,
+      44908055,
+      7234883,
+      44911095
+     ],
+     "iso_box": [
+      7232175,
+      44908387,
+      7234550,
+      44910762
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.9,
+     1.55
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "44f0358a3e0913a927b0202622d3c57fd41e91534600e07c2b7f87e7fbb50207"
+  },
+  {
+   "key": "sym_L0_004",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7246.2344,
+      44909.5749
+     ],
+     "size": [
+      1.9,
+      1.55
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7245.2844,
+     44908.7999,
+     7247.1844,
+     44910.3499
+    ],
+    "crop": {
+     "object_box": [
+      7245284,
+      44908800,
+      7247184,
+      44910350
+     ],
+     "ctx_box": [
+      7244714,
+      44908055,
+      7247754,
+      44911095
+     ],
+     "iso_box": [
+      7245047,
+      44908387,
+      7247422,
+      44910762
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.9,
+     1.55
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "da08c3ea5c67698f6cbed7bbaeb926f54a616ba76acea95f9e9f42a837b3d33c"
+  },
+  {
+   "key": "sym_L0_005",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "E.YATAK ODASI",
+    "footprint": {
+     "center": [
+      7235.8759,
+      44902.323
+     ],
+     "size": [
+      3.1082,
+      0.6
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7235.5759,
+     44900.769,
+     7236.1759,
+     44903.8771
+    ],
+    "crop": {
+     "object_box": [
+      7235576,
+      44900769,
+      7236176,
+      44903877
+     ],
+     "ctx_box": [
+      7233389,
+      44899836,
+      7238362,
+      44904810
+     ],
+     "iso_box": [
+      7233933,
+      44900380,
+      7237818,
+      44904266
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "wardrobe",
+     "kitchen_counter",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     3.11,
+     0.6
+    ],
+    "room": {
+     "label": "E.YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "ff160023ee5638bf1ec95bd0b890584fe74122b8fba5b189f5dd6aaa132467cb"
+  },
+  {
+   "key": "sym_L0_006",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "E.YATAK ODASI",
+    "footprint": {
+     "center": [
+      7243.7211,
+      44902.323
+     ],
+     "size": [
+      3.1082,
+      0.6
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7243.4211,
+     44900.769,
+     7244.0211,
+     44903.8771
+    ],
+    "crop": {
+     "object_box": [
+      7243421,
+      44900769,
+      7244021,
+      44903877
+     ],
+     "ctx_box": [
+      7241235,
+      44899836,
+      7246208,
+      44904810
+     ],
+     "iso_box": [
+      7241779,
+      44900380,
+      7245664,
+      44904266
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "wardrobe",
+     "kitchen_counter",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     3.11,
+     0.6
+    ],
+    "room": {
+     "label": "E.YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "9ca81ebe45542ae06a232c6b4564365574b95458da636022a0d1a8556913038f"
+  },
+  {
+   "key": "sym_L0_007",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7239.1985,
+      44909.952
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7238.7985,
+     44909.0351,
+     7239.5985,
+     44910.869
+    ],
+    "crop": {
+     "object_box": [
+      7238798,
+      44909035,
+      7239598,
+      44910869
+     ],
+     "ctx_box": [
+      7237731,
+      44908485,
+      7240666,
+      44911419
+     ],
+     "iso_box": [
+      7238052,
+      44908806,
+      7240345,
+      44911098
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "918f6fc2c947e7f9c416b5ac35592dacbda074dc32c949300c0d2ac2dc3efe31"
+  },
+  {
+   "key": "sym_L0_008",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7240.3985,
+      44909.952
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7239.9985,
+     44909.0351,
+     7240.7985,
+     44910.869
+    ],
+    "crop": {
+     "object_box": [
+      7239998,
+      44909035,
+      7240798,
+      44910869
+     ],
+     "ctx_box": [
+      7238931,
+      44908485,
+      7241866,
+      44911419
+     ],
+     "iso_box": [
+      7239252,
+      44908806,
+      7241545,
+      44911098
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "9b20e7db57de4f50111f9aff9713858f07d05b92af01e82ebfcf880c8b2dbd2b"
+  },
+  {
+   "key": "sym_L0_009",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7246.731,
+      44904.1316
+     ],
+     "size": [
+      1.4471,
+      0.9068
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7246.2776,
+     44903.408,
+     7247.1844,
+     44904.8551
+    ],
+    "crop": {
+     "object_box": [
+      7246278,
+      44903408,
+      7247184,
+      44904855
+     ],
+     "ctx_box": [
+      7245481,
+      44902882,
+      7247981,
+      44905382
+     ],
+     "iso_box": [
+      7245827,
+      44903227,
+      7247635,
+      44905036
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "crib",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.45,
+     0.91
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "ccf6d1ba4a75952aabccf639d495befffd4ec3358a31fde0a256ecf1fc4cf0e8"
+  },
+  {
+   "key": "sym_L0_010",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7246.731,
+      44907.7036
+     ],
+     "size": [
+      1.4471,
+      0.9068
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7246.2776,
+     44906.98,
+     7247.1844,
+     44908.4272
+    ],
+    "crop": {
+     "object_box": [
+      7246278,
+      44906980,
+      7247184,
+      44908427
+     ],
+     "ctx_box": [
+      7245481,
+      44906454,
+      7247981,
+      44908954
+     ],
+     "iso_box": [
+      7245827,
+      44906799,
+      7247635,
+      44908608
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "crib",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.45,
+     0.91
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "bf9af2b6de10e5d490877b6c491e57eb0702eab49a135513a0cbc1bfbc445617"
+  },
+  {
+   "key": "sym_L0_011",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7232.866,
+      44907.7036
+     ],
+     "size": [
+      1.4471,
+      0.9068
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7232.4126,
+     44906.98,
+     7233.3194,
+     44908.4272
+    ],
+    "crop": {
+     "object_box": [
+      7232413,
+      44906980,
+      7233319,
+      44908427
+     ],
+     "ctx_box": [
+      7231616,
+      44906454,
+      7234116,
+      44908954
+     ],
+     "iso_box": [
+      7231962,
+      44906799,
+      7233770,
+      44908608
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "crib",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.45,
+     0.91
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "a6509833970036264b221c0b0f5b96fe21044e852a783baf3ddacc56aab88999"
+  },
+  {
+   "key": "sym_L0_012",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "YATAK ODASI",
+    "footprint": {
+     "center": [
+      7232.866,
+      44904.1316
+     ],
+     "size": [
+      1.4471,
+      0.9068
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7232.4126,
+     44903.408,
+     7233.3194,
+     44904.8551
+    ],
+    "crop": {
+     "object_box": [
+      7232413,
+      44903408,
+      7233319,
+      44904855
+     ],
+     "ctx_box": [
+      7231616,
+      44902882,
+      7234116,
+      44905382
+     ],
+     "iso_box": [
+      7231962,
+      44903227,
+      7233770,
+      44905036
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "crib",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.45,
+     0.91
+    ],
+    "room": {
+     "label": "YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "30ba5449551f6e69375f6d7725a4f2465361a19eddda11c50f38b98418e9b779"
+  },
+  {
+   "key": "sym_L0_013",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "E.YATAK ODASI",
+    "footprint": {
+     "center": [
+      7239.3735,
+      44901.7281
+     ],
+     "size": [
+      0.5,
+      0.45
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7239.1485,
+     44901.4781,
+     7239.5985,
+     44901.9781
+    ],
+    "crop": {
+     "object_box": [
+      7239148,
+      44901478,
+      7239598,
+      44901978
+     ],
+     "ctx_box": [
+      7238124,
+      44900478,
+      7240624,
+      44902978
+     ],
+     "iso_box": [
+      7238802,
+      44901157,
+      7239945,
+      44902300
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.45
+    ],
+    "room": {
+     "label": "E.YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "f52161f1ec985d00d034f5c24fe7774ce18f68669a517077eec969100f16cf39"
+  },
+  {
+   "key": "sym_L0_014",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "E.YATAK ODASI",
+    "footprint": {
+     "center": [
+      7239.3735,
+      44903.9089
+     ],
+     "size": [
+      0.5,
+      0.45
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7239.1485,
+     44903.6589,
+     7239.5985,
+     44904.1589
+    ],
+    "crop": {
+     "object_box": [
+      7239148,
+      44903659,
+      7239598,
+      44904159
+     ],
+     "ctx_box": [
+      7238124,
+      44902659,
+      7240624,
+      44905159
+     ],
+     "iso_box": [
+      7238802,
+      44903337,
+      7239945,
+      44904480
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.45
+    ],
+    "room": {
+     "label": "E.YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "e82c567d127d3e1e91d3b5d014f1f42c09be89c4d51cb684e63da755dd5eaa25"
+  },
+  {
+   "key": "sym_L0_015",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "E.YATAK ODASI",
+    "footprint": {
+     "center": [
+      7240.2235,
+      44901.7281
+     ],
+     "size": [
+      0.5,
+      0.45
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7239.9985,
+     44901.4781,
+     7240.4485,
+     44901.9781
+    ],
+    "crop": {
+     "object_box": [
+      7239998,
+      44901478,
+      7240448,
+      44901978
+     ],
+     "ctx_box": [
+      7238974,
+      44900478,
+      7241474,
+      44902978
+     ],
+     "iso_box": [
+      7239652,
+      44901157,
+      7240795,
+      44902300
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.45
+    ],
+    "room": {
+     "label": "E.YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "9caae70fa5c21aba738b9ea58fb3ca4214d66c4c6291d416be5055f58d050c95"
+  },
+  {
+   "key": "sym_L0_016",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "E.YATAK ODASI",
+    "footprint": {
+     "center": [
+      7240.2235,
+      44903.9089
+     ],
+     "size": [
+      0.5,
+      0.45
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7239.9985,
+     44903.6589,
+     7240.4485,
+     44904.1589
+    ],
+    "crop": {
+     "object_box": [
+      7239998,
+      44903659,
+      7240448,
+      44904159
+     ],
+     "ctx_box": [
+      7238974,
+      44902659,
+      7241474,
+      44905159
+     ],
+     "iso_box": [
+      7239652,
+      44903337,
+      7240795,
+      44904480
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.45
+    ],
+    "room": {
+     "label": "E.YATAK ODASI",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "2485e6fb6c2d735e9b3f425cb2bee57fd56dd13f168bdb1903936fa6fde26ca1"
+  },
+  {
+   "key": "sym_L1_001",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_001_ctx.png",
+    "crops/sym_L1_001_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7247.1313,
+      44882.7172
+     ],
+     "size": [
+      1.027,
+      0.6932
+     ],
+     "rotation_deg": 78.586
+    },
+    "bbox": [
+     7246.7476,
+     44882.2037,
+     7247.4474,
+     44883.2461
+    ],
+    "crop": {
+     "object_box": [
+      7246748,
+      44882204,
+      7247447,
+      44883246
+     ],
+     "ctx_box": [
+      7245848,
+      44881475,
+      7248348,
+      44883975
+     ],
+     "iso_box": [
+      7246446,
+      44882073,
+      7247749,
+      44883376
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "ottoman",
+     "crib",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.03,
+     0.69
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "54b6d697180b48f42597af7b4d26ec9f148b0a0c0af6efc34f5af9588fdd71e0"
+  },
+  {
+   "key": "sym_L1_002",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_002_ctx.png",
+    "crops/sym_L1_002_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7251.1847,
+      44882.7172
+     ],
+     "size": [
+      1.027,
+      0.6932
+     ],
+     "rotation_deg": 101.414
+    },
+    "bbox": [
+     7250.8686,
+     44882.2037,
+     7251.5683,
+     44883.2461
+    ],
+    "crop": {
+     "object_box": [
+      7250869,
+      44882204,
+      7251568,
+      44883246
+     ],
+     "ctx_box": [
+      7249968,
+      44881475,
+      7252468,
+      44883975
+     ],
+     "iso_box": [
+      7250567,
+      44882073,
+      7251870,
+      44883376
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "ottoman",
+     "crib",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.03,
+     0.69
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "5fb16e18738bfa6e1ed9d9ae8bc4b8d9010a8f65ce2271a3cdacb7544f1b89a8"
+  },
+  {
+   "key": "sym_L1_003",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_003_ctx.png",
+    "crops/sym_L1_003_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7244.3833,
+      44880.9235
+     ],
+     "size": [
+      1.6284,
+      1.5224
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7243.6221,
+     44880.1093,
+     7245.1445,
+     44881.7377
+    ],
+    "crop": {
+     "object_box": [
+      7243622,
+      44880109,
+      7245144,
+      44881738
+     ],
+     "ctx_box": [
+      7243081,
+      44879621,
+      7245686,
+      44882226
+     ],
+     "iso_box": [
+      7243366,
+      44879906,
+      7245401,
+      44881941
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.63,
+     1.52
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "92a3d644bf7f5eeafb9e2c0971e678ed534ad278a69cec0b85f9ef96793b50c9"
+  },
+  {
+   "key": "sym_L1_004",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_004_ctx.png",
+    "crops/sym_L1_004_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7253.9327,
+      44880.9235
+     ],
+     "size": [
+      1.6284,
+      1.5224
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7253.1715,
+     44880.1093,
+     7254.6939,
+     44881.7377
+    ],
+    "crop": {
+     "object_box": [
+      7253172,
+      44880109,
+      7254694,
+      44881738
+     ],
+     "ctx_box": [
+      7252630,
+      44879621,
+      7255235,
+      44882226
+     ],
+     "iso_box": [
+      7252915,
+      44879906,
+      7254950,
+      44881941
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.63,
+     1.52
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "52b6996050812a9fd21d29613d536ac0ac904dbdaa8f5ede1a1c6fd704f7b253"
+  },
+  {
+   "key": "sym_L1_005",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_005_ctx.png",
+    "crops/sym_L1_005_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7248.558,
+      44889.539
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7248.158,
+     44888.6221,
+     7248.958,
+     44890.456
+    ],
+    "crop": {
+     "object_box": [
+      7248158,
+      44888622,
+      7248958,
+      44890456
+     ],
+     "ctx_box": [
+      7247091,
+      44888072,
+      7250025,
+      44891006
+     ],
+     "iso_box": [
+      7247412,
+      44888393,
+      7249704,
+      44890685
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "6304766f29e8df82cad6d91babe92b0a1b28f4e6765b74a1b64ee73143de1c28"
+  },
+  {
+   "key": "sym_L1_006",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_006_ctx.png",
+    "crops/sym_L1_006_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": "BANYO",
+    "footprint": {
+     "center": [
+      7249.758,
+      44889.539
+     ],
+     "size": [
+      1.8339,
+      0.8
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7249.358,
+     44888.6221,
+     7250.158,
+     44890.456
+    ],
+    "crop": {
+     "object_box": [
+      7249358,
+      44888622,
+      7250158,
+      44890456
+     ],
+     "ctx_box": [
+      7248291,
+      44888072,
+      7251225,
+      44891006
+     ],
+     "iso_box": [
+      7248612,
+      44888393,
+      7250904,
+      44890685
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "chaise",
+     "bunk_bed",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.83,
+     0.8
+    ],
+    "room": {
+     "label": "BANYO",
+     "type": "bathroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "1e0fb936d22e46c10819fb420c5653669657e5795073569d8544b3382efcd4dc"
+  },
+  {
+   "key": "sym_L1_007",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_007_ctx.png",
+    "crops/sym_L1_007_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "hall",
+    "room_label": "KORİDOR",
+    "footprint": {
+     "center": [
+      7244.1307,
+      44888.556
+     ],
+     "size": [
+      1.5175,
+      0.6
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7243.372,
+     44888.256,
+     7244.8895,
+     44888.856
+    ],
+    "crop": {
+     "object_box": [
+      7243372,
+      44888256,
+      7244890,
+      44888856
+     ],
+     "ctx_box": [
+      7242881,
+      44887306,
+      7245381,
+      44889806
+     ],
+     "iso_box": [
+      7243182,
+      44887608,
+      7245079,
+      44889504
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "bathtub",
+     "tv_unit",
+     "dresser",
+     "chaise",
+     "bench",
+     "crib",
+     "sideboard",
+     "display_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.52,
+     0.6
+    ],
+    "room": {
+     "label": "KORİDOR",
+     "type": "hall"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "942cf31e576a7d7ec9696269e1f4cb145926d7e6c0763719338fbbd23bd30262"
+  },
+  {
+   "key": "sym_L1_008",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_008_ctx.png",
+    "crops/sym_L1_008_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "hall",
+    "room_label": "KORİDOR",
+    "footprint": {
+     "center": [
+      7254.1852,
+      44888.556
+     ],
+     "size": [
+      1.5175,
+      0.6
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     7253.4265,
+     44888.256,
+     7254.944,
+     44888.856
+    ],
+    "crop": {
+     "object_box": [
+      7253426,
+      44888256,
+      7254944,
+      44888856
+     ],
+     "ctx_box": [
+      7252935,
+      44887306,
+      7255435,
+      44889806
+     ],
+     "iso_box": [
+      7253237,
+      44887608,
+      7255134,
+      44889504
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "bathtub",
+     "tv_unit",
+     "dresser",
+     "chaise",
+     "bench",
+     "crib",
+     "sideboard",
+     "display_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.52,
+     0.6
+    ],
+    "room": {
+     "label": "KORİDOR",
+     "type": "hall"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "67a29023e274711f27946b4192c8d1c0103f49d0a6d74570a98ca031b1f1d503"
+  },
+  {
+   "key": "sym_L1_009",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_009_ctx.png",
+    "crops/sym_L1_009_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7251.2915,
+      44879.4722
+     ],
+     "size": [
+      0.7752,
+      0.681
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7250.951,
+     44879.0846,
+     7251.632,
+     44879.8598
+    ],
+    "crop": {
+     "object_box": [
+      7250951,
+      44879085,
+      7251632,
+      44879860
+     ],
+     "ctx_box": [
+      7250041,
+      44878222,
+      7252541,
+      44880722
+     ],
+     "iso_box": [
+      7250720,
+      44878901,
+      7251863,
+      44880044
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "shower",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.78,
+     0.68
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "0e952234ab51f52a672cd185f9b3ff5bfd68c32081201e100649d8715e7af664"
+  },
+  {
+   "key": "sym_L1_010",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_010_ctx.png",
+    "crops/sym_L1_010_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7247.0244,
+      44879.4722
+     ],
+     "size": [
+      0.7752,
+      0.681
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7246.6839,
+     44879.0846,
+     7247.365,
+     44879.8598
+    ],
+    "crop": {
+     "object_box": [
+      7246684,
+      44879085,
+      7247365,
+      44879860
+     ],
+     "ctx_box": [
+      7245774,
+      44878222,
+      7248274,
+      44880722
+     ],
+     "iso_box": [
+      7246453,
+      44878901,
+      7247596,
+      44880044
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "shower",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.78,
+     0.68
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "6d229c560ca5cc15eddb0de58b0d5bd75b7afe9ce7a2d544c1ae588984736876"
+  },
+  {
+   "key": "sym_L1_011",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_011_ctx.png",
+    "crops/sym_L1_011_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7247.9432,
+      44879.4722
+     ],
+     "size": [
+      0.7752,
+      0.681
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7247.6027,
+     44879.0846,
+     7248.2837,
+     44879.8598
+    ],
+    "crop": {
+     "object_box": [
+      7247603,
+      44879085,
+      7248284,
+      44879860
+     ],
+     "ctx_box": [
+      7246693,
+      44878222,
+      7249193,
+      44880722
+     ],
+     "iso_box": [
+      7247372,
+      44878901,
+      7248515,
+      44880044
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "shower",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.78,
+     0.68
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "1d292fb9b23587b9d1e7f39346e5af6de80aedfef91425f880a8921c4333b90b"
+  },
+  {
+   "key": "sym_L1_012",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_012_ctx.png",
+    "crops/sym_L1_012_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7250.3727,
+      44879.4722
+     ],
+     "size": [
+      0.7752,
+      0.681
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7250.0322,
+     44879.0846,
+     7250.7133,
+     44879.8598
+    ],
+    "crop": {
+     "object_box": [
+      7250032,
+      44879085,
+      7250713,
+      44879860
+     ],
+     "ctx_box": [
+      7249123,
+      44878222,
+      7251623,
+      44880722
+     ],
+     "iso_box": [
+      7249801,
+      44878901,
+      7250944,
+      44880044
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "shower",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "ottoman",
+     "office_chair",
+     "tall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.78,
+     0.68
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "999dde1deb15380fd906ebcc2b884789af3a7593f24926923888e8185854728c"
+  },
+  {
+   "key": "sym_L1_013",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_013_ctx.png",
+    "crops/sym_L1_013_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7246.3895,
+      44880.356
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7246.1895,
+     44880.156,
+     7246.5895,
+     44880.556
+    ],
+    "crop": {
+     "object_box": [
+      7246190,
+      44880156,
+      7246590,
+      44880556
+     ],
+     "ctx_box": [
+      7245140,
+      44879106,
+      7247640,
+      44881606
+     ],
+     "iso_box": [
+      7245818,
+      44879785,
+      7246961,
+      44880927
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.4,
+     0.4
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "45998ac5bcc536b81b7cf08823d928f7a5c05dc97f03b554ae089911f0f4f29e"
+  },
+  {
+   "key": "sym_L1_014",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L1_014_ctx.png",
+    "crops/sym_L1_014_iso.png"
+   ],
+   "context": {
+    "file": "one_building.dwg",
+    "level": "L1",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+    "footprint": {
+     "center": [
+      7251.9265,
+      44880.356
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     7251.7265,
+     44880.156,
+     7252.1265,
+     44880.556
+    ],
+    "crop": {
+     "object_box": [
+      7251726,
+      44880156,
+      7252126,
+      44880556
+     ],
+     "ctx_box": [
+      7250676,
+      44879106,
+      7253176,
+      44881606
+     ],
+     "iso_box": [
+      7251355,
+      44879785,
+      7252498,
+      44880927
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.4,
+     0.4
+    ],
+    "room": {
+     "label": "OYUN AKTİVİTE VE DİNLENME ODASI",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "23f98bdfa9f8e144b95525f8e46cc7f4fc3c30d4e56569701832ae59123c4fc8"
+  }
+ ]
+}

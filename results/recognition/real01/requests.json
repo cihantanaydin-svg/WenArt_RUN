@@ -162,6 +162,11 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -182,7 +187,7 @@
      "around": 2
     }
    },
-   "input_sha256": "cf4e88f8c44c011e6f463d34d87059dcfca55377c8bd6cd3cc15597a6fb97e9d"
+   "input_sha256": "c2c2dbf7ad510c32a4b737eb071e1c04bab15ed2abe62201cd3d30a64a48cb1a"
   },
   {
    "key": "sym_L0_003",
@@ -252,6 +257,13 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -272,7 +284,7 @@
      "around": 2
     }
    },
-   "input_sha256": "98a9cd0c73a10877070d8c76215727e01f2c68358d7090ef822d4fb7aaae5aab"
+   "input_sha256": "5c4ee892865b041fabb4cffae63f8088779a2a0d15a88aff0a38e356dda008a3"
   },
   {
    "key": "sym_L0_004",
@@ -420,6 +432,11 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "display_cabinet",
+     "tall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -440,7 +457,7 @@
      "around": 2
     }
    },
-   "input_sha256": "a1bd1151d2914b6774872604f6159c04a1327df0712bfd399966f9a8592660a5"
+   "input_sha256": "9e88f3831a0732fded0608a32651fdc56f9feb856169e316a5e225edd4478061"
   },
   {
    "key": "sym_L0_006",
@@ -510,6 +527,13 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "office_chair",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -530,7 +554,7 @@
      "around": 2
     }
    },
-   "input_sha256": "4c9bc781398deb6423a1f12b756b68229bea8dcb886c8787a18a708c366feb50"
+   "input_sha256": "c7e9c54a582e1915b158909060de42bdbc12af439359e0556bd6945279b1b737"
   },
   {
    "key": "sym_L0_007",
@@ -601,6 +625,9 @@
      "kitchen_island",
      "shower",
      "bathtub",
+     "chaise",
+     "crib",
+     "tall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -614,7 +641,7 @@
     },
     "neighbours": null
    },
-   "input_sha256": "ccdd55f16d2541a97edc31787be842406f445f455d6db0e017aa4d25b51b50fa"
+   "input_sha256": "01a3a9570f6545284c2fc793b8052275b67e0aaa556aabcad58c5a24d8ff6850"
   },
   {
    "key": "sym_L0_008",
@@ -682,6 +709,12 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -702,7 +735,7 @@
      "around": 6
     }
    },
-   "input_sha256": "2f47f225ef8fd54e93f6ecf6263c314723875435def4e7bf56f6dae58435fe68"
+   "input_sha256": "c16f92f0cf982ab09163b4d51876a6d2e4e31e1fdde352000f93b7d093173633"
   },
   {
    "key": "sym_L0_009",
@@ -770,6 +803,12 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -790,7 +829,7 @@
      "around": 6
     }
    },
-   "input_sha256": "062f3612a04685e38fce30cba33969cb88ca547263fa6ceb6186b61838cea70d"
+   "input_sha256": "1337d9d8cf291bc33db5c9844342328d7d71cd0a5785c8c5e6bebf07b017f1ac"
   },
   {
    "key": "sym_L0_010",
@@ -858,6 +897,12 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -878,7 +923,7 @@
      "around": 6
     }
    },
-   "input_sha256": "6fd9120c6118683585e0a12aa1d1fbccec2c21de099678c2efec61d54c5b2d09"
+   "input_sha256": "5d1994ccc39170aa2cd446f5cf6215fc3b2f8111181c24866e76e52b013de77e"
   },
   {
    "key": "sym_L0_011",
@@ -946,6 +991,12 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -966,7 +1017,7 @@
      "around": 6
     }
    },
-   "input_sha256": "ea5e69b2435d51262e10dec5a868551d422743e9c1ae0877931bd92787c1275c"
+   "input_sha256": "65f7fe072ac5dfcc5e7861d71b717065159dbd516c221884888c175ec75a349b"
   },
   {
    "key": "sym_L0_012",
@@ -1034,6 +1085,12 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -1054,7 +1111,7 @@
      "around": 6
     }
    },
-   "input_sha256": "8aa7b87867e4d064484f036348f1ed6cb5c00b191215e3563e92554e002f094d"
+   "input_sha256": "276d313f8f6bd24f7eb4e20b677c5edd71ff53a1bae9d9776f1f816c1b27464c"
   },
   {
    "key": "sym_L0_013",
@@ -1122,6 +1179,12 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -1142,7 +1205,7 @@
      "around": 6
     }
    },
-   "input_sha256": "db2d6ee2075ff269a1d58039d1630c79523aeb33461450c2fc76b0e809c6b804"
+   "input_sha256": "82c1085993a3fa62bb775215e2d74931b8530bceb0f502d0f063cdeab073874d"
   },
   {
    "key": "sym_L0_014",
@@ -1212,6 +1275,7 @@
      "kitchen_island",
      "bathtub",
      "stair",
+     "chaise",
      "unknown",
      "not_furniture"
     ],
@@ -1229,7 +1293,7 @@
      "around": null
     }
    },
-   "input_sha256": "3d235f879bf7463f32113ca16515a73c92bd19b8a2568f7314f32ccfa30d4d51"
+   "input_sha256": "863d418f5477d127afba01adcb7e705d4aef3960e01cb79903bf815237615b0c"
   },
   {
    "key": "sym_L0_015",
@@ -1299,6 +1363,7 @@
      "kitchen_island",
      "bathtub",
      "stair",
+     "chaise",
      "unknown",
      "not_furniture"
     ],
@@ -1316,7 +1381,7 @@
      "around": null
     }
    },
-   "input_sha256": "dfc7bffa600a79b932a2a58b0b554dab9a64c6e64977720d6e1cdd0db24a6613"
+   "input_sha256": "2f0a5bd3aba0005059d1fe21c62f57b11ef5dd3a4fd311ab6427f118251e3d9c"
   },
   {
    "key": "sym_L0_016",
@@ -1384,6 +1449,7 @@
      "kitchen_island",
      "shower",
      "potted_plant",
+     "ottoman",
      "unknown",
      "not_furniture"
     ],
@@ -1397,7 +1463,7 @@
     },
     "neighbours": null
    },
-   "input_sha256": "41961f593bfb2771be579498adb38161326424a6bf1efaa97e3f315ff9fa9bb2"
+   "input_sha256": "2c0081115f7c21bb11f05915e96ed3c123eeaf14544cb20345069328416a6352"
   },
   {
    "key": "sym_L0_017",
@@ -1465,6 +1531,10 @@
      "side_table",
      "floor_lamp",
      "potted_plant",
+     "ottoman",
+     "bar_stool",
+     "tall_cabinet",
+     "wall_cabinet",
      "unknown",
      "not_furniture"
     ],
@@ -1485,7 +1555,7 @@
      "around": null
     }
    },
-   "input_sha256": "355021b999bc39c540ba4878cd473095a5b56228fbe4b9582f6b5bd7f1b70c3e"
+   "input_sha256": "629a287eb53a2947cf8603229e5be7637f6fea52aefa3b9bb239e921f95d0179"
   }
  ]
 }

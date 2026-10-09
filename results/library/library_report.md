@@ -12,25 +12,25 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 
 | Source | Survey file | Candidates | With GLB | Ready | Judged by both | Accepted | In catalogue |
 |---|---|---|---|---|---|---|---|
-| abo | survey_abo.json | 828 | 828 | 508 | 508 | 345 | 345 |
-| objaverse | survey.json | 396 | 396 | 316 | 316 | 77 | 77 |
+| abo | survey_abo.json | 1217 | 1217 | 790 | 790 | 539 | 538 |
+| objaverse | survey.json | 825 | 825 | 610 | 610 | 213 | 213 |
 | generated | survey_generated.json | 260 | 260 | 246 | 246 | 183 | 183 |
 
 ## Steps
 
 | Step | Objects |
 |---|---|
-| Objaverse: LVIS objects in the mapped categories | 1498 |
-| Objaverse: licence CC0 or CC BY 4.0 (metadata) | 1370 |
-| Objaverse: other licences (taken, flagged) | 128 |
-| Objaverse: past the metadata prefilter (credit, faces, size) | 984 |
-| Candidates of every source (downloaded; textured or vertex-coloured) | 1484 |
-| Rendered (thumbnails) | 1484 |
-| Ready for judging (unit and type resolved) | 1070 |
-| of which normalised by type (model units unknown) | 378 |
-| Judged by both models | 1070 |
-| Accepted | 605 |
-| In catalog_library.json | 605 |
+| Objaverse: LVIS objects in the mapped categories | 2801 |
+| Objaverse: licence CC0 or CC BY 4.0 (metadata) | 2556 |
+| Objaverse: other licences (taken, flagged) | 245 |
+| Objaverse: past the metadata prefilter (credit, faces, size) | 1803 |
+| Candidates of every source (downloaded; textured or vertex-coloured) | 2302 |
+| Rendered (thumbnails) | 2273 |
+| Ready for judging (unit and type resolved) | 1646 |
+| of which normalised by type (model units unknown) | 511 |
+| Judged by both models | 1646 |
+| Accepted | 935 |
+| In catalog_library.json | 934 |
 
 ## Per type (Objaverse bed candidates are split into bed_single / bed_double after the unit guess)
 
@@ -38,6 +38,10 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 |---|---|---|---|---|---|---|
 | armchair | abo | – | 40 | 24 | 14 | 14 |
 | armchair | objaverse | 97 | 24 | 21 | 6 | 6 |
+| bar_stool | abo | – | 40 | 24 | 20 | 20 |
+| bar_stool | objaverse | 56 | 12 | 11 | 0 | 0 |
+| basket | abo | – | 7 | 7 | 3 | 3 |
+| basket | objaverse | 48 | 39 | 24 | 17 | 17 |
 | bathtub | objaverse | 30 | 26 | 17 | 1 | 1 |
 | bathtub | generated | – | 28 | 24 | 19 | 19 |
 | bed_double | abo | – | 40 | 24 | 18 | 18 |
@@ -46,33 +50,63 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | bed_single | abo | – | 12 | 12 | 7 | 7 |
 | bed_single | objaverse | – | 0 | 11 | 2 | 2 |
 | bed_single | generated | – | 12 | 12 | 11 | 11 |
+| bench | abo | – | 40 | 24 | 11 | 11 |
+| bench | objaverse | 91 | 24 | 20 | 9 | 9 |
+| blind | objaverse | 1 | 1 | 1 | 0 | 0 |
+| books | objaverse | 48 | 21 | 20 | 11 | 11 |
 | bookshelf | abo | – | 40 | 24 | 13 | 13 |
 | bookshelf | objaverse | 103 | 24 | 20 | 7 | 7 |
 | bowl | generated | – | 20 | 20 | 18 | 18 |
-| chair | abo | – | 40 | 24 | 13 | 13 |
-| chair | objaverse | 453 | 24 | 21 | 7 | 7 |
+| bunk_bed | abo | – | 1 | 1 | 0 | 0 |
+| bunk_bed | objaverse | 57 | 32 | 24 | 4 | 4 |
+| candle | abo | – | 5 | 5 | 2 | 2 |
+| candle | objaverse | 130 | 40 | 24 | 18 | 18 |
+| ceiling_light | abo | – | 17 | 17 | 15 | 15 |
+| chair | abo | – | 40 | 24 | 14 | 13 |
+| chair | objaverse | 446 | 24 | 20 | 6 | 6 |
+| chaise | abo | – | 5 | 5 | 5 | 5 |
+| chaise | objaverse | 25 | 11 | 10 | 0 | 0 |
+| clock | abo | – | 11 | 11 | 10 | 10 |
+| clock | objaverse | 119 | 40 | 24 | 10 | 10 |
+| console_table | abo | – | 35 | 24 | 15 | 15 |
+| crib | objaverse | 6 | 5 | 4 | 2 | 2 |
+| curtain | objaverse | 34 | 25 | 21 | 13 | 13 |
 | cushion | abo | – | 40 | 24 | 20 | 20 |
 | desk | abo | – | 40 | 24 | 18 | 18 |
 | desk | objaverse | 76 | 24 | 20 | 2 | 2 |
+| display_cabinet | abo | – | 1 | 1 | 1 | 1 |
 | dresser | abo | – | 40 | 24 | 18 | 18 |
+| dresser | objaverse | 88 | 24 | 0 | 0 | 0 |
 | floor_lamp | abo | – | 40 | 24 | 12 | 12 |
-| floor_lamp | objaverse | 79 | 21 | 15 | 6 | 6 |
+| floor_lamp | objaverse | 78 | 21 | 15 | 6 | 6 |
 | floor_lamp | generated | – | 2 | 2 | 2 | 2 |
 | fridge | objaverse | 55 | 33 | 24 | 5 | 5 |
 | fridge | generated | – | 22 | 22 | 13 | 13 |
 | mirror | abo | – | 40 | 24 | 17 | 17 |
 | nightstand | abo | – | 40 | 24 | 18 | 18 |
+| office_chair | abo | – | 40 | 24 | 20 | 20 |
+| office_chair | objaverse | 7 | 1 | 1 | 0 | 0 |
+| ottoman | abo | – | 40 | 24 | 14 | 14 |
+| ottoman | objaverse | 55 | 24 | 19 | 6 | 6 |
+| pendant_light | abo | – | 40 | 24 | 15 | 15 |
+| pendant_light | objaverse | 144 | 40 | 24 | 5 | 5 |
 | plant | abo | – | 40 | 24 | 0 | 0 |
 | plant_small | generated | – | 20 | 20 | 20 | 20 |
 | potted_plant | objaverse | 81 | 24 | 23 | 6 | 6 |
 | potted_plant | generated | – | 17 | 17 | 14 | 14 |
 | rug | abo | – | 40 | 24 | 20 | 20 |
+| sculpture | abo | – | 1 | 1 | 0 | 0 |
+| sculpture | objaverse | 338 | 40 | 24 | 15 | 15 |
+| shoe_cabinet | abo | – | 22 | 22 | 12 | 12 |
 | shower | generated | – | 28 | 24 | 10 | 10 |
 | side_table | abo | – | 40 | 24 | 20 | 20 |
+| sideboard | abo | – | 24 | 24 | 20 | 20 |
 | sink_kitchen | generated | – | 28 | 24 | 15 | 15 |
 | sofa | abo | – | 40 | 24 | 17 | 17 |
-| sofa | objaverse | 81 | 24 | 18 | 1 | 1 |
+| sofa | objaverse | 75 | 24 | 17 | 1 | 1 |
 | sofa | generated | – | 2 | 2 | 2 | 2 |
+| sofa_corner | abo | – | 40 | 24 | 17 | 17 |
+| sofa_corner | objaverse | 6 | 3 | 3 | 1 | 1 |
 | stove | objaverse | 35 | 29 | 20 | 3 | 3 |
 | stove | generated | – | 18 | 16 | 15 | 15 |
 | table_coffee | abo | – | 40 | 24 | 15 | 15 |
@@ -80,8 +114,12 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | table_dining | abo | – | 40 | 24 | 18 | 18 |
 | table_dining | objaverse | 70 | 16 | 10 | 2 | 2 |
 | table_lamp | abo | – | 40 | 24 | 20 | 20 |
+| tall_cabinet | abo | – | 16 | 16 | 9 | 9 |
+| throw | objaverse | 27 | 20 | 18 | 10 | 10 |
 | toilet | objaverse | 111 | 40 | 24 | 8 | 8 |
 | toilet | generated | – | 22 | 22 | 9 | 9 |
+| tray | abo | – | 4 | 4 | 4 | 4 |
+| tray | objaverse | 34 | 27 | 24 | 16 | 16 |
 | tv_unit | abo | – | 40 | 24 | 20 | 20 |
 | vase | abo | – | 40 | 24 | 20 | 20 |
 | wall_art | abo | – | 40 | 24 | 17 | 17 |
@@ -96,36 +134,38 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 
 | Step | Code | Reason | Objects | Sources |
 |---|---|---|---|---|
-| survey | face_count | face count outside 2k-150k (fixture categories: 800-400k, docs/milestone9.md §2.2) | 483 | objaverse 483 |
+| survey | face_count | face count outside 2k-150k (fixture categories: 800-400k, docs/milestone9.md §2.2) | 913 | objaverse 913 |
 | survey | generation_failed | generation_failed | 4 | generated 4 |
-| survey | glb_size | GLB larger than the source's limit (Objaverse 40 MB, ABO 60 MB) | 73 | abo 42, objaverse 31 |
+| survey | glb_size | GLB larger than the source's limit (Objaverse 40 MB, ABO 60 MB) | 160 | abo 75, objaverse 85 |
 | survey | not_generated | not_generated | 151 | generated 151 |
-| survey | size_range | box outside the resolved type's size range (units known: never normalised) | 528 | abo 528 |
-| survey | untextured | no image texture and no vertex colours | 61 | objaverse 61 |
-| survey | not_selected | below the candidates per type (rank, or the pick order) | 4463 |  |
-| thumbnails | over_candidate_limit | over the candidates of its source and type after the bed split | 351 | abo 320, objaverse 22, generated 9 |
-| thumbnails | unit_none | no unit factor fits and the box proportions (footprint, height / width) are outside the type's ranges | 63 | objaverse 58, generated 5 |
-| accept | front_not_agreed | front not agreed (judges and geometry or the documented front) | 100 | abo 4, objaverse 73, generated 23 |
-| accept | no_common_style | no style both judges name | 32 | abo 19, objaverse 5, generated 8 |
-| accept | not_decor_type | not the decor type (a judge; a planter must hold a plant) | 26 | abo 26 |
-| accept | not_single | not a single object (a judge) | 5 | objaverse 5 |
-| accept | over_type_limit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1) | 115 | abo 56, objaverse 55, generated 4 |
-| accept | quality | photoreal quality below 4 (a judge) | 174 | abo 54, objaverse 92, generated 28 |
-| accept | type_mismatch | not the furniture type (a judge) | 13 | abo 4, objaverse 9 |
+| survey | size_range | box outside the resolved type's size range (units known: never normalised) | 373 | abo 373 |
+| survey | untextured | no image texture and no vertex colours | 119 | abo 2, objaverse 117 |
+| survey | not_selected | below the candidates per type (rank, or the pick order) | 5569 |  |
+| thumbnails | glb_missing | the GLB is not in the survey cache and no earlier thumbnail of it is kept (survey again, or restore the cache) | 29 | abo 2, objaverse 27 |
+| thumbnails | over_candidate_limit | over the candidates of its source and type after the bed split | 503 | abo 425, objaverse 69, generated 9 |
+| thumbnails | unit_ambiguous | more than one unit factor fits (never guessed) | 39 | objaverse 39 |
+| thumbnails | unit_none | no unit factor fits and the box proportions (footprint, height / width) are outside the type's ranges | 85 | objaverse 80, generated 5 |
+| accept | front_not_agreed | front not agreed (judges and geometry or the documented front) | 137 | abo 13, objaverse 101, generated 23 |
+| accept | no_common_style | no style both judges name | 48 | abo 22, objaverse 18, generated 8 |
+| accept | not_decor_type | not the decor type (a judge; a planter must hold a plant) | 37 | abo 29, objaverse 8 |
+| accept | not_single | not a single object (a judge) | 13 | abo 5, objaverse 8 |
+| accept | over_type_limit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1) | 185 | abo 92, objaverse 89, generated 4 |
+| accept | quality | photoreal quality below 4 (a judge) | 269 | abo 83, objaverse 158, generated 28 |
+| accept | type_mismatch | not the furniture type (a judge) | 22 | abo 7, objaverse 15 |
 
 ## Licence values seen (Objaverse metadata field `license`)
 
 | Value | Objects | Licence | Flag |
 |---|---|---|---|
-| `by` | 1369 | CC-BY-4.0 | – |
-| `by-sa` | 77 | CC-BY-SA-4.0 | share_alike |
-| `by-nc` | 35 | CC-BY-NC-4.0 | non_commercial |
-| `by-nc-sa` | 16 | CC-BY-NC-SA-4.0 | non_commercial |
-| `cc0` | 1 | CC0 | – |
+| `by` | 1105 | CC-BY-4.0 | – |
+| `by-nc` | 55 | CC-BY-NC-4.0 | non_commercial |
+| `by-nc-sa` | 43 | CC-BY-NC-SA-4.0 | non_commercial |
+| `by-sa` | 15 | CC-BY-SA-4.0 | share_alike |
+| `cc0` | 11 | CC0 | – |
 
 ## LVIS categories
 
-Found: `armchair` 97, `armoire` 58, `bathtub` 30, `bed` 53, `bookcase` 103, `chair` 453, `coffee_table` 51, `desk` 76, `dining_table` 70, `flowerpot` 81, `lamp` 79, `refrigerator` 55, `sink` 26, `sofa` 81, `stove` 35, `toilet` 111, `wardrobe` 39.
+Found: `armchair` 97, `armoire` 58, `basket` 48, `bathtub` 30, `bed` 53, `bench` 91, `blanket` 27, `book` 48, `bookcase` 103, `bookcase_display` 103, `bunk_bed` 57, `cabinet_display` 60, `cabinet_shoe` 60, `cabinet_sideboard` 60, `cabinet_tall` 60, `candle` 60, `candle_holder` 70, `chair` 453, `chair_office` 453, `chaise_longue` 25, `chandelier` 143, `clock` 62, `coffee_table` 51, `crib` 6, `cupboard_display` 52, `cupboard_shoe` 52, `cupboard_sideboard` 52, `cupboard_tall` 52, `curtain` 35, `curtain_blind` 35, `desk` 76, `dining_table` 70, `dresser` 88, `figurine` 126, `flowerpot` 81, `flowerpot_plant_large` 81, `footstool` 29, `lamp` 79, `lamp_ceiling` 79, `lamp_pendant` 79, `ottoman` 26, `refrigerator` 55, `sculpture` 117, `sink` 26, `sofa` 81, `sofa_corner` 81, `statue_(sculpture)` 95, `stool` 56, `stove` 35, `table_console` 101, `toilet` 111, `tray` 34, `wall_clock` 57, `wardrobe` 39.
 Missing (a warning: their types stay parametric): `chest_of_drawers_(furniture)`, `nightstand`.
 
 - `chest_of_drawers_(furniture)`: names in the file sharing a word: `drawer` (an alternate needs a reason in objaverse.yaml).
@@ -136,38 +176,59 @@ Missing (a warning: their types stay parametric): `chest_of_drawers_(furniture)`
 
 | Type | Mapped | In the size range | Candidates | Not selected |
 |---|---|---|---|---|
-| armchair | 580 | 560 | 40 | 510 |
+| armchair | 575 | 560 | 40 | 510 |
+| bar_stool | 340 | 337 | 40 | 297 |
+| basket | 9 | 7 | 7 | 0 |
 | bed_double | 161 | 144 | 40 | 104 |
 | bed_single | 27 | 12 | 12 | 0 |
+| bench | 65 | 55 | 40 | 10 |
 | bookshelf | 48 | 41 | 40 | 1 |
-| chair | 430 | 367 | 40 | 323 |
+| bunk_bed | 1 | 1 | 1 | 0 |
+| candle | 6 | 6 | 5 | 0 |
+| ceiling_light | 17 | 17 | 17 | 0 |
+| chair | 397 | 359 | 40 | 315 |
+| chaise | 6 | 6 | 5 | 0 |
+| clock | 11 | 11 | 11 | 0 |
+| console_table | 41 | 35 | 35 | 0 |
 | cushion | 195 | 195 | 40 | 149 |
-| desk | 146 | 101 | 40 | 61 |
+| desk | 143 | 99 | 40 | 59 |
+| display_cabinet | 1 | 1 | 1 | 0 |
 | dresser | 53 | 46 | 40 | 6 |
 | floor_lamp | 101 | 76 | 40 | 36 |
 | mirror | 137 | 128 | 40 | 87 |
 | nightstand | 82 | 76 | 40 | 36 |
+| office_chair | 99 | 99 | 40 | 59 |
+| ottoman | 314 | 296 | 40 | 249 |
+| pendant_light | 81 | 80 | 40 | 38 |
 | plant | 185 | 139 | 40 | 99 |
 | rug | 861 | 861 | 40 | 814 |
-| side_table | 136 | 121 | 40 | 81 |
-| sofa | 962 | 748 | 40 | 695 |
+| sculpture | 1 | 1 | 1 | 0 |
+| shoe_cabinet | 22 | 22 | 22 | 0 |
+| side_table | 132 | 121 | 40 | 81 |
+| sideboard | 27 | 24 | 24 | 0 |
+| sofa | 780 | 742 | 40 | 689 |
+| sofa_corner | 194 | 193 | 40 | 135 |
 | table_coffee | 152 | 143 | 40 | 103 |
 | table_dining | 54 | 46 | 40 | 6 |
 | table_lamp | 242 | 242 | 40 | 201 |
+| tall_cabinet | 29 | 17 | 16 | 0 |
+| tray | 4 | 4 | 4 | 0 |
 | tv_unit | 68 | 57 | 40 | 17 |
 | vase | 54 | 54 | 40 | 14 |
 | wall_art | 639 | 633 | 40 | 593 |
 | wardrobe | 21 | 16 | 16 | 0 |
 
-Product types with a 3D model left unmapped: HOME_FURNITURE_AND_DECOR 387, STOOL_SEATING 340, OTTOMAN 288, HEADBOARD 206, LIGHT_FIXTURE 195, TABLE 161, CHAIR 132, CABINET 112, HOME 92, PILLOW 88, SHELF 57, BENCH 39, FURNITURE_COVER 34, ELECTRIC_FAN 29, SPORTING_GOODS 28, CLOTHES_RACK 24, STORAGE_BOX 23, FREESTANDING_SHELTER 20, FLAT_SCREEN_DISPLAY_MOUNT 18, CURTAIN 17, MATTRESS 17, MULTIPORT_HUB 16, PROFESSIONAL_HEALTHCARE 16, AUTO_ACCESSORY 14, BEAN_BAG_CHAIR 14, FURNITURE 14, AIR_CONDITIONER 13, HOME_BED_AND_BATH 13, OUTDOOR_LIVING 13, LADDER 11.
+Product types with a 3D model left unmapped: HOME_FURNITURE_AND_DECOR 314, HEADBOARD 206, TABLE 129, LIGHT_FIXTURE 99, PILLOW 88, HOME 76, SHELF 57, CABINET 50, FURNITURE_COVER 34, CHAIR 29, ELECTRIC_FAN 29, SPORTING_GOODS 28, OTTOMAN 27, STORAGE_BOX 21, FREESTANDING_SHELTER 20, FLAT_SCREEN_DISPLAY_MOUNT 18, CURTAIN 17, MATTRESS 17, MULTIPORT_HUB 16, PROFESSIONAL_HEALTHCARE 16, AUTO_ACCESSORY 14, BEAN_BAG_CHAIR 14, CLOTHES_RACK 14, AIR_CONDITIONER 13, FURNITURE 13, HOME_BED_AND_BATH 13, OUTDOOR_LIVING 13, LADDER 11, BUILDING_MATERIAL 9, ELECTRONIC_CABLE 9.
 
 ## Licence flags (catalogue)
 
 | Licence | Flag | Models |
 |---|---|---|
-| CC-BY-4.0 | – | 415 |
-| CC-BY-NC-4.0 | non_commercial | 4 |
-| CC-BY-SA-4.0 | share_alike | 3 |
+| CC-BY-4.0 | – | 731 |
+| CC-BY-NC-4.0 | non_commercial | 7 |
+| CC-BY-NC-SA-4.0 | non_commercial | 5 |
+| CC-BY-SA-4.0 | share_alike | 6 |
+| CC0 | – | 2 |
 | generated (TRELLIS.2-4B, MIT) | – | 183 |
 
 ## Style coverage
@@ -183,7 +244,7 @@ Models per type and style family: library + Poly Haven (`neutral` counts for eve
 | table_dining | 14+0 | 8+0 | 14+0 | 14+0 | 15+0 | 5+0 | 1+0 | 1+0 | 5+3 |
 | table_coffee | 8+0 | 13+0 | 18+0 | 15+0 | 16+2 | 5+0 | 1+0 | 2+1 | 3+1 |
 | desk | 11+0 | 6+0 | 18+0 | 8+0 | 13+0 | 8+2 | – | – | 1+1 |
-| chair | 6+0 | 5+0 | 8+0 | 7+0 | 10+1 | 3+0 | 1+0 | 6+1 | 3+2 |
+| chair | 6+0 | 5+0 | 8+0 | 7+0 | 10+1 | 3+0 | 1+0 | 5+1 | 3+2 |
 | wardrobe | 12+0 | 2+0 | 15+0 | 15+0 | 13+0 | 3+0 | 2+0 | 6+0 | 3+0 |
 | fridge | – | – | 17+0 | 12+0 | 16+0 | 1+0 | – | 1+0 | – |
 | stove | 1+1 | 0+1 | 9+1 | 8+1 | 13+1 | 3+1 | 0+1 | 4+1 | 0+1 |
@@ -197,8 +258,21 @@ Models per type and style family: library + Poly Haven (`neutral` counts for eve
 | side_table | 7+0 | 7+0 | 12+0 | 12+0 | 11+0 | 7+0 | 2+0 | 3+0 | 5+0 |
 | floor_lamp | 5+0 | – | 9+0 | 9+0 | 12+0 | 5+0 | – | 5+0 | – |
 | potted_plant | 13+0 | 10+0 | 16+0 | 17+0 | 15+0 | 6+0 | 8+0 | 6+0 | 8+0 |
+| sofa_corner | 4+0 | 4+0 | 15+0 | 7+0 | 18+0 | 4+0 | 4+0 | 4+0 | 4+0 |
+| chaise | – | – | 3+0 | 2+0 | 3+0 | – | – | 2+0 | – |
+| ottoman | 7+0 | 5+0 | 14+0 | 13+0 | 12+0 | 4+0 | 3+0 | 8+0 | 3+0 |
+| bench | 5+0 | 10+0 | 13+0 | 12+0 | 14+0 | 5+0 | 1+0 | 3+0 | 4+0 |
+| bar_stool | 2+0 | – | 9+0 | 6+0 | 12+0 | 6+0 | – | 1+0 | – |
+| office_chair | 1+0 | 1+0 | 14+0 | 3+0 | 20+0 | 1+0 | 1+0 | 1+0 | 1+0 |
+| console_table | 7+0 | 7+0 | 12+0 | 10+0 | 10+0 | 5+0 | 1+0 | 3+0 | 3+0 |
+| crib | 2+0 | – | – | 1+0 | – | – | – | – | – |
+| bunk_bed | 4+0 | 1+0 | 2+0 | 2+0 | 3+0 | – | – | – | 1+0 |
+| sideboard | 6+0 | 9+0 | 9+0 | 7+0 | 13+0 | 6+0 | – | – | 4+0 |
+| shoe_cabinet | 4+0 | 4+0 | 11+0 | 10+0 | 5+0 | – | – | – | 1+0 |
+| display_cabinet | – | – | 1+0 | 1+0 | 1+0 | – | – | – | – |
+| tall_cabinet | 9+0 | – | 9+0 | 9+0 | 9+0 | – | – | – | – |
 
-Parametric: 34 of 189 type/family pairs (bed_single/mediterranean, bed_single/rustic, bed_double/mediterranean, sofa/industrial, sofa/mediterranean, sofa/rustic, desk/mediterranean, desk/classic, fridge/scandinavian, fridge/japandi, fridge/mediterranean, fridge/rustic, washbasin/industrial, washbasin/mediterranean, washbasin/classic, washbasin/rustic, toilet/scandinavian, toilet/japandi, toilet/industrial, toilet/mediterranean, toilet/classic, toilet/rustic, bathtub/scandinavian, bathtub/japandi, bathtub/industrial, bathtub/mediterranean, bathtub/classic, bathtub/rustic, tv_unit/mediterranean, nightstand/industrial, nightstand/mediterranean, floor_lamp/japandi, floor_lamp/mediterranean, floor_lamp/rustic).
+Parametric: 68 of 306 type/family pairs.
 
 ## Beds
 
@@ -244,6 +318,31 @@ Parametric: 34 of 189 type/family pairs (bed_single/mediterranean, bed_single/ru
 | `abo_B08FTN8KHY` | bed_double | abo | True | False | – |
 | `objaverse_08f7f65edfea417b8ed9ca748381e507` | bed_double | objaverse | True | False | – |
 | `objaverse_5d3a99865ac84d8a8bf06b263aa5bb55` | bed_double | objaverse | True | False | – |
+
+## Corner sofas (chaise side)
+
+The side of the chaise, as a viewer facing the sofa's front sees it (`chaise_side`), measured from the footprint of the model and its front; `–` = not measurable (the fit must not use such a model for a placed L-shaped sofa).
+
+| Id | Source | Front | Chaise side | Note |
+|---|---|---|---|---|
+| `abo_B0714QGLNB` | abo | -Y | left | front strip left 0.75, right 0.00, back strip 1.00 |
+| `abo_B07B4FZXK2` | abo | -Y | left | front strip left 1.00, right 0.25, back strip 1.00 |
+| `abo_B07BW8MJQT` | abo | -Y | right | front strip left 0.25, right 1.00, back strip 1.00 |
+| `abo_B07BW8MJR2` | abo | -Y | left | front strip left 0.58, right 0.00, back strip 1.00 |
+| `abo_B07BW8MNQZ` | abo | -Y | right | front strip left 0.00, right 0.67, back strip 1.00 |
+| `abo_B07BW8PWBB` | abo | -Y | right | front strip left 0.00, right 0.58, back strip 1.00 |
+| `abo_B07BW8PZ2P` | abo | -Y | right | front strip left 0.00, right 0.67, back strip 1.00 |
+| `abo_B07BW8QSLC` | abo | -Y | left | front strip left 0.58, right 0.00, back strip 1.00 |
+| `abo_B07BWJCPWV` | abo | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
+| `abo_B07BWKD3BG` | abo | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
+| `abo_B07BWLJRCD` | abo | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
+| `abo_B07K8V2JRF` | abo | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
+| `abo_B07K8Z4VGB` | abo | -Y | right | front strip left 0.00, right 0.74, back strip 1.00 |
+| `abo_B07QBMQ4YF` | abo | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
+| `abo_B084XMQK3G` | abo | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
+| `abo_B084XMQNTQ` | abo | -Y | left | front strip left 0.67, right 0.00, back strip 1.00 |
+| `abo_B084XMYGBF` | abo | -Y | left | front strip left 0.75, right 0.00, back strip 1.00 |
+| `objaverse_138f793adde045a5a5247edf48f61eb1` | objaverse | -Y | right | front strip left 0.00, right 0.75, back strip 1.00 |
 
 ## Catalogue
 
@@ -402,7 +501,6 @@ Parametric: 34 of 189 type/family pairs (bed_single/mediterranean, bed_single/ru
 | chair | abo | `abo_B084W2GNQW` | Amazon Brand – Stone & Beam Vivianne Modern Upholstered Armless Dining Chair with Casters, 19.7"W, Slate | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/5 | 0.503 x 0.699 x 0.927 | x1 |
 | chair | abo | `abo_B0857JLP6K` | Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5"W, Dark Gray | Amazon.com | CC-BY-4.0 | – | minimal, industrial | -Y (high) | 4/5 | 0.45 x 0.546 x 0.991 | x1 |
 | chair | abo | `abo_B0857JM2NC` | Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9"W, Natural | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.556 x 0.495 x 0.762 | x1 |
-| chair | objaverse | `objaverse_039c6026571943d6ac45c6816bcc7ff1` | Rocking Chair | Christian | CC-BY-4.0 | – | classic | -Y (high) | 5/5 | 0.41 x 0.609 x 0.822 | x0.657204 |
 | chair | objaverse | `objaverse_0723b35415b0462eb5c01140b6b70340` | Old chair | Dani Ortega | CC-BY-4.0 | – | classic | -Y (high) | 5/5 | 0.522 x 0.552 x 0.7 | x0.640063 |
 | chair | objaverse | `objaverse_1625701880c54b7d9f50e77455cef39b` | Wicker Chair | Scott Thorne | CC-BY-4.0 | – | mediterranean | -X (high) | 4/4 | 0.577 x 0.566 x 0.957 | x1 |
 | chair | objaverse | `objaverse_47a690dcecf847fca99c4f89111db85b` | Char 2 | DimaSP | CC-BY-4.0 | – | classic, rustic | -Y (high) | 4/5 | 0.462 x 0.541 x 1.01 | x0.808639 |
@@ -702,6 +800,172 @@ Parametric: 34 of 189 type/family pairs (bed_single/mediterranean, bed_single/ru
 | potted_plant | objaverse | `objaverse_9dd44cda400c48a083ffd9480067f04f` | Succulent | mika.rr | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/5 | 0.497 x 0.497 x 0.512 | x0.0254 |
 | potted_plant | objaverse | `objaverse_b99c584dd11d4691b5d13303383371e5` | FlowerPot | ibrahmcingi | CC-BY-4.0 | – | mediterranean | -Y (low) | 4/4 | 0.6 x 0.6 x 0.58 | x0.0027579 |
 | potted_plant | objaverse | `objaverse_bf122cd0854e422bb94704552c64810b` | CGT 116 Wk8 Plant | mlin234 | CC-BY-4.0 | – | minimal, modern | -Y (low) | 4/4 | 0.238 x 0.261 x 0.361 | x0.0254 |
+| sofa_corner | abo | `abo_B0714QGLNB` | Amazon Brand – Rivet Emerly Modern Sectional Sofa, 96"W, Ecru | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 2.45 x 2.43 x 0.867 | x1 |
+| sofa_corner | abo | `abo_B07B4FZXK2` | Amazon Brand – Rivet Edgewest Low Back Modern Right Chaise Sofa Sectional, 115"W, Grey Linen | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 1.26 x 2.73 x 0.755 | x1 |
+| sofa_corner | abo | `abo_B07BW8MJQT` | Amazon Brand – Rivet Edgewest Low Back Modern Left Sofa Chaise Sectional, 115"W, Beige | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 1.47 x 3.19 x 0.875 | x1 |
+| sofa_corner | abo | `abo_B07BW8MJR2` | Amazon Brand – Rivet Edgewest Low Back Contemporary Modern L-Sectional Sofa, 116"W, Grey Linen | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/5 | 2.92 x 1.47 x 0.816 | x1 |
+| sofa_corner | abo | `abo_B07BW8MNQZ` | Amazon Brand – Stone & Beam Andover Right-Facing L-Shaped Sectional, 124"W, Charcoal Leather | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/5 | 3.2 x 1.58 x 0.883 | x1 |
+| sofa_corner | abo | `abo_B07BW8PWBB` | Amazon Brand – Stone & Beam Andover Modern Right U-Sectional Sofa, 134"W, Sand | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/5 | 3.24 x 2.55 x 0.853 | x1 |
+| sofa_corner | abo | `abo_B07BW8PZ2P` | Amazon Brand – Stone & Beam Andover Leather Left-Facing L-Shaped Sectional, 124"W, Driftwood | Amazon.com | CC-BY-4.0 | – | modern, neutral | -Y (high) | 5/5 | 3.15 x 2.44 x 0.836 | x1 |
+| sofa_corner | abo | `abo_B07BW8QSLC` | Amazon Brand – Rivet Edgewest Low Back Modern Right U-Sectional, 117"W, Blue | Amazon.com | CC-BY-4.0 | – | modern, neutral | -Y (high) | 5/4 | 2.74 x 1.88 x 0.756 | x1 |
+| sofa_corner | abo | `abo_B07BWJCPWV` | Amazon Brand – Rivet Emerly Modern Sofa Chaise, 96"W, Navy | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 2.44 x 1.62 x 0.987 | x1 |
+| sofa_corner | abo | `abo_B07BWKD3BG` | Amazon Brand – Stone & Beam Dalton Chaise Sectional Sofa Couch, 91.5", Stone | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 2.09 x 1.5 x 0.861 | x1 |
+| sofa_corner | abo | `abo_B07BWLJRCD` | Amazon Brand – Stone & Beam Dalton Sofa Couch with Chaise, Sand | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 2.09 x 1.5 x 0.861 | x1 |
+| sofa_corner | abo | `abo_B07K8V2JRF` | Amazon Brand - Movian Djuran 3-Seater Upholstered L-Shaped Corner Sofa with Right Side Chaise, 230 x 158 x 86 cm, Stain-Resistant Polyester, Steel Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 2.3 x 1.58 x 0.86 | x1 |
+| sofa_corner | abo | `abo_B07K8Z4VGB` | Amazon Brand - Movian Enan 3-Seater Upholstered L-Shaped Corner Sofa with Right Side Chaise, 266 x 86 x 73 cm, Stain-Resistant Polyester, Light Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 2.66 x 1.61 x 0.73 | x1 |
+| sofa_corner | abo | `abo_B07QBMQ4YF` | Amazon Brand – Rivet Aiden Mid-Century Sectional with Tapered Wood Legs, 86"W, Hunter Green | Amazon.com | CC-BY-4.0 | – | modern minimal, modern, neutral | -Y (high) | 4/4 | 2.18 x 1.51 x 0.876 | x1 |
+| sofa_corner | abo | `abo_B084XMQK3G` | Amazon Brand - Solimo Cartina 5 Seater L Shape Fabric Sofa Set (Grey) | Amazon.com | CC-BY-4.0 | – | modern minimal, modern, neutral | -Y (high) | 4/4 | 2.07 x 2.07 x 0.988 | x1 |
+| sofa_corner | abo | `abo_B084XMQNTQ` | Amazon Brand - Solimo Alen six Seater LHS L Shape Sofa Set (Brown) | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/4 | 2.68 x 1.83 x 0.932 | x1 |
+| sofa_corner | abo | `abo_B084XMYGBF` | Amazon Brand - Solimo Alen Five Seater LHS L Shape Sofa Set (Blue) | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/5 | 2.12 x 1.83 x 0.787 | x1 |
+| sofa_corner | objaverse | `objaverse_138f793adde045a5a5247edf48f61eb1` | Paloma couch by soho Concept | AK | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 3.09 x 2.2 x 0.997 | x0.001 |
+| chaise | abo | `abo_B07B4G5RBN` | Amazon Brand – Stone & Beam Varon Modern Lounge Daybed Chaise, 34.2"W, Dark Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.894 x 1.78 x 0.859 | x1 |
+| chaise | abo | `abo_B07B4G5YPR` | Amazon Brand – Stone & Beam Varon Modern Lounge Daybed Chaise, 34.2"W, Indigo | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.904 x 1.78 x 0.883 | x1 |
+| chaise | abo | `abo_B07M7MMPWY` | Amazon Brand – Ravenna Home Classic Tufted Chaise Lounge, 58.3" Length, Slate Grey | Amazon.com | CC-BY-4.0 | – | classic | -Y (high) | 5/4 | 0.675 x 1.38 x 0.787 | x1 |
+| chaise | abo | `abo_B07MFXP3X9` | Amazon Brand – Ravenna Home Classic Tufted Chaise Lounge, 58.3" Length, Soft Cream | Amazon.com | CC-BY-4.0 | – | classic | -Y (high) | 4/4 | 0.675 x 1.38 x 0.787 | x1 |
+| chaise | abo | `abo_B07PXDFW6L` | Phoenix Home Linen Chaise Lounger with Chrome Legs, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 0.76 x 1.56 x 0.82 | x1 |
+| ottoman | abo | `abo_B07124WMZZ` | Amazon Brand – Rivet Sloane Mid-Century Modern Ottoman with Tapered Legs, 32"W, Shell | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.823 x 0.61 x 0.478 | x1 |
+| ottoman | abo | `abo_B071W5VJF4` | Amazon Brand – Rivet Sloane Mid-Century Angled Leg Modern Ottoman, 31.9"W, Pebble | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.821 x 0.611 x 0.441 | x1 |
+| ottoman | abo | `abo_B07B4CZP57` | Amazon Brand – Stone & Beam Andover Ottoman, 32"W, Charcoal Leather | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/5 | 0.887 x 0.659 x 0.529 | x1 |
+| ottoman | abo | `abo_B07B4D4B6F` | Amazon Brand – Stone & Beam Andover Ottoman, 32"W, Driftwood Leather | Amazon.com | CC-BY-4.0 | – | modern, neutral | -Y (low) | 5/5 | 0.887 x 0.659 x 0.527 | x1 |
+| ottoman | abo | `abo_B07B4D8B2S` | Stone & Beam Bradbury Chesterfield Modern Tufted Leather Ottoman, 30.3"W, Brown | Amazon.com | CC-BY-4.0 | – | modern | -Y (low) | 5/5 | 0.795 x 0.588 x 0.509 | x1 |
+| ottoman | abo | `abo_B07B4GVNLN` | Amazon Brand – Stone & Beam Brandeberry Farmhouse Charles of London Ottoman, 31"W, Grey Linen | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal | -Y (low) | 5/5 | 0.773 x 0.574 x 0.497 | x1 |
+| ottoman | abo | `abo_B07CP9YN5Y` | Amazon Basics Faux Leather Rectangular Storage Ottoman, Dark Chocolate | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/5 | 0.838 x 0.432 x 0.47 | x1 |
+| ottoman | abo | `abo_B07CPH1V4Q` | First Hill Damara Square-Shaped Large Faux-Leather Storage Ottoman - Bittersweet Chocolate | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/5 | 0.788 x 0.787 x 0.46 | x1 |
+| ottoman | abo | `abo_B07CPLZ69W` | First Hill Endora Rectangular Fabric Storage Ottoman with Script-Style Pattern - Storm Grey | Amazon.com | CC-BY-4.0 | – | modern, neutral | -Y (low) | 5/5 | 0.813 x 0.406 x 0.457 | x1 |
+| ottoman | abo | `abo_B07P5LM551` | Amazon Brand – Rivet Sloane Mid-Century Modern Ottoman with Tapered Legs, 31.9"W, Yellow | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (low) | 5/5 | 0.811 x 0.608 x 0.449 | x1 |
+| ottoman | abo | `abo_B07P6JTZYS` | Amazon Brand – Rivet Sloane Modern Leather Ottoman with Tapered Legs, 31.9"W, Caramel | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/5 | 0.869 x 0.63 x 0.462 | x1 |
+| ottoman | abo | `abo_B07QBMQH5B` | Amazon Brand – Rivet Asher Modern Storage Ottoman, 15.75"W, Fabric, Pink | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal | -Y (low) | 4/5 | 0.4 x 0.4 x 0.406 | x1 |
+| ottoman | abo | `abo_B082Q8W9YR` | Amazon Brand – Stone & Beam Cedar Upholstered Ottoman with Nailheads, 32"W, Oat Beige | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/5 | 0.813 x 0.559 x 0.458 | x1 |
+| ottoman | abo | `abo_B082QCPWG3` | Amazon Brand – Rivet Revere Round Upholstered Iron-Framed Ottoman, 30.3"W, Ivory | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, industrial | -Y (low) | 5/5 | 0.769 x 0.768 x 0.459 | x1 |
+| ottoman | objaverse | `objaverse_18be8d9d50bf4ca4b24d81e404697b66` | Free Antique Footstool | elijahorama | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.534 x 0.534 x 0.65 | x2.37337 |
+| ottoman | objaverse | `objaverse_2c51399de3d3439383dcabef349d72b0` | Classic Stool | farazghani | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.538 x 0.538 x 0.65 | x0.93306 |
+| ottoman | objaverse | `objaverse_300dde7f9b114295980ef7da782da86c` | BTW Stool | Neil Christensen | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.678 x 0.773 x 0.576 | x0.0254 |
+| ottoman | objaverse | `objaverse_34fe7fd87a924cf8aeff89ea6f012bae` | Wooden stool | quedlin | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, rustic, neutral | -Y (low) | 5/5 | 0.778 x 0.788 x 0.566 | x0.00388987 |
+| ottoman | objaverse | `objaverse_6c7858341c08466082912d2095417939` | Classical Bench | cebraVFX | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.616 x 0.356 x 0.402 | x0.01 |
+| ottoman | objaverse | `objaverse_c4304814dcc441b4a6ebb5cf99081ffe` | Decor, footrest | tdtrumble | CC-BY-NC-SA-4.0 | non_commercial | classic | -Y (low) | 5/5 | 0.615 x 0.497 x 0.394 | x1 |
+| bench | abo | `abo_B073G82HBV` | Amazon Brand – Stone & Beam Union Modern Storage Bench, 38"W, Teal | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.995 x 0.476 x 0.474 | x1 |
+| bench | abo | `abo_B07C8DHX43` | Amazon Basics Rectangular Faux Leather Storage Ottoman Bench, Large - Russet Brown | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/5 | 1.3 x 0.508 x 0.445 | x1 |
+| bench | abo | `abo_B07D4FS7GY` | Red Hook Leda Rectangular Upholstered Ottoman Bench - 27 x 14.5 x 18.5 Inches, Stone Grey | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.681 x 0.366 x 0.467 | x1 |
+| bench | abo | `abo_B07DBCFM4F` | Amazon Brand – Ravenna Home Galer Tufted Nailhead Lift Top Storage Bedroom and Entryway Bench, 15.75"W, Denim Blue | Amazon.com | CC-BY-4.0 | – | classic | -Y (high) | 5/5 | 1.05 x 0.4 x 0.47 | x1 |
+| bench | abo | `abo_B07DYK2Y61` | Red Hook Meknes Rectangular Faux Leather Storage Ottoman Bench - Dark Cocoa | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/5 | 1.22 x 0.45 x 0.417 | x1 |
+| bench | abo | `abo_B07GZMSRNF` | First Hill Damara Wood Storage Ottoman Bench with Open Bottom and Faux-Leather Upholstery, Earthy Red | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 1.1 x 0.432 x 0.46 | x1 |
+| bench | abo | `abo_B07HSBDCX8` | Amazon Brand – Stone & Beam Rylee Modern Farmhouse Acacia Wood Dining Bench, 71"W, Gray-Wash Acacia | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/5 | 1.7 x 0.378 x 0.431 | x1 |
+| bench | abo | `abo_B07K7NQR23` | Marca Amazon - Alkove - Hayes - Banco de madera maciza con asiento tapizado (roble salvaje) | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.2 x 0.405 x 0.48 | x1 |
+| bench | abo | `abo_B07K8193NL` | Marque Amazon - Alkove - Hayes - Banc de chambre avec siège tapissé | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.2 x 0.45 x 0.43 | x1 |
+| bench | abo | `abo_B07M6PKC6D` | Amazon Brand – Ravenna Home Classic Solid Pine Storage Bench, 46.5"W, Rustic Gray Finish | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.18 x 0.402 x 0.501 | x1 |
+| bench | abo | `abo_B0871DCNRM` | AmazonBasics 35.5"L Storage Bench Ottoman, Light Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 5/4 | 0.902 x 0.419 x 0.432 | x1 |
+| bench | objaverse | `objaverse_22e8163cf6e1413486faeb4e42222a99` | Wooden Bench | Akshat | CC-BY-4.0 | – | modern, industrial | +Y (high) | 5/4 | 1.5 x 0.621 x 0.997 | x0.001 |
+| bench | objaverse | `objaverse_36dc07c8e85c4b859d78ccd4dd60c63d` | បង់អង្គុយសាធារណះ - Park Bench | ស្នាដៃមិត្តខ្ញុំ- My friend's achievement | CC-BY-4.0 | – | japandi, rustic, neutral | -Y (high) | 4/4 | 1.23 x 0.538 x 0.656 | x0.614738 |
+| bench | objaverse | `objaverse_378cd6e6f505493aa8e22f68db1cabec` | Simple Park Bench | Peter Primini | CC-BY-4.0 | – | japandi, modern | +X (high) | 5/4 | 1.37 x 0.484 x 0.659 | x0.0684684 |
+| bench | objaverse | `objaverse_43dfa2813779487b9d1bb36b7c1a321c` | Bench | Andrew_Fox | CC-BY-4.0 | – | rustic | +X (high) | 5/4 | 1.19 x 0.557 x 0.728 | x0.00620184 |
+| bench | objaverse | `objaverse_7a0c2a659e2441b6b568a9d2acf8419e` | Park Bench | paraverun | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, industrial, rustic | -Y (high) | 4/4 | 1.14 x 0.581 x 0.884 | x0.156313 |
+| bench | objaverse | `objaverse_83bb7dff14e84ecbbc99ebb80fe2977c` | City Bench 001 | CC0 Archviz | CC-BY-SA-4.0 | share_alike | japandi, modern minimal, minimal, industrial | -Y (high) | 4/4 | 1.36 x 0.487 x 0.62 | x0.00516584 |
+| bench | objaverse | `objaverse_9a4d1c954ed446d9a8d436d5be6dedca` | Mainstreet USA Bench | Kastle | CC-BY-NC-SA-4.0 | non_commercial | classic | -Y (high) | 5/5 | 1.22 x 0.556 x 0.566 | x0.0254 |
+| bench | objaverse | `objaverse_da39bc3a29364f8bb4bf45bccf856bdc` | Dedicated Bench, Museum Gardens, E2. (Raw Scan) | PROTONPHOTO | CC-BY-4.0 | – | japandi, rustic | +X (high) | 5/4 | 1.13 x 0.585 x 0.36 | x0.299652 |
+| bench | objaverse | `objaverse_f889c3adfc5945dcb10c1a594b35957b` | Street Wooden Bench | Lior Azi | CC-BY-NC-4.0 | non_commercial | modern minimal, minimal, modern, industrial | +X (high) | 5/5 | 1.64 x 0.798 x 0.981 | x1 |
+| bar_stool | abo | `abo_B01N7N9XCY` | Amazon Brand – Stone & Beam Barstool, 40"H, Metal | Amazon.com | CC-BY-4.0 | – | industrial | -Y (high) | 4/4 | 0.457 x 0.584 x 1.17 | x1 |
+| bar_stool | abo | `abo_B075YP38WS` | Amazon Brand – Stone & Beam Sophia Modern Swivel Kitchen Counter Height Stool, 39.4"H, Merlot | Amazon.com | CC-BY-4.0 | – | minimal, modern | -Y (high) | 5/4 | 0.468 x 0.562 x 1.04 | x1 |
+| bar_stool | abo | `abo_B075YP4WVQ` | Amazon Brand – Stone & Beam Sophia Modern Swivel Kitchen Bar Stool, 43.3"H, Merlot | Amazon.com | CC-BY-4.0 | – | minimal, modern | -Y (high) | 5/4 | 0.468 x 0.562 x 1.09 | x1 |
+| bar_stool | abo | `abo_B075YPTFVD` | Amazon Brand – Rivet Malida Mid-Century Modern Open Back Swivel Kitchen Counter Height Stool, 37"H, Charcoal | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/4 | 0.548 x 0.558 x 0.912 | x1 |
+| bar_stool | abo | `abo_B075YQ478W` | Amazon Brand – Stone & Beam Carson Tufted Leather Counter Height Kitchen Stool, 41"H, Brown | Amazon.com | CC-BY-4.0 | – | classic | -Y (high) | 5/5 | 0.486 x 0.66 x 1.08 | x1 |
+| bar_stool | abo | `abo_B075YVHQVV` | Amazon Brand – Stone & Beam Fremont Rustic Kitchen Counter Saddle Farmhouse Bar Stool, 25.5 Inch Height, Natural Wood | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/5 | 0.5 x 0.5 x 0.65 | x1 |
+| bar_stool | abo | `abo_B07B7B1HCM` | Amazon Brand – Stone & Beam Alaina Contemporary High-Back Swivel Seat Counter Stool, 39"H, Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 0.447 x 0.524 x 0.977 | x1 |
+| bar_stool | abo | `abo_B07DBCFM4R` | Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44.5 Inch Height, Dark Espresso | Amazon.com | CC-BY-4.0 | – | industrial | -Y (high) | 5/4 | 0.448 x 0.513 x 1.13 | x1 |
+| bar_stool | abo | `abo_B07DBCFV7K` | Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44 Inch Height, Dark Espresso | Amazon.com | CC-BY-4.0 | – | industrial | -Y (high) | 4/4 | 0.433 x 0.514 x 1.12 | x1 |
+| bar_stool | abo | `abo_B07DBF789F` | Amazon Brand – Ravenna Home Lisetta Nailhead Saddle Bar Stool, 30"H, Espresso with Cream Faux Leather (2 Pack) | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.471 x 0.401 x 0.762 | x1 |
+| bar_stool | abo | `abo_B07DBHC33K` | Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44.5 Inch Height, Dark Espresso | Amazon.com | CC-BY-4.0 | – | industrial | -Y (high) | 4/4 | 0.448 x 0.513 x 1.13 | x1 |
+| bar_stool | abo | `abo_B07DBHGHS7` | Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44 Inch Height, Dark Espresso | Amazon.com | CC-BY-4.0 | – | industrial | -Y (high) | 5/4 | 0.434 x 0.534 x 1.12 | x1 |
+| bar_stool | abo | `abo_B07DM6YVJH` | 2L Lifestyle Pierson Air Lift Adjustable Bar Stools Set of 2, Small, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.381 x 0.381 x 0.851 | x1 |
+| bar_stool | abo | `abo_B07GNCVKSG` | Pioneer Square BT3503-24-WH Counter Stool, 24", White | Amazon.com | CC-BY-4.0 | – | modern minimal, industrial | -Y (high) | 4/4 | 0.406 x 0.406 x 0.61 | x1 |
+| bar_stool | abo | `abo_B07QBQF7SK` | Amazon Brand – Stone & Beam Mid-Century Barstools, Set of 2, 31.7"H, Gray | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 0.469 x 0.48 x 0.814 | x1 |
+| bar_stool | abo | `abo_B07TC2NYX8` | An Amazon Brand - Movian Tarna - Set of 2 Bar Stools - 41 x 41 x 77 cm - Grey Fabric / Oil Treated Solid Oak Frame | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.41 x 0.41 x 0.77 | x1 |
+| bar_stool | abo | `abo_B07TVJ3NMN` | Amazon Brand – Stone & Beam Alaina Contemporary Leather High-Back Swivel Seat Bar Stool, 43"H, Light Brown | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 0.487 x 0.572 x 1.08 | x1 |
+| bar_stool | abo | `abo_B07TZQZ17B` | Amazon Brand – Stone & Beam Alaina Contemporary High-Back Swivel Seat Bar Stool, 43"H, Chalk | Amazon.com | CC-BY-4.0 | – | modern minimal | -Y (high) | 5/4 | 0.47 x 0.559 x 1.09 | x1 |
+| bar_stool | abo | `abo_B08555N6YQ` | Amazon Brand - Rivet Modern Wood Counter-Height Kitchen Bar Stool, 24" H, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.44 x 0.361 x 0.615 | x1 |
+| bar_stool | abo | `abo_B0857JPHNF` | Amazon Brand – Stone & Beam Beech Wishbone Counter-Height Barstool, 38.2"H, Black and Natural | Amazon.com | CC-BY-4.0 | – | minimal, modern | -Y (high) | 5/4 | 0.569 x 0.579 x 0.97 | x1 |
+| office_chair | abo | `abo_B00IFHPVEU` | AmazonBasics Leather-Padded, Adjustable, Swivel Office Desk Chair with Armrest, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/5 | 0.576 x 0.641 x 0.998 | x1 |
+| office_chair | abo | `abo_B00XBC3BF0` | AmazonBasics High-Back, Leather Executive, Swivel, Adjustable Office Desk Chair with Casters, Black | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 0.663 x 0.739 x 1.16 | x1 |
+| office_chair | abo | `abo_B00XBC3J84` | AmazonBasics Upholstered, Low-Back, Adjustable, Swivel Office Desk Chair, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.647 x 0.646 x 0.959 | x1 |
+| office_chair | abo | `abo_B016ID2V5O` | AmazonBasics High-Back Executive Chair - Black | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 0.7 x 0.78 x 1.15 | x1 |
+| office_chair | abo | `abo_B01D7P5BFS` | AmazonBasics Low-Back, Upholstered Mesh, Adjustable, Swivel Computer Office Desk Chair, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.475 x 0.45 x 0.97 | x1 |
+| office_chair | abo | `abo_B01DN7NFRG` | AmazonBasics Big & Tall Executive Chair - Brown | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 0.692 x 0.749 x 1.19 | x1 |
+| office_chair | abo | `abo_B06W5XBL3D` | Office Hippo Physio Approved Ergonomic 2 Lever Office Chair with Height Adjustable Arms and Adjustable Lumbar Support, Fabric, Charcoal | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 4/4 | 0.55 x 0.53 x 0.91 | x1 |
+| office_chair | abo | `abo_B06WVPB4TM` | Office Hippo Physio Approved Ergonomic 2 Lever Office Chair with Fixed Loop Arms and Adjustable Lumbar Support, Fabric, Royal Blue | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.552 x 0.549 x 0.905 | x1 |
+| office_chair | abo | `abo_B072Y5MZQH` | AmazonBasics Classic Leather Office Desk Guest Chair with Metal Frame, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.591 x 0.668 x 0.91 | x1 |
+| office_chair | abo | `abo_B072Y6Y96S` | AmazonBasics Classic Reception Office Chair with Mahogany Wood Finish Legs - Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/5 | 0.683 x 0.772 x 0.951 | x1 |
+| office_chair | abo | `abo_B072Z6K34L` | AmazonBasics Mesh Fabric Executive Mid-Back Office Desk Chair, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.719 x 0.66 x 1.09 | x1 |
+| office_chair | abo | `abo_B072Z6K94S` | AmazonBasics Mesh Fabric Executive High-Back Chair, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.718 x 0.66 x 1.18 | x1 |
+| office_chair | abo | `abo_B07GPSQKV9` | AmazonBasics High-Back, Leather Executive, Swivel, Adjustable Office Desk Chair with Casters, White | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.687 x 0.738 x 1.12 | x1 |
+| office_chair | abo | `abo_B07KWZH5PV` | AmazonBasics High-Back Executive Swivel Office Desk Chair with Ribbed Puresoft Upholstery - Grey, Lumbar Support, Modern Style | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.679 x 0.667 x 1.15 | x1 |
+| office_chair | abo | `abo_B07KXF19FN` | AmazonBasics High-Back Executive Swivel Office Desk Chair with Ribbed Puresoft Upholstery - Black, Lumbar Support, Modern Style | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 0.766 x 0.739 x 1.15 | x1 |
+| office_chair | abo | `abo_B07L3MKRFC` | AmazonBasics Classic Office Desk Computer Chair - Adjustable, Swiveling, Ultra-Soft Microfiber - Light Gray, Lumbar Support | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.667 x 0.724 x 1.1 | x1 |
+| office_chair | abo | `abo_B07L3WRJ6R` | AmazonBasics Classic Office Desk Computer Chair - Adjustable, Swiveling, Ultra-Soft Microfiber - Light Beige, Lumbar Support | Amazon.com | CC-BY-4.0 | – | modern, neutral | -Y (high) | 4/5 | 0.667 x 0.724 x 1.1 | x1 |
+| office_chair | abo | `abo_B081HMS8YK` | AmazonBasics Bonded Leather Big & Tall Executive Office Computer Desk Chair, 350-Pound Capacity - Black | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/5 | 0.694 x 0.748 x 1.19 | x1 |
+| office_chair | abo | `abo_B082KYYMZ6` | AmazonBasics High-Back Bonded Leather Executive Office Computer Desk Chair - Brown | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 0.656 x 0.692 x 1.13 | x1 |
+| office_chair | abo | `abo_B084T7GSXM` | Amazon Brand - Movian Dubna, Desk Chair, 58 x 58 x 103 cm (L x W x H), Brown | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 0.6 x 0.579 x 0.878 | x1 |
+| console_table | abo | `abo_B00BBDF500` | Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 4/4 | 0.9 x 0.34 x 0.728 | x1 |
+| console_table | abo | `abo_B01DA8QZFM` | Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 4/4 | 1.24 x 0.35 x 0.73 | x1 |
+| console_table | abo | `abo_B075YQ46KX` | Amazon Brand – Rivet Industrial Modern Console Table, 47.25"W, Walnut Wood, Metal | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern, industrial | -Y (low) | 5/4 | 1.2 x 0.408 x 0.74 | x1 |
+| console_table | abo | `abo_B075Z7HQK5` | Amazon Brand – Rivet Modern Cross Legged Home Office Computer Desk Console, 42"W, White Gloss and Walnut | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/4 | 1.07 x 0.418 x 0.785 | x1 |
+| console_table | abo | `abo_B075Z876TX` | Amazon Brand – Stone & Beam Coastal Breeze Rustic Farmhouse Console Table, 55.1"W, Natural and White | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 1.4 x 0.45 x 0.93 | x1 |
+| console_table | abo | `abo_B075Z99L7R` | Amazon Brand – Stone & Beam Sparrow Industrial Entry Console Table, 55.1"W, Wood and Gold | Amazon.com | CC-BY-4.0 | – | modern minimal, industrial | -Y (low) | 5/4 | 1.4 x 0.44 x 0.82 | x1 |
+| console_table | abo | `abo_B075ZBL75Z` | Amazon Brand – Stone & Beam Ferndale Rustic Console Table, 63"W, Sandstone | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, rustic | -Y (low) | 4/5 | 1.6 x 0.442 x 0.762 | x1 |
+| console_table | abo | `abo_B075ZCLPS1` | Amazon Brand – Stone & Beam Roland Metal X-Frame Console Hallway Table, 24" W, Pine | Amazon.com | CC-BY-4.0 | – | industrial | -Y (low) | 5/4 | 1.22 x 0.402 x 0.753 | x1 |
+| console_table | abo | `abo_B07DB9638P` | Amazon Brand – Ravenna Home Anne Marie Half-Moon Curved Leg Storage Console Entryway Table, 48"W, Dark Espresso | Amazon.com | CC-BY-4.0 | – | classic | -Y (low) | 4/4 | 1.22 x 0.405 x 0.779 | x1 |
+| console_table | abo | `abo_B07DMJN8H3` | 2L Lifestyle Shelburne Accent Console Table, Small, Brown | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (low) | 4/4 | 0.909 x 0.274 x 0.831 | x1 |
+| console_table | abo | `abo_B07GZY278M` | Phoenix Home Pavlo Mission-Style Wooden Console Table with Drawer and Shelf, Amber Oak | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.762 x 0.254 x 0.711 | x1 |
+| console_table | abo | `abo_B07HSBHY2P` | Amazon Brand – Stone & Beam Casual Narrow Console Table 47.83"W, Natural | Amazon.com | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 1.33 x 0.522 x 0.873 | x1 |
+| console_table | abo | `abo_B07QGG24Z5` | Amazon Brand – Rivet Industrial Plank-Topped Console Table with Metal Hairpin Legs, 55.12"W | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 1.4 x 0.399 x 0.799 | x1 |
+| console_table | abo | `abo_B07W563NHG` | Amazon Brand Rivet Console with Metal Shelf 110 x 35 cm Elme/Black Metal Frame | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, industrial | -Y (low) | 5/5 | 1.1 x 0.35 x 0.75 | x1 |
+| console_table | abo | `abo_B084L8195R` | Amazon Brand – Stone & Beam Solid Pine Rustic Farmhouse Console Table, 52"W, Rustic Oak | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, rustic | -Y (low) | 5/5 | 1.32 x 0.381 x 0.762 | x1 |
+| crib | objaverse | `objaverse_29451febdc894682a36a5112fd13f054` | Cotbed | roatti | CC-BY-4.0 | – | scandinavian | +X (medium) | 5/4 | 1.4 x 0.68 x 0.844 | x1 |
+| crib | objaverse | `objaverse_dbb8dec952c0450ba58fb4f75abf86ec` | Cot Final | kplas1 | CC-BY-4.0 | – | scandinavian, minimal | -Y (medium) | 4/4 | 1.06 x 0.604 x 1.3 | x0.000755373 |
+| bunk_bed | objaverse | `objaverse_1ab0499f7a7746188eefe85c1f16594b` | A108082006 | peashung | CC-BY-4.0 | – | scandinavian, modern | +Y (medium) | 4/4 | 2.16 x 1.15 x 1.58 | x0.01 |
+| bunk_bed | objaverse | `objaverse_7ea465a1489c4b12bb5a8ff33325cccb` | 雙層床架 | Ameiscute | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (medium) | 4/4 | 2.16 x 1.07 x 1.6 | x0.01 |
+| bunk_bed | objaverse | `objaverse_c505ffffc1524865ba63af837346f1f7` | Double Bed | Francesco Coldesina | CC-BY-4.0 | – | scandinavian, rustic | -Y (medium) | 4/4 | 2.11 x 1.2 x 1.79 | x0.0254 |
+| bunk_bed | objaverse | `objaverse_ea40259ea9ab488e8fe21eaf2fc29d6e` | A108082045_ 賴積翰 | f121645645 | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -X (medium) | 4/4 | 2.13 x 0.989 x 1.69 | x0.01 |
+| sideboard | abo | `abo_B007IHF36E` | Amazon Brand - Movian Corona Sideboard, 3 Door 3 Drawer, Solid Pine Wood ,Waxed, 76 x 125 x 40 cm | Amazon.com | CC-BY-4.0 | – | rustic | -Y (high) | 4/5 | 1.32 x 0.432 x 0.81 | x1 |
+| sideboard | abo | `abo_B01557LJIO` | Amazon Brand - Movian Minho 2-Door 4-Drawer Sideboard Storage Cabinet, 145 x 90 x 38cm, White/Light Brown Oak-Effect | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.45 x 0.38 x 0.9 | x1 |
+| sideboard | abo | `abo_B01HEZJ3EC` | Amazon Brand - Movian Corona Sideboard, 2 Door 2 Drawer, Solid Pine Wood Natural | Amazon.com | CC-BY-4.0 | – | scandinavian, rustic | -Y (high) | 4/4 | 0.92 x 0.45 x 0.84 | x1 |
+| sideboard | abo | `abo_B075YQ8Q3T` | Amazon Brand – Stone & Beam Parson Rustic Buffet Sideboard Storage Cabinet 56"W, Oak Wood | Amazon.com | CC-BY-4.0 | – | rustic | -Y (high) | 5/5 | 1.47 x 0.48 x 0.813 | x1 |
+| sideboard | abo | `abo_B075Z8628K` | Amazon Brand – Rivet Mid-Century Modern Checkerboard Reclaimed Elm Buffet Sideboard Credenza Cabinet, 55.1"W, Natural | Amazon.com | CC-BY-4.0 | – | japandi, modern | -Y (high) | 5/5 | 1.4 x 0.472 x 0.8 | x1 |
+| sideboard | abo | `abo_B07B77VXN8` | Amazon Brand – Rivet Modern Wood Buffet Bar Cabinet Credenza with Gold Accents, 35 Inch Height, Brown | Amazon.com | CC-BY-4.0 | – | modern, industrial | -Y (high) | 5/4 | 1.02 x 0.529 x 0.897 | x1 |
+| sideboard | abo | `abo_B07B78G1BW` | Amazon Brand – Rivet Ian Mid-Century Modern Wood Buffet Bar Cabinet Credenza, Brown | Amazon.com | CC-BY-4.0 | – | japandi, modern | -Y (high) | 5/5 | 1.36 x 0.477 x 0.802 | x1 |
+| sideboard | abo | `abo_B07B78RCT5` | Amazon Brand – Stone & Beam Creston Modern Wood Dining Buffet, Cabinet Credenza, Storage, 56"W, Grey | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.46 x 0.511 x 0.825 | x1 |
+| sideboard | abo | `abo_B07B79WSKT` | Amazon Brand – Rivet Federal Mid-Century Modern Wood Dining Buffet Sideboard, Cabinet Credenza, Storage, Brown | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/5 | 1.57 x 0.505 x 0.94 | x1 |
+| sideboard | abo | `abo_B07B7B94L2` | Amazon Brand – Stone & Beam Hughes Modern Casual Wood Buffet Bar, Cabinet Credenza, Brown | Amazon.com | CC-BY-4.0 | – | japandi, modern | -Y (high) | 5/5 | 1.37 x 0.48 x 0.812 | x1 |
+| sideboard | abo | `abo_B07B813LW1` | Amazon Brand – Rivet Mid-Century Modern Industrial Metal Buffet Credenza, 28 Inch Height, Beige, Wood | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal, industrial | -Y (high) | 5/4 | 0.904 x 0.465 x 0.694 | x1 |
+| sideboard | abo | `abo_B07H8SSY4F` | Amazon Brand - Movian Moselle 3-Drawer 2-Door Sideboard Storage Cabinet, 165 x 78 x 50cm, Light Brown Oak-Effect/White | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.65 x 0.5 x 0.78 | x1 |
+| sideboard | abo | `abo_B07HSBD8DM` | Amazon Brand – Stone & Beam Traditional Buffet Storage Cabinet - 68 Inch, Brown | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern | -Y (high) | 5/5 | 1.71 x 0.522 x 0.82 | x1 |
+| sideboard | abo | `abo_B07HSF15FW` | Amazon Brand – Rivet Solid Wood Buffet with Wine Rack and Iron Base, 33.86"H, Brushed Natural, Black, Gold | Amazon.com | CC-BY-4.0 | – | industrial | -Y (high) | 5/4 | 0.95 x 0.451 x 0.86 | x1 |
+| sideboard | abo | `abo_B07HSJY7CY` | Amazon Brand – Stone & Beam Rustic Buffet 36"H, Carbon-Finished Wood with Distressed Gold Handles | Amazon.com | CC-BY-4.0 | – | industrial, rustic | -Y (high) | 5/5 | 0.968 x 0.338 x 0.919 | x1 |
+| sideboard | abo | `abo_B07JFGPVZD` | Amazon Brand - Alkove Malvern Solid Wood 3-Door Sideboard Cabinet, 180 x 90 x 42cm, Antic Oak | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 5/4 | 1.8 x 0.42 x 0.9 | x1 |
+| sideboard | abo | `abo_B07QGG1YGZ` | Amazon Brand – Rivet Davenport Industrial Buffet Table, 42.3"W, Elm and Metal | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, industrial | -Y (high) | 5/5 | 1.06 x 0.361 x 0.763 | x1 |
+| sideboard | abo | `abo_B07RMJSGS7` | AmazonBasics 2-Door Sideboard Storage Cabinet with 8 Shelves, 101 x 40 x 113 cm, Dark Brown/Geometric Pattern, Black Legs | Amazon.com | CC-BY-4.0 | – | modern | -Y (high) | 5/4 | 1.01 x 0.4 x 1.17 | x1 |
+| sideboard | abo | `abo_B07RP1SS3S` | AmazonBasics - Sideboard, 160 x 45 x 82 cm, Brown | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.6 x 0.45 x 0.87 | x1 |
+| sideboard | abo | `abo_B07TR659G8` | Amazon Brand - Movian Ems - Sideboard with 2 Doors and 3 Drawers, 180 x 39.5 x 76.2 cm, Oak Effect | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, industrial | -Y (high) | 5/5 | 1.8 x 0.395 x 0.762 | x1 |
+| shoe_cabinet | abo | `abo_B07GFDZVYY` | Amazon Brand - Movian Indre 1-Door Shoe Cabinet/Cupboard/Organizer with Mirror, 23 x 50 x 179cm, Light Brown Oak-Effect | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.5 x 0.23 x 1.79 | x1 |
+| shoe_cabinet | abo | `abo_B07GFDZWMS` | Amazon Brand - Movian Inari 3-door Shoe Cabinet/Cupboard/Organizer, 25 x 75 x 128 cm, Dark Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 5/4 | 0.75 x 0.25 x 1.28 | x1 |
+| shoe_cabinet | abo | `abo_B07GFF11HV` | Amazon Brand - Movian Indre 1-Door Shoe Cabinet/Cupboard/Organizer with Mirror, 23 x 50 x 179cm, Dark Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 5/4 | 0.5 x 0.23 x 1.79 | x1 |
+| shoe_cabinet | abo | `abo_B07GFLG5MM` | Amazon Brand - Movian Idro 4-Door Shoe Cabinet/Cupboard/Organizer, 25 x 52 x 163cm, Dark Grey | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 4/4 | 0.52 x 0.256 x 1.63 | x1 |
+| shoe_cabinet | abo | `abo_B07GFS1R7X` | Amazon Brand - Movian Inari 3-door Shoe Cabinet/Cupboard/Organizer, 25 x 75 x 128 cm, Light Brown Oak-Effect | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.75 x 0.25 x 1.28 | x1 |
+| shoe_cabinet | abo | `abo_B07GFS1WH7` | Movian Adour 3-Door Shoe Cabinet/Cupboard/Organizer, 25 x 75 x 128cm, White & Vintage-Wood-Look | Amazon.com | CC-BY-4.0 | – | rustic | -Y (high) | 4/4 | 0.75 x 0.25 x 1.28 | x1 |
+| shoe_cabinet | abo | `abo_B07K7YMBNY` | Amazon Brand - Alkove - Hayes - Riva Solid Wood Shoe Cabinet with 2 Shelves Wild Oak | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/5 | 0.8 x 0.4 x 0.4 | x1 |
+| shoe_cabinet | abo | `abo_B07P64ZJQG` | AmazonBasics Classic Shoe Bench with Lift-Top Compartment and 3 Storage Cubbies - Black Oak | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 4/4 | 0.905 x 0.402 x 0.501 | x1 |
+| shoe_cabinet | abo | `abo_B07P652THV` | AmazonBasics Classic Shoe Bench with Lift-Top Compartment and 3 Storage Cubbies - White Oak | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 4/4 | 0.899 x 0.401 x 0.5 | x1 |
+| shoe_cabinet | abo | `abo_B07TVMZ5QP` | AmazonBasics Easy Assemble Shoe Rack - 2-Tier, Rose Gold | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.17 x 0.229 x 0.349 | x1 |
+| shoe_cabinet | abo | `abo_B07TVN114C` | AmazonBasics Easy Assemble Shoe Rack - 4-Tier, Rose Gold | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.17 x 0.229 x 0.672 | x1 |
+| shoe_cabinet | abo | `abo_B07TWQTVXL` | AmazonBasics Easy Assemble Shoe Rack - 4-Tier, Silver | Amazon.com | CC-BY-4.0 | – | modern minimal | -Y (high) | 4/4 | 1.17 x 0.229 x 0.672 | x1 |
+| display_cabinet | abo | `abo_B07JG3ZVVZ` | Amazon Brand - Alkove Malvern Solid Wood Front Display Cabinet, 66 x 198 x 42cm, Dark Brown/Black, Oak/Veneer | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.66 x 0.42 x 1.98 | x1 |
+| tall_cabinet | abo | `abo_B07GFFY4WT` | Movian Idro Skoskåp Ek | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.52 x 0.25 x 1.63 | x1 |
+| tall_cabinet | abo | `abo_B07GFW9GFX` | Movian Indre Bedroom Furniture | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.29 x 0.51 x 1.91 | x1 |
+| tall_cabinet | abo | `abo_B07H8PQC9V` | Movian Morava | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1 x 0.59 x 2.12 | x1 |
+| tall_cabinet | abo | `abo_B07H8PQFR2` | Marca Amazon - Movian Moselle - Vitrina de 1 puerta (roble Sonoma/gris oscuro) | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.57 x 0.4 x 1.85 | x1 |
+| tall_cabinet | abo | `abo_B07H8VCDWP` | Marca Amazon - Movian Moselle - Aparador con vitrina (roble Sonoma/blanco alpino) | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.51 x 0.45 x 1.96 | x1 |
+| tall_cabinet | abo | `abo_B07JGPKSCB` | Marque Amazon - Movian - Armoire 3 portes avec miroir Mira, 140 x 207 x 58 cm, Chêne Sanremo | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.4 x 0.58 x 2.07 | x1 |
+| tall_cabinet | abo | `abo_B07JH147WS` | Marchio Amazon - Movian, armadio a 2 ante modello Mira, 98 x 193 x 58 cm, quercia Sanremo | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.98 x 0.58 x 1.93 | x1 |
+| tall_cabinet | abo | `abo_B07LC9HXSF` | Amazon Brand - Solimo Polaris Engineered Wood Dressing Table (Imperial Teak) | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.45 x 0.42 x 1.83 | x1 |
+| tall_cabinet | abo | `abo_B07RMJPJMX` | Marchio Amazon - Movian Argenton - Colonna da bagno, 30 x 27 x 140 cm, colore marrone | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.3 x 0.27 x 1.4 | x1 |
 | cushion | abo | `abo_B074VLRP5T` | Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17" x 17", Midnight | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.432 x 0.246 x 0.414 | x1 |
 | cushion | abo | `abo_B074VLRP9S` | Amazon Brand – Stone & Beam Striated Velvet Linen-Look Decorative Throw Pillow, 17" x 17", Midnight | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.452 x 0.204 x 0.439 | x1 |
 | cushion | abo | `abo_B079TXJNJD` | Amazon Brand – Rivet Modern Geometric Decorative Print Throw Pillow, 20" x 20", Teal | Amazon.com | CC-BY-4.0 | – | modern, neutral | -Y (low) | 5/4 | 0.517 x 0.158 x 0.508 | x1 |
@@ -854,6 +1118,170 @@ Parametric: 34 of 189 type/family pairs (bed_single/mediterranean, bed_single/ru
 | mirror | abo | `abo_B084HV148L` | Amazon Brand - Rivet Modern Round Cutout Hanging Mirror, 22.25" Diameter, Gold | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.565 x 0.0318 x 0.565 | x1 |
 | mirror | abo | `abo_B084HV5LK3` | Amazon Brand - Rivet Modern Oval Hanging Mirror, 39"H, Gold | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.222 x 0.0318 x 0.991 | x1 |
 | mirror | abo | `abo_B084HV67GW` | Amazon Brand - Rivet Modern Cutout Hanging Mirror, 23"H, Gold | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.584 x 0.0317 x 0.254 | x1 |
+| curtain | objaverse | `objaverse_024b7af4893a438abeafa86bf13d09ab` | Curtain | lugsserg | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.59 x 0.222 x 3.03 | x1 |
+| curtain | objaverse | `objaverse_3bcbef09de9846069745893615aae970` | Curtains | TabbieCat | CC-BY-4.0 | – | modern | -Y (low) | 4/4 | 3.66 x 0.232 x 3.02 | x0.01 |
+| curtain | objaverse | `objaverse_47ded0c610824037aa498c540216a833` | Curtain Wet Cloth | lugsserg | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.18 x 0.103 x 3.08 | x1 |
+| curtain | objaverse | `objaverse_5b9e03a46de84bd58d3894cab9f40a78` | Window | jesseroberts | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.173 x 1.4 x 1.75 | x0.0254 |
+| curtain | objaverse | `objaverse_7187bae2a1944e2ab5b9c91b400558f1` | Curtain | miranda.j.rice | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/4 | 2.49 x 0.544 x 2.34 | x1 |
+| curtain | objaverse | `objaverse_87f2d57d6d7e4f22b2ac2da367dd6007` | Scene | mariaft.ft68 | CC-BY-4.0 | – | classic | -Y (low) | 4/5 | 1.63 x 0.133 x 1.92 | x1 |
+| curtain | objaverse | `objaverse_a83e1baf822a4442b0f50ed70d449198` | Curtains | Heliona | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 1.84 x 0.263 x 1.61 | x0.388803 |
+| curtain | objaverse | `objaverse_b0bd00b700a3451da1cb4ad9b082c3e0` | Quentin Sees Neighbor | irons3th | CC-BY-4.0 | – | modern | -Y (low) | 4/4 | 0.796 x 0.575 x 1.68 | x0.2875 |
+| curtain | objaverse | `objaverse_b9e55f04b6dc442fb3bebbab253460e7` | Curtain in the wind | lugsserg | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 2.45 x 0.528 x 3.1 | x1 |
+| curtain | objaverse | `objaverse_d244d166eb5a4e659f5264a536443bac` | Curtains | Aditya_lbhd | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.27 x 0.231 x 2.46 | x1 |
+| curtain | objaverse | `objaverse_dac09c92cc82445994d76c1083ca8888` | Window | Koekphon | CC-BY-4.0 | – | japandi | -Y (low) | 4/4 | 2.73 x 0.178 x 2.08 | x0.418966 |
+| curtain | objaverse | `objaverse_e5b01c717dbd4244b861168eddd67375` | Curtain a prop | UROD Engine | CC-BY-4.0 | – | classic | -Y (low) | 4/5 | 1.73 x 0.345 x 1.62 | x0.001 |
+| curtain | objaverse | `objaverse_e826c513779149d7ab3bde944647573f` | Window | jesseroberts | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.165 x 1.4 x 1.75 | x0.0254 |
+| throw | objaverse | `objaverse_0039218299e647d788844de8e1ef7cc2` | Ehavere linnamägi (Estonia) | Hillforts and ancient sites | hillforts.eu | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.975 x 1.07 x 0.0696 | x0.243108 |
+| throw | objaverse | `objaverse_0d5590d1d2184aa98797c3d6382afd7e` | Japanese futon/bed | nicolas_solo | CC-BY-4.0 | – | scandinavian | -Y (low) | 4/4 | 0.734 x 1.1 x 0.12 | x0.001 |
+| throw | objaverse | `objaverse_2fbb8f56b1ba47bdb6746d95b6fc2242` | Hanging Towel | aprilpolubiec | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.237 x 0.143 x 0.474 | x1 |
+| throw | objaverse | `objaverse_511d44e5693549ca9c4002752a35fcb2` | Scarf | Viatorestw | CC-BY-4.0 | – | scandinavian, neutral | -Y (low) | 5/4 | 1 x 0.914 x 0.207 | x0.001 |
+| throw | objaverse | `objaverse_68ba20aeb8fe4a03befaa2db5b429758` | Comfy kitty | scubadiverchick | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.962 x 1.08 x 0.288 | x0.155424 |
+| throw | objaverse | `objaverse_6b46b33bdff44269bf9391774bb8dd63` | JuiceMachine | voxelpoint | CC-BY-4.0 | – | scandinavian, neutral | -Y (low) | 4/4 | 1.43 x 0.581 x 0.8 | x0.190575 |
+| throw | objaverse | `objaverse_ade41221909748209406d91b20c0b06d` | jastukkk | a.ljubicic | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.799 x 0.935 x 0.276 | x1 |
+| throw | objaverse | `objaverse_be9b034525c246cebab3620acb5a8027` | Corpse | Tamal De Quezo | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.966 x 2.11 x 0.301 | x1 |
+| throw | objaverse | `objaverse_eee70cb7980a4ca7aa0a2f86c492283e` | Bench with Cloth | finemods | CC-BY-4.0 | – | scandinavian, japandi, rustic, neutral | -Y (low) | 5/4 | 1.39 x 0.52 x 0.8 | x0.855254 |
+| throw | objaverse | `objaverse_fcff1bddc64c4c9e98f85ff848a8a0eb` | Saoura Traditional bench | mtamali | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 1.22 x 1.19 x 0.704 | x1 |
+| books | objaverse | `objaverse_1c77a05af556408dbfa04ad1999a8a32` | Books | 1-3D.com | CC-BY-SA-4.0 | share_alike | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.24 x 0.169 x 0.27 | x0.01 |
+| books | objaverse | `objaverse_36ef9c80cceb48909e11b358aee00223` | Book | Vrkeith | CC-BY-NC-SA-4.0 | non_commercial | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.279 x 0.31 x 0.257 | x0.410551 |
+| books | objaverse | `objaverse_4655f87dfe2e47aa8ecd3ddc2443c240` | book pile ( no memes) | Renee Beenen | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.268 x 0.324 x 0.127 | x8.68177 |
+| books | objaverse | `objaverse_6931e14a96f64b158ac4cebcf7ae8763` | Opened comics book | 1-3D.com | CC-BY-SA-4.0 | share_alike | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 0.497 x 0.35 x 0.03 | x0.0117343 |
+| books | objaverse | `objaverse_775a10863f4b4819a409788ad183e2d5` | Box on Ready Player Two | No More Mondays | CC-BY-NC-SA-4.0 | non_commercial | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.145 x 0.226 x 0.132 | x1 |
+| books | objaverse | `objaverse_99d6bc041c9d4f56ab414b771e14474c` | Childhood books | riemaeker | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.47 x 0.439 x 0.157 | x1 |
+| books | objaverse | `objaverse_a5cce410728140c492855a109f219ac1` | Bound Books Version 2 - Painted Texture | liitransfield | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.216 x 0.268 x 0.0744 | x0.01 |
+| books | objaverse | `objaverse_b08a7135cad84e0ca222a8cff075109b` | Harry Potter Books Stack | Milkislegit | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.249 x 0.194 x 0.153 | x1 |
+| books | objaverse | `objaverse_c1e84a838f644940ae5b40e19bcdfff8` | Filmbook_St01 | Liam.Gathercole | CC-BY-4.0 | – | modern, neutral | -Y (low) | 5/4 | 0.265 x 0.328 x 0.0367 | x0.142528 |
+| books | objaverse | `objaverse_dfcd6f9d7aba46938912a0f68d0ce676` | The Woodbook #3DST29 | James | CC-BY-NC-SA-4.0 | non_commercial | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.249 x 0.349 x 0.0787 | x0.132094 |
+| books | objaverse | `objaverse_f8052beda9344eba88c5692c6a29a2cf` | Exclusive Kickstarter DELUXE Box | thebrotherhood | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.257 x 0.338 x 0.04 | x0.000256832 |
+| candle | abo | `abo_B075HX7JB2` | Amazon Brand – Stone & Beam Rustic Farmhouse Stoneware Pillar Candle Decor Holder - 11 Inch, White and Clay | Amazon.com | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.0878 x 0.0878 x 0.203 | x1 |
+| candle | abo | `abo_B075HXHKTZ` | Amazon Brand – Stone & Beam Rustic Farmhouse Stoneware Pillar Candle Decor Holder - 8 Inch, White and Clay | Amazon.com | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.123 x 0.123 x 0.202 | x1 |
+| candle | objaverse | `objaverse_4058a3ed739e4f9f89f49323c7db4b4c` | Candles | rhcreations | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 0.459 x 0.1 x 0.136 | x0.01 |
+| candle | objaverse | `objaverse_4c5e1845990045e0a5ad238bafbe353c` | wooden candlestick | annakhobta | CC-BY-4.0 | – | industrial | -Y (low) | 5/5 | 0.055 x 0.0547 x 0.243 | x0.001 |
+| candle | objaverse | `objaverse_5b1307a11309451294ef38bb83a6f9cc` | Candlestick | yunna.mi | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.25 x 0.332 x 0.467 | x0.01 |
+| candle | objaverse | `objaverse_61a47d09116b49d680cb466f26e402f9` | Candlestick | HASSAN | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.267 x 0.216 x 0.282 | x0.000293066 |
+| candle | objaverse | `objaverse_7fd2cf441c5044ebb005e68893f0882f` | Medieval Candle Holder | Arjun Perayil | CC-BY-4.0 | – | industrial, classic | -Y (low) | 4/5 | 0.312 x 0.184 x 0.498 | x0.249009 |
+| candle | objaverse | `objaverse_92bb9f59fd9046b1beb9dca6b21489e2` | Candles | thegraphicsgeek | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, neutral | -Y (low) | 5/4 | 0.152 x 0.084 x 0.319 | x1 |
+| candle | objaverse | `objaverse_9d46daabbefe4b4eab74d9da349dd015` | Three candles and a golden candlestick | Leon_dp | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.0914 x 0.092 x 0.114 | x0.001 |
+| candle | objaverse | `objaverse_a3467b35348244b6a26897d46f218f86` | Medieval Candelabra (Free Download) | NeverSleep | CC-BY-4.0 | – | industrial, classic | -Y (low) | 5/5 | 0.24 x 0.24 x 0.543 | x0.27145 |
+| candle | objaverse | `objaverse_b1eb4cef55f94a11b767dc111a86e669` | CandleHolder_skyrim | MattDonlan | CC-BY-4.0 | – | industrial | -Y (low) | 4/5 | 0.0755 x 0.0755 x 0.15 | x0.001 |
+| candle | objaverse | `objaverse_bbfe3dd1980b4c7c891a5ec93aa7763a` | Gothic Lantern (Mnemolli concept) | romasharf | CC-BY-4.0 | – | industrial, classic | -Y (low) | 4/5 | 0.0377 x 0.0327 x 0.0684 | x0.0254 |
+| candle | objaverse | `objaverse_c408568208c4461fa9c7d54cafe4d1de` | Candlestick | Yury Misiyuk | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.265 x 0.217 x 0.535 | x0.000661062 |
+| candle | objaverse | `objaverse_c408586d8c1547448c4ff47abb4fb981` | Candle | deniska40k | CC-BY-4.0 | – | neutral | -Y (low) | 5/4 | 0.0634 x 0.0554 x 0.0744 | x0.0254 |
+| candle | objaverse | `objaverse_c532273884b0455b8e65664bbb91f4c4` | Medieval candle | Chellew | CC-BY-NC-4.0 | non_commercial | industrial, neutral | -Y (low) | 4/4 | 0.046 x 0.0508 x 0.045 | x0.0254 |
+| candle | objaverse | `objaverse_c5b1ca5b8492426199932f6b1a64a4d9` | Lowpoly Candle | matoteus | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.0392 x 0.0386 x 0.0508 | x0.0254 |
+| candle | objaverse | `objaverse_cce3a987bda2410993fbc7a24db70eb5` | Antique Candle Holder | mtcollings | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.158 x 0.124 x 0.292 | x1 |
+| candle | objaverse | `objaverse_d559f45b2d13437b9681a70fed5cc8e3` | Candle | Nitropunch | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.158 x 0.15 x 0.409 | x0.01 |
+| candle | objaverse | `objaverse_d9d5ed5de83b4d899ab93f55bdc3d0bc` | Candle light | al0sral0 | CC-BY-4.0 | – | scandinavian, neutral | -Y (low) | 4/4 | 0.105 x 0.0923 x 0.124 | x0.001 |
+| candle | objaverse | `objaverse_f00558f1fba44a9698a2df0d9feb0d59` | Candelabra | AndreiVNK | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.31 x 0.0921 x 0.382 | x1 |
+| basket | abo | `abo_B07HSJX4TG` | Amazon Brand – Rivet Modern Geometric Handwoven Round Basket Set - Set of 3, White / Black | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 0.351 x 0.917 x 0.356 | x1 |
+| basket | abo | `abo_B07HSMVFKY` | Amazon Brand – Rivet Modern Braided Stripe Round Basket Set - Set of 3, Natural | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, neutral | -Y (low) | 5/5 | 0.8 x 0.363 x 0.396 | x1 |
+| basket | abo | `abo_B084HTVV65` | Rivet Modern Metal Wire Baskets, Set of 2, 13.75"H and 11.75"H, Silver | Amazon.com | CC-BY-4.0 | – | industrial | -Y (low) | 4/4 | 0.746 x 0.356 x 0.35 | x1 |
+| basket | objaverse | `objaverse_01c77468a1d04414ae24ecd1d1559f7d` | Stylized Sand Bricks Material | Blaž Mraz | CC-BY-4.0 | – | japandi, rustic, neutral | -Y (low) | 5/5 | 0.55 x 0.55 x 0.688 | x0.275 |
+| basket | objaverse | `objaverse_0cd51caee3e14b2d92efaef53c7c0196` | Rattan Tray | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, rustic, neutral | -Y (low) | 5/5 | 0.266 x 0.161 x 0.131 | x0.001 |
+| basket | objaverse | `objaverse_0ecfa65cfee44fcbb48d3aeca1128454` | Market Rattan Basket | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, rustic, neutral | -Y (low) | 5/5 | 0.246 x 0.252 x 0.278 | x0.001 |
+| basket | objaverse | `objaverse_2687ac6a5dc94c949fe22d143868e301` | QHD-02 Bakul Dak Kakak | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, rustic, neutral | -Y (low) | 5/5 | 0.302 x 0.302 x 0.444 | x0.0254 |
+| basket | objaverse | `objaverse_2cd59181404c4aaa995a0ea55f89e212` | IKEA FLÅDIS Seagrass basket - iPhone 3d scan | Jacek Jaskólski | CC-BY-4.0 | – | scandinavian, japandi, neutral | -Y (low) | 5/5 | 0.538 x 0.562 x 0.489 | x138.629 |
+| basket | objaverse | `objaverse_7ec228e046b84b89bf1edd74598e55b8` | Indian Towel Basket | Veufx Studio | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.625 x 0.484 x 0.237 | x5.33255 |
+| basket | objaverse | `objaverse_7f39b77440c4416cab9dbba79f3262a2` | Terracotta Bowl | mohammedabu1996 | CC-BY-4.0 | – | japandi, neutral | -Y (low) | 5/5 | 0.34 x 0.34 x 0.163 | x1 |
+| basket | objaverse | `objaverse_837171e3015b43498b087f3852f9b8cc` | rattan fruit basket | prasetyoheru10 | CC-BY-4.0 | – | japandi, neutral | -Y (low) | 5/5 | 1.05 x 0.87 x 0.208 | x0.0254 |
+| basket | objaverse | `objaverse_8a3f51d301974cab8b5761119ead0ead` | Clothes Basket | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, neutral | -Y (low) | 5/5 | 0.226 x 0.226 x 0.315 | x0.001 |
+| basket | objaverse | `objaverse_964bc8cb4cda4c44955493ab7af25e44` | Fruit Rattan Basket | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, rustic, neutral | -Y (low) | 5/5 | 0.254 x 0.246 x 0.254 | x0.001 |
+| basket | objaverse | `objaverse_9c10ce62bfac419290f5ab20c070c503` | QHD-04 Bakul Mini Serbaguna | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, neutral | -Y (low) | 5/5 | 0.298 x 0.298 x 0.211 | x0.0254 |
+| basket | objaverse | `objaverse_9c617106f68f4e00862bce68531d36c2` | Cesto de Palha | Mariana.Rodrigo | CC-BY-4.0 | – | japandi, neutral | -Y (low) | 5/5 | 0.55 x 0.55 x 0.393 | x0.265267 |
+| basket | objaverse | `objaverse_a0b900d9de78485bad2534a88e2c19c4` | Basket | Lauren Herda | CC-BY-4.0 | – | japandi, rustic, neutral | -Y (low) | 5/5 | 0.507 x 0.507 x 0.548 | x1 |
+| basket | objaverse | `objaverse_a548ec65b43844fb90f570ba132a0391` | OVAL FRUIT BASKET | eeelabvisual | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, rustic, neutral | -Y (low) | 5/5 | 0.304 x 0.211 x 0.203 | x0.0254 |
+| basket | objaverse | `objaverse_bb7e9cf4496f420c8d825d2e507f124b` | Bread in Basket | Francesco Coldesina | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, rustic, neutral | -Y (low) | 5/5 | 0.495 x 0.48 x 0.379 | x0.01 |
+| basket | objaverse | `objaverse_be0b7e93e66a4d4c84c2d0a13fe1852a` | Bread In Basket | InReality Solutions | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, rustic, neutral | -Y (low) | 5/5 | 0.495 x 0.48 x 0.379 | x0.01 |
+| basket | objaverse | `objaverse_cabd5910411b497a9698931246faa95a` | Dobi Basket | eeelabvisual | CC-BY-4.0 | – | japandi, rustic, neutral | -Y (low) | 5/5 | 0.366 x 0.33 x 0.234 | x0.001 |
+| tray | abo | `abo_B078JM52VN` | Amazon Brand – Rivet Mid Century Modern Glam Serving Tray - 3.5 x 11 x 11 Inch, Gold and Blue | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.444 x 0.304 x 0.0842 | x1 |
+| tray | abo | `abo_B078JMXRGC` | Amazon Brand – Rivet Modern Stone and Birch Natural Edge Serving Decor Tray - 15.5 x 9 x 2.5 Inch, Black and Wood | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.387 x 0.231 x 0.062 | x1 |
+| tray | abo | `abo_B07B8M878P` | Amazon Brand – Rivet Contemporary Decorative Large and Small Metal Tray Set - Pack of 2, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, industrial | -Y (low) | 4/4 | 0.495 x 0.297 x 0.101 | x1 |
+| tray | abo | `abo_B07B8NV9TK` | Amazon Brand – Rivet Contemporary Decorative Round Metal Serving Tray with Handles, 17.5 Inch, Black and Gold | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.543 x 0.438 x 0.0689 | x1 |
+| tray | objaverse | `objaverse_085dca6d7eaa49a2bc459adfe3357da9` | SIMPLE Shelf | termagroup | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 0.438 x 0.176 x 0.028 | x1 |
+| tray | objaverse | `objaverse_398c1b3b8114409a89eb02f9b42f8064` | Aluminum tray | Kathrin&Christian | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.464 x 0.285 x 0.15 | x0.231797 |
+| tray | objaverse | `objaverse_3a406e651e69409e87323ab42a214874` | Pia Texturizada por Wellington Marques | mendesviana | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.163 x 0.334 x 0.15 | x0.00723624 |
+| tray | objaverse | `objaverse_3dc49a977873417088384f5ae78c5a6c` | Unagyu-bento | ddd | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.225 x 0.159 x 0.0635 | x1 |
+| tray | objaverse | `objaverse_3e7747b1db4b44a4952d6d94488ee16e` | Dinner Tray | c_irby_paint | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.366 x 0.512 x 0.0431 | x0.256174 |
+| tray | objaverse | `objaverse_3ed0c8a70da84ee99816fa29e352ac16` | Low Poly Couch | Javid Shaikh | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.61 x 0.171 x 0.15 | x0.000489087 |
+| tray | objaverse | `objaverse_4b8d86761f9440cfb324d0b4d07336ff` | Wooden flat filing tray | Reo Creative Scanning | CC-BY-4.0 | – | japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/4 | 0.387 x 0.268 x 0.0752 | x0.01 |
+| tray | objaverse | `objaverse_545d37a90a7d4c00b5e5bc551c71fbbf` | Светильник DL303-L7W Maytoni | fedomo.ru | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.433 x 0.433 x 0.0504 | x0.1399 |
+| tray | objaverse | `objaverse_74c95870e2a141a9903815715d25b8a7` | Laundry Basket | c_irby_paint | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 5/4 | 0.395 x 0.45 x 0.15 | x0.22506 |
+| tray | objaverse | `objaverse_8c63e5e160064cd3862e4b5f8781032b` | Светильник DL303-L12W Maytoni /40 | fedomo.ru | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.433 x 0.433 x 0.0456 | x0.102784 |
+| tray | objaverse | `objaverse_985b48efbd774f8f9fa74304508cad34` | FRUTTI GIALLI - SQUARE SINK FROM ITALY | Cerames | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.354 x 0.354 x 0.15 | x0.681334 |
+| tray | objaverse | `objaverse_acca44bccd9e4d82ba0e2ed0eb1e478c` | pote.c4d | redoxy | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.196 x 0.146 x 0.103 | x0.01 |
+| tray | objaverse | `objaverse_c1e6ac573c37485f9e7acaaae418df30` | Cutting board | Just8 | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/4 | 0.459 x 0.758 x 0.0485 | x1 |
+| tray | objaverse | `objaverse_c274989766c344ac97817f77a046c0e0` | Platform | AlexBedrossian | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.619 x 0.303 x 0.0962 | x0.309668 |
+| tray | objaverse | `objaverse_e736a1e7cdcb48a5a4f2ca4100d52d28` | Доработка дно пирожницы h=23 l=75 без рёбер | Александр | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.146 x 0.216 x 0.023 | x0.001 |
+| tray | objaverse | `objaverse_f8a2cdc9970846da95585a428697d173` | NHB_Dislocations_Tray | sixtrees | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.401 x 0.468 x 0.0231 | x0.00293466 |
+| clock | abo | `abo_B076V9MWFL` | Amazon Brand - Solimo 12" Wall Clock - Paramount Dark Paneling (Silent Movement, Black Frame) | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.293 x 0.0403 x 0.293 | x1 |
+| clock | abo | `abo_B076VG6LF3` | Amazon Brand - Solimo 12-inch Wall Clock - Different Strokes (Step Movement, Black Frame) | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.3 x 0.06 x 0.3 | x1 |
+| clock | abo | `abo_B07B8NSY3Z` | Amazon Brand – Stone & Beam Large Battery Operated Square Art Deco Wood Wall Clock - 27 Inch, White | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.705 x 0.0316 x 0.705 | x1 |
+| clock | abo | `abo_B07B8NZMZF` | Amazon Brand – Stone & Beam Vintage Farmhouse Style Decorative Metal Wall Clock - 32 Inches, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.843 x 0.0253 x 0.843 | x1 |
+| clock | abo | `abo_B07B8NZQF3` | Amazon Brand – Rivet Modern Minamalist Wood-Face Clock, 12"H, Walnut | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.314 x 0.0403 x 0.314 | x1 |
+| clock | abo | `abo_B07B8P1SB7` | Amazon Brand – Rivet Modern Minamalist Wood-Face Clock, 12"H, Natural | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.314 x 0.0293 x 0.314 | x1 |
+| clock | abo | `abo_B07B8PXJJW` | Rivet Modern Brass Clock, 12"H, Green | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.314 x 0.0404 x 0.314 | x1 |
+| clock | abo | `abo_B07B8PXMRT` | Amazon Brand – Rivet Modern Clock, 18"H, Black/Brass | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.454 x 0.0377 x 0.454 | x1 |
+| clock | abo | `abo_B07B8PXTVL` | Amazon Brand – Stone & Beam Round Battery Operated Vintage Decorative Wall Clock - 23 Inch, Black Wood | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.595 x 0.0287 x 0.595 | x1 |
+| clock | abo | `abo_B07B8XC5QS` | Amazon Brand – Stone & Beam Farmhouse Decor Wall Clock and Mail Storage Organizer - 38 Inch, Wood with Black Detail | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.361 x 0.0305 x 0.965 | x1 |
+| clock | objaverse | `objaverse_01fb2f80dad74a2280a4c077d871b262` | Grandfather Clock | Dirtrock | CC-BY-4.0 | – | classic | +Y (medium) | 5/4 | 0.347 x 0.273 x 1.27 | x0.00528861 |
+| clock | objaverse | `objaverse_07859442442f4d24995ab93e1533106f` | Wall clock old | Artem Goyko | CC-BY-4.0 | – | classic | +Y (medium) | 5/4 | 0.344 x 0.276 x 0.752 | x0.376064 |
+| clock | objaverse | `objaverse_2533ef500ece4fcc804872c706df036b` | (FREE) Wall Clock | ساعة جدارية | Mohamed Ahmed | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (medium) | 5/4 | 0.959 x 0.0989 x 0.959 | x0.479534 |
+| clock | objaverse | `objaverse_26d52ce7c2d2461eb0625875bffbe0f0` | antique clock | Slav92 | CC-BY-4.0 | – | classic | -X (medium) | 5/5 | 0.456 x 0.208 x 0.956 | x0.000723878 |
+| clock | objaverse | `objaverse_5c1723090dd3487aabcb2b2d5bc35c07` | Bedside Wooden Clock | Glowbox 3D | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern, rustic, neutral | -Y (medium) | 5/5 | 0.395 x 0.212 x 0.415 | x1 |
+| clock | objaverse | `objaverse_8c95c5e879f24f8294d9c8c25804ab95` | CC0 - Wall Clock 3 | plaggy | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (medium) | 5/4 | 0.305 x 0.0269 x 0.305 | x1 |
+| clock | objaverse | `objaverse_c440d78639b74e77ba6ae375f9cbf5b7` | Broken Steampunk Clock | VassKacsoHunor | CC-BY-4.0 | – | industrial, classic | -Y (medium) | 5/4 | 0.416 x 0.228 x 0.521 | x0.00476796 |
+| clock | objaverse | `objaverse_cdb717c843c64685acc4ae712f028864` | Europe Style Wooden Clock | chung_the_artist | CC-BY-4.0 | – | classic | -Y (medium) | 5/4 | 0.457 x 0.207 x 1.09 | x0.643042 |
+| clock | objaverse | `objaverse_db31a6c16269415cafee6c2fe7377fb3` | Old Clock For You | sagadxg | CC-BY-4.0 | – | classic | -X (medium) | 5/4 | 0.308 x 0.133 x 0.498 | x0.001 |
+| clock | objaverse | `objaverse_dfe6f89d65be4a23b28abf07178efebf` | Western Electric Tangent Galvanometer | The Smithsonian Institution | CC0 | – | industrial, classic | +X (medium) | 4/4 | 0.123 x 0.117 x 0.122 | x1 |
+| sculpture | objaverse | `objaverse_1f60399f99304ff087274e0e39352389` | Juan Bordes - Lacquered bronze | Moøkan | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.451 x 0.234 x 1.3 | x0.276378 |
+| sculpture | objaverse | `objaverse_2983d92ac4e744f485492580ca7629f2` | Venus de Milo #StatuesTexturingChallenge [SMK] | SMK – National Gallery of Denmark | CC0 | – | classic | -Y (low) | 5/4 | 0.426 x 0.391 x 1.3 | x0.000613514 |
+| sculpture | objaverse | `objaverse_36bb9a6e62ab4b88b7154c41489b5f41` | Fountain - low-poly | timeframes | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.461 x 0.489 x 0.918 | x0.306175 |
+| sculpture | objaverse | `objaverse_5700b45309a04d1f93de859bf44da6b0` | Aliens and Herons - Sitting Nude - Sculpture | 3dhdscan | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.475 x 0.475 x 0.548 | x0.259116 |
+| sculpture | objaverse | `objaverse_636f635cf2f64bad9aa836c0bb252fb6` | Three Danish Polar Explorers | Geoffrey Marchal | CC-BY-4.0 | – | classic, rustic | -Y (low) | 4/5 | 0.523 x 0.431 x 0.652 | x0.235107 |
+| sculpture | objaverse | `objaverse_65fe1034b180420bbf2eb00e87092ad5` | Sea lion statue, Marina, San Francisco (1) | Emm (Scenario) | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.595 x 0.38 x 0.636 | x0.342344 |
+| sculpture | objaverse | `objaverse_668237aabbf54beeb347bbaa7be930c7` | Photogrammetry/retopology - Cherub | Nom | CC-BY-4.0 | – | classic | -Y (low) | 4/5 | 0.456 x 0.495 x 0.847 | x0.267003 |
+| sculpture | objaverse | `objaverse_71edd9efc26548758924ec455ac4a197` | Girl With Amphora - Statue | 3dhdscan | CC-BY-4.0 | – | classic | -Y (low) | 4/5 | 0.439 x 0.514 x 0.86 | x0.424718 |
+| sculpture | objaverse | `objaverse_7fa78479a63b4358bd1edeba44f8266f` | Statue d'époque romaine / Statue roman period | Frédérique Bertrand - 3D Imago Urbis | CC-BY-4.0 | – | classic | -Y (low) | 4/4 | 0.48 x 0.363 x 1.3 | x0.769731 |
+| sculpture | objaverse | `objaverse_a8e5239b1b2445b8b8e97cb1c3e3d60f` | Eurydike Statue | BojanBabic | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.232 x 0.189 x 0.386 | x1 |
+| sculpture | objaverse | `objaverse_afb7e0918a2549788aaa83476adf5b8d` | Мужчина из грота Ля-Ферраси | darwinmuseum.ru | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.461 x 0.335 x 0.39 | x0.001 |
+| sculpture | objaverse | `objaverse_bac9ee64eb454a66a637ae0c20f56364` | Anjo de Cemitério/ Angel Cemitery | plinioranhel | CC-BY-4.0 | – | classic | -Y (low) | 4/4 | 0.163 x 0.467 x 0.167 | x0.01 |
+| sculpture | objaverse | `objaverse_ce5c3a6781574d0093ee3b7b67d61851` | 316: Bust of Sidonie Leblonde | alexdelker | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.245 x 0.424 x 0.614 | x1 |
+| sculpture | objaverse | `objaverse_d3f9aaecb7e94b12bc28256c85a40ce0` | Minotaur Statue | plasmaernst | CC-BY-4.0 | – | neutral | -Y (low) | 4/4 | 0.468 x 0.482 x 1.19 | x0.000557626 |
+| sculpture | objaverse | `objaverse_e705883c8cd9496986b64f74083f720d` | Sculpture | 3D Master | CC-BY-4.0 | – | classic | -Y (low) | 5/5 | 0.122 x 0.199 x 0.314 | x0.001 |
+| pendant_light | abo | `abo_B0711Q7WK7` | Amazon Brand – Rivet Modern Industrial Geometric Cage Pendant Chandelier Fixture With Light Bulb - 10.5 x 10.5 Inch, 14.75-62.75 Inch Cord, White | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.487 x 0.431 x 1.76 | x1 |
+| pendant_light | abo | `abo_B0716WLY2Y` | Amazon Brand – Stone & Beam Industrial Farmhouse Double Pendant Ceiling Chandelier with Pulley, Light Bulbs Included, Adjustable 40"-65" Cord, Black | Amazon.com | CC-BY-4.0 | – | industrial | -Y (low) | 4/4 | 0.27 x 0.12 x 0.35 | x1 |
+| pendant_light | abo | `abo_B0716WM8TJ` | Amazon Brand – Stone & Beam Modern Dome Ceiling Mount Hanging Pendant Light Fixture With Vintage Bulb - 19.6 Inch Shade, 11.25 - 60 Inch Cord, Oil-Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | modern, industrial | -Y (low) | 5/5 | 0.492 x 0.492 x 0.87 | x1 |
+| pendant_light | abo | `abo_B0716YRXBG` | Amazon Brand – Stone & Beam Modern Farmhouse Round Shade Hanging Pendant Chandelier Fixture With Vintage Light Bulb - 10.25 Inch Shade, 8 - 56.75 Inch Cord, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, industrial | -Y (low) | 4/5 | 0.331 x 0.331 x 0.993 | x1 |
+| pendant_light | abo | `abo_B0719K9G5L` | Amazon Brand – Stone & Beam Vintage Ceiling Pendant Lighting Fixtureand Clear Glass Shade - 7 x 7 x 17.25 Inches, 11.75 - 59.25 Inch Cord, Oil Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | industrial | -Y (low) | 4/5 | 0.182 x 0.182 x 0.768 | x1 |
+| pendant_light | abo | `abo_B071F6W28T` | Amazon Brand – Stone & Beam Emmons Industrial Ceiling Pendant Chandelier Fixture With Light Bulb, Adjustable 11.25"- 59.25"H, Oil-Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | industrial | -Y (low) | 4/4 | 0.151 x 0.165 x 0.851 | x1 |
+| pendant_light | abo | `abo_B071F73XDB` | Amazon Brand – Rivet Hugh Mid-Century Modern Round Pendant Chandelier Ceiling Light, Bulb Included, 12-60"H Adjustable Cord, Chrome and Glass | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.336 x 0.336 x 1.54 | x1 |
+| pendant_light | abo | `abo_B071HSMPHL` | Amazon Brand – Rivet Hugh Mid-Century Modern 3-Light Pendant Chandelier Ceiling Light, Bulbs Included, 12-60"H Adjustable Cords, Chrome and Glass | Amazon.com | CC-BY-4.0 | – | minimal, modern | -Y (low) | 5/4 | 0.623 x 0.188 x 1.41 | x1 |
+| pendant_light | abo | `abo_B071HSMWGB` | Amazon Brand – Stone & Beam Modern Round Ceiling Pendant Chandelier Fixture - 12 Inch Shade, 12.5 - 60.5 Inch Cord, Brushed Nickel | Amazon.com | CC-BY-4.0 | – | modern | -Y (low) | 4/4 | 0.299 x 0.299 x 0.935 | x1 |
+| pendant_light | abo | `abo_B071LDM8NL` | Amazon Brand – Stone & Beam Jordan Industrial Farmhouse Ceiling Single Pendant Cage Fixture With Light Bulb - 4.8 x 4.8 Inches, 10.75 x 58.75 Inch Cord, Black | Amazon.com | CC-BY-4.0 | – | modern, industrial | -Y (low) | 4/4 | 0.123 x 0.123 x 0.92 | x1 |
+| pendant_light | abo | `abo_B07374K537` | Amazon Brand – Stone & Beam Classic Ceiling Pendant Chandelier Fixture With White Drum Shade- 20 x 20 x 42 Inches, Antique Brass | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/4 | 0.508 x 0.508 x 1.07 | x1 |
+| pendant_light | abo | `abo_B075X2LLX3` | Amazon Brand – Stone & Beam Mesh 4-Light Pendant Chandelier With Edison Bulbs, 40"H, Black | Amazon.com | CC-BY-4.0 | – | modern, industrial | -Y (low) | 5/4 | 0.823 x 0.185 x 0.935 | x1 |
+| pendant_light | abo | `abo_B07B4VSTF6` | Amazon Brand – Stone & Beam Rustic Rectangular Beam Ceiling Chandelier With 8 Edison Light Bulbs - 32 x 14,25 x 27.5 Inches, Oil Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | industrial | -Y (low) | 4/4 | 0.806 x 0.381 x 1.07 | x1 |
+| pendant_light | abo | `abo_B07HKCRWJH` | Amazon Brand – Rivet Mid-Century Modern Ceiling Hanging Pendant Fixture with Light Bulb - 14.25 x 14.25 x 11.25 Inches, 12-120 Inch Cord, Satin Brass | Amazon.com | CC-BY-4.0 | – | modern | -Y (low) | 4/4 | 0.408 x 0.408 x 0.758 | x1 |
+| pendant_light | abo | `abo_B082JH6PRL` | Amazon Brand – Stone & Beam Traditional Globe Pendant Light with White Inner Shade & Rattan Outer Shade, 16"H, Natural Twine | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 4/4 | 0.407 x 0.406 x 1.96 | x1 |
+| pendant_light | objaverse | `objaverse_069fe37a0f144d8387db9b4594c501af` | Copper wall sconce | IssisEstrada | CC-BY-4.0 | – | classic | -Y (low) | 4/4 | 0.283 x 0.0954 x 0.33 | x0.0254 |
+| pendant_light | objaverse | `objaverse_0fcc68b789fb41bf827e999c2681a4a1` | Люстра 2139-6P Favourite | fedomo.ru | CC-BY-4.0 | – | classic | -Y (low) | 4/4 | 0.64 x 0.575 x 0.995 | x0.001 |
+| pendant_light | objaverse | `objaverse_366b50081c884690bb2ce4df6dacad59` | Chandolier2 | Davor Mulalic | CC-BY-4.0 | – | classic, rustic | -Y (low) | 5/5 | 0.769 x 0.769 x 0.768 | x1 |
+| pendant_light | objaverse | `objaverse_5fc95fddd9cb4038b767fc5cba588c4b` | Chandelier | MatoyBoii | CC-BY-4.0 | – | classic | -Y (low) | 5/4 | 0.69 x 0.69 x 1.14 | x0.262877 |
+| pendant_light | objaverse | `objaverse_600a996f3b9e44fd912beb8129b5f929` | Small Chandelier | NyanDiaCat | CC-BY-NC-4.0 | non_commercial | classic | -Y (low) | 5/5 | 0.109 x 0.113 x 0.251 | x1 |
+| ceiling_light | abo | `abo_B07B4VSTG2` | Amazon Brand – Stone & Beam Schoolhouse Semi-Flush Mount Ceiling Fixture With Light Bulb And Clear Glass Shade - 11 x 11 x 10.5 Inches, Brushed Nickel | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.279 x 0.279 x 0.269 | x1 |
+| ceiling_light | abo | `abo_B07B4Z9BS4` | Amazon Brand – Stone & Beam Schoolhouse Semi-Flush Mount Ceiling Fixture With Light Bulb And Clear Glass Shade - 11 x 11 x 10.5 Inches, Matte Black | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.279 x 0.279 x 0.269 | x1 |
+| ceiling_light | abo | `abo_B07QC9Y53F` | Amazon Brand – Ravenna Home Casual Flush Mount, 4"H, Brushed Nickel | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.355 x 0.356 x 0.102 | x1 |
+| ceiling_light | abo | `abo_B07QGHTCY4` | Amazon Brand – Ravenna Home Casual Flush Mount, 3"H, Oil-Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.368 x 0.368 x 0.101 | x1 |
+| ceiling_light | abo | `abo_B07QGHVVJW` | Ravenna Home Casual Flush Mount, 3"H, Brushed Nickel | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.368 x 0.368 x 0.101 | x1 |
+| ceiling_light | abo | `abo_B07QHMYBJ5` | Amazon Brand – Ravenna Home Casual Flush Mount, 4"H, Oil-Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.355 x 0.356 x 0.102 | x1 |
+| ceiling_light | abo | `abo_B0828DHVWJ` | Amazon Brand - Ravenna Home Single-Light Flush-Mount Ceiling Light with Seeded Glass Shade, Vintage Edison Bulb Included, 3.8"H, Oil-Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.283 x 0.283 x 0.0969 | x1 |
+| ceiling_light | abo | `abo_B0828DZ1QL` | Amazon Brand - Ravenna Home Single-Light Flush-Mount Ceiling Light with Frosted Glass Shade, 5.3"H, Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.279 x 0.28 x 0.135 | x1 |
+| ceiling_light | abo | `abo_B0828F59QW` | Amazon Brand - Ravenna Home 2-Light Semiflush-Mount Ceiling Light with Frosted Glass Shade, 8.3"H, Dark Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.331 x 0.331 x 0.212 | x1 |
+| ceiling_light | abo | `abo_B0828F62FS` | Amazon Brand - Ravenna Home Single-Light Flush-Mount Ceiling Light with Frosted Glass Shade, 5.3"H, Brushed Steel | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.279 x 0.28 x 0.135 | x1 |
+| ceiling_light | abo | `abo_B0828F9CR3` | Amazon Brand - Ravenna Home 2-Light Flush-Mount Ceiling Light with White Frosted Glass Shade, 5.1"H, Dark Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 5/4 | 0.361 x 0.361 x 0.131 | x1 |
+| ceiling_light | abo | `abo_B0828FFDWG` | Amazon Brand - Ravenna Home 2-Light Flush-Mount Ceiling Light with White Frosted Glass Shade, 5.1"H, Brushed Steel | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 5/4 | 0.361 x 0.361 x 0.131 | x1 |
+| ceiling_light | abo | `abo_B082DPC6Z1` | Amazon Brand – Rivet Single-Light Flush-Mount Ceiling Light with Metal Shade, 7"H, White and Brass | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.355 x 0.355 x 0.176 | x1 |
+| ceiling_light | abo | `abo_B082DPXR2Z` | Amazon Brand – Rivet Single-Light Flush-Mount Ceiling Light with Metal Shade, 7"H, Black and Brass | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 5/4 | 0.355 x 0.355 x 0.177 | x1 |
+| ceiling_light | abo | `abo_B082JHT8Z6` | Amazon Brand – Stone & Beam Traditional Semiflush-Mount Ceiling Light with Clear Glass Shade, 10.5"H, Oil-Rubbed Bronze | Amazon.com | CC-BY-4.0 | – | modern minimal, modern | -Y (low) | 4/4 | 0.304 x 0.304 x 0.269 | x1 |
 
 ## Attribution
 
@@ -1016,7 +1444,6 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Amazon Brand – Stone & Beam Vivianne Modern Upholstered Armless Dining Chair with Casters, 19.7"W, Slate" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5"W, Dark Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9"W, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- "Rocking Chair" by Christian (https://sketchfab.com/3d-models/039c6026571943d6ac45c6816bcc7ff1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Old chair" by Dani Ortega (https://sketchfab.com/3d-models/0723b35415b0462eb5c01140b6b70340), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Wicker Chair" by Scott Thorne (https://sketchfab.com/3d-models/1625701880c54b7d9f50e77455cef39b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Char 2" by DimaSP (https://sketchfab.com/3d-models/47a690dcecf847fca99c4f89111db85b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -1316,6 +1743,172 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Succulent" by mika.rr (https://sketchfab.com/3d-models/9dd44cda400c48a083ffd9480067f04f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "FlowerPot" by ibrahmcingi (https://sketchfab.com/3d-models/b99c584dd11d4691b5d13303383371e5), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "CGT 116 Wk8 Plant" by mlin234 (https://sketchfab.com/3d-models/bf122cd0854e422bb94704552c64810b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Emerly Modern Sectional Sofa, 96"W, Ecru" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Edgewest Low Back Modern Right Chaise Sofa Sectional, 115"W, Grey Linen" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Edgewest Low Back Modern Left Sofa Chaise Sectional, 115"W, Beige" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Edgewest Low Back Contemporary Modern L-Sectional Sofa, 116"W, Grey Linen" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Andover Right-Facing L-Shaped Sectional, 124"W, Charcoal Leather" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Andover Modern Right U-Sectional Sofa, 134"W, Sand" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Andover Leather Left-Facing L-Shaped Sectional, 124"W, Driftwood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Edgewest Low Back Modern Right U-Sectional, 117"W, Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Emerly Modern Sofa Chaise, 96"W, Navy" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Dalton Chaise Sectional Sofa Couch, 91.5", Stone" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Dalton Sofa Couch with Chaise, Sand" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Djuran 3-Seater Upholstered L-Shaped Corner Sofa with Right Side Chaise, 230 x 158 x 86 cm, Stain-Resistant Polyester, Steel Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Enan 3-Seater Upholstered L-Shaped Corner Sofa with Right Side Chaise, 266 x 86 x 73 cm, Stain-Resistant Polyester, Light Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Aiden Mid-Century Sectional with Tapered Wood Legs, 86"W, Hunter Green" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Solimo Cartina 5 Seater L Shape Fabric Sofa Set (Grey)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Solimo Alen six Seater LHS L Shape Sofa Set (Brown)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Solimo Alen Five Seater LHS L Shape Sofa Set (Blue)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Paloma couch by soho Concept" by AK (https://sketchfab.com/3d-models/138f793adde045a5a5247edf48f61eb1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Varon Modern Lounge Daybed Chaise, 34.2"W, Dark Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Varon Modern Lounge Daybed Chaise, 34.2"W, Indigo" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Classic Tufted Chaise Lounge, 58.3" Length, Slate Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Classic Tufted Chaise Lounge, 58.3" Length, Soft Cream" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Phoenix Home Linen Chaise Lounger with Chrome Legs, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Sloane Mid-Century Modern Ottoman with Tapered Legs, 32"W, Shell" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Sloane Mid-Century Angled Leg Modern Ottoman, 31.9"W, Pebble" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Andover Ottoman, 32"W, Charcoal Leather" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Andover Ottoman, 32"W, Driftwood Leather" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Stone & Beam Bradbury Chesterfield Modern Tufted Leather Ottoman, 30.3"W, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Brandeberry Farmhouse Charles of London Ottoman, 31"W, Grey Linen" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Basics Faux Leather Rectangular Storage Ottoman, Dark Chocolate" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "First Hill Damara Square-Shaped Large Faux-Leather Storage Ottoman - Bittersweet Chocolate" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "First Hill Endora Rectangular Fabric Storage Ottoman with Script-Style Pattern - Storm Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Sloane Mid-Century Modern Ottoman with Tapered Legs, 31.9"W, Yellow" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Sloane Modern Leather Ottoman with Tapered Legs, 31.9"W, Caramel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Asher Modern Storage Ottoman, 15.75"W, Fabric, Pink" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Cedar Upholstered Ottoman with Nailheads, 32"W, Oat Beige" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Revere Round Upholstered Iron-Framed Ottoman, 30.3"W, Ivory" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Free Antique Footstool" by elijahorama (https://sketchfab.com/3d-models/18be8d9d50bf4ca4b24d81e404697b66), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Classic Stool" by farazghani (https://sketchfab.com/3d-models/2c51399de3d3439383dcabef349d72b0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "BTW Stool" by Neil Christensen (https://sketchfab.com/3d-models/300dde7f9b114295980ef7da782da86c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Wooden stool" by quedlin (https://sketchfab.com/3d-models/34fe7fd87a924cf8aeff89ea6f012bae), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Classical Bench" by cebraVFX (https://sketchfab.com/3d-models/6c7858341c08466082912d2095417939), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Decor, footrest" by tdtrumble (https://sketchfab.com/3d-models/c4304814dcc441b4a6ebb5cf99081ffe), CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Amazon Brand – Stone & Beam Union Modern Storage Bench, 38"W, Teal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Basics Rectangular Faux Leather Storage Ottoman Bench, Large - Russet Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Red Hook Leda Rectangular Upholstered Ottoman Bench - 27 x 14.5 x 18.5 Inches, Stone Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Galer Tufted Nailhead Lift Top Storage Bedroom and Entryway Bench, 15.75"W, Denim Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Red Hook Meknes Rectangular Faux Leather Storage Ottoman Bench - Dark Cocoa" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "First Hill Damara Wood Storage Ottoman Bench with Open Bottom and Faux-Leather Upholstery, Earthy Red" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Rylee Modern Farmhouse Acacia Wood Dining Bench, 71"W, Gray-Wash Acacia" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marca Amazon - Alkove - Hayes - Banco de madera maciza con asiento tapizado (roble salvaje)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marque Amazon - Alkove - Hayes - Banc de chambre avec siège tapissé" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Classic Solid Pine Storage Bench, 46.5"W, Rustic Gray Finish" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics 35.5"L Storage Bench Ottoman, Light Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Wooden Bench" by Akshat (https://sketchfab.com/3d-models/22e8163cf6e1413486faeb4e42222a99), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "បង់អង្គុយសាធារណះ - Park Bench" by ស្នាដៃមិត្តខ្ញុំ- My friend's achievement (https://sketchfab.com/3d-models/36dc07c8e85c4b859d78ccd4dd60c63d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Simple Park Bench" by Peter Primini (https://sketchfab.com/3d-models/378cd6e6f505493aa8e22f68db1cabec), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Bench" by Andrew_Fox (https://sketchfab.com/3d-models/43dfa2813779487b9d1bb36b7c1a321c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Park Bench" by paraverun (https://sketchfab.com/3d-models/7a0c2a659e2441b6b568a9d2acf8419e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "City Bench 001" by CC0 Archviz (https://sketchfab.com/3d-models/83bb7dff14e84ecbbc99ebb80fe2977c), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: share_alike)
+- "Mainstreet USA Bench" by Kastle (https://sketchfab.com/3d-models/9a4d1c954ed446d9a8d436d5be6dedca), CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Dedicated Bench, Museum Gardens, E2. (Raw Scan)" by PROTONPHOTO (https://sketchfab.com/3d-models/da39bc3a29364f8bb4bf45bccf856bdc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Street Wooden Bench" by Lior Azi (https://sketchfab.com/3d-models/f889c3adfc5945dcb10c1a594b35957b), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Amazon Brand – Stone & Beam Barstool, 40"H, Metal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Sophia Modern Swivel Kitchen Counter Height Stool, 39.4"H, Merlot" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Sophia Modern Swivel Kitchen Bar Stool, 43.3"H, Merlot" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Malida Mid-Century Modern Open Back Swivel Kitchen Counter Height Stool, 37"H, Charcoal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Carson Tufted Leather Counter Height Kitchen Stool, 41"H, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Fremont Rustic Kitchen Counter Saddle Farmhouse Bar Stool, 25.5 Inch Height, Natural Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Alaina Contemporary High-Back Swivel Seat Counter Stool, 39"H, Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44.5 Inch Height, Dark Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44 Inch Height, Dark Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Lisetta Nailhead Saddle Bar Stool, 30"H, Espresso with Cream Faux Leather (2 Pack)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44.5 Inch Height, Dark Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Wood and Metal Detailed Swivel Kitchen Bar Stool, 44 Inch Height, Dark Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "2L Lifestyle Pierson Air Lift Adjustable Bar Stools Set of 2, Small, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Pioneer Square BT3503-24-WH Counter Stool, 24", White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Mid-Century Barstools, Set of 2, 31.7"H, Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "An Amazon Brand - Movian Tarna - Set of 2 Bar Stools - 41 x 41 x 77 cm - Grey Fabric / Oil Treated Solid Oak Frame" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Alaina Contemporary Leather High-Back Swivel Seat Bar Stool, 43"H, Light Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Alaina Contemporary High-Back Swivel Seat Bar Stool, 43"H, Chalk" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Rivet Modern Wood Counter-Height Kitchen Bar Stool, 24" H, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Beech Wishbone Counter-Height Barstool, 38.2"H, Black and Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Leather-Padded, Adjustable, Swivel Office Desk Chair with Armrest, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics High-Back, Leather Executive, Swivel, Adjustable Office Desk Chair with Casters, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Upholstered, Low-Back, Adjustable, Swivel Office Desk Chair, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics High-Back Executive Chair - Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Low-Back, Upholstered Mesh, Adjustable, Swivel Computer Office Desk Chair, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Big & Tall Executive Chair - Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Office Hippo Physio Approved Ergonomic 2 Lever Office Chair with Height Adjustable Arms and Adjustable Lumbar Support, Fabric, Charcoal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Office Hippo Physio Approved Ergonomic 2 Lever Office Chair with Fixed Loop Arms and Adjustable Lumbar Support, Fabric, Royal Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Classic Leather Office Desk Guest Chair with Metal Frame, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Classic Reception Office Chair with Mahogany Wood Finish Legs - Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Mesh Fabric Executive Mid-Back Office Desk Chair, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Mesh Fabric Executive High-Back Chair, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics High-Back, Leather Executive, Swivel, Adjustable Office Desk Chair with Casters, White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics High-Back Executive Swivel Office Desk Chair with Ribbed Puresoft Upholstery - Grey, Lumbar Support, Modern Style" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics High-Back Executive Swivel Office Desk Chair with Ribbed Puresoft Upholstery - Black, Lumbar Support, Modern Style" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Classic Office Desk Computer Chair - Adjustable, Swiveling, Ultra-Soft Microfiber - Light Gray, Lumbar Support" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Classic Office Desk Computer Chair - Adjustable, Swiveling, Ultra-Soft Microfiber - Light Beige, Lumbar Support" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Bonded Leather Big & Tall Executive Office Computer Desk Chair, 350-Pound Capacity - Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics High-Back Bonded Leather Executive Office Computer Desk Chair - Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Dubna, Desk Chair, 58 x 58 x 103 cm (L x W x H), Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Industrial Modern Console Table, 47.25"W, Walnut Wood, Metal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Cross Legged Home Office Computer Desk Console, 42"W, White Gloss and Walnut" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Coastal Breeze Rustic Farmhouse Console Table, 55.1"W, Natural and White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Sparrow Industrial Entry Console Table, 55.1"W, Wood and Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Ferndale Rustic Console Table, 63"W, Sandstone" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Roland Metal X-Frame Console Hallway Table, 24" W, Pine" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Anne Marie Half-Moon Curved Leg Storage Console Entryway Table, 48"W, Dark Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "2L Lifestyle Shelburne Accent Console Table, Small, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Phoenix Home Pavlo Mission-Style Wooden Console Table with Drawer and Shelf, Amber Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Casual Narrow Console Table 47.83"W, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Industrial Plank-Topped Console Table with Metal Hairpin Legs, 55.12"W" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand Rivet Console with Metal Shelf 110 x 35 cm Elme/Black Metal Frame" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Solid Pine Rustic Farmhouse Console Table, 52"W, Rustic Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Cotbed" by roatti (https://sketchfab.com/3d-models/29451febdc894682a36a5112fd13f054), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Cot Final" by kplas1 (https://sketchfab.com/3d-models/dbb8dec952c0450ba58fb4f75abf86ec), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "A108082006" by peashung (https://sketchfab.com/3d-models/1ab0499f7a7746188eefe85c1f16594b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "雙層床架" by Ameiscute (https://sketchfab.com/3d-models/7ea465a1489c4b12bb5a8ff33325cccb), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Double Bed" by Francesco Coldesina (https://sketchfab.com/3d-models/c505ffffc1524865ba63af837346f1f7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "A108082045_ 賴積翰" by f121645645 (https://sketchfab.com/3d-models/ea40259ea9ab488e8fe21eaf2fc29d6e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Corona Sideboard, 3 Door 3 Drawer, Solid Pine Wood ,Waxed, 76 x 125 x 40 cm" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Minho 2-Door 4-Drawer Sideboard Storage Cabinet, 145 x 90 x 38cm, White/Light Brown Oak-Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Corona Sideboard, 2 Door 2 Drawer, Solid Pine Wood Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Parson Rustic Buffet Sideboard Storage Cabinet 56"W, Oak Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Mid-Century Modern Checkerboard Reclaimed Elm Buffet Sideboard Credenza Cabinet, 55.1"W, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Wood Buffet Bar Cabinet Credenza with Gold Accents, 35 Inch Height, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Ian Mid-Century Modern Wood Buffet Bar Cabinet Credenza, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Creston Modern Wood Dining Buffet, Cabinet Credenza, Storage, 56"W, Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Federal Mid-Century Modern Wood Dining Buffet Sideboard, Cabinet Credenza, Storage, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Hughes Modern Casual Wood Buffet Bar, Cabinet Credenza, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Mid-Century Modern Industrial Metal Buffet Credenza, 28 Inch Height, Beige, Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Moselle 3-Drawer 2-Door Sideboard Storage Cabinet, 165 x 78 x 50cm, Light Brown Oak-Effect/White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Traditional Buffet Storage Cabinet - 68 Inch, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Solid Wood Buffet with Wine Rack and Iron Base, 33.86"H, Brushed Natural, Black, Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Rustic Buffet 36"H, Carbon-Finished Wood with Distressed Gold Handles" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Alkove Malvern Solid Wood 3-Door Sideboard Cabinet, 180 x 90 x 42cm, Antic Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Davenport Industrial Buffet Table, 42.3"W, Elm and Metal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics 2-Door Sideboard Storage Cabinet with 8 Shelves, 101 x 40 x 113 cm, Dark Brown/Geometric Pattern, Black Legs" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics - Sideboard, 160 x 45 x 82 cm, Brown" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Ems - Sideboard with 2 Doors and 3 Drawers, 180 x 39.5 x 76.2 cm, Oak Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Indre 1-Door Shoe Cabinet/Cupboard/Organizer with Mirror, 23 x 50 x 179cm, Light Brown Oak-Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Inari 3-door Shoe Cabinet/Cupboard/Organizer, 25 x 75 x 128 cm, Dark Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Indre 1-Door Shoe Cabinet/Cupboard/Organizer with Mirror, 23 x 50 x 179cm, Dark Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Idro 4-Door Shoe Cabinet/Cupboard/Organizer, 25 x 52 x 163cm, Dark Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Movian Inari 3-door Shoe Cabinet/Cupboard/Organizer, 25 x 75 x 128 cm, Light Brown Oak-Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Movian Adour 3-Door Shoe Cabinet/Cupboard/Organizer, 25 x 75 x 128cm, White & Vintage-Wood-Look" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Alkove - Hayes - Riva Solid Wood Shoe Cabinet with 2 Shelves Wild Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Classic Shoe Bench with Lift-Top Compartment and 3 Storage Cubbies - Black Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Classic Shoe Bench with Lift-Top Compartment and 3 Storage Cubbies - White Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Easy Assemble Shoe Rack - 2-Tier, Rose Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Easy Assemble Shoe Rack - 4-Tier, Rose Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "AmazonBasics Easy Assemble Shoe Rack - 4-Tier, Silver" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Alkove Malvern Solid Wood Front Display Cabinet, 66 x 198 x 42cm, Dark Brown/Black, Oak/Veneer" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Movian Idro Skoskåp Ek" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Movian Indre Bedroom Furniture" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Movian Morava" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marca Amazon - Movian Moselle - Vitrina de 1 puerta (roble Sonoma/gris oscuro)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marca Amazon - Movian Moselle - Aparador con vitrina (roble Sonoma/blanco alpino)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marque Amazon - Movian - Armoire 3 portes avec miroir Mira, 140 x 207 x 58 cm, Chêne Sanremo" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marchio Amazon - Movian, armadio a 2 ante modello Mira, 98 x 193 x 58 cm, quercia Sanremo" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Solimo Polaris Engineered Wood Dressing Table (Imperial Teak)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Marchio Amazon - Movian Argenton - Colonna da bagno, 30 x 27 x 140 cm, colore marrone" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17" x 17", Midnight" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Striated Velvet Linen-Look Decorative Throw Pillow, 17" x 17", Midnight" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Modern Geometric Decorative Print Throw Pillow, 20" x 20", Teal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -1468,85 +2061,305 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Amazon Brand - Rivet Modern Round Cutout Hanging Mirror, 22.25" Diameter, Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Rivet Modern Oval Hanging Mirror, 39"H, Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Rivet Modern Cutout Hanging Mirror, 23"H, Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtain" by lugsserg (https://sketchfab.com/3d-models/024b7af4893a438abeafa86bf13d09ab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtains" by TabbieCat (https://sketchfab.com/3d-models/3bcbef09de9846069745893615aae970), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtain Wet Cloth" by lugsserg (https://sketchfab.com/3d-models/47ded0c610824037aa498c540216a833), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Window" by jesseroberts (https://sketchfab.com/3d-models/5b9e03a46de84bd58d3894cab9f40a78), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtain" by miranda.j.rice (https://sketchfab.com/3d-models/7187bae2a1944e2ab5b9c91b400558f1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Scene" by mariaft.ft68 (https://sketchfab.com/3d-models/87f2d57d6d7e4f22b2ac2da367dd6007), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtains" by Heliona (https://sketchfab.com/3d-models/a83e1baf822a4442b0f50ed70d449198), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Quentin Sees Neighbor" by irons3th (https://sketchfab.com/3d-models/b0bd00b700a3451da1cb4ad9b082c3e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtain in the wind" by lugsserg (https://sketchfab.com/3d-models/b9e55f04b6dc442fb3bebbab253460e7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtains" by Aditya_lbhd (https://sketchfab.com/3d-models/d244d166eb5a4e659f5264a536443bac), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Window" by Koekphon (https://sketchfab.com/3d-models/dac09c92cc82445994d76c1083ca8888), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Curtain a prop" by UROD Engine (https://sketchfab.com/3d-models/e5b01c717dbd4244b861168eddd67375), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Window" by jesseroberts (https://sketchfab.com/3d-models/e826c513779149d7ab3bde944647573f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Ehavere linnamägi (Estonia)" by Hillforts and ancient sites | hillforts.eu (https://sketchfab.com/3d-models/0039218299e647d788844de8e1ef7cc2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Japanese futon/bed" by nicolas_solo (https://sketchfab.com/3d-models/0d5590d1d2184aa98797c3d6382afd7e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Hanging Towel" by aprilpolubiec (https://sketchfab.com/3d-models/2fbb8f56b1ba47bdb6746d95b6fc2242), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Scarf" by Viatorestw (https://sketchfab.com/3d-models/511d44e5693549ca9c4002752a35fcb2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Comfy kitty" by scubadiverchick (https://sketchfab.com/3d-models/68ba20aeb8fe4a03befaa2db5b429758), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "JuiceMachine" by voxelpoint (https://sketchfab.com/3d-models/6b46b33bdff44269bf9391774bb8dd63), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "jastukkk" by a.ljubicic (https://sketchfab.com/3d-models/ade41221909748209406d91b20c0b06d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Corpse" by Tamal De Quezo (https://sketchfab.com/3d-models/be9b034525c246cebab3620acb5a8027), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Bench with Cloth" by finemods (https://sketchfab.com/3d-models/eee70cb7980a4ca7aa0a2f86c492283e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Saoura Traditional bench" by mtamali (https://sketchfab.com/3d-models/fcff1bddc64c4c9e98f85ff848a8a0eb), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Books" by 1-3D.com (https://sketchfab.com/3d-models/1c77a05af556408dbfa04ad1999a8a32), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: share_alike)
+- "Book" by Vrkeith (https://sketchfab.com/3d-models/36ef9c80cceb48909e11b358aee00223), CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "book pile ( no memes)" by Renee Beenen (https://sketchfab.com/3d-models/4655f87dfe2e47aa8ecd3ddc2443c240), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Opened comics book" by 1-3D.com (https://sketchfab.com/3d-models/6931e14a96f64b158ac4cebcf7ae8763), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: share_alike)
+- "Box on Ready Player Two" by No More Mondays (https://sketchfab.com/3d-models/775a10863f4b4819a409788ad183e2d5), CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Childhood books" by riemaeker (https://sketchfab.com/3d-models/99d6bc041c9d4f56ab414b771e14474c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Bound Books Version 2 - Painted Texture" by liitransfield (https://sketchfab.com/3d-models/a5cce410728140c492855a109f219ac1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Harry Potter Books Stack" by Milkislegit (https://sketchfab.com/3d-models/b08a7135cad84e0ca222a8cff075109b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Filmbook_St01" by Liam.Gathercole (https://sketchfab.com/3d-models/c1e84a838f644940ae5b40e19bcdfff8), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "The Woodbook #3DST29" by James (https://sketchfab.com/3d-models/dfcd6f9d7aba46938912a0f68d0ce676), CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Exclusive Kickstarter DELUXE Box" by thebrotherhood (https://sketchfab.com/3d-models/f8052beda9344eba88c5692c6a29a2cf), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Rustic Farmhouse Stoneware Pillar Candle Decor Holder - 11 Inch, White and Clay" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Rustic Farmhouse Stoneware Pillar Candle Decor Holder - 8 Inch, White and Clay" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candles" by rhcreations (https://sketchfab.com/3d-models/4058a3ed739e4f9f89f49323c7db4b4c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "wooden candlestick" by annakhobta (https://sketchfab.com/3d-models/4c5e1845990045e0a5ad238bafbe353c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candlestick" by yunna.mi (https://sketchfab.com/3d-models/5b1307a11309451294ef38bb83a6f9cc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candlestick" by HASSAN (https://sketchfab.com/3d-models/61a47d09116b49d680cb466f26e402f9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Medieval Candle Holder" by Arjun Perayil (https://sketchfab.com/3d-models/7fd2cf441c5044ebb005e68893f0882f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candles" by thegraphicsgeek (https://sketchfab.com/3d-models/92bb9f59fd9046b1beb9dca6b21489e2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Three candles and a golden candlestick" by Leon_dp (https://sketchfab.com/3d-models/9d46daabbefe4b4eab74d9da349dd015), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Medieval Candelabra (Free Download)" by NeverSleep (https://sketchfab.com/3d-models/a3467b35348244b6a26897d46f218f86), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "CandleHolder_skyrim" by MattDonlan (https://sketchfab.com/3d-models/b1eb4cef55f94a11b767dc111a86e669), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Gothic Lantern (Mnemolli concept)" by romasharf (https://sketchfab.com/3d-models/bbfe3dd1980b4c7c891a5ec93aa7763a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candlestick" by Yury Misiyuk (https://sketchfab.com/3d-models/c408568208c4461fa9c7d54cafe4d1de), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candle" by deniska40k (https://sketchfab.com/3d-models/c408586d8c1547448c4ff47abb4fb981), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Medieval candle" by Chellew (https://sketchfab.com/3d-models/c532273884b0455b8e65664bbb91f4c4), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Lowpoly Candle" by matoteus (https://sketchfab.com/3d-models/c5b1ca5b8492426199932f6b1a64a4d9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Antique Candle Holder" by mtcollings (https://sketchfab.com/3d-models/cce3a987bda2410993fbc7a24db70eb5), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candle" by Nitropunch (https://sketchfab.com/3d-models/d559f45b2d13437b9681a70fed5cc8e3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candle light" by al0sral0 (https://sketchfab.com/3d-models/d9d5ed5de83b4d899ab93f55bdc3d0bc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Candelabra" by AndreiVNK (https://sketchfab.com/3d-models/f00558f1fba44a9698a2df0d9feb0d59), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Geometric Handwoven Round Basket Set - Set of 3, White / Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Braided Stripe Round Basket Set - Set of 3, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Rivet Modern Metal Wire Baskets, Set of 2, 13.75"H and 11.75"H, Silver" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Stylized Sand Bricks Material" by Blaž Mraz (https://sketchfab.com/3d-models/01c77468a1d04414ae24ecd1d1559f7d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Rattan Tray" by eeelabvisual (https://sketchfab.com/3d-models/0cd51caee3e14b2d92efaef53c7c0196), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Market Rattan Basket" by eeelabvisual (https://sketchfab.com/3d-models/0ecfa65cfee44fcbb48d3aeca1128454), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "QHD-02 Bakul Dak Kakak" by eeelabvisual (https://sketchfab.com/3d-models/2687ac6a5dc94c949fe22d143868e301), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "IKEA FLÅDIS Seagrass basket - iPhone 3d scan" by Jacek Jaskólski (https://sketchfab.com/3d-models/2cd59181404c4aaa995a0ea55f89e212), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Indian Towel Basket" by Veufx Studio (https://sketchfab.com/3d-models/7ec228e046b84b89bf1edd74598e55b8), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Terracotta Bowl" by mohammedabu1996 (https://sketchfab.com/3d-models/7f39b77440c4416cab9dbba79f3262a2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "rattan fruit basket" by prasetyoheru10 (https://sketchfab.com/3d-models/837171e3015b43498b087f3852f9b8cc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Clothes Basket" by eeelabvisual (https://sketchfab.com/3d-models/8a3f51d301974cab8b5761119ead0ead), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Fruit Rattan Basket" by eeelabvisual (https://sketchfab.com/3d-models/964bc8cb4cda4c44955493ab7af25e44), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "QHD-04 Bakul Mini Serbaguna" by eeelabvisual (https://sketchfab.com/3d-models/9c10ce62bfac419290f5ab20c070c503), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Cesto de Palha" by Mariana.Rodrigo (https://sketchfab.com/3d-models/9c617106f68f4e00862bce68531d36c2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Basket" by Lauren Herda (https://sketchfab.com/3d-models/a0b900d9de78485bad2534a88e2c19c4), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "OVAL FRUIT BASKET" by eeelabvisual (https://sketchfab.com/3d-models/a548ec65b43844fb90f570ba132a0391), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Bread in Basket" by Francesco Coldesina (https://sketchfab.com/3d-models/bb7e9cf4496f420c8d825d2e507f124b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Bread In Basket" by InReality Solutions (https://sketchfab.com/3d-models/be0b7e93e66a4d4c84c2d0a13fe1852a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Dobi Basket" by eeelabvisual (https://sketchfab.com/3d-models/cabd5910411b497a9698931246faa95a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Mid Century Modern Glam Serving Tray - 3.5 x 11 x 11 Inch, Gold and Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Stone and Birch Natural Edge Serving Decor Tray - 15.5 x 9 x 2.5 Inch, Black and Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Contemporary Decorative Large and Small Metal Tray Set - Pack of 2, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Contemporary Decorative Round Metal Serving Tray with Handles, 17.5 Inch, Black and Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "SIMPLE Shelf" by termagroup (https://sketchfab.com/3d-models/085dca6d7eaa49a2bc459adfe3357da9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Aluminum tray" by Kathrin&Christian (https://sketchfab.com/3d-models/398c1b3b8114409a89eb02f9b42f8064), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Pia Texturizada por Wellington Marques" by mendesviana (https://sketchfab.com/3d-models/3a406e651e69409e87323ab42a214874), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Unagyu-bento" by ddd (https://sketchfab.com/3d-models/3dc49a977873417088384f5ae78c5a6c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Dinner Tray" by c_irby_paint (https://sketchfab.com/3d-models/3e7747b1db4b44a4952d6d94488ee16e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Low Poly Couch" by Javid Shaikh (https://sketchfab.com/3d-models/3ed0c8a70da84ee99816fa29e352ac16), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Wooden flat filing tray" by Reo Creative Scanning (https://sketchfab.com/3d-models/4b8d86761f9440cfb324d0b4d07336ff), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Светильник DL303-L7W Maytoni" by fedomo.ru (https://sketchfab.com/3d-models/545d37a90a7d4c00b5e5bc551c71fbbf), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Laundry Basket" by c_irby_paint (https://sketchfab.com/3d-models/74c95870e2a141a9903815715d25b8a7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Светильник DL303-L12W Maytoni /40" by fedomo.ru (https://sketchfab.com/3d-models/8c63e5e160064cd3862e4b5f8781032b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "FRUTTI GIALLI - SQUARE SINK FROM ITALY" by Cerames (https://sketchfab.com/3d-models/985b48efbd774f8f9fa74304508cad34), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "pote.c4d" by redoxy (https://sketchfab.com/3d-models/acca44bccd9e4d82ba0e2ed0eb1e478c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Cutting board" by Just8 (https://sketchfab.com/3d-models/c1e6ac573c37485f9e7acaaae418df30), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Platform" by AlexBedrossian (https://sketchfab.com/3d-models/c274989766c344ac97817f77a046c0e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Доработка дно пирожницы h=23 l=75 без рёбер" by Александр (https://sketchfab.com/3d-models/e736a1e7cdcb48a5a4f2ca4100d52d28), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "NHB_Dislocations_Tray" by sixtrees (https://sketchfab.com/3d-models/f8a2cdc9970846da95585a428697d173), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Solimo 12" Wall Clock - Paramount Dark Paneling (Silent Movement, Black Frame)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Solimo 12-inch Wall Clock - Different Strokes (Step Movement, Black Frame)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Large Battery Operated Square Art Deco Wood Wall Clock - 27 Inch, White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Vintage Farmhouse Style Decorative Metal Wall Clock - 32 Inches, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Minamalist Wood-Face Clock, 12"H, Walnut" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Minamalist Wood-Face Clock, 12"H, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Rivet Modern Brass Clock, 12"H, Green" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Clock, 18"H, Black/Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Round Battery Operated Vintage Decorative Wall Clock - 23 Inch, Black Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Farmhouse Decor Wall Clock and Mail Storage Organizer - 38 Inch, Wood with Black Detail" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Grandfather Clock" by Dirtrock (https://sketchfab.com/3d-models/01fb2f80dad74a2280a4c077d871b262), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Wall clock old" by Artem Goyko (https://sketchfab.com/3d-models/07859442442f4d24995ab93e1533106f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "(FREE) Wall Clock | ساعة جدارية" by Mohamed Ahmed (https://sketchfab.com/3d-models/2533ef500ece4fcc804872c706df036b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "antique clock" by Slav92 (https://sketchfab.com/3d-models/26d52ce7c2d2461eb0625875bffbe0f0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Bedside Wooden Clock" by Glowbox 3D (https://sketchfab.com/3d-models/5c1723090dd3487aabcb2b2d5bc35c07), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "CC0 - Wall Clock 3" by plaggy (https://sketchfab.com/3d-models/8c95c5e879f24f8294d9c8c25804ab95), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Broken Steampunk Clock" by VassKacsoHunor (https://sketchfab.com/3d-models/c440d78639b74e77ba6ae375f9cbf5b7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Europe Style Wooden Clock" by chung_the_artist (https://sketchfab.com/3d-models/cdb717c843c64685acc4ae712f028864), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Old Clock For You" by sagadxg (https://sketchfab.com/3d-models/db31a6c16269415cafee6c2fe7377fb3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Western Electric Tangent Galvanometer" by The Smithsonian Institution (https://sketchfab.com/3d-models/dfe6f89d65be4a23b28abf07178efebf), CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Juan Bordes - Lacquered bronze" by Moøkan (https://sketchfab.com/3d-models/1f60399f99304ff087274e0e39352389), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Venus de Milo #StatuesTexturingChallenge [SMK]" by SMK – National Gallery of Denmark (https://sketchfab.com/3d-models/2983d92ac4e744f485492580ca7629f2), CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Fountain - low-poly" by timeframes (https://sketchfab.com/3d-models/36bb9a6e62ab4b88b7154c41489b5f41), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Aliens and Herons - Sitting Nude - Sculpture" by 3dhdscan (https://sketchfab.com/3d-models/5700b45309a04d1f93de859bf44da6b0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Three Danish Polar Explorers" by Geoffrey Marchal (https://sketchfab.com/3d-models/636f635cf2f64bad9aa836c0bb252fb6), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Sea lion statue, Marina, San Francisco (1)" by Emm (Scenario) (https://sketchfab.com/3d-models/65fe1034b180420bbf2eb00e87092ad5), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Photogrammetry/retopology - Cherub" by Nom (https://sketchfab.com/3d-models/668237aabbf54beeb347bbaa7be930c7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Girl With Amphora - Statue" by 3dhdscan (https://sketchfab.com/3d-models/71edd9efc26548758924ec455ac4a197), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Statue d'époque romaine / Statue roman period" by Frédérique Bertrand - 3D Imago Urbis (https://sketchfab.com/3d-models/7fa78479a63b4358bd1edeba44f8266f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Eurydike Statue" by BojanBabic (https://sketchfab.com/3d-models/a8e5239b1b2445b8b8e97cb1c3e3d60f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Мужчина из грота Ля-Ферраси" by darwinmuseum.ru (https://sketchfab.com/3d-models/afb7e0918a2549788aaa83476adf5b8d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Anjo de Cemitério/ Angel Cemitery" by plinioranhel (https://sketchfab.com/3d-models/bac9ee64eb454a66a637ae0c20f56364), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "316: Bust of Sidonie Leblonde" by alexdelker (https://sketchfab.com/3d-models/ce5c3a6781574d0093ee3b7b67d61851), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Minotaur Statue" by plasmaernst (https://sketchfab.com/3d-models/d3f9aaecb7e94b12bc28256c85a40ce0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Sculpture" by 3D Master (https://sketchfab.com/3d-models/e705883c8cd9496986b64f74083f720d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Modern Industrial Geometric Cage Pendant Chandelier Fixture With Light Bulb - 10.5 x 10.5 Inch, 14.75-62.75 Inch Cord, White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Industrial Farmhouse Double Pendant Ceiling Chandelier with Pulley, Light Bulbs Included, Adjustable 40"-65" Cord, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Modern Dome Ceiling Mount Hanging Pendant Light Fixture With Vintage Bulb - 19.6 Inch Shade, 11.25 - 60 Inch Cord, Oil-Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Modern Farmhouse Round Shade Hanging Pendant Chandelier Fixture With Vintage Light Bulb - 10.25 Inch Shade, 8 - 56.75 Inch Cord, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Vintage Ceiling Pendant Lighting Fixtureand Clear Glass Shade - 7 x 7 x 17.25 Inches, 11.75 - 59.25 Inch Cord, Oil Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Emmons Industrial Ceiling Pendant Chandelier Fixture With Light Bulb, Adjustable 11.25"- 59.25"H, Oil-Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Hugh Mid-Century Modern Round Pendant Chandelier Ceiling Light, Bulb Included, 12-60"H Adjustable Cord, Chrome and Glass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Hugh Mid-Century Modern 3-Light Pendant Chandelier Ceiling Light, Bulbs Included, 12-60"H Adjustable Cords, Chrome and Glass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Modern Round Ceiling Pendant Chandelier Fixture - 12 Inch Shade, 12.5 - 60.5 Inch Cord, Brushed Nickel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Jordan Industrial Farmhouse Ceiling Single Pendant Cage Fixture With Light Bulb - 4.8 x 4.8 Inches, 10.75 x 58.75 Inch Cord, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Classic Ceiling Pendant Chandelier Fixture With White Drum Shade- 20 x 20 x 42 Inches, Antique Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Mesh 4-Light Pendant Chandelier With Edison Bulbs, 40"H, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Rustic Rectangular Beam Ceiling Chandelier With 8 Edison Light Bulbs - 32 x 14,25 x 27.5 Inches, Oil Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Mid-Century Modern Ceiling Hanging Pendant Fixture with Light Bulb - 14.25 x 14.25 x 11.25 Inches, 12-120 Inch Cord, Satin Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Traditional Globe Pendant Light with White Inner Shade & Rattan Outer Shade, 16"H, Natural Twine" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Copper wall sconce" by IssisEstrada (https://sketchfab.com/3d-models/069fe37a0f144d8387db9b4594c501af), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Люстра 2139-6P Favourite" by fedomo.ru (https://sketchfab.com/3d-models/0fcc68b789fb41bf827e999c2681a4a1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Chandolier2" by Davor Mulalic (https://sketchfab.com/3d-models/366b50081c884690bb2ce4df6dacad59), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Chandelier" by MatoyBoii (https://sketchfab.com/3d-models/5fc95fddd9cb4038b767fc5cba588c4b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Small Chandelier" by NyanDiaCat (https://sketchfab.com/3d-models/600a996f3b9e44fd912beb8129b5f929), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
+- "Amazon Brand – Stone & Beam Schoolhouse Semi-Flush Mount Ceiling Fixture With Light Bulb And Clear Glass Shade - 11 x 11 x 10.5 Inches, Brushed Nickel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Schoolhouse Semi-Flush Mount Ceiling Fixture With Light Bulb And Clear Glass Shade - 11 x 11 x 10.5 Inches, Matte Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Casual Flush Mount, 4"H, Brushed Nickel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Casual Flush Mount, 3"H, Oil-Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Ravenna Home Casual Flush Mount, 3"H, Brushed Nickel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Ravenna Home Casual Flush Mount, 4"H, Oil-Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Ravenna Home Single-Light Flush-Mount Ceiling Light with Seeded Glass Shade, Vintage Edison Bulb Included, 3.8"H, Oil-Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Ravenna Home Single-Light Flush-Mount Ceiling Light with Frosted Glass Shade, 5.3"H, Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Ravenna Home 2-Light Semiflush-Mount Ceiling Light with Frosted Glass Shade, 8.3"H, Dark Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Ravenna Home Single-Light Flush-Mount Ceiling Light with Frosted Glass Shade, 5.3"H, Brushed Steel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Ravenna Home 2-Light Flush-Mount Ceiling Light with White Frosted Glass Shade, 5.1"H, Dark Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand - Ravenna Home 2-Light Flush-Mount Ceiling Light with White Frosted Glass Shade, 5.1"H, Brushed Steel" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Single-Light Flush-Mount Ceiling Light with Metal Shade, 7"H, White and Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Rivet Single-Light Flush-Mount Ceiling Light with Metal Shade, 7"H, Black and Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Amazon Brand – Stone & Beam Traditional Semiflush-Mount Ceiling Light with Clear Glass Shade, 10.5"H, Oil-Rubbed Bronze" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 
 ## Refused after judging
 
 | uid | Source | Type | Reason |
 |---|---|---|---|
 | 00b360de1846428eb5c23464824c5fc8 | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +X |
-| 0102b2c1449f448687d62ea66ae2a26a | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 38 accepted chair models (keep 20) |
+| 0102b2c1449f448687d62ea66ae2a26a | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 35 of 39 accepted chair models (keep 20) |
 | 01b79647e6e442989fda47ff20cabdc9 | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 34 of 36 accepted armchair models (keep 20; its styles classic had 5 each in the first pass) |
 | 01dac0f367544b28a32ef3e276e3106e | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 3 |
-| 03cba69a2c3140f7abc013d42d455fba | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 35 of 38 accepted sofa models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
-| 03f16302c1a54c46b438dac78e9d7048 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 38 accepted chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 039c6026571943d6ac45c6816bcc7ff1 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 9 of 39 accepted chair models (keep 20; its styles classic had 5 each in the first pass) |
+| 03cba69a2c3140f7abc013d42d455fba | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 34 of 37 accepted sofa models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| 03d9e1e3f20a4e3a98d8016a6765b220 | objaverse | clock | not the decor type (a judge; a planter must hold a plant): qwen True, glm False |
+| 03f16302c1a54c46b438dac78e9d7048 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 39 accepted chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | 03febdfb56cf419d89fe2d4eaa0bdb5e | objaverse | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 04bef8e589524b8c9d7a3bb206b206a8 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 05a4c8fccea2443f8bc67e4b3152e056 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
-| 072d0468bb97447ab1ca7e3edea25f1f | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 38 accepted sofa models (keep 20; its styles classic had 5 each in the first pass) |
+| 072d0468bb97447ab1ca7e3edea25f1f | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 37 accepted sofa models (keep 20; its styles classic had 5 each in the first pass) |
+| 07c4feb4845d40459bb9bba3fd439e79 | objaverse | books | no style both judges name: qwen ['modern minimal', 'minimal', 'modern', 'japandi', 'scandinavian'], glm ['classic', 'rustic'] |
+| 07c6d211698848f695e28afef3e23a75 | objaverse | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 33 accepted pendant_light models (keep 20; its styles modern had 5 each in the first pass) |
 | 08d73e1168504bf2b8706cd838ad16ef | objaverse | bookshelf | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 24 accepted bookshelf models (keep 20; its styles modern had 5 each in the first pass) |
+| 09032fd39ff343a8900ed9969835151b | objaverse | sculpture | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 093339833c8341628bb34fbd70225a5f | objaverse | clock | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 0972c48a7e4548bca80975a47a823bab | objaverse | bed_double | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry +Y |
 | 09ee59423b4b428f94f01fc5beccd227 | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 36 accepted armchair models (keep 20; its styles classic had 5 each in the first pass) |
+| 09f0f9801f354224a9c05b993a78ca0b | objaverse | chaise | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
+| 0a25fb69fc634713acffec225ac8fa70 | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 36 of 41 accepted ottoman models (keep 20) |
+| 0aacd964a119468889ca3fdb29e3fa1f | objaverse | clock | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 25 accepted clock models (keep 20; its styles classic had 5 each in the first pass) |
+| 0bc5df4461a244e69d8afd3fa6944553 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 0cb0a6704c8a4fbd967039998a9d76ac | objaverse | bed_double | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 22 accepted bed_double models (keep 20; its styles scandinavian, modern had 5 each in the first pass) |
+| 0d1d16ee22814a40b86df5f96ebac0f9 | objaverse | chaise | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
+| 0e2a45cb08fc458e9810de03afeb413d | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 0e9ba282f7cd4537b694e01f40acd72e | objaverse | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 33 accepted pendant_light models (keep 20; its styles classic had 5 each in the first pass) |
+| 0eba4cbc46c0487f87e002fe23452bc7 | objaverse | crib | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 0f788280acd84006831b13b08c0f8bf8 | objaverse | books | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| 0f93f671ef874e378591842a84a9eaa6 | objaverse | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 27 accepted basket models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern, rustic, neutral had 5 each in the first pass) |
 | 12f297af37e9444dae34a02e86c4d36b | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 132a8ee2af3a40d39d270fbed3d3666c | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
-| 13407a0758804fc09ec4c7e51e9f9d0e | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 35 of 38 accepted chair models (keep 20) |
-| 138f793adde045a5a5247edf48f61eb1 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 13407a0758804fc09ec4c7e51e9f9d0e | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 36 of 39 accepted chair models (keep 20) |
+| 143e8602ebc84f88b08f63f6b1fb4cf6 | objaverse | clock | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 25 accepted clock models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 14791efb33314b02ac5ac74b47c36d14 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 1.0245, '+x': 1.0313, '-y': 0.1149, '+y': 0.2505} give 0 axes with one closed side) |
+| 14e958fe6d104a02864433899d3079b2 | objaverse | chaise | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 14f036886e984c6cb8942f7a86e2a96b | objaverse | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 33 accepted pendant_light models (keep 20; its styles modern, industrial had 5 each in the first pass) |
+| 1574426f98ba42229d0caf6f5ee93fc9 | objaverse | curtain | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 1579e4608c6b4f908e6da24d3752f783 | objaverse | clock | no style both judges name: qwen ['modern minimal', 'minimal', 'modern', 'japandi', 'scandinavian'], glm ['classic', 'neutral'] |
 | 15a583ac9db84a529e7ea1d2bd7eadbe | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 15fb293dce6c4a9294d3eff4d455c9eb | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| 172d8db2f07949fba8648bcb74ef064c | objaverse | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 32 of 33 accepted pendant_light models (keep 20; its styles classic had 5 each in the first pass) |
 | 17c796aeb1b8455d8f594a72490e11b7 | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 18234b9b760f4833b68ba0fd6ca988c3 | objaverse | throw | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 1883273bf37f48218e7f5c1d8f6609ea | objaverse | books | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['classic', 'neutral'] |
+| 19589cfd59f54a63806b00b512768fc6 | objaverse | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 33 accepted pendant_light models (keep 20; its styles classic had 5 each in the first pass) |
 | 1a41218e823c4cba801bd2b3d71c9dff | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 1b48a3d913474e6890b8b8163bb5407c | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 1b5f52a5181942ccb5415f1a4ff4ea3c | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm None |
+| 1bbc23a1c0374d64b92eebbdbb119017 | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 1bf49e047db04dabab8a1665e88af5e6 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 1c74372d1aeb4bf2abb90358352d4282 | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 1cf7a367acda4ae39291fc3e46706c53 | objaverse | sculpture | no style both judges name: qwen ['modern minimal', 'minimal', 'modern', 'industrial'], glm ['classic'] |
 | 1d18955742df45e9875b28d382a33ef3 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | 1d2f3157246e4eb3818a50a6732ca05e | objaverse | stove | not a single object (a judge): qwen False, glm True |
 | 1d41e84fd76241e7a8929a314052269c | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 33 accepted table_coffee models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | 1f07c148a7bc4e7c88dc57de50dc36b3 | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (back_taller: offsets -0.057 (x) and +0.092 (y) do not single out one axis) |
 | 1fdb702ad88e41e2b90a5af4037bbfd3 | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 202cbb2a22ea4dda80160ec89a77dc39 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 207cea3239944c91ab111ca8ee244024 | objaverse | sofa_corner | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 2 |
 | 23fa151346304c8bb8c58f58a76e6407 | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | 240796c1b98b424381195e8b4c7f83e9 | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 2556bb64f1414de7afb8a299097ef279 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 257f44c12fa948deacca9995dbb70e7b | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 26b5f6c3ceb640d78829c0293c3ffbf9 | objaverse | table_dining | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 26bbbb987e9e4a6191f050fc5c8cf8d7 | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 41 of 41 accepted ottoman models (keep 20) |
+| 29392dd175444772881f62436af56397 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 2a725ae04a33493fad2ee6dad98a85af | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 2ad357476ea14818a64e2876d33b7c0d | objaverse | tray | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 2b14055dc8054ec79b4d0d7e8f00be1e | objaverse | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 33 accepted floor_lamp models (keep 20; its styles modern had 5 each in the first pass) |
 | 2b7d5c96159c42589dd970d81e877668 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 2bd3fcc82c9f43cfb0c8cf26c7d0107c | objaverse | bed_double | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 22 accepted bed_double models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
-| 2c32127e0a354be9b588bbeb8f9ac644 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 36 of 38 accepted chair models (keep 20) |
+| 2be3740c17a54af2ace945e1d265f358 | objaverse | tray | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 2c32127e0a354be9b588bbeb8f9ac644 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 37 of 39 accepted chair models (keep 20) |
+| 2c759000b56347bdb5adf8ce83eeada1 | objaverse | clock | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 2ca7b3f063284089a12225a3a5ce671e | objaverse | chaise | front not agreed (judges and geometry or the documented front): judges: view 2 (+Y); geometry undecided (back_taller: offsets -0.272 (x) and +0.165 (y) do not single out one axis) |
 | 2dc08ab4103e43e3968ae45e59231c06 | objaverse | toilet | not a single object (a judge): qwen False, glm True |
 | 2e0afa27358f4223b658e8351002d19f | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 2e762d68e7ae4ac1a49553c03c940c61 | objaverse | bathtub | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 2f1706233a3248cf9a74586fc2e7120c | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 2f45a71206fe4a4eb665b43c69d407f7 | objaverse | tray | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 21 accepted tray models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | 2fdaa56bbd85404cb4206dcaedc16658 | objaverse | fridge | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry -X |
 | 2ffb917efef043dbb7fe98f44d2d9b2b | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 300ece91863242649e728e2f8d2a6bfe | objaverse | desk | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 26 accepted desk models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 305f2b09e0de48bb919116026aba8f44 | objaverse | potted_plant | not the furniture type (a judge): qwen False, glm True |
 | 309ccba7b2cb40a6bfffb89f498fc54c | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 96, '+x': 96, '-y': 50, '+y': 51} give no side with 1.3x more detail) |
 | 30b975722e7e4d8694ee9628cd669177 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 30d037c1ef774c4b87c5a2f2b1449535 | objaverse | bench | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (back_taller: offsets -0.084 (x) and +0.107 (y) do not single out one axis) |
 | 317dac94ec404bdbaa6d41a85e04f51c | objaverse | floor_lamp | not the furniture type (a judge): qwen False, glm True |
 | 319ec67c98e447eebda0039b143274c5 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | 322ba3a159a845c7b7642467e23fcc2d | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | 3301331424bb4dbc8f06e2d3717bb067 | objaverse | floor_lamp | not the furniture type (a judge): qwen False, glm False |
 | 34b12514108a4ffd897c9324a4a35858 | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 351d798f9cc3451099200c5235aee352 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 37 of 38 accepted chair models (keep 20) |
+| 351d798f9cc3451099200c5235aee352 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 38 of 39 accepted chair models (keep 20) |
 | 3597a7a470ac4f81b1b362eea66f4d6f | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 364f1208ffaf42db9da456e87abc7eec | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| 36af1647d51e4a869af42b7127d64558 | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen None, glm None |
 | 36f12a0c9c9149aab3dbe7fb35189fee | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 33 accepted table_coffee models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 385c09d2ebb2483d96a78918c665db51 | objaverse | bathtub | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| 391223ac8c8a43b4a5fd6e0e05835bca | objaverse | chaise | not a single object (a judge): qwen False, glm True |
+| 39247357f19e468c9863f5370cc03974 | objaverse | curtain | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 39541d5daa7a4fba9614ad9847c992d5 | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 39fdb3ee809d4f7fa2d4e4d686496207 | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm None |
+| 3a8d707c2536440d8f89649626ea9df6 | objaverse | candle | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 3b1033c7d6c84db8b0850121363b65ef | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 3d118a9fd6e34ddab99cb0fab5540682 | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 3de2e575e8b941dd94ae08158636b20a | objaverse | table_dining | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 3ee00f7e14674461af4241f5ef7ed039 | objaverse | desk | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 4112e07e262842c6b7070aa1505505c3 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
+| 422cb41968af4a3998dd84fe3e26858d | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 40 of 41 accepted ottoman models (keep 20) |
 | 426c14adba6a45638752986c2f7d16b2 | objaverse | bed_double | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 42da0122f2134a189767d0911b401c1c | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 32 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 42da0122f2134a189767d0911b401c1c | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 4533a21c002542b2ae6649d66369991e | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 46e8f848735b496e8aeda829d0b96023 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 4722f5aa9abc449abef01e64045a0371 | objaverse | bench | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| 474e014d7843408189fec04a0d71c6a3 | objaverse | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 27 accepted basket models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern, neutral had 5 each in the first pass) |
 | 4825d2d251b648f583db7147a7fd8d63 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 482c5168f1694911b597c81f3d0c73b1 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 36 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 482c5168f1694911b597c81f3d0c73b1 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 35 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 4981429746804c8a93732dfe32afb397 | objaverse | bunk_bed | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 49cdc200eaf640489b99ca818165427a | objaverse | books | no style both judges name: qwen ['modern minimal', 'minimal', 'industrial', 'neutral'], glm ['classic', 'rustic'] |
 | 4a0f306ba95144fda533b329818d0680 | objaverse | floor_lamp | not the furniture type (a judge): qwen False, glm False |
+| 4a5903968870448f8b02a0ed561c6038 | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 35 of 41 accepted ottoman models (keep 20) |
 | 4ae706aa53c043fa8261ebf40f580303 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 4d7702f7ff64425eba0a8588352d3709 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 4d9b418b79364283bacc3fc18c0f5f41 | objaverse | bunk_bed | not the furniture type (a judge): qwen False, glm False |
+| 4ec9181f5f274cacb2138714202020d1 | objaverse | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 27 accepted basket models (keep 20; its styles japandi, rustic, neutral had 5 each in the first pass) |
+| 4ee8be1342d34881a85ed85edf83c403 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 4fdd0158c80c4de2a1b1bd5e0c77543a | objaverse | desk | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 51d928b33e5549898cc86cbdaf966d83 | objaverse | bookshelf | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 24 accepted bookshelf models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| 5209b250a702487684bbf84df5112a90 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 531e32a371004849bd72a507aaf81643 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 536dbfc2fdbe4dec9203ab390b9a6eda | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 53ad8efeb5e9427a901fc669b440e3cf | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
@@ -1554,110 +2367,180 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 | 568f22034e364caca4e450a6d534dbd6 | objaverse | bed_double | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 57d2004875be4878b25493723cf45469 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 580ba3b412a24ee29c62a9ccf6bdc80c | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 58426b30f2d14588b4464d5e860b40bf | objaverse | books | not a single object (a judge): qwen False, glm False |
 | 5847113c458f4a2483aedd663376c7de | objaverse | table_dining | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 26 accepted table_dining models (keep 20; its styles minimal, modern had 5 each in the first pass) |
 | 592d31f4896948bb9ac5e53ac246d8c8 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 592e740e6310420e957657c16d830102 | objaverse | desk | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 26 accepted desk models (keep 20; its styles modern had 5 each in the first pass) |
 | 5a0ba464174e4dbe94aecfe1a036ca6a | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 5ab48fd4819745b596df3ea39908e2e7 | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 33 accepted table_coffee models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| 5d51a5e31ee84792a18046a2a8df8bdd | objaverse | clock | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 25 accepted clock models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 5dbfe3c5798445a5bdff4efca0b943a2 | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
+| 5df0e70cb0e1466399b459f5fd0f91ab | objaverse | sculpture | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 5e87752d56cd45bebaeac48ba934aaa4 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 5ec9697d85654005b27fd29bd6df987e | objaverse | sofa | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 5f235f066a9a416fb7177496a9117ec7 | objaverse | table_dining | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 26 accepted table_dining models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | 604886640ac948f1980d81bc4a3ed7cf | objaverse | bed_double | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
+| 60f449619c76404498cbfd9957034664 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 624c9f7dcb2f4acd93237591ef10c76a | objaverse | chair | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 63797942d2674b6da5c94ce19672e6b6 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 10 of 38 accepted chair models (keep 20; its styles classic had 5 each in the first pass) |
+| 63797942d2674b6da5c94ce19672e6b6 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 11 of 39 accepted chair models (keep 20; its styles classic had 5 each in the first pass) |
+| 640377294e99498a808612f3af43c694 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 653a622f383244ab9e7859f9aa2dcc8f | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry -Y |
+| 658ecf9f837246509b0b1c4aa81e9e5b | objaverse | candle | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 65a13a04056c4f51a9c324e2a975b9a5 | objaverse | bed_double | not the furniture type (a judge): qwen False, glm True |
 | 65e5c193702e4be9beb5ec783c422b5e | objaverse | chair | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 674b6c07743e4f569d4b745949d1a0f1 | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 2 |
+| 67895be55d9b47ecb2b6c532b1e03982 | objaverse | curtain | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 67b04f8e125e4ae4adacb3fc42d0016f | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 68ef91781477491e8a25dbe2c7877dbf | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 68f2b9fd83b349f9b285c360c447edbf | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 33 accepted table_coffee models (keep 20; its styles japandi, modern minimal, modern had 5 each in the first pass) |
+| 690711def6994d419a54a6371dc8dfe8 | objaverse | bunk_bed | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 69eb09a84dbf462b816482f7f3103b10 | objaverse | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 27 accepted basket models (keep 20; its styles scandinavian, neutral had 5 each in the first pass) |
+| 6a4765c336cd425aa33cc2d5fc2ef29c | objaverse | throw | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
 | 6c6a1f5757b34f7485133a91bb85cabe | objaverse | bathtub | not a single object (a judge): qwen False, glm True |
+| 6c9393683031449cb884445e6751095b | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 17 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| 6e4b8c413bd44fc4afeed9d2c7fba3f0 | objaverse | chaise | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
+| 6ede129be11e43cea5c279e34a7eddaa | objaverse | clock | not the decor type (a judge; a planter must hold a plant): qwen True, glm False |
+| 6ee419b81ac2499a93237f9094c3b874 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 6ef03a9e81e74b7ab8e98baf512e7e64 | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 3 |
 | 6f79223d321047059e1032c78b1b00a5 | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 33 accepted table_coffee models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | 6f7bb38a14544f65902b10ec921fe57e | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 36 accepted armchair models (keep 20; its styles classic had 5 each in the first pass) |
 | 70b7b418af714050aa83e99deb2253b7 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
+| 7153ad2bff714a17a17e10979718ab14 | objaverse | chaise | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 71af93b1d15f4f48ad836d36110626f7 | objaverse | bookshelf | no style both judges name: qwen ['modern minimal', 'minimal', 'japandi', 'scandinavian'], glm ['modern', 'neutral'] |
-| 736e3ea67480426da4013dbca5fb8d20 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 34 of 38 accepted sofa models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| 72e578e1a62749dd8861b45f3cf2265e | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen None, glm None |
+| 736e3ea67480426da4013dbca5fb8d20 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 37 accepted sofa models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 73bda35b6e7a499a80427fc1b049b192 | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
+| 742fbdd5bf314a488494a4afdba92b25 | objaverse | books | not a single object (a judge): qwen False, glm True |
+| 74fca33df78243a8b6e38fe788d54239 | objaverse | sculpture | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 752f4c1f4ea843bba5d29104f76d3f81 | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen None, glm None |
 | 757961eb75a64dc689f2047ae8cdbd3b | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 75aa9519195647d99cf1e2d4863dbe87 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.8648, '+x': 0.8528, '-y': 0.0033, '+y': 0.0} give 0 axes with one closed side) |
 | 75f663417e874f24b864348a5c9c3e68 | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen None, glm None |
+| 7688dcf5b87041a3bea09b0aead0f50e | objaverse | bench | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| 772b49c2554f41d78b4deb886b30159c | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 39 of 41 accepted ottoman models (keep 20) |
 | 774971f63ea54cdba8119439f4ff09c5 | objaverse | table_dining | photoreal quality below 4 (a judge): qwen 3, glm 5 |
 | 77c0313ad21144dcb904915d66a163b3 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
+| 7a98759bc6fa427d8d0d29f668f9eb1a | objaverse | curtain | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 7aa2f0637fde49fca76cd0651936dec4 | objaverse | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 7ad37a39f5534d57bfb68f34fe0fbd22 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 7b13b36ba2304912afc9840caea731c6 | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry undecided (back_taller: top centroid offset -0.006 of the extent on x is below 0.08: no taller side) |
+| 7c7a9affeebe43e0b6f32729c3c8d0d9 | objaverse | tray | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 7d5367e51dca4a50a101b1089149ccde | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | 7e7cc43a2fb84e44a03a67fecdd76ba8 | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry undecided (detail_side: only 2 vertices at the x sides) |
 | 7f92080d86484d81b8dd30317bb28586 | objaverse | desk | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 26 accepted desk models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 8002b22408aa4247ba8827cb6df9e52f | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
 | 800d3c5569b94abfa2da7976504d589d | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
+| 8040408b970745ea8cfe69a3154aaaa6 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 804fa46335874949938b6dfb55d17820 | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
-| 8096984ae8734db9bfa5dedf89c175a7 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 38 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
+| 8096984ae8734db9bfa5dedf89c175a7 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 37 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
+| 80c655fc179a4e068b03868fd4e2c708 | objaverse | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 27 accepted basket models (keep 20; its styles rustic had 5 each in the first pass) |
+| 811d4d00678349f4a4f330502e87b218 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 813f5aeef3f3430d947f3879c6941719 | objaverse | floor_lamp | no style both judges name: qwen ['classic'], glm ['neutral'] |
 | 815bd9cee3644f3f8996b4a6d123c7c3 | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 8170cf1409924abc9c3fc8becccdd36e | objaverse | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 33 accepted floor_lamp models (keep 20; its styles modern had 5 each in the first pass) |
 | 81ada0e24e1647d8a0d6d0708a696f84 | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 821c4d9f12294380a9b0757b4adbb379 | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 33 accepted table_coffee models (keep 20; its styles japandi, modern minimal, minimal, modern had 5 each in the first pass) |
+| 840ed19399d34d8099b1663796b3773b | objaverse | crib | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 84426d6537ac4cdc837d602ccabe7036 | objaverse | bench | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 84a620c30bbc4bee8ce36d342debbad4 | objaverse | candle | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 17 of 22 accepted candle models (keep 20; its styles classic had 5 each in the first pass) |
+| 8598aed982b843b9a0e5beeeaae9999c | objaverse | clock | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 862bbf4daf8847618df614bad248cd3d | objaverse | curtain | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 87eab647ca624962a7c178c0105643aa | objaverse | bookshelf | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 24 accepted bookshelf models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| 880b2c44718b4e9a89754200d58a92de | objaverse | candle | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 887092793d0b402e8571eda2d1a47cb4 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 8925787ea2a44f238f0c4ca745f2bcc9 | objaverse | clock | not the decor type (a judge; a planter must hold a plant): qwen True, glm False |
+| 8962eda79560473e90c067a7011c0ea5 | objaverse | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 33 accepted pendant_light models (keep 20; its styles modern had 5 each in the first pass) |
 | 8a22e1fd8600472597bfe478e7d0c9ba | objaverse | armchair | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry undecided (back_taller: offsets -0.181 (x) and -0.142 (y) do not single out one axis) |
 | 8a983b17bc484fedbc1ead6eb61b55b5 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 8ab0baf0f68f42788285e4f952c454ba | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 2 |
 | 8b099a2dfafc4436890eeaa7e928fd9b | objaverse | floor_lamp | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 8cd4ef86c0914b95a181473230c77eda | objaverse | stove | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
+| 8d23019e11a64894a8cdbb30e36bf1d6 | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 41 accepted ottoman models (keep 20; its styles minimal, modern had 5 each in the first pass) |
+| 8d379e0e7edf4b9b82258c024c634618 | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | 8d66a96bf8de4bb1b65c941b2bee65e4 | objaverse | fridge | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry -X |
 | 8e1fddb38fa8400c9fcc784abe29aaaa | objaverse | fridge | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | 8ebdabed48ed4963887435aa05f0b874 | objaverse | armchair | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 8fba1e7048c0421fb7e6b6e8be8fce88 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 90a0093f27f04ea19e33591f22910741 | objaverse | wardrobe | no style both judges name: qwen ['classic'], glm ['scandinavian', 'rustic', 'neutral'] |
 | 9155b2b4be5f452a98837459112a3b9b | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 9234d8196b73434684bcbb8092cc9e2a | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 38 accepted chair models (keep 20; its styles classic had 5 each in the first pass) |
+| 9234d8196b73434684bcbb8092cc9e2a | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 39 accepted chair models (keep 20; its styles classic had 5 each in the first pass) |
 | 93ce115ac08d4365bc9a8d9e386bd166 | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 326, '+x': 314, '-y': 84, '+y': 84} give no side with 1.3x more detail) |
 | 948411a1c6d0453e96faa3dfe32936a0 | objaverse | bathtub | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 94e8a30e011a49a7a13910139d8daf8f | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 3 |
 | 955cf512b86c4a799aa3ef391d670e55 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry undecided (detail_side: x ratio 1.47 and y ratio 1.43 do not single out one axis) |
 | 961af2daa6344e4fba0c7a4c92ff91f8 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry undecided (open_side: panel fractions {'-x': 0.0, '+x': 0.0, '-y': 0.8192, '+y': 0.8192} give 0 axes with one closed side) |
 | 978be96600a0434e853c938e93b9c893 | objaverse | armchair | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 9840188c3e214587b97b979a0c5b1263 | objaverse | ottoman | not the furniture type (a judge): qwen False, glm False |
 | 98b39c575de547a483f8fbaec2c0242f | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 9a2c5ed79d634a61b1166836a8a5530f | objaverse | sofa | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 9b1e09abe5e34d6397937ebf59901898 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
-| 9c242421a7c1447f941f72b57e7473e5 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 9b1e09abe5e34d6397937ebf59901898 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| 9c02ef66b6ad41889b324bba06805c93 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 9c242421a7c1447f941f72b57e7473e5 | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | 9c4935439367490b8039a3cad9c46243 | objaverse | sofa | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 9c55dcd4b76f42d8acbec2cbfa634c3c | objaverse | curtain | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 9cef8fd19dd84684b91830f35cc54d4f | objaverse | sofa_corner | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| 9e3637627a3f4d5eba590b5b918d0f78 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| 9ef388cd9cb947f48957a497e8b8184a | objaverse | bench | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry undecided (back_taller: top centroid offset -0.046 of the extent on x is below 0.08: no taller side) |
 | 9f067b405463412883cf2cb5a478079c | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| 9fb7c54715dd41b98b3dc67b367cf81d | objaverse | bunk_bed | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| a0befff564b54e0391fc210355580267 | objaverse | curtain | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | a0d66f10a850469c9cb04c3cecc62a05 | objaverse | sofa | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| a16da813df1e4eb2bd04ef8c179ebdaf | objaverse | bunk_bed | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| a285cd47bff94f0dbf726c33e3f44b70 | objaverse | tray | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| a2f2aef33fb942cc9d72d13df8a8b09f | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 41 accepted ottoman models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| a3b9b84dcd2f4051af25a3d87b71f7f1 | objaverse | basket | no style both judges name: qwen ['japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['mediterranean', 'rustic'] |
 | a4d6a4618f554e5986fd94e04720488c | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 35 of 36 accepted armchair models (keep 20; its styles classic had 5 each in the first pass) |
-| a51e4acfdbb349c7876d7c37d2a0ee87 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 38 accepted chair models (keep 20; its styles minimal, modern had 5 each in the first pass) |
+| a513fc821f764656b62f3bc20f0b7c6c | objaverse | bunk_bed | not the furniture type (a judge): qwen True, glm False |
+| a51e4acfdbb349c7876d7c37d2a0ee87 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 39 accepted chair models (keep 20; its styles minimal, modern had 5 each in the first pass) |
 | a59b3dc728ff45d48a053758a153249b | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | a5e397b1cdf3457a99573683198bdcea | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | a5eea808dc20404cb5f9e05680f7362f | objaverse | wardrobe | not the furniture type (a judge): qwen False, glm True |
 | a63717d314ea41fd865669f58db82fce | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (back_taller: offsets -0.194 (x) and +0.137 (y) do not single out one axis) |
+| a6da0dff0f9b4a5a8e821c40b370a98f | objaverse | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 34 accepted bench models (keep 20; its styles japandi, modern minimal had 5 each in the first pass) |
 | a755d424dd1d4a69a854ac02f7f86f83 | objaverse | armchair | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry undecided (back_taller: offsets +0.167 (x) and +0.126 (y) do not single out one axis) |
 | a82bff9b83be4072871d3e2afc6cec14 | objaverse | fridge | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +X |
+| a87ae6282dec4eddb89d7c5c76187ba7 | objaverse | books | photoreal quality below 4 (a judge): qwen 3, glm 1 |
+| a8805d4ce9aa4d239e5455243555f09c | objaverse | throw | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
+| a8a26f771d5845f092e71371a6e30566 | objaverse | bench | front not agreed (judges and geometry or the documented front): judges: qwen None, glm 0 |
 | a8d11ec939064c009b726de5dcedbda2 | objaverse | potted_plant | not the furniture type (a judge): qwen False, glm True |
 | a9917037f0c643dbbde0475b59bc53b1 | objaverse | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| aa35dacf5bc84b16b181f545d6dfe025 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | aa9a7f23471a4bb6b461d5240c2bf1a7 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.2845, '+x': 0.2274, '-y': 0.0427, '+y': 0.1454} give 0 axes with one closed side) |
 | ab89c948efab4b9eaf12d9f0e72acab7 | objaverse | toilet | not a single object (a judge): qwen False, glm True |
 | abbf0e6901484c05a68d2c6c485bdd9e | objaverse | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B00IIFW2L4 | abo | office_chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 25 accepted office_chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B00NUS53CY | abo | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B00NUS5GXA | abo | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B00TOAN83I | abo | mirror | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B0154WJZH2 | abo | sideboard | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B015IPNVFW | abo | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B016ID34BO | abo | office_chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 25 accepted office_chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B01D7P5NI8 | abo | office_chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 25 accepted office_chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B01LYBQXRH | abo | bookshelf | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B01M4OYBOI | abo | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 33 accepted table_coffee models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B01M642Q91 | abo | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B01NCOR0VZ | abo | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | abo_B07124WCZY | abo | armchair | no style both judges name: qwen ['modern', 'scandinavian', 'japandi', 'minimal'], glm ['classic', 'neutral'] |
+| abo_B07149T97D | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 33 accepted pendant_light models (keep 20; its styles modern, industrial had 5 each in the first pass) |
 | abo_B071DQRXDR | abo | mirror | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B071DZHLXH | abo | bookshelf | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B071F6WMP6 | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 33 accepted pendant_light models (keep 20; its styles industrial had 5 each in the first pass) |
+| abo_B071FMSMD4 | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
+| abo_B071FMSYNH | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B071H75K71 | abo | bed_single | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B071HSMDRP | abo | ceiling_light | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
 | abo_B071J7Q9X4 | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
-| abo_B072M1WJ8S | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B071S5RLR6 | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 33 accepted pendant_light models (keep 20; its styles modern, industrial had 5 each in the first pass) |
+| abo_B0723H8HJY | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
+| abo_B0725NGTKK | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 33 accepted pendant_light models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B0728NW8DV | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
+| abo_B072M1WJ8S | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B072ZK885L | abo | nightstand | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B0735CKFJK | abo | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B0735SLC3P | abo | rug | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 22 accepted rug models (keep 20; its styles modern minimal, minimal, neutral had 5 each in the first pass) |
 | abo_B07374C6R9 | abo | floor_lamp | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| abo_B073G6GTQP | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B073G947XM | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 34 accepted bench models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B073NZGLR7 | abo | wall_art | front not agreed (judges and geometry or the documented front): judges: view 2 (+Y); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B073NZT573 | abo | wall_art | photoreal quality below 4 (a judge): qwen 5, glm 3 |
 | abo_B073NZT5CF | abo | wall_art | no style both judges name: qwen ['modern minimal', 'minimal', 'japandi', 'scandinavian'], glm ['neutral'] |
@@ -1670,87 +2553,134 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 | abo_B0742D9X4R | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 16 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B0742DJS8J | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B075HR7KVR | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
+| abo_B075HR7LD2 | abo | candle | no style both judges name: qwen ['classic'], glm ['scandinavian', 'neutral'] |
 | abo_B075HR7LFF | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B075HR7LHQ | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B075HXHKZ4 | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B075HXMH4H | abo | wall_art | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B075QDGZX7 | abo | bed_double | no style both judges name: qwen ['classic'], glm ['modern', 'neutral'] |
+| abo_B075QDV39B | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 34 accepted bench models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B075QFCZ1Z | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | abo_B075X4HZV6 | abo | armchair | no style both judges name: qwen ['classic'], glm ['neutral'] |
+| abo_B075X4VW5G | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 8 of 41 accepted ottoman models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B075X5TMZ1 | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 16 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| abo_B075YQXQ5C | abo | sideboard | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B075Z6YRWQ | abo | tv_unit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 23 accepted tv_unit models (keep 20; its styles japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B075ZGY571 | abo | rug | no style both judges name: qwen ['modern', 'minimal', 'scandinavian', 'japandi', 'neutral'], glm ['classic', 'rustic'] |
 | abo_B0772KHYF7 | abo | mirror | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B077NZFT6C | abo | dresser | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B077PR596W | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B07847Y5BG | abo | shoe_cabinet | not the furniture type (a judge): qwen False, glm True |
 | abo_B078JG4N1G | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
 | abo_B078JGHZSZ | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
+| abo_B078JM9XSJ | abo | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 27 accepted basket models (keep 20; its styles scandinavian, japandi, neutral had 5 each in the first pass) |
 | abo_B078JMJC49 | abo | vase | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 24 accepted vase models (keep 20; its styles modern had 5 each in the first pass) |
 | abo_B079TXCC1J | abo | nightstand | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B079TYF1GK | abo | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B079X4Z6QX | abo | dresser | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07B4CZP32 | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 17 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
-| abo_B07B4DBBPG | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07B4D46YR | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
+| abo_B07B4D49HD | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| abo_B07B4DBBPG | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07B4GVNMV | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 13 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B07B4L9BQ3 | abo | ottoman | no style both judges name: qwen ['classic'], glm ['modern minimal', 'minimal', 'modern'] |
 | abo_B07B4SDWVF | abo | rug | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07B4SDZ7T | abo | rug | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 22 accepted rug models (keep 20; its styles modern minimal, minimal, neutral had 5 each in the first pass) |
+| abo_B07B4YR6KF | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 18 of 33 accepted pendant_light models (keep 20; its styles industrial had 5 each in the first pass) |
 | abo_B07B51946F | abo | table_lamp | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
+| abo_B07B7B75GF | abo | sideboard | not the furniture type (a judge): qwen False, glm True |
 | abo_B07B7GYMQ9 | abo | tv_unit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 23 accepted tv_unit models (keep 20; its styles modern minimal had 5 each in the first pass) |
 | abo_B07B7GZTNR | abo | bookshelf | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 24 accepted bookshelf models (keep 20; its styles modern minimal had 5 each in the first pass) |
 | abo_B07B82PXCW | abo | table_dining | not the furniture type (a judge): qwen False, glm True |
 | abo_B07B87J7L3 | abo | table_dining | not the furniture type (a judge): qwen False, glm True |
 | abo_B07B8MTV4L | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07B8P1JGF | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
+| abo_B07B8PXMTK | abo | sculpture | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07B8TGC99 | abo | clock | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 25 accepted clock models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07BMQXWX1 | abo | cushion | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 23 accepted cushion models (keep 20; its styles neutral had 5 each in the first pass) |
 | abo_B07BMTXJ1V | abo | cushion | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 23 accepted cushion models (keep 20; its styles neutral had 5 each in the first pass) |
 | abo_B07BMTXJ6B | abo | cushion | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['neutral'] |
 | abo_B07BMTXRR1 | abo | cushion | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 23 accepted cushion models (keep 20; its styles scandinavian, neutral had 5 each in the first pass) |
 | abo_B07BWMSM1J | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
-| abo_B07D4F6ZKH | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 38 accepted chair models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07C41C1C8 | abo | tall_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07CPQP34D | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 38 of 41 accepted ottoman models (keep 20) |
+| abo_B07D4F6ZKH | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 39 accepted chair models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07DB92J86 | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| abo_B07DBB76JV | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | abo_B07DBB7831 | abo | nightstand | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| abo_B07DBB7FN6 | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 34 accepted bench models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07DBB7FVP | abo | nightstand | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['classic', 'rustic'] |
 | abo_B07DBCN3KB | abo | floor_lamp | no style both judges name: qwen ['classic'], glm ['modern', 'industrial'] |
 | abo_B07DBDMN5F | abo | table_coffee | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B07DBDRMPB | abo | pendant_light | no style both judges name: qwen ['modern minimal', 'minimal', 'scandinavian', 'japandi'], glm ['modern', 'industrial'] |
+| abo_B07DBDSGD6 | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07DBDX1P2 | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07DBDZ4SG | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | abo_B07DBF3VJY | abo | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 3 |
-| abo_B07DBG898G | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07DBG898G | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07DBGHYG6 | abo | bench | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| abo_B07DBHC39X | abo | pendant_light | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
 | abo_B07DBHCKKS | abo | table_lamp | no style both judges name: qwen ['classic'], glm ['scandinavian', 'neutral'] |
+| abo_B07DBHFDQW | abo | console_table | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| abo_B07DBHFDSQ | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | abo_B07DBHM1SZ | abo | floor_lamp | no style both judges name: qwen ['classic'], glm ['modern', 'industrial'] |
+| abo_B07DBK7KF8 | abo | bar_stool | front not agreed (judges and geometry or the documented front): judges: view 2 (+Y); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
+| abo_B07DMB75TJ | abo | tall_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | abo_B07DMHTGJD | abo | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | abo_B07DTLKL7L | abo | table_lamp | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07DVVKD85 | abo | nightstand | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| abo_B07DYV7WN2 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 18 of 38 accepted chair models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07DWGTZXR | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07DYGBNC8 | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 13 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| abo_B07DYJF9BH | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 14 of 34 accepted bench models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B07DYV7WN2 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 39 accepted chair models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07F2X89KT | abo | bench | no style both judges name: qwen ['classic'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern'] |
+| abo_B07F3Y9BSC | abo | console_table | no style both judges name: qwen ['classic'], glm ['modern', 'minimal'] |
 | abo_B07F49VHB8 | abo | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 33 accepted table_coffee models (keep 20; its styles minimal, modern had 5 each in the first pass) |
 | abo_B07FK69CKR | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 15 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
 | abo_B07G527L5S | abo | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 33 accepted table_coffee models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07GFFPKFV | abo | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07GFL9TZX | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07GFLD22Q | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07GFRCLMN | abo | desk | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 26 accepted desk models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07GFSJ69T | abo | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07GFWW5JZ | abo | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07GG1Z4J3 | abo | tall_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07GG2X2MX | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07H2HGZLK | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 15 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | abo_B07H8SKPWP | abo | nightstand | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07H8SSJVW | abo | dresser | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07HK3F2GG | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07HKGHTGF | abo | table_lamp | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'neutral'] |
+| abo_B07HKGY6CG | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 33 accepted pendant_light models (keep 20; its styles industrial had 5 each in the first pass) |
 | abo_B07HSK9SVW | abo | mirror | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
 | abo_B07HSKBHBT | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07HSKY884 | abo | bookshelf | no style both judges name: qwen ['industrial'], glm ['modern minimal', 'minimal', 'modern'] |
 | abo_B07HSLG6WN | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
-| abo_B07HZ1M12W | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 15 of 38 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
-| abo_B07HZ6SC9H | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
-| abo_B07HZ6VT4D | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 16 of 38 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
-| abo_B07HZ6X7ZK | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 18 of 38 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07HSPJ11F | abo | candle | not a single object (a judge): qwen False, glm False |
+| abo_B07HZ1M12W | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 15 of 37 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07HZ6SC9H | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07HZ6VT4D | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 16 of 37 accepted sofa models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07HZ6X7ZK | abo | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 18 of 37 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
 | abo_B07J1YW3YT | abo | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 33 accepted table_coffee models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07JGMW8DG | abo | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07JGY5LML | abo | sideboard | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07JGY5LPJ | abo | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07JLBDT51 | abo | vase | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 24 accepted vase models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07JM1H7RS | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
+| abo_B07JM1K8VK | abo | candle | not a single object (a judge): qwen False, glm False |
 | abo_B07JWP2Y5K | abo | dresser | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07K6N3TNH | abo | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
-| abo_B07K7K8YF9 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 38 accepted chair models (keep 20; its styles minimal, modern had 5 each in the first pass) |
+| abo_B07K7K8YF9 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 39 accepted chair models (keep 20; its styles minimal, modern had 5 each in the first pass) |
 | abo_B07K7SJWCH | abo | table_dining | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 26 accepted table_dining models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07K8V2SX3 | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 36 accepted armchair models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
-| abo_B07M6PHS9P | abo | chair | no style both judges name: qwen ['classic'], glm ['scandinavian', 'modern', 'neutral'] |
+| abo_B07L8DQQ4Q | abo | bar_stool | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 22 accepted bar_stool models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B07M6PKM8K | abo | chair | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['classic', 'neutral'] |
-| abo_B07MBFCRD8 | abo | chair | no style both judges name: qwen ['classic'], glm ['scandinavian', 'modern', 'neutral'] |
-| abo_B07MBFDL34 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 38 accepted chair models (keep 20; its styles scandinavian, modern minimal, minimal had 5 each in the first pass) |
+| abo_B07MBFDL34 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 39 accepted chair models (keep 20; its styles scandinavian, modern minimal, minimal had 5 each in the first pass) |
+| abo_B07MBFDQLY | abo | bar_stool | not the furniture type (a judge): qwen False, glm False |
 | abo_B07MBFDWNM | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 18 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07MF1V33V | abo | table_dining | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 26 accepted table_dining models (keep 20; its styles scandinavian, minimal, modern had 5 each in the first pass) |
+| abo_B07MFYTSDF | abo | console_table | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| abo_B07MJL3LWD | abo | console_table | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07ML7PPZC | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07PNHSR4G | abo | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07PPNNCM2 | abo | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 3 |
@@ -1758,33 +2688,49 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 | abo_B07PYKLXGB | abo | dresser | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07PYT7NZ9 | abo | desk | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 26 accepted desk models (keep 20; its styles modern minimal had 5 each in the first pass) |
 | abo_B07Q44L76B | abo | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
+| abo_B07QB6C9R8 | abo | console_table | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07QB8L7YC | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07QC84LTR | abo | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07QCMB481 | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | abo_B07QD6ZDDH | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07QD6ZV9Q | abo | vase | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 24 accepted vase models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
 | abo_B07QFB4LWJ | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07QFB5H65 | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
+| abo_B07QFP4ZHX | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 41 accepted ottoman models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| abo_B07QFP5W3W | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B07QGFYLLM | abo | side_table | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 23 accepted side_table models (keep 20; its styles japandi, modern minimal, minimal, industrial had 5 each in the first pass) |
 | abo_B07QGG6C74 | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07QHKQMYL | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07QHL2D4B | abo | vase | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 24 accepted vase models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B07QJJXBV8 | abo | console_table | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07QJYGDZ9 | abo | sofa_corner | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B07QM1WB1J | abo | bed_single | not the furniture type (a judge): qwen False, glm False |
 | abo_B07QTB45S5 | abo | bookshelf | photoreal quality below 4 (a judge): qwen 4, glm 3 |
-| abo_B07QTD914H | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 38 accepted chair models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B07QTD914H | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 28 of 39 accepted chair models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B07QTKCKVB | abo | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07R6TND49 | abo | bed_single | front not agreed (judges and geometry or the documented front): judges: view 2 (+Y); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B07R7XFD22 | abo | bed_double | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07R8WD99Z | abo | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 33 accepted table_coffee models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| abo_B07RGR6XYT | abo | bunk_bed | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B07RMYJWLS | abo | tall_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07RMZ8B11 | abo | tv_unit | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B07RR3RFHT | abo | tall_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07RVBMJB8 | abo | side_table | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 23 accepted side_table models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
-| abo_B07TF9MY62 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 38 accepted chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07S24LYCY | abo | tall_cabinet | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
+| abo_B07S74K5Y9 | abo | tall_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B07TF9MY62 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 21 of 39 accepted chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07TFFF6V4 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 39 accepted chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B07TYYNGQ1 | abo | shoe_cabinet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | abo_B07ZVLRCSG | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07ZVM6QMT | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B07ZVMQ9B9 | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B0824DVF9J | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 15 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B0824F3KWB | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 33 accepted floor_lamp models (keep 20; its styles minimal, modern had 5 each in the first pass) |
 | abo_B0824F7ZLF | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 13 of 33 accepted floor_lamp models (keep 20; its styles minimal, modern had 5 each in the first pass) |
+| abo_B0825CLV7M | abo | pendant_light | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 33 accepted pendant_light models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B0825D7RYW | abo | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 33 accepted floor_lamp models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B0828FB1G7 | abo | ceiling_light | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
+| abo_B082QCQ71Q | abo | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 32 of 41 accepted ottoman models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | abo_B082VSLQBK | abo | side_table | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 23 of 23 accepted side_table models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B082VSXML3 | abo | table_dining | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B082VT4GGJ | abo | side_table | photoreal quality below 4 (a judge): qwen 4, glm 3 |
@@ -1793,84 +2739,141 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 | abo_B083YFPZ7X | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B083YFS2FR | abo | plant | not the decor type (a judge; a planter must hold a plant): qwen False, glm False |
 | abo_B084DQ4YVX | abo | mirror | no style both judges name: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['classic', 'rustic'] |
+| abo_B084HV13QR | abo | basket | not a single object (a judge): qwen False, glm True |
 | abo_B084HV6KDL | abo | mirror | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B084HV7BDJ | abo | basket | not a single object (a judge): qwen False, glm True |
+| abo_B084HV7MCW | abo | basket | not a single object (a judge): qwen False, glm True |
 | abo_B084KD18YS | abo | mirror | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['classic', 'neutral'] |
+| abo_B084MM451K | abo | console_table | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| abo_B084MMLP68 | abo | console_table | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B084QWW4LR | abo | tv_unit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 23 accepted tv_unit models (keep 20; its styles japandi, modern minimal, modern had 5 each in the first pass) |
-| abo_B084T7MQB4 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 38 accepted chair models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
-| abo_B084W2DDSG | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 38 accepted chair models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B084S6TSK7 | abo | console_table | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B084T7LRRQ | abo | office_chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 25 accepted office_chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
+| abo_B084T7MQB4 | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 39 accepted chair models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
+| abo_B084W2DDSG | abo | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 20 of 39 accepted chair models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B084ZB8Z79 | abo | bed_double | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B0853Q3Z93 | abo | table_dining | not the furniture type (a judge): qwen False, glm True |
+| abo_B08555TMQ8 | abo | bar_stool | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 22 accepted bar_stool models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | abo_B085FGSHQH | abo | armchair | no style both judges name: qwen ['classic'], glm ['neutral'] |
 | abo_B086VLRYXS | abo | bed_single | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B086VNNCMZ | abo | bed_double | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| abo_B0871DCPSZ | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 11 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| abo_B0871DD1NM | abo | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 12 of 34 accepted bench models (keep 20; its styles modern minimal, minimal had 5 each in the first pass) |
+| ac1064a1eb1d4af5bd1efb158b7d1f88 | objaverse | throw | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| ac2b50d2542c4f458b4ea404b8ed5e4b | objaverse | tray | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | adf60e42de904d3abb1d45d3ae2c20ec | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (back_taller: offsets -0.148 (x) and +0.137 (y) do not single out one axis) |
 | aedb9509ef9347a5b055e02deeadeff7 | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 36 accepted armchair models (keep 20; its styles classic had 5 each in the first pass) |
 | b0c0c9c65d06443c87391134a62e2287 | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 30 of 33 accepted table_coffee models (keep 20; its styles japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | b10785bcfc6e46a080614293c3ff6e1c | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
-| b1155b5ebd7c478bb0d35747c2211e5f | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 38 accepted sofa models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| b1155b5ebd7c478bb0d35747c2211e5f | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 32 of 37 accepted sofa models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| b221ad482e084c449408c229cab380d6 | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
 | b2fefa6f7af04c18966655d68a458974 | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 36 of 36 accepted armchair models (keep 20; its styles classic had 5 each in the first pass) |
+| b4f1456bb3be4a02a78046e218fdac2a | objaverse | bench | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 2 |
+| b554058d4f4246e6ad237e9326532f2c | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| b65f907196434f32b69df6c9359896e8 | objaverse | bar_stool | front not agreed (judges and geometry or the documented front): judges: qwen None, glm None |
 | b7f753028d354b419de1dcd966ab9f60 | objaverse | table_dining | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | b8792d1b3acf4081b0f173497d19d08b | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.0104, '+x': 0.0218, '-y': 0.0002, '+y': 0.0238} give 0 axes with one closed side) |
-| b8c382798cdf473b86ed497a34770b35 | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 34 of 38 accepted chair models (keep 20) |
+| b8c382798cdf473b86ed497a34770b35 | objaverse | office_chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 25 accepted office_chair models (keep 20; its styles modern minimal, modern had 5 each in the first pass) |
 | b930438e1f804c409fd9c3f5e4b01628 | objaverse | desk | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 24 of 26 accepted desk models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | baded4f3a22e4d6e9472e925e6f1fc12 | objaverse | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| baf3242c524f4e4483d7f6df5f0d9848 | objaverse | tray | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| bb16c9c43e68450da0dca5f5a9350ceb | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | bcab82613d3844aaba5d7049cedc5104 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | bcfae6acaa254778921933e9ca0f52b9 | objaverse | table_dining | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 26 accepted table_dining models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
 | bd384d46514548cf8c4202f1ae6ea551 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | be0c2264afaa496f9d2c4f09c528f14f | objaverse | table_dining | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 26 accepted table_dining models (keep 20; its styles scandinavian, japandi, modern minimal, minimal, modern had 5 each in the first pass) |
 | be45901e180640f6881fdcf189994873 | objaverse | bathtub | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| bf18bfd89efd43389781050230467d58 | objaverse | pendant_light | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| c03d8b43ea2a455eb9f101eef1f0d95f | objaverse | clock | not the decor type (a judge; a planter must hold a plant): qwen True, glm False |
+| c061a0712df3403294d412dbee770ce1 | objaverse | bunk_bed | not the furniture type (a judge): qwen False, glm False |
 | c11f517d18d4494c8907c5a8f78f45a7 | objaverse | sofa | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | c1338e44401949c1be64e6668d38c100 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| c188489f4a3b4148b399239f94b1ee42 | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 37 of 41 accepted ottoman models (keep 20) |
 | c1cbd15423b74c1a84517e6bc331d15f | objaverse | armchair | no style both judges name: qwen ['modern', 'minimal', 'scandinavian', 'japandi'], glm ['neutral'] |
 | c42d069236174467a2fb536f7d42d7f0 | objaverse | table_coffee | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 33 accepted table_coffee models (keep 20; its styles japandi, modern minimal, minimal, modern had 5 each in the first pass) |
+| c4469abf45a247e98632f17fd2a2ab07 | objaverse | chaise | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | c46c5299740346a2b0a3c778cdcc140e | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | c4a92f9eafa64e03b8fe6e1c4ce462ab | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | c5da9821e5684103bf0e6897c5c69b1e | objaverse | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | c603a9922c6a4e77ab2306590f536ad6 | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 36 accepted armchair models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
+| c61227cac7224b86b43c53ac2a2b6ec7 | objaverse | books | no style both judges name: qwen [], glm ['modern', 'minimal'] |
 | c626625486104768a6cab5eb4ecf9cf3 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | c66f09a20a9146ab9b004685a5a93787 | objaverse | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | c67f61fa444044bcb88ec3e28f0ca7ac | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | c6a248430aff4543aaa0e87b968c617a | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | c7d79c5a304a476d87c8014a2f6565cf | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +X |
 | c83fd12998524dcab47e8127bb22dc00 | objaverse | stove | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
+| ca86dbfc734a49cd9c26c71c96961f99 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| caf84f961fab412e8260be1d20734b8b | objaverse | curtain | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| cc16f75c4db54dfc8521735043534141 | objaverse | candle | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'neutral'] |
 | ce421f10e46d415198d5d19c5bd265f2 | objaverse | bookshelf | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | d0f8edca337b43338674ca392f36c4df | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | d16f72508d29424d972da569a9551d11 | objaverse | fridge | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry -X |
 | d1d7750af5144d1bb7d9fcc66b137c4c | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | d26b667147a34c90b70fbeee399499fb | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 3974, '+x': 4010, '-y': 2480, '+y': 2117} give no side with 1.3x more detail) |
 | d367f2a1e96644c7afd46fdd47659a69 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 851, '+x': 848, '-y': 95, '+y': 111} give no side with 1.3x more detail) |
-| d584a1c6840949a8bad9d55e527e219b | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 38 of 38 accepted chair models (keep 20) |
+| d48c77d41a5045bfa8ba4e7edcb3128b | objaverse | candle | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 22 accepted candle models (keep 20; its styles neutral had 5 each in the first pass) |
+| d584a1c6840949a8bad9d55e527e219b | objaverse | chair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 39 of 39 accepted chair models (keep 20) |
+| d58eea1a6ee746d29fd18f2d9e1a559d | objaverse | throw | not the decor type (a judge; a planter must hold a plant): qwen False, glm True |
+| d5f09b60f26f4d4680a001d0f8d73f06 | objaverse | bunk_bed | not the furniture type (a judge): qwen False, glm True |
 | d601c2907f114376bf9826272d686e81 | objaverse | chair | front not agreed (judges and geometry or the documented front): judges: view 2 (+Y); geometry undecided (back_taller: offsets -0.167 (x) and -0.296 (y) do not single out one axis) |
+| d7e9ba33da2b4a1c88b0100793f36e88 | objaverse | bunk_bed | not the furniture type (a judge): qwen False, glm True |
 | d7fcaa3e8c844418a38b721c325bb2af | objaverse | bed_single | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| d82a2ceda86640d79592ea5ca5544cbf | objaverse | sculpture | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| d8636156b5f34f3fa5c3ca83d6841cbf | objaverse | sculpture | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| d8bc73eb1ead46fb8594b8caf926bda7 | objaverse | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 33 of 34 accepted bench models (keep 20; its styles modern had 5 each in the first pass) |
 | db46661c8a714905853e38ca88e0e971 | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | db56721845f441d9841c82b31cfb71f8 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | dc16ef2fe078419fa8eae914c06d2080 | objaverse | potted_plant | not the furniture type (a judge): qwen False, glm True |
+| dc3e3ae3adcc476895765bec1352392b | objaverse | ottoman | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 34 of 41 accepted ottoman models (keep 20) |
 | dcd691724f6b4d29a6d16def24d14e6e | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | dda2613eb5c04527a325a3b0bce9f79c | objaverse | bed_single | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry undecided (back_taller: top centroid offset -0.006 of the extent on y is below 0.08: no taller side) |
+| deaec3c63ac64e0ba43f24b57767fd10 | objaverse | blind | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | dfb7c3b51e264b5083dc28450e55c2a0 | objaverse | chair | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 3 |
 | dfea434382554526b04635013a59f13e | objaverse | washbasin | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | e1ebf58bb90d4ea6b2a9643bfef9ecf8 | objaverse | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 29 of 33 accepted floor_lamp models (keep 20; its styles classic had 5 each in the first pass) |
+| e23d79c1014a431bb913d15fc395b4f0 | objaverse | bench | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 34 accepted bench models (keep 20; its styles modern minimal, minimal, modern had 5 each in the first pass) |
 | e49d29f9a6f94a8cb62ca0a8e1cc1bfe | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (back_taller: offsets +0.155 (x) and +0.301 (y) do not single out one axis) |
 | e4a1aafed0ec43a79c20f91dfcfe5670 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| e6a846a1ab9149d3a0614c7b82bcc8eb | objaverse | sculpture | no style both judges name: qwen ['japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['classic', 'mediterranean'] |
+| e6c321d47483484d9828d8ce058cdae1 | objaverse | bench | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry undecided (back_taller: top centroid offset -0.052 of the extent on x is below 0.08: no taller side) |
+| e81c12b73b44472cbcc262069c03fc45 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| e8c6dbdec8cf4b71bd72da63e27ee104 | objaverse | throw | not the decor type (a judge; a planter must hold a plant): qwen True, glm False |
+| e8eebcc02ba84bfeb52a78ce6c69dd7b | objaverse | throw | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| e8f001c6463d449481252993c6414731 | objaverse | chaise | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | e9edbd0c027c4f648e1405df96670cc1 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | e9f40d803a874e84931192f09dedd58b | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry +Y |
 | ea1ea4d5847b4550bc58ef4107df6f94 | objaverse | fridge | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
+| ea56d5c5e9d64eef971c264398350b85 | objaverse | tray | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | ea5d7b8656c74af3843a5fcb34c30d21 | objaverse | bed_double | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | eadfe8fe43124205b2551635252f9e8c | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | eb8faa54b7684e18abe6af39e1526b7b | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | ebe62ed6dd9b446a9c9b7d7d6a8086e7 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | ebed0a3af94242a6be6bf0f8ed6cd49d | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 32 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
 | ed62e8ab9bd241038609d48a26388b16 | objaverse | desk | not a single object (a judge): qwen False, glm True |
-| ef3832963ab24d129ec88fd4cac4818f | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 27 of 38 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
+| eed294ff80bf46b1bfb3a2dbbb69428c | objaverse | throw | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| ef3832963ab24d129ec88fd4cac4818f | objaverse | sofa | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 37 accepted sofa models (keep 20; its styles modern had 5 each in the first pass) |
+| ef8e6a7a1adc4f659ffdd20495b72056 | objaverse | clock | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 25 of 25 accepted clock models (keep 20; its styles classic had 5 each in the first pass) |
 | f04d12dd1e5444109f860c78679fafc0 | objaverse | armchair | no style both judges name: qwen ['classic'], glm ['neutral'] |
 | f05a25da4b2c4e8d889db888cd3b2efe | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 2 |
 | f0ff385edd4f4a9ebac56d755c2f6634 | objaverse | sofa | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | f1b05ddf1b634481903e353d41b6a654 | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry -X |
+| f299834a8803461e8a81785c32b4b3e9 | objaverse | basket | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 26 of 27 accepted basket models (keep 20; its styles japandi, neutral had 5 each in the first pass) |
 | f2b3a71f48d040069fb144f76a1180d9 | objaverse | bed_double | not the furniture type (a judge): qwen False, glm True |
+| f342f50a8eda4e6fafcdb4f057be5792 | objaverse | bunk_bed | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| f349f85cc4624ac1ac1b97062cf6bf77 | objaverse | bar_stool | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | f4a50b61cf154b01a184c117a27ec348 | objaverse | floor_lamp | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 33 accepted floor_lamp models (keep 20; its styles classic had 5 each in the first pass) |
+| f53f358e46ae4768a97a3ee772dcc314 | objaverse | chaise | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | f57bb579c5da4b9c95f1cb874ec558f7 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| f69d75ec88ec46888619dd48087d89a2 | objaverse | sculpture | no style both judges name: qwen ['modern minimal', 'minimal', 'modern', 'industrial', 'neutral'], glm ['classic', 'rustic'] |
+| f73b3bbd8f3047a2a91bf0453e3e7d5f | objaverse | clock | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['classic', 'neutral'] |
 | f7f99449b896488fa6d468e70518b21d | objaverse | armchair | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 31 of 36 accepted armchair models (keep 20; its styles modern had 5 each in the first pass) |
 | f83cfd9e3edf4b4abab5ca14b0b28ec5 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| f8988e84a9a34aab9648dbd639f52e72 | objaverse | pendant_light | no style both judges name: qwen ['classic'], glm ['modern', 'neutral'] |
+| f9c0755c8c9448f3a643f0e452c6a996 | objaverse | sculpture | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| fa0021e12f9f4ec1971345c7c9434685 | objaverse | clock | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
+| fca10e4c57f543fe8a5153551b551c7f | objaverse | books | no style both judges name: qwen ['modern minimal', 'minimal', 'modern', 'japandi', 'scandinavian'], glm ['rustic', 'neutral'] |
+| fcd28dd81075447480fa9c67c351bd3c | objaverse | bar_stool | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | fd612e2ea8e94d80ac3b8097eb2e5bbe | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
 | fe4339a62a544ec081d23f85e1a8c7f7 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | fe63d70a5f5145788cb9b1e3c47ac3c2 | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
