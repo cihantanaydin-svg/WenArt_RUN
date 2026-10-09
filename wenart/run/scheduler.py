@@ -2160,6 +2160,10 @@ class Orchestrator:
             reruns = ((read_json(src) or {}).get("agent_overrides") or {}).get("reruns") or {}
             if (reruns.get("polish") or {}).get("enabled") is False:
                 return False
+        # M11 pod G2: a whole orchestrated real02 run left no time for agent rounds with the gate and polish (35 min);
+        # WENART_POLISH=off (the job's RUN_POLISH=off) turns the polish off for every project of a run.
+        if os.environ.get("WENART_POLISH", "").strip().lower() == "off":
+            return False
         from wenart.brief import load_brief, value
         try:
             return bool(value(load_brief(pr.ref.project_dir), "polish", True))

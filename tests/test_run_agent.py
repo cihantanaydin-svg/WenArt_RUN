@@ -269,3 +269,15 @@ def test_the_orchestrator_files_are_copied_for_public_projects_only(tmp_path):
     private = {p.relative_to(tmp_path / "pr").as_posix() for p in (tmp_path / "pr").rglob("*") if p.is_file()}
     assert not any("agent" in p or "orchestrator" in p for p in private), private
     assert S.est_final(10, 4) > S.est_final(10, 4, polish=False) > S.est_previews(10)
+
+
+def test_run_polish_off_and_the_calibrated_final_estimate(monkeypatch, tmp_path):
+    """Pod G2 (real02): the final stages took about twice their estimate and left no time for agent rounds; the job
+    can turn the polish off (RUN_POLISH=off -> WENART_POLISH=off)."""
+    from wenart.run import stages as S
+
+    assert S.EST_FINAL_FACTOR == 2.2
+    base = S.est_final(10, polish=False) / S.EST_FINAL_FACTOR
+    assert S.est_final(10, polish=True) > S.est_final(10, polish=False) > base
+    text = (Path(__file__).resolve().parents[1] / "scripts" / "jobs" / "full.sh").read_text()
+    assert 'if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi' in text

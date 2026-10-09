@@ -664,3 +664,23 @@ R3 findings (doors swinging into drawn pieces) and vision F9 findings. Causes an
   critical finding (test `test_a_door_blocked_on_one_hinge_side_only_is_minor`).
 - The test re-renders nothing, so its vision critic judged the stale previews again; it now asserts on the code
   findings only (the full runs re-render).
+
+### 19.2 Pod G2 – real02 orchestrated (9 Oct 2026, `btnscgoqhc2una`, RTX PRO 6000 Server, 105 min, $4.34)
+
+The whole chain ran (base + Açık mutfak variant, 47 + 6 views; polish on). Seen in the images (`runs/`, committed
+with G2b): no stripes, light tiles, kitchens with counter runs, upper cabinets and splashbacks, beds and wardrobes
+with their backs on walls, an exterior on a plot with a closed hip-topped mansard, hedges, trees and a physical sky.
+Still wrong: grey boxes of untyped pieces (salon, kitchen, play room), an attic bathroom view of mostly ceiling,
+corridor views of console tops.
+
+The agent did little, for four reasons, all fixed before G2b:
+
+| # | What happened | Cause | Fix |
+|---|---|---|---|
+| 1 | 1 round: 8 tool calls, all in one room (r_L-1_salon), then `finish` | one planner session for 252 findings | one planner session per room (worst room first), ≤ 12 calls per room, ≤ 120 per round (`loop.plan`) |
+| 2 | the one accepted edit (a floor lamp 0.3 m off a window) was refused by the refit and the round rolled back; the loop stopped | `locked._agent_problems` treated every `UNCHANGEABLE_TYPES` piece (floor lamps too) as fixed equipment; `edit_ops` uses `FIXED_TYPES` | the lock check uses `FIXED_TYPES`; other unchangeable types keep their type but move ≤ 0.3 m (test) |
+| 3 | the final stages took ≈ 60 min (build 7, render 9, controls 3.5, gate 16, polish 19 min) and the final check found no time (`expected` timed out) | `est_final` gave ≈ 27 min on this GPU | `EST_FINAL_FACTOR = 2.2` (measured); `RUN_POLISH=off` turns gate + polish off for a run |
+| 4 | 7 of 8 edits were rejected | drawn-piece lock (≤ 0.3 m), score drops, overlaps: the validator worked as designed | – |
+
+Also seen: the recognition passes exited 2 with 2 answers stale (two crops changed between the first pipeline run
+and `pipeline_final`); those 2 pieces stay untyped (open item).

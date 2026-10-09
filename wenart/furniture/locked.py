@@ -202,7 +202,12 @@ def _agent_problems(src: dict, fin: dict, keep: bool) -> list[str]:
         out.append(f"{pid}: drawn_front_deg {fin.get('drawn_front_deg')} != the drawn front {src.get('front_deg')}")
     elif not _front_ok(src.get("front_deg"), fin.get("front_deg")) and "drawn_front_deg" not in fin:
         out.append(f"{pid}: front changed without drawn_front_deg")
-    fixed = src["type"] in schemas.UNCHANGEABLE_TYPES or src.get("build") is False
+    # Pod G2 (real02): the fixed equipment of CLAUDE.md is schemas.FIXED_TYPES, as in edit_ops; the other
+    # UNCHANGEABLE_TYPES (documented-only and rule-only types, e.g. a floor lamp) keep their type but move like
+    # other drawn furniture (the refit refused a validated 0.3 m floor lamp move and rolled the round back).
+    fixed = src["type"] in schemas.FIXED_TYPES or src.get("build") is False
+    if src["type"] in schemas.UNCHANGEABLE_TYPES and not fixed and src["type"] != fin["type"] and not keep:
+        out.append(f"{pid}: {src['type']} changed its type (no room type lists a type to change it into)")
     if fixed or keep:
         if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown"):
             out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} changed its type")

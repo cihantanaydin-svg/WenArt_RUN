@@ -227,3 +227,28 @@ def test_the_refit_locked_check_accepts_every_validated_edit_of_drawn_pieces():
     far = copy.deepcopy(b)
     next(f for f in far["furniture"] if f["id"] == "f_L0_002")["footprint"]["center"] = [3.0, 2.0]
     assert any("moved" in v for v in LK.check(source, far, "complete"))
+
+
+def test_refit_accepts_a_validated_move_of_a_documented_only_piece():
+    """Pod G2 (real02): the agent moved a drawn floor lamp 0.3 m away from a window (edit_ops accepted it), and the
+    refit's locked check refused it as "fixed equipment" (it used UNCHANGEABLE_TYPES), rolling the round back."""
+    import copy
+    from wenart.furniture import locked, schemas
+
+    assert "floor_lamp" in schemas.UNCHANGEABLE_TYPES and "floor_lamp" not in schemas.FIXED_TYPES
+    src = {"id": "f1", "type": "floor_lamp", "source": "from_documents", "level_id": "L0", "room_id": "r1",
+           "footprint": {"center": [1.28, 0.70], "size": [0.6, 0.6], "rotation_deg": 180.0}, "front_deg": 90.0}
+    fin = copy.deepcopy(src)
+    fin["footprint"]["center"] = [1.28, 0.99]
+    fin["drawn_footprint"] = copy.deepcopy(src["footprint"])
+    fin["adjusted_by_ai"] = {"reason": "away from the window", "round": 1, "log_seq": 1, "model": "m",
+                             "changed": {"footprint": src["footprint"]}}
+    assert locked._agent_problems(src, fin, keep=False) == []
+    retyped = dict(fin, type="side_table", drawn_type="floor_lamp")
+    assert any("changed its type" in p for p in locked._agent_problems(src, retyped, keep=False))
+    far = copy.deepcopy(fin)
+    far["footprint"]["center"] = [1.28, 1.40]
+    assert any("moved" in p for p in locked._agent_problems(src, far, keep=False))
+    stove = dict(copy.deepcopy(fin), type="stove")
+    stove_src = dict(src, type="stove")
+    assert any("fixed equipment moved" in p for p in locked._agent_problems(stove_src, stove, keep=False))

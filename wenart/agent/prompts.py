@@ -143,7 +143,10 @@ PLANNER_SYSTEM = (
     "5. Every edit needs a short reason. One change per call. Look before you change: use room, room_topdown, "
     "plan_crop or view first when you are not sure.\n"
     "6. At most 3 tries per finding. When a finding cannot be fixed, leave it open.\n"
-    "7. When you are done, call finish with the findings that are still open.")
+    "7. An unexplained drawn box (F9, type unknown) must not stay a box: look at its plan crop and change_type it to "
+    "the type its footprint, room and neighbours show, or remove it when it is clearly not furniture (a rug outline, "
+    "a label, a detail drawn inside another piece).\n"
+    "8. When you are done, call finish with the findings that are still open.")
 
 
 def planner_task(round_no: int, findings: list[dict], minor: list[dict], budget: int, critical_only: bool) -> str:
@@ -151,8 +154,10 @@ def planner_task(round_no: int, findings: list[dict], minor: list[dict], budget:
         return json.dumps({"id": f["id"], "check": f["check"], "severity": f["severity"], "target": f["target"],
                            "room_id": f.get("room_id"), "message": f["message"], "source": f["source"]},
                           ensure_ascii=False)
-    head = (f"Round {round_no}. Fix these {'critical' if critical_only else 'critical and major'} findings "
-            f"({len(findings)}); you have {budget} tool calls in this round.")
+    rooms = sorted({str(f.get("room_id")) for f in findings if f.get("room_id")})
+    where = f" in {rooms[0]}" if len(rooms) == 1 else ""
+    head = (f"Round {round_no}. Fix these {'critical' if critical_only else 'critical and major'} findings{where} "
+            f"({len(findings)}); you have {budget} tool calls for them.")
     lines = [head, "", *[line(f) for f in findings]]
     if minor and not critical_only:
         lines += ["", f"Minor findings (fix only when it is cheap and safe; {len(minor)}):",

@@ -44,7 +44,8 @@ from wenart.agent.model import MAX_IMAGES, ModelError, user_message
 
 STAGE_ORDER = ("pipeline_final", "layout", "refit", "build", "polish")
 MAX_ROUNDS = 4
-MAX_CALLS = 40
+MAX_CALLS = 120                 # per round (pod G2: one planner session for 252 findings fixed one room, then stopped)
+MAX_CALLS_PER_ROOM = 12         # M11 pod G2: one planner session per room (or the building), worst room first
 MAX_TRIES = 3
 MARGIN_S = 20 * 60.0                  # stop at least 20 min before the deadline (the user's rule, §8)
 STOPS = {
@@ -307,18 +308,53 @@ class AgentLoop:
 
     def plan(self, ctx: TL.ToolContext, round_no: int, findings: list[dict], minor: list[dict],
              critical_only: bool = False) -> dict:
-        """The planner's tool-calling loop of one round; ``{"calls", "schema_errors", "replies", "error"}``."""
+        """The planner of one round: one session per room (findings without a room: one "building" session), the
+        room with the most critical, then major findings first; each session gets at most ``MAX_CALLS_PER_ROOM``
+        tool calls, the round at most ``max_calls``, and no session starts after the time budget. (Pod G2, real02:
+        one session for 252 findings fixed one room and called finish.) ``{"calls", "schema_errors", "replies",
+        "error", "sessions"}``."""
+        groups: dict[str, list[dict]] = {}
+        for f in findings:
+            groups.setdefault(str(f.get("room_id") or "building"), []).append(f)
+        rank = {"critical": 0, "major": 1, "minor": 2}
+
+        def key(item):
+            room, fs = item
+            return (-sum(1 for f in fs if f["severity"] == "critical"), -len(fs), room)
+
+        total = {"calls": 0, "replies": 0, "error": None, "sessions": 0}
+        for room, fs in sorted(groups.items(), key=key):
+            budget = min(MAX_CALLS_PER_ROOM, self.max_calls - total["calls"])
+            if budget <= 0 or (total["sessions"] and not self.time_ok()):
+                break
+            room_minor = [m for m in minor if str(m.get("room_id") or "building") == room]
+            fs = sorted(fs, key=lambda f: rank.get(f["severity"], 3))
+            ctx.finished = None
+            res = self.plan_session(ctx, round_no, fs, room_minor, budget, critical_only, session=total["sessions"])
+            total["sessions"] += 1
+            total["calls"] += res["calls"]
+            total["replies"] += res["replies"]
+            if res["error"]:
+                total["error"] = res["error"]
+                if not ctx.accepted:
+                    break
+        ctx.finished = ctx.finished or {"open_findings": []}
+        return dict(total, schema_errors=ctx.schema_errors)
+
+    def plan_session(self, ctx: TL.ToolContext, round_no: int, findings: list[dict], minor: list[dict], budget: int,
+                     critical_only: bool = False, session: int = 0) -> dict:
+        """One planner conversation (one room); ``{"calls", "replies", "error"}``."""
         messages = [{"role": "system", "content": P.PLANNER_SYSTEM},
-                    {"role": "user", "content": P.planner_task(round_no, findings, minor, self.max_calls,
-                                                               critical_only)}]
+                    {"role": "user", "content": P.planner_task(round_no, findings, minor, budget, critical_only)}]
         specs = self.registry.specs()
         calls = replies = 0
         error = None
-        while calls < self.max_calls and ctx.finished is None:
+        tag = f"r{round_no}-s{session + 1}" if session else f"r{round_no}"
+        while calls < budget and ctx.finished is None:
             replies += 1
             prune_images(messages)
             try:
-                reply = self.model.chat(messages, specs, call_id=f"r{round_no}-p{replies}")
+                reply = self.model.chat(messages, specs, call_id=f"{tag}-p{replies}")
             except ModelError as exc:
                 error = str(exc)
                 break
@@ -326,9 +362,9 @@ class AgentLoop:
             if not reply.tool_calls:
                 break
             for i, tc in enumerate(reply.tool_calls):
-                call_id = f"r{round_no}-p{replies}-t{i + 1}"
-                if calls >= self.max_calls:
-                    result = {"error": f"the round's budget of {self.max_calls} tool calls is used up"}
+                call_id = f"{tag}-p{replies}-t{i + 1}"
+                if calls >= budget:
+                    result = {"error": f"the budget of {budget} tool calls for these findings is used up"}
                 else:
                     calls += 1
                     tool = self.registry.tools.get(tc.name)
@@ -344,7 +380,7 @@ class AgentLoop:
                 labels = [f"Image from a tool: {Path(p).name}" for p in shown]
                 messages.append(user_message("The images the tools returned, newest last.", shown, labels))
                 ctx.pending_images.clear()
-        return {"calls": calls, "schema_errors": ctx.schema_errors, "replies": replies, "error": error}
+        return {"calls": calls, "replies": replies, "error": error}
 
     # ----- one round ---------------------------------------------------------------------------------
 

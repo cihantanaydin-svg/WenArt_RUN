@@ -256,3 +256,19 @@ def test_the_log_schema_refuses_incomplete_entries(bad):
     data = {"schema_version": "0.1", "kind": "agent_log", "project": "p", "model": "m", "revision": "r",
             "events": [bad], "calls": []}
     assert LG.validate_log(data)
+
+
+def test_the_planner_works_room_by_room_worst_room_first(tmp_path):
+    """Pod G2 (real02): one planner session for 252 findings fixed one room and called finish. Now each room gets its
+    own session (the room with the most critical findings first), so a finish in one room does not end the round."""
+    major_r1 = violation("F4", "major", "f1", "r1", "the bed faces the wall")
+    crit_r2 = violation("F3", "critical", "f3", "r2", "the sofa stands in the middle")
+    chat = [rotate("f3", 90.0, "the sofa back on the wall"), FINISH, rotate("f1", 90.0), FINISH]
+    loop, out, model = make(tmp_path, chat, [[major_r1, crit_r2], []])
+    summary = loop.run()
+    assert summary["accepted"] == 2
+    edits = [e["target"] for e in log_of(out)["events"] if e["kind"] == "edit"]
+    assert edits == ["f3", "f1"]                                     # r2 (critical) first, then r1
+    first_tasks = [m["messages"][1]["content"] for m in model.requests if m.get("tools")
+                   and len(m["messages"]) == 2]
+    assert "in r2" in first_tasks[0] and "in r1" in first_tasks[1]
