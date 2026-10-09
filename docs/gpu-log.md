@@ -62,5 +62,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-09 10:47 | 3ywy7xcrpf1fn3 | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 85 | 3.66 | M10 F2: full runs of real01, synthetic-03 and synthetic-07 (no-regression check, completion of furnished rooms, synthetic-07 levels and variants), GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-09 14:23 | grh4sjjh2lggsq | NVIDIA RTX PRO 6000 Blackwell Server Edition | 37 | 1.53 | M10 F3: synthetic-07 again after the F2 fixes (attic wall, roof ridge line, top-floor stair), GPU tests | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-09 20:05 | 3n5gzxuuv9c8sc | NVIDIA RTX PRO 6000 Blackwell Server Edition | 22 | 0.91 | M11 pod G1: agent model check (Qwen3.8-27B-FP8, Qwen3.6-35B-A3B-FP8: speed, tool calls, JSON schema, VRAM next to Cycles, sleep/wake, planted-error critic, GPU tests) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-09 20:39 | pending:20261009-203910-full | RTX PRO 6000 | 115 | 4.77 | M11 pod G2: real02 orchestrated (agent Qwen3.8-27B-FP8: critics, validated edits, rounds; base + Açık mutfak variant), GPU tests | creating (provisional, worst case) |
 
-**Total spent so far: $66.59** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $71.36** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
