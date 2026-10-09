@@ -10,7 +10,8 @@ and area within 0.05 m²; openings: type, centre and width within 2 cm.
 Track A3 fixed the two gaps listed here before: the basement plan L-1 is built (a ray through a door or window gap of
 one wall band counts as a hit, so the Salon is closed in) and ``KAPI_SURME_90`` is a sliding door (a leaf as long as
 its gap, drawn half open). The elevation check leaves out the openings whose head is below the ground line (the
-elevations do not draw them; ``sheets/to_building.plan_check``)."""
+elevations do not draw them; ``sheets/to_building.plan_check``). Pod F2: the drawn furniture and the empty rooms match
+the truth (the attic plan's roof ridge is no furniture stroke)."""
 from __future__ import annotations
 
 import json
@@ -281,6 +282,19 @@ def test_all_four_plan_levels_build(built):
     variants = {v["id"]: v for v in building["variants"]}
     assert variants["l-1b-acik-mutfak"]["rooms_changed"] == ["r_L-1b_salon_acik_mutfak"]
     assert variants["l-1b-acik-mutfak"]["exterior_changed"] is False
+
+
+def test_drawn_furniture_and_empty_rooms_match_the_truth(built):
+    # Pod F2: the attic plan's dashed roof ridge (LINE:22F, 11 m, past both gable walls) chained the door leaf into an
+    # 11 x 0.8 m unknown piece, so the empty play room counted as furnished and got no empty-room layout.
+    building, _ = built
+    truth = _truth("building.json")
+    assert {r["id"]: r["has_documented_furniture"] for r in building["rooms"]} == \
+        {r["id"]: r["has_documented_furniture"] for r in truth["rooms"]}
+
+    def drawn(doc):
+        return sorted((f["room_id"], f["type"]) for f in doc["furniture"] if f["source"] == "from_documents")
+    assert drawn(building) == drawn(truth)
 
 
 def test_pipeline_roof_facade_and_site(built):

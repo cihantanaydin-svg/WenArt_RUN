@@ -11,7 +11,8 @@ Milestone 10 (real02): the Turkish and English block-name words of the new types
 first, KOLTUK resolved by size), L outlines as corner-sofa candidates (chaise side, depths, the open corner as the
 front), one named piece per block instance (a WC's flush plate joins it, a footstool or nightstands are asked),
 stairs drawn with nosing strips and no divider line, a room label over a piece that does not cut its outline, and an
-armchair with open arm lines that keeps its own piece inside a large cluster's box.
+armchair with open arm lines that keeps its own piece inside a large cluster's box. Pod F2 (synthetic-07): a long
+straight line across the building outline (the attic plan's roof ridge) is no furniture stroke.
 """
 import math
 
@@ -160,6 +161,29 @@ def test_details_and_oversize_clusters():
     pieces, cands, _ = _furn(speck + big, notes=notes)
     assert [p.details.get("oversize") for p in pieces] == [True]
     assert any("details smaller than" in n for n in notes)
+
+
+def test_a_long_line_across_the_building_outline_is_no_furniture_stroke():
+    """F2 (synthetic-07's attic): the roof plan's dashed ridge runs 11 m across the plan and out past both gable
+    walls, and the door leaf left over by the opening touches it. The ridge is no furniture stroke (else the two are
+    one 11 x 0.8 m 'unknown' piece and the empty room counts as furnished); the leaf alone is a line detail, and the
+    note names the ridge. A line as long that stays inside the outline is left to the usual oversize rule."""
+    ridge = R.stroke([(-0.5, 2.5), (6.5, 2.5)])                      # 7 m, past the outer walls at x 0 and x 6
+    leaf = R.stroke([(4.0, 2.5), (4.0, 3.3)])                        # 0.8 m door leaf touching it
+    notes = []
+    pieces, cands, decor = _furn([ridge, leaf], notes=notes)
+    assert pieces == [] and cands == [] and decor == []
+    want = (f"1 straight strokes longer than {SY.MAX_SIDE_M} m that cross the building outline are no furniture: "
+            f"{SY.id_ranges([ridge.id])}")
+    assert [n for n in notes if "cross the building outline" in n] == [want]
+    line_note = [n for n in notes if "line details" in n]
+    assert len(line_note) == 1 and line_note[0].endswith(SY.id_ranges([leaf.id]))
+    inner = R.stroke([(0.1, 2.5), (5.9, 2.5)])                       # 5.8 m from wall face to wall face
+    leaf2 = R.stroke([(4.0, 2.5), (4.0, 3.3)])
+    notes2 = []
+    pieces2, cands2, _ = _furn([inner, leaf2], notes=notes2)
+    assert [p.details.get("oversize") for p in pieces2] == [True] and not cands2
+    assert not [n for n in notes2 if "cross the building outline" in n]
 
 
 # --------------------------------------------------------------------------
