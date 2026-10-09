@@ -617,6 +617,7 @@ INFERRED = {
     "fence_spacing": 2.0, "gate_gap": 0.4,
     "tree_crown": 3.5, "tree_inset": 2.5, "tree_from_building": 3.5, "tree_from_path": 2.0, "tree_window_reach": 8.0,
     "tree_window_side": 2.0, "tree_spacing": 6.0, "tree_step": 1.0, "front_zone_extra": 2.0,
+    "tree_sightline": 1.0, "sightline_m": 40.0, "sightline_deg": 30.0,
 }
 
 
@@ -865,12 +866,27 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
             cands.append((round(p[0], 6), round(p[1], 6)))
     keep = []
     r = INFERRED["tree_crown"] / 2.0
+    # the lines of sight of the corner views (exterior.plan_exterior, E14): from every corner of the outline's
+    # rectangle, sightline_deg off each of its two facades
+    rect = geom2d.oriented_rectangle(outline)
+    sightlines = []
+    for c in geom2d.rectangle_corners(rect):
+        su = 1.0 if (c[0] - rect["center"][0]) * rect["u"][0] + (c[1] - rect["center"][1]) * rect["u"][1] > 0 else -1.0
+        sv = 1.0 if (c[0] - rect["center"][0]) * rect["v"][0] + (c[1] - rect["center"][1]) * rect["v"][1] > 0 else -1.0
+        n1 = (rect["u"][0] * su, rect["u"][1] * su)
+        n2 = (rect["v"][0] * sv, rect["v"][1] * sv)
+        ang = math.radians(INFERRED["sightline_deg"])
+        for a, b in ((n1, n2), (n2, n1)):
+            d = (math.cos(ang) * a[0] + math.sin(ang) * b[0], math.cos(ang) * a[1] + math.sin(ang) * b[1])
+            sightlines.append((tuple(c), (c[0] + d[0] * INFERRED["sightline_m"], c[1] + d[1] * INFERRED["sightline_m"])))
     for p in sorted(set(cands)):
         if G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < INFERRED["tree_from_building"]:
             continue
         if any(G.point_in_polygon(p, q["polygon"]) or geom2d.distance_to_polygon_edges(p, q["polygon"])
                < INFERRED["tree_from_path"] for q in paths):
             continue
+        if any(G.point_segment_distance(p, a, b) < r + INFERRED["tree_sightline"] for a, b in sightlines):
+            continue                                  # the corner views stay open (E14)
         blocked = False
         for w in windows:
             (cx, cy), (ox, oy) = w["centre"], w["outward"]

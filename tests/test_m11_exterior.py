@@ -288,6 +288,9 @@ def test_e11_inferred_site_of_real02(real02_prep):
                                real02_prep["ground_outline"], real02_prep["outlines"], kinds=("window",))
     front_y = max(q[1] for q in real02_prep["ground_outline"])
     assert 1 <= len(inf["trees"]) <= 3
+    # beside the side facades, off the 30 degree lines of sight of the corner views (the F1-like tree at the front
+    # corner hid half of ext_1 in the first CPU render)
+    assert sorted(round(t["center"][0], 1) for t in inf["trees"]) == [-3.6, 18.8]
     for t in inf["trees"]:
         x, y = t["center"]
         assert y < front_y - S.INFERRED["front_zone_extra"] + 1e-6 and t["inferred"]
