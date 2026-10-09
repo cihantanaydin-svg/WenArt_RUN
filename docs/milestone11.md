@@ -570,3 +570,68 @@ A track that needs a change in another track's files writes it down in its repor
 - The agent model (A, `check.yaml models.agent`): `Qwen/Qwen3.8-27B-FP8` @`017b9c7af6b5689d5dd426a76e0bc077eb5ca20a`;
   fallback `models.agent_fast`: `Qwen/Qwen3.6-35B-A3B-FP8` @`95a723d08a9490559dae23d0cff1d9466213d989`.
 
+
+## 18. As built (9 Oct 2026, steps 3–5)
+
+Three tracks built in parallel git worktrees and were merged into `opus_branch_05` (A `8a102c4`, B `60e8028`,
+C `232143a`, merge fixes `20b103c` and later). A container restart stopped all three mid-way; the worktrees
+survived and the tracks resumed.
+
+### 18.1 Track A – agent core (`wenart/agent/`)
+
+| Part | As built |
+|---|---|
+| Model client | `model.py`: planner calls with strict tools (`tool_choice: auto`), critic calls with a JSON-schema `response_format` and thinking off; temperature 0, seed 0, ≤ 4 images; `MockModel` replays scripts |
+| Tools | `tools.py`: 9 read tools, 10 furniture edits (`edit_ops.apply_edit`), camera / material / exterior edits (`exterior_checks` validators), `correct_geometry` (**record-only**: logged and reported, not applied, because applying needs `pipeline_final` and would drop the furniture rounds), `rerun_stage` (white list), `finish`; ≤ 3 edits per target per round |
+| Top-down images | `topdown.py` (matplotlib): fronts, ids, door swings, window bands, failed checks in red |
+| Overrides | `overrides.py`, `python -m wenart.agent apply`: replays accepted edits on `building_decor.json` → `building_agent.json` with `agent_overrides`; idempotent; edits that no longer pass are listed `not_replayed` |
+| Critics | `critic_code.py`, `critic_vision.py`, `prompts.py`; a vision finding is dropped (and logged) when its target id does not exist, its image does not exist, it repeats a code finding, or code contradicts it |
+| Loop | `loop.py` `AgentLoop`: §8 as specified; `layout` and `build` routes restart at `agent_apply` → refit → build (`relayout_room` runs inside `apply_edit`); a round whose edits the refit refuses is rolled back |
+| Log | `log.py`, `log.schema.json`: `orchestrator/log.json`, `log.md`, `images/` |
+| Run | orchestrated is the default of `python -m wenart.run pod`; `--no-orchestrator` and the smoke profile run the M10 chain unchanged; new stages `agent_apply`, `agent_previews`, `agent`; one agent server session; the server sleeps during gate/polish below 80 GB |
+| Model config | `check.yaml models.agent` / `agent_fast` (§11); per-model GPU share and image limit in `servers.py`; download with the pinned revision in the pod setup |
+| Report | "AI orchestrator" section (`wenart/report/agent.py`); before/after table hook `orchestrator/compare.json` |
+| Pod G1 | `scripts/jobs/agent_check.sh` + `wenart/agent/podcheck.py` |
+
+D8 as built: recognition and layout keep the Qwen3-VL-8B/GLM pair; the final check of an orchestrated run uses the
+agent model alone (one pass + the object-index code check).
+
+### 18.2 Track B – layout engine (`wenart/furniture/`, `wenart/ingest/`)
+
+| Part | As built |
+|---|---|
+| Plausibility | F1–F9, R1–R4, ≈ 10 ms per room; returns the score and an unfloored `penalty` (edits are judged on the penalty) |
+| Orientation rules | `schemas.ORIENTATION_RULES`; armchairs get a 0.45 m front clearance |
+| Groups, snapping | `groups.place_group` (5 groups), `placer.snap_to_wall` |
+| Edit ops | strict `EDIT_SCHEMAS` (reason required); labels per CLAUDE.md; the refit's locked check accepts `adjusted_by_ai` drawn pieces within the CLAUDE.md allowances |
+| Inference | `infer.py` + pipeline hook: size, room and neighbours → type (`inferred`), rug outlines and inner details not built |
+| Splitting at ingest | tables split from their chairs, kitchen runs into counters + appliances, no counter rule on block strokes, no chairs for an unverified table, missing twin pieces copied, stair-filled faces labelled "Merdiven" |
+| D4 | area label vs polygon minus the stair, 8 % |
+
+real02 re-ingest (CPU, committed answers): drawn pieces 154 → 210; built unknown pieces 56 → 38; built drawn
+pieces without a front 77 → 64; kitchen counters 2 (both in bedrooms) → 12 (all in kitchens); tables 2 unverified
+→ 4 + 36 chairs; twin pairs 16 → 19; unverified rooms 20 → 14; 20 inferred pieces; 4 questions without an answer
+(new candidates; asked again on the pod).
+
+Not done: bed + nightstand and desk + chair splitting (U15), the play room's round table + chairs (U9), three twin
+causes (M7), `relayout_room` is a placer repair, not a new design.
+
+### 18.3 Track C – exterior, rooms, cameras (`wenart/blender/`, `wenart/style/`, `wenart/sheets/`)
+
+| Part | As built |
+|---|---|
+| Exterior checks | `exterior_checks.py`: X1–X8, V1, V3, three strict override schemas and validators; on the committed F1b scene they find E3, E4, no frontal view, sun on the back facade, HDRI sky, blank facades, stripes, cameras in stairs |
+| Overrides in the build | `wenart/blender/overrides.py`: cameras, exterior, materials; without overrides the build plan is unchanged (test) |
+| D3 | `markers_in_final` (default false): no stripes in any render; `build.py --markers` for debug; `unverified_items` in the manifest |
+| D5 | `roof_terraces: auto` cuts real02's terraces (rooms with doors); the conflict with the section is listed |
+| D6 | `site_options.front_court` (the brief key `site` already means full/ground): real02 gets 3 inferred sunken courts |
+| Roof (E7), openings (E8) | lower slope to the plan's break line, then a hip top (section ridge kept); assumed opening heights clipped under the roof |
+| Site (E11, E12) | plot = outline + 6 m, paths, steps, hedge with gaps, trees clear of windows, paths and sightlines; matte ground |
+| Facade (E10) | `facade.py`: plinth, slab bands, coping, window surrounds by style |
+| Sky (E13) | exterior views under Blender 5.2's physical sky (`MULTIPLE_SCATTERING`), sun lamp matched; interiors keep the HDRI |
+| Cameras (E14, M4–M6) | corners 30° off the facade, 26 mm, building ≈ 70 % of the width, frontal entrance view, aerial kept; no view from inside a stair core; a fallback point gives one view; `edge_near` penalty; doors count only beyond the near distance |
+| Kitchens (M2) | style walls + 0.6 m splashback behind counter runs |
+| Bug found | step 0's `proxies.py` imported shapely, which Blender's Python lacks: every Blender build with an unknown piece would have crashed on the pod; now pure Python with a test |
+
+CPU test renders of real02 (untextured, 16 samples) show the hip-topped mansard, plinth and slab band, paths,
+hedges, trees, sunken courts and the physical sky.
