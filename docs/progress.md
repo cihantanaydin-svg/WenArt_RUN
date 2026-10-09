@@ -636,3 +636,60 @@ Open items (none blocks M9):
 - The other projects get the new library, AI decor and 3D files on their next full run.
 
 GPU cost so far: $33.04 of $100. No pod is running.
+
+## Milestone 10 – whole building from the sheets, AI completion of furnished rooms, a larger library (done, 9 Oct 2026)
+
+Spec and details: `docs/milestone10.md` (§10 "As built": tracks, decisions, code review, pods, GPU test failures,
+acceptance). Ten tracks built it in parallel; a review workflow (58 agents) found 47 confirmed issues, all fixed.
+
+**Feature 2, the whole building.** A new `sheets` stage splits a CAD sheet into its drawings (plans, alternative
+plans, sections, title blocks), reads titles, levels, variants and units, registers the plans and takes the heights
+from the section. The build stacks the levels on slabs, connects the stairs, puts the attic under its roof (gable or
+mansard from the section), adds the facade and the site, and renders 5 or more exterior views per variant. A
+design alternative (real02's basement "Açık mutfak") runs as its own sub-output with only its changed rooms.
+
+**Feature 1, AI completion.** In rooms with drawn furniture the AI adds the pieces the room type misses (both
+passes must agree; the placer checks every piece); drawn pieces keep their place and front.
+
+**Feature 3, the library and the looks.** 53 named colours, 25 wall finishes, 32 floors, kitchen fronts, worktops
+and handles, 8 door styles, 6 window frames, 28 exterior materials, 9 lighting moods; real02's brief is fully
+matched.
+
+| Library | M9 | M10 |
+|---|---|---|
+| Furniture models | 453 (24 types) | 669 (37 library types + `wall_cabinet` built parametrically) |
+| Decor models | 152 (8 types) | 363 (20 types) |
+| Material slots judged by both models | – | 1264 models (fabric recolourable: 184, wood: 207) |
+
+**Acceptance projects** (pods F1b, F2, F3):
+
+| Project | End state | Views | GPU tests |
+|---|---|---|---|
+| real02 (acceptance) | ok (was `needs review`) | base 42 + 5 exterior; alternative 12 + 5 exterior | green |
+| real01 | ok (the gate now allows the AI polish) | 20 | green |
+| synthetic-03 | ok | 44 | 1 failure: a camera-model bug, fixed in code, not re-run |
+| synthetic-07 | ok | 30 + 3 (alternative) | green |
+
+**GPU**: 13 pods, $32.64 (`docs/gpu-log.md`). The first library pods lost time to a slow copy on the network
+volume and to the watchdog (fixed: faster copy, the job ends before the watchdog, retries fetch only missing
+files). With your OK the network volume grew from 120 to 250 GB (about $17.50/month) after it filled up.
+
+The full runs found 7 code defects that the CPU tests could not see, and 5 GPU tests that needed Milestone 10
+updates; all are fixed with tests (§10.6–10.8). The visible defects: a lost attic gable wall, a roof ridge line read
+as furniture, a camera in a stair well, and attic stairs built as new flights through the roof.
+
+Open items:
+- real02 and synthetic-03 were not re-run after the last two fixes (you asked to stop after F3): the committed
+  real02 exterior views still show the two attic stair shafts above the ridge. One pod (`RUN_PROJECTS="real02
+  synthetic-03"`, about 90 min, about $4) would show the fixed versions.
+- real02: 20 of 38 rooms are unverified because their area labels differ from the measured areas by more than 3 %
+  (corridors with their stair halls, an open kitchen labelled 8.5 m² in a 52 m² space), and 58 drawn pieces have no
+  agreed type. They render with red stripes. Relaxing this rule would be your decision.
+- The exterior views stay Cycles renders: the exterior gate rejects only 84.6 % of geometry changes (needs 90 %).
+- Below 20 models: crib 8, display cabinet 8, bunk bed 10, chaise 10, shower 10, kitchen sink 15, tall cabinet
+  17, and 7 types at 18–19; decor: blind 9, large plant 10 (§4.11 has the reasons).
+- An AI-added parametric toilet is built 1.2 m tall (two meanings of a toilet's height; fixing it changes real01).
+- Other known limitations: `docs/milestone10.md` §10.4.
+
+GPU cost so far: $65.68 of $100. No pod is running.
+
