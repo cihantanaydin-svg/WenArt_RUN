@@ -19,7 +19,11 @@ normal CAD convention and the ingest accepts it); the shift is recorded as
 warning when it exceeds half the wall thickness. The cutters are temporary
 objects, the modifiers are applied through the depsgraph
 (``common.evaluated_mesh``), then the cutters are deleted. The EXACT solver
-is the default in Blender 5.2 (solver items: FLOAT, EXACT, MANIFOLD).
+is the default in Blender 5.2 (solver items: FLOAT, EXACT, MANIFOLD); a wall
+built from touching pieces (``wall_pieces``: parapet stretches) is cut with
+``use_self``. Every cut wall is then checked against its solid
+(``wall_cut_problems``): one that lost anything outside its cutters stops the
+build (``WallLost``), never a silently missing wall.
 
 Every door and plain opening gets a threshold face (``<id>_threshold``, kind
 ``floor``, the material of the adjacent room floor) because the room floors
@@ -123,6 +127,10 @@ DEFAULTS = {
     "threshold_lift": 0.001,     # thresholds above a stacked wall top (no coplanar faces)
     "shift_assumed": 0.001,      # centre shift recorded as assumed above this
 }
+# The guard after the opening booleans (``wall_cut_problems``): a wall may lose up to its cutters' volume, and its
+# extent only on a side a cutter reaches; these tolerances (m, m³) cover the float mesh of the evaluated result.
+WALL_CUT_TOL_M = 1e-3
+WALL_CUT_TOL_M3 = 1e-3
 WET_ROOM_TYPES = {"bathroom", "wc", "kitchen"}
 # Rooms without skirting: wet rooms keep their tiles to the floor, a balcony is outside.
 NO_SKIRTING_TYPES = WET_ROOM_TYPES | {"balcony"}
@@ -140,6 +148,11 @@ SPLIT_END_MARGIN = 0.01
 HANDLE_HEIGHT = 1.02
 HANDLE_EDGE_INSET = 0.075
 HANDLE_DEPTH = 0.055
+
+
+class WallLost(RuntimeError):
+    """The opening booleans took (part of) a wall outside its cutters (``wall_cut_problems``): the build stops
+    with the wall ids (CLAUDE.md: nothing is removed silently)."""
 
 
 def slot_room_type(room_type: str | None) -> str | None:
@@ -509,7 +522,12 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     its underside (knee walls, gable ends) and under a roof terrace at the parapet top, L-joins are closed
     (``corner_extensions``), the outward faces take the facade look and a drawn facade part (its side, its
     ``z_range``) its own material; end faces on the outline count as outside. The inside looks come from
-    track F's functions (``wall_face_material``, ``wet_wall_look``, ``accent_walls``; today the style)."""
+    track F's functions (``wall_face_material``, ``wet_wall_look``, ``accent_walls``; today the style).
+
+    After the opening booleans every cut wall is checked against the solid it came from (``wall_cut_problems``):
+    its manifest entry gets ``after_cuts`` (``openings``, ``faces``, ``z_range`` and any ``problems``), and a wall
+    that lost faces or volume outside its cutters is an ERROR in ``warnings`` and raises ``WallLost`` once the
+    level's walls are done: the build fails with the wall ids (pod F2, synthetic-07's ``w_L1_006``)."""
     import bpy
 
     from wenart.blender import common
@@ -570,6 +588,9 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     objects = []
     pairs = []  # (object, wall) for the face classification after the booleans
     cutters = []
+    solids: dict[str, tuple] = {}         # wall id: (verts, faces) handed to the booleans
+    wall_cuts: dict[str, list] = {}       # wall id: [(opening id, (verts, faces) of its cutter)]
+    entries: dict[str, dict] = {}         # wall id: its manifest entry
     for wall in walls:
         height, wall_assumed = wall_height(wall, level, has_above)
         if slab_above is not None:
@@ -610,6 +631,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                                     kind="wall", status=wall.get("status", "verified"), materials=slots)
         objects.append(ob)
         pairs.append((ob, wall))
+        solids[wall["id"]] = (verts, faces)
 
         # Cutters for the openings of this wall (a virtual separator has no wall: never cut).
         for opening in openings:
@@ -629,9 +651,15 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                                             wenart_id=opening["id"], kind="opening", status="assumed")
             cutter.hide_render = True
             cutters.append(cutter)
+            wall_cuts.setdefault(wall["id"], []).append((opening["id"], (cv, cf)))
             mod = ob.modifiers.new(name=f"cut_{opening['id']}", type="BOOLEAN")
             mod.operation = "DIFFERENCE"
             mod.solver = "EXACT"
+            # A wall with parapet stretches is several closed pieces side by side (wall_pieces) whose end faces
+            # touch, coincident and opposite: the exact solver reads that only with self-intersection on; without
+            # it, it returned synthetic-07's w_L1_006 (parapet, gable and window) as an empty mesh (pod F2). Every
+            # other wall is one closed solid and keeps the default.
+            mod.use_self = bool(parapets)
             mod.object = cutter
 
         manifest_objects.append({
@@ -644,7 +672,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             "start": trims[wall["id"]]["start"], "end": trims[wall["id"]]["end"],
             "thickness": wall["thickness"], "height": height,
         })
-        entry = manifest_objects[-1]
+        entry = entries[wall["id"]] = manifest_objects[-1]
         if wall["id"] in accent_rooms:
             # The gate (wenart/gate/colour.py) finds a room's accent wall by these keys (track H).
             marked = accent_rooms[wall["id"]]
@@ -668,10 +696,27 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
 
     # Apply the booleans through the depsgraph, split at the room corners and classify faces.
     bpy.context.view_layer.update()
+    lost = []
     for ob, wall in pairs:
         changed = False
         if ob.modifiers:
             mesh = common.evaluated_mesh(ob)
+            # Pod F2: the exact solver returned a wall empty without a word. The cuts may only remove what lies
+            # inside their cutters; a wall that lost more stops the build (CLAUDE.md: nothing removed silently).
+            mw = ob.matrix_world
+            after = ([tuple(mw @ v.co) for v in mesh.vertices], [list(p.vertices) for p in mesh.polygons])
+            own = wall_cuts.get(wall["id"]) or []
+            problems = wall_cut_problems(solids[wall["id"]], after, [c for _oid, c in own])
+            zs = [v[2] for v in after[0]]
+            record = {"openings": [oid for oid, _c in own], "faces": len(after[1]),
+                      "z_range": [round(min(zs), 4), round(max(zs), 4)] if zs else None}
+            if problems:
+                record["problems"] = problems
+                lost.append(f"{wall['id']} ({'; '.join(problems)})")
+                warnings.append(f"{wall['id']}: ERROR the opening cuts ({', '.join(record['openings'])}) lost part of "
+                                f"the wall: {'; '.join(problems)}")
+            if wall["id"] in entries:
+                entries[wall["id"]]["after_cuts"] = record
             common.replace_mesh(ob, mesh)
             # The boolean appends the cutter's (empty) material slot; drop it.
             while len(mesh.materials) > len(slots) or any(m is None for m in mesh.materials):
@@ -699,7 +744,66 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     for cutter in cutters:
         common.delete_object(cutter)
     bpy.context.view_layer.update()
+    if lost:
+        raise WallLost(f"level {level_id}: the opening booleans lost walls (no render may show them missing): "
+                       + "; ".join(lost))
     return objects
+
+
+def mesh_volume(verts, faces) -> float:
+    """Signed volume (m³) of a closed mesh with outward faces (pure): the divergence theorem over a triangle fan
+    of each face. Closed pieces that only touch (``wall_pieces``) add up."""
+    total = 0.0
+    for face in faces:
+        a = verts[face[0]]
+        for i in range(1, len(face) - 1):
+            b, c = verts[face[i]], verts[face[i + 1]]
+            total += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0])
+                      + a[2] * (b[0] * c[1] - b[1] * c[0]))
+    return total / 6.0
+
+
+def _extent(verts) -> list[tuple[float, float]]:
+    return [(min(float(v[k]) for v in verts), max(float(v[k]) for v in verts)) for k in range(3)]
+
+
+def wall_cut_problems(before, after, cutters, tol_m: float = WALL_CUT_TOL_M,
+                      tol_m3: float = WALL_CUT_TOL_M3) -> list[str]:
+    """What a wall lost to its opening booleans outside the cutters (pure; ``[]``: nothing).
+
+    ``before``: the ``(verts, faces)`` handed to the booleans, ``after``: the evaluated mesh, ``cutters``: the
+    ``(verts, faces)`` of each cutter (world metres, closed solids with outward faces). A boolean DIFFERENCE removes
+    only what lies inside its cutters, so the wall was lost (pod F2: the exact solver returned synthetic-07's
+    ``w_L1_006``, parapet and gable, as an empty mesh without a word) when it has no faces left, when it lost more
+    volume than its cutters hold or gained volume, or when its x, y or z extent shrank on a side no cutter
+    reaches (a lost end piece: a parapet stretch, a gable). A wall wholly inside its cutters may go."""
+    if not before[0] or not before[1]:
+        return []
+    held = sum(abs(mesh_volume(*c)) for c in cutters if c[0])
+    reach = [_extent(c[0]) for c in cutters if c[0]]
+    vb = mesh_volume(*before)
+    eb = _extent(before[0])
+    empty = not after[0] or not after[1]
+    va = 0.0 if empty else mesh_volume(*after)
+    problems = []
+    if vb - va > held + tol_m3:
+        problems.append(f"lost {vb - va:.4f} m³ of {vb:.4f} m³, more than its cutters hold ({held:.4f} m³)")
+    elif va - vb > tol_m3:
+        problems.append(f"gained {va - vb:.4f} m³ ({vb:.4f} -> {va:.4f} m³)")
+    for k, axis in enumerate("xyz"):
+        (b0, b1) = eb[k]
+        (a0, a1) = (b1, b0) if empty else _extent(after[0])[k]
+        if a0 < b0 - tol_m or a1 > b1 + tol_m:
+            problems.append(f"its {axis} extent grew from [{b0:.3f}, {b1:.3f}] to [{a0:.3f}, {a1:.3f}]")
+            continue
+        low = a0 > b0 + tol_m and not any(e[k][0] <= b0 + tol_m for e in reach)
+        high = a1 < b1 - tol_m and not any(e[k][1] >= b1 - tol_m for e in reach)
+        if low or high:
+            problems.append(f"its {axis} extent shrank from [{b0:.3f}, {b1:.3f}] to "
+                            + ("nothing" if empty else f"[{a0:.3f}, {a1:.3f}]") + " where no cutter reaches")
+    if empty and problems:
+        problems.insert(0, f"no faces left after the cuts (had {len(before[1])})")
+    return problems
 
 
 def trimmed_spans(wall: dict, start, end, cuts: list[dict]) -> list[tuple[float, float, float]]:
@@ -723,8 +827,11 @@ def trimmed_spans(wall: dict, start, end, cuts: list[dict]) -> list[tuple[float,
 
 def wall_pieces(start, end, thickness: float, floor_z: float, height: float, planes, parapets) -> tuple[list, list]:
     """``(verts, faces)`` of a wall under the roof with parapet stretches (pure): convex boxes along the
-    centre line, each cut by the roof underside ``planes`` or, under a terrace, at its parapet top. The
-    pieces stand side by side in one mesh (their shared end faces lie inside the wall)."""
+    centre line, each cut by the roof underside ``planes`` or, under a terrace, at its parapet top (never lowered
+    by the roof planes: no roof is over a parapet). The pieces stand side by side in one mesh and touch: the end
+    faces at each mark lie on each other, coincident and opposite, so the mesh is not one closed manifold and any
+    boolean on it needs ``use_self`` (``build_walls``; without it the exact solver returned synthetic-07's
+    ``w_L1_006`` empty, pod F2)."""
     length = G.distance(start, end)
     angle = G.segment_angle_deg(start, end)
     marks = sorted({0.0, length} | {s for a, b, _ in parapets for s in (a, b)})
