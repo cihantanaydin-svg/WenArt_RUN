@@ -13,6 +13,7 @@ import pytest
 from shapely.geometry import Polygon
 
 from wenart import building as B
+from wenart import geometry as G
 from wenart.furniture import complete as C
 from wenart.furniture import layout as L
 from wenart.furniture import locked as LK
@@ -938,3 +939,27 @@ def test_cli_exits_1_on_a_locked_violation(tmp_path, monkeypatch, capsys):
     assert completion["locked_violations"] and "f_L0_002" in completion["locked_violations"][0]
     assert "locked violation" in capsys.readouterr().err
     assert "## Locked check: 2 violation(s)" in (out.parent / "completion_report.md").read_text()
+
+
+def test_added_chairs_face_the_dining_table():
+    """M11 diagnosis (real02 r_L-1_salon): the model gave every added chair rotation 0 (front 270, to the window); the
+    chairs beside and below the drawn dining table faced away from it. A companion turns to its nearest host when
+    the turn keeps its footprint (square: 90 deg steps; else 180)."""
+    table = P.Piece("table_dining", (6.0375, 4.2269), 90.0, (3.35, 1.566), False)      # x 5.25-6.82, y 2.55-5.90
+    left = P.Piece("chair", (5.0, 2.5), 0.0, (0.5, 0.5), False, index=1)               # beside the table's corner
+    below = P.Piece("chair", (5.8, 2.0), 0.0, (0.5, 0.5), False, index=2)              # below its end
+    above = P.Piece("chair", (6.0, 6.2), 0.0, (0.45, 0.45), False, index=3)            # already faces it (front 270)
+    stool = P.Piece("bar_stool", (1.0, 1.0), 0.0, (0.4, 0.4), False, index=4)          # no island: unchanged
+    sofa = P.Piece("sofa", (2.0, 2.0), 0.0, (2.0, 0.9), False, index=5)                # no companion type
+    added = [left, below, above, stool, sofa]
+    before_polys = [p.polygon() for p in added]
+    assert C.face_companions(added, [table]) == 2
+    front = lambda p: G.front_direction_deg(p.rotation_deg)                             # noqa: E731
+    assert front(left) == pytest.approx(0.0) and front(below) == pytest.approx(90.0)
+    assert front(above) == pytest.approx(270.0) and front(stool) == pytest.approx(270.0)
+    assert [r["step"] for r in left.repairs] == ["face_host"] and not above.repairs
+    for p, poly in zip(added, before_polys):                                           # footprints never change
+        assert p.polygon().symmetric_difference(poly).area < 1e-9
+    # A non-square companion only turns by 180 degrees.
+    long_chair = P.Piece("chair", (6.0, 1.9), 0.0, (0.4, 0.6), False)                   # front 270, table above it
+    assert P.face_host(long_chair, [table])["after"]["rotation_deg"] == pytest.approx(180.0)

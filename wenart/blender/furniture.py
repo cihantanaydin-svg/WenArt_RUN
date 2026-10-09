@@ -794,7 +794,8 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     if proxy_pieces:
         proxies.create_proxies({"furniture": proxy_pieces}, level, collection, {
             "proxy": library.proxy("proxy"), "proxy_glass": library.proxy("proxy_glass"),
-            "proxy_unverified": library.proxy("proxy_unverified")}, pass_indices, manifest_objects, assumed)
+            "proxy_unverified": library.proxy("proxy_unverified")}, pass_indices, manifest_objects, assumed,
+            others=pieces)
         for p in proxy_pieces:
             summary["by_method"]["proxy"] = summary["by_method"].get("proxy", 0) + 1
 
@@ -803,8 +804,11 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     unverified_cache: dict = {}
     geo_cache: dict = {}  # file -> imported geometry: one import per asset file, materials shared
     proxy_ids = {p["id"] for p in proxy_pieces}
+    flat_ids = {p["id"] for p in proxy_pieces if proxies.flat_reason(p, pieces)}
     for piece in pieces:
         height, height_assumed = proxy_height(piece["type"], piece.get("height"))
+        if piece["id"] in flat_ids:
+            height = proxies.FLAT_PROXY_HEIGHT_M          # the flat proxy (M11): no lift for pieces standing on it
         lift = 0.0
         for other_fp, other_h in placed:
             if abs(other_h - height) < 1e-3 and footprints_overlap(piece["footprint"], other_fp):

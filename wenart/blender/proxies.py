@@ -91,11 +91,56 @@ def footprints_overlap(a: dict, b: dict) -> bool:
     return True
 
 
-def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0) -> dict:
+# M11 diagnosis (real02): an ``unknown`` footprint that holds other pieces (the whole kitchen read as one 4.6 x 2.9 m
+# cluster around its fridge; a rug outline under a sofa group) was a solid 0.8 m box that swallowed them. Such a
+# proxy is drawn flat (an outline plate on the floor, still striped as unverified), recorded as assumed.
+FLAT_PROXY_HEIGHT_M = 0.02
+HOLDS_SHARE = 0.5          # another piece counts as held when this share of its footprint area lies inside ...
+HOLDER_AREA_RATIO = 2.0    # ... and the holder is at least twice its area (two overlapping drawn pieces of one
+                           # size, e.g. real02's armchair and its ottoman, are no holder and its content)
+
+
+def _footprint_polygon(fp: dict):
+    from shapely.geometry import Polygon
+
+    return Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
+
+
+def held_pieces(piece: dict, others: list[dict]) -> list[str]:
+    """Ids of the ``others`` (built pieces of the level) whose footprint lies at least ``HOLDS_SHARE`` inside the
+    footprint of ``piece``, which is at least ``HOLDER_AREA_RATIO`` times larger (pure)."""
+    outer = _footprint_polygon(piece["footprint"])
+    if outer.area <= 1e-9:
+        return []
+    out = []
+    for other in others:
+        if other is piece or other.get("id") == piece.get("id"):
+            continue
+        poly = _footprint_polygon(other["footprint"])
+        if (poly.area > 1e-9 and outer.area >= HOLDER_AREA_RATIO * poly.area
+                and outer.intersection(poly).area >= HOLDS_SHARE * poly.area):
+            out.append(other.get("id"))
+    return out
+
+
+def flat_reason(piece: dict, others: list[dict] | None) -> str | None:
+    """Why the proxy of ``piece`` is drawn flat (``FLAT_PROXY_HEIGHT_M``), or None: only an ``unknown`` piece
+    without a height in the JSON whose footprint holds other built pieces."""
+    if piece.get("type") != "unknown" or piece.get("height") or not others:
+        return None
+    held = held_pieces(piece, others)
+    if not held:
+        return None
+    return (f"unknown footprint holds {', '.join(str(h) for h in held)}: drawn flat ({FLAT_PROXY_HEIGHT_M} m) so the "
+            "box does not hide them")
+
+
+def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0, flat: bool = False) -> dict:
     """Geometry description of one proxy: the box and, when ``front_deg`` is
     known, the wedge on the front face. ``lift`` adds to the height (used
     when a piece sits on another of the same height, e.g. a stove drawn on
     the kitchen counter: coincident top faces render black in Cycles).
+    ``flat``: the box is ``FLAT_PROXY_HEIGHT_M`` high (``flat_reason``).
 
     Returns ``{"box": (verts, faces), "wedge": (verts, faces) | None,
     "height": h, "height_assumed": bool, "center": [x, y, z], ...}``.
@@ -104,6 +149,8 @@ def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0) -> dict:
     w, d = float(fp["size"][0]), float(fp["size"][1])
     rot = float(fp["rotation_deg"])
     height, assumed = proxy_height(piece["type"], piece.get("height"))
+    if flat:
+        height, assumed = FLAT_PROXY_HEIGHT_M, True
     height += lift
     cx, cy = float(fp["center"][0]), float(fp["center"][1])
     base, _ = mount_bottom(piece)              # Milestone 10: a wall cabinet hangs above the floor
@@ -139,12 +186,13 @@ def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0) -> dict:
 
 
 def create_proxies(building: dict, level: dict, collection, materials: dict, pass_indices: dict,
-                   manifest_objects: list, assumed: list) -> list:
+                   manifest_objects: list, assumed: list, others: list | None = None) -> list:
     """Create one Blender object per furniture piece of ``level``.
 
     ``materials`` maps ``"proxy"``, ``"proxy_glass"`` and ``"proxy_unverified"``
     to Blender materials. ``pass_indices`` is the id -> object-index table
     that render.py's Object Index pass uses; it is extended here.
+    ``others``: every built piece of the level (``flat_reason``; default: the proxies themselves).
     """
     from wenart.blender import common  # bpy inside
 
@@ -154,13 +202,14 @@ def create_proxies(building: dict, level: dict, collection, materials: dict, pas
     for piece in building.get("furniture", []):
         if piece["level_id"] != level["id"]:
             continue
-        height, _ = proxy_height(piece["type"], piece.get("height"))
+        flat = flat_reason(piece, others if others is not None else building.get("furniture", []))
+        height = FLAT_PROXY_HEIGHT_M if flat else proxy_height(piece["type"], piece.get("height"))[0]
         lift = 0.0
         for other_fp, other_h in placed:
             if abs(other_h - height) < 1e-3 and footprints_overlap(piece["footprint"], other_fp):
                 lift = COINCIDENT_LIFT
                 break
-        geo = proxy_geometry(piece, floor_z, lift)
+        geo = proxy_geometry(piece, floor_z, lift, flat=bool(flat))
         placed.append((piece["footprint"], geo["height"]))
         parts = [geo["box"]]
         if geo["wedge"] is not None:
@@ -194,7 +243,9 @@ def create_proxies(building: dict, level: dict, collection, materials: dict, pas
         if geo["height_assumed"]:
             entry["assumed"]["height"] = geo["height"]
             assumed.append({"object": name, "field": "height", "value": geo["height"],
-                            "reason": f"no height in the JSON; proxy table value for {piece['type']}"})
+                            "reason": flat or f"no height in the JSON; proxy table value for {piece['type']}"})
+        if flat:
+            entry["flat"] = flat
         if lift:
             entry["assumed"]["height_lift"] = lift
             assumed.append({"object": name, "field": "height_lift", "value": lift,

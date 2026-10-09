@@ -491,6 +491,35 @@ def test_core_orients_a_typed_piece_without_a_front_by_its_type(table):
     assert item.size == (2.0295, 1.7795) and item.rotation_deg == 90.0 and "front_note" not in item.details
 
 
+def test_an_ai_front_into_a_wall_is_vetoed_and_the_corner_rule_orients_the_piece(table):
+    """M11 diagnosis (real02 f_L0_025 / f_L0_026): a wardrobe in a bedroom corner, long side on the west wall; both
+    passes said 'left' (into the wall), so the wardrobe was built facing the wall (its twin: the passes disagreed, the
+    builder's default faced it into the wall too). An agreed AI front towards a side within 0.25 m of a wall is not
+    used; a typed long-back piece without a front takes the corner rule (the long side on the wall is the back)."""
+    from wenart.ingest.generic import core
+    both = lambda f1, f2: {"qwen": answer("wardrobe", f1), "glm": answer("wardrobe", f2)}   # noqa: E731
+    robe = candidate(size=(3.11, 0.6), rotation=90.0, wall_fronts=[180.0, 270.0])
+    res = S.decide(robe, both("left", "left"), table, "bedroom")
+    assert res["type"] == "wardrobe" and res["front"] is None
+    assert any("stands within 0.25 m of a wall" in w for w in res["warnings"])
+    assert S.decide(robe, both("right", "right"), table, "bedroom")["front"] == 0.0    # into the room: kept
+    assert S.decide(candidate(size=(3.11, 0.6), rotation=90.0), both("left", "left"), table,
+                    "bedroom")["front"] == 180.0                                       # no wall facts: as before
+    item = _bed_item()
+    item.size, item.rotation_deg = (3.11, 0.6), 90.0
+    item.details["corner_front"] = 0.0
+    warned = core._apply_decision(item, res, table)
+    assert item.front_deg == 0.0 and item.rotation_deg == 90.0 and item.size == (3.11, 0.6)
+    assert item.details["front_assumed"] is True and item.details["front_rule"].startswith("corner")
+    assert len(warned) == 1 and "assumed" in warned[0]
+    bed = _bed_item()                                                                  # a bed never takes it
+    bed.details["corner_front"] = 0.0
+    core._apply_decision(bed, S.decide(candidate(size=(2.0295, 1.7795), rotation=90.0),
+                                       {"qwen": answer("bed_double", "bottom"), "glm": answer("bed_double", "top")},
+                                       table, "bedroom"), table)
+    assert bed.front_deg is None
+
+
 @pytest.fixture(scope="module")
 def real01_first():
     pytest.importorskip("pdfplumber")

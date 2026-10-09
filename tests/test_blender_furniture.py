@@ -878,3 +878,31 @@ def test_objaverse_glb_cc_by_and_build_false_in_a_scene(tmp_path, glb):
     assert m["furniture"]["pieces"] == 2 and m["furniture"]["proxies"] == 0
     assert [r["id"] for r in m["furniture"]["not_built"]] == ["f_symbol"]
     assert all("f_symbol" not in c["visible_furniture"] for c in m["cameras"])
+
+
+# --------------------------------------------------------------------------
+# M11 diagnosis (real02): an unknown footprint that holds other pieces is a flat proxy
+# --------------------------------------------------------------------------
+
+def test_unknown_proxy_holding_other_pieces_is_flat():
+    """real02 L-1 mutfak: the whole kitchen read as one 4.6 x 2.9 m ``unknown`` cluster around the drawn fridge was
+    a solid 0.8 m box over the floor; L1 oyun: a rug-like 4.5 x 3.0 m outline swallowed two sofas. Such a proxy is
+    an outline plate (assumed), a free-standing unknown piece keeps its box."""
+    from wenart.blender import proxies
+
+    cluster = {"id": "f_1", "type": "unknown", "footprint": {"center": [1.66, 9.44], "size": [4.6, 2.92],
+                                                             "rotation_deg": 90.0}, "front_deg": None, "height": None}
+    fridge = {"id": "f_2", "type": "fridge", "footprint": {"center": [0.45, 10.26], "size": [0.79, 0.5],
+                                                           "rotation_deg": 90.0}, "front_deg": 0.0}
+    alone = {"id": "f_3", "type": "unknown", "footprint": {"center": [6.0, 9.0], "size": [1.45, 0.9],
+                                                           "rotation_deg": 0.0}, "front_deg": None, "height": None}
+    pieces = [cluster, fridge, alone]
+    assert proxies.held_pieces(cluster, pieces) == ["f_2"]
+    reason = proxies.flat_reason(cluster, pieces)
+    assert reason and "f_2" in reason
+    geo = proxies.proxy_geometry(cluster, 0.0, flat=True)
+    assert geo["height"] == pytest.approx(proxies.FLAT_PROXY_HEIGHT_M) and geo["height_assumed"]
+    assert max(v[2] for v in geo["box"][0]) == pytest.approx(proxies.FLAT_PROXY_HEIGHT_M)
+    assert proxies.flat_reason(alone, pieces) is None                       # holds nothing: the 0.8 m box stays
+    assert proxies.flat_reason(fridge, pieces) is None                      # only unknown pieces
+    assert proxies.flat_reason(dict(cluster, height=0.9), pieces) is None   # a drawn height is kept

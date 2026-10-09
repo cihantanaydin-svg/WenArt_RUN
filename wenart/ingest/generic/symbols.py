@@ -95,6 +95,14 @@ LOOSE_OVERLAP = 0.8            # ... whose extent overlaps the flight's by >= 80
 COUNTER_END_M = 0.05
 COUNTER_DEPTH_M = (0.45, 0.75)
 FRONT_WALL_M = 0.25
+# Block-named pieces (``_block_item``): types without a front (recognition.symbols.FRONTLESS_TYPES) and types whose
+# back is their long side, which may take the corner rule (``corner_back_front``; not beds, toilets, baths: their
+# back is a short side or they have none).
+FRONTLESS_BLOCK_TYPES: tuple[str, ...] = ("table_dining", "table_coffee", "side_table", "floor_lamp", "potted_plant")
+LONG_BACK_TYPES: tuple[str, ...] = ("washbasin", "wardrobe", "kitchen_counter", "sink_kitchen", "sofa", "tv_unit",
+                                    "bookshelf", "dresser", "sideboard", "console_table", "shoe_cabinet",
+                                    "display_cabinet", "tall_cabinet", "wall_cabinet", "desk")
+CORNER_LONG_RATIO = 1.25
 ROUND_SHARE = 0.9              # §6.4: round when a circle fits >= 90 % of the outline
 L_ARM_M = (0.5, 1.3)           # Milestone 10: an L outline (the corner sofa) with both arms 0.5-1.3 m deep ...
 L_NOTCH_SHARE = 0.15           # ... the open corner >= 15 % of its box ...
@@ -1489,18 +1497,34 @@ def _snap_deg(deg: float, theta: float) -> float:
     return round((theta + 90.0 * k) % 360.0, 3)
 
 
+def near_wall_sides(sides, centre, wall_polys: list) -> list[int]:
+    """Indices of the sides that have a wall within ``FRONT_WALL_M`` in front of them: the probe runs from the
+    side's midpoint outwards, perpendicular to the side. (Measuring the midpoint's distance to any wall counted the
+    short sides of a piece <= 0.5 m deep as near the wall its back touches, so a shallow piece against one wall got
+    no front; M11 diagnosis, real02.)"""
+    out = []
+    for k, side in enumerate(sides):
+        (ax, ay), (bx, by) = side
+        mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
+        length = math.hypot(bx - ax, by - ay)
+        if length < 1e-9:
+            continue
+        nx, ny = (by - ay) / length, -(bx - ax) / length
+        if nx * (mx - centre[0]) + ny * (my - centre[1]) < 0:
+            nx, ny = -nx, -ny
+        probe = LineString([(mx, my), (mx + nx * FRONT_WALL_M, my + ny * FRONT_WALL_M)])
+        if any(w.distance(probe) <= 1e-9 for w in wall_polys):
+            out.append(k)
+    return out
+
+
 def front_candidates(piece_segs: list[Seg], centre, corners, wall_polys: list, others: list, theta: float,
                      table: dict) -> list[dict]:
     """Deterministic front candidates (§2.8): the only side within 0.25 m of a wall is the back; the side holding
     >= 2 small closed shapes is a bed's head (pillows); a chair-sized piece faces the nearest table-sized piece."""
     out = []
     sides = _sides(corners)
-    near = []
-    for side in sides:
-        seg = LineString(side)
-        mid = seg.interpolate(0.5, normalized=True)
-        if any(w.distance(mid) <= FRONT_WALL_M for w in wall_polys):
-            near.append(side)
+    near = [sides[k] for k in near_wall_sides(sides, centre, wall_polys)]
     if len(near) == 1:
         back = _outward_deg(near[0], centre)
         out.append({"front_deg": _snap_deg(back + 180.0, theta),
@@ -1509,13 +1533,18 @@ def front_candidates(piece_segs: list[Seg], centre, corners, wall_polys: list, o
     small = [p for p, _ in contours(piece_segs) if 0.15 <= max(_rect_sides(p)) <= 0.8 and min(_rect_sides(p)) >= 0.08]
     if len(small) >= 2:
         best = None
+        tied = False
         for k, side in enumerate(sides):
             line = LineString(side)
             reach = 0.3 * math.dist(*sides[(k + 1) % 4])          # 30 % of the piece's extent away from the side
             n = sum(1 for p in small if line.distance(p.centroid) <= reach)
-            if n >= 2 and (best is None or n > best[0]):
-                best = (n, side)
-        if best is not None:
+            if n >= 2 and best is not None and n == best[0]:
+                tied = True
+            elif n >= 2 and (best is None or n > best[0]):
+                best, tied = (n, side), False
+        # Two sides with the same count: the rule cannot tell the head (picking the first side made mirrored twins
+        # disagree: real02's r_L0_yatak_odasi_3 bed lost its front, its twin kept one; M11 diagnosis).
+        if best is not None and not tied:
             head = _outward_deg(best[1], centre)
             out.append({"front_deg": _snap_deg(head + 180.0, theta),
                         "rule": "head = side with >= 2 small closed shapes"})
@@ -1772,7 +1801,8 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     for info in infos:
         part, n, fp, lsh = info["part"], info["n"], info["fp"], info.get("l")
         shape = l_details(lsh) if lsh else (round_shape(part.segs) if n == 1 else {})
-        block_item = None if info.get("no_name") else _block_item(part, fp, ctx, raster_page, table, lsh)
+        block_item = None if info.get("no_name") else _block_item(part, fp, ctx, raster_page, table, lsh,
+                                                                   wall_polys, [o for o in infos if o is not info])
         if block_item is not None:
             block_item.details.update(shape)
             if info.get("note"):
@@ -1794,6 +1824,15 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             fronts = front_candidates(part.segs, fp[0], fp[4], wall_polys, others, ctx.theta, table)
         cand = _candidate(part, fp, ctx, raster_page, faces, fronts, types, len(cands) + 1)
         cand["item"].details.update(shape)
+        if not lsh:
+            # M11: the fronts that would face a wall (an AI front there is vetoed, recognition.symbols._front) and
+            # the corner rule's front (used once the type is known to have its back on the long side, core).
+            sides = _sides(fp[4])
+            cand["wall_fronts"] = [_snap_deg(_outward_deg(sides[k], fp[0]), ctx.theta)
+                                   for k in near_wall_sides(sides, fp[0], wall_polys)]
+            corner = corner_back_front(fp[0], fp[4], wall_polys, ctx.theta)
+            if corner is not None:
+                cand["item"].details["corner_front"] = corner
         if lsh:
             cand["footprint"]["shape"] = "L"            # travels with the footprint into the question and decide
         if info.get("note"):
@@ -1932,8 +1971,37 @@ def _block_chain(part: Cluster) -> Optional[str]:
     return chain if chains.count(chain) >= 0.6 * len(part.segs) else None
 
 
+def corner_back_front(centre, corners, wall_polys: list, theta: float) -> Optional[float]:
+    """The front of an elongated piece standing in a corner: exactly two adjacent sides within ``FRONT_WALL_M`` of a
+    wall, one of them the long side (>= ``CORNER_LONG_RATIO`` x the short side) -> the long side is the back. None
+    otherwise. Only used for types whose back is their long side (``LONG_BACK_TYPES``: block-named pieces here, AI-typed
+    pieces in ``core._apply_decision``), where the general rule (only one side near a wall) gives nothing (real02:
+    washbasins and wardrobes drawn in a corner)."""
+    sides = _sides(corners)
+    near = near_wall_sides(sides, centre, wall_polys)
+    if len(near) != 2 or (near[1] - near[0]) % 2 == 0:            # two adjacent sides, not two opposite ones
+        return None
+    lengths = {k: math.dist(*sides[k]) for k in near}
+    long_k, short_k = sorted(near, key=lambda k: -lengths[k])
+    if lengths[long_k] < CORNER_LONG_RATIO * lengths[short_k]:
+        return None
+    return _snap_deg(_outward_deg(sides[long_k], centre) + 180.0, theta)
+
+
+def _unique_front(fronts: list[dict]) -> Optional[dict]:
+    """The one deterministic front of ``front_candidates`` (rules that agree are merged there), else None."""
+    return fronts[0] if len(fronts) == 1 else None
+
+
 def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
-                lsh: Optional[dict] = None) -> Optional[FurnitureItem]:
+                lsh: Optional[dict] = None, wall_polys: Optional[list] = None,
+                others: Optional[list] = None) -> Optional[FurnitureItem]:
+    """A piece typed by its block name. Its front: the L outline's open corner for a corner sofa; else the unique
+    deterministic front of ``front_candidates`` (§2.8: the only side near a wall is the back, a bed's pillows, a
+    chair facing a table), else, for a type whose back is its long side, the corner rule (``corner_back_front``);
+    else none (frontless types never get one). Block-named pieces are never asked (§3.3), so without this the drawn
+    front was lost and the builder faced the piece by its footprint rotation alone (real02: every washbasin and two
+    wardrobes faced the wall, a bed stood with its head in the room, toilets turned 90 deg)."""
     chain = _block_chain(part)
     if chain is None:
         return None
@@ -1941,17 +2009,33 @@ def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
     ftype = block_type(names, (fp[1], fp[2]), table, "L" if lsh else None)
     if ftype is None:
         return None
-    front = lsh["front_deg"] if lsh and ftype == "sofa_corner" else None
+    front, rule = (lsh["front_deg"], None) if lsh and ftype == "sofa_corner" else (None, None)
+    if front is None and ftype not in FRONTLESS_BLOCK_TYPES and wall_polys is not None:
+        found = _unique_front(front_candidates(part.segs, fp[0], fp[4], wall_polys, list(others or []), ctx.theta,
+                                               table))
+        if found is not None:
+            front, rule = found["front_deg"], found["rule"]
+            width, depth = size_rotation(fp[1], fp[2], fp[3], front)[0]
+            if ftype in LONG_BACK_TYPES and width * CORNER_LONG_RATIO <= depth:
+                front, rule = None, None          # its short end on the wall: the front is one of the long sides
+        elif ftype in LONG_BACK_TYPES:
+            front = corner_back_front(fp[0], fp[4], wall_polys, ctx.theta)
+            rule = "corner: the long side against a wall is the back" if front is not None else None
     size, rotation = size_rotation(fp[1], fp[2], fp[3], front)
     box = ctx.box(fp[4])
     ok = fits(table, ftype, (fp[1], fp[2]))
     note = None if ok else f"block name says {ftype} but {fp[1]:.2f} x {fp[2]:.2f} m does not fit its size range"
+    if rule:
+        note = "; ".join(x for x in (note, f"front {front:g} deg: {rule}") if x)
     ev = ctx.evidence(part.stroke_ids(), confidence=0.9, raster=raster, box=box, note=note)
     ev["block"] = chain
-    return FurnitureItem(type=ftype, type_raw=chain, center=_r(fp[0]), size=size, rotation_deg=rotation,
+    item = FurnitureItem(type=ftype, type_raw=chain, center=_r(fp[0]), size=size, rotation_deg=rotation,
                          front_deg=round(front, 3) if front is not None else None, box=box,
                          entity=part.stroke_ids()[0], evidence=ev, status="verified" if ok else "unverified",
                          type_method="block_name")
+    if rule:
+        item.details["front_rule"] = rule
+    return item
 
 
 # --------------------------------------------------------------------------

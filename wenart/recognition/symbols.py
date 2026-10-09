@@ -414,6 +414,13 @@ def _front(candidate: dict, passes: list[dict], warnings: list[str]) -> tuple[Op
         warnings.append(f"{candidate.get('key')}: {description}: the drawn front is kept (vector geometry > AI)")
         return det, description
     if len(passes) == 2 and len(ai) == 2 and _same_angle(ai[0], ai[1]):
+        walls = [float(w) for w in candidate.get("wall_fronts") or []]
+        if any(_same_angle(ai[0], w) for w in walls):
+            # M11 (real02 f_L0_025): both passes named the side that stands against a wall; a piece cannot face
+            # into the wall it touches (vector geometry > AI), so the AI front is not used.
+            warnings.append(f"{candidate.get('key')}: both passes say front {ai[0]:g} deg, but that side stands "
+                            "within 0.25 m of a wall: the AI front is not used")
+            return None, None
         return ai[0], None
     return None, None
 

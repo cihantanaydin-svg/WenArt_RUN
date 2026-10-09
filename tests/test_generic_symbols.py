@@ -586,6 +586,66 @@ def test_front_candidates():
     assert all(c["item"].front_deg is None for c in cands)          # fronts wait for the AI agreement (§3.3)
 
 
+def test_block_named_pieces_take_the_drawn_front():
+    """real02 (M11 diagnosis): block-named pieces are never asked, so they must take the deterministic front (wall,
+    pillows; the corner rule for a long-back type) - before, every one had front None and the builder faced it by
+    the footprint rotation in [0, 180): washbasins faced the wall, a bed's head stood in the room, toilets turned.
+    Mirrored twins get mirrored fronts."""
+    basin = _insert("INSERT:L1", "ebeveynlavabo", (0.1, 0.1, 1.0, 0.6))          # in the SW corner, long side south
+    wc = _insert("INSERT:K1", "klozet", (2.0, 0.1, 2.5, 0.79))                   # back on the south wall
+    bed_e = _insert("INSERT:Y1", "YATAK", (3.9, 2.0, 5.9, 3.6))                  # head on the east wall
+    bed_w = _insert("INSERT:Y2", "YATAK", (0.1, 2.0, 2.1, 3.6))                  # its mirrored twin, head west
+    robe = _insert("INSERT:D1", "dolap01", (4.4, 4.3, 5.9, 4.9))                 # NE corner, long side north
+    table = _insert("INSERT:M1", "masa", (2.6, 3.9, 3.5, 4.9))                   # frontless, near the north wall
+    end_on = _insert("INSERT:D2", "dolap01", (3.0, 0.1, 3.6, 1.6))              # a wardrobe's short end on the wall
+    pieces, cands, _ = _furn(basin + wc + bed_e + bed_w + robe + table + end_on)
+    assert not cands
+    by_id = {p.entity.split("/")[0]: p for p in pieces}
+    assert by_id["INSERT:L1"].front_deg == 90.0 and "corner" in by_id["INSERT:L1"].evidence["note"]
+    assert by_id["INSERT:L1"].size == pytest.approx((0.9, 0.5)) and by_id["INSERT:L1"].rotation_deg == 180.0
+    wc_piece = by_id["INSERT:K1"]
+    assert wc_piece.front_deg == 90.0 and wc_piece.size == pytest.approx((0.5, 0.69))   # width 0.5 across the front
+    assert by_id["INSERT:Y1"].front_deg == 180.0 and by_id["INSERT:Y2"].front_deg == 0.0
+    assert by_id["INSERT:Y1"].details["front_rule"].startswith("only side within 0.25 m of a wall")
+    assert by_id["INSERT:D1"].front_deg == 270.0
+    assert by_id["INSERT:M1"].front_deg is None                                  # a dining table has no front
+    assert by_id["INSERT:D2"].front_deg is None                                  # front on a long side: unknown
+    for p in pieces:                                                              # front = rotation - 90 everywhere
+        if p.front_deg is not None:
+            assert (p.rotation_deg - 90.0 - p.front_deg) % 360.0 == pytest.approx(0.0)
+
+
+def test_candidates_carry_their_wall_sides_and_corner_front():
+    """M11: an unnamed piece in a corner (real02's wardrobes) has no front from the wall rule; its candidate lists the
+    fronts that would face a wall (an AI front there is vetoed) and the corner rule's front (applied once the type
+    is known). A shallow piece against one wall still gets the wall rule (the short sides' probes miss the wall)."""
+    robe = _rect_strokes(0.1, 1.0, 0.7, 4.9)                     # west wall and north-west corner, long side west
+    shelf = _rect_strokes(2.5, 0.1, 4.0, 0.45)                   # 0.35 m deep on the south wall
+    _, cands, _ = _furn(robe + shelf)
+    by_long = {round(max(c["footprint"]["size"]), 1): c for c in cands}
+    rc = by_long[3.9]
+    assert sorted(rc["wall_fronts"]) == [90.0, 180.0] and rc["front_candidates"] == []
+    assert rc["item"].details["corner_front"] == 0.0
+    sc = by_long[1.5]
+    assert sc["wall_fronts"] == [270.0] and [f["front_deg"] for f in sc["front_candidates"]] == [90.0]
+    assert "corner_front" not in sc["item"].details
+
+
+def test_pillow_rule_gives_no_head_on_a_tie():
+    """M11 diagnosis (real02 yatak_odasi_3 vs its twin): two sides with the same number of small shapes must give no
+    head; the first side in the corner order used to win, so mirrored twins got different fronts."""
+    bed = _rect_strokes(1.0, 2.0, 3.0, 3.6)
+    pillows = _rect_strokes(1.1, 2.6, 1.45, 3.0) + _rect_strokes(1.1, 3.1, 1.45, 3.5)         # west end
+    boxes = _rect_strokes(2.0, 2.1, 2.3, 2.35) + _rect_strokes(2.5, 2.1, 2.8, 2.35)            # along the south side
+    _, cands, _ = _furn(bed + pillows + boxes)
+    bed_c = [c for c in cands if max(c["footprint"]["size"]) > 1.9]
+    assert len(bed_c) == 1
+    assert not [f for f in bed_c[0]["front_candidates"] if "small closed shapes" in f["rule"]]
+    _, cands2, _ = _furn(bed + pillows)                                                       # no tie: west is the head
+    head = [f for c in cands2 for f in c["front_candidates"] if "small closed shapes" in f["rule"]]
+    assert [f["front_deg"] for f in head] == [0.0]
+
+
 def test_chairs_face_the_table():
     table = _rect_strokes(2.0, 2.0, 3.6, 2.9)
     chairs = _rect_strokes(2.3, 1.4, 2.75, 1.85) + _rect_strokes(2.3, 3.05, 2.75, 3.5)

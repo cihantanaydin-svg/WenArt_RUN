@@ -271,6 +271,17 @@ def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = N
             item.details["front_assumed"] = True
             if result.get("front_rule"):
                 item.details["front_rule"] = result["front_rule"]
+    elif (result["type"] in SY.LONG_BACK_TYPES and item.details.get("corner_front") is not None
+          and result.get("front_conflict") is None):
+        # M11 (real02 wardrobes in a bedroom corner): no agreed front, but the piece stands in a corner with its long
+        # side on a wall and its type has its back on the long side: that side is the back (drawing rule, assumed).
+        rule = "corner: the long side against a wall is the back"
+        _apply_front(item, float(item.details["corner_front"]))
+        item.details["front_assumed"] = True
+        item.details["front_rule"] = rule
+        key = item.details.get("candidate_key") or item.entity
+        messages.append(f"{key}: {result['type']} without an agreed front: front {item.front_deg:g} deg assumed "
+                        f"({rule})")
     elif result["type"] != "unknown":
         size, rotation, swapped = RS.oriented_size(item.size, item.rotation_deg, result["type"], table)
         if swapped:
@@ -372,7 +383,8 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
         if not any(v is not None for v in got.values()):
             continue
         dc = {"key": cand["key"], "footprint": cand["footprint"], "strokes": cand["strokes"], "bbox": cand["bbox"],
-              "file": page.file, "page": _evidence_page(page), "front_candidates": _front_values(cand)}
+              "file": page.file, "page": _evidence_page(page), "front_candidates": _front_values(cand),
+              "wall_fronts": list(cand.get("wall_fronts") or [])}
         result = RS.decide(dc, got, table, cand.get("room_type"))
         assumed = _apply_decision(cand["item"], result, table)
         ex.warnings.extend(result.get("warnings") or [])

@@ -614,6 +614,22 @@ def companion_problems(added: list[placer.Piece], floor: list[placer.Piece], roo
     return out
 
 
+def face_companions(added: list[placer.Piece], floor: list[placer.Piece]) -> int:
+    """Turn every added companion piece (a chair, a bar stool, an office chair) to face its nearest host
+    (``placer.face_host``; the footprint polygon stays, so the checks stay); the turn is logged in the piece's
+    repairs. Returns how many were turned."""
+    turned = 0
+    for p in added:
+        hosts_types = schemas.COMPANIONS.get(p.type)
+        if not hosts_types:
+            continue
+        record = placer.face_host(p, [q for q in floor + added if q.type in hosts_types])
+        if record is not None:
+            p.repairs.append(record)
+            turned += 1
+    return turned
+
+
 def _agrees(piece: placer.Piece, other: Optional[list[dict]]) -> Optional[dict]:
     for item in other or []:
         if item["type"] == piece.type and G.distance(piece.proposed["center"], item["center"]) <= AGREE_DISTANCE_M:
@@ -850,6 +866,7 @@ def place_added(rec: RoomCompletion, answers: dict[int, Optional[dict]], ctx: pl
                 placement.dropped.append({"type": piece.type, "proposed": piece.proposed, "last": piece.state(),
                                           "failed": [], "reason": drop[i], "repairs": list(piece.repairs)})
             drop = companion_problems(placement.pieces, _obstacles(rec), rtype)   # a dropped desk takes its chair
+        face_companions(placement.pieces, _obstacles(rec))
         rec.placements[pass_no] = placement
         candidates[pass_no] = placement
     for pass_no, placement in sorted(rec.placements.items()):

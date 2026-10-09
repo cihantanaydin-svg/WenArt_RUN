@@ -212,6 +212,34 @@ class Piece:
                 "proposed": dict(self.proposed), "repairs": list(self.repairs)}
 
 
+def face_host(piece: Piece, hosts: list[Piece]) -> Optional[dict]:
+    """Turn a companion piece (``schemas.COMPANIONS``: a chair at a dining table, a bar stool at an island, an
+    office chair at a desk) so its front faces the nearest of ``hosts``; only turns that keep its footprint polygon
+    (180 degrees, or 90 degree steps for a square footprint), so no check result changes. Returns the repair record
+    ``{"step": "face_host", "before", "after", "host_type"}`` or None when it already faces the host or no host is
+    given. (M11 diagnosis, real02 salon: the model gave every chair rotation 0, so the chairs beside the dining
+    table faced the window, away from it; the companion check only measured the distance.)"""
+    if not hosts:
+        return None
+    poly = piece.polygon()
+    host = min(hosts, key=lambda h: (round(h.polygon().distance(poly), 6), h.index))
+    target = nearest_points(host.polygon(), Point(piece.center))[0]
+    dx, dy = target.x - piece.center[0], target.y - piece.center[1]
+    if math.hypot(dx, dy) < 1e-6:
+        return None
+    want = math.degrees(math.atan2(dy, dx))
+    square = abs(float(piece.size[0]) - float(piece.size[1])) <= 0.01
+    turns = (0.0, 90.0, 180.0, 270.0) if square else (0.0, 180.0)
+    turn = min(turns, key=lambda t: (round(G.angle_difference_deg(
+        G.front_direction_deg(piece.rotation_deg + t), want), 6), t))
+    if turn == 0.0:
+        return None
+    before = piece.state()
+    piece.rotation_deg = G.normalise_angle(piece.rotation_deg + turn)
+    return {"step": "face_host", "piece": piece.index, "type": piece.type, "before": before, "after": piece.state(),
+            "host_type": host.type, "failed": [], "ok": True}
+
+
 def piece_from_furniture(item: dict, index: int = 0) -> Piece:
     """A building furniture dict (``footprint`` with center/size/rotation_deg) as a placer piece
     (Milestone 10: a corner sofa with ``shape: L`` keeps its L)."""

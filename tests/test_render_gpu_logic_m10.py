@@ -157,9 +157,10 @@ def test_exterior_and_open_sky_views_pass_with_the_pod_depths(tmp_path, monkeypa
     # The open-sky room keeps the interior depth range.
     ("cam_r_L1_teras_1", {"min": 0.08, "max": 38.9, "coverage": 0.785}, "0.1 < min < max < 60"),
     ("cam_r_L1_teras_1", {"min": 0.46, "max": 74.7, "coverage": 0.785}, "0.1 < min < max < 60"),
-    # Exterior views: within the clip end, not mostly sky.
-    ("ext_5", {"min": 19.4, "max": 600.0, "coverage": 0.864}, "0.1 < min < max < 500"),
-    ("ext_1", {"min": 0.08, "max": 52.2, "coverage": 0.646}, "0.1 < min < max < 500"),
+    # Exterior views: within the clip end (exterior.CLIP_END, 3000 m since M11: the flat ground reaches 1000 m),
+    # not mostly sky.
+    ("ext_5", {"min": 19.4, "max": 3600.0, "coverage": 0.864}, "0.1 < min < max < 3000"),
+    ("ext_1", {"min": 0.08, "max": 52.2, "coverage": 0.646}, "0.1 < min < max < 3000"),
     ("ext_1", {"min": 6.5, "max": 52.2, "coverage": 0.2}, "coverage not over 0.25"),
 ])
 def test_implausible_depths_still_fail(camera, depth, why, tmp_path, monkeypatch):
