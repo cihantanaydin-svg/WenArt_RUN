@@ -348,10 +348,13 @@ def test_rule_types_stair_and_counter_legs(run):
         assert f["front_deg"] is not None and abs((f["front_deg"] - ref["front_deg"] + 180) % 360 - 180) <= 10
         run_info = f["counter_run"]
         assert run_info["wall_id"] in walls and run_info["strokes"]
-    # Nothing else is typed without AI answers (--no-ai).
+    # Nothing else is read as a type without AI answers (--no-ai). Since Milestone 11 the ingest may infer a
+    # type from size, room and neighbours (wenart/furniture/infer.py): such a piece stays unverified with
+    # type_method none and carries inferred: true with its reason, so it is listed in the report.
     others = [f for f in b["furniture"] if f["type"] not in ("stair", "kitchen_counter")]
-    assert others and all((f["type"], f["status"], f["type_method"]) == ("unknown", "unverified", "none")
-                          for f in others)
+    assert others and all((f["status"], f["type_method"]) == ("unverified", "none") for f in others)
+    assert all(f["type"] == "unknown" or (f.get("inferred") and f.get("inferred_reason")) for f in others)
+    assert any(f["type"] == "unknown" for f in others)
 
 
 # --------------------------------------------------------------------------

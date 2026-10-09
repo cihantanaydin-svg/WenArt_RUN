@@ -201,3 +201,29 @@ def test_locked_check_refuses_an_unlabelled_or_out_of_rule_change():
     moved["furniture"][0]["adjusted_by_ai"] = {"reason": "x", "changed": {}}
     moved["furniture"][0]["drawn_footprint"] = copy.deepcopy(b["furniture"][0]["footprint"])
     assert any("fixed equipment moved" in v for v in LK.check(b, moved, "complete"))
+
+
+def test_the_refit_locked_check_accepts_every_validated_edit_of_drawn_pieces():
+    """Lead note (M11): the refit guard compares drawn pieces with adjusted_by_ai against the CLAUDE.md
+    allowances (snap <= 0.3 m, turn, product resize, retype of an unknown), not against the drawn place."""
+    source = M.building(furniture=[
+        M.fp("f_L0_001", "bed_double", (1.02, 2.0), (1.6, 2.0), rotation=270.0, front=180.0),
+        M.fp("f_L0_002", "wardrobe", (4.0, 3.48), (1.8, 0.6), rotation=0.0, front=270.0),
+        M.fp("f_L0_005", "unknown", (4.7, 1.5), (0.4, 0.5), front=None, status="unverified")])
+    b = source
+    for e in (edit("rotate_piece", piece_id="f_L0_001", front_deg=0),
+              edit("move_piece", piece_id="f_L0_002", snap_wall_id="w_n"),
+              edit("resize_piece", piece_id="f_L0_002", size=[1.2, 0.6]),
+              edit("change_type", piece_id="f_L0_005", type="nightstand")):
+        res = E.apply_edit(b, e)
+        assert res["accepted"], (e["op"], res["failed_checks"])
+        assert {"rerun_from", "changed_ids", "building"} <= set(res)
+        assert res["rerun_from"] == "refit" and res["changed_ids"]
+        b = res["building"]
+        assert LK.check(source, b, "complete") == [], e["op"]
+    by_id = {f["id"]: f for f in b["furniture"]}
+    assert all(by_id[i].get("adjusted_by_ai") for i in ("f_L0_001", "f_L0_002", "f_L0_005"))
+    # A move beyond the snap distance that did not pass apply_edit is still refused by the guard.
+    far = copy.deepcopy(b)
+    next(f for f in far["furniture"] if f["id"] == "f_L0_002")["footprint"]["center"] = [3.0, 2.0]
+    assert any("moved" in v for v in LK.check(source, far, "complete"))
