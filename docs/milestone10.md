@@ -645,8 +645,8 @@ lights emit; HDRI at dusk), each with a verified Poly Haven HDRI.
 | Pod | When | Steps | Est. minutes | Est. cost |
 |---|---|---|---|---|
 | L1 | A1, C, D merged | ABO survey for the new types (40 per type), Objaverse survey for gaps, thumbnails, judging by both models (with material tags and the recolour part classes), accept (20 per type, decor 15), catalogue; the `sheet_region` AI passes of real02 and synthetic-07 (stored answers) | 90–110 | $3.1–3.8 |
-| L1b, L1c | L1 cut at 2 h (8 Oct: it surveyed every type, 55 min of ABO downloads) | L1b: `--types new` surveys (caches on the volume), thumbnails, material slots; L1c: the sheet and recognition answers, both judge sessions, accept, recolour tags, catalogue, GPU tests | ≈ 80 + ≈ 66 | ≈ $1–2 each |
-| L2 | after L1 | TRELLIS.2 generation for the types the real sources cannot fill (`plan --target 20`, decor 15), thumbnails, judging, catalogue | ≤ 115 | ≤ $4.0 |
+| L1b, L1c, L1d | L1 cut at 2 h (8 Oct: it surveyed every type, 55 min of ABO downloads) | L1b: `--types new` surveys (caches on the volume), thumbnails (cut); L1c: the rest of the thumbnails, judge requests, material slots (cut); L1d: the sheet and recognition answers, both judge sessions, accept, recolour tags, catalogue, GPU tests | 139 + 115 + ≤ 115 (actual) | $1.32 + $4.76 + ≤ $4.8 |
+| L2 | after L1 | TRELLIS.2 generation for the types the real sources cannot fill (`plan --target 20`, decor 15), thumbnails, the rest of the material slots, judging, catalogue | ≤ 115 | ≤ $4.8 |
 | L3 | only if L2 is cut | the rest of the generation plan | ≤ 110 | ≤ $3.9 |
 | F1 | after the review | full run of real02 (base + `Açık mutfak`), GPU tests | 80–115 | $2.8–4.0 |
 | F2 | after F1 | full runs of real01, synthetic-03, synthetic-07, GPU tests | 90–115 | $3.1–4.0 |

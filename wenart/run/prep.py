@@ -68,13 +68,17 @@ seeds).
 - ``copy``: ``<out>/sheets/requests.json`` and ``answers_*.json`` -> ``recognition/<p>/sheets/``, ``sheets_debug/*.png``
   -> ``furniture/<p>/sheets_debug/`` (``copy_sheets``: ``wenart.run.copy`` has no rule for them), ``sheets.json`` and
   ``sheets_report.md`` -> ``furniture/<p>/`` (``copy_project``'s ``*.json`` / ``*.md`` rule).
-- Pods (docs/milestone10.md §7): L1 did not fit one pod (8 Oct 2026, RTX 5090: ABO survey 55 min, Objaverse survey
-  24 min, thumbnails cut at the deadline) and is split in two on the same volume state. L1b =
-  ``PREP_SURVEY_TYPES=new PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,copy``; L1c =
+- Pods (docs/milestone10.md §7, §10.5): L1 did not fit one pod (8 Oct 2026, RTX 5090: ABO survey 55 min, Objaverse
+  survey 24 min, thumbnails cut at the deadline) and was split on the same volume state. L1b =
+  ``PREP_SURVEY_TYPES=new PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,recolour_slots,copy`` (RTX PRO 4000:
+  ABO 7 min, Objaverse 30 min, thumbnails cut after 54 min); L1c = ``PREP_ONLY=thumbnails,judge_requests,
+  recolour_slots,copy`` (RTX PRO 6000: thumbnails 50 min, 1646 judge sheets, material slots cut after 18 min); L1d =
   ``PREP_ONLY=pipelines,session_qwen,session_glm,pipeline_final,library,copy,tests`` (no survey: the candidate GLBs are
-  in ``<prep-root>/cache/``); L2 = ``WENART_GENERATE_TARGET=20
+  in ``<prep-root>/cache/``; the sessions judge the material slots rendered so far); L2 = ``WENART_GENERATE_TARGET=20
   PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,recolour_slots,session_qwen,session_glm,library,copy,tests``
-  (the real GLBs of L2 come from the assets copy of write-catalog, ``--assets``). All with ``PREP_PROJECTS``.
+  (the rest of the material slots too; the real GLBs of L2 come from the assets copy of write-catalog, ``--assets``).
+  All with ``PREP_PROJECTS`` and ``--max-minutes 95 --grace 1200`` (the job ends before the watchdog, the runner has
+  20 min to collect about 10000 library files, the pod stays under 2 h).
 
 Milestone 10, after pod L1 of 8 Oct 2026 (deadline cut, 3 result files collected, the container-disk downloads lost):
 
