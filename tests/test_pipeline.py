@@ -431,9 +431,13 @@ def test_pdf_furniture_plan_furnishes_level_when_dxf_floor_plan_has_none(tmp_pat
                       lambda f, t: furniture_matches(None, f["footprint"]["center"], f["footprint"]["size"],
                                                      f["footprint"]["rotation_deg"], t, check_type=False), "furniture")
     for piece in building["furniture"]:
-        # Vector PDF footprints carry no block name: type unknown, hence unverified, but kept.
-        assert piece["type"] == "unknown" and piece["status"] == "unverified" and piece["source"] == "from_documents"
-        assert [(e["file"], e["page"]) for e in piece["evidence"]] == [("mobilya.pdf", 1)]
+        # Vector PDF footprints carry no block name: type unknown, hence unverified, but kept. Milestone 11
+        # (CLAUDE.md "never an unexplained box"): a footprint only one type fits is inferred (furniture/infer.py),
+        # still unverified, with an inferred evidence entry after the drawing's.
+        assert piece["status"] == "unverified" and piece["source"] == "from_documents"
+        assert piece["type"] == "unknown" or piece.get("inferred") is True
+        assert [(e["file"], e["page"]) for e in piece["evidence"]][:1] == [("mobilya.pdf", 1)]
+        assert all(e["method"] == "inferred" for e in piece["evidence"][1:])
         assert piece["room_id"] is not None
     assert furnished_room_labels(building) == ["Banyo", "Salon", "Yatak Odası"]
     assert [c["kind"] for c in building["conflicts"]] == []
