@@ -24,6 +24,7 @@ override, and lists what it applied (the scene manifest's ``agent_overrides``).
 from __future__ import annotations
 
 import copy
+import math
 from typing import Optional, Sequence
 
 CAMERA_ACTIONS = ("set", "add", "remove")
@@ -54,8 +55,10 @@ def exterior_of(building: dict) -> dict:
 
 
 def roof_override(building: dict) -> Optional[dict]:
-    r = exterior_of(building).get("roof")
-    return r if isinstance(r, dict) and r else None
+    """The roof override (``roof.override_of``: the same reader the vision check uses)."""
+    from wenart.blender.roof import override_of
+
+    return override_of(building)
 
 
 def slot_name(slot: str) -> str:
@@ -99,7 +102,6 @@ def fixed_plan(entry: dict, level_id: Optional[str] = None, index: int = 1, base
     lens = entry.get("lens_mm") or (base or {}).get("lens_mm") or (cameras.LENS_MM if kind == "interior" else 26.0)
     pos = [float(v) for v in entry["position"]]
     tgt = [float(v) for v in entry["target"]]
-    import math
     pitch = math.degrees(math.atan2(tgt[2] - pos[2], math.hypot(tgt[0] - pos[0], tgt[1] - pos[1])))
     plan = {"name": str(entry["view_id"]), "kind": kind, "room_id": entry.get("room_id") if kind == "interior" else None,
             "level_id": level_id if kind == "interior" else None, "index": index, "position": pos, "target": tgt,

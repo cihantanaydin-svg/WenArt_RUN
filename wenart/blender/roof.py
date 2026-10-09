@@ -822,6 +822,15 @@ def terrace_decisions(roof: dict, building: dict, mode: str = "auto") -> tuple[d
 OVERRIDE_TYPES = ("flat", "gable", "hip", "mansard", "gambrel", "shed")
 
 
+def override_of(building: dict) -> Optional[dict]:
+    """The agent's roof override of a building (``agent_overrides.exterior.roof``, §17.3), None without one. Here
+    (not only in ``overrides``) so the gate's import closure stays roof.py (wenart/run/stages.py GATE_CODE)."""
+    ov = building.get("agent_overrides") if isinstance(building, dict) else None
+    ext = ov.get("exterior") if isinstance(ov, dict) and isinstance(ov.get("exterior"), dict) else {}
+    r = ext.get("roof")
+    return r if isinstance(r, dict) and r else None
+
+
 def apply_override(roof: Optional[dict], override: Optional[dict]) -> tuple[Optional[dict], list[dict]]:
     """The roof with the agent's ``exterior.roof`` override on top (pure; §17.3: ``{type, pitch_deg, overhang_m}``,
     every key optional): ``type`` replaces the type; ``pitch_deg`` the first pitch; ``overhang_m`` the overhang,
