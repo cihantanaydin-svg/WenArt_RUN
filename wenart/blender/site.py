@@ -42,6 +42,10 @@ from wenart.blender.shell import outward_side
 GRID_M = 1.0                    # ground grid where the terrain is not flat
 GRID_MAX_CELLS = 80              # per side: a large ground gets a coarser grid
 MARGIN_M = 30.0                  # ground beyond the building (and at least PLOT_MARGIN_M beyond the plot)
+# Flat ground runs on to the horizon (exterior.CLIP_END stays beyond it): a 30 m plane ended in the middle of the
+# exterior views, the HDRI's own ground showed behind its edge (the "lake shore" of real02's views) and the aerial
+# view saw the plane's corner. A slope keeps MARGIN_M (its grid would get too coarse near the building).
+HORIZON_M = 1000.0
 PLOT_MARGIN_M = 15.0
 GRASS_LIFT = 0.004               # draped areas stand this far above the ground (no coplanar faces)
 PAVING_LIFT = 0.012
@@ -283,11 +287,13 @@ def plot_polygon(building: dict) -> tuple[list, str]:
     return [], "none"
 
 
-def ground_extent(outline: Sequence[Sequence[float]], plot: Sequence[Sequence[float]]) -> list[tuple[float, float]]:
-    """The ground rectangle: ``MARGIN_M`` around the building and ``PLOT_MARGIN_M`` around the plot."""
+def ground_extent(outline: Sequence[Sequence[float]], plot: Sequence[Sequence[float]],
+                  margin: float = MARGIN_M) -> list[tuple[float, float]]:
+    """The ground rectangle: ``margin`` (default ``MARGIN_M``) around the building and ``PLOT_MARGIN_M`` around
+    the plot."""
     pts = [tuple(p[:2]) for p in outline]
     x0, y0, x1, y1 = G.bbox(pts)
-    x0, y0, x1, y1 = x0 - MARGIN_M, y0 - MARGIN_M, x1 + MARGIN_M, y1 + MARGIN_M
+    x0, y0, x1, y1 = x0 - margin, y0 - margin, x1 + margin, y1 + margin
     if plot:
         px0, py0, px1, py1 = G.bbox([tuple(p[:2]) for p in plot])
         x0, y0 = min(x0, px0 - PLOT_MARGIN_M), min(y0, py0 - PLOT_MARGIN_M)
@@ -577,7 +583,8 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     if doors:                                   # the basement doors' sides at their floor (assumed)
         terrain = terrain_model(building, outline, default_z, overrides=doors)
     plot, plot_src = plot_polygon(building) if mode == "full" else ([], "none")
-    extent = ground_extent(outline, plot)
+    # Flat ground reaches the horizon (HORIZON_M); a sloped one keeps MARGIN_M.
+    extent = ground_extent(outline, plot, HORIZON_M if is_flat(terrain) else MARGIN_M)
     wells, warnings = light_wells(building, levels, terrain, outline, outlines)
     warnings = list(terrain["warnings"]) + warnings + set_back_levels(levels, outline, outlines or {}, terrain)
     assumed = list(terrain["assumed"])

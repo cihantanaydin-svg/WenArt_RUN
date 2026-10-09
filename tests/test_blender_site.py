@@ -4,6 +4,7 @@ for the basement door (the south side at the basement floor, assumed, never writ
 light wells, the ground mesh, plot walls, trees, ``site: full`` / ``ground``, the sun turned by the building's
 north and the object kinds of the site build."""
 import copy
+import math
 import json
 from pathlib import Path
 
@@ -83,6 +84,11 @@ def test_north_turns_the_sides_and_the_sun():
     assert t["z"]["+x"] == -3.0 and t["z"]["-y"] == 0.0                  # the south side is +X now
     assert lighting.building_azimuth(210.0, 90.0) == pytest.approx(120.0)
     assert lighting.building_azimuth(210.0, 0.0) == pytest.approx(210.0)
+    # the world (sky sun / HDRI turn) takes the same building-frame azimuth as the sun lamp
+    style_light = {"sun_azimuth_deg": 210.0, "sun_elevation_deg": 35.0, "hdri": "x"}
+    world = lighting.world_lighting(style_light, lighting.building_azimuth(210.0, 90.0))
+    assert world["sun_azimuth_deg"] == pytest.approx(120.0) and world["sun_elevation_deg"] == 35.0
+    assert style_light["sun_azimuth_deg"] == 210.0                         # the style is not changed
     del b["site"]["north_deg"]
     north, source = S.north_deg(b)
     assert north == 0.0 and source.startswith("assumed")
@@ -190,6 +196,24 @@ def test_site_plan_full_and_ground():
     off = copy.deepcopy(b)
     off["site"]["boundary_walls"][0]["build"] = False
     assert len(S.site_plan(off, off["levels"], OUTLINE, "full")["plot_walls"]) == 3
+
+
+def test_flat_ground_reaches_the_horizon():
+    # real02's exterior views: a flat ground plane that ended 30 m from the building showed the HDRI's own ground
+    # behind its edge (it read as a lake shore) and its corner in the aerial view. Flat ground runs to HORIZON_M,
+    # inside the exterior clip end; a sloped ground keeps MARGIN_M (test_site_plan_full_and_ground).
+    from wenart.blender import exterior as E
+
+    b = _base()
+    b["openings"] = [o for o in b["openings"] if o["id"] != "d_L-1_001"]       # no basement door: the drawn flat ground
+    plan = S.site_plan(b, b["levels"], OUTLINE, "full")
+    assert plan["terrain"]["kind"] == "flat"
+    x0, y0, x1, y1 = G.bbox(plan["extent"])
+    bx0, by0, bx1, by1 = G.bbox(OUTLINE)
+    assert min(bx0 - x0, by0 - y0, x1 - bx1, y1 - by1) >= S.HORIZON_M >= 500.0
+    assert math.hypot(x1 - x0, y1 - y0) < E.CLIP_END                        # the cameras see the whole plane
+    verts, faces = S.draped_faces(plan["extent"], [OUTLINE], plan["terrain"])
+    assert {v[2] for v in verts} == {0.0} and len(faces) < 20                # still a few flat pieces
 
 
 def test_area_looks_drawn_first_then_the_resolved_ones():

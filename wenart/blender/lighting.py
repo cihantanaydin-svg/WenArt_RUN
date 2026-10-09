@@ -244,6 +244,14 @@ def building_azimuth(compass_azimuth_deg: float, north_deg: float = 0.0) -> floa
     return (float(compass_azimuth_deg) - float(north_deg)) % 360.0
 
 
+def world_lighting(lighting: dict, azimuth_building_deg: float) -> dict:
+    """The style's lighting for ``materials.world_nodes`` with the sun azimuth in the building frame (pure): the
+    sky's sun (physical sky) and the HDRI turn now follow the sun lamp, which already uses the building frame
+    (``building_azimuth``). Before, a building with a known north got the lamp from one direction and the sky's
+    bright side from another."""
+    return dict(lighting, sun_azimuth_deg=float(azimuth_building_deg))
+
+
 def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: str | None, collection,
                    manifest_objects: list, assumed: list, north_deg: float | None = None,
                    north_source: str | None = None, ceiling_at=None) -> dict:
@@ -266,7 +274,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     temperature = float(lighting.get("colour_temperature_k", 5200))
     in_building = building_azimuth(azimuth, north_deg or 0.0)
 
-    world = world_nodes(scene, lighting, hdri_path)
+    world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path)
 
     sun = bpy.data.lights.new("sun", "SUN")
     sun.energy = strength

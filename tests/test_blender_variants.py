@@ -206,6 +206,53 @@ def test_an_opening_drawn_above_the_knee_wall_is_a_warning():
     assert [w.split(":")[0] for w in B.pieces_above_ceiling(b, attic)] == ["f_L1_w", "f_L1_c"]
 
 
+def test_attic_decor_stays_under_the_roof():
+    # real02's exterior views: attic plants (1.6 m, next to the knee wall) stood through the roof and ceiling lights
+    # placed at the flat ceiling height (center[2]) floated above it.
+    prep = B.prepare(EXAMPLE, "base")
+    attic = prep["building"]["levels"][-1]
+    b = copy.deepcopy(prep["building"])
+    room = "r_L1_oyun_odasi"
+    b["decor"] = [
+        {"id": "dec_plant_knee", "type": "plant_large", "level_id": "L1", "room_id": room, "host_id": None,
+         "center": [3.0, 0.6], "size": [0.6, 0.6, 1.6]},                       # at the 0.87 m knee wall
+        {"id": "dec_plant_flat", "type": "plant_large", "level_id": "L1", "room_id": room, "host_id": None,
+         "center": [3.0, 4.0], "size": [0.6, 0.6, 1.6]},                       # under the flat part: fits
+        {"id": "dec_light_low", "type": "ceiling_light", "level_id": "L1", "room_id": room, "host_id": None,
+         "center": [3.0, 0.9, attic["ceiling_height"] - 0.12], "size": [0.4, 0.4, 0.12]},
+        {"id": "dec_light_flat", "type": "ceiling_light", "level_id": "L1", "room_id": room, "host_id": None,
+         "center": [3.0, 4.0, attic["ceiling_height"] - 0.12], "size": [0.4, 0.4, 0.12]},
+        {"id": "dec_cushion", "type": "cushion", "level_id": "L1", "host_id": "f_x", "center": [3.0, 0.6]},
+    ]
+    before = copy.deepcopy(b["decor"])
+    decor, warnings, not_built = B.decor_under_roof(b, attic)
+    assert b["decor"] == before                                               # the building is not changed
+    ids = [d["id"] for d in decor]
+    assert ids == ["dec_plant_flat", "dec_light_low", "dec_light_flat", "dec_cushion"]
+    assert [n["id"] for n in not_built] == ["dec_plant_knee"] and "through the roof" in not_built[0]["reason"]
+    low = next(d for d in decor if d["id"] == "dec_light_low")
+    assert low["center"] == [3.0, 0.9]                     # no height: the builder hangs it flush under the slope
+    assert next(d for d in decor if d["id"] == "dec_light_flat")["center"][2] == pytest.approx(attic["ceiling_height"] - 0.12)
+    assert sorted(w.split(":")[0] for w in warnings) == ["dec_light_low", "dec_plant_knee"]
+    # a level without a roof over it keeps its decor as it is
+    ground = next(lv for lv in prep["building"]["levels"] if lv["id"] == "L0")
+    assert B.decor_under_roof(b, ground) == (b["decor"], [], [])
+
+
+def test_a_roof_terrace_floor_is_the_outside_paving():
+    # real02: the roof terraces (rooms open to the sky) got the interior oak parquet (with the unverified stripes it
+    # read as an orange band on the roof). The open rooms take the exterior paving look; the others keep the style.
+    style = json.loads(STYLE.read_text(encoding="utf-8"))
+    prep = B.prepare(EXAMPLE, "base")
+    looks = E.resolve_looks(prep["building"], style)
+    terrace = next(r for r in prep["building"]["rooms"] if r["id"] in prep["open_rooms"])
+    slot, wet = shell.floor_style(terrace, style, looks["paving"])
+    assert (slot["material"], wet) == (looks["paving"]["material"], False) and slot["material"] != style["floor"]["material"]
+    assert slot.get("asset") == looks["paving"].get("asset")
+    assert shell.floor_style(terrace, style) == shell.floor_style(terrace, style, None)          # no look: the style
+    assert shell.floor_style(terrace, style, {})[0] == style["floor"]
+
+
 def test_camera_headroom_under_a_sloped_ceiling():
     from wenart.blender import camsearch
 
@@ -307,6 +354,7 @@ def test_example_object_counts_per_kind(example_builds):
     assert ceilings == rooms - {"r_L1_teras"}                        # the roof terrace is open to the sky
     floor = next(o for o in m["objects"] if o["kind"] == "floor" and o["wenart_id"] == "r_L1_teras")
     assert floor.get("open_to_sky") is True
+    assert floor["material"].split("__")[0] == m["exterior_looks"]["paving"]["material"]     # outside paving, not parquet
     parking = next(o for o in m["objects"] if o["wenart_id"] == "spk_001")
     assert parking["area_id"] == "sa_L0_otopark" and parking["slug"] == "paving" and parking["colour"] == "grey"
 

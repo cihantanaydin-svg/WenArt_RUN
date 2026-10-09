@@ -771,7 +771,8 @@ def main(argv: list[str]) -> int:
         if whole:
             floor_whole = {"floor_voids": under["voids"] if under else [],
                            "ceiling_voids": above["voids"] if above else None,
-                           "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"]}
+                           "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"],
+                           "terrace_floor": (looks or {}).get("paving")}
         shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
                                     whole=floor_whole)
         if whole and prep["outlines"].get(level["id"]):
@@ -779,7 +780,13 @@ def main(argv: list[str]) -> int:
                                                  pass_indices, manifest_objects, assumed, style=style)
             for k, v in counts.items():
                 outside[k] += v
-        summary = furniture.create_furniture(loose_furniture, level, col, library, style, args.assets, pass_indices,
+        level_furniture = loose_furniture
+        if whole and level.get("ceiling_planes"):     # decor under the roof stays inside it
+            decor, fit_warnings, fit_not_built = decor_under_roof(loose_furniture, level)
+            level_furniture = dict(loose_furniture, decor=decor)
+            warnings.extend(fit_warnings)
+            furniture_summary["not_built"].extend(fit_not_built)
+        summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
@@ -1023,6 +1030,51 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
                        f"above the floor stands where the sloped ceiling is {low - float(level['elevation']):.2f} m "
                        f"high; it shows through the ceiling")
     return out
+
+
+# Hostless decor that stands on the floor (a piece taller than the sloped ceiling over it would show through the
+# roof) and decor hung flush under the ceiling.
+FLOOR_DECOR_TYPES = ("plant_large", "plant", "sculpture", "basket")
+
+
+def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str], list[dict]]:
+    """``(decor, warnings, not_built)``: the building's decor list with the hostless decor of a level under the roof
+    fitted to its sloped ceiling (pure; ``level["ceiling_planes"]``, ``furniture.ceiling_above``). real02's exterior
+    views showed attic decor outside the roof: ceiling lights placed at the flat ceiling height (``center[2]``) hung
+    above the roof, and 1.6 m floor plants stood where the sloped ceiling is under 0.9 m high. A ceiling light whose given
+    height reaches over the ceiling loses ``center[2]`` (the builder then hangs it flush under the slope); a floor
+    piece taller than the ceiling over it is not built (``not_built``, with the reason). Pendants already lower
+    themselves (``furniture._create_decor``). The decor placer should respect the slope in the first place."""
+    from wenart.blender import furniture as F
+    from wenart.blender import parametric as P
+
+    decor = list(building.get("decor") or [])
+    if not level.get("ceiling_planes"):
+        return decor, [], []
+    out, warnings, not_built = [], [], []
+    for item in decor:
+        dtype = item.get("type")
+        center = list(item.get("center") or [])
+        if item.get("level_id") != level["id"] or item.get("host_id") is not None or len(center) < 2 \
+                or dtype not in ("ceiling_light",) + FLOOR_DECOR_TYPES:
+            out.append(item)
+            continue
+        w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
+        ceiling, _how = F.ceiling_above(level, center, (w, d), float(item.get("rotation_deg") or 0.0))
+        z = float(center[2]) if len(center) > 2 and center[2] is not None else 0.0
+        if z + h <= ceiling + 1e-3:
+            out.append(item)
+            continue
+        if dtype == "ceiling_light":
+            out.append(dict(item, center=center[:2]))
+            warnings.append(f"{item.get('id')}: ceiling light at {z:.2f} m above the floor, the sloped ceiling over it "
+                            f"is {ceiling:.2f} m high: hung flush under the slope instead")
+            continue
+        reason = (f"{dtype} {z + h:.2f} m high where the sloped ceiling is {ceiling:.2f} m high: it would show "
+                  f"through the roof")
+        warnings.append(f"{item.get('id')}: {reason}; not built")
+        not_built.append({"id": item.get("id"), "type": dtype, "reason": reason})
+    return out, warnings, not_built
 
 
 def interior_camera_fields(plan: dict, variant: str) -> dict:

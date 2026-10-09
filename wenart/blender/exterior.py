@@ -52,7 +52,7 @@ RAY_GRID = (32, 18)
 MIN_BUILDING_SHARE = 0.08
 MAX_BLOCKED = 0.35
 CLEARANCE = 0.3
-CLIP_END = 500.0
+CLIP_END = 3000.0                                       # beyond the flat ground (site.HORIZON_M)
 KIND = "exterior"
 LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4}
 

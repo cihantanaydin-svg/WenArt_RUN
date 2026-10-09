@@ -58,7 +58,7 @@ Milestone 10 (docs/milestone10.md §1.6b row 10, §3.2, §3.3; fixed after pod F
   must name the same rooms); the exterior views are tests/gpu/test_m10.py's;
 - depth: every view is checked and every bad one listed in one failure. An
   exterior view: 0.1 m < min < max < the exterior clip end
-  (``exterior.CLIP_END``, 500 m) and over 0.25 of the pixels hit (the sky
+  (``exterior.CLIP_END``, 3000 m) and over 0.25 of the pixels hit (the sky
   fills the rest by design); an interior view of a room open to the sky (a
   roof terrace: ``roof.openings[].room_id``) keeps the interior depth range
   and has no coverage bound; every other view keeps 0.1 m < min < max < 60 m

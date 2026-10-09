@@ -1362,10 +1362,14 @@ def separator_entry(opening: dict, level_id: str) -> dict:
     return entry
 
 
-def floor_style(room: dict, style: dict) -> tuple[dict, bool]:
+def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[dict, bool]:
     """``(style slot, wet)`` of a room floor: the wet-room floor for bathroom /
     wc / kitchen, the style floor otherwise (dining and prayer rooms as living
-    rooms, ``slot_room_type``)."""
+    rooms, ``slot_room_type``). Milestone 10: ``outdoor`` (the exterior ``paving``
+    look) is the floor of a room open to the sky (a roof terrace), not the
+    interior floor (real02's terraces showed oak parquet in the rain)."""
+    if outdoor and (outdoor.get("material") or outdoor.get("slug")):
+        return dict(outdoor, material=outdoor.get("material") or outdoor.get("slug")), False
     wet = slot_room_type(room.get("room_type")) in WET_ROOM_TYPES
     return (style.get("wet_floor") if wet else None) or style["floor"], wet
 
@@ -1378,10 +1382,11 @@ def slot_material(library, slot: dict, unverified: bool = False):
                        colour=slot.get("colour"), params=slot.get("params"))
 
 
-def floor_material(room: dict, style: dict, library):
+def floor_material(room: dict, style: dict, library, outdoor: dict | None = None):
     """``(material, wet)`` of a room floor: the style floor, the wet-room floor
-    for bathroom / wc / kitchen, the dashed-red overlay for unverified rooms."""
-    slot, wet = floor_style(room, style)
+    for bathroom / wc / kitchen (``outdoor``: a roof terrace's paving,
+    ``floor_style``), the dashed-red overlay for unverified rooms."""
+    slot, wet = floor_style(room, style, outdoor)
     mat = slot_material(library, slot, unverified=room.get("status") == "unverified")
     return mat, wet
 
@@ -1481,7 +1486,7 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     of its floors), "ceiling_voids": [polygons] or None (the openings of the slab above: cut out of the
     ceilings instead of the stairs' own openings), "ceiling_planes": [(a, b, c)] or None (the rooms under the
     roof: ceilings on the lowest of these planes, ``roof.ceiling_planes``), "open_rooms": {room ids} (roof
-    terraces: no ceiling)}``."""
+    terraces: no ceiling), "terrace_floor": the exterior ``paving`` look (the floor of the open rooms)}``."""
     from wenart.blender import common
 
     level_id = level["id"]
@@ -1498,7 +1503,8 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     for room in building["rooms"]:
         if room["level_id"] != level_id:
             continue
-        floor_mat, wet = floor_material(room, style, library)
+        floor_mat, wet = floor_material(room, style, library,
+                                        whole.get("terrace_floor") if room["id"] in open_rooms else None)
         ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
         ceil_mat = slot_material(library, ceiling_style)
         if len(room["polygon"]) < 3:
