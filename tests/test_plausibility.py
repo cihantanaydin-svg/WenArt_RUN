@@ -175,3 +175,25 @@ def test_orientation_rules_cover_every_type():
         assert rule["back"] in ("wall", "wall_or_group", "free", "skip"), t
         assert set(rule["front_to"]) <= set(schemas.SIZE_OPTIONS), t
         assert set(rule["partners"]) <= set(schemas.SIZE_OPTIONS), t
+
+
+def test_a_door_blocked_on_one_hinge_side_only_is_minor():
+    """M11 pod G1 (synthetic-01): no drawing gives the hinge side; the half disc of the swing covers both. A piece
+    that only one hinge's leaf would hit is minor (the other hinge is free); a piece hit on both sides stays critical."""
+    import json
+    from pathlib import Path
+    from wenart.furniture import plausibility as P
+
+    b = json.loads((Path(__file__).resolve().parents[1] / "results" / "furniture" / "synthetic-01" /
+                    "building_final.json").read_text(encoding="utf-8"))
+    r3 = {v["target"]: v for r in P.score_building(b)["rooms"].values() for v in r["violations"] if v["check"] == "R3"}
+    assert set(r3) == {"d_L0_002", "d_L0_004", "d_L0_005"}
+    assert all(v["severity"] == "minor" and "other hinge side is free" in v["message"] for v in r3.values())
+    # an armchair right in front of the door's centre: both leaves hit it -> critical
+    arm = next(f for f in b["furniture"] if f["id"] == "f_L0_004")
+    door = next(o for o in b["openings"] if o["id"] == "d_L0_002")
+    arm["footprint"]["center"] = [door["center"][0], door["center"][1] - 0.5]
+    arm["footprint"]["size"] = [0.9, 0.5]
+    v = {x["target"]: x for r in P.score_building(b)["rooms"].values() for x in r["violations"]
+         if x["check"] == "R3"}["d_L0_002"]
+    assert v["severity"] == "critical"

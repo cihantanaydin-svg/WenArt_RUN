@@ -1,0 +1,138 @@
+{
+ "key": "agent",
+ "started_utc": "2026-10-09T19:53:57Z",
+ "steps": {
+  "speed_1": {
+   "streams": 1,
+   "completion_tokens": 512,
+   "seconds": 7.23,
+   "tokens_per_s_total": 70.8,
+   "tokens_per_s_per_stream": 70.8,
+   "step_seconds": 7.2
+  },
+  "speed_4": {
+   "streams": 4,
+   "completion_tokens": 2048,
+   "seconds": 7.3,
+   "tokens_per_s_total": 280.6,
+   "tokens_per_s_per_stream": 70.1,
+   "step_seconds": 7.3
+  },
+  "tool_call": {
+   "ok": true,
+   "calls": [
+    {
+     "name": "room",
+     "arguments": {
+      "room_id": "r_L0_salon"
+     },
+     "errors": []
+    }
+   ],
+   "content": "",
+   "seconds": 2.1,
+   "usage": {
+    "prompt_tokens": 5383,
+    "total_tokens": 5414,
+    "completion_tokens": 31,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    }
+   },
+   "step_seconds": 2.2
+  }
+ },
+ "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "server": {
+  "key": "agent",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "seqs": 4,
+  "seconds_to_ready": 130.0,
+  "ok": true,
+  "vram_before_mib": 0,
+  "vram_after_start_mib": 52369,
+  "url": "http://127.0.0.1:8001/v1"
+ },
+ "calls": [
+  {
+   "call_id": "speed-1-0",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 7.228,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-1",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 7.297,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-0",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 7.298,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-2",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 7.297,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-3",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 7.296,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "toolcall",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 2.101,
+   "attempts": 1,
+   "tool_calls": 1,
+   "prompt_tokens": 5383,
+   "completion_tokens": 31,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  }
+ ],
+ "finished_utc": "2026-10-09T19:56:27Z"
+}

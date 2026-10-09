@@ -318,6 +318,22 @@ class DoorZone:
     zone: Polygon                           # 0.6 m approach strip
     swing: Optional[Polygon]                # half disc when the door opens into this room
     width: float
+    along: Optional[tuple[float, float]] = None     # M11: unit vector along the wall
+    normal: Optional[tuple[float, float]] = None    # M11: unit vector into the room
+
+    def hinge_swings(self) -> list[Polygon]:
+        """M11: the two quarter discs of the leaf, one per hinge jamb (the half disc ``swing`` covers both,
+        because no drawing gives the hinge side). Empty when the door does not open into this room."""
+        if self.swing is None or self.swing.is_empty or self.along is None or self.normal is None:
+            return []
+        (x, y), (tx, ty), (nx, ny), w = self.inner_point, self.along, self.normal, float(self.width)
+        out = []
+        for s in (1.0, -1.0):
+            jx, jy = x + s * tx * w / 2.0, y + s * ty * w / 2.0          # the hinge jamb
+            box = Polygon([(jx, jy), (jx + nx * w, jy + ny * w), (jx + nx * w - s * tx * w, jy + ny * w - s * ty * w),
+                           (jx - s * tx * w, jy - s * ty * w)])
+            out.append(Point(jx, jy).buffer(w, 32).intersection(box).intersection(self.swing.buffer(1e-6)))
+        return out
 
 
 @dataclass
@@ -432,7 +448,7 @@ def room_context(building: dict, room: dict) -> RoomContext:
         if not eroded.is_empty and eroded.distance(Point(approach)) > POINT_TOL_M:
             near = nearest_points(eroded, Point(approach))[0]
             approach = (round(near.x, 3), round(near.y, 3))
-        doors.append(DoorZone(op["id"], inner, approach, zone, swing, width))
+        doors.append(DoorZone(op["id"], inner, approach, zone, swing, width, along=tuple(d), normal=tuple(n)))
     windows = []
     for op in window_items:
         d, n, inner = _opening_frame(op, walls_by_id, polygon, segments)

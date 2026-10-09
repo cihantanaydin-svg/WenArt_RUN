@@ -1,0 +1,396 @@
+{
+ "key": "agent_fast",
+ "started_utc": "2026-10-09T19:56:28Z",
+ "steps": {
+  "speed_1": {
+   "streams": 1,
+   "completion_tokens": 512,
+   "seconds": 2.83,
+   "tokens_per_s_total": 180.9,
+   "tokens_per_s_per_stream": 180.9,
+   "step_seconds": 2.8
+  },
+  "speed_4": {
+   "streams": 4,
+   "completion_tokens": 2048,
+   "seconds": 3.45,
+   "tokens_per_s_total": 593.2,
+   "tokens_per_s_per_stream": 148.3,
+   "step_seconds": 3.5
+  },
+  "tool_call": {
+   "ok": true,
+   "calls": [
+    {
+     "name": "room",
+     "arguments": {
+      "room_id": "r_L0_salon"
+     },
+     "errors": []
+    }
+   ],
+   "content": "I'll start by examining the room and the pieces mentioned in the finding to understand the current layout.",
+   "seconds": 2.02,
+   "usage": {
+    "prompt_tokens": 5383,
+    "total_tokens": 5435,
+    "completion_tokens": 52,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    }
+   },
+   "step_seconds": 2.0
+  },
+  "repetition": {
+   "ngram": "Furnishing a two-storey family home requires a delicate",
+   "count": 1,
+   "looped": false,
+   "words": 711,
+   "finish_reason": "stop",
+   "completion_tokens": 900,
+   "step_seconds": 4.2
+  },
+  "structured": {
+   "ok": true,
+   "error": null,
+   "kept": 8,
+   "dropped": 0,
+   "seconds": 4.01,
+   "step_seconds": 4.0
+  },
+  "sleep_wake": {
+   "sleep_ok": true,
+   "wake_ok": true,
+   "vram_before_mib": 52891,
+   "vram_asleep_mib": 1759,
+   "call_after_wake": true,
+   "step_seconds": 9.0
+  },
+  "planted_critic": {
+   "planted": [
+    {
+     "piece_id": "f_L0_009",
+     "room_id": "r_L0_e_yatak_odasi",
+     "what": "bed turned 180 deg: headboard into the room",
+     "flagged": false,
+     "findings": [
+      {
+       "check": "F1",
+       "severity": "critical",
+       "target": "f_L0_003",
+       "message": "The plan labels the large green object on the left as 'kitchen_counter', but the render shows a wardrobe. A kitchen counter is not appropriate for a bedroom."
+      },
+      {
+       "check": "F3",
+       "severity": "major",
+       "target": "f_L0_003",
+       "message": "The render shows a wardrobe (f_L0_003) placed in the middle of the room, floating away from the walls. Wardrobes should be placed against a wall."
+      },
+      {
+       "check": "F8",
+       "severity": "major",
+       "target": "f_L0_003",
+       "message": "The wardrobe (f_L0_003) is floating in the middle of the room and is not part of a group."
+      },
+      {
+       "check": "F8",
+       "severity": "major",
+       "target": "f_L0_046",
+       "message": "The bench (f_L0_046) is floating in the middle of the room and is not part of a group."
+      },
+      {
+       "check": "F5",
+       "severity": "major",
+       "target": "f_L0_046",
+       "message": "The bench (f_L0_046) is not placed at the foot of the bed as is standard for a bedroom bench."
+      },
+      {
+       "check": "F5",
+       "severity": "major",
+       "target": "f_L0_044",
+       "message": "The nightstand (f_L0_044) is not placed beside the bed."
+      },
+      {
+       "check": "F5",
+       "severity": "major",
+       "target": "f_L0_045",
+       "message": "The nightstand (f_L0_045) is not placed beside the bed."
+      },
+      {
+       "check": "F6",
+       "severity": "major",
+       "target": "f_L0_003",
+       "message": "The wardrobe (f_L0_003) is placed in the middle of the room, blocking the walkway and preventing the required 0.6m clearance for opening doors."
+      },
+      {
+       "check": "V2",
+       "severity": "critical",
+       "target": "f_L0_003",
+       "message": "The render shows a wardrobe for f_L0_003, but the plan labels it as a kitchen_counter."
+      },
+      {
+       "check": "V2",
+       "severity": "critical",
+       "target": "f_L0_046",
+       "message": "The render shows a bench (f_L0_046) in the middle of the room, but the plan shows it against the wall."
+      },
+      {
+       "check": "V2",
+       "severity": "critical",
+       "target": "f_L0_044",
+       "message": "The render shows a nightstand (f_L0_044) in the corner, but the plan shows it at the foot of the bed."
+      },
+      {
+       "check": "V2",
+       "severity": "critical",
+       "target": "f_L0_045",
+       "message": "The render shows a nightstand (f_L0_045) in the corner, but the plan shows it at the foot of the bed."
+      }
+     ],
+     "dropped": 0,
+     "error": null
+    },
+    {
+     "piece_id": "f_L-1_017",
+     "room_id": "r_L-1_salon",
+     "what": "sofa turned to face the wall behind it",
+     "flagged": false,
+     "findings": [
+      {
+       "check": "V3",
+       "severity": "critical",
+       "target": "r_L-1_salon",
+       "message": "The render images (2 and 3) contain debug markers (striped textures on the floor and furniture), which should not be present in final architectural images."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_062",
+       "message": "The chaise (f_L-1_062) is placed through the wall on the left side of the room, which is physically impossible."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_005",
+       "message": "The unknown piece (f_L-1_005) is placed through the wall on the left side of the room."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_024",
+       "message": "The unknown piece (f_L-1_024) is placed through the wall on the bottom left corner."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_061",
+       "message": "The armchair (f_L-1_061) is placed through the wall on the left side of the room."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_013",
+       "message": "The armchair (f_L-1_013) is placed through the wall on the left side of the room."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_034",
+       "message": "The unknown piece (f_L-1_034) is placed through the wall on the bottom right corner."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_035",
+       "message": "The unknown piece (f_L-1_035) is placed through the wall on the bottom right corner."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_051",
+       "message": "The unknown piece (f_L-1_051) is placed through the wall on the bottom right corner."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_063",
+       "message": "The console table (f_L-1_063) is placed through the wall on the bottom right corner."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_064",
+       "message": "The sideboard (f_L-1_064) is placed through the wall on the right side of the room."
+      },
+      {
+       "check": "F9",
+       "severity": "critical",
+       "target": "f_L-1_058",
+       "message": "The chair (f_L-1_058) is placed through the wall on the right side of the room."
+      }
+     ],
+     "dropped": 0,
+     "error": null
+    }
+   ],
+   "flagged": 0,
+   "of": 2,
+   "step_seconds": 11.1
+  }
+ },
+ "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "server": {
+  "key": "agent_fast",
+  "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+  "seqs": 4,
+  "seconds_to_ready": 110.0,
+  "ok": true,
+  "vram_before_mib": 0,
+  "vram_after_start_mib": 52607,
+  "url": "http://127.0.0.1:8001/v1"
+ },
+ "calls": [
+  {
+   "call_id": "speed-1-0",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 2.83,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "speed-4-0",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 3.446,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "speed-4-2",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 3.451,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "speed-4-1",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 3.451,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "speed-4-3",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 3.451,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "toolcall",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 2.018,
+   "attempts": 1,
+   "tool_calls": 1,
+   "prompt_tokens": 5383,
+   "completion_tokens": 52,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "repetition",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 4.21,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 900,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.989,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 561,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "after-wake",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 0.435,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 15,
+   "completion_tokens": 2,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "planted-f_L0_009",
+   "kind": "critic",
+   "images": 3,
+   "error": null,
+   "seconds": 5.156,
+   "attempts": 1,
+   "prompt_tokens": 3407,
+   "completion_tokens": 983,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  },
+  {
+   "call_id": "planted-f_L-1_017",
+   "kind": "critic",
+   "images": 3,
+   "error": null,
+   "seconds": 4.714,
+   "attempts": 1,
+   "prompt_tokens": 4130,
+   "completion_tokens": 960,
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "revision": "95a723d08a9490559dae23d0cff1d9466213d989"
+  }
+ ],
+ "finished_utc": "2026-10-09T19:59:02Z"
+}

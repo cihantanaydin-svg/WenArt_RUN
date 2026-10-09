@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="353.685" timestamp="2026-10-09T19:59:04.759019+00:00" hostname="df3138bc1bca"><testcase classname="tests.gpu.test_agent" name="test_the_model_serves_a_tool_call_and_a_json_schema_answer" time="122.776" /><testcase classname="tests.gpu.test_agent" name="test_the_critic_flags_a_planted_bed" time="10.959" /><testcase classname="tests.gpu.test_agent" name="test_the_loop_on_synthetic_01" time="218.459"><failure message="AssertionError: [{'id': 'c:R3:d_L0_004', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'c:R3:d_L0_005', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'v:r99-v1:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v2:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v9:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}]&#10;assert not [{'id': 'c:R3:d_L0_004', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'c:R3:d_L0_005', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'v:r99-v1:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v2:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v9:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}]">model = &lt;wenart.agent.model.AgentModel object at 0x7388f48282f0&gt;
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_the_loop_on_synthetic_010')
+
+    def test_the_loop_on_synthetic_01(model, tmp_path):
+        out = _synthetic_01(tmp_path)
+    
+        def rerun(stage, views, round_no, final):
+            # On the CPU: the accepted edits replayed (apply) and taken as the rendered building; no new previews.
+            OV.apply(out)
+            shutil.copyfile(out / OV.AGENT_BUILDING, out / "building_final.json")
+            return {"status": "ok", "views": [], "note": "apply only (GPU test)"}
+    
+        loop = LP.AgentLoop(out, model, rerun=rerun, max_rounds=3)
+        summary = loop.run()
+        assert summary["stop"]["reason"] in ("no_finding", "no_edit", "max_rounds"), summary
+        data = json.loads((out / "orchestrator" / "log.json").read_text())
+        assert LG.validate_log(data) == []
+        for e in data["events"]:
+            if e["kind"] == "edit":
+                assert e["validation"]["accepted"] and not e["validation"]["failed_checks"] and e["reason"]
+        ctx = loop.context(99)
+        code = loop.run_code_critic(ctx, loop.preview_dir)
+        vision = loop.run_vision_critic(ctx, code, 99)
+        critical = [f for f in code["findings"] + vision["kept"] if f["severity"] == "critical"]
+&gt;       assert not critical, critical
+E       AssertionError: [{'id': 'c:R3:d_L0_004', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'c:R3:d_L0_005', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'v:r99-v1:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v2:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v9:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}]
+E       assert not [{'id': 'c:R3:d_L0_004', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'c:R3:d_L0_005', 'source': 'code', 'check': 'R3', 'severity': 'critical', ...}, {'id': 'v:r99-v1:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v2:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}, {'id': 'v:r1-v9:1', 'source': 'vision', 'check': 'F9', 'severity': 'critical', ...}]
+
+tests/gpu/test_agent.py:119: AssertionError</failure></testcase></testsuite></testsuites>

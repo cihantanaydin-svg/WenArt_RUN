@@ -52,7 +52,9 @@ def test_the_critic_finds_the_known_problems(critic):
              if v["check"] == "F9" and "unexplained" in v["message"]]
     assert len(boxes) >= 50
     assert {v["target"] for v in boxes if v["severity"] == "major"} >= {"f_L-1_001", "f_L1_003"}
-    assert critic["counts"]["critical"] >= 5 and critic["mean"] < 70
+    # M11 pod G1: a door blocked on one hinge side only is minor (test_plausibility), so fewer criticals than at
+    # the merge (12); the reversed master bed and the other real problems stay.
+    assert critic["counts"]["critical"] >= 2 and critic["mean"] < 70
 
 
 def test_scripted_edits_raise_the_scores(building):

@@ -635,3 +635,32 @@ causes (M7), `relayout_room` is a placer repair, not a new design.
 
 CPU test renders of real02 (untextured, 16 samples) show the hip-topped mansard, plinth and slab band, paths,
 hedges, trees, sunken courts and the physical sky.
+
+## 19. Pods
+
+### 19.1 Pod G1 – agent model check (9 Oct 2026, `3n5gzxuuv9c8sc`, RTX PRO 6000 Server, 22 min, $0.91)
+
+Results: `results/agent/g1/`. Exit 1 because of one GPU test (below); every model check passed.
+
+| Check | `Qwen3.8-27B-FP8` (agent) | with MTP | `Qwen3.6-35B-A3B-FP8` (agent_fast) |
+|---|---|---|---|
+| Server ready | 190 s | 130 s | 110 s |
+| VRAM of the server (0.55 share) | 52.1 GB | 52.4 GB | 52.6 GB |
+| Tokens/s, 1 stream / 4 streams | 45.9 / 167 | 70.8 / 281 | 181 / 593 |
+| Tool call (planner tools, strict) | ok | ok | ok |
+| JSON-schema critic answer | ok (2 kept, 0 dropped) | not tested | ok (8 kept) |
+| Temperature 0, 1,000-token answer | no loop | – | no loop |
+| Cycles render of a real02 view next to the server | ok, 57 s, peak 65.9 GB, 15 critic calls during it all ok | – | – |
+| Sleep / wake | ok (52.9 → 1.3 GB → back) | – | ok |
+| Planted errors on real02 (bed turned 180°, sofa facing its wall) | bed found, sofa missed | – | neither found (12 findings each, mostly noise) |
+
+Decisions: the 27B stays the agent and critic (the 35B-A3B is 3× faster but missed both planted errors). MTP stays
+off for now (1.5× faster, but not tested with JSON-schema answers).
+
+GPU tests: 2 passed (serving, planted-error critic), 1 failed: `test_the_loop_on_synthetic_01` ended with 3 critical
+R3 findings (doors swinging into drawn pieces) and vision F9 findings. Causes and fixes:
+- R3 used the half disc around the door (both hinge sides at once). Now each hinge side is checked: critical only
+  when both are blocked, minor when one side is free (the leaf is built closed); synthetic-01 then has no
+  critical finding (test `test_a_door_blocked_on_one_hinge_side_only_is_minor`).
+- The test re-renders nothing, so its vision critic judged the stale previews again; it now asserts on the code
+  findings only (the full runs re-render).

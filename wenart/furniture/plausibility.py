@@ -459,8 +459,19 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
         hits = [pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair"
                 and poly.intersection(door.swing).area > AREA_MIN_M2]
         if hits:
-            out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)}",
-                                  {"pieces": hits}))
+            # M11 (pod G1, synthetic-01): no drawing gives the hinge side, and the half disc covers both. Critical
+            # only when the leaf hits a piece on either hinge; else minor (the leaf is built closed and the door can hinge on
+            # the free jamb).
+            per_hinge = [[pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair"
+                          and poly.intersection(q).area > AREA_MIN_M2] for q in door.hinge_swings()]
+            free = [i for i, h in enumerate(per_hinge) if not h]
+            if per_hinge and free:
+                out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)} on one "
+                                      "hinge side; the other hinge side is free", {"pieces": hits,
+                                      "free_hinge": free[0]}, severity="minor"))
+            else:
+                out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)}",
+                                      {"pieces": hits}))
     if pieces and r.ctx.baseline_pairs:
         blamed, failures = placer.walkway_blame(pieces, r.ctx)
         for pair in failures:

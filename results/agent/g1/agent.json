@@ -1,0 +1,465 @@
+{
+ "key": "agent",
+ "started_utc": "2026-10-09T19:48:27Z",
+ "steps": {
+  "speed_1": {
+   "streams": 1,
+   "completion_tokens": 512,
+   "seconds": 11.14,
+   "tokens_per_s_total": 45.9,
+   "tokens_per_s_per_stream": 45.9,
+   "step_seconds": 11.1
+  },
+  "speed_4": {
+   "streams": 4,
+   "completion_tokens": 2048,
+   "seconds": 12.26,
+   "tokens_per_s_total": 167.0,
+   "tokens_per_s_per_stream": 41.8,
+   "step_seconds": 12.3
+  },
+  "tool_call": {
+   "ok": true,
+   "calls": [
+    {
+     "name": "room",
+     "arguments": {
+      "room_id": "r_L0_salon"
+     },
+     "errors": []
+    }
+   ],
+   "content": "",
+   "seconds": 2.56,
+   "usage": {
+    "prompt_tokens": 5383,
+    "total_tokens": 5414,
+    "completion_tokens": 31,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    }
+   },
+   "step_seconds": 2.7
+  },
+  "repetition": {
+   "ngram": "Designing a two-storey family home requires a delicate",
+   "count": 1,
+   "looped": false,
+   "words": 851,
+   "finish_reason": "stop",
+   "completion_tokens": 1066,
+   "step_seconds": 23.1
+  },
+  "structured": {
+   "ok": true,
+   "error": null,
+   "kept": 2,
+   "dropped": 0,
+   "seconds": 4.09,
+   "step_seconds": 4.1
+  },
+  "concurrent_render": {
+   "camera": "cam_r_L-1_salon_1",
+   "render_rc": 0,
+   "render_seconds": 56.7,
+   "peak_vram_mib": 65918,
+   "critic_calls": 15,
+   "critic_calls_ok": 15,
+   "step_seconds": 56.8
+  },
+  "sleep_wake": {
+   "sleep_ok": true,
+   "wake_ok": true,
+   "vram_before_mib": 52979,
+   "vram_asleep_mib": 1311,
+   "call_after_wake": true,
+   "step_seconds": 10.3
+  },
+  "planted_critic": {
+   "planted": [
+    {
+     "piece_id": "f_L0_009",
+     "room_id": "r_L0_e_yatak_odasi",
+     "what": "bed turned 180 deg: headboard into the room",
+     "flagged": true,
+     "findings": [
+      {
+       "check": "F1",
+       "severity": "major",
+       "target": "f_L0_003",
+       "message": "A kitchen counter is placed in a bedroom, which is the wrong furniture type for this room."
+      },
+      {
+       "check": "F3",
+       "severity": "major",
+       "target": "f_L0_009",
+       "message": "The bed is placed in the middle of the room with its headboard facing a wall, but the foot of the bed is blocked by a large wooden partition wall, preventing access."
+      },
+      {
+       "check": "F6",
+       "severity": "major",
+       "target": "f_L0_009",
+       "message": "The clearance beside the bed is obstructed by a partition wall, making the bed inaccessible from that side."
+      }
+     ],
+     "dropped": 0,
+     "error": null
+    },
+    {
+     "piece_id": "f_L-1_017",
+     "room_id": "r_L-1_salon",
+     "what": "sofa turned to face the wall behind it",
+     "flagged": false,
+     "findings": [
+      {
+       "check": "V3",
+       "severity": "critical",
+       "target": "r_L-1_salon",
+       "message": "The final render images contain debug markers, specifically the prominent pink and white diagonal stripes on the floor and furniture surfaces."
+      }
+     ],
+     "dropped": 0,
+     "error": null
+    }
+   ],
+   "flagged": 1,
+   "of": 2,
+   "step_seconds": 9.4
+  }
+ },
+ "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "server": {
+  "key": "agent",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "seqs": 4,
+  "seconds_to_ready": 190.0,
+  "ok": true,
+  "vram_before_mib": 0,
+  "vram_after_start_mib": 52115,
+  "url": "http://127.0.0.1:8001/v1"
+ },
+ "calls": [
+  {
+   "call_id": "speed-1-0",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 11.144,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-0",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 12.238,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-1",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 12.262,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-2",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 12.261,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "speed-4-3",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 12.261,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 512,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "toolcall",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 2.563,
+   "attempts": 1,
+   "tool_calls": 1,
+   "prompt_tokens": 5383,
+   "completion_tokens": 31,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "repetition",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 23.053,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 56,
+   "completion_tokens": 1066,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 4.037,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.391,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.389,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.395,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.388,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.388,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.388,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.409,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.639,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.658,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 4.193,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 5.007,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 4.886,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.853,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.399,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "structured",
+   "kind": "critic",
+   "images": 1,
+   "error": null,
+   "seconds": 3.391,
+   "attempts": 1,
+   "prompt_tokens": 1438,
+   "completion_tokens": 153,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "after-wake",
+   "kind": "chat",
+   "images": 0,
+   "error": null,
+   "seconds": 0.069,
+   "attempts": 1,
+   "tool_calls": 0,
+   "prompt_tokens": 15,
+   "completion_tokens": 2,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "planted-f_L0_009",
+   "kind": "critic",
+   "images": 3,
+   "error": null,
+   "seconds": 5.781,
+   "attempts": 1,
+   "prompt_tokens": 3407,
+   "completion_tokens": 246,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "call_id": "planted-f_L-1_017",
+   "kind": "critic",
+   "images": 3,
+   "error": null,
+   "seconds": 2.393,
+   "attempts": 1,
+   "prompt_tokens": 4130,
+   "completion_tokens": 88,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  }
+ ],
+ "finished_utc": "2026-10-09T19:53:55Z"
+}
