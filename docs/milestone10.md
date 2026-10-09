@@ -730,7 +730,7 @@ fixed with a test that failed before (a few were already fixed by later merges: 
 - `completion_report.md` shows the drawn type for a reverted change (the final report shows the refused proposal).
 - A private project's report names its sheet debug image paths (staged names, never copied).
 - Objaverse LVIS category names are checked against the LVIS v1 list, not the Objaverse file (unverified until a pod).
-- `recolour slots` rebuilds every model's record and sheet after Blender on each run (reads the masks and renders from the network volume, about 15 min for 1646 models) and does not watch the deadline there; the GLB copies with renamed materials before Blender neither. The prep job therefore runs `recolour_slots` only where the slots are new (L2b leaves it out: the generated models get no material fields, and the fit chooses them by their own colours).
+- `recolour slots` rebuilds every model's record and sheet after Blender on each run (reads the masks and renders from the network volume, about 15 min for 1646 models) and does not watch the deadline there; the GLB copies with renamed materials before Blender neither. The prep job therefore runs `recolour_slots` only where the slots are new (L2b leaves it out: the generated models get no material fields: a colour brief skips them and the fit takes another model, `wenart/assets/recolour.py`).
 
 ### 10.5 Pods
 
