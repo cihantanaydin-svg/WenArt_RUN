@@ -60,5 +60,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-09 07:25 | puc0tntgfvz5he | NVIDIA RTX PRO 6000 Blackwell Server Edition | 59 | 2.44 | M10 F1: full run of real02 (base and the Açık mutfak variant: sheets, stacked levels, roof, exterior views, completion), GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-09 09:21 | twdf5bhj1h28ou | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 54 | 2.33 | M10 F1b: real02 full run again after the F1 fixes (stair-core cameras, decor copy chain, gate counts, GPU test adaptations), GPU tests | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-09 10:47 | 3ywy7xcrpf1fn3 | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 85 | 3.66 | M10 F2: full runs of real01, synthetic-03 and synthetic-07 (no-regression check, completion of furnished rooms, synthetic-07 levels and variants), GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-09 13:46 | pending:20261009-134613-full | RTX PRO 6000 | 60 | 2.49 | M10 F3: synthetic-07 again after the F2 fixes (attic wall, roof ridge line, top-floor stair), GPU tests | creating (provisional, worst case) |
 
-**Total spent so far: $64.15** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $66.64** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
