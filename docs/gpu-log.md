@@ -58,5 +58,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-09 04:59 | 2aw8p6a9m8kvsw | NVIDIA RTX PRO 4000 Blackwell | 5 | 0.04 | M10 diagnostic after the volume grew to 250 GB: usage and the logs of pod L2b (read only) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-09 06:23 | 6d8e6zae3wsqxt | NVIDIA RTX PRO 6000 Blackwell Server Edition | 81 | 3.37 | M10 L2c: TRELLIS.2 generation for the 13 thin new types, thumbnails, both judge sessions (GLM: the material slots too), catalogue with material fields, GPU tests | exit 1, self-stop ok |
 | 2026-10-09 07:25 | puc0tntgfvz5he | NVIDIA RTX PRO 6000 Blackwell Server Edition | 59 | 2.44 | M10 F1: full run of real02 (base and the Açık mutfak variant: sheets, stacked levels, roof, exterior views, completion), GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-09 08:27 | pending:20261009-082737-full | RTX PRO 6000 WK | 105 | 4.53 | M10 F1b: real02 full run again after the F1 fixes (stair-core cameras, decor copy chain, gate counts, GPU test adaptations), GPU tests | creating (provisional, worst case) |
 
-**Total spent so far: $58.16** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $62.69** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
