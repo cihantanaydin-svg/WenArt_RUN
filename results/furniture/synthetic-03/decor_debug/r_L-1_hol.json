@@ -1,0 +1,271 @@
+{
+ "room_id": "r_L-1_hol",
+ "label": "Hol",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L-1_001.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L-1_001",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    4.546,
+    0.7
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L-1_001.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L-1_001",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    4.546,
+    1.3
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L-1_001.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L-1_001",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "f_L-1_002.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "tray",
+    "candle"
+   ],
+   "host_id": "f_L-1_002",
+   "host_type": "shoe_cabinet",
+   "note": "centre part",
+   "center": [
+    4.531,
+    4.9
+   ],
+   "max_size": [
+    0.74,
+    0.26,
+    1.6
+   ]
+  },
+  {
+   "id": "r_L-1_hol.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.70, 0.50",
+   "center": [
+    5.7,
+    0.5
+   ]
+  },
+  {
+   "id": "r_L-1_hol.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.70, 7.30",
+   "center": [
+    5.7,
+    7.3
+   ]
+  },
+  {
+   "id": "ceiling:centre_r_L-1_hol",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1 hol"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1_001.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L-1_001.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean lines and neutral tone complement charcoal and brass accents."
+    },
+    {
+     "slot": "r_L-1_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Adds organic texture and cool daylight vibe without clutter."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1_hol",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic detail adds elegance and matches the modern minimal palette."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.356
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1_001.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L-1_001.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean lines and neutral tone complement charcoal and brass."
+    },
+    {
+     "slot": "r_L-1_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Adds organic life without clutter, matches cool daylight."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1_hol",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass accents contrast polished concrete and add elegance."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.296
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1_001.wall",
+   "type": "mirror",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Reflects light and enhances space in modern minimal style.",
+    "Reflects light and enhances space in modern minimal style."
+   ]
+  },
+  {
+   "slot": "f_L-1_001.left",
+   "type": "vase",
+   "colour": "white",
+   "colour_agreed": true,
+   "reasons": [
+    "Clean lines and neutral tone complement charcoal and brass accents.",
+    "Clean lines and neutral tone complement charcoal and brass."
+   ]
+  },
+  {
+   "slot": "r_L-1_hol.corner1",
+   "type": "plant",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds organic texture and cool daylight vibe without clutter.",
+    "Adds organic life without clutter, matches cool daylight."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L-1_hol",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm metallic detail adds elegance and matches the modern minimal palette.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L-1_hol",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "Warm brass accents contrast polished concrete and add elegance.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1_001",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L-1_001.wall"
+  },
+  {
+   "id": "dec_L-1_002",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L-1_001.left"
+  },
+  {
+   "id": "dec_L-1_003",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L-1_hol.corner1"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

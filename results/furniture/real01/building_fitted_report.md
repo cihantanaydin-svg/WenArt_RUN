@@ -1,6 +1,6 @@
 # Furniture fit report: building_fitted
 
-Project: real01; 20 pieces, 16 library fits, 4 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
+Project: real01; 20 pieces, 14 library fits, 6 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
 
 | piece | room | type | source | status | footprint w x d (m) | method | asset | licence | scale x / y / z | aspect err | height (m) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -9,10 +9,10 @@ Project: real01; 20 pieces, 16 library fits, 4 parametric fallbacks. Non-uniform
 | f_L0_003 | r_L0_room | stair | from_documents | verified | 2.44 x 1.53 | parametric | parametric:stair | n/a | 1.000 / 1.000 / 1.000 | - | 3.17 |
 | f_L0_004 | r_L0_bed_room_2 | bed_double | from_documents | verified | 1.78 x 2.03 | library | abo_B0154VUESC | CC-BY-4.0 | 1.035 / 0.985 / 1.010 | 0.049 | 0.81 |
 | f_L0_005 | r_L0_bed_room_2 | nightstand | from_documents | verified | 0.50 x 0.49 | library | painted_wooden_nightstand | CC0 | 0.982 / 0.957 / 0.970 | 0.026 | 0.60 |
-| f_L0_006 | r_L0_bed_room_2 | nightstand | from_documents | verified | 0.45 x 0.50 | library | abo_B07L1DH1PX | CC-BY-4.0 | 1.114 / 1.075 / 1.095 | 0.036 | 0.50 |
+| f_L0_006 | r_L0_bed_room_2 | unknown | from_documents | unverified | 0.50 x 0.45 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
 | f_L0_007 | r_L0_bed_room | bed_double | from_documents | verified | 1.78 x 2.03 | library | abo_B0154VUESC | CC-BY-4.0 | 1.035 / 0.985 / 1.010 | 0.049 | 0.81 |
 | f_L0_008 | r_L0_bed_room | nightstand | from_documents | verified | 0.50 x 0.49 | library | painted_wooden_nightstand | CC0 | 0.982 / 0.954 / 0.968 | 0.029 | 0.60 |
-| f_L0_009 | r_L0_bed_room | nightstand | from_documents | verified | 0.50 x 0.45 | library | abo_B084MYDTKM | CC-BY-4.0 | 1.084 / 1.097 / 1.090 | 0.011 | 0.61 |
+| f_L0_009 | r_L0_bed_room | unknown | from_documents | unverified | 0.50 x 0.45 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
 | f_L0_010 | r_L0_dining | table_dining | from_documents | verified | 1.24 x 0.74 | library | abo_B07RT5JN33 | CC-BY-4.0 | 1.028 / 1.030 / 1.029 | 0.002 | 0.78 |
 | f_L0_011 | r_L0_dining | chair | from_documents | verified | 0.38 x 0.46 | library | abo_B0857JLP6K | CC-BY-4.0 | 0.851 / 0.846 / 0.848 | 0.005 | 0.84 |
 | f_L0_012 | r_L0_dining | chair | from_documents | verified | 0.38 x 0.46 | library | abo_B0857JLP6K | CC-BY-4.0 | 0.851 / 0.846 / 0.848 | 0.005 | 0.84 |
@@ -30,6 +30,8 @@ Project: real01; 20 pieces, 16 library fits, 4 parametric fallbacks. Non-uniform
 - f_L0_001 (kitchen_counter): type kitchen_counter is parametric in the catalogue
 - f_L0_002 (kitchen_counter): type kitchen_counter is parametric in the catalogue
 - f_L0_003 (stair): type stair is parametric in the catalogue
+- f_L0_006 (unknown): type unknown is parametric in the catalogue
+- f_L0_009 (unknown): type unknown is parametric in the catalogue
 - f_L0_018 (unknown): type unknown is parametric in the catalogue
 
 ## Library assets and licences
@@ -38,10 +40,8 @@ Project: real01; 20 pieces, 16 library fits, 4 parametric fallbacks. Non-uniform
 - abo_B07374SBFN (abo, CC-BY-4.0) x 1
 - abo_B075X2X4GY (abo, CC-BY-4.0) x 1
 - abo_B07K7K7GKC (abo, CC-BY-4.0) x 1
-- abo_B07L1DH1PX (abo, CC-BY-4.0) x 1
 - abo_B07QFB1TLZ (abo, CC-BY-4.0) x 1
 - abo_B07RT5JN33 (abo, CC-BY-4.0) x 1
-- abo_B084MYDTKM (abo, CC-BY-4.0) x 1
 - abo_B0857JLP6K (abo, CC-BY-4.0) x 5
 - painted_wooden_nightstand (polyhaven, CC0) x 2
 
@@ -51,10 +51,8 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 
 - f_L0_004 (bed_double): abo_B0154VUESC (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.020 (step 0); quality 3; aspect error 0.049; source abo
 - f_L0_005 (nightstand): painted_wooden_nightstand (polyhaven), rank 1 of 1 tried: real size: mean |scale - 1| 0.030 (step 0); quality 3; aspect error 0.026; source polyhaven
-- f_L0_006 (nightstand): abo_B07L1DH1PX (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.095 (step 1); quality 3; aspect error 0.036; source abo
 - f_L0_007 (bed_double): abo_B0154VUESC (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.020 (step 0); quality 3; aspect error 0.049; source abo
 - f_L0_008 (nightstand): painted_wooden_nightstand (polyhaven), rank 1 of 1 tried: real size: mean |scale - 1| 0.032 (step 0); quality 3; aspect error 0.029; source polyhaven
-- f_L0_009 (nightstand): abo_B084MYDTKM (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.090 (step 1); quality 3; aspect error 0.011; source abo
 - f_L0_010 (table_dining): abo_B07RT5JN33 (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.029 (step 0); quality 3; aspect error 0.002; source abo
 - f_L0_011 (chair): abo_B0857JLP6K (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.152 (step 3); quality 3; aspect error 0.005; source abo
 - f_L0_012 (chair): abo_B0857JLP6K (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.152 (step 3); quality 3; aspect error 0.005; source abo
@@ -72,8 +70,6 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - abo_B07374SBFN: "Amazon Brand – Stone & Beam Glass Column Brass Floor Lamp, With Bulb, Linen Shade, 13.0" x 13.0" x 59.0", Brushed Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B075X2X4GY: "Amazon Brand – Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78"W, Dove Grey &amp; Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07K7K7GKC: "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B07L1DH1PX: "Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07QFB1TLZ: "Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3" Diameter, Brushed Natural Antique Copper" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07RT5JN33: "Amazon Brand Movian Kyyvesi Dining Table 120.5 x 71.4 x 76 cm Walnut Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B084MYDTKM: "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18"W, Natural Finish" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B0857JLP6K: "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5"W, Dark Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched

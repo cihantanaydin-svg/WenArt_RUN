@@ -1,0 +1,405 @@
+{
+ "room_id": "r_L1_cocuk_odasi",
+ "label": "Çocuk Odası",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L1_013.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_013",
+   "host_type": "bed_single",
+   "note": ""
+  },
+  {
+   "id": "f_L1_013.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_013",
+   "host_type": "bed_single",
+   "note": ""
+  },
+  {
+   "id": "f_L1_013.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L1_013",
+   "host_type": "bed_single",
+   "note": ""
+  },
+  {
+   "id": "f_L1_014.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L1_014",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    0.521,
+    4.471
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.1
+   ]
+  },
+  {
+   "id": "f_L1_016.back_left",
+   "kind": "top",
+   "types": [
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_016",
+   "host_type": "desk",
+   "note": "back left part, under a window",
+   "center": [
+    1.83,
+    7.349
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    0.15
+   ]
+  },
+  {
+   "id": "f_L1_016.back_right",
+   "kind": "top",
+   "types": [
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_016",
+   "host_type": "desk",
+   "note": "back right part, under a window",
+   "center": [
+    2.57,
+    7.349
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    0.15
+   ]
+  },
+  {
+   "id": "r_L1_cocuk_odasi.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 4.00, 4.50",
+   "center": [
+    4.0,
+    4.5
+   ]
+  },
+  {
+   "id": "window:win_L1_004",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_004"
+  },
+  {
+   "id": "window:win_L1_005",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_005"
+  },
+  {
+   "id": "ceiling:over_f_L1_013",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L1_013",
+   "host_type": null,
+   "note": "over f L1 013"
+  },
+  {
+   "id": "ceiling:centre_r_L1_cocuk_odasi",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 cocuk odasi"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_013.cushions",
+     "type": "cushion",
+     "colour": "charcoal",
+     "reason": "Adds modern contrast to the bed against white walls."
+    },
+    {
+     "slot": "f_L1_013.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the bed with neutral warmth without clutter."
+    },
+    {
+     "slot": "f_L1_013.wall",
+     "type": "wall_art",
+     "colour": "charcoal",
+     "reason": "Minimalist art complements the monochrome palette and adds visual interest."
+    },
+    {
+     "slot": "f_L1_014.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Brass lamp adds metallic detail and warm glow for bedside lighting."
+    },
+    {
+     "slot": "f_L1_016.back_left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant brings life under window with natural wood pot for minimal touch."
+    },
+    {
+     "slot": "r_L1_cocuk_odasi.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Floor plant in corner adds organic element without crowding space."
+    },
+    {
+     "slot": "window:win_L1_004",
+     "type": "curtain",
+     "colour": "charcoal",
+     "reason": "Charcoal curtains match the modern minimal palette and filter daylight."
+    },
+    {
+     "slot": "ceiling:over_f_L1_013",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds elegant detail above bed for ambient lighting."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.691
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_013.cushions",
+     "type": "cushion",
+     "colour": "charcoal",
+     "reason": "Adds texture and contrast against white bedding in modern minimal style."
+    },
+    {
+     "slot": "f_L1_013.throw",
+     "type": "throw",
+     "colour": "charcoal",
+     "reason": "Complements cushions and enhances comfort without visual clutter."
+    },
+    {
+     "slot": "f_L1_013.wall",
+     "type": "wall_art",
+     "colour": "charcoal",
+     "reason": "Minimalist art in charcoal adds depth without overwhelming the space."
+    },
+    {
+     "slot": "f_L1_014.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Brass lamp adds warm metallic detail, aligning with style brief."
+    },
+    {
+     "slot": "r_L1_cocuk_odasi.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Small plant in corner brings life while maintaining clean lines and cool daylight feel."
+    },
+    {
+     "slot": "window:win_L1_004",
+     "type": "curtain",
+     "colour": "charcoal",
+     "reason": "Charcoal curtains match the palette and frame the window elegantly."
+    },
+    {
+     "slot": "ceiling:over_f_L1_013",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Clean white ceiling light ensures even, cool daylight ambiance."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.129
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_013.cushions",
+   "type": "cushion",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds modern contrast to the bed against white walls.",
+    "Adds texture and contrast against white bedding in modern minimal style."
+   ]
+  },
+  {
+   "slot": "f_L1_013.throw",
+   "type": "throw",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Softens the bed with neutral warmth without clutter.",
+    "Complements cushions and enhances comfort without visual clutter."
+   ]
+  },
+  {
+   "slot": "f_L1_013.wall",
+   "type": "wall_art",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Minimalist art complements the monochrome palette and adds visual interest.",
+    "Minimalist art in charcoal adds depth without overwhelming the space."
+   ]
+  },
+  {
+   "slot": "f_L1_014.centre",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass lamp adds metallic detail and warm glow for bedside lighting.",
+    "Brass lamp adds warm metallic detail, aligning with style brief."
+   ]
+  },
+  {
+   "slot": "r_L1_cocuk_odasi.corner1",
+   "type": "plant",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Floor plant in corner adds organic element without crowding space.",
+    "Small plant in corner brings life while maintaining clean lines and cool daylight feel."
+   ]
+  },
+  {
+   "slot": "window:win_L1_004",
+   "type": "curtain",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Charcoal curtains match the modern minimal palette and filter daylight.",
+    "Charcoal curtains match the palette and frame the window elegantly."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L1_016.back_left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "reason": "Small plant brings life under window with natural wood pot for minimal touch.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L1_013",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Brass pendant light adds elegant detail above bed for ambient lighting.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L1_013",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Clean white ceiling light ensures even, cool daylight ambiance.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_018",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_013.cushions"
+  },
+  {
+   "id": "dec_L1_019",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L1_013.throw"
+  },
+  {
+   "id": "dec_L1_020",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L1_013.wall"
+  },
+  {
+   "id": "dec_L1_021",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L1_014.centre"
+  },
+  {
+   "id": "dec_L1_022",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L1_cocuk_odasi.corner1"
+  },
+  {
+   "id": "dec_L1_023",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L1_004"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L1_016 wall: wall_art: above f_L1_016: window win_L1_005 on the wall behind it leave 0.00 m for the picture (min 0.4 m); clock: above f_L1_016: window win_L1_005 on the wall behind it leave 0.00 m for the clock (min 0.25 m)"
+ ]
+}

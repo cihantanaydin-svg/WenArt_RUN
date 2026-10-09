@@ -1,0 +1,30 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "decor_ask",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 102.11,
+ "fingerprint": "e146e36536d38c305747696f5e356dccef4407ac5aaa3002b6706666826a1a2b",
+ "inputs": {
+  "outputs/synthetic-03/building_furnished.json": "c348e55700eacdd7d5d3b8203222b67e66869c696f725a270bc5518f048c60e4",
+  "outputs/synthetic-03/style.json": "0d3bb4663e084443746865fbad7499801891bef16c691ce308c17ff89b334162"
+ },
+ "outputs": [
+  "decor_ai_answers.json"
+ ],
+ "started_utc": "2026-10-09T09:37:42Z",
+ "git_commit": "b18dad1f865efa6406279d7836bc9a1ec25db9cd",
+ "log": "logs/decor_ask.log",
+ "note": null,
+ "run_id": "20261009-092258-full-20261009T092915Z",
+ "steps": [
+  {
+   "name": "decor_ask",
+   "rc": 0,
+   "seconds": 102.11
+  }
+ ],
+ "written": {}
+}

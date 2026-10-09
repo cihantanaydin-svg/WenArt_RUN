@@ -1,0 +1,649 @@
+{
+ "room_id": "r_L0_salon",
+ "label": "Salon",
+ "room_type": "living",
+ "slots": [
+  {
+   "id": "f_L0_001.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_001",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L0_001.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_001",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L0_001.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L0_001",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L0_002.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_002",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L0_002.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_002",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L0_003.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_003",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L0_003.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_003",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L0_004.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": "table_coffee",
+   "note": "centre part",
+   "center": [
+    2.5,
+    3.3
+   ],
+   "max_size": [
+    0.94,
+    0.54,
+    2.236
+   ]
+  },
+  {
+   "id": "f_L0_005.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_005",
+   "host_type": "tv_unit",
+   "note": "left part, under a window",
+   "center": [
+    2.9,
+    0.525
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    0.246
+   ]
+  },
+  {
+   "id": "f_L0_005.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_005",
+   "host_type": "tv_unit",
+   "note": "right part, under a window",
+   "center": [
+    2.1,
+    0.525
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    0.246
+   ]
+  },
+  {
+   "id": "f_L0_006.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L0_006",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "f_L0_025.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_025",
+   "host_type": "ottoman",
+   "note": ""
+  },
+  {
+   "id": "r_L0_salon.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_001",
+   "host_type": null,
+   "note": "f_L0_001 + f_L0_004"
+  },
+  {
+   "id": "r_L0_salon.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 0.50, 0.50",
+   "center": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "id": "r_L0_salon.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 0.50, 4.70",
+   "center": [
+    0.5,
+    4.7
+   ]
+  },
+  {
+   "id": "window:win_L0_001",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_001"
+  },
+  {
+   "id": "window:win_L0_003",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_003"
+  },
+  {
+   "id": "ceiling:over_f_L0_004",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": null,
+   "note": "over f L0 004"
+  },
+  {
+   "id": "ceiling:centre_r_L0_salon",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 salon"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_001.cushions",
+     "type": "cushion",
+     "colour": "charcoal",
+     "reason": "Adds contrast to the sofa while maintaining minimalist elegance."
+    },
+    {
+     "slot": "f_L0_001.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the charcoal tones and introduces warmth without clutter."
+    },
+    {
+     "slot": "f_L0_001.wall",
+     "type": "wall_art",
+     "colour": "charcoal",
+     "reason": "Minimalist monochrome art complements the modern aesthetic and floor."
+    },
+    {
+     "slot": "f_L0_004.centre",
+     "type": "tray",
+     "colour": "brass",
+     "reason": "Brass adds metallic detail and anchors the coffee table with polish."
+    },
+    {
+     "slot": "f_L0_005.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean white vase with a simple plant enhances daylight and minimalism."
+    },
+    {
+     "slot": "f_L0_005.right",
+     "type": "book_set",
+     "colour": "black",
+     "reason": "Black books add structure and contrast against the white TV unit."
+    },
+    {
+     "slot": "f_L0_006.shelf",
+     "type": "book_set",
+     "colour": "charcoal",
+     "reason": "Charcoal books on a small shelf add depth without visual weight."
+    },
+    {
+     "slot": "f_L0_025.cushions",
+     "type": "cushion",
+     "colour": "grey",
+     "reason": "Grey cushion on ottoman balances the sofa’s charcoal and adds comfort."
+    },
+    {
+     "slot": "r_L0_salon.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "reason": "Light grey rug grounds the seating area and complements polished concrete."
+    },
+    {
+     "slot": "r_L0_salon.corner1",
+     "type": "plant_large",
+     "colour": "sage green",
+     "reason": "Sage green plant adds organic texture and cool daylight contrast."
+    },
+    {
+     "slot": "window:win_L0_001",
+     "type": "curtain",
+     "colour": "charcoal",
+     "reason": "Charcoal curtains frame the window and echo the room’s neutral palette."
+    },
+    {
+     "slot": "window:win_L0_003",
+     "type": "blind",
+     "colour": "white",
+     "reason": "White blind allows daylight control while keeping the look airy and clean."
+    },
+    {
+     "slot": "ceiling:over_f_L0_004",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds warmth and modern metallic detail above the table."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_salon",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "White ceiling light ensures even illumination without visual distraction."
+    }
+   ],
+   "error": null,
+   "latency_s": 8.047
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "r_L0_salon.rug1",
+     "type": "rug",
+     "colour": "charcoal",
+     "reason": "Defines seating zone and complements polished concrete floor."
+    },
+    {
+     "slot": "f_L0_001.cushions",
+     "type": "cushion",
+     "colour": "charcoal",
+     "reason": "Adds texture and contrast against white sofa without clutter."
+    },
+    {
+     "slot": "f_L0_001.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens lines and adds warmth with minimal visual weight."
+    },
+    {
+     "slot": "ceiling:over_f_L0_004",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant adds metallic detail and focused lighting over coffee table."
+    },
+    {
+     "slot": "window:win_L0_001",
+     "type": "blind",
+     "colour": "charcoal",
+     "reason": "Controls daylight while maintaining clean, modern lines."
+    },
+    {
+     "slot": "window:win_L0_003",
+     "type": "blind",
+     "colour": "charcoal",
+     "reason": "Matches first window for uniformity and style cohesion."
+    },
+    {
+     "slot": "f_L0_004.centre",
+     "type": "vase",
+     "colour": "brass",
+     "reason": "Small brass vase adds metallic accent near coffee table."
+    },
+    {
+     "slot": "f_L0_005.left",
+     "type": "book_set",
+     "colour": "charcoal",
+     "reason": "Books add subtle texture and intellectual tone without visual clutter."
+    },
+    {
+     "slot": "f_L0_005.right",
+     "type": "candle",
+     "colour": "white",
+     "reason": "White candle adds soft ambient glow and minimalist elegance."
+    },
+    {
+     "slot": "f_L0_001.wall",
+     "type": "wall_art",
+     "colour": "charcoal",
+     "reason": "Monochrome art above sofa anchors the seating area and adds depth."
+    }
+   ],
+   "error": null,
+   "latency_s": 6.112
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_001.cushions",
+   "type": "cushion",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds contrast to the sofa while maintaining minimalist elegance.",
+    "Adds texture and contrast against white sofa without clutter."
+   ]
+  },
+  {
+   "slot": "f_L0_001.throw",
+   "type": "throw",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the charcoal tones and introduces warmth without clutter.",
+    "Softens lines and adds warmth with minimal visual weight."
+   ]
+  },
+  {
+   "slot": "f_L0_001.wall",
+   "type": "wall_art",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Minimalist monochrome art complements the modern aesthetic and floor.",
+    "Monochrome art above sofa anchors the seating area and adds depth."
+   ]
+  },
+  {
+   "slot": "r_L0_salon.rug1",
+   "type": "rug",
+   "colour": "light grey",
+   "colour_agreed": false,
+   "reasons": [
+    "Light grey rug grounds the seating area and complements polished concrete.",
+    "Defines seating zone and complements polished concrete floor."
+   ]
+  },
+  {
+   "slot": "window:win_L0_003",
+   "type": "blind",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "White blind allows daylight control while keeping the look airy and clean.",
+    "Matches first window for uniformity and style cohesion."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_004",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass pendant light adds warmth and modern metallic detail above the table.",
+    "Brass pendant adds metallic detail and focused lighting over coffee table."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_004.centre",
+   "type": "tray",
+   "colour": "brass",
+   "reason": "Brass adds metallic detail and anchors the coffee table with polish.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_005.left",
+   "type": "vase",
+   "colour": "white",
+   "reason": "Clean white vase with a simple plant enhances daylight and minimalism.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_005.right",
+   "type": "book_set",
+   "colour": "black",
+   "reason": "Black books add structure and contrast against the white TV unit.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_006.shelf",
+   "type": "book_set",
+   "colour": "charcoal",
+   "reason": "Charcoal books on a small shelf add depth without visual weight.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_025.cushions",
+   "type": "cushion",
+   "colour": "grey",
+   "reason": "Grey cushion on ottoman balances the sofa’s charcoal and adds comfort.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "r_L0_salon.corner1",
+   "type": "plant_large",
+   "colour": "sage green",
+   "reason": "Sage green plant adds organic texture and cool daylight contrast.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "window:win_L0_001",
+   "type": "curtain",
+   "colour": "charcoal",
+   "reason": "Charcoal curtains frame the window and echo the room’s neutral palette.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_salon",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "White ceiling light ensures even illumination without visual distraction.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "window:win_L0_001",
+   "type": "blind",
+   "colour": "charcoal",
+   "reason": "Controls daylight while maintaining clean, modern lines.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L0_004.centre",
+   "type": "vase",
+   "colour": "brass",
+   "reason": "Small brass vase adds metallic accent near coffee table.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L0_005.left",
+   "type": "book_set",
+   "colour": "charcoal",
+   "reason": "Books add subtle texture and intellectual tone without visual clutter.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L0_005.right",
+   "type": "candle",
+   "colour": "white",
+   "reason": "White candle adds soft ambient glow and minimalist elegance.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "slot": "f_L0_004.centre",
+   "type": "plant",
+   "colour": "natural wood",
+   "reason": "Large plant in corner adds organic life with modern silhouette.",
+   "why": "the slot does not take this type",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_001",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_001.cushions"
+  },
+  {
+   "id": "dec_L0_002",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_001.cushions"
+  },
+  {
+   "id": "dec_L0_003",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_001.throw"
+  },
+  {
+   "id": "dec_L0_004",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L0_001.wall"
+  },
+  {
+   "id": "dec_L0_005",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_salon.rug1"
+  },
+  {
+   "id": "dec_L0_006",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L0_003"
+  },
+  {
+   "id": "dec_L0_007",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_004"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

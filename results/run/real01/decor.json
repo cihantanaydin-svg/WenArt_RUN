@@ -3,23 +3,29 @@
  "kind": "stage_record",
  "project": "real01",
  "stage": "decor",
- "rc": null,
- "status": "reused",
- "seconds": 0.0,
- "fingerprint": "8875707a9ca4bbb4be338e203e2b9810a400d8761f5f526582fc107a0e39eb84",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 3.94,
+ "fingerprint": "5986bd4fe918f262e014dc2f2df6871f8243fc16acd963ecc07a70aa2f2ce304",
  "inputs": {
-  "outputs/real01/building_furnished.json": "4ad78c2aa8360df2578a2bca131710b7795899d593ae9041a010636c5c40e0ea",
-  "outputs/real01/style.json": "9e88465132c2a42d1a2c305c72792e6355c3720f5e7b8fcc1245c3c6dd721faa",
-  "outputs/real01/decor_ai_answers.json": "8c9469be9b873b0b3c6ef60d5bfd815dfea3e2c7ab94a0646bcf55e9bbdf316a"
+  "outputs/real01/building_furnished.json": "2b9d9902d5e42ac85c75c6b4a9c6c375c8a0e64ea9939284e0556ded0ee182ba",
+  "outputs/real01/style.json": "a1749bb252af5359ca23925b3d9a5336825aa5c557599af43c8d97bd00015e03",
+  "outputs/real01/decor_ai_answers.json": "df981e0de76e4c8aefda064b6e27d6a8ca0deb9318c83429f45806a1d37038b9"
  },
  "outputs": [
   "building_decor.json"
  ],
- "started_utc": "2026-10-06T07:03:52Z",
- "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
+ "started_utc": "2026-10-09T09:39:38Z",
+ "git_commit": "b18dad1f865efa6406279d7836bc9a1ec25db9cd",
  "log": "logs/decor.log",
  "note": null,
- "run_id": "20261006-065742-full-20261006T070339Z",
- "steps": [],
+ "run_id": "20261009-092258-full-20261009T092915Z",
+ "steps": [
+  {
+   "name": "decor",
+   "rc": 0,
+   "seconds": 3.94
+  }
+ ],
  "written": {}
 }

@@ -9,7 +9,8 @@
    "types": [
     "vase",
     "bowl",
-    "plant_small"
+    "plant_small",
+    "candle"
    ],
    "host_id": "f_L0_010",
    "host_type": "table_dining",
@@ -25,6 +26,70 @@
    ]
   },
   {
+   "id": "f_L0_028.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
+   ],
+   "host_id": "f_L0_028",
+   "host_type": "sideboard",
+   "note": "left part",
+   "center": [
+    5.352,
+    5.6
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_028.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
+   ],
+   "host_id": "f_L0_028",
+   "host_type": "sideboard",
+   "note": "right part",
+   "center": [
+    5.352,
+    6.4
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_028.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art",
+    "mirror",
+    "clock"
+   ],
+   "host_id": "f_L0_028",
+   "host_type": "sideboard",
+   "note": ""
+  },
+  {
    "id": "r_L0_dining.rug1",
    "kind": "rug",
    "types": [
@@ -38,7 +103,9 @@
    "id": "r_L0_dining.corner1",
    "kind": "floor",
    "types": [
-    "plant"
+    "plant",
+    "basket",
+    "sculpture"
    ],
    "host_id": null,
    "host_type": null,
@@ -52,7 +119,9 @@
    "id": "r_L0_dining.corner2",
    "kind": "floor",
    "types": [
-    "plant"
+    "plant",
+    "basket",
+    "sculpture"
    ],
    "host_id": null,
    "host_type": null,
@@ -61,6 +130,38 @@
     9.124,
     6.84
    ]
+  },
+  {
+   "id": "window:win_L0_005",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_005"
+  },
+  {
+   "id": "ceiling:over_f_L0_010",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light"
+   ],
+   "host_id": "f_L0_010",
+   "host_type": null,
+   "note": "over f L0 010"
+  },
+  {
+   "id": "ceiling:centre_r_L0_dining",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 dining"
   }
  ],
  "passes": {
@@ -70,23 +171,35 @@
      "slot": "f_L0_010.centre",
      "type": "vase",
      "colour": "natural wood",
-     "reason": "Adds Scandinavian warmth and complements light oak floors."
+     "reason": "Adds Scandinavian warmth with minimal clutter."
+    },
+    {
+     "slot": "ceiling:over_f_L0_010",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm light complements daylight and enhances the dining mood."
     },
     {
      "slot": "r_L0_dining.rug1",
      "type": "rug",
      "colour": "cream",
-     "reason": "Softens the floor and enhances the light, airy feel."
+     "reason": "Softens the floor and ties in with linen textiles and light oak."
     },
     {
-     "slot": "r_L0_dining.corner1",
-     "type": "plant",
+     "slot": "window:win_L0_005",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+    },
+    {
+     "slot": "f_L0_028.wall",
+     "type": "wall_art",
      "colour": "sage green",
-     "reason": "Brings life to the corner with natural tones matching the style."
+     "reason": "Subtle art adds personality without overwhelming the white walls."
     }
    ],
    "error": null,
-   "latency_s": 4.839
+   "latency_s": 2.914
   },
   "2": {
    "items": [
@@ -94,23 +207,35 @@
      "slot": "f_L0_010.centre",
      "type": "vase",
      "colour": "natural wood",
-     "reason": "Matches light oak floor and Scandinavian style with warm, natural tones."
+     "reason": "Adds Scandinavian warmth with minimalism and complements light oak floor."
+    },
+    {
+     "slot": "ceiling:over_f_L0_010",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light enhances daylight and matches Scandinavian elegance."
     },
     {
      "slot": "r_L0_dining.rug1",
      "type": "rug",
      "colour": "cream",
-     "reason": "Softens the space, complements white walls and adds warmth without clutter."
+     "reason": "Cream rug softens floor and ties in with white walls and linen textiles."
     },
     {
-     "slot": "r_L0_dining.corner1",
-     "type": "plant",
+     "slot": "window:win_L0_005",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains let in daylight and maintain airy Scandinavian feel."
+    },
+    {
+     "slot": "f_L0_028.wall",
+     "type": "mirror",
      "colour": "natural wood",
-     "reason": "Brings life to the corner with minimalism and Scandinavian greenery."
+     "reason": "Wood-framed mirror reflects light and adds depth without clutter."
     }
    ],
    "error": null,
-   "latency_s": 5.005
+   "latency_s": 2.927
   }
  },
  "agreed": [
@@ -120,8 +245,18 @@
    "colour": "natural wood",
    "colour_agreed": true,
    "reasons": [
-    "Adds Scandinavian warmth and complements light oak floors.",
-    "Matches light oak floor and Scandinavian style with warm, natural tones."
+    "Adds Scandinavian warmth with minimal clutter.",
+    "Adds Scandinavian warmth with minimalism and complements light oak floor."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_010",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm light complements daylight and enhances the dining mood.",
+    "Warm brass light enhances daylight and matches Scandinavian elegance."
    ]
   },
   {
@@ -130,42 +265,67 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Softens the floor and enhances the light, airy feel.",
-    "Softens the space, complements white walls and adds warmth without clutter."
+    "Softens the floor and ties in with linen textiles and light oak.",
+    "Cream rug softens floor and ties in with white walls and linen textiles."
    ]
   },
   {
-   "slot": "r_L0_dining.corner1",
-   "type": "plant",
-   "colour": "sage green",
-   "colour_agreed": false,
+   "slot": "window:win_L0_005",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
    "reasons": [
-    "Brings life to the corner with natural tones matching the style.",
-    "Brings life to the corner with minimalism and Scandinavian greenery."
+    "Light, airy curtains let in daylight while maintaining Scandinavian minimalism.",
+    "Cream curtains let in daylight and maintain airy Scandinavian feel."
    ]
   }
  ],
- "not_agreed": [],
+ "not_agreed": [
+  {
+   "slot": "f_L0_028.wall",
+   "type": "wall_art",
+   "colour": "sage green",
+   "reason": "Subtle art adds personality without overwhelming the white walls.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_028.wall",
+   "type": "mirror",
+   "colour": "natural wood",
+   "reason": "Wood-framed mirror reflects light and adds depth without clutter.",
+   "passes": [
+    2
+   ]
+  }
+ ],
  "rejected": [],
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_017",
+   "id": "dec_L0_029",
    "type": "vase",
    "method": "ai",
    "slot": "f_L0_010.centre"
   },
   {
-   "id": "dec_L0_018",
+   "id": "dec_L0_030",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_010"
+  },
+  {
+   "id": "dec_L0_031",
    "type": "rug",
    "method": "ai",
    "slot": "r_L0_dining.rug1"
   },
   {
-   "id": "dec_L0_019",
-   "type": "plant",
+   "id": "dec_L0_032",
+   "type": "curtain",
    "method": "ai",
-   "slot": "r_L0_dining.corner1"
+   "slot": "window:win_L0_005"
   }
  ],
  "fallback": null,

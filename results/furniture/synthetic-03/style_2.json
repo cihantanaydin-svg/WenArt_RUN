@@ -1,32 +1,140 @@
 {
   "source_text": "Warm Mediterranean, terracotta floor, cream plaster walls, rattan and linen, golden evening light",
   "family": "mediterranean",
+  "style_tags": [],
   "floor": {
     "material": "terracotta",
-    "asset": "patio_tiles"
+    "asset": "patio_tiles",
+    "colour": null
   },
   "walls": {
     "material": "plaster_cream",
-    "asset": "beige_wall_001"
+    "asset": "beige_wall_001",
+    "colour": null
   },
+  "wall_accent": null,
   "ceiling": {
-    "material": "plaster_white"
+    "material": "plaster_white",
+    "colour": null
   },
   "wet_floor": {
     "material": "terracotta",
-    "asset": "patio_tiles"
+    "asset": "patio_tiles",
+    "colour": null
   },
   "wet_walls": {
-    "material": "tiles_light"
+    "material": "tiles_light",
+    "asset": "Tiles074",
+    "tile_size_m": null,
+    "pattern": null,
+    "colour": null,
+    "grout_colour": null
   },
   "trim": {
-    "material": "painted_wood_white"
+    "material": "painted_wood_white",
+    "colour": null
   },
   "door": {
-    "material": "painted_wood_white"
+    "material": "painted_wood_white",
+    "asset": "white_planks_clean",
+    "style": null,
+    "colour": null,
+    "handle": null
   },
   "window_frame": {
-    "material": "painted_metal_white"
+    "material": "painted_metal_white",
+    "asset": "Metal032",
+    "colour": null,
+    "outside": {
+      "material": "painted_metal_white",
+      "colour": null
+    }
+  },
+  "cabinets": {
+    "front_style": null,
+    "colour": null,
+    "handle": null,
+    "worktop": null,
+    "wood": null
+  },
+  "furniture": {
+    "wood": null,
+    "fabric_colour": null,
+    "by_type": {},
+    "accents": []
+  },
+  "decor": {
+    "plant_species": [],
+    "plant_amount": null,
+    "pots": [],
+    "cushion_colours": [],
+    "throw_colours": [],
+    "curtain_colour": null,
+    "rug_colours": []
+  },
+  "exterior": {
+    "facade": {
+      "material": "render",
+      "asset": "grey_plaster",
+      "colour": "cream",
+      "source": "fallback",
+      "assumed": true
+    },
+    "roof": {
+      "material": "concrete_tiles",
+      "asset": "grey_roof_01",
+      "colour": "anthracite",
+      "source": "fallback",
+      "assumed": true
+    },
+    "window_frame": {
+      "material": "painted_metal_white",
+      "asset": "Metal032",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    },
+    "door": {
+      "material": "painted_wood_white",
+      "asset": "white_planks_clean",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    },
+    "paving": {
+      "material": "paving",
+      "asset": "large_square_pattern_01",
+      "colour": "grey",
+      "source": "fallback",
+      "assumed": true
+    },
+    "garden": {
+      "material": "grass",
+      "asset": "Grass004",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    }
+  },
+  "exterior_fallback": {
+    "facade": {
+      "material": "render",
+      "colour": "walls"
+    },
+    "roof": {
+      "material": "concrete_tiles",
+      "colour": "anthracite"
+    },
+    "window_frame": "interior",
+    "door": "interior",
+    "paving": {
+      "material": "paving",
+      "colour": "grey"
+    },
+    "garden": {
+      "material": "grass",
+      "colour": null
+    }
   },
   "lighting": {
     "hdri": "venice_sunset",
@@ -35,6 +143,11 @@
     "sun_strength": 2.0,
     "colour_temperature_k": 3200,
     "mood": "golden evening"
+  },
+  "colours": {
+    "walls": [
+      "cream"
+    ]
   },
   "matched_terms": [
     "Warm Mediterranean",
@@ -45,5 +158,8 @@
   "unmatched_terms": [
     "rattan and linen"
   ],
-  "warnings": []
+  "warnings": [
+    "unmatched 'rattan and linen': textile materials name no slot (fabric_linen is the default fabric)",
+    "assumed: exterior facade render in cream, roof concrete_tiles in anthracite, window_frame as inside (painted_metal_white), door as inside (painted_wood_white), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml (no word for them in the brief)"
+  ]
 }

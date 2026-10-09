@@ -1,0 +1,260 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "real01",
+ "created_utc": "2026-10-09T09:29:28Z",
+ "code_commit": "b18dad1f",
+ "inputs": [
+  {
+   "file": "real01.pdf",
+   "size": 317414,
+   "sha256": "2df247aa6167579e6d29cae0f66755565e62ce4249f58f8c42fddb38c2d27f47"
+  }
+ ],
+ "multi_region": false,
+ "documents": [
+  {
+   "file": "real01.pdf",
+   "format": "pdf",
+   "converter": null,
+   "units": {
+    "insunits": null,
+    "metres_per_unit": null,
+    "method": "none",
+    "checks": [],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "page:1",
+     "box": [
+      131.5,
+      100.96,
+      747.1,
+      467.8
+     ],
+     "frames": [],
+     "gap_units": 10.749,
+     "debug_image": "sheets_debug/real01_pdf_s1.png"
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "real01.pdf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    76.36,
+    97.84,
+    750.16,
+    517.48
+   ],
+   "box_m": null,
+   "entities": 36898,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "geometry",
+   "class_confidence": 0.7,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "entities": 36877,
+    "texts": 21,
+    "room_labels": 9,
+    "wall_test": "hatch comb of 21228 lines at 135 deg, median step 0.0424 pt",
+    "area_labels": 0,
+    "slab_bands": 4,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "closed_rectangles": 26,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "path:26855",
+     "layer": null,
+     "size_units": [
+      621.72,
+      373.08
+     ],
+     "closed": true,
+     "ends_units": 621.72
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 0,
+    "label": "Ground floor",
+    "id": "L0",
+    "kind": "floor",
+    "method": "assumed",
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "page": 1,
+      "layer": null,
+      "entity": "path:0",
+      "method": "vector",
+      "confidence": 0.7,
+      "rule": "room_labels_and_walls",
+      "text": "room_labels 9, wall_test hatch comb of 21228 lines at 135 deg, median step 0.0424 pt, slab_bands 4, outer_walls True, closed_rectangles 26, largest_polyline {'entity': 'path:26855', 'layer': None, 'size_units': [621.72, 373.08], 'closed': True, 'ends_units': 621.72}",
+      "region_id": "r1"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": null,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "page": 1,
+     "layer": null,
+     "entity": "path:0",
+     "method": "vector",
+     "confidence": 0.7,
+     "rule": "room_labels_and_walls",
+     "text": "room_labels 9, wall_test hatch comb of 21228 lines at 135 deg, median step 0.0424 pt, slab_bands 4, outer_walls True, closed_rectangles 26, largest_polyline {'entity': 'path:26855', 'layer': None, 'size_units': [621.72, 373.08], 'closed': True, 'ends_units': 621.72}",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  }
+ ],
+ "stray": [],
+ "levels": [
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Ground floor",
+   "kind": "floor",
+   "base_region": "r1",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "page": 1,
+     "layer": null,
+     "entity": "path:0",
+     "method": "vector",
+     "confidence": 0.7,
+     "rule": "room_labels_and_walls",
+     "text": "room_labels 9, wall_test hatch comb of 21228 lines at 135 deg, median step 0.0424 pt, slab_bands 4, outer_walls True, closed_rectangles 26, largest_polyline {'entity': 'path:26855', 'layer': None, 'size_units': [621.72, 373.08], 'closed': True, 'ends_units': 621.72}",
+     "region_id": "r1"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L0"
+   ],
+   "regions": [
+    "r1"
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [],
+  "cut_axis": null,
+  "cut_at": null,
+  "flipped": null,
+  "datum": null,
+  "levels": [
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   }
+  ],
+  "ground": [],
+  "roof": {
+   "eaves_z": null,
+   "ridge_z": null,
+   "pitches_deg": [],
+   "knee_wall": null,
+   "overhang": null,
+   "thickness": null,
+   "profile": []
+  }
+ },
+ "exterior": {
+  "roof": null,
+  "facade": [],
+  "openings_seen": [],
+  "site": null,
+  "north": null,
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [],
+ "warnings": [
+  "real01.pdf r1: plan without a level title, the project's only plan: level L0 'Ground floor' assumed"
+ ],
+ "needs_review": [],
+ "questions": 0,
+ "answers": null
+}

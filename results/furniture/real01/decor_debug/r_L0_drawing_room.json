@@ -14,13 +14,27 @@
    "note": ""
   },
   {
+   "id": "f_L0_017.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
    "id": "f_L0_019.centre",
    "kind": "top",
    "types": [
     "vase",
     "bowl",
     "plant_small",
-    "book_set"
+    "book_set",
+    "books",
+    "candle",
+    "tray",
+    "sculpture"
    ],
    "host_id": "f_L0_019",
    "host_type": "table_coffee",
@@ -33,6 +47,56 @@
     1.067,
     1.064,
     2.17
+   ]
+  },
+  {
+   "id": "f_L0_024.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_024",
+   "host_type": "tv_unit",
+   "note": "left part",
+   "center": [
+    5.352,
+    1.376
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    2.1
+   ]
+  },
+  {
+   "id": "f_L0_024.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_024",
+   "host_type": "tv_unit",
+   "note": "right part",
+   "center": [
+    5.352,
+    2.176
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    2.1
    ]
   },
   {
@@ -49,7 +113,9 @@
    "id": "r_L0_drawing_room.corner1",
    "kind": "floor",
    "types": [
-    "plant"
+    "plant",
+    "basket",
+    "sculpture"
    ],
    "host_id": null,
    "host_type": null,
@@ -58,6 +124,39 @@
     5.356,
     0.48
    ]
+  },
+  {
+   "id": "window:win_L0_002",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_002"
+  },
+  {
+   "id": "ceiling:over_f_L0_019",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L0_019",
+   "host_type": null,
+   "note": "over f L0 019"
+  },
+  {
+   "id": "ceiling:centre_r_L0_drawing_room",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 drawing room"
   }
  ],
  "passes": {
@@ -67,29 +166,59 @@
      "slot": "f_L0_017.cushions",
      "type": "cushion",
      "colour": "cream",
-     "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+     "reason": "Soft, light cushions complement Scandinavian style and linen textiles."
+    },
+    {
+     "slot": "f_L0_017.throw",
+     "type": "throw",
+     "colour": "sand",
+     "reason": "Adds warmth and texture without overwhelming the minimalist aesthetic."
     },
     {
      "slot": "r_L0_drawing_room.rug1",
      "type": "rug",
      "colour": "natural wood",
-     "reason": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture."
+     "reason": "Light oak floors pair beautifully with a wood-toned rug for cohesion."
+    },
+    {
+     "slot": "window:win_L0_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light, airy curtains enhance natural daylight and maintain Scandinavian minimalism."
+    },
+    {
+     "slot": "ceiling:over_f_L0_019",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant adds subtle metallic accent without clutter."
     },
     {
      "slot": "r_L0_drawing_room.corner1",
      "type": "plant",
      "colour": "sage green",
-     "reason": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style."
+     "reason": "A large green plant brings life to the corner and suits warm daylight."
     },
     {
      "slot": "f_L0_019.centre",
      "type": "vase",
      "colour": "terracotta",
-     "reason": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette."
+     "reason": "Earthy terracotta vase adds warmth and complements linen and wood tones."
+    },
+    {
+     "slot": "f_L0_024.left",
+     "type": "book_set",
+     "colour": "black",
+     "reason": "Minimalist black books add visual interest without clutter."
+    },
+    {
+     "slot": "f_L0_024.right",
+     "type": "candle",
+     "colour": "white",
+     "reason": "White candle enhances soft lighting and Scandinavian calm."
     }
    ],
    "error": null,
-   "latency_s": 7.083
+   "latency_s": 5.134
   },
   "2": {
    "items": [
@@ -97,29 +226,59 @@
      "slot": "f_L0_017.cushions",
      "type": "cushion",
      "colour": "cream",
-     "reason": "Adds softness and warmth in line with Scandinavian style."
+     "reason": "Adds softness and warmth to the sofa in Scandinavian style."
     },
     {
-     "slot": "f_L0_019.centre",
-     "type": "vase",
-     "colour": "natural wood",
-     "reason": "Complements light oak floors and brings organic texture."
+     "slot": "f_L0_017.throw",
+     "type": "throw",
+     "colour": "sand",
+     "reason": "Complements linen textiles and enhances cozy, natural tones."
     },
     {
      "slot": "r_L0_drawing_room.rug1",
      "type": "rug",
-     "colour": "sand",
-     "reason": "Warm neutral tone enhances daylight and ties in with linen textiles."
+     "colour": "natural wood",
+     "reason": "Matches light oak floors and grounds the seating area."
+    },
+    {
+     "slot": "window:win_L0_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens daylight and maintains airy, minimalist Scandinavian feel."
+    },
+    {
+     "slot": "ceiling:over_f_L0_019",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic accent that enhances natural daylight and style."
     },
     {
      "slot": "r_L0_drawing_room.corner1",
      "type": "plant",
      "colour": "natural wood",
-     "reason": "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+     "reason": "Large plant in corner adds life and balances the room’s geometry."
+    },
+    {
+     "slot": "f_L0_019.centre",
+     "type": "vase",
+     "colour": "terracotta",
+     "reason": "Earthy tone adds warmth and visual interest without clutter."
+    },
+    {
+     "slot": "f_L0_024.left",
+     "type": "book_set",
+     "colour": "natural wood",
+     "reason": "Books in wooden tray add texture and intellectual charm."
+    },
+    {
+     "slot": "f_L0_024.right",
+     "type": "candle",
+     "colour": "blush",
+     "reason": "Soft glow complements daylight and adds subtle warmth."
     }
    ],
    "error": null,
-   "latency_s": 6.219
+   "latency_s": 5.035
   }
  },
  "agreed": [
@@ -129,18 +288,48 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.",
-    "Adds softness and warmth in line with Scandinavian style."
+    "Soft, light cushions complement Scandinavian style and linen textiles.",
+    "Adds softness and warmth to the sofa in Scandinavian style."
+   ]
+  },
+  {
+   "slot": "f_L0_017.throw",
+   "type": "throw",
+   "colour": "sand",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and texture without overwhelming the minimalist aesthetic.",
+    "Complements linen textiles and enhances cozy, natural tones."
    ]
   },
   {
    "slot": "r_L0_drawing_room.rug1",
    "type": "rug",
    "colour": "natural wood",
-   "colour_agreed": false,
+   "colour_agreed": true,
    "reasons": [
-    "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture.",
-    "Warm neutral tone enhances daylight and ties in with linen textiles."
+    "Light oak floors pair beautifully with a wood-toned rug for cohesion.",
+    "Matches light oak floors and grounds the seating area."
+   ]
+  },
+  {
+   "slot": "window:win_L0_002",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Light, airy curtains enhance natural daylight and maintain Scandinavian minimalism.",
+    "Softens daylight and maintains airy, minimalist Scandinavian feel."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_019",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm brass pendant adds subtle metallic accent without clutter.",
+    "Warm metallic accent that enhances natural daylight and style."
    ]
   },
   {
@@ -149,18 +338,38 @@
    "colour": "sage green",
    "colour_agreed": false,
    "reasons": [
-    "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style.",
-    "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+    "A large green plant brings life to the corner and suits warm daylight.",
+    "Large plant in corner adds life and balances the room’s geometry."
    ]
   },
   {
    "slot": "f_L0_019.centre",
    "type": "vase",
    "colour": "terracotta",
+   "colour_agreed": true,
+   "reasons": [
+    "Earthy terracotta vase adds warmth and complements linen and wood tones.",
+    "Earthy tone adds warmth and visual interest without clutter."
+   ]
+  },
+  {
+   "slot": "f_L0_024.left",
+   "type": "book_set",
+   "colour": "black",
    "colour_agreed": false,
    "reasons": [
-    "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette.",
-    "Complements light oak floors and brings organic texture."
+    "Minimalist black books add visual interest without clutter.",
+    "Books in wooden tray add texture and intellectual charm."
+   ]
+  },
+  {
+   "slot": "f_L0_024.right",
+   "type": "candle",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "White candle enhances soft lighting and Scandinavian calm.",
+    "Soft glow complements daylight and adds subtle warmth."
    ]
   }
  ],
@@ -169,34 +378,64 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_007",
+   "id": "dec_L0_010",
    "type": "cushion",
    "method": "ai",
    "slot": "f_L0_017.cushions"
   },
   {
-   "id": "dec_L0_008",
+   "id": "dec_L0_011",
    "type": "cushion",
    "method": "ai",
    "slot": "f_L0_017.cushions"
   },
   {
-   "id": "dec_L0_009",
+   "id": "dec_L0_012",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_017.throw"
+  },
+  {
+   "id": "dec_L0_013",
    "type": "rug",
    "method": "ai",
    "slot": "r_L0_drawing_room.rug1"
   },
   {
-   "id": "dec_L0_010",
+   "id": "dec_L0_014",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_002"
+  },
+  {
+   "id": "dec_L0_015",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_019"
+  },
+  {
+   "id": "dec_L0_016",
    "type": "plant",
    "method": "ai",
    "slot": "r_L0_drawing_room.corner1"
   },
   {
-   "id": "dec_L0_011",
+   "id": "dec_L0_017",
    "type": "vase",
    "method": "ai",
    "slot": "f_L0_019.centre"
+  },
+  {
+   "id": "dec_L0_018",
+   "type": "book_set",
+   "method": "ai",
+   "slot": "f_L0_024.left"
+  },
+  {
+   "id": "dec_L0_019",
+   "type": "candle",
+   "method": "ai",
+   "slot": "f_L0_024.right"
   }
  ],
  "fallback": null,

@@ -1,0 +1,106 @@
+{
+ "room_id": "r_L-1_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "f_L-1_011.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L-1_011",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L-1_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1 banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1_011.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Minimalist white mirror complements charcoal walls and enhances light."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Brass ceiling light adds warm metallic contrast to cool daylight and concrete."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.29
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1_011.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Modern minimal mirror in charcoal complements the cool daylight and polished concrete."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Brass ceiling light adds warmth and luxury without clutter, matching the brass details theme."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.338
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1_011.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Minimalist white mirror complements charcoal walls and enhances light.",
+    "Modern minimal mirror in charcoal complements the cool daylight and polished concrete."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L-1_banyo",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass ceiling light adds warm metallic contrast to cool daylight and concrete.",
+    "Brass ceiling light adds warmth and luxury without clutter, matching the brass details theme."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1_014",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L-1_011.wall"
+  },
+  {
+   "id": "dec_L-1_015",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L-1_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

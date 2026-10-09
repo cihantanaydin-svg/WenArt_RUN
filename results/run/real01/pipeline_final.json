@@ -3,27 +3,37 @@
  "kind": "stage_record",
  "project": "real01",
  "stage": "pipeline_final",
- "rc": null,
- "status": "reused",
- "seconds": 0.0,
- "fingerprint": "021bb273de4847236398649631e9b76b0149479ce0ce70d3eddb2d503acd7dff",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 13.23,
+ "fingerprint": "e1ae4cfb546e3a5512ed48e31cc62c65da6e56d2ae8b547b7f417b3592d18234",
  "inputs": {
   "projects/real01": "4ca78573cac183908272879f1d88b4c0938f087eb5c5e268c6705a4a11863c5c",
-  "outputs/real01/recognition/answers_qwen3-vl-8b.json": "f301d578c8b91fc21e04709cbe957a289c15e9bf3f635dd7b60d897825e0a7da",
-  "outputs/real01/recognition/answers_glm-4.6v-flash.json": "7542ff5778b58f804ddc0f0936ee1f35be727e90eb5e7ef86580b12f7a2f52c3",
+  "outputs/real01/sheets/answers_qwen3-vl-8b.json": null,
+  "outputs/real01/sheets/answers_glm-4.6v-flash.json": null,
+  "outputs/real01/recognition/answers_qwen3-vl-8b.json": "b93f179bcecc248ab6a44518c4f9ee24fde7e4f27f24f449d50c3f8919e923cb",
+  "outputs/real01/recognition/answers_glm-4.6v-flash.json": "a96b6a7aa452c0d385271916c3b2146aedc831682fc768bf5d56e755372a0c74",
   "<LibreDWG VERSION>": "0.14 d9468ae"
  },
  "outputs": [
+  "sheets.json",
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-06T07:03:47Z",
- "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
+ "started_utc": "2026-10-09T09:30:31Z",
+ "git_commit": "b18dad1f865efa6406279d7836bc9a1ec25db9cd",
  "log": "logs/pipeline_final.log",
- "note": null,
- "run_id": "20261006-065742-full-20261006T070339Z",
- "steps": [],
+ "note": "answers applied",
+ "run_id": "20261009-092258-full-20261009T092915Z",
+ "steps": [
+  {
+   "name": "pipeline_final",
+   "rc": 0,
+   "seconds": 13.23
+  }
+ ],
  "written": {
-  "building.json": "c8fd81b9e8cea258787610516aabec87a24be2b8a860640e58fe403cc0708786"
+  "building.json": "956eb5a50404d897e9771d1e4c2e50ac47b8effd3e18136e223c6768c8a80cfb",
+  "sheets.json": "3c163c1383520376cd7a5a78e7e4c48215194f67c1ce99ed7bb8b5efb71ce22e"
  }
 }

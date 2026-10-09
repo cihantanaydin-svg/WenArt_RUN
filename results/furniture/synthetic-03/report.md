@@ -1,7 +1,7 @@
 # Ingest report: synthetic-03
 
 Status: **ok**
-Source: `projects/synthetic-03`, pipeline commit `0a41bee4`, created 2026-10-04T01:42:49Z
+Source: `projects/synthetic-03`, pipeline commit `b18dad1f`, created 2026-10-09T09:29:55Z
 
 ## Documents
 

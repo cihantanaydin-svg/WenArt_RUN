@@ -5,41 +5,39 @@
  "stage": "gate",
  "rc": 0,
  "status": "ok",
- "seconds": 61.26,
- "fingerprint": "094739a36bcde9f9f9d2b24dd42fbaf698fe9c9e6889fe28649e21d8cdea43e1",
+ "seconds": 60.58,
+ "fingerprint": "c1a4ea68085b3f6e1245bd38cb9d310ad9727e046dee6a94a094e3bee586a163",
  "inputs": {
-  "outputs/real01/renders/render_manifest.json": "d971c507969ed30b1c5952c6d619e5aef85d1e069e2e55f069c3ac59dcf23649",
-  "outputs/real01/check/controls.json": "afa2d7ae56d2468b0d86b21ed5d8b577fabeb36e12c131cb6bc81f3416bc5aba",
+  "outputs/real01/renders/render_manifest.json": "42c0f2aa3de82d77f67a261037dfdc4e75376715fde2156e0869998cda83e573",
+  "outputs/real01/check/controls.json": "6cb45dbe1dfdfb10756fa6454a493240fc2361917977ae28a5ce74682749f12d",
   "outputs/real01/polish/sweep/polish_manifest.json": null,
-  "outputs/real01/controls/hide_d_L0_003/render_manifest.json": "b62a2530ca6f1d1db110ab6d19fa19f585d4a4d66f75bf55b30892585ecbeab6",
-  "outputs/real01/controls/hide_f_L0_001/render_manifest.json": "f39e5f4649afe9f63c7e65d0fa85867b69b46c76c28cd3669b6d997dac62eaa5",
-  "outputs/real01/controls/hide_f_L0_002/render_manifest.json": "8a8b3f35bb3e121436476b4d609eccf848aecab3e3c19c86986e3c09786b84e7",
-  "outputs/real01/controls/hide_f_L0_005/render_manifest.json": "0a7cf6ca8428238c354bc7407c319902c477fd152402c7d651be3e5181939dfa",
-  "outputs/real01/controls/hide_f_L0_006/render_manifest.json": "696d9d7f170e443a75ac11a0316ef7f5180949beee9a62e104633535eae3f6d0",
-  "outputs/real01/controls/hide_f_L0_017/render_manifest.json": "8342ab5e8d2cd5bfefdf7b57c43331810625568947a20dae47c4b0a767ea9e7d",
-  "outputs/real01/controls/hide_win_L0_002/render_manifest.json": "6cae2820efbfc0e961ef04f0c76d77e8ac21cae21c87c1649350c9d4d79568b6",
-  "outputs/real01/controls/hide_win_L0_004/render_manifest.json": "b29eaed9c68d0c1907c90fe2c7176c8d70ceb3b78a7db3f0f7695849232fa893",
-  "outputs/real01/controls/hide_win_L0_006/render_manifest.json": "d597a500e7fa5c0b0a09d538c8adce0771484b174a3200a32e18765a3a9fdb0d"
+  "outputs/real01/controls/hide_d_L0_003/render_manifest.json": "07683932eca0045ac6a3102c233af1a531805a2075993b1ffe1d2e3413e7c356",
+  "outputs/real01/controls/hide_f_L0_002/render_manifest.json": "65bfb06675b0392f28c49a643b64026307f54045931e750e1447f7a5307877bb",
+  "outputs/real01/controls/hide_f_L0_017/render_manifest.json": "2dbae1b00ff9f2e5a387d4fcfc7467b60c091e50e0c1d606a6b63318e1dc2199",
+  "outputs/real01/controls/hide_f_L0_028/render_manifest.json": "2c586fba8ee8688749b1c4ced17ad76b60493a0e6d10f9300718c5f378040d1b",
+  "outputs/real01/controls/hide_win_L0_002/render_manifest.json": "d62a0d8628d772d98f82e9817fdff0087ed3a1dff44ecae5b94dba5b9b9fede8",
+  "outputs/real01/controls/hide_win_L0_004/render_manifest.json": "93500d845322000c8b8f4479cfb1dcaa9c10df28b02635eac25c89d5a1a5b6a6",
+  "outputs/real01/controls/hide_win_L0_009/render_manifest.json": "696c94ffa34cdafd8d5d680183ad384a19373c74fa69c166db578aa4a3b5732b"
  },
  "outputs": [
   "gate/gate_calibration.json",
   "gate/gate_validation.json"
  ],
- "started_utc": "2026-10-06T07:09:11Z",
- "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
+ "started_utc": "2026-10-09T10:06:37Z",
+ "git_commit": "b18dad1f865efa6406279d7836bc9a1ec25db9cd",
  "log": "logs/gate.log",
- "note": "gate decision polish_disabled",
- "run_id": "20261006-065742-full-20261006T070339Z",
+ "note": "gate decision ok",
+ "run_id": "20261009-092258-full-20261009T092915Z",
  "steps": [
   {
    "name": "calibrate",
    "rc": 0,
-   "seconds": 59.57
+   "seconds": 59.34
   },
   {
    "name": "validate",
    "rc": 0,
-   "seconds": 1.69
+   "seconds": 1.24
   }
  ],
  "written": {}

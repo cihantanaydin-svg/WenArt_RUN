@@ -1,0 +1,133 @@
+{
+ "room_id": "r_L0_kitchen",
+ "label": "Kitchen",
+ "room_type": "kitchen",
+ "slots": [
+  {
+   "id": "window:win_L0_006",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_006"
+  },
+  {
+   "id": "window:win_L0_009",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_009"
+  },
+  {
+   "id": "ceiling:centre_r_L0_kitchen",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 kitchen"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_kitchen",
+     "type": "pendant_light",
+     "colour": "natural wood",
+     "reason": "Adds warmth and matches the oak floor in Scandinavian style."
+    },
+    {
+     "slot": "window:win_L0_006",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens light and complements white walls without blocking daylight."
+    },
+    {
+     "slot": "window:win_L0_009",
+     "type": "blind",
+     "colour": "sand",
+     "reason": "Harmonizes with natural wood tones and enhances the airy feel."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.785
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_kitchen",
+     "type": "pendant_light",
+     "colour": "natural wood",
+     "reason": "Matches light oak floor and adds warm Scandinavian ambiance."
+    },
+    {
+     "slot": "window:win_L0_006",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens daylight while complementing white walls and linen textiles."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.212
+  }
+ },
+ "agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_kitchen",
+   "type": "pendant_light",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and matches the oak floor in Scandinavian style.",
+    "Matches light oak floor and adds warm Scandinavian ambiance."
+   ]
+  },
+  {
+   "slot": "window:win_L0_006",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens light and complements white walls without blocking daylight.",
+    "Softens daylight while complementing white walls and linen textiles."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "window:win_L0_009",
+   "type": "blind",
+   "colour": "sand",
+   "reason": "Harmonizes with natural wood tones and enhances the airy feel.",
+   "passes": [
+    1
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_027",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_kitchen"
+  },
+  {
+   "id": "dec_L0_028",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L0_006"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

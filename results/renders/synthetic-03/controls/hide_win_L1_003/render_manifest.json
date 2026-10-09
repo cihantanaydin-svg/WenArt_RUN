@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "d328e18c4160f15a945913cce0d2fca2352ce2b290209a3900d6b95b567c596e",
+ "scene_sha256": "014c1cf82c6c320cac4971e754e93eb6045234feb5c9e52e338cd4ef554a9ee5",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -53,174 +53,265 @@
   "f_L-1_009": 17,
   "f_L-1_010": 18,
   "f_L-1_011": 19,
-  "dec_L-1_004": 20,
-  "d_L0_001": 21,
-  "d_L0_002": 22,
-  "d_L0_003": 23,
-  "d_L0_004": 24,
-  "d_L0_005": 25,
-  "d_L0_006": 26,
-  "d_L0_007": 27,
-  "win_L0_001": 28,
-  "win_L0_002": 29,
-  "win_L0_003": 30,
-  "win_L0_004": 31,
-  "win_L0_005": 32,
-  "win_L0_006": 33,
-  "proxy:f_L0_021": 34,
-  "f_L0_001": 35,
-  "f_L0_002": 36,
-  "f_L0_003": 37,
-  "f_L0_004": 38,
-  "f_L0_005": 39,
-  "f_L0_006": 40,
-  "f_L0_007": 41,
-  "f_L0_008": 42,
-  "f_L0_009": 43,
-  "f_L0_010": 44,
-  "f_L0_011": 45,
-  "f_L0_012": 46,
-  "f_L0_013": 47,
-  "f_L0_014": 48,
-  "f_L0_015": 49,
-  "f_L0_016": 50,
-  "f_L0_017": 51,
-  "f_L0_018": 52,
-  "f_L0_019": 53,
-  "f_L0_020": 54,
-  "f_L0_022": 55,
-  "f_L0_023": 56,
-  "f_L0_024": 57,
-  "dec_L0_004": 58,
-  "d_L1_001": 59,
-  "d_L1_002": 60,
-  "d_L1_003": 61,
-  "d_L1_004": 62,
-  "d_L1_005": 63,
-  "win_L1_001": 64,
-  "win_L1_002": 65,
-  "win_L1_003": 66,
-  "win_L1_004": 67,
-  "win_L1_005": 68,
-  "win_L1_006": 69,
-  "win_L1_007": 70,
-  "f_L1_001": 71,
-  "f_L1_002": 72,
-  "f_L1_003": 73,
-  "f_L1_004": 74,
-  "f_L1_005": 75,
-  "f_L1_006": 76,
-  "f_L1_007": 77,
-  "f_L1_008": 78,
-  "f_L1_009": 79,
-  "f_L1_010": 80,
-  "f_L1_011": 81,
-  "f_L1_012": 82,
-  "f_L1_013": 83,
-  "f_L1_014": 84,
-  "f_L1_015": 85,
-  "f_L1_016": 86,
-  "f_L1_017": 87,
-  "f_L1_018": 88,
-  "f_L1_019": 89,
-  "f_L1_020": 90,
-  "f_L1_021": 91,
-  "dec_L1_004": 92,
-  "dec_L1_008": 93,
-  "dec_L1_012": 94
+  "dec_L-1_001": 20,
+  "dec_L-1_003": 21,
+  "dec_L-1_007": 22,
+  "dec_L-1_010": 23,
+  "dec_L-1_011": 24,
+  "dec_L-1_012": 25,
+  "dec_L-1_013": 26,
+  "dec_L-1_014": 27,
+  "dec_L-1_015": 28,
+  "d_L0_001": 29,
+  "d_L0_002": 30,
+  "d_L0_003": 31,
+  "d_L0_004": 32,
+  "d_L0_005": 33,
+  "d_L0_006": 34,
+  "d_L0_007": 35,
+  "win_L0_001": 36,
+  "win_L0_002": 37,
+  "win_L0_003": 38,
+  "win_L0_004": 39,
+  "win_L0_005": 40,
+  "win_L0_006": 41,
+  "proxy:f_L0_021": 42,
+  "f_L0_001": 43,
+  "f_L0_002": 44,
+  "f_L0_003": 45,
+  "f_L0_004": 46,
+  "f_L0_005": 47,
+  "f_L0_006": 48,
+  "f_L0_007": 49,
+  "f_L0_008": 50,
+  "f_L0_009": 51,
+  "f_L0_010": 52,
+  "f_L0_011": 53,
+  "f_L0_012": 54,
+  "f_L0_013": 55,
+  "f_L0_014": 56,
+  "f_L0_015": 57,
+  "f_L0_016": 58,
+  "f_L0_017": 59,
+  "f_L0_018": 60,
+  "f_L0_019": 61,
+  "f_L0_020": 62,
+  "f_L0_022": 63,
+  "f_L0_023": 64,
+  "f_L0_024": 65,
+  "f_L0_025": 66,
+  "f_L0_026": 67,
+  "f_L0_027": 68,
+  "f_L0_028": 69,
+  "f_L0_029": 70,
+  "f_L0_030": 71,
+  "f_L0_031": 72,
+  "f_L0_032": 73,
+  "dec_L0_004": 74,
+  "dec_L0_005": 75,
+  "dec_L0_006": 76,
+  "dec_L0_007": 77,
+  "dec_L0_008": 78,
+  "dec_L0_013": 79,
+  "dec_L0_018": 80,
+  "dec_L0_019": 81,
+  "dec_L0_020": 82,
+  "dec_L0_021": 83,
+  "dec_L0_022": 84,
+  "dec_L0_023": 85,
+  "dec_L0_024": 86,
+  "dec_L0_026": 87,
+  "d_L1_001": 88,
+  "d_L1_002": 89,
+  "d_L1_003": 90,
+  "d_L1_004": 91,
+  "d_L1_005": 92,
+  "win_L1_001": 93,
+  "win_L1_002": 94,
+  "win_L1_003": 95,
+  "win_L1_004": 96,
+  "win_L1_005": 97,
+  "win_L1_006": 98,
+  "win_L1_007": 99,
+  "f_L1_001": 100,
+  "f_L1_002": 101,
+  "f_L1_003": 102,
+  "f_L1_004": 103,
+  "f_L1_005": 104,
+  "f_L1_006": 105,
+  "f_L1_007": 106,
+  "f_L1_008": 107,
+  "f_L1_009": 108,
+  "f_L1_010": 109,
+  "f_L1_011": 110,
+  "f_L1_012": 111,
+  "f_L1_013": 112,
+  "f_L1_014": 113,
+  "f_L1_015": 114,
+  "f_L1_016": 115,
+  "f_L1_017": 116,
+  "f_L1_018": 117,
+  "f_L1_019": 118,
+  "f_L1_020": 119,
+  "dec_L1_004": 120,
+  "dec_L1_006": 121,
+  "dec_L1_007": 122,
+  "dec_L1_008": 123,
+  "dec_L1_014": 124,
+  "dec_L1_015": 125,
+  "dec_L1_016": 126,
+  "dec_L1_017": 127,
+  "dec_L1_020": 128,
+  "dec_L1_022": 129,
+  "dec_L1_023": 130,
+  "dec_L1_024": 131,
+  "dec_L1_025": 132,
+  "dec_L1_026": 133
  },
  "renders": [
   {
-   "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
    "room_id": "r_L1_ebeveyn_yatak_odasi",
    "level_id": "L1",
-   "png": "cam_r_L1_ebeveyn_yatak_odasi_2.png",
-   "exr": "cam_r_L1_ebeveyn_yatak_odasi_2_passes.exr",
-   "preview": "cam_r_L1_ebeveyn_yatak_odasi_2_preview.jpg",
-   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_2_depth.png",
-   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_2_index.png",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L1_ebeveyn_yatak_odasi_1.png",
+   "exr": "cam_r_L1_ebeveyn_yatak_odasi_1_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_yatak_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_1_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_1_index.png",
    "files": {
-    "index": "cam_r_L1_ebeveyn_yatak_odasi_2_index.png",
-    "depth_mm": "cam_r_L1_ebeveyn_yatak_odasi_2_depth_mm.png",
-    "normal": "cam_r_L1_ebeveyn_yatak_odasi_2_normal.png",
-    "depth": "cam_r_L1_ebeveyn_yatak_odasi_2_depth.png"
+    "index": "cam_r_L1_ebeveyn_yatak_odasi_1_index.png",
+    "depth_mm": "cam_r_L1_ebeveyn_yatak_odasi_1_depth_mm.png",
+    "normal": "cam_r_L1_ebeveyn_yatak_odasi_1_normal.png",
+    "depth": "cam_r_L1_ebeveyn_yatak_odasi_1_depth.png"
    },
-   "preview_bytes": 133298,
-   "seconds": 2.71,
+   "preview_bytes": 189937,
+   "seconds": 2.76,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 1.421226978302002,
-    "max": 3.5,
-    "mean": 2.915113687515259,
+    "min": 0.95246821641922,
+    "max": 4.942530632019043,
+    "mean": 2.8107054233551025,
     "coverage": 1.0
    },
    "index_values": [
-    71,
-    72,
-    73,
-    74
+    88,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    120,
+    121
    ],
    "index_stats": {
-    "71": {
-     "pixels": 455749,
+    "88": {
+     "pixels": 179350,
      "box": [
-      903,
-      190,
+      1749,
+      0,
       1920,
       1080
      ]
     },
-    "72": {
-     "pixels": 25157,
+    "100": {
+     "pixels": 175171,
      "box": [
-      960,
-      626,
-      1168,
-      756
+      345,
+      380,
+      1144,
+      951
      ]
     },
-    "73": {
-     "pixels": 10365,
+    "101": {
+     "pixels": 28637,
      "box": [
-      1517,
-      632,
-      1667,
-      726
+      280,
+      400,
+      487,
+      729
      ]
     },
-    "74": {
-     "pixels": 464119,
+    "102": {
+     "pixels": 7082,
      "box": [
-      118,
+      638,
+      463,
+      775,
+      536
+     ]
+    },
+    "103": {
+     "pixels": 19226,
+     "box": [
       0,
-      669,
-      897
+      0,
+      22,
+      878
+     ]
+    },
+    "104": {
+     "pixels": 54266,
+     "box": [
+      1073,
+      427,
+      1592,
+      842
+     ]
+    },
+    "105": {
+     "pixels": 39218,
+     "box": [
+      1059,
+      467,
+      1269,
+      868
+     ]
+    },
+    "120": {
+     "pixels": 59595,
+     "box": [
+      856,
+      39,
+      1046,
+      370
+     ]
+    },
+    "121": {
+     "pixels": 191989,
+     "box": [
+      180,
+      678,
+      1194,
+      1080
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "d328e18c4160f15a945913cce0d2fca2352ce2b290209a3900d6b95b567c596e",
-   "render_key": "609ced73986b3ccd",
+   "scene_sha256": "014c1cf82c6c320cac4971e754e93eb6045234feb5c9e52e338cd4ef554a9ee5",
+   "render_key": "9c55ab3a5a080711",
    "exposure": {
     "mode": "from",
-    "ev": 4.333333,
+    "ev": 4.833333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.008368,
-     0.996799,
-     1.007067
+     1.010113,
+     0.994748,
+     1.022247
     ],
     "wb_mode": "from",
-    "wb_temperature": 6504.3,
-    "wb_tint": 7.88,
+    "wb_temperature": 6565.4,
+    "wb_tint": 6.3,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
@@ -239,172 +330,11 @@
    "window_pull": null,
    "alt_preview": null,
    "alt_preview_bytes": null
-  },
-  {
-   "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
-   "room_id": "r_L1_ebeveyn_yatak_odasi",
-   "level_id": "L1",
-   "png": "cam_r_L1_ebeveyn_yatak_odasi_3.png",
-   "exr": "cam_r_L1_ebeveyn_yatak_odasi_3_passes.exr",
-   "preview": "cam_r_L1_ebeveyn_yatak_odasi_3_preview.jpg",
-   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_3_depth.png",
-   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_3_index.png",
-   "files": {
-    "index": "cam_r_L1_ebeveyn_yatak_odasi_3_index.png",
-    "depth_mm": "cam_r_L1_ebeveyn_yatak_odasi_3_depth_mm.png",
-    "normal": "cam_r_L1_ebeveyn_yatak_odasi_3_normal.png",
-    "depth": "cam_r_L1_ebeveyn_yatak_odasi_3_depth.png"
-   },
-   "preview_bytes": 134166,
-   "seconds": 3.58,
-   "samples": 128,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "depth": {
-    "min": 1.3935039043426514,
-    "max": 3.5,
-    "mean": 2.9219517707824707,
-    "coverage": 1.0
-   },
-   "index_values": [
-    64,
-    71,
-    72,
-    73,
-    75,
-    76,
-    93
-   ],
-   "index_stats": {
-    "64": {
-     "pixels": 62938,
-     "box": [
-      0,
-      0,
-      115,
-      560
-     ]
-    },
-    "71": {
-     "pixels": 356339,
-     "box": [
-      1102,
-      226,
-      1920,
-      1080
-     ]
-    },
-    "72": {
-     "pixels": 40476,
-     "box": [
-      614,
-      626,
-      813,
-      867
-     ]
-    },
-    "73": {
-     "pixels": 11541,
-     "box": [
-      0,
-      953,
-      96,
-      1080
-     ]
-    },
-    "75": {
-     "pixels": 152587,
-     "box": [
-      0,
-      468,
-      633,
-      1080
-     ]
-    },
-    "76": {
-     "pixels": 67668,
-     "box": [
-      844,
-      691,
-      1254,
-      1080
-     ]
-    },
-    "93": {
-     "pixels": 6023,
-     "box": [
-      379,
-      792,
-      502,
-      855
-     ]
-    }
-   },
-   "skipped": false,
-   "scene_sha256": "86c0254a7e153c8127339c94955c733ad9ce8301a3610c951d3aa88bb13268c1",
-   "render_key": "536b3e0be22af01d",
-   "exposure": {
-    "mode": "from",
-    "ev": 4.666667,
-    "ev_raw": null,
-    "at_limit": false,
-    "target": null,
-    "limits": null,
-    "incident_p50": null,
-    "whitepoint": [
-     1.037849,
-     0.991318,
-     0.974555
-    ],
-    "wb_mode": "from",
-    "wb_temperature": 6261.1,
-    "wb_tint": 6.21,
-    "residual": null,
-    "window_clip_frac": 0.0089,
-    "meter_seconds": 0.0,
-    "meter": null,
-    "mood": "cool daylight",
-    "source": "../../renders/render_manifest.json",
-    "notes": [],
-    "ev_offset": 0.0
-   },
-   "hidden": [
-    "win_L1_003"
-   ],
-   "plugged": [
-    "win_L1_003"
-   ],
-   "window_pull": {
-    "ev": -1.0,
-    "k": 1,
-    "pane_ev": 3.666667,
-    "clip_before": 0.2046,
-    "clip_after": 0.0038,
-    "pane_px": 39364,
-    "pane_median": 0.9121,
-    "wall_median": 0.1838,
-    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
-    "tried": [
-     {
-      "k": 1,
-      "clip": 0.0001,
-      "median": 0.8491
-     }
-    ],
-    "pane_median_after": 0.8527,
-    "seconds": 0.509
-   },
-   "alt_preview": null,
-   "alt_preview_bytes": null
   }
  ],
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791083963.0,
- "warnings": [
-  "cam_r_L1_ebeveyn_yatak_odasi_3: rendered from another scene build and not asked for in this run"
- ]
+ "deadline": 1791543250.0,
+ "warnings": []
 }

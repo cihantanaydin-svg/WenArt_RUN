@@ -1,0 +1,159 @@
+{
+ "room_id": "r_L0_mutfak",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "slots": [
+  {
+   "id": "f_L0_011.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "candle"
+   ],
+   "host_id": "f_L0_011",
+   "host_type": "table_dining",
+   "note": "centre part",
+   "center": [
+    1.6,
+    6.0
+   ],
+   "max_size": [
+    0.7,
+    0.5,
+    1.84
+   ]
+  },
+  {
+   "id": "window:win_L0_004",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_004"
+  },
+  {
+   "id": "ceiling:over_f_L0_011",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light"
+   ],
+   "host_id": "f_L0_011",
+   "host_type": null,
+   "note": "over f L0 011"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_011.centre",
+     "type": "bowl",
+     "colour": "white",
+     "reason": "Minimalist white bowl adds clean contrast without clutter."
+    },
+    {
+     "slot": "window:win_L0_004",
+     "type": "blind",
+     "colour": "charcoal",
+     "reason": "Charcoal blind complements the cool daylight and modern minimal palette."
+    },
+    {
+     "slot": "ceiling:over_f_L0_011",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds warmth and metallic detail to the neutral scheme."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.863
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_011.centre",
+     "type": "vase",
+     "colour": "charcoal",
+     "reason": "Minimalist charcoal vase complements the cool daylight and modern aesthetic."
+    },
+    {
+     "slot": "window:win_L0_004",
+     "type": "blind",
+     "colour": "charcoal",
+     "reason": "Charcoal blind matches the modern minimal palette and enhances the clean lines."
+    },
+    {
+     "slot": "ceiling:over_f_L0_011",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds warmth and metallic contrast to the cool tones."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.9
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L0_004",
+   "type": "blind",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Charcoal blind complements the cool daylight and modern minimal palette.",
+    "Charcoal blind matches the modern minimal palette and enhances the clean lines."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_011",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass pendant light adds warmth and metallic detail to the neutral scheme.",
+    "Brass pendant light adds warmth and metallic contrast to the cool tones."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_011.centre",
+   "type": "bowl",
+   "colour": "white",
+   "reason": "Minimalist white bowl adds clean contrast without clutter.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_011.centre",
+   "type": "vase",
+   "colour": "charcoal",
+   "reason": "Minimalist charcoal vase complements the cool daylight and modern aesthetic.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_022",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L0_004"
+  },
+  {
+   "id": "dec_L0_023",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_011"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

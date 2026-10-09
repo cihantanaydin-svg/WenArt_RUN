@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-04T14:17:26Z",
-  "pipeline_commit": "24efc0891",
+  "created_utc": "2026-10-09T09:30:22Z",
+  "pipeline_commit": "b18dad1f",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -798,7 +798,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "d_L0_002",
@@ -825,7 +827,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "o_L0_001",
@@ -879,7 +883,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "o_L0_002",
@@ -988,7 +994,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "d_L0_005",
@@ -1015,7 +1023,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "o_L0_004",
@@ -1981,7 +1991,7 @@
      "pass": 1,
      "text": "nightstand",
      "front": "left",
-     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "file": "real01.pdf",
@@ -1993,7 +2003,7 @@
      "pass": 2,
      "text": "nightstand",
      "front": "right",
-     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+     "reason": "The object has a telephone symbol and a footprint matching a nightstand, with the front edge to the right."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2005,7 +2015,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "left",
-     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "type": "nightstand",
@@ -2014,7 +2024,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "right",
-     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+     "reason": "The object has a telephone symbol and a footprint matching a nightstand, with the front edge to the right."
     }
    ],
    "build": true
@@ -2023,7 +2033,7 @@
    "id": "f_L0_006",
    "level_id": "L0",
    "room_id": "r_L0_bed_room_2",
-   "type": "nightstand",
+   "type": "unknown",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -2032,15 +2042,15 @@
      6.8623
     ],
     "size": [
-     0.4456,
-     0.4956
+     0.4956,
+     0.4456
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 0.0
    },
-   "front_deg": 180.0,
+   "front_deg": null,
    "height": null,
    "asset": null,
-   "status": "verified",
+   "status": "unverified",
    "evidence": [
     {
      "file": "real01.pdf",
@@ -2058,7 +2068,7 @@
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "nightstand",
-     "front": "left",
+     "front": "right",
      "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
     },
     {
@@ -2069,12 +2079,12 @@
      "entity": "recognition:sym_L0_003",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
-     "text": "nightstand",
-     "front": "left",
-     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+     "text": "wall_cabinet",
+     "front": "none",
+     "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
     }
    ],
-   "type_method": "ai_two_pass",
+   "type_method": "none",
    "type_candidates": [
     {
      "type": "nightstand",
@@ -2082,17 +2092,17 @@
      "model_key": "qwen",
      "pass": 1,
      "confidence": 0.95,
-     "front": "left",
+     "front": "right",
      "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
     },
     {
-     "type": "nightstand",
+     "type": "wall_cabinet",
      "model": "zai-org/GLM-4.6V-Flash",
      "model_key": "glm",
      "pass": 2,
      "confidence": 0.9,
-     "front": "left",
-     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+     "front": "none",
+     "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
     }
    ],
    "build": true
@@ -2215,7 +2225,7 @@
      "pass": 1,
      "text": "nightstand",
      "front": "right",
-     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "file": "real01.pdf",
@@ -2227,7 +2237,7 @@
      "pass": 2,
      "text": "nightstand",
      "front": "left",
-     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+     "reason": "The object has a small footprint with a lamp symbol, typical of a nightstand."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2239,7 +2249,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "right",
-     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "type": "nightstand",
@@ -2248,7 +2258,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "left",
-     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+     "reason": "The object has a small footprint with a lamp symbol, typical of a nightstand."
     }
    ],
    "build": true
@@ -2257,7 +2267,7 @@
    "id": "f_L0_009",
    "level_id": "L0",
    "room_id": "r_L0_bed_room",
-   "type": "nightstand",
+   "type": "unknown",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -2274,7 +2284,7 @@
    "front_deg": null,
    "height": null,
    "asset": null,
-   "status": "verified",
+   "status": "unverified",
    "evidence": [
     {
      "file": "real01.pdf",
@@ -2292,23 +2302,23 @@
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "nightstand",
-     "front": "left",
+     "front": "right",
      "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
     },
     {
      "file": "real01.pdf",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.8,
      "page": 1,
      "entity": "recognition:sym_L0_006",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
-     "text": "nightstand",
-     "front": "right",
-     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+     "text": "floor_lamp",
+     "front": "none",
+     "reason": "The object has a circular shape with spokes, typical of a floor lamp symbol."
     }
    ],
-   "type_method": "ai_two_pass",
+   "type_method": "none",
    "type_candidates": [
     {
      "type": "nightstand",
@@ -2316,17 +2326,17 @@
      "model_key": "qwen",
      "pass": 1,
      "confidence": 0.95,
-     "front": "left",
+     "front": "right",
      "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
     },
     {
-     "type": "nightstand",
+     "type": "floor_lamp",
      "model": "zai-org/GLM-4.6V-Flash",
      "model_key": "glm",
      "pass": 2,
-     "confidence": 0.9,
-     "front": "right",
-     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object has a circular shape with spokes, typical of a floor lamp symbol."
     }
    ],
    "build": true
@@ -2371,7 +2381,7 @@
      "pass": 1,
      "text": "table_dining",
      "front": "top",
-     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+     "reason": "Rectangular shape, size 1.24x0.74m fits dining table, surrounded by chairs in dining room."
     },
     {
      "file": "real01.pdf",
@@ -2395,7 +2405,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "top",
-     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+     "reason": "Rectangular shape, size 1.24x0.74m fits dining table, surrounded by chairs in dining room."
     },
     {
      "type": "table_dining",
@@ -2461,7 +2471,7 @@
      "pass": 2,
      "text": "chair",
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+     "reason": "The object is a small seat with a backrest, drawn around a larger table, matching the description of a dining chair."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2482,7 +2492,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+     "reason": "The object is a small seat with a backrest, drawn around a larger table, matching the description of a dining chair."
     }
    ],
    "build": true
@@ -2527,7 +2537,7 @@
      "pass": 1,
      "text": "chair",
      "front": "top",
-     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "file": "real01.pdf",
@@ -2539,7 +2549,7 @@
      "pass": 2,
      "text": "chair",
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and is one of six around a table."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2551,7 +2561,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "top",
-     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "type": "chair",
@@ -2560,7 +2570,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and is one of six around a table."
     }
    ],
    "build": true
@@ -2605,7 +2615,7 @@
      "pass": 1,
      "text": "chair",
      "front": "right",
-     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "file": "real01.pdf",
@@ -2617,7 +2627,7 @@
      "pass": 2,
      "text": "chair",
      "front": "left",
-     "reason": "Small seat with backrest line, around a table in a dining room."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2629,7 +2639,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "right",
-     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "type": "chair",
@@ -2638,7 +2648,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "left",
-     "reason": "Small seat with backrest line, around a table in a dining room."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
    "build": true
@@ -2695,7 +2705,7 @@
      "pass": 2,
      "text": "chair",
      "front": "left",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2716,7 +2726,7 @@
      "pass": 2,
      "confidence": 1.0,
      "front": "left",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
    "build": true
@@ -2773,7 +2783,7 @@
      "pass": 2,
      "text": "chair",
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around the table."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2794,7 +2804,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around the table."
     }
    ],
    "build": true
@@ -2851,7 +2861,7 @@
      "pass": 2,
      "text": "chair",
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and its size matches the description for a dining chair."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2872,7 +2882,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and its size matches the description for a dining chair."
     }
    ],
    "build": true
@@ -2916,8 +2926,8 @@
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "sofa",
-     "front": "left",
-     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+     "front": "bottom",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and usage context in drawing room."
     },
     {
      "file": "real01.pdf",
@@ -2929,7 +2939,7 @@
      "pass": 2,
      "text": "sofa",
      "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "reason": "The object is a long rectangle with a backrest and pillows, matching the description of a sofa."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2940,8 +2950,8 @@
      "model_key": "qwen",
      "pass": 1,
      "confidence": 0.95,
-     "front": "left",
-     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+     "front": "bottom",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and usage context in drawing room."
     },
     {
      "type": "sofa",
@@ -2950,7 +2960,7 @@
      "pass": 2,
      "confidence": 1.0,
      "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "reason": "The object is a long rectangle with a backrest and pillows, matching the description of a sofa."
     }
    ],
    "build": true
@@ -2971,9 +2981,9 @@
      1.8972,
      0.703
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 180.0,
+   "front_deg": null,
    "height": null,
    "asset": null,
    "status": "unverified",
@@ -2995,7 +3005,7 @@
      "pass": 1,
      "text": "wardrobe",
      "front": "left",
-     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+     "reason": "Long shallow rectangle against wall, matches wardrobe dimensions and placement."
     },
     {
      "file": "real01.pdf",
@@ -3006,8 +3016,8 @@
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
      "text": "sofa",
-     "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "front": "top",
+     "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
     }
    ],
    "type_method": "none",
@@ -3019,7 +3029,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "left",
-     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+     "reason": "Long shallow rectangle against wall, matches wardrobe dimensions and placement."
     },
     {
      "type": "sofa",
@@ -3027,8 +3037,8 @@
      "model_key": "glm",
      "pass": 2,
      "confidence": 1.0,
-     "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "front": "top",
+     "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
     }
    ],
    "build": true
@@ -3085,7 +3095,7 @@
      "pass": 2,
      "text": "table_coffee",
      "front": "none",
-     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+     "reason": "The object's footprint is a square with a size that fits a coffee table, and it has no distinct front."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3106,7 +3116,7 @@
      "pass": 2,
      "confidence": 0.8,
      "front": "none",
-     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+     "reason": "The object's footprint is a square with a size that fits a coffee table, and it has no distinct front."
     }
    ],
    "build": true
@@ -3163,7 +3173,7 @@
      "pass": 2,
      "text": "floor_lamp",
      "front": "none",
-     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+     "reason": "The object is a small circular floor lamp with spokes, matching the description and size of a floor lamp."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3184,7 +3194,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "none",
-     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+     "reason": "The object is a small circular floor lamp with spokes, matching the description and size of a floor lamp."
     }
    ],
    "build": true,
@@ -3200,13 +3210,31 @@
    "id": "c_001",
    "kind": "symbol_type_disagreement",
    "element_ids": [
+    "f_L0_006"
+   ],
+   "description": "f_L0_006: sym_L0_003: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) wall_cabinet",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_002",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_009"
+   ],
+   "description": "f_L0_009: sym_L0_006: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_003",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
     "f_L0_018"
    ],
    "description": "f_L0_018: sym_L0_015: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa",
    "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
   },
   {
-   "id": "c_002",
+   "id": "c_004",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_004"
@@ -3215,7 +3243,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_003",
+   "id": "c_005",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_007"
@@ -3224,7 +3252,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_004",
+   "id": "c_006",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_011"
@@ -3233,7 +3261,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_005",
+   "id": "c_007",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_012"
@@ -3242,7 +3270,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_006",
+   "id": "c_008",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_013"
@@ -3251,7 +3279,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_007",
+   "id": "c_009",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_014"
@@ -3260,7 +3288,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_008",
+   "id": "c_010",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_015"
@@ -3269,7 +3297,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_009",
+   "id": "c_011",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_016"
@@ -3278,17 +3306,19 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_010",
+   "id": "c_012",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_017"
    ],
-   "description": "f_L0_017: sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "description": "f_L0_017: sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   }
  ],
  "unverified": [
   "r_L0_room",
+  "f_L0_006",
+  "f_L0_009",
   "f_L0_018"
  ],
  "warnings": [
@@ -3298,14 +3328,13 @@
   "sym_L0_002: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
   "sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes): the drawn front is kept (vector geometry > AI)",
   "sym_L0_005: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
-  "sym_L0_006: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
   "sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
-  "sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
   "L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair"
  ],

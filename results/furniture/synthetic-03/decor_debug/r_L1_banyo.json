@@ -1,0 +1,144 @@
+{
+ "room_id": "r_L1_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "f_L1_019.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L1_019",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "window:win_L1_006",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_006"
+  },
+  {
+   "id": "ceiling:centre_r_L1_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_019.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Minimalist mirror in white complements the charcoal and white palette."
+    },
+    {
+     "slot": "window:win_L1_006",
+     "type": "blind",
+     "colour": "charcoal",
+     "reason": "Charcoal blind adds subtle contrast and matches the modern minimal aesthetic."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Brass light fixture introduces warm metallic detail for elegance and style."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.824
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_019.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Modern minimal style calls for a sleek, charcoal-framed mirror above the washbasin."
+    },
+    {
+     "slot": "window:win_L1_006",
+     "type": "blind",
+     "colour": "white",
+     "reason": "White blind complements cool daylight and maintains the minimalist, bright aesthetic."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Brass ceiling light adds warm metallic contrast to charcoal and white, enhancing modern minimalism."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.926
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_019.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Minimalist mirror in white complements the charcoal and white palette.",
+    "Modern minimal style calls for a sleek, charcoal-framed mirror above the washbasin."
+   ]
+  },
+  {
+   "slot": "window:win_L1_006",
+   "type": "blind",
+   "colour": "charcoal",
+   "colour_agreed": false,
+   "reasons": [
+    "Charcoal blind adds subtle contrast and matches the modern minimal aesthetic.",
+    "White blind complements cool daylight and maintains the minimalist, bright aesthetic."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_banyo",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass light fixture introduces warm metallic detail for elegance and style.",
+    "Brass ceiling light adds warm metallic contrast to charcoal and white, enhancing modern minimalism."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_024",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_019.wall"
+  },
+  {
+   "id": "dec_L1_025",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L1_006"
+  },
+  {
+   "id": "dec_L1_026",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

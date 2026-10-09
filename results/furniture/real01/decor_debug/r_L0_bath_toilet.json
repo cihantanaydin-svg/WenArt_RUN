@@ -12,6 +12,16 @@
    "host_id": "f_L0_022",
    "host_type": "washbasin",
    "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L0_bath_toilet",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 bath toilet"
   }
  ],
  "passes": {
@@ -21,11 +31,17 @@
      "slot": "f_L0_022.wall",
      "type": "mirror",
      "colour": "white",
-     "reason": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered."
+     "reason": "Enhances light and space, matches Scandinavian minimalism."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_bath_toilet",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Warm daylight effect, complements light oak and white walls."
     }
    ],
    "error": null,
-   "latency_s": 1.904
+   "latency_s": 1.234
   },
   "2": {
    "items": [
@@ -33,11 +49,17 @@
      "slot": "f_L0_022.wall",
      "type": "mirror",
      "colour": "natural wood",
-     "reason": "Complements light oak floor and white walls with warm, natural tones."
+     "reason": "Complements light oak floor and adds Scandinavian minimalism."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_bath_toilet",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Brightens the space with warm daylight tones and matches white walls."
     }
    ],
    "error": null,
-   "latency_s": 1.824
+   "latency_s": 1.237
   }
  },
  "agreed": [
@@ -47,8 +69,18 @@
    "colour": "white",
    "colour_agreed": false,
    "reasons": [
-    "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered.",
-    "Complements light oak floor and white walls with warm, natural tones."
+    "Enhances light and space, matches Scandinavian minimalism.",
+    "Complements light oak floor and adds Scandinavian minimalism."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_bath_toilet",
+   "type": "ceiling_light",
+   "colour": "white",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm daylight effect, complements light oak and white walls.",
+    "Brightens the space with warm daylight tones and matches white walls."
    ]
   }
  ],
@@ -57,10 +89,16 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_006",
+   "id": "dec_L0_008",
    "type": "mirror",
    "method": "ai",
    "slot": "f_L0_022.wall"
+  },
+  {
+   "id": "dec_L0_009",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_bath_toilet"
   }
  ],
  "fallback": null,

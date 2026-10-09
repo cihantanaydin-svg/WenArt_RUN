@@ -3,23 +3,32 @@
  "kind": "stage_record",
  "project": "real01",
  "stage": "layout",
- "rc": null,
- "status": "reused",
- "seconds": 0.0,
- "fingerprint": "4694ce374ecf39b7443339ea29eb0039b84988857c7b4fe541baf8835ed2d69d",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 44.66,
+ "fingerprint": "2813fb576d59cde2f1b3bdb3e386a4573266fbc2bac5922caf2cd441374a31f7",
  "inputs": {
-  "outputs/real01/building_fitted.json": "205ebc64eb24f09bf7dd8454f93c3c120f729b41b42a706ea81a7203ef96c54b",
-  "outputs/real01/style.json": "9e88465132c2a42d1a2c305c72792e6355c3720f5e7b8fcc1245c3c6dd721faa"
+  "outputs/real01/building_fitted.json": "98d4201cf87468b7c2e25ed3a7a4effc10a935b0c1f136a7bb01d2c4cdb5d3ba",
+  "outputs/real01/style.json": "a1749bb252af5359ca23925b3d9a5336825aa5c557599af43c8d97bd00015e03",
+  "projects/real01/brief.yaml": null
  },
  "outputs": [
   "building_furnished.json",
-  "layout.json"
+  "layout.json",
+  "completion.json",
+  "completion_report.md"
  ],
- "started_utc": "2026-10-06T07:03:51Z",
- "git_commit": "4528260b74ae8fb32a633a5676511f1714bd948c",
+ "started_utc": "2026-10-09T09:33:50Z",
+ "git_commit": "b18dad1f865efa6406279d7836bc9a1ec25db9cd",
  "log": "logs/layout.log",
  "note": null,
- "run_id": "20261006-065742-full-20261006T070339Z",
- "steps": [],
+ "run_id": "20261009-092258-full-20261009T092915Z",
+ "steps": [
+  {
+   "name": "layout",
+   "rc": 0,
+   "seconds": 44.66
+  }
+ ],
  "written": {}
 }

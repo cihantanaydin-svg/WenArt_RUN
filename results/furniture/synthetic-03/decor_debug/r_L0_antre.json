@@ -1,0 +1,191 @@
+{
+ "room_id": "r_L0_antre",
+ "label": "Antre",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L0_024.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_024",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    4.571,
+    5.246
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_024.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_024",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    3.971,
+    5.246
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_024.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L0_024",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L0_antre",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 antre"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_024.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L0_024.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean lines and neutral tone complement charcoal and brass accents."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_antre",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Adds warm metallic detail and ambient light without clutter."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.743
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_024.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L0_024.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean lines and neutral tone complement charcoal and brass."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_antre",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass finish adds subtle luxury under cool daylight."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.717
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_024.wall",
+   "type": "mirror",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Reflects light and enhances space in modern minimal style.",
+    "Reflects light and enhances space in modern minimal style."
+   ]
+  },
+  {
+   "slot": "f_L0_024.left",
+   "type": "vase",
+   "colour": "white",
+   "colour_agreed": true,
+   "reasons": [
+    "Clean lines and neutral tone complement charcoal and brass accents.",
+    "Clean lines and neutral tone complement charcoal and brass."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_antre",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Adds warm metallic detail and ambient light without clutter.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_antre",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "Warm brass finish adds subtle luxury under cool daylight.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_024",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_024.wall"
+  },
+  {
+   "id": "dec_L0_025",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L0_024.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant"
+ ]
+}

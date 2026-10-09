@@ -1,0 +1,270 @@
+{
+ "room_id": "r_L1_hol",
+ "label": "Hol",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L1_007.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    4.546,
+    0.6
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L1_007.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    4.546,
+    1.2
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L1_007.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "f_L1_008.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "tray",
+    "candle"
+   ],
+   "host_id": "f_L1_008",
+   "host_type": "shoe_cabinet",
+   "note": "centre part",
+   "center": [
+    4.531,
+    6.7
+   ],
+   "max_size": [
+    0.74,
+    0.26,
+    1.6
+   ]
+  },
+  {
+   "id": "r_L1_hol.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.70, 0.50",
+   "center": [
+    5.7,
+    0.5
+   ]
+  },
+  {
+   "id": "r_L1_hol.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.70, 7.30",
+   "center": [
+    5.7,
+    7.3
+   ]
+  },
+  {
+   "id": "ceiling:centre_r_L1_hol",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 hol"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L1_007.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Clean lines and neutral tone complement charcoal and brass accents."
+    },
+    {
+     "slot": "r_L1_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Adds organic texture without clutter, suits cool daylight."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_hol",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow enhances modern minimal aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.259
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "charcoal",
+     "reason": "Reflects light and enhances space in modern minimal style."
+    },
+    {
+     "slot": "f_L1_007.left",
+     "type": "vase",
+     "colour": "charcoal",
+     "reason": "Adds subtle elegance with charcoal tone matching the palette."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_hol",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Brass light fixture adds warmth and modern minimal detail."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.289
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_007.wall",
+   "type": "mirror",
+   "colour": "charcoal",
+   "colour_agreed": true,
+   "reasons": [
+    "Reflects light and enhances space in modern minimal style.",
+    "Reflects light and enhances space in modern minimal style."
+   ]
+  },
+  {
+   "slot": "f_L1_007.left",
+   "type": "vase",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Clean lines and neutral tone complement charcoal and brass accents.",
+    "Adds subtle elegance with charcoal tone matching the palette."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "r_L1_hol.corner1",
+   "type": "plant",
+   "colour": "sage green",
+   "reason": "Adds organic texture without clutter, suits cool daylight.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_hol",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm metallic glow enhances modern minimal aesthetic.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_hol",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "Brass light fixture adds warmth and modern minimal detail.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "slot": "r_L1_hol.corner1",
+   "type": "plant_small",
+   "colour": "white",
+   "reason": "Small plant in corner brings life without clutter, in neutral tone.",
+   "why": "the slot does not take this type",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_008",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_007.wall"
+  },
+  {
+   "id": "dec_L1_009",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L1_007.left"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

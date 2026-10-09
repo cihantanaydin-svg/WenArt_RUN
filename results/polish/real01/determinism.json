@@ -2,8 +2,8 @@
  "schema_version": "0.1",
  "camera": "cam_r_L0_bath_toilet_1",
  "max_abs_diff": 0,
- "seconds": 14.31,
- "attempt_key": "13ea0c0ca9bae2c687f864c379951c0b162fd5f9f4cf2c736264798f6331392a",
+ "seconds": 7.54,
+ "attempt_key": "8763a5c4f30dc04dd6e714b933f815bdce20f29f6ea38b35d5f6ed5424370ff9",
  "settings": {
   "strength": 0.375,
   "control": "geometry",
@@ -14,7 +14,7 @@
   "steps": 8
  },
  "seconds_each": [
-  6.07,
-  8.24
+  3.76,
+  3.78
  ]
 }

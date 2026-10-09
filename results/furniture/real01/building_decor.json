@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-04T14:17:26Z",
-  "pipeline_commit": "24efc0891",
+  "created_utc": "2026-10-09T09:30:22Z",
+  "pipeline_commit": "b18dad1f",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -798,7 +798,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "d_L0_002",
@@ -825,7 +827,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "o_L0_001",
@@ -879,7 +883,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "o_L0_002",
@@ -988,7 +994,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "d_L0_005",
@@ -1015,7 +1023,9 @@
    ],
    "assumed": [
     "height"
-   ]
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
   },
   {
    "id": "o_L0_004",
@@ -2057,6 +2067,33 @@
     "licence_flag": null,
     "style_hint": "Bed",
     "name": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B0154VUESC_MAT_MR",
+      "material": "mixed",
+      "materials": [
+       "fabric",
+       "wood"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       240,
+       240,
+       240
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood",
+     "fabric"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -2114,7 +2151,15 @@
      "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.7957,
+     7.0807
+    ],
+    "wall_id": "w_L0_007"
+   }
   },
   {
    "id": "f_L0_005",
@@ -2227,7 +2272,7 @@
      "pass": 1,
      "text": "nightstand",
      "front": "left",
-     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "file": "real01.pdf",
@@ -2239,7 +2284,7 @@
      "pass": 2,
      "text": "nightstand",
      "front": "right",
-     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+     "reason": "The object has a telephone symbol and a footprint matching a nightstand, with the front edge to the right."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2251,7 +2296,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "left",
-     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "type": "nightstand",
@@ -2260,16 +2305,24 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "right",
-     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+     "reason": "The object has a telephone symbol and a footprint matching a nightstand, with the front edge to the right."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.9333,
+     6.8358
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_006",
    "level_id": "L0",
    "room_id": "r_L0_bed_room_2",
-   "type": "nightstand",
+   "type": "unknown",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -2278,102 +2331,44 @@
      6.8623
     ],
     "size": [
-     0.4456,
-     0.4956
+     0.4956,
+     0.4456
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 0.0
    },
-   "front_deg": 180.0,
+   "front_deg": null,
    "height": null,
    "asset": {
-    "library": "abo",
-    "asset_id": "abo_B07L1DH1PX",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     1.114,
-     1.0751,
-     1.0945
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
-     0.4456,
      0.4956,
-     0.5035
+     0.4456,
+     0.8
     ],
-    "aspect_error": 0.0356,
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     -0.0078,
+     0.0,
      0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "abo_B07L1DH1PX",
-      "aspect_error": 0.0356,
-      "scale": [
-       1.114,
-       1.0751,
-       1.0945
-      ],
-      "non_uniform": 1.0362,
-      "mean_scale": 1.0945,
-      "accepted": true,
-      "rank": 1,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.0945,
-      "size_bucket": 1,
-      "quality": 3.0
-     }
-    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
     "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ],
-    "styles": [
-     "modern minimal",
-     "minimal"
-    ],
     "style_family": null,
-    "excluded": [],
-    "quality": [
-     5,
-     4
-    ],
-    "units_known": true,
-    "ranking": {
-     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 1,
-     "tried": 1,
-     "reasons": [
-      "real size: mean |scale - 1| 0.095 (step 1)",
-      "quality 3",
-      "aspect error 0.036",
-      "source abo"
-     ],
-     "passed_over": []
-    },
-    "glb": "models/abo/abo_B07L1DH1PX.glb",
-    "sha256_glb": "8705477ff5fb365c79bcb7daec4cae0563aedc84d1e3a4bec286cca79fbd452e",
-    "uid": "abo_B07L1DH1PX",
-    "title": "Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07L1DH1PX",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "Contemporary",
-    "name": "Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)",
-    "unit_scale": 1.0
+    "excluded": []
    },
-   "status": "verified",
+   "status": "unverified",
    "evidence": [
     {
      "file": "real01.pdf",
@@ -2391,7 +2386,7 @@
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "nightstand",
-     "front": "left",
+     "front": "right",
      "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
     },
     {
@@ -2402,12 +2397,12 @@
      "entity": "recognition:sym_L0_003",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
-     "text": "nightstand",
-     "front": "left",
-     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+     "text": "wall_cabinet",
+     "front": "none",
+     "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
     }
    ],
-   "type_method": "ai_two_pass",
+   "type_method": "none",
    "type_candidates": [
     {
      "type": "nightstand",
@@ -2415,20 +2410,28 @@
      "model_key": "qwen",
      "pass": 1,
      "confidence": 0.95,
-     "front": "left",
+     "front": "right",
      "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
     },
     {
-     "type": "nightstand",
+     "type": "wall_cabinet",
      "model": "zai-org/GLM-4.6V-Flash",
      "model_key": "glm",
      "pass": 2,
      "confidence": 0.9,
-     "front": "left",
-     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+     "front": "none",
+     "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     0.6596,
+     6.8623
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_007",
@@ -2537,6 +2540,33 @@
     "licence_flag": null,
     "style_hint": "Bed",
     "name": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B0154VUESC_MAT_MR",
+      "material": "mixed",
+      "materials": [
+       "fabric",
+       "wood"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       240,
+       240,
+       240
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood",
+     "fabric"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -2594,7 +2624,15 @@
      "reason": "The object's footprint and headboard lines match a bed_double."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.7486,
+     1.2951
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_008",
@@ -2707,7 +2745,7 @@
      "pass": 1,
      "text": "nightstand",
      "front": "right",
-     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "file": "real01.pdf",
@@ -2719,7 +2757,7 @@
      "pass": 2,
      "text": "nightstand",
      "front": "left",
-     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+     "reason": "The object has a small footprint with a lamp symbol, typical of a nightstand."
     }
    ],
    "type_method": "ai_two_pass",
@@ -2731,7 +2769,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "right",
-     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+     "reason": "Small rectangle with lamp symbol, placed beside bed in bedroom, matches nightstand description."
     },
     {
      "type": "nightstand",
@@ -2740,16 +2778,24 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "left",
-     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+     "reason": "The object has a small footprint with a lamp symbol, typical of a nightstand."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     0.6125,
+     0.523
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_009",
    "level_id": "L0",
    "room_id": "r_L0_bed_room",
-   "type": "nightstand",
+   "type": "unknown",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -2766,96 +2812,36 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "abo",
-    "asset_id": "abo_B084MYDTKM",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
     "fit_scale": [
-     1.084,
-     1.0965,
-     1.0902
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
      0.4956,
      0.4456,
-     0.6092
+     0.8
     ],
-    "aspect_error": 0.0114,
+    "aspect_error": null,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     -0.0016,
+     0.0,
      0.0
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "abo_B084MYDTKM",
-      "aspect_error": 0.0114,
-      "scale": [
-       1.084,
-       1.0965,
-       1.0902
-      ],
-      "non_uniform": 1.0115,
-      "mean_scale": 1.0902,
-      "accepted": true,
-      "rank": 1,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.0902,
-      "size_bucket": 1,
-      "quality": 3.0
-     }
-    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
     "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ],
-    "styles": [
-     "japandi",
-     "modern minimal",
-     "minimal",
-     "rustic"
-    ],
     "style_family": null,
-    "excluded": [],
-    "quality": [
-     5,
-     5
-    ],
-    "units_known": true,
-    "ranking": {
-     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 1,
-     "tried": 1,
-     "reasons": [
-      "real size: mean |scale - 1| 0.090 (step 1)",
-      "quality 3",
-      "aspect error 0.011",
-      "source abo"
-     ],
-     "passed_over": []
-    },
-    "glb": "models/abo/abo_B084MYDTKM.glb",
-    "sha256_glb": "0ffb75ec05453918ab9b1ad2a814782bccb12ad64b4c6009ac28405dec1a4ce0",
-    "uid": "abo_B084MYDTKM",
-    "title": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B084MYDTKM",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "midd Century modern",
-    "name": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
-    "unit_scale": 1.0
+    "excluded": []
    },
-   "status": "verified",
+   "status": "unverified",
    "evidence": [
     {
      "file": "real01.pdf",
@@ -2873,23 +2859,23 @@
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "nightstand",
-     "front": "left",
+     "front": "right",
      "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
     },
     {
      "file": "real01.pdf",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.8,
      "page": 1,
      "entity": "recognition:sym_L0_006",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
-     "text": "nightstand",
-     "front": "right",
-     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+     "text": "floor_lamp",
+     "front": "none",
+     "reason": "The object has a circular shape with spokes, typical of a floor lamp symbol."
     }
    ],
-   "type_method": "ai_two_pass",
+   "type_method": "none",
    "type_candidates": [
     {
      "type": "nightstand",
@@ -2897,20 +2883,28 @@
      "model_key": "qwen",
      "pass": 1,
      "confidence": 0.95,
-     "front": "left",
+     "front": "right",
      "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
     },
     {
-     "type": "nightstand",
+     "type": "floor_lamp",
      "model": "zai-org/GLM-4.6V-Flash",
      "model_key": "glm",
      "pass": 2,
-     "confidence": 0.9,
-     "front": "right",
-     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object has a circular shape with spokes, typical of a floor lamp symbol."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.8862,
+     0.5002
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_010",
@@ -3018,6 +3012,33 @@
     "licence_flag": null,
     "style_hint": null,
     "name": "Amazon Brand Movian Kyyvesi Dining Table 120.5 x 71.4 x 76 cm Walnut Effect",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07RT5JN33_MAT_MR",
+      "material": "mixed",
+      "materials": [
+       "wood",
+       "metal"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       143,
+       117,
+       99
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood",
+     "metal"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3039,7 +3060,7 @@
      "pass": 1,
      "text": "table_dining",
      "front": "top",
-     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+     "reason": "Rectangular shape, size 1.24x0.74m fits dining table, surrounded by chairs in dining room."
     },
     {
      "file": "real01.pdf",
@@ -3063,7 +3084,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "top",
-     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+     "reason": "Rectangular shape, size 1.24x0.74m fits dining table, surrounded by chairs in dining room."
     },
     {
      "type": "table_dining",
@@ -3075,7 +3096,15 @@
      "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.4974,
+     5.8909
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_011",
@@ -3183,6 +3212,36 @@
     "licence_flag": null,
     "style_hint": "Classic",
     "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"B0857JLP6K_TRB_MDL_MR\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       87,
+       82,
+       78
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3216,7 +3275,7 @@
      "pass": 2,
      "text": "chair",
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+     "reason": "The object is a small seat with a backrest, drawn around a larger table, matching the description of a dining chair."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3237,10 +3296,18 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+     "reason": "The object is a small seat with a backrest, drawn around a larger table, matching the description of a dining chair."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.5003,
+     5.0438
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_012",
@@ -3348,6 +3415,36 @@
     "licence_flag": null,
     "style_hint": "Classic",
     "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"B0857JLP6K_TRB_MDL_MR\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       87,
+       82,
+       78
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3369,7 +3466,7 @@
      "pass": 1,
      "text": "chair",
      "front": "top",
-     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "file": "real01.pdf",
@@ -3381,7 +3478,7 @@
      "pass": 2,
      "text": "chair",
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and is one of six around a table."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3393,7 +3490,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "top",
-     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "type": "chair",
@@ -3402,10 +3499,18 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "top",
-     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and is one of six around a table."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.5003,
+     6.741
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_013",
@@ -3513,6 +3618,36 @@
     "licence_flag": null,
     "style_hint": "Classic",
     "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"B0857JLP6K_TRB_MDL_MR\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       87,
+       82,
+       78
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3534,7 +3669,7 @@
      "pass": 1,
      "text": "chair",
      "front": "right",
-     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "file": "real01.pdf",
@@ -3546,7 +3681,7 @@
      "pass": 2,
      "text": "chair",
      "front": "left",
-     "reason": "Small seat with backrest line, around a table in a dining room."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3558,7 +3693,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "right",
-     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
     },
     {
      "type": "chair",
@@ -3567,10 +3702,18 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "left",
-     "reason": "Small seat with backrest line, around a table in a dining room."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.9018,
+     5.5718
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_014",
@@ -3678,6 +3821,36 @@
     "licence_flag": null,
     "style_hint": "Classic",
     "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"B0857JLP6K_TRB_MDL_MR\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       87,
+       82,
+       78
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3711,7 +3884,7 @@
      "pass": 2,
      "text": "chair",
      "front": "left",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3732,10 +3905,18 @@
      "pass": 2,
      "confidence": 1.0,
      "front": "left",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+     "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.9018,
+     6.2115
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_015",
@@ -3843,6 +4024,36 @@
     "licence_flag": null,
     "style_hint": "Classic",
     "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"B0857JLP6K_TRB_MDL_MR\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       87,
+       82,
+       78
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3876,7 +4087,7 @@
      "pass": 2,
      "text": "chair",
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around the table."
     }
    ],
    "type_method": "ai_two_pass",
@@ -3897,10 +4108,18 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around the table."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.0974,
+     5.5718
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_016",
@@ -4011,6 +4230,33 @@
     "licence_flag": null,
     "style_hint": "Modern",
     "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07K7K7GKC_MAT_MR",
+      "material": "mixed",
+      "materials": [
+       "fabric",
+       "wood"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       224,
+       212,
+       189
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood",
+     "fabric"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4044,7 +4290,7 @@
      "pass": 2,
      "text": "chair",
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and its size matches the description for a dining chair."
     }
    ],
    "type_method": "ai_two_pass",
@@ -4065,10 +4311,18 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "right",
-     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and its size matches the description for a dining chair."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.0974,
+     6.2115
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_017",
@@ -4176,6 +4430,31 @@
     "licence_flag": null,
     "style_hint": "Brass",
     "name": "Amazon Brand – Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78\"W, Dove Grey &amp; Brass",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B075X2X4GY_MAT_MR",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       222,
+       213,
+       202
+      ]
+     }
+    ],
+    "material_tags": [
+     "fabric"
+    ],
+    "recolourable_fabric": true,
+    "recolourable_wood": false,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4196,8 +4475,8 @@
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "sofa",
-     "front": "left",
-     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+     "front": "bottom",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and usage context in drawing room."
     },
     {
      "file": "real01.pdf",
@@ -4209,7 +4488,7 @@
      "pass": 2,
      "text": "sofa",
      "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "reason": "The object is a long rectangle with a backrest and pillows, matching the description of a sofa."
     }
    ],
    "type_method": "ai_two_pass",
@@ -4220,8 +4499,8 @@
      "model_key": "qwen",
      "pass": 1,
      "confidence": 0.95,
-     "front": "left",
-     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+     "front": "bottom",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and usage context in drawing room."
     },
     {
      "type": "sofa",
@@ -4230,10 +4509,18 @@
      "pass": 2,
      "confidence": 1.0,
      "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "reason": "The object is a long rectangle with a backrest and pillows, matching the description of a sofa."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.5268,
+     0.7626
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_018",
@@ -4251,9 +4538,9 @@
      1.8972,
      0.703
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 180.0,
+   "front_deg": null,
    "height": null,
    "asset": {
     "library": "parametric",
@@ -4304,7 +4591,7 @@
      "pass": 1,
      "text": "wardrobe",
      "front": "left",
-     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+     "reason": "Long shallow rectangle against wall, matches wardrobe dimensions and placement."
     },
     {
      "file": "real01.pdf",
@@ -4315,8 +4602,8 @@
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
      "text": "sofa",
-     "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "front": "top",
+     "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
     }
    ],
    "type_method": "none",
@@ -4328,7 +4615,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "left",
-     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+     "reason": "Long shallow rectangle against wall, matches wardrobe dimensions and placement."
     },
     {
      "type": "sofa",
@@ -4336,11 +4623,19 @@
      "model_key": "glm",
      "pass": 2,
      "confidence": 1.0,
-     "front": "left",
-     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+     "front": "top",
+     "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.9754,
+     2.4437
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_019",
@@ -4451,6 +4746,31 @@
     "licence_flag": null,
     "style_hint": "Round Coffee Table",
     "name": "Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07QFB1TLZ_MAT_MR",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       148,
+       113,
+       84
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4484,7 +4804,7 @@
      "pass": 2,
      "text": "table_coffee",
      "front": "none",
-     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+     "reason": "The object's footprint is a square with a size that fits a coffee table, and it has no distinct front."
     }
    ],
    "type_method": "ai_two_pass",
@@ -4505,10 +4825,18 @@
      "pass": 2,
      "confidence": 0.8,
      "front": "none",
-     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+     "reason": "The object's footprint is a square with a size that fits a coffee table, and it has no distinct front."
     }
    ],
-   "build": true
+   "build": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.5312,
+     2.451
+    ],
+    "wall_id": null
+   }
   },
   {
    "id": "f_L0_020",
@@ -4617,6 +4945,39 @@
     "licence_flag": null,
     "style_hint": "Floor Lamp",
     "name": "Amazon Brand – Stone & Beam Glass Column Brass Floor Lamp, With Bulb, Linen Shade, 13.0\" x 13.0\" x 59.0\", Brushed Brass",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"AMEPDEBMAPBAAAAAFMBAAAAAAAAAPJOLEHAP\"",
+      "material": "mixed",
+      "materials": [
+       "fabric",
+       "metal",
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       206,
+       206,
+       206
+      ]
+     }
+    ],
+    "material_tags": [
+     "metal",
+     "fabric"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4650,7 +5011,7 @@
      "pass": 2,
      "text": "floor_lamp",
      "front": "none",
-     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+     "reason": "The object is a small circular floor lamp with spokes, matching the description and size of a floor lamp."
     }
    ],
    "type_method": "ai_two_pass",
@@ -4671,7 +5032,7 @@
      "pass": 2,
      "confidence": 0.9,
      "front": "none",
-     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+     "reason": "The object is a small circular floor lamp with spokes, matching the description and size of a floor lamp."
     }
    ],
    "build": true,
@@ -4707,7 +5068,7 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "Toilet placed against the left wall, not opposite the door."
@@ -4725,7 +5086,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.43,
+      3.0,
       1.0
      ],
      "rotation_deg": 0.0,
@@ -4737,7 +5098,7 @@
     "repairs": [
      "snap"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -4750,7 +5111,7 @@
    "footprint": {
     "center": [
      3.676,
-     1.651
+     1.551
     ],
     "size": [
      0.6,
@@ -4784,7 +5145,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.43,
+      3.0,
       0.5
      ],
      "rotation_deg": 0.0,
@@ -4799,11 +5160,395 @@
     ],
     "agreed_by_other_pass": false
    }
+  },
+  {
+   "id": "f_L0_023",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.61,
+     1.12
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Upgrade to larger size for better functionality and style consistency."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      0.61,
+      0.52
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.45
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_024",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "tv_unit",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     5.352,
+     1.776
+    ],
+    "size": [
+     1.6,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Against wall the sofa faces; fits style and footprint."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      6.53,
+      3.58
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.6,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_025",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.56,
+     6.36
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Completing the bed setup with a matching nightstand on the left side."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Replace unverified piece with matching nightstand for symmetry beside bed."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      0.66,
+      6.86
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_026",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "tall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     10.906,
+     4.588
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 2.1,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Placed at end of counter run against wall for storage."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      12.42,
+      4.19
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_027",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "wall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     12.3482,
+     6.9155
+    ],
+    "size": [
+     0.758,
+     0.35
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.7,
+   "asset": null,
+   "status": "verified",
+   "completes_room": true,
+   "method": "rule",
+   "mount_bottom_m": 1.45,
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "derived",
+     "confidence": 1.0,
+     "text": "wall cabinets along the counter run f_L0_002 (rule, docs/milestone10.md §4.4), 1.45-2.15 m; left free: window win_L0_006"
+    }
+   ],
+   "rule": {
+    "run": "f_L0_002",
+    "z": [
+     1.45,
+     2.15
+    ],
+    "excluded": [
+     "window win_L0_006"
+    ]
+   }
+  },
+  {
+   "id": "f_L0_028",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "sideboard",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     5.352,
+     6.0
+    ],
+    "size": [
+     1.6,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds storage against the free wall near the door, matching Scandinavian style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      8.09,
+      6.0
+     ],
+     "rotation_deg": 270.0,
+     "size": [
+      1.6,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
   }
  ],
  "conflicts": [
   {
    "id": "c_001",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_006"
+   ],
+   "description": "f_L0_006: sym_L0_003: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) wall_cabinet",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_002",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_009"
+   ],
+   "description": "f_L0_009: sym_L0_006: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_003",
    "kind": "symbol_type_disagreement",
    "element_ids": [
     "f_L0_018"
@@ -4812,7 +5557,7 @@
    "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
   },
   {
-   "id": "c_002",
+   "id": "c_004",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_004"
@@ -4821,7 +5566,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_003",
+   "id": "c_005",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_007"
@@ -4830,7 +5575,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_004",
+   "id": "c_006",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_011"
@@ -4839,7 +5584,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_005",
+   "id": "c_007",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_012"
@@ -4848,7 +5593,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_006",
+   "id": "c_008",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_013"
@@ -4857,7 +5602,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_007",
+   "id": "c_009",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_014"
@@ -4866,7 +5611,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_008",
+   "id": "c_010",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_015"
@@ -4875,7 +5620,7 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_009",
+   "id": "c_011",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_016"
@@ -4884,17 +5629,19 @@
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   },
   {
-   "id": "c_010",
+   "id": "c_012",
    "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_017"
    ],
-   "description": "f_L0_017: sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "description": "f_L0_017: sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
    "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   }
  ],
  "unverified": [
   "r_L0_room",
+  "f_L0_006",
+  "f_L0_009",
   "f_L0_018"
  ],
  "warnings": [
@@ -4904,14 +5651,13 @@
   "sym_L0_002: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
   "sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes): the drawn front is kept (vector geometry > AI)",
   "sym_L0_005: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
-  "sym_L0_006: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
   "sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
-  "sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
   "L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair",
   "r_L0_pooja: no AI furniture, prayer room: never furnished by AI (docs/milestone7.md §0)"
@@ -5300,7 +6046,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+     "text": "Adds softness and matches Scandinavian light tones."
     },
     {
      "file": "building.json",
@@ -5308,10 +6054,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds softness and comfort in line with Scandinavian style."
+     "text": "Adds soft texture and warmth to the bed in Scandinavian style."
     }
    ],
-   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
+   "reason": "Adds softness and matches Scandinavian light tones.",
    "id": "dec_L0_001",
    "host_id": "f_L0_007",
    "center": [
@@ -5343,7 +6089,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+     "text": "Adds softness and matches Scandinavian light tones."
     },
     {
      "file": "building.json",
@@ -5351,10 +6097,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds softness and comfort in line with Scandinavian style."
+     "text": "Adds soft texture and warmth to the bed in Scandinavian style."
     }
    ],
-   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
+   "reason": "Adds softness and matches Scandinavian light tones.",
    "id": "dec_L0_002",
    "host_id": "f_L0_007",
    "center": [
@@ -5365,6 +6111,50 @@
    "size": [
     0.5,
     0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_007.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm texture complements linen textiles and daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements linen textiles and enhances cozy, natural tones."
+    }
+   ],
+   "reason": "Warm texture complements linen textiles and daylight.",
+   "id": "dec_L0_003",
+   "host_id": "f_L0_007",
+   "center": [
+    1.749,
+    2.03
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    1.691,
+    0.5,
+    0.05
    ]
   },
   {
@@ -5386,7 +6176,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Warm-toned lamp adds cozy Scandinavian ambiance."
+     "text": "Warm light and wood tone enhance the Scandinavian aesthetic."
     },
     {
      "file": "building.json",
@@ -5394,11 +6184,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm light complements daylight and matches oak flooring."
+     "text": "Warm light and wood finish match the light oak floor and daylight ambiance."
     }
    ],
-   "reason": "Warm-toned lamp adds cozy Scandinavian ambiance.",
-   "id": "dec_L0_003",
+   "reason": "Warm light and wood tone enhance the Scandinavian aesthetic.",
+   "id": "dec_L0_004",
    "host_id": "f_L0_008",
    "center": [
     0.613,
@@ -5409,7 +6199,8 @@
     0.35,
     0.35,
     0.6
-   ]
+   ],
+   "light_on": false
   },
   {
    "kind": "decor",
@@ -5419,7 +6210,7 @@
    "asset": null,
    "source": "added_by_ai",
    "method": "ai",
-   "slot": "f_L0_009.centre",
+   "slot": "f_L0_023.centre",
    "colour": "sage green",
    "confidence": 0.9,
    "status": "verified",
@@ -5430,7 +6221,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Small plant brings life and freshness to the nightstand."
+     "text": "Brings life and freshness under the window with natural tones."
     },
     {
      "file": "building.json",
@@ -5438,21 +6229,21 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Brings life to the room with natural tones fitting the style."
+     "text": "Brings life to the corner with minimalism and earthy tones."
     }
    ],
-   "reason": "Small plant brings life and freshness to the nightstand.",
-   "id": "dec_L0_004",
-   "host_id": "f_L0_009",
+   "reason": "Brings life and freshness under the window with natural tones.",
+   "id": "dec_L0_005",
+   "host_id": "f_L0_023",
    "center": [
-    2.886,
-    0.5
+    0.61,
+    1.12
    ],
-   "rotation_deg": 0.0,
+   "rotation_deg": 90.0,
    "size": [
-    0.25,
-    0.25,
-    0.45
+    0.222,
+    0.222,
+    0.4
    ]
   },
   {
@@ -5464,7 +6255,7 @@
    "source": "added_by_ai",
    "method": "ai",
    "slot": "r_L0_bed_room.rug1",
-   "colour": "sand",
+   "colour": "light grey",
    "confidence": 0.9,
    "status": "verified",
    "evidence": [
@@ -5474,7 +6265,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Light rug enhances light oak floors and keeps space airy."
+     "text": "Subtle contrast with oak floor, adds warmth without clutter."
     },
     {
      "file": "building.json",
@@ -5482,23 +6273,73 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens the floor and harmonizes with light oak and white walls."
+     "text": "Softens the floor and adds subtle contrast without clutter."
     }
    ],
-   "reason": "Light rug enhances light oak floors and keeps space airy.",
-   "id": "dec_L0_005",
+   "reason": "Subtle contrast with oak floor, adds warmth without clutter.",
+   "id": "dec_L0_006",
    "host_id": null,
    "center": [
-    1.749,
-    1.464
+    1.539,
+    1.633
    ],
    "rotation_deg": 180.0,
    "size": [
-    2.379,
-    1.614
+    1.959,
+    1.953
    ],
    "anchor_ids": [
     "f_L0_007"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_001",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Softens light and maintains airy, minimalist Scandinavian feel."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+    }
+   ],
+   "reason": "Softens light and maintains airy, minimalist Scandinavian feel.",
+   "id": "dec_L0_007",
+   "host_id": null,
+   "center": [
+    1.78,
+    0.33,
+    0.8
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    1.924,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L0_001",
+   "wall_point": [
+    1.78,
+    0.23
    ]
   },
   {
@@ -5520,7 +6361,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered."
+     "text": "Enhances light and space, matches Scandinavian minimalism."
     },
     {
      "file": "building.json",
@@ -5528,15 +6369,15 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements light oak floor and white walls with warm, natural tones."
+     "text": "Complements light oak floor and adds Scandinavian minimalism."
     }
    ],
-   "reason": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered.",
-   "id": "dec_L0_006",
+   "reason": "Enhances light and space, matches Scandinavian minimalism.",
+   "id": "dec_L0_008",
    "host_id": null,
    "center": [
     3.45,
-    1.651
+    1.551
    ],
    "rotation_deg": 90.0,
    "size": [
@@ -5548,12 +6389,58 @@
    ],
    "wall_point": [
     3.43,
-    1.651
+    1.551
    ],
    "wall_id": "w_L0_009",
    "gap_m": 0.3,
    "bottom_m": 1.3,
    "max_height_m": 1.3
+  },
+  {
+   "kind": "decor",
+   "type": "ceiling_light",
+   "level_id": "L0",
+   "room_id": "r_L0_bath_toilet",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_bath_toilet",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm daylight effect, complements light oak and white walls."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brightens the space with warm daylight tones and matches white walls."
+    }
+   ],
+   "reason": "Warm daylight effect, complements light oak and white walls.",
+   "id": "dec_L0_009",
+   "host_id": null,
+   "center": [
+    4.193,
+    1.296,
+    2.58
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4,
+    0.12
+   ],
+   "light_on": false
   },
   {
    "kind": "decor",
@@ -5574,7 +6461,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+     "text": "Soft, light cushions complement Scandinavian style and linen textiles."
     },
     {
      "file": "building.json",
@@ -5582,11 +6469,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds softness and warmth in line with Scandinavian style."
+     "text": "Adds softness and warmth to the sofa in Scandinavian style."
     }
    ],
-   "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.",
-   "id": "dec_L0_007",
+   "reason": "Soft, light cushions complement Scandinavian style and linen textiles.",
+   "id": "dec_L0_010",
    "host_id": "f_L0_017",
    "center": [
     7.0,
@@ -5617,7 +6504,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+     "text": "Soft, light cushions complement Scandinavian style and linen textiles."
     },
     {
      "file": "building.json",
@@ -5625,11 +6512,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds softness and warmth in line with Scandinavian style."
+     "text": "Adds softness and warmth to the sofa in Scandinavian style."
     }
    ],
-   "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.",
-   "id": "dec_L0_008",
+   "reason": "Soft, light cushions complement Scandinavian style and linen textiles.",
+   "id": "dec_L0_011",
    "host_id": "f_L0_017",
    "center": [
     6.053,
@@ -5639,6 +6526,50 @@
    "size": [
     0.45,
     0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_017.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds warmth and texture without overwhelming the minimalist aesthetic."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements linen textiles and enhances cozy, natural tones."
+    }
+   ],
+   "reason": "Adds warmth and texture without overwhelming the minimalist aesthetic.",
+   "id": "dec_L0_012",
+   "host_id": "f_L0_017",
+   "center": [
+    7.074,
+    0.798
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.5,
+    0.423,
+    0.05
    ]
   },
   {
@@ -5660,7 +6591,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture."
+     "text": "Light oak floors pair beautifully with a wood-toned rug for cohesion."
     },
     {
      "file": "building.json",
@@ -5668,11 +6599,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm neutral tone enhances daylight and ties in with linen textiles."
+     "text": "Matches light oak floors and grounds the seating area."
     }
    ],
-   "reason": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture.",
-   "id": "dec_L0_009",
+   "reason": "Light oak floors pair beautifully with a wood-toned rug for cohesion.",
+   "id": "dec_L0_013",
    "host_id": null,
    "center": [
     6.517,
@@ -5687,6 +6618,105 @@
     "f_L0_017",
     "f_L0_019"
    ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_002",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light, airy curtains enhance natural daylight and maintain Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens daylight and maintains airy, minimalist Scandinavian feel."
+    }
+   ],
+   "reason": "Light, airy curtains enhance natural daylight and maintain Scandinavian minimalism.",
+   "id": "dec_L0_014",
+   "host_id": null,
+   "center": [
+    7.056,
+    0.33,
+    0.8
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    1.924,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L0_002",
+   "wall_point": [
+    7.056,
+    0.23
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "pendant_light",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_019",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm brass pendant adds subtle metallic accent without clutter."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm metallic accent that enhances natural daylight and style."
+    }
+   ],
+   "reason": "Warm brass pendant adds subtle metallic accent without clutter.",
+   "id": "dec_L0_015",
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_019"
+   ],
+   "center": [
+    6.531,
+    2.451,
+    2.0
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    0.7
+   ],
+   "light_on": false
   },
   {
    "kind": "decor",
@@ -5707,7 +6737,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style."
+     "text": "A large green plant brings life to the corner and suits warm daylight."
     },
     {
      "file": "building.json",
@@ -5715,11 +6745,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+     "text": "Large plant in corner adds life and balances the room’s geometry."
     }
    ],
-   "reason": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style.",
-   "id": "dec_L0_010",
+   "reason": "A large green plant brings life to the corner and suits warm daylight.",
+   "id": "dec_L0_016",
    "host_id": null,
    "center": [
     5.356,
@@ -5750,7 +6780,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette."
+     "text": "Earthy terracotta vase adds warmth and complements linen and wood tones."
     },
     {
      "file": "building.json",
@@ -5758,11 +6788,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements light oak floors and brings organic texture."
+     "text": "Earthy tone adds warmth and visual interest without clutter."
     }
    ],
-   "reason": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette.",
-   "id": "dec_L0_011",
+   "reason": "Earthy terracotta vase adds warmth and complements linen and wood tones.",
+   "id": "dec_L0_017",
    "host_id": "f_L0_019",
    "center": [
     6.531,
@@ -5773,6 +6803,94 @@
     0.18,
     0.18,
     0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "book_set",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_024.left",
+   "colour": "black",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Minimalist black books add visual interest without clutter."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Books in wooden tray add texture and intellectual charm."
+    }
+   ],
+   "reason": "Minimalist black books add visual interest without clutter.",
+   "id": "dec_L0_018",
+   "host_id": "f_L0_024",
+   "center": [
+    5.352,
+    1.376
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.3,
+    0.22,
+    0.22
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "candle",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_024.right",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "White candle enhances soft lighting and Scandinavian calm."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Soft glow complements daylight and adds subtle warmth."
+    }
+   ],
+   "reason": "White candle enhances soft lighting and Scandinavian calm.",
+   "id": "dec_L0_019",
+   "host_id": "f_L0_024",
+   "center": [
+    5.352,
+    2.176
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.2,
+    0.15,
+    0.22
    ]
   },
   {
@@ -5794,7 +6912,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+     "text": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles."
     },
     {
      "file": "building.json",
@@ -5802,11 +6920,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds softness and comfort in line with Scandinavian style."
+     "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
     }
    ],
-   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
-   "id": "dec_L0_012",
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles.",
+   "id": "dec_L0_020",
    "host_id": "f_L0_004",
    "center": [
     1.351,
@@ -5837,7 +6955,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+     "text": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles."
     },
     {
      "file": "building.json",
@@ -5845,11 +6963,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds softness and comfort in line with Scandinavian style."
+     "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
     }
    ],
-   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
-   "id": "dec_L0_013",
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles.",
+   "id": "dec_L0_021",
    "host_id": "f_L0_004",
    "center": [
     2.241,
@@ -5859,6 +6977,50 @@
    "size": [
     0.5,
     0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_004.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A warm-toned throw adds coziness while matching the light oak and daylight aesthetic."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements linen textiles and enhances cozy, natural tones."
+    }
+   ],
+   "reason": "A warm-toned throw adds coziness while matching the light oak and daylight aesthetic.",
+   "id": "dec_L0_022",
+   "host_id": "f_L0_004",
+   "center": [
+    1.796,
+    5.331
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.691,
+    0.5,
+    0.05
    ]
   },
   {
@@ -5880,7 +7042,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Warm-toned lamp adds cozy Scandinavian ambiance."
+     "text": "A wooden base lamp blends with the floor and adds warm ambient light."
     },
     {
      "file": "building.json",
@@ -5888,11 +7050,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm light complements daylight and matches light oak floors."
+     "text": "Warm light and wood finish match the light oak floor and daylight ambiance."
     }
    ],
-   "reason": "Warm-toned lamp adds cozy Scandinavian ambiance.",
-   "id": "dec_L0_014",
+   "reason": "A wooden base lamp blends with the floor and adds warm ambient light.",
+   "id": "dec_L0_023",
    "host_id": "f_L0_005",
    "center": [
     2.933,
@@ -5903,7 +7065,8 @@
     0.35,
     0.35,
     0.6
-   ]
+   ],
+   "light_on": false
   },
   {
    "kind": "decor",
@@ -5914,7 +7077,7 @@
    "source": "added_by_ai",
    "method": "ai",
    "slot": "r_L0_bed_room_2.rug1",
-   "colour": "natural wood",
+   "colour": "light grey",
    "confidence": 0.9,
    "status": "verified",
    "evidence": [
@@ -5924,7 +7087,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Light oak floor paired with wood-toned rug enhances Scandinavian warmth."
+     "text": "A subtle rug under the bed anchors the space and enhances Scandinavian calm."
     },
     {
      "file": "building.json",
@@ -5932,20 +7095,20 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens the floor and enhances the natural, minimalist feel."
+     "text": "Softens the floor and adds subtle contrast to the white walls and oak."
     }
    ],
-   "reason": "Light oak floor paired with wood-toned rug enhances Scandinavian warmth.",
-   "id": "dec_L0_015",
+   "reason": "A subtle rug under the bed anchors the space and enhances Scandinavian calm.",
+   "id": "dec_L0_024",
    "host_id": null,
    "center": [
     1.776,
-    5.877
+    5.837
    ],
    "rotation_deg": 0.0,
    "size": [
     2.339,
-    1.654
+    1.574
    ],
    "anchor_ids": [
     "f_L0_004"
@@ -5970,7 +7133,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Corner plant adds organic texture without clutter."
+     "text": "A corner plant adds organic texture and balances the room’s geometry."
     },
     {
      "file": "building.json",
@@ -5978,11 +7141,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Brings life to the corner while keeping the space airy and fresh."
+     "text": "Brings life to the corner with a simple, earthy touch."
     }
    ],
-   "reason": "Corner plant adds organic texture without clutter.",
-   "id": "dec_L0_016",
+   "reason": "A corner plant adds organic texture and balances the room’s geometry.",
+   "id": "dec_L0_025",
    "host_id": null,
    "center": [
     0.48,
@@ -5992,6 +7155,152 @@
    "size": [
     0.4,
     0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_004",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "White curtains maximize daylight and maintain the airy, clean Scandinavian look."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Light and airy, allows daylight while maintaining Scandinavian minimalism."
+    }
+   ],
+   "reason": "White curtains maximize daylight and maintain the airy, clean Scandinavian look.",
+   "id": "dec_L0_026",
+   "host_id": null,
+   "center": [
+    1.78,
+    6.99,
+    0.8
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.924,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L0_004",
+   "wall_point": [
+    1.78,
+    7.09
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "pendant_light",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_kitchen",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds warmth and matches the oak floor in Scandinavian style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Matches light oak floor and adds warm Scandinavian ambiance."
+    }
+   ],
+   "reason": "Adds warmth and matches the oak floor in Scandinavian style.",
+   "id": "dec_L0_027",
+   "host_id": null,
+   "center": [
+    11.166,
+    5.679,
+    2.0
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    0.7
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "blind",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_006",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Softens light and complements white walls without blocking daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens daylight while complementing white walls and linen textiles."
+    }
+   ],
+   "reason": "Softens light and complements white walls without blocking daylight.",
+   "id": "dec_L0_028",
+   "host_id": null,
+   "center": [
+    11.052,
+    7.055,
+    1.68
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.32,
+    0.06,
+    0.48
+   ],
+   "window_id": "win_L0_006",
+   "wall_point": [
+    11.052,
+    7.09
    ]
   },
   {
@@ -6013,7 +7322,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds Scandinavian warmth and complements light oak floors."
+     "text": "Adds Scandinavian warmth with minimal clutter."
     },
     {
      "file": "building.json",
@@ -6021,11 +7330,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Matches light oak floor and Scandinavian style with warm, natural tones."
+     "text": "Adds Scandinavian warmth with minimalism and complements light oak floor."
     }
    ],
-   "reason": "Adds Scandinavian warmth and complements light oak floors.",
-   "id": "dec_L0_017",
+   "reason": "Adds Scandinavian warmth with minimal clutter.",
+   "id": "dec_L0_029",
    "host_id": "f_L0_010",
    "center": [
     6.497,
@@ -6037,6 +7346,55 @@
     0.18,
     0.4
    ]
+  },
+  {
+   "kind": "decor",
+   "type": "pendant_light",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_010",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm light complements daylight and enhances the dining mood."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm brass light enhances daylight and matches Scandinavian elegance."
+    }
+   ],
+   "reason": "Warm light complements daylight and enhances the dining mood.",
+   "id": "dec_L0_030",
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_010"
+   ],
+   "center": [
+    6.497,
+    5.891,
+    1.532
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    1.168
+   ],
+   "light_on": false
   },
   {
    "kind": "decor",
@@ -6057,7 +7415,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Softens the floor and enhances the light, airy feel."
+     "text": "Softens the floor and ties in with linen textiles and light oak."
     },
     {
      "file": "building.json",
@@ -6065,20 +7423,20 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens the space, complements white walls and adds warmth without clutter."
+     "text": "Cream rug softens floor and ties in with white walls and linen textiles."
     }
    ],
-   "reason": "Softens the floor and enhances the light, airy feel.",
-   "id": "dec_L0_018",
+   "reason": "Softens the floor and ties in with linen textiles and light oak.",
+   "id": "dec_L0_031",
    "host_id": null,
    "center": [
-    6.587,
+    6.677,
     5.881
    ],
    "rotation_deg": 90.0,
    "size": [
     1.818,
-    2.355
+    2.175
    ],
    "anchor_ids": [
     "f_L0_010"
@@ -6086,14 +7444,14 @@
   },
   {
    "kind": "decor",
-   "type": "plant",
+   "type": "curtain",
    "level_id": "L0",
    "room_id": "r_L0_dining",
    "asset": null,
    "source": "added_by_ai",
    "method": "ai",
-   "slot": "r_L0_dining.corner1",
-   "colour": "sage green",
+   "slot": "window:win_L0_005",
+   "colour": "cream",
    "confidence": 0.9,
    "status": "verified",
    "evidence": [
@@ -6103,7 +7461,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Brings life to the corner with natural tones matching the style."
+     "text": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
     },
     {
      "file": "building.json",
@@ -6111,20 +7469,27 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Brings life to the corner with minimalism and Scandinavian greenery."
+     "text": "Cream curtains let in daylight and maintain airy Scandinavian feel."
     }
    ],
-   "reason": "Brings life to the corner with natural tones matching the style.",
-   "id": "dec_L0_019",
+   "reason": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism.",
+   "id": "dec_L0_032",
    "host_id": null,
    "center": [
-    5.356,
-    4.902
+    6.782,
+    6.99,
+    0.8
    ],
    "rotation_deg": 0.0,
    "size": [
-    0.4,
-    0.4
+    1.924,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L0_005",
+   "wall_point": [
+    6.782,
+    7.09
    ]
   }
  ]

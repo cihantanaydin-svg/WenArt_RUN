@@ -1,32 +1,140 @@
 {
   "source_text": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
   "family": "scandinavian",
+  "style_tags": [],
   "floor": {
     "material": "wood_oak_light",
-    "asset": "WoodFloor051"
+    "asset": "WoodFloor051",
+    "colour": null
   },
   "walls": {
     "material": "plaster_white",
-    "asset": "white_plaster_02"
+    "asset": "white_plaster_02",
+    "colour": null
   },
+  "wall_accent": null,
   "ceiling": {
-    "material": "plaster_white"
+    "material": "plaster_white",
+    "colour": null
   },
   "wet_floor": {
     "material": "tiles_light",
-    "asset": "Tiles074"
+    "asset": "Tiles074",
+    "colour": null
   },
   "wet_walls": {
-    "material": "tiles_light"
+    "material": "tiles_light",
+    "asset": "Tiles074",
+    "tile_size_m": null,
+    "pattern": null,
+    "colour": null,
+    "grout_colour": null
   },
   "trim": {
-    "material": "painted_wood_white"
+    "material": "painted_wood_white",
+    "colour": null
   },
   "door": {
-    "material": "wood_oak_light"
+    "material": "wood_oak_light",
+    "asset": "WoodFloor051",
+    "style": null,
+    "colour": null,
+    "handle": null
   },
   "window_frame": {
-    "material": "painted_metal_white"
+    "material": "painted_metal_white",
+    "asset": "Metal032",
+    "colour": null,
+    "outside": {
+      "material": "painted_metal_white",
+      "colour": null
+    }
+  },
+  "cabinets": {
+    "front_style": null,
+    "colour": null,
+    "handle": null,
+    "worktop": null,
+    "wood": null
+  },
+  "furniture": {
+    "wood": null,
+    "fabric_colour": null,
+    "by_type": {},
+    "accents": []
+  },
+  "decor": {
+    "plant_species": [],
+    "plant_amount": null,
+    "pots": [],
+    "cushion_colours": [],
+    "throw_colours": [],
+    "curtain_colour": null,
+    "rug_colours": []
+  },
+  "exterior": {
+    "facade": {
+      "material": "render",
+      "asset": "grey_plaster",
+      "colour": "white",
+      "source": "fallback",
+      "assumed": true
+    },
+    "roof": {
+      "material": "concrete_tiles",
+      "asset": "grey_roof_01",
+      "colour": "anthracite",
+      "source": "fallback",
+      "assumed": true
+    },
+    "window_frame": {
+      "material": "painted_metal_white",
+      "asset": "Metal032",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    },
+    "door": {
+      "material": "wood_oak_light",
+      "asset": "WoodFloor051",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    },
+    "paving": {
+      "material": "paving",
+      "asset": "large_square_pattern_01",
+      "colour": "grey",
+      "source": "fallback",
+      "assumed": true
+    },
+    "garden": {
+      "material": "grass",
+      "asset": "Grass004",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    }
+  },
+  "exterior_fallback": {
+    "facade": {
+      "material": "render",
+      "colour": "walls"
+    },
+    "roof": {
+      "material": "concrete_tiles",
+      "colour": "anthracite"
+    },
+    "window_frame": "interior",
+    "door": "interior",
+    "paving": {
+      "material": "paving",
+      "colour": "grey"
+    },
+    "garden": {
+      "material": "grass",
+      "colour": null
+    }
   },
   "lighting": {
     "hdri": "kloppenheim_06",
@@ -35,6 +143,11 @@
     "sun_strength": 3.0,
     "colour_temperature_k": 5200,
     "mood": "warm daylight"
+  },
+  "colours": {
+    "walls": [
+      "white"
+    ]
   },
   "matched_terms": [
     "Scandinavian",
@@ -46,6 +159,8 @@
     "linen textiles"
   ],
   "warnings": [
-    "assumed: no style in the brief, default style text from wenart/defaults.yaml"
+    "assumed: no style in the brief, default style text from wenart/defaults.yaml",
+    "unmatched 'linen textiles': textile materials name no slot (fabric_linen is the default fabric)",
+    "assumed: exterior facade render in white, roof concrete_tiles in anthracite, window_frame as inside (painted_metal_white), door as inside (wood_oak_light), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml (no word for them in the brief)"
   ]
 }

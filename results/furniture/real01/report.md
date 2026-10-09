@@ -1,7 +1,7 @@
 # Ingest report: real01
 
 Status: **ok**
-Source: `projects/real01`, pipeline commit `24efc0891`, created 2026-10-04T14:17:26Z
+Source: `projects/real01`, pipeline commit `b18dad1f`, created 2026-10-09T09:30:22Z
 
 ## Documents
 
@@ -38,10 +38,10 @@ Source: `projects/real01`, pipeline commit `24efc0891`, created 2026-10-04T14:17
 | f_L0_003 | L0 | r_L0_room | stair | - | from_documents | 2.44 x 1.53 | 90 | verified | real01.pdf |
 | f_L0_004 | L0 | r_L0_bed_room_2 | bed_double | - | from_documents | 1.78 x 2.03 | 0 | verified | real01.pdf |
 | f_L0_005 | L0 | r_L0_bed_room_2 | nightstand | - | from_documents | 0.50 x 0.49 | 0 | verified | real01.pdf |
-| f_L0_006 | L0 | r_L0_bed_room_2 | nightstand | - | from_documents | 0.45 x 0.50 | 270 | verified | real01.pdf |
+| f_L0_006 | L0 | r_L0_bed_room_2 | unknown | - | from_documents | 0.50 x 0.45 | 0 | unverified | real01.pdf |
 | f_L0_007 | L0 | r_L0_bed_room | bed_double | - | from_documents | 1.78 x 2.03 | 180 | verified | real01.pdf |
 | f_L0_008 | L0 | r_L0_bed_room | nightstand | - | from_documents | 0.50 x 0.49 | 0 | verified | real01.pdf |
-| f_L0_009 | L0 | r_L0_bed_room | nightstand | - | from_documents | 0.50 x 0.45 | 0 | verified | real01.pdf |
+| f_L0_009 | L0 | r_L0_bed_room | unknown | - | from_documents | 0.50 x 0.45 | 0 | unverified | real01.pdf |
 | f_L0_010 | L0 | r_L0_dining | table_dining | - | from_documents | 1.24 x 0.74 | 90 | verified | real01.pdf |
 | f_L0_011 | L0 | r_L0_dining | chair | - | from_documents | 0.38 x 0.46 | 180 | verified | real01.pdf |
 | f_L0_012 | L0 | r_L0_dining | chair | - | from_documents | 0.38 x 0.46 | 0 | verified | real01.pdf |
@@ -50,7 +50,7 @@ Source: `projects/real01`, pipeline commit `24efc0891`, created 2026-10-04T14:17
 | f_L0_015 | L0 | r_L0_dining | chair | - | from_documents | 0.38 x 0.46 | 270 | verified | real01.pdf |
 | f_L0_016 | L0 | r_L0_dining | chair | - | from_documents | 0.38 x 0.46 | 270 | verified | real01.pdf |
 | f_L0_017 | L0 | r_L0_drawing_room | sofa | - | from_documents | 1.89 x 0.71 | 180 | verified | real01.pdf |
-| f_L0_018 | L0 | r_L0_drawing_room | unknown | - | from_documents | 1.90 x 0.70 | 270 | unverified | real01.pdf |
+| f_L0_018 | L0 | r_L0_drawing_room | unknown | - | from_documents | 1.90 x 0.70 | 90 | unverified | real01.pdf |
 | f_L0_019 | L0 | r_L0_drawing_room | table_coffee | - | from_documents | 1.13 x 1.12 | 0 | verified | real01.pdf |
 | f_L0_020 | L0 | r_L0_drawing_room | floor_lamp | - | from_documents | 0.42 x 0.42 | 79 | verified | real01.pdf |
 
@@ -158,10 +158,10 @@ Recorded, not built.
 | f_L0_003 | stair | rule (stair rule: 2 flight(s), 8, 8 tread lines) | - | yes | verified |
 | f_L0_004 | bed_double | ai_two_pass | pass 1: bed_double; pass 2: bed_double | yes | verified |
 | f_L0_005 | nightstand | ai_two_pass | pass 1: nightstand; pass 2: nightstand | yes | verified |
-| f_L0_006 | nightstand | ai_two_pass | pass 1: nightstand; pass 2: nightstand | yes | verified |
+| f_L0_006 | unknown | none | pass 1: nightstand; pass 2: wall_cabinet | yes | unverified |
 | f_L0_007 | bed_double | ai_two_pass | pass 1: bed_double; pass 2: bed_double | yes | verified |
 | f_L0_008 | nightstand | ai_two_pass | pass 1: nightstand; pass 2: nightstand | yes | verified |
-| f_L0_009 | nightstand | ai_two_pass | pass 1: nightstand; pass 2: nightstand | yes | verified |
+| f_L0_009 | unknown | none | pass 1: nightstand; pass 2: floor_lamp | yes | unverified |
 | f_L0_010 | table_dining | ai_two_pass | pass 1: table_dining; pass 2: table_dining | yes | verified |
 | f_L0_011 | chair | ai_two_pass | pass 1: chair; pass 2: chair | yes | verified |
 | f_L0_012 | chair | ai_two_pass | pass 1: chair; pass 2: chair | yes | verified |
@@ -222,20 +222,24 @@ Recognition questions: 17 (`recognition/requests.json`), 0 without a complete pa
 
 | Id | Kind | Elements | Description | Resolution |
 |---|---|---|---|---|
-| c_001 | symbol_type_disagreement | f_L0_018 | f_L0_018: sym_L0_015: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa | unresolved: the drawn footprint is kept as unknown, unverified |
-| c_002 | symbol_front_disagreement | f_L0_004 | f_L0_004: sym_L0_001: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_003 | symbol_front_disagreement | f_L0_007 | f_L0_007: sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_004 | symbol_front_disagreement | f_L0_011 | f_L0_011: sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_005 | symbol_front_disagreement | f_L0_012 | f_L0_012: sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_006 | symbol_front_disagreement | f_L0_013 | f_L0_013: sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_007 | symbol_front_disagreement | f_L0_014 | f_L0_014: sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_008 | symbol_front_disagreement | f_L0_015 | f_L0_015: sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_009 | symbol_front_disagreement | f_L0_016 | f_L0_016: sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
-| c_010 | symbol_front_disagreement | f_L0_017 | f_L0_017: sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_001 | symbol_type_disagreement | f_L0_006 | f_L0_006: sym_L0_003: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) wall_cabinet | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_002 | symbol_type_disagreement | f_L0_009 | f_L0_009: sym_L0_006: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_003 | symbol_type_disagreement | f_L0_018 | f_L0_018: sym_L0_015: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_004 | symbol_front_disagreement | f_L0_004 | f_L0_004: sym_L0_001: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_005 | symbol_front_disagreement | f_L0_007 | f_L0_007: sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_006 | symbol_front_disagreement | f_L0_011 | f_L0_011: sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_007 | symbol_front_disagreement | f_L0_012 | f_L0_012: sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_008 | symbol_front_disagreement | f_L0_013 | f_L0_013: sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_009 | symbol_front_disagreement | f_L0_014 | f_L0_014: sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_010 | symbol_front_disagreement | f_L0_015 | f_L0_015: sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_011 | symbol_front_disagreement | f_L0_016 | f_L0_016: sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_012 | symbol_front_disagreement | f_L0_017 | f_L0_017: sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
 
 ## Unverified
 
 - r_L0_room
+- f_L0_006
+- f_L0_009
 - f_L0_018
 
 ## Warnings
@@ -246,13 +250,12 @@ Recognition questions: 17 (`recognition/requests.json`), 0 without a complete pa
 - sym_L0_002: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed
 - sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes): the drawn front is kept (vector geometry > AI)
 - sym_L0_005: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed
-- sym_L0_006: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed
 - sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)
 - sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)
 - sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)
 - sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)
 - sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)
 - sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)
-- sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)
+- sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)
 - Level L0: ceiling height assumed 2.70 m (no section drawing found)
 - L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair

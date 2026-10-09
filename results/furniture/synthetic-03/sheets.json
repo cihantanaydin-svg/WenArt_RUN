@@ -1,0 +1,836 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "synthetic-03",
+ "created_utc": "2026-10-09T09:29:51Z",
+ "code_commit": "b18dad1f",
+ "inputs": [
+  {
+   "file": "kat_planlari.pdf",
+   "size": 28567,
+   "sha256": "b060708e882f68f3f7d0526957f0495620816c2e25f6b4d1796aba637ae5eb90"
+  },
+  {
+   "file": "mobilya_plani.dxf",
+   "size": 58024,
+   "sha256": "acdfd33e86fd1cb397426815245771070ceca08ca0f251cb950b5219884fd880"
+  },
+  {
+   "file": "brief.yaml",
+   "size": 204,
+   "sha256": "bb799b9bca18577a015f18b428af27698e1a150cec2b91867ef612bd532b319e"
+  }
+ ],
+ "multi_region": false,
+ "documents": [
+  {
+   "file": "kat_planlari.pdf",
+   "format": "pdf",
+   "converter": null,
+   "units": {
+    "insunits": null,
+    "metres_per_unit": 0.035277777777777776,
+    "method": "pdf_scale_text",
+    "checks": [],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "page:1",
+     "box": [
+      15.0,
+      15.0,
+      1175.55,
+      826.89
+     ],
+     "frames": [],
+     "gap_units": 21.245,
+     "debug_image": "sheets_debug/kat_planlari_pdf_s1.png",
+     "gap_m": 0.7495
+    },
+    {
+     "id": "s2",
+     "space": "page:2",
+     "box": [
+      15.0,
+      15.0,
+      1175.55,
+      826.89
+     ],
+     "frames": [],
+     "gap_units": 21.245,
+     "debug_image": "sheets_debug/kat_planlari_pdf_s2.png",
+     "gap_m": 0.7495
+    },
+    {
+     "id": "s3",
+     "space": "page:3",
+     "box": [
+      15.0,
+      15.0,
+      1175.55,
+      826.89
+     ],
+     "frames": [],
+     "gap_units": 21.245,
+     "debug_image": "sheets_debug/kat_planlari_pdf_s3.png",
+     "gap_m": 0.7495
+    }
+   ]
+  },
+  {
+   "file": "mobilya_plani.dxf",
+   "format": "dxf",
+   "converter": null,
+   "units": {
+    "insunits": 4,
+    "metres_per_unit": 0.001,
+    "method": "dxf_insunits",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 labels alone in a closed outline, 0 regions with >= 2 labels"
+     },
+     {
+      "check": "level_marks",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 1"
+     },
+     {
+      "check": "door_widths",
+      "unit": "mm",
+      "score": 1.0,
+      "samples": 7,
+      "note": "median door radius 800 units"
+     },
+     {
+      "check": "wall_thickness",
+      "unit": null,
+      "score": 0.521,
+      "samples": 96,
+      "note": "median face-pair distance 100 units; no unit fits 50% of the samples"
+     },
+     {
+      "check": "text_height",
+      "unit": "mm",
+      "score": 1.0,
+      "samples": 8,
+      "note": "median text height 200 units"
+     },
+     {
+      "check": "dimensions",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 2"
+     }
+    ],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      150.0,
+      125.0,
+      10075.0,
+      9055.0
+     ],
+     "frames": [],
+     "gap_units": 200.266,
+     "debug_image": "sheets_debug/mobilya_plani_dxf_s1.png",
+     "gap_m": 0.2003
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "kat_planlari.pdf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    15.0,
+    15.0,
+    1175.55,
+    826.89
+   ],
+   "box_m": [
+    40.942,
+    28.642
+   ],
+   "entities": 82,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI",
+    "entity": "char:29",
+    "box": [
+     469.1,
+     560.316,
+     569.163,
+     570.316
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 67,
+    "texts": 15,
+    "room_labels": 6,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 0,
+    "wall_pairs": 12,
+    "closed_rectangles": 10,
+    "largest_polyline": {
+     "entity": "path:3",
+     "layer": null,
+     "size_m": [
+      10.2,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "kat_planlari.pdf",
+      "page": 1,
+      "layer": null,
+      "entity": "char:29",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI",
+      "region_id": "r1"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.035277777777777776,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "kat_planlari.pdf",
+     "page": 1,
+     "layer": null,
+     "entity": "char:29",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r2",
+   "file": "kat_planlari.pdf",
+   "sheet": "s2",
+   "page": 2,
+   "box": [
+    15.0,
+    15.0,
+    1175.55,
+    826.89
+   ],
+   "box_m": [
+    40.942,
+    28.642
+   ],
+   "entities": 96,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI",
+    "entity": "char:29",
+    "box": [
+     469.1,
+     560.316,
+     556.063,
+     570.316
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 80,
+    "texts": 16,
+    "room_labels": 7,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 1,
+    "wall_pairs": 21,
+    "closed_rectangles": 11,
+    "largest_polyline": {
+     "entity": "path:3",
+     "layer": null,
+     "size_m": [
+      10.2,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "kat_planlari.pdf",
+      "page": 2,
+      "layer": null,
+      "entity": "char:29",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI",
+      "region_id": "r2"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.035277777777777776,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "kat_planlari.pdf",
+     "page": 2,
+     "layer": null,
+     "entity": "char:29",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r2"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r3",
+   "file": "kat_planlari.pdf",
+   "sheet": "s3",
+   "page": 3,
+   "box": [
+    15.0,
+    15.0,
+    1175.55,
+    826.89
+   ],
+   "box_m": [
+    40.942,
+    28.642
+   ],
+   "entities": 98,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "1. KAT PLANI",
+    "entity": "char:29",
+    "box": [
+     469.1,
+     560.316,
+     533.377,
+     570.316
+    ],
+    "language": "tr",
+    "keywords": [
+     "1. KAT",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 83,
+    "texts": 15,
+    "room_labels": 6,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 0,
+    "wall_pairs": 24,
+    "closed_rectangles": 10,
+    "largest_polyline": {
+     "entity": "path:3",
+     "layer": null,
+     "size_m": [
+      10.2,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 1,
+    "label": "1. Kat",
+    "id": "L1",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "kat_planlari.pdf",
+      "page": 3,
+      "layer": null,
+      "entity": "char:29",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "1. KAT PLANI",
+      "region_id": "r3"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.035277777777777776,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "kat_planlari.pdf",
+     "page": 3,
+     "layer": null,
+     "entity": "char:29",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "1. KAT PLANI",
+     "region_id": "r3"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r4",
+   "file": "mobilya_plani.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    0.0,
+    0.0,
+    10200.0,
+    7800.0
+   ],
+   "box_m": [
+    10.2,
+    7.8
+   ],
+   "entities": 53,
+   "frame": null,
+   "class": "furniture_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT MOBİLYA PLANI",
+    "entity": "TEXT:158",
+    "box": [
+     0.0,
+     8875.0,
+     9200.0,
+     9500.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "MOBILYA PLANI"
+    ]
+   },
+   "features": {
+    "entities": 44,
+    "texts": 9,
+    "room_labels": 7,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 1,
+    "wall_pairs": 91,
+    "closed_rectangles": 10,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:10B",
+     "layer": "DUVAR",
+     "size_m": [
+      0.25,
+      7.8
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "mobilya_plani.dxf",
+      "page": 1,
+      "layer": "YAZI",
+      "entity": "TEXT:158",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT MOBİLYA PLANI",
+      "region_id": "r4"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.001,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:158",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT MOBİLYA PLANI",
+     "region_id": "r4"
+    }
+   ],
+   "conflicts": []
+  }
+ ],
+ "stray": [],
+ "levels": [
+  {
+   "id": "L-1",
+   "order": -1,
+   "label": "Bodrum Kat",
+   "kind": "basement",
+   "base_region": "r1",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "kat_planlari.pdf",
+     "page": 1,
+     "layer": null,
+     "entity": "char:29",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI",
+     "region_id": "r1"
+    }
+   ]
+  },
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r2",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [
+    "r4"
+   ],
+   "evidence": [
+    {
+     "file": "kat_planlari.pdf",
+     "page": 2,
+     "layer": null,
+     "entity": "char:29",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "order": 1,
+   "label": "1. Kat",
+   "kind": "floor",
+   "base_region": "r3",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "kat_planlari.pdf",
+     "page": 3,
+     "layer": null,
+     "entity": "char:29",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "1. KAT PLANI",
+     "region_id": "r3"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r1",
+    "r2",
+    "r3"
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [],
+  "cut_axis": null,
+  "cut_at": null,
+  "flipped": null,
+  "datum": null,
+  "levels": [
+   {
+    "level_id": "L-1",
+    "floor_z": {
+     "value": -3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   },
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   },
+   {
+    "level_id": "L1",
+    "floor_z": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L-1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": -3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   },
+   {
+    "between": [
+     "L-1",
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   },
+   {
+    "between": [
+     "L0",
+     "L1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   }
+  ],
+  "ground": [],
+  "roof": {
+   "eaves_z": null,
+   "ridge_z": null,
+   "pitches_deg": [],
+   "knee_wall": null,
+   "overhang": null,
+   "thickness": null,
+   "profile": []
+  }
+ },
+ "exterior": {
+  "roof": null,
+  "facade": [],
+  "openings_seen": [],
+  "site": null,
+  "north": null,
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [],
+ "warnings": [],
+ "needs_review": [],
+ "questions": 0,
+ "answers": null
+}

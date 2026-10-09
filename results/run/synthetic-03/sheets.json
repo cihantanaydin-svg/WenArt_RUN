@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "sheets",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 4.93,
+ "fingerprint": "440d6280f56b2eb88c837b5c5e0a8aab23418cf852f1fb0ec436dc44c5920ce5",
+ "inputs": {
+  "projects/synthetic-03": "b2c4c2fbb11283626846065cffabc169c521b062363796e7e690806f4bf0214a",
+  "<LibreDWG VERSION>": "0.14 d9468ae"
+ },
+ "outputs": [
+  "sheets.json",
+  "sheets_report.md"
+ ],
+ "started_utc": "2026-10-09T09:29:51Z",
+ "git_commit": "b18dad1f865efa6406279d7836bc9a1ec25db9cd",
+ "log": "logs/sheets.log",
+ "note": null,
+ "run_id": "20261009-092258-full-20261009T092915Z",
+ "steps": [
+  {
+   "name": "sheets",
+   "rc": 0,
+   "seconds": 4.93
+  }
+ ],
+ "written": {}
+}

@@ -1,0 +1,67 @@
+{
+ "values": {
+  "empty_rooms": "ai",
+  "decor": true,
+  "polish": true,
+  "style_photos": [],
+  "ceiling_height": 2.7,
+  "slab_thickness": 0.2,
+  "furnished_rooms": "complete",
+  "furnished_rooms_keep": [],
+  "furnished_rooms_keep_size": false,
+  "variants": "all",
+  "failed_levels": "leave_out",
+  "site": "full",
+  "exterior": {
+   "facade": "",
+   "roof": "",
+   "window_frame": "",
+   "door": "",
+   "paving": "",
+   "garden": ""
+  },
+  "render": {
+   "views_per_room": 3,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "samples": 256,
+   "lens_mm": "auto",
+   "exterior_views": true,
+   "twin_rooms": "one"
+  },
+  "styles": [
+   "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
+   "Warm Mediterranean, terracotta floor, cream plaster walls, rattan and linen, golden evening light"
+  ]
+ },
+ "assumed": [
+  "empty_rooms",
+  "decor",
+  "polish",
+  "style_photos",
+  "ceiling_height",
+  "slab_thickness",
+  "furnished_rooms",
+  "furnished_rooms_keep",
+  "furnished_rooms_keep_size",
+  "variants",
+  "failed_levels",
+  "site",
+  "exterior.facade",
+  "exterior.roof",
+  "exterior.window_frame",
+  "exterior.door",
+  "exterior.paving",
+  "exterior.garden",
+  "render.views_per_room",
+  "render.resolution",
+  "render.samples",
+  "render.lens_mm",
+  "render.exterior_views",
+  "render.twin_rooms"
+ ],
+ "path": "projects/synthetic-03/brief.yaml",
+ "warnings": []
+}

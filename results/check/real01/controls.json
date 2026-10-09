@@ -4,13 +4,16 @@
  "controls": [
   {
    "id": "f_L0_002",
-   "index": 17,
+   "index": 19,
    "kind": "furniture",
    "type": "kitchen_counter",
    "camera": "cam_r_L0_kitchen_1",
    "room_id": "r_L0_kitchen",
-   "area_frac": 0.28488,
+   "area_frac": 0.28546,
    "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
    "plug": false,
    "dir": "controls/hide_f_L0_002"
   },
@@ -23,32 +26,38 @@
    "room_id": "r_L0_drawing_room",
    "area_frac": 0.12504,
    "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
    "plug": false,
    "dir": "controls/hide_f_L0_017"
   },
   {
-   "id": "f_L0_005",
-   "index": 19,
+   "id": "f_L0_028",
+   "index": 41,
    "kind": "furniture",
-   "type": "nightstand",
-   "camera": "cam_r_L0_bed_room_2_2",
-   "room_id": "r_L0_bed_room_2",
-   "area_frac": 0.03796,
-   "source": "from_documents",
+   "type": "sideboard",
+   "camera": "cam_r_L0_dining_2",
+   "room_id": "r_L0_dining",
+   "area_frac": 0.05309,
+   "source": "added_by_ai",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": true,
    "plug": false,
-   "dir": "controls/hide_f_L0_005"
+   "dir": "controls/hide_f_L0_028"
   },
   {
-   "id": "win_L0_006",
-   "index": 6,
+   "id": "win_L0_009",
+   "index": 12,
    "kind": "window",
    "type": "window",
-   "camera": "cam_r_L0_kitchen_1",
+   "camera": "cam_r_L0_kitchen_2",
    "room_id": "r_L0_kitchen",
-   "area_frac": 0.11343,
+   "area_frac": 0.08937,
    "source": "from_documents",
    "plug": true,
-   "dir": "controls/hide_win_L0_006"
+   "dir": "controls/hide_win_L0_009"
   },
   {
    "id": "win_L0_002",
@@ -57,7 +66,7 @@
    "type": "window",
    "camera": "cam_r_L0_drawing_room_1",
    "room_id": "r_L0_drawing_room",
-   "area_frac": 0.08585,
+   "area_frac": 0.06349,
    "source": "from_documents",
    "plug": true,
    "dir": "controls/hide_win_L0_002"
@@ -69,7 +78,7 @@
    "type": "window",
    "camera": "cam_r_L0_bed_room_2_3",
    "room_id": "r_L0_bed_room_2",
-   "area_frac": 0.05739,
+   "area_frac": 0.04247,
    "source": "from_documents",
    "plug": true,
    "dir": "controls/hide_win_L0_004"
@@ -81,7 +90,7 @@
    "type": "door",
    "camera": "cam_r_L0_drawing_room_3",
    "room_id": "r_L0_drawing_room",
-   "area_frac": 0.054,
+   "area_frac": 0.05324,
    "source": "from_documents",
    "plug": false,
    "dir": "controls/hide_d_L0_003"
@@ -96,9 +105,12 @@
    "room_id": "r_L0_drawing_room",
    "area_frac": 0.12504,
    "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
    "swap_to": "bed_double"
   }
  ],
  "project": "real01",
- "hide_sets": "cam_r_L0_kitchen_1:f_L0_002;cam_r_L0_drawing_room_1:f_L0_017;cam_r_L0_bed_room_2_2:f_L0_005;cam_r_L0_kitchen_1:win_L0_006+plug;cam_r_L0_drawing_room_1:win_L0_002+plug;cam_r_L0_bed_room_2_3:win_L0_004+plug;cam_r_L0_drawing_room_3:d_L0_003"
+ "hide_sets": "cam_r_L0_kitchen_1:f_L0_002;cam_r_L0_drawing_room_1:f_L0_017;cam_r_L0_dining_2:f_L0_028;cam_r_L0_kitchen_2:win_L0_009+plug;cam_r_L0_drawing_room_1:win_L0_002+plug;cam_r_L0_bed_room_2_3:win_L0_004+plug;cam_r_L0_drawing_room_3:d_L0_003"
 }

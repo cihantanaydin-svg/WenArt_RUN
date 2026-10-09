@@ -1,32 +1,151 @@
 {
   "source_text": "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
   "family": "modern minimal",
+  "style_tags": [],
   "floor": {
     "material": "concrete_polished",
-    "asset": "Concrete046"
+    "asset": "Concrete046",
+    "colour": null
   },
   "walls": {
     "material": "plaster_charcoal",
-    "asset": "white_plaster_02"
+    "asset": "white_plaster_02",
+    "colour": null
+  },
+  "wall_accent": {
+    "material": "paint",
+    "asset": "plastered_wall",
+    "colour": "white",
+    "room_types": [
+      "living",
+      "bedroom"
+    ],
+    "rule": "one accent wall per living room and bedroom: the wall behind the sofa or the bed head, else the longest wall without a window"
   },
   "ceiling": {
-    "material": "plaster_white"
+    "material": "plaster_white",
+    "colour": null
   },
   "wet_floor": {
     "material": "concrete_polished",
-    "asset": "Concrete046"
+    "asset": "Concrete046",
+    "colour": null
   },
   "wet_walls": {
-    "material": "tiles_light"
+    "material": "tiles_light",
+    "asset": "Tiles074",
+    "tile_size_m": null,
+    "pattern": null,
+    "colour": null,
+    "grout_colour": null
   },
   "trim": {
-    "material": "painted_wood_white"
+    "material": "painted_wood_white",
+    "colour": null
   },
   "door": {
-    "material": "painted_wood_white"
+    "material": "painted_wood_white",
+    "asset": "white_planks_clean",
+    "style": null,
+    "colour": null,
+    "handle": null
   },
   "window_frame": {
-    "material": "painted_metal_white"
+    "material": "painted_metal_white",
+    "asset": "Metal032",
+    "colour": null,
+    "outside": {
+      "material": "painted_metal_white",
+      "colour": null
+    }
+  },
+  "cabinets": {
+    "front_style": null,
+    "colour": null,
+    "handle": null,
+    "worktop": null,
+    "wood": null
+  },
+  "furniture": {
+    "wood": null,
+    "fabric_colour": null,
+    "by_type": {},
+    "accents": [
+      "brass"
+    ]
+  },
+  "decor": {
+    "plant_species": [],
+    "plant_amount": null,
+    "pots": [],
+    "cushion_colours": [],
+    "throw_colours": [],
+    "curtain_colour": null,
+    "rug_colours": []
+  },
+  "exterior": {
+    "facade": {
+      "material": "render",
+      "asset": "grey_plaster",
+      "colour": "charcoal",
+      "source": "fallback",
+      "assumed": true
+    },
+    "roof": {
+      "material": "concrete_tiles",
+      "asset": "grey_roof_01",
+      "colour": "anthracite",
+      "source": "fallback",
+      "assumed": true
+    },
+    "window_frame": {
+      "material": "painted_metal_white",
+      "asset": "Metal032",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    },
+    "door": {
+      "material": "painted_wood_white",
+      "asset": "white_planks_clean",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    },
+    "paving": {
+      "material": "paving",
+      "asset": "large_square_pattern_01",
+      "colour": "grey",
+      "source": "fallback",
+      "assumed": true
+    },
+    "garden": {
+      "material": "grass",
+      "asset": "Grass004",
+      "colour": null,
+      "source": "fallback",
+      "assumed": true
+    }
+  },
+  "exterior_fallback": {
+    "facade": {
+      "material": "render",
+      "colour": "walls"
+    },
+    "roof": {
+      "material": "concrete_tiles",
+      "colour": "anthracite"
+    },
+    "window_frame": "interior",
+    "door": "interior",
+    "paving": {
+      "material": "paving",
+      "colour": "grey"
+    },
+    "garden": {
+      "material": "grass",
+      "colour": null
+    }
   },
   "lighting": {
     "hdri": "kloofendal_43d_clear_puresky",
@@ -36,16 +155,25 @@
     "colour_temperature_k": 6500,
     "mood": "cool daylight"
   },
+  "colours": {
+    "walls": [
+      "charcoal",
+      "white"
+    ],
+    "accents": [
+      "brass"
+    ]
+  },
   "matched_terms": [
     "Modern minimal",
     "polished concrete floor",
     "charcoal and white",
+    "brass details",
     "cool daylight"
   ],
-  "unmatched_terms": [
-    "brass details"
-  ],
+  "unmatched_terms": [],
   "warnings": [
-    "ignored wall word 'white' in 'charcoal and white' (phrase already gives plaster_charcoal)"
+    "accent wall colour white: one accent wall per living room and bedroom: the wall behind the sofa or the bed head, else the longest wall without a window",
+    "assumed: exterior facade render in charcoal, roof concrete_tiles in anthracite, window_frame as inside (painted_metal_white), door as inside (painted_wood_white), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml (no word for them in the brief)"
   ]
 }
