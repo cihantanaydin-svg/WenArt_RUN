@@ -254,3 +254,88 @@ def test_twins_are_asked_themselves_with_twin_rooms_all():
     b["project"]["brief"] = {"render": {"twin_rooms": "all"}}
     assert D.partner_rooms(b) == {}
     assert {q.room["id"] for q in DA.room_questions(b, STYLE)} == {RID, "r_b"}
+
+
+# --------------------------------------------------------------------------
+# Partner chains and loops (pod F1, real02: r_L-1b_banyo_2 is same_as r_L-1_banyo_2, the twin of r_L-1_banyo)
+# --------------------------------------------------------------------------
+
+def _chain(third: str = "r_c", window: bool = True) -> dict:
+    """``_twins``' two rooms and a third room ``third`` on the level L1, ``same_as`` the second twin r_b (the same
+    polygon, walls and pieces; its window ``win_c`` only when ``window``): the root RID is decorated, r_b takes its
+    mirrored copy, ``third`` the copy of r_b's copy."""
+    b = _twins("twin")
+    b["levels"].append(dict(b["levels"][0], id="L1", label="L1", order=1))
+    for w in [w for w in b["walls"] if w["id"].endswith("_b") or w["id"] == "w_e"]:
+        b["walls"].append(dict(json.loads(json.dumps(w)), id=w["id"].removesuffix("_b") + "_c", level_id="L1"))
+    if window:
+        win_b = next(o for o in b["openings"] if o["id"] == "win_b")
+        b["openings"].append(dict(json.loads(json.dumps(win_b)), id="win_c", wall_id="w_s_c", level_id="L1"))
+    room_b = next(r for r in b["rooms"] if r["id"] == "r_b")
+    b["rooms"].append(dict(json.loads(json.dumps(room_b)), id=third, label="Room C", level_id="L1", twin_of=None,
+                           same_as="r_b"))
+    for f in [f for f in b["furniture"] if f["room_id"] == "r_b"]:
+        g = json.loads(json.dumps(f))
+        g.update(id=f["id"].removesuffix("_b") + "_c", room_id=third, level_id="L1")
+        b["furniture"].append(g)
+    B.validate(b)
+    return b
+
+
+PICKS = (("f_L0_001.cushions", "cushion", "sage green"), ("window:win_a", "curtain", "sage green"),
+         ("f_L0_002.centre", "vase", "terracotta"))
+
+
+def test_a_chain_of_partners_copies_the_roots_decor_to_every_room():
+    b = _chain()
+    targets, notes = D.copy_targets(b)
+    assert {rid: v[0] for rid, v in targets.items()} == {"r_b": RID, "r_c": "r_b"} and not notes
+    assert [q.room["id"] for q in DA.room_questions(b, STYLE)] == [RID]
+    out, records = applied(b, choose(*PICKS))
+    B.validate(out)
+    mine = [d for d in out["decor"] if d["room_id"] == RID]
+    twin = {d["id"]: d for d in out["decor"] if d["room_id"] == "r_b"}
+    chain = [d for d in out["decor"] if d["room_id"] == "r_c"]
+    assert {d["type"] for d in mine} == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
+    for c in chain:
+        d = twin[c["mirrored_from"]]                  # the copy of the twin's copy: the root's decor mirrored once
+        assert c["center"] == d["center"] and c["rotation_deg"] == d["rotation_deg"] and c["type"] == d["type"]
+        assert c["level_id"] == "L1" and c["id"].startswith("dec_L1_") and "of r_b (same as)" in c["reason"]
+        if d.get("host_id"):
+            assert c["host_id"] == d["host_id"].removesuffix("_b") + "_c"
+        if d.get("window_id"):
+            assert c["window_id"] == "win_c"
+        if d.get("wall_id"):
+            assert c["wall_id"] == d["wall_id"].removesuffix("_b") + "_c"
+    rec = next(r for r in records if r.room_id == "r_c")
+    assert rec.items == chain and rec.notes == ["decor copied from r_b (same_as, not asked)"]
+    rules, rows = D.add_decor(b)                                              # the rules copy the same way
+    by_room = {rid: [d for d in rules["decor"] if d["room_id"] == rid] for rid in (RID, "r_b", "r_c")}
+    assert len(by_room["r_c"]) == len(by_room["r_b"]) == len(by_room[RID]) > 0
+    assert {d["mirrored_from"] for d in by_room["r_c"]} == {d["id"] for d in by_room["r_b"]}
+    assert any(r["room_id"] == "r_c" and r["note"].endswith(f"{len(by_room['r_c'])} item(s)") for r in rows)
+
+
+def test_copy_notes_go_to_their_own_room_only():
+    """A chained room without the window: its curtain is not copied and the note is its own, not also the note of
+    the room whose id starts its id (r_b and r_b_2, like real02's r_L-1b_banyo and r_L-1b_banyo_2)."""
+    b = _chain(third="r_b_2", window=False)
+    out, records = applied(b, choose(*PICKS))
+    recs = {r.room_id: r for r in records}
+    assert {d["type"] for d in out["decor"] if d["room_id"] == "r_b_2"} == {"cushion", "vase"}      # no curtain
+    assert any(n.startswith("r_b_2: curtain") and "window win_b" in n for n in recs["r_b_2"].notes)
+    assert not any("r_b_2" in n for n in recs["r_b"].notes), recs["r_b"].notes
+
+
+def test_a_loop_of_partners_decorates_its_first_room_itself():
+    """Two rooms each the twin of the other: no room to copy from, so the first in building order is decorated (and
+    asked) itself and the other takes its copy (as ``wenart.furniture.complete`` asks one room of a cycle)."""
+    b = _twins("twin")
+    b["rooms"][0]["twin_of"] = "r_b"
+    targets, notes = D.copy_targets(b)
+    assert list(targets) == ["r_b"] and len(notes) == 1 and notes[0].startswith(f"{RID}: its partners loop")
+    assert [q.room["id"] for q in DA.room_questions(b, STYLE)] == [RID]
+    out, _records = applied(b, choose(*PICKS))
+    mine = [d for d in out["decor"] if d["room_id"] == RID]
+    copies = [d for d in out["decor"] if d["room_id"] == "r_b"]
+    assert mine and {d["mirrored_from"] for d in copies} == {d["id"] for d in mine}

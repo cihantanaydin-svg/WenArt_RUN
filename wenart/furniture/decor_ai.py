@@ -56,7 +56,8 @@ Milestone 10 (docs/milestone10.md §4.6, §1.6b row 18; track F), question versi
   curtains and blinds take its curtain colour (the AI's colour kept as ``colour_ai``), large plants take its
   species and pots in turn, lamps and lights carry ``light_on`` in the interior evening mood.
 - Partners: second twins (``render.twin_rooms: one``) and ``same_as`` rooms are not asked (``room_questions``);
-  ``apply`` copies their partner's decor (``decor.copy_partner_decor``, ``mirrored_from``).
+  ``apply`` copies their partner's decor (``decor.copy_partner_decor``, ``mirrored_from``; a room whose partner
+  takes a copy itself copies that copy), each room's record with its own copy notes.
 """
 from __future__ import annotations
 
@@ -869,7 +870,9 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         rec = RoomDecor(rid, rooms[rid]["label"], rooms[rid].get("room_type") or "other")
         rec.items = [c for c in copies if c["room_id"] == rid]
         rec.fallback = None
-        rec.notes = [f"decor copied from {pid} ({kind}, not asked)"] + [n for n in copy_notes if n.startswith(rid)]
+        # The room's own notes only: "r_b_2: ..." is not a note of r_b.
+        rec.notes = [f"decor copied from {pid} ({kind}, not asked)"] + [n for n in copy_notes
+                                                                         if n.startswith(f"{rid}: ")]
         records.append(rec)
     if partner_notes and records:
         records[-1].notes += partner_notes

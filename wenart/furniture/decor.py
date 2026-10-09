@@ -69,6 +69,9 @@ Milestone 10 (docs/milestone10.md §4.6, §1.6b rows 18, 20; track F):
   ``wenart.furniture.complete.partner_transform``) with ``mirrored_from``; host pieces, rug and wall-art anchors and
   curtain windows are mapped to the room's own (an item whose piece or window has no counterpart is dropped and
   listed). A partner that cannot be verified leaves the room to be decorated itself (listed).
+- Partner chains (pod F1, real02: r_L-1b_banyo_2 is ``same_as`` r_L-1_banyo_2, the twin of r_L-1_banyo): a room
+  whose partner takes a copy itself copies after it, from that copy (``_copy_order``); a loop of partners has no
+  room to copy from, so its first room in building order is decorated itself (listed, ``copy_targets``).
 """
 from __future__ import annotations
 
@@ -678,7 +681,8 @@ def partner_rooms(building: dict) -> dict[str, tuple[str, str]]:
 
 def copy_targets(building: dict) -> tuple[dict, list[str]]:
     """``({room id: (partner id, kind, transform)}, notes)``: the partner rooms whose map onto the room is verified
-    (``complete.partner_transform``); a room whose partner does not map stays to be decorated itself (noted)."""
+    (``complete.partner_transform``); a room whose partner does not map stays to be decorated itself (noted), and
+    so does the first room of a loop of partners (noted)."""
     from wenart.furniture import complete as CP
 
     rooms = {r["id"]: r for r in building.get("rooms") or []}
@@ -689,6 +693,16 @@ def copy_targets(building: dict) -> tuple[dict, list[str]]:
             notes.append(f"{rid}: its {kind} partner {pid} cannot be mapped ({why}); decorated itself")
             continue
         out[rid] = (pid, kind, t)
+    # A loop of partners (two rooms each the twin of the other) has no room to copy from: its first room in building
+    # order is decorated itself, the others copy from it (as wenart.furniture.complete asks one room of a cycle).
+    for room in building.get("rooms") or []:
+        path = [room["id"]]
+        while path[-1] in out and out[path[-1]][0] not in path:
+            path.append(out[path[-1]][0])
+        if path[-1] in out and out[path[-1]][0] == room["id"]:
+            del out[room["id"]]
+            notes.append(f"{room['id']}: its partners loop back to it ({' -> '.join(path + [room['id']])}); "
+                         "decorated itself")
     return out, notes
 
 
@@ -726,17 +740,31 @@ def _window_map(building: dict, room: dict, t) -> dict[str, str]:
     return out
 
 
+def _copy_order(targets: dict) -> list[str]:
+    """The target rooms (``copy_targets``) in the order they copy, in rounds: a room whose partner is a target itself
+    (a chain: real02's r_L-1b_banyo_2 is ``same_as`` r_L-1_banyo_2, the twin of r_L-1_banyo) after that partner, in
+    id order per round. A loop left (``copy_targets`` breaks them) goes last as it is."""
+    order, todo = [], sorted(targets)
+    while todo:
+        ready = [rid for rid in todo if targets[rid][0] not in todo] or todo
+        order += ready
+        todo = [rid for rid in todo if rid not in ready]
+    return order
+
+
 def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id) -> tuple[list[dict], list[str]]:
     """The decor of every target room (``copy_targets``) copied from its partner's ``items`` (``mirrored_from`` =
     the partner item's id; centre, wall point and rotation through the map; host, anchors and window mapped,
-    ``wall_id`` the room's nearest wall) and the notes of the items that could not be copied."""
+    ``wall_id`` the room's nearest wall) and the notes of the items that could not be copied. The rooms copy in
+    ``_copy_order``: a room whose partner is a target itself copies the partner's copy."""
     rooms = {r["id"]: r for r in building.get("rooms") or []}
     out, notes = [], []
-    for rid, (pid, kind, t) in sorted(targets.items()):
+    for rid in _copy_order(targets):
+        pid, kind, t = targets[rid]
         room = rooms[rid]
         pieces = _piece_map(building, room, pid, t)
         windows = _window_map(building, room, t)
-        for item in items:
+        for item in items + out:                         # + the copies made so far (a chain's partner)
             if item.get("room_id") != pid:
                 continue
             new = json.loads(json.dumps(item))
