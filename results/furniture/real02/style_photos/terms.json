@@ -1,0 +1,131 @@
+{
+ "schema_version": "0.1",
+ "kind": "style_photo_terms",
+ "sources": [
+  "outputs/real02/style_photos/passes.json"
+ ],
+ "photos": {
+  "living_reference.jpg": {
+   "sha256": "ab46cb78da7e99c2556e5eae9a67dee95e3446462dd3f80e02ecf82b0a06d14d",
+   "passes": [
+    {
+     "model_key": "glm",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "ok": true,
+     "error": null
+    },
+    {
+     "model_key": "qwen",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "ok": true,
+     "error": null
+    }
+   ],
+   "agreed": {
+    "floor": "wood_oak_light",
+    "walls": "plaster_cream",
+    "light": "warm daylight",
+    "family": "modern"
+   },
+   "unclear": {},
+   "disagreements": {},
+   "single": {},
+   "not_computed": [],
+   "single_pass": false
+  }
+ },
+ "terms": [
+  {
+   "slot": "floor",
+   "value": "wood_oak_light",
+   "file": "living_reference.jpg",
+   "files": [
+    "living_reference.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "living_reference.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "living_reference.jpg"
+    }
+   ]
+  },
+  {
+   "slot": "walls",
+   "value": "plaster_cream",
+   "file": "living_reference.jpg",
+   "files": [
+    "living_reference.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "living_reference.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "living_reference.jpg"
+    }
+   ]
+  },
+  {
+   "slot": "light",
+   "value": "warm daylight",
+   "file": "living_reference.jpg",
+   "files": [
+    "living_reference.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "living_reference.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "living_reference.jpg"
+    }
+   ]
+  },
+  {
+   "slot": "family",
+   "value": "modern",
+   "file": "living_reference.jpg",
+   "files": [
+    "living_reference.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "living_reference.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "living_reference.jpg"
+    }
+   ]
+  }
+ ],
+ "conflicts": [],
+ "warnings": []
+}

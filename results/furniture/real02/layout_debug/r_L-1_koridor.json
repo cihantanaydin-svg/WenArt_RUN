@@ -1,0 +1,249 @@
+{
+ "room_id": "r_L-1_koridor",
+ "label": "Koridor",
+ "room_type": "hall",
+ "room_subtype": null,
+ "state": "mirrored",
+ "reason": "decisions of r_L-1_koridor_2 (twin), not asked again",
+ "partner": {
+  "id": "r_L-1_koridor_2",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    15.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.0009
+  }
+ },
+ "drawn": [
+  {
+   "id": "f_L-1_004",
+   "type": "stair",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.1143,
+     8.6436
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "missing": {},
+ "anchor_missing": false,
+ "addable": {
+  "console_table": 1,
+  "shoe_cabinet": 1,
+  "bench": 1
+ },
+ "change_types": [],
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L-1_078",
+   "type": "console_table",
+   "center": [
+    11.7582,
+    9.027
+   ],
+   "size": [
+    1.2,
+    0.35
+   ],
+   "rotation_deg": 270.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": "f_L-1_065"
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L-1_004": [
+    "inside_room"
+   ]
+  },
+  "walkways": []
+ },
+ "latency_s": 0,
+ "question": {
+  "room": {
+   "room_id": "r_L-1_koridor",
+   "label": "Koridor",
+   "room_type": "hall",
+   "room_subtype": null,
+   "area_m2": 11.92,
+   "polygon_m": [
+    [
+     7.79,
+     7.59
+    ],
+    [
+     10.55,
+     7.59
+    ],
+    [
+     10.55,
+     7.51
+    ],
+    [
+     11.93,
+     7.51
+    ],
+    [
+     11.93,
+     8.15
+    ],
+    [
+     11.95,
+     8.15
+    ],
+    [
+     11.95,
+     11.8
+    ],
+    [
+     10.55,
+     11.8
+    ],
+    [
+     10.55,
+     9.74
+    ],
+    [
+     7.79,
+     9.74
+    ]
+   ],
+   "doors": [
+    {
+     "id": "d_L-1_002",
+     "center": [
+      10.5,
+      10.99
+     ],
+     "width": 0.82,
+     "opens_into_this_room": false,
+     "approach": [
+      11.01,
+      10.99
+     ]
+    },
+    {
+     "id": "d_L-1_004",
+     "center": [
+      11.98,
+      7.73
+     ],
+     "width": 0.82,
+     "opens_into_this_room": false,
+     "approach": [
+      11.47,
+      7.95
+     ]
+    },
+    {
+     "id": "o_L-1_002",
+     "center": [
+      11.24,
+      7.51
+     ],
+     "width": 1.38,
+     "opens_into_this_room": false,
+     "approach": [
+      11.24,
+      7.97
+     ]
+    }
+   ],
+   "windows": []
+  },
+  "drawn": [
+   {
+    "id": "f_L-1_004",
+    "type": "stair",
+    "kind": "fixed",
+    "center": [
+     9.11,
+     8.64
+    ],
+    "size": [
+     2.71,
+     2.1
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.11,
+      8.64
+     ]
+    },
+    "against_wall": null
+   }
+  ],
+  "change_ids": [],
+  "change_types": [],
+  "add": {
+   "console_table": 1,
+   "shoe_cabinet": 1,
+   "bench": 1
+  },
+  "missing": {},
+  "anchor_missing": false,
+  "anchors": [],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": null,
+ "placements": {}
+}

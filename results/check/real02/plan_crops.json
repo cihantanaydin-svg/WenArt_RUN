@@ -1,0 +1,665 @@
+{
+ "schema_version": "0.1",
+ "project": "real02",
+ "views": {
+  "cam_r_L-1_banyo_1": {
+   "plan": "cam_r_L-1_banyo_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    6
+   ],
+   "scale": 1.94175,
+   "bytes": 75901
+  },
+  "cam_r_L-1_banyo_2": {
+   "plan": "cam_r_L-1_banyo_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    6
+   ],
+   "scale": 1.94175,
+   "bytes": 75162
+  },
+  "cam_r_L-1_koridor_2_1": {
+   "plan": "cam_r_L-1_koridor_2_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    355,
+    6
+   ],
+   "scale": 1.3468,
+   "bytes": 98821
+  },
+  "cam_r_L-1_koridor_2_2": {
+   "plan": "cam_r_L-1_koridor_2_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    355,
+    6
+   ],
+   "scale": 1.3468,
+   "bytes": 97360
+  },
+  "cam_r_L-1_koridor_2_3": {
+   "plan": "cam_r_L-1_koridor_2_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    355,
+    6
+   ],
+   "scale": 1.3468,
+   "bytes": 103993
+  },
+  "cam_r_L-1_mutfak_1": {
+   "plan": "cam_r_L-1_mutfak_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    6
+   ],
+   "scale": 1.25984,
+   "bytes": 64301
+  },
+  "cam_r_L-1_mutfak_2": {
+   "plan": "cam_r_L-1_mutfak_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    6
+   ],
+   "scale": 1.25984,
+   "bytes": 56418
+  },
+  "cam_r_L-1_mutfak_3": {
+   "plan": "cam_r_L-1_mutfak_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    6
+   ],
+   "scale": 1.25984,
+   "bytes": 55216
+  },
+  "cam_r_L-1_salon_1": {
+   "plan": "cam_r_L-1_salon_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    487
+   ],
+   "scale": 1.0,
+   "bytes": 146139
+  },
+  "cam_r_L-1_salon_2": {
+   "plan": "cam_r_L-1_salon_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    487
+   ],
+   "scale": 1.0,
+   "bytes": 158866
+  },
+  "cam_r_L-1_salon_3": {
+   "plan": "cam_r_L-1_salon_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    487
+   ],
+   "scale": 1.0,
+   "bytes": 151772
+  },
+  "cam_r_L0_banyo_1": {
+   "plan": "cam_r_L0_banyo_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    6
+   ],
+   "scale": 1.94175,
+   "bytes": 75951
+  },
+  "cam_r_L0_banyo_2": {
+   "plan": "cam_r_L0_banyo_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    6
+   ],
+   "scale": 1.94175,
+   "bytes": 76072
+  },
+  "cam_r_L0_e_banyo_1": {
+   "plan": "cam_r_L0_e_banyo_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    494
+   ],
+   "scale": 1.94175,
+   "bytes": 72299
+  },
+  "cam_r_L0_e_banyo_2": {
+   "plan": "cam_r_L0_e_banyo_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    494
+   ],
+   "scale": 1.94175,
+   "bytes": 71293
+  },
+  "cam_r_L0_e_yatak_odasi_1": {
+   "plan": "cam_r_L0_e_yatak_odasi_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    366,
+    673
+   ],
+   "scale": 1.38648,
+   "bytes": 99788
+  },
+  "cam_r_L0_e_yatak_odasi_2": {
+   "plan": "cam_r_L0_e_yatak_odasi_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    366,
+    673
+   ],
+   "scale": 1.38648,
+   "bytes": 92233
+  },
+  "cam_r_L0_e_yatak_odasi_3": {
+   "plan": "cam_r_L0_e_yatak_odasi_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    366,
+    673
+   ],
+   "scale": 1.38648,
+   "bytes": 86102
+  },
+  "cam_r_L0_koridor_1": {
+   "plan": "cam_r_L0_koridor_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    366,
+    6
+   ],
+   "scale": 1.04031,
+   "bytes": 39747
+  },
+  "cam_r_L0_koridor_2": {
+   "plan": "cam_r_L0_koridor_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    366,
+    6
+   ],
+   "scale": 1.04031,
+   "bytes": 38046
+  },
+  "cam_r_L0_koridor_3": {
+   "plan": "cam_r_L0_koridor_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    366,
+    6
+   ],
+   "scale": 1.04031,
+   "bytes": 35662
+  },
+  "cam_r_L0_oda_1": {
+   "plan": "cam_r_L0_oda_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    237
+   ],
+   "scale": 1.94175,
+   "bytes": 88912
+  },
+  "cam_r_L0_oda_2": {
+   "plan": "cam_r_L0_oda_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    522,
+    237
+   ],
+   "scale": 1.94175,
+   "bytes": 89672
+  },
+  "cam_r_L0_oda_2_1": {
+   "plan": "cam_r_L0_oda_2_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    866,
+    237
+   ],
+   "scale": 1.94175,
+   "bytes": 88469
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "plan": "cam_r_L0_yatak_odasi_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    539
+   ],
+   "scale": 1.12518,
+   "bytes": 78181
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    539
+   ],
+   "scale": 1.12518,
+   "bytes": 57005
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    539
+   ],
+   "scale": 1.12518,
+   "bytes": 71750
+  },
+  "cam_r_L0_yatak_odasi_3_1": {
+   "plan": "cam_r_L0_yatak_odasi_3_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    6
+   ],
+   "scale": 1.25984,
+   "bytes": 63941
+  },
+  "cam_r_L0_yatak_odasi_3_2": {
+   "plan": "cam_r_L0_yatak_odasi_3_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    6
+   ],
+   "scale": 1.25984,
+   "bytes": 62256
+  },
+  "cam_r_L0_yatak_odasi_3_3": {
+   "plan": "cam_r_L0_yatak_odasi_3_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    17,
+    6
+   ],
+   "scale": 1.25984,
+   "bytes": 66274
+  },
+  "cam_r_L1_banyo_1": {
+   "plan": "cam_r_L1_banyo_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    546,
+    61
+   ],
+   "scale": 2.07254,
+   "bytes": 72661
+  },
+  "cam_r_L1_banyo_2": {
+   "plan": "cam_r_L1_banyo_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    546,
+    61
+   ],
+   "scale": 2.07254,
+   "bytes": 74794
+  },
+  "cam_r_L1_koridor_1": {
+   "plan": "cam_r_L1_koridor_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    239,
+    61
+   ],
+   "scale": 1.1544,
+   "bytes": 85566
+  },
+  "cam_r_L1_koridor_2": {
+   "plan": "cam_r_L1_koridor_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    239,
+    61
+   ],
+   "scale": 1.1544,
+   "bytes": 91808
+  },
+  "cam_r_L1_koridor_2_1": {
+   "plan": "cam_r_L1_koridor_2_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    868,
+    61
+   ],
+   "scale": 1.1544,
+   "bytes": 87034
+  },
+  "cam_r_L1_koridor_2_2": {
+   "plan": "cam_r_L1_koridor_2_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    868,
+    61
+   ],
+   "scale": 1.1544,
+   "bytes": 90367
+  },
+  "cam_r_L1_koridor_2_3": {
+   "plan": "cam_r_L1_koridor_2_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    868,
+    61
+   ],
+   "scale": 1.1544,
+   "bytes": 83787
+  },
+  "cam_r_L1_koridor_3": {
+   "plan": "cam_r_L1_koridor_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    239,
+    61
+   ],
+   "scale": 1.1544,
+   "bytes": 88989
+  },
+  "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1": {
+   "plan": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    239,
+    519
+   ],
+   "scale": 1.0,
+   "bytes": 102363
+  },
+  "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
+   "plan": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    239,
+    519
+   ],
+   "scale": 1.0,
+   "bytes": 115775
+  },
+  "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3": {
+   "plan": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    239,
+    519
+   ],
+   "scale": 1.0,
+   "bytes": 96045
+  },
+  "cam_r_L1_teras_1": {
+   "plan": "cam_r_L1_teras_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    71,
+    61
+   ],
+   "scale": 0.90566,
+   "bytes": 47712
+  },
+  "ext_1": {
+   "plan": "ext_1_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.66667,
+   "bytes": 166784
+  },
+  "ext_2": {
+   "plan": "ext_2_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.66667,
+   "bytes": 166031
+  },
+  "ext_3": {
+   "plan": "ext_3_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.66667,
+   "bytes": 173419
+  },
+  "ext_4": {
+   "plan": "ext_4_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.66667,
+   "bytes": 171918
+  },
+  "ext_5": {
+   "plan": "ext_5_plan.jpg",
+   "document": "one_building.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "one_building.dwg",
+   "crop_origin_px": [
+    0,
+    0
+   ],
+   "scale": 0.66667,
+   "bytes": 185245
+  }
+ },
+ "warnings": []
+}

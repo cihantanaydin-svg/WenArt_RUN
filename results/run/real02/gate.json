@@ -1,0 +1,45 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real02",
+ "stage": "gate",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 93.88,
+ "fingerprint": "c7d0b55f72f7c9feb5b3bb1612015750cdf0d35c23ac924bd16b3d2f9ed60dcf",
+ "inputs": {
+  "outputs/real02/renders/render_manifest.json": "73fea333ea784114e78497d1c9eaf7e0e43f82510b6b6a0391eda14f88d5ad6f",
+  "outputs/real02/check/controls.json": "cf97bb1c40b25749b05a28638ac77e497ebc6fa5c4cf24aad3dc599b22e7dd65",
+  "outputs/real02/polish/sweep/polish_manifest.json": null,
+  "outputs/real02/controls/hide_d_L0_001/render_manifest.json": "3d19aac159385ef91fbcb5167cacc9b18bdd7a95bca17f2d175507bfbd54e1c9",
+  "outputs/real02/controls/hide_d_L1_001/render_manifest.json": "98388bf5ab117daafbd225ba61fb92c087775bc214b116d1d7032a1cb71951a8",
+  "outputs/real02/controls/hide_f_L0_009/render_manifest.json": "a8aa4d31846d15d82092185c3af0752afe0addb9f080f59948fd8ec5c470d883",
+  "outputs/real02/controls/hide_f_L0_011/render_manifest.json": "f817e7249b62bff582d07d9b9a0f74e3afb9eb51530497e5966061ec4ed6d973",
+  "outputs/real02/controls/hide_f_L0_012/render_manifest.json": "1d5f0733eb9cf6b2f34e936fb643ed46b8d56808bf9ca338ae97298093ce2e46",
+  "outputs/real02/controls/hide_win_L-1_001/render_manifest.json": "93383033fc660da275aabc4fd7d81778a065d951a3eb2284eb7723c324411e6b",
+  "outputs/real02/controls/hide_win_L0_001/render_manifest.json": "2ab637fc9149579490ac26163bcaafb9130024d52a4c0f294ec2fce2fef74ad0",
+  "outputs/real02/controls/hide_win_L0_002/render_manifest.json": "f2d0cb578df94c9d1ca95958fad2e2fce02608eb5b3d7639e80f12e9afef4583"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-09T08:55:41Z",
+ "git_commit": "314cf5ff54541abd5e713a3d5a35c49f688a9a75",
+ "log": "logs/gate.log",
+ "note": "gate decision ok",
+ "run_id": "20261009-082737-full-20261009T083331Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 92.48
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.4
+  }
+ ],
+ "written": {}
+}

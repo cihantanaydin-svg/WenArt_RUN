@@ -1,0 +1,106 @@
+{
+ "room_id": "r_L0_e_banyo",
+ "label": "E.banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "f_L0_008.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L0_008",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L0_e_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 e banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_008.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Modern clean look above washbasin, complements greige walls."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_e_banyo",
+     "type": "ceiling_light",
+     "colour": "natural wood",
+     "reason": "Warm daylight ambiance with wood finish matches natural style."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.351
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_008.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Complements natural wood furniture and enhances light in modern bathroom."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_e_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light adds cozy glow matching daylight and bronze accents."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.356
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_008.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Modern clean look above washbasin, complements greige walls.",
+    "Complements natural wood furniture and enhances light in modern bathroom."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_e_banyo",
+   "type": "ceiling_light",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "Warm daylight ambiance with wood finish matches natural style.",
+    "Warm brass light adds cozy glow matching daylight and bronze accents."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_021",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_008.wall"
+  },
+  {
+   "id": "dec_L0_022",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_e_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

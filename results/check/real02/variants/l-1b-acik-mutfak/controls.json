@@ -1,0 +1,39 @@
+{
+ "schema_version": "0.1",
+ "dir_relative_to": "project_out",
+ "controls": [
+  {
+   "id": "f_L-1b_040",
+   "index": 43,
+   "kind": "furniture",
+   "type": "bookshelf",
+   "camera": "cam_r_L-1b_oda_1",
+   "room_id": "r_L-1b_oda",
+   "area_frac": 0.0768,
+   "source": "added_by_ai",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
+   "plug": false,
+   "dir": "controls/hide_f_L-1b_040"
+  },
+  {
+   "id": "f_L-1b_017",
+   "index": 35,
+   "kind": "furniture",
+   "type": "kitchen_island",
+   "camera": "cam_r_L-1b_acik_mutfak_2_2",
+   "room_id": "r_L-1b_acik_mutfak_2",
+   "area_frac": 0.0626,
+   "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
+   "plug": false,
+   "dir": "controls/hide_f_L-1b_017"
+  }
+ ],
+ "swaps": [],
+ "project": "real02",
+ "hide_sets": "cam_r_L-1b_oda_1:f_L-1b_040;cam_r_L-1b_acik_mutfak_2_2:f_L-1b_017"
+}

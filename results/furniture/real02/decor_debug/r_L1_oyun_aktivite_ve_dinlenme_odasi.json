@@ -1,0 +1,308 @@
+{
+ "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+ "label": "Oyun Aktivite Ve Dinlenme Odası",
+ "room_type": "other",
+ "slots": [
+  {
+   "id": "f_L1_009.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_009",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_009.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_009",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_012.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_012",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_012.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_012",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_029.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_029",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L1_029.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_029",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L1_031.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L1_031",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 2.05, 0.45",
+   "center": [
+    2.05,
+    0.451
+   ]
+  },
+  {
+   "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 7.14, 0.45",
+   "center": [
+    7.136,
+    0.451
+   ]
+  },
+  {
+   "id": "window:win_L1_001",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_001"
+  },
+  {
+   "id": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 oyun aktivite ve dinlenme odasi"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_009.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warm accent to the light grey sofa, matching the style brief."
+    },
+    {
+     "slot": "f_L1_012.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Complements the natural and neutral palette while enhancing comfort."
+    },
+    {
+     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Large indoor plant in rattan pot brings life and warmth to the corner."
+    },
+    {
+     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Balances the room with another large plant, enhancing the natural aesthetic."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant light adds modern elegance and ambient glow."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.406
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Adds lush greenery and warmth with a large plant in a natural wood pot."
+    },
+    {
+     "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Balances the room with another large plant, enhancing the natural, modern aesthetic."
+    },
+    {
+     "slot": "f_L1_009.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds a warm pop of color that complements the greige walls and natural tones."
+    },
+    {
+     "slot": "f_L1_029.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Softens the armchair with a neutral, cozy accent that harmonizes with the room’s palette."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light fixture enhances the modern natural feel and complements dark bronze frames."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.602
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_009.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warm accent to the light grey sofa, matching the style brief.",
+    "Adds a warm pop of color that complements the greige walls and natural tones."
+   ]
+  },
+  {
+   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1",
+   "type": "plant_large",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Large indoor plant in rattan pot brings life and warmth to the corner.",
+    "Adds lush greenery and warmth with a large plant in a natural wood pot."
+   ]
+  },
+  {
+   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2",
+   "type": "plant_large",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Balances the room with another large plant, enhancing the natural aesthetic.",
+    "Balances the room with another large plant, enhancing the natural, modern aesthetic."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm brass pendant light adds modern elegance and ambient glow.",
+    "Warm brass light fixture enhances the modern natural feel and complements dark bronze frames."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L1_012.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "reason": "Complements the natural and neutral palette while enhancing comfort.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L1_029.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "reason": "Softens the armchair with a neutral, cozy accent that harmonizes with the room’s palette.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_001",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_009.cushions"
+  },
+  {
+   "id": "dec_L1_002",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_009.cushions"
+  },
+  {
+   "id": "dec_L1_003",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1"
+  },
+  {
+   "id": "dec_L1_004",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2"
+  },
+  {
+   "id": "dec_L1_005",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L1_009 wall: wall_art: f_L1_009 has no wall behind it",
+  "f_L1_012 wall: wall_art: f_L1_012 has no wall behind it"
+ ]
+}

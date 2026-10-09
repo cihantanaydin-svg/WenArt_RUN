@@ -1,0 +1,20 @@
+{
+ "schema_version": "0.1",
+ "camera": "cam_r_L-1b_acik_mutfak_1",
+ "max_abs_diff": 0,
+ "seconds": 7.52,
+ "attempt_key": "06c81454fa026f132b11669fee5d62310c324a0339795dad58cb9a9ad25f5d6f",
+ "settings": {
+  "strength": 0.375,
+  "control": "geometry",
+  "scale": 0.8,
+  "size": "native",
+  "mode": "plain",
+  "seed": 1,
+  "steps": 8
+ },
+ "seconds_each": [
+  3.75,
+  3.77
+ ]
+}

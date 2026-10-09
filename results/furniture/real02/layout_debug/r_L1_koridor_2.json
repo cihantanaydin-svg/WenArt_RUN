@@ -1,0 +1,1232 @@
+{
+ "room_id": "r_L1_koridor_2",
+ "label": "Koridor",
+ "room_type": "hall",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L1_001",
+   "type": "stair",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     9.1143,
+     8.6436
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_022",
+   "type": "bench",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     13.3724,
+     9.901
+    ],
+    "wall_id": "w_L1_015"
+   }
+  }
+ ],
+ "missing": {},
+ "anchor_missing": false,
+ "addable": {
+  "console_table": 1,
+  "shoe_cabinet": 1
+ },
+ "change_types": [
+  "dresser",
+  "chair",
+  "bookshelf",
+  "console_table",
+  "shoe_cabinet",
+  "bench"
+ ],
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 1.16,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": [
+     {
+      "type": "console_table",
+      "center": [
+       13.37,
+       9.9
+      ],
+      "rotation_deg": 270,
+      "size": [
+       1.2,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Adds a slim console table against the wall for decor and function, matching modern natural style."
+     }
+    ]
+   },
+   "prompt": "Task: complete this hall or corridor (Turkish: HOL, ANTRE, KORİDOR) labelled 'Koridor' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L1_koridor_2\", \"label\": \"Koridor\", \"room_type\": \"hall\", \"room_subtype\": null, \"area_m2\": 15.34, \"polygon_m\": [[7.79, 7.59], [13.37, 7.59], [13.37, 10.19], [11.85, 10.19], [11.85, 11.8], [10.55, 11.8], [10.55, 9.73], [7.79, 9.73]], \"doors\": [{\"id\": \"d_L1_002\", \"center\": [12.79, 7.52], \"width\": 0.82, \"opens_into_this_room\": false, \"approach\": [12.79, 8.05]}, {\"id\": \"d_L1_005\", \"center\": [10.5, 10.99], \"width\": 0.82, \"opens_into_this_room\": false, \"approach\": [11.01, 10.99]}, {\"id\": \"d_L1_006\", \"center\": [13.42, 8.44], \"width\": 0.82, \"opens_into_this_room\": true, \"approach\": [12.91, 8.44]}], \"windows\": []}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L1_001\", \"type\": \"stair\", \"kind\": \"fixed\", \"center\": [9.11, 8.64], \"size\": [2.71, 2.1], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [9.11, 8.64]}, \"against_wall\": null}, {\"id\": \"f_L1_022\", \"type\": \"bench\", \"kind\": \"changeable\", \"center\": [12.61, 9.9], \"size\": [0.6, 1.52], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [13.37, 9.9]}, \"against_wall\": \"w_L1_015\"}]\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: console_table (1), shoe_cabinet (1)\nA good completion: one slim piece (console_table, shoe_cabinet or bench) against a wall; keep the corridor between the doors free.\n\nTypes with their size options [width, depth]:\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- console_table: height 0.8 m, size options [0.9, 0.3], [1.2, 0.35], [1.4, 0.4] (usually against a wall)\n- shoe_cabinet: height 1.0 m, size options [0.6, 0.3], [0.8, 0.32], [1.0, 0.35] (usually against a wall)\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (none) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of dresser, chair, bookshelf, console_table, shoe_cabinet, bench), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of console_table, shoe_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"console_table\",\n      \"center\": [13.37, 9.9],\n      \"rotation_deg\": 270,\n      \"size\": [1.2, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Adds a slim console table against the wall for decor and function, matching modern natural style.\"\n    }\n  ]\n}",
+   "changes": 0,
+   "added": 1
+  },
+  {
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 1.185,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": [
+     {
+      "type": "console_table",
+      "center": [
+       12.61,
+       9.9
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Replaces the bench with a slim console table matching the modern natural style and keeping the corridor clear."
+     }
+    ]
+   },
+   "prompt": "Task: complete this hall or corridor (Turkish: HOL, ANTRE, KORİDOR) labelled 'Koridor' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: console_table (1), shoe_cabinet (1)\nA good completion: one slim piece (console_table, shoe_cabinet or bench) against a wall; keep the corridor between the doors free.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (none) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- console_table: height 0.8 m, size options [0.9, 0.3], [1.2, 0.35], [1.4, 0.4] (usually against a wall)\n- shoe_cabinet: height 1.0 m, size options [0.6, 0.3], [0.8, 0.32], [1.0, 0.35] (usually against a wall)\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L1_001\", \"type\": \"stair\", \"kind\": \"fixed\", \"center\": [9.11, 8.64], \"size\": [2.71, 2.1], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [9.11, 8.64]}, \"against_wall\": null}, {\"id\": \"f_L1_022\", \"type\": \"bench\", \"kind\": \"changeable\", \"center\": [12.61, 9.9], \"size\": [0.6, 1.52], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [13.37, 9.9]}, \"against_wall\": \"w_L1_015\"}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L1_koridor_2\", \"label\": \"Koridor\", \"room_type\": \"hall\", \"room_subtype\": null, \"area_m2\": 15.34, \"polygon_m\": [[7.79, 7.59], [13.37, 7.59], [13.37, 10.19], [11.85, 10.19], [11.85, 11.8], [10.55, 11.8], [10.55, 9.73], [7.79, 9.73]], \"doors\": [{\"id\": \"d_L1_002\", \"center\": [12.79, 7.52], \"width\": 0.82, \"opens_into_this_room\": false, \"approach\": [12.79, 8.05]}, {\"id\": \"d_L1_005\", \"center\": [10.5, 10.99], \"width\": 0.82, \"opens_into_this_room\": false, \"approach\": [11.01, 10.99]}, {\"id\": \"d_L1_006\", \"center\": [13.42, 8.44], \"width\": 0.82, \"opens_into_this_room\": true, \"approach\": [12.91, 8.44]}], \"windows\": []}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of dresser, chair, bookshelf, console_table, shoe_cabinet, bench), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of console_table, shoe_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"console_table\",\n      \"center\": [12.61, 9.9],\n      \"rotation_deg\": 270.0,\n      \"size\": [1.2, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Replaces the bench with a slim console table matching the modern natural style and keeping the corridor clear.\"\n    }\n  ]\n}",
+   "changes": 0,
+   "added": 1
+  }
+ ],
+ "chosen_pass": 1,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L1_033",
+   "type": "console_table",
+   "center": [
+    11.659,
+    10.812
+   ],
+   "size": [
+    1.2,
+    0.35
+   ],
+   "rotation_deg": 270.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L1_001": [
+    "inside_room"
+   ],
+   "f_L1_022": [
+    "inside_room"
+   ]
+  },
+  "walkways": []
+ },
+ "latency_s": 2.345,
+ "question": {
+  "room": {
+   "room_id": "r_L1_koridor_2",
+   "label": "Koridor",
+   "room_type": "hall",
+   "room_subtype": null,
+   "area_m2": 15.34,
+   "polygon_m": [
+    [
+     7.79,
+     7.59
+    ],
+    [
+     13.37,
+     7.59
+    ],
+    [
+     13.37,
+     10.19
+    ],
+    [
+     11.85,
+     10.19
+    ],
+    [
+     11.85,
+     11.8
+    ],
+    [
+     10.55,
+     11.8
+    ],
+    [
+     10.55,
+     9.73
+    ],
+    [
+     7.79,
+     9.73
+    ]
+   ],
+   "doors": [
+    {
+     "id": "d_L1_002",
+     "center": [
+      12.79,
+      7.52
+     ],
+     "width": 0.82,
+     "opens_into_this_room": false,
+     "approach": [
+      12.79,
+      8.05
+     ]
+    },
+    {
+     "id": "d_L1_005",
+     "center": [
+      10.5,
+      10.99
+     ],
+     "width": 0.82,
+     "opens_into_this_room": false,
+     "approach": [
+      11.01,
+      10.99
+     ]
+    },
+    {
+     "id": "d_L1_006",
+     "center": [
+      13.42,
+      8.44
+     ],
+     "width": 0.82,
+     "opens_into_this_room": true,
+     "approach": [
+      12.91,
+      8.44
+     ]
+    }
+   ],
+   "windows": []
+  },
+  "drawn": [
+   {
+    "id": "f_L1_001",
+    "type": "stair",
+    "kind": "fixed",
+    "center": [
+     9.11,
+     8.64
+    ],
+    "size": [
+     2.71,
+     2.1
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      9.11,
+      8.64
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L1_022",
+    "type": "bench",
+    "kind": "changeable",
+    "center": [
+     12.61,
+     9.9
+    ],
+    "size": [
+     0.6,
+     1.52
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      13.37,
+      9.9
+     ]
+    },
+    "against_wall": "w_L1_015"
+   }
+  ],
+  "change_ids": [
+   "f_L1_022"
+  ],
+  "change_types": [
+   "dresser",
+   "chair",
+   "bookshelf",
+   "console_table",
+   "shoe_cabinet",
+   "bench"
+  ],
+  "add": {
+   "console_table": 1,
+   "shoe_cabinet": 1
+  },
+  "missing": {},
+  "anchor_missing": false,
+  "anchors": [],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 1,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "id",
+      "type",
+      "size",
+      "style",
+      "colour",
+      "reason"
+     ],
+     "properties": {
+      "id": {
+       "enum": [
+        "f_L1_022"
+       ]
+      },
+      "type": {
+       "enum": [
+        "dresser",
+        "chair",
+        "bookshelf",
+        "console_table",
+        "shoe_cabinet",
+        "bench"
+       ]
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "style": {
+       "enum": [
+        "scandinavian",
+        "japandi",
+        "modern minimal",
+        "minimal",
+        "modern",
+        "industrial",
+        "mediterranean",
+        "classic",
+        "rustic",
+        "neutral"
+       ]
+      },
+      "colour": {
+       "enum": [
+        "white",
+        "cream",
+        "beige",
+        "sand",
+        "light grey",
+        "grey",
+        "charcoal",
+        "black",
+        "natural wood",
+        "terracotta",
+        "rust",
+        "mustard",
+        "olive",
+        "sage green",
+        "forest green",
+        "navy",
+        "dusty blue",
+        "teal",
+        "blush",
+        "burgundy",
+        "brass",
+        "copper"
+       ]
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 2,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "type",
+      "center",
+      "rotation_deg",
+      "size",
+      "against_wall",
+      "reason"
+     ],
+     "properties": {
+      "type": {
+       "enum": [
+        "console_table",
+        "shoe_cabinet"
+       ]
+      },
+      "center": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "rotation_deg": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 360
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "against_wall": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   }
+  }
+ },
+ "placements": {
+  "1": {
+   "pieces": [
+    {
+     "type": "console_table",
+     "center": [
+      11.659,
+      10.812
+     ],
+     "rotation_deg": 270.0,
+     "size": [
+      1.2,
+      0.35
+     ],
+     "against_wall": true,
+     "reason": "Adds a slim console table against the wall for decor and function, matching modern natural style.",
+     "proposed": {
+      "center": [
+       13.37,
+       9.9
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "console_table",
+       "step": "snap",
+       "before": {
+        "center": [
+         13.37,
+         9.9
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         13.177,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 2,
+       "type": "console_table",
+       "step": "slide",
+       "before": {
+        "center": [
+         13.177,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         13.177,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "doors_free"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 3,
+       "type": "console_table",
+       "step": "shrink",
+       "before": {
+        "center": [
+         13.177,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         13.202,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "doors_free"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 4,
+       "type": "console_table",
+       "step": "slide",
+       "before": {
+        "center": [
+         13.202,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "after": {
+        "center": [
+         13.202,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "doors_free"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 5,
+       "type": "console_table",
+       "step": "relocate",
+       "before": {
+        "center": [
+         13.202,
+         9.57
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "after": {
+        "center": [
+         11.659,
+         10.812
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "doors_free"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [],
+   "log": [
+    {
+     "iteration": 1,
+     "piece": 0,
+     "type": "console_table",
+     "step": "snap",
+     "before": {
+      "center": [
+       13.37,
+       9.9
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       13.177,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 2,
+     "piece": 0,
+     "type": "console_table",
+     "step": "slide",
+     "before": {
+      "center": [
+       13.177,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       13.177,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "doors_free"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 3,
+     "piece": 0,
+     "type": "console_table",
+     "step": "shrink",
+     "before": {
+      "center": [
+       13.177,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       13.202,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "doors_free"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 4,
+     "piece": 0,
+     "type": "console_table",
+     "step": "slide",
+     "before": {
+      "center": [
+       13.202,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "after": {
+      "center": [
+       13.202,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "doors_free"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 5,
+     "piece": 0,
+     "type": "console_table",
+     "step": "relocate",
+     "before": {
+      "center": [
+       13.202,
+       9.57
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "after": {
+      "center": [
+       11.659,
+       10.812
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "doors_free"
+     ],
+     "ok": true
+    }
+   ],
+   "iterations": 5,
+   "anchor_first": false
+  },
+  "2": {
+   "pieces": [
+    {
+     "type": "console_table",
+     "center": [
+      11.659,
+      10.812
+     ],
+     "rotation_deg": 270.0,
+     "size": [
+      1.2,
+      0.35
+     ],
+     "against_wall": true,
+     "reason": "Replaces the bench with a slim console table matching the modern natural style and keeping the corridor clear.",
+     "proposed": {
+      "center": [
+       12.61,
+       9.9
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "console_table",
+       "step": "snap",
+       "before": {
+        "center": [
+         12.61,
+         9.9
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         12.61,
+         9.995
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 2,
+       "type": "console_table",
+       "step": "slide",
+       "before": {
+        "center": [
+         12.61,
+         9.995
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         12.61,
+         9.995
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 3,
+       "type": "console_table",
+       "step": "shrink",
+       "before": {
+        "center": [
+         12.61,
+         9.995
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         12.61,
+         10.02
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 4,
+       "type": "console_table",
+       "step": "slide",
+       "before": {
+        "center": [
+         12.61,
+         10.02
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "after": {
+        "center": [
+         12.61,
+         10.02
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 5,
+       "type": "console_table",
+       "step": "relocate",
+       "before": {
+        "center": [
+         12.61,
+         10.02
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.3
+        ]
+       },
+       "after": {
+        "center": [
+         11.659,
+         10.812
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.35
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [],
+   "log": [
+    {
+     "iteration": 1,
+     "piece": 0,
+     "type": "console_table",
+     "step": "snap",
+     "before": {
+      "center": [
+       12.61,
+       9.9
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       12.61,
+       9.995
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 2,
+     "piece": 0,
+     "type": "console_table",
+     "step": "slide",
+     "before": {
+      "center": [
+       12.61,
+       9.995
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       12.61,
+       9.995
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 3,
+     "piece": 0,
+     "type": "console_table",
+     "step": "shrink",
+     "before": {
+      "center": [
+       12.61,
+       9.995
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       12.61,
+       10.02
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 4,
+     "piece": 0,
+     "type": "console_table",
+     "step": "slide",
+     "before": {
+      "center": [
+       12.61,
+       10.02
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "after": {
+      "center": [
+       12.61,
+       10.02
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 5,
+     "piece": 0,
+     "type": "console_table",
+     "step": "relocate",
+     "before": {
+      "center": [
+       12.61,
+       10.02
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.3
+      ]
+     },
+     "after": {
+      "center": [
+       11.659,
+       10.812
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.35
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    }
+   ],
+   "iterations": 5,
+   "anchor_first": false
+  }
+ }
+}

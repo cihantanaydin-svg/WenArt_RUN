@@ -1,0 +1,29 @@
+{
+ "room_id": "r_L0_e_banyo_2",
+ "label": "E.banyo",
+ "room_type": "bathroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_029",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_008.wall"
+  },
+  {
+   "id": "dec_L0_030",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_e_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L0_e_banyo (twin, not asked)"
+ ]
+}

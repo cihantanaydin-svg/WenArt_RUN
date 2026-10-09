@@ -1,0 +1,331 @@
+{
+ "project": "real02",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L-1b_oda",
+   "label": "Oda",
+   "room_type": "other",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 4.836,
+     "error": null,
+     "pieces_proposed": 5,
+     "pieces_placed": 5,
+     "pieces_dropped": 0,
+     "iterations": 6,
+     "repair_steps": 6,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.217,
+     "error": null,
+     "pieces_proposed": 4,
+     "pieces_placed": 4,
+     "pieces_dropped": 0,
+     "iterations": 3,
+     "repair_steps": 3,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 8.053,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L-1b_039",
+     "type": "desk",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_040",
+     "type": "bookshelf",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_041",
+     "type": "armchair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_042",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_043",
+     "type": "table_dining",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L-1b_oda_2",
+   "label": "Oda",
+   "room_type": "other",
+   "passes": [],
+   "chosen_pass": null,
+   "latency_s": 0,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L-1b_044",
+     "type": "desk",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_045",
+     "type": "bookshelf",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_046",
+     "type": "armchair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_047",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L-1b_048",
+     "type": "table_dining",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "copied_from": {
+    "room": "r_L-1b_oda",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.1732,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
+   "copy_dropped": []
+  },
+  {
+   "room_id": "r_L0_koridor",
+   "label": "Koridor",
+   "room_type": "hall",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.362,
+     "error": null,
+     "pieces_proposed": 4,
+     "pieces_placed": 2,
+     "pieces_dropped": 2,
+     "iterations": 16,
+     "repair_steps": 16,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.823,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 2,
+     "pieces_dropped": 0,
+     "iterations": 5,
+     "repair_steps": 5,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 2,
+   "latency_s": 5.185,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_037",
+     "type": "console_table",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_038",
+     "type": "shoe_cabinet",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L0_koridor_2",
+   "label": "Koridor",
+   "room_type": "hall",
+   "passes": [],
+   "chosen_pass": null,
+   "latency_s": 0,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_039",
+     "type": "console_table",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_040",
+     "type": "shoe_cabinet",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "copied_from": {
+    "room": "r_L0_koridor",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      15.173,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
+   "copy_dropped": []
+  }
+ ],
+ "pieces_added": 14,
+ "latency_s": 13.238,
+ "completion": {
+  "rooms_completed": 21,
+  "rooms_copied": 11,
+  "changes_applied": 0,
+  "pieces_added": 58,
+  "wall_cabinets": 0,
+  "latency_s": 117.79
+ }
+}

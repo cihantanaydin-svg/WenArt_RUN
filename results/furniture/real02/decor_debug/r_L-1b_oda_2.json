@@ -1,0 +1,29 @@
+{
+ "room_id": "r_L-1b_oda_2",
+ "label": "Oda",
+ "room_type": "other",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1b_004",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L-1b_oda.corner1"
+  },
+  {
+   "id": "dec_L-1b_005",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1b_041.cushions"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L-1b_oda (twin, not asked)"
+ ]
+}

@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real02",
+ "stage": "polish",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 574.85,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "polish/polish_manifest.json"
+ ],
+ "started_utc": "2026-10-09T09:05:15Z",
+ "git_commit": "314cf5ff54541abd5e713a3d5a35c49f688a9a75",
+ "log": "logs/polish.log",
+ "note": null,
+ "run_id": "20261009-082737-full-20261009T083331Z",
+ "steps": [
+  {
+   "name": "polish",
+   "rc": 0,
+   "seconds": 574.85
+  }
+ ],
+ "written": {}
+}

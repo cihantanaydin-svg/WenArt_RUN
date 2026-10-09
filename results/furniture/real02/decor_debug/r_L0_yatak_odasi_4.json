@@ -1,0 +1,27 @@
+{
+ "room_id": "r_L0_yatak_odasi_4",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_025",
+   "type": "cushion",
+   "method": "rule",
+   "slot": null
+  },
+  {
+   "id": "dec_L0_026",
+   "type": "cushion",
+   "method": "rule",
+   "slot": null
+  }
+ ],
+ "fallback": "no slot for AI decor",
+ "notes": []
+}

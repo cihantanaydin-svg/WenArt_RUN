@@ -1,0 +1,59 @@
+{
+ "room_id": "r_L0_yatak_odasi_2",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_031",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_021.cushions"
+  },
+  {
+   "id": "dec_L0_032",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_021.cushions"
+  },
+  {
+   "id": "dec_L0_033",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_021.throw"
+  },
+  {
+   "id": "dec_L0_034",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L0_021.wall"
+  },
+  {
+   "id": "dec_L0_035",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi.rug1"
+  },
+  {
+   "id": "dec_L0_036",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_001"
+  },
+  {
+   "id": "dec_L0_037",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_021"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L0_yatak_odasi (twin, not asked)"
+ ]
+}

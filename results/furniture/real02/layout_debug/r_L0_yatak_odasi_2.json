@@ -1,0 +1,370 @@
+{
+ "room_id": "r_L0_yatak_odasi_2",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "room_subtype": null,
+ "state": "mirrored",
+ "reason": "decisions of r_L0_yatak_odasi (twin), not asked again",
+ "partner": {
+  "id": "r_L0_yatak_odasi",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.001
+  }
+ },
+ "drawn": [
+  {
+   "id": "f_L0_014",
+   "type": "wardrobe",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     14.2457,
+     6.7436
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_022",
+   "type": "bed_double",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     14.0224,
+     3.0087
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_029",
+   "type": "unknown",
+   "kind": "changeable",
+   "unverified": true,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     14.9724,
+     5.0636
+    ],
+    "wall_id": "w_L0_016"
+   }
+  }
+ ],
+ "missing": {
+  "nightstand": 2
+ },
+ "anchor_missing": false,
+ "addable": {
+  "nightstand": 2,
+  "dresser": 1,
+  "desk": 1,
+  "office_chair": 1,
+  "bench": 1,
+  "armchair": 1,
+  "bookshelf": 1,
+  "ottoman": 1
+ },
+ "change_types": [
+  "bed_double",
+  "bed_single",
+  "nightstand",
+  "wardrobe",
+  "dresser",
+  "desk",
+  "chair",
+  "bookshelf",
+  "armchair",
+  "bench",
+  "ottoman",
+  "office_chair"
+ ],
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L0_053",
+   "type": "nightstand",
+   "center": [
+    14.752,
+    4.08
+   ],
+   "size": [
+    0.5,
+    0.4
+   ],
+   "rotation_deg": 270.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": "f_L0_041"
+  },
+  {
+   "id": "f_L0_054",
+   "type": "nightstand",
+   "center": [
+    14.752,
+    1.98
+   ],
+   "size": [
+    0.5,
+    0.4
+   ],
+   "rotation_deg": 270.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": "f_L0_042"
+  },
+  {
+   "id": "f_L0_055",
+   "type": "bench",
+   "center": [
+    12.823,
+    2.333
+   ],
+   "size": [
+    1.2,
+    0.4
+   ],
+   "rotation_deg": 270.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": "f_L0_043"
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_014": [
+    "inside_room"
+   ],
+   "f_L0_022": [
+    "clearance_ok",
+    "inside_room"
+   ],
+   "f_L0_029": [
+    "inside_room"
+   ]
+  },
+  "walkways": []
+ },
+ "latency_s": 0,
+ "question": {
+  "room": {
+   "room_id": "r_L0_yatak_odasi_2",
+   "label": "Yatak Odası",
+   "room_type": "bedroom",
+   "room_subtype": null,
+   "area_m2": 16.12,
+   "polygon_m": [
+    [
+     11.96,
+     1.7
+    ],
+    [
+     14.97,
+     1.7
+    ],
+    [
+     14.97,
+     7.04
+    ],
+    [
+     11.96,
+     7.04
+    ]
+   ],
+   "doors": [
+    {
+     "id": "d_L0_009",
+     "center": [
+      11.91,
+      6.51
+     ],
+     "width": 0.82,
+     "opens_into_this_room": true,
+     "approach": [
+      12.42,
+      6.51
+     ]
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_004",
+     "center": [
+      13.43,
+      1.6
+     ],
+     "width": 2.68,
+     "sill_height": 0.9
+    }
+   ]
+  },
+  "drawn": [
+   {
+    "id": "f_L0_014",
+    "type": "wardrobe",
+    "kind": "changeable",
+    "center": [
+     14.25,
+     6.74
+    ],
+    "size": [
+     1.45,
+     0.6
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      14.25,
+      6.74
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L0_022",
+    "type": "bed_double",
+    "kind": "changeable",
+    "center": [
+     14.02,
+     3.01
+    ],
+    "size": [
+     1.55,
+     1.9
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      14.02,
+      3.01
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L0_029",
+    "type": "unknown",
+    "kind": "changeable",
+    "center": [
+     14.52,
+     5.06
+    ],
+    "size": [
+     1.45,
+     0.91
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      14.97,
+      5.06
+     ]
+    },
+    "against_wall": "w_L0_016",
+    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+   }
+  ],
+  "change_ids": [
+   "f_L0_014",
+   "f_L0_022",
+   "f_L0_029"
+  ],
+  "change_types": [
+   "bed_double",
+   "bed_single",
+   "nightstand",
+   "wardrobe",
+   "dresser",
+   "desk",
+   "chair",
+   "bookshelf",
+   "armchair",
+   "bench",
+   "ottoman",
+   "office_chair"
+  ],
+  "add": {
+   "nightstand": 2,
+   "dresser": 1,
+   "desk": 1,
+   "office_chair": 1,
+   "bench": 1,
+   "armchair": 1,
+   "bookshelf": 1,
+   "ottoman": 1
+  },
+  "missing": {
+   "nightstand": 2
+  },
+  "anchor_missing": false,
+  "anchors": [
+   "bed_double",
+   "bed_single"
+  ],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": null,
+ "placements": {}
+}

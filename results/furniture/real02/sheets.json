@@ -1,0 +1,1710 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "real02",
+ "created_utc": "2026-10-09T06:33:01Z",
+ "code_commit": "a2444c87",
+ "inputs": [
+  {
+   "file": "one_building.dwg",
+   "size": 10250712,
+   "sha256": "9dca6a25b220e6ab30b336fcc39bb1c808f51950b17c14302d24bf208a118840"
+  },
+  {
+   "file": "brief.yaml",
+   "size": 490,
+   "sha256": "744986c4ad82f30ab867f7b99dce70933ca15e83844b1b732e3121edd6336909"
+  }
+ ],
+ "multi_region": true,
+ "documents": [
+  {
+   "file": "one_building.dwg",
+   "format": "dwg",
+   "converter": "libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 116 fixes",
+   "units": {
+    "insunits": 4,
+    "metres_per_unit": 0.01,
+    "method": "unit_check",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 4,
+      "note": "0 labels alone in a closed outline, 4 regions with >= 2 labels"
+     },
+     {
+      "check": "level_marks",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 1,
+      "note": "1 mark pair(s): 0.009524 m/unit"
+     },
+     {
+      "check": "door_widths",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 26,
+      "note": "median door radius 81.83 units"
+     },
+     {
+      "check": "wall_thickness",
+      "unit": null,
+      "score": 0.571,
+      "samples": 1514,
+      "note": "median face-pair distance 11.8 units; no unit fits 50% of the samples"
+     },
+     {
+      "check": "text_height",
+      "unit": null,
+      "score": null,
+      "samples": 40,
+      "note": "median text height 15 units; cm and in fit equally well"
+     },
+     {
+      "check": "dimensions",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 2"
+     }
+    ],
+    "conflict": "$INSUNITS 4 says mm, but 3 independent checks (area_labels, level_marks, door_widths) agree on cm and none supports mm: cm used"
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      721989.405,
+      4486031.46,
+      727993.026,
+      4493909.233
+     ],
+     "frames": [
+      {
+       "entity": "LWPOLYLINE:2F086",
+       "box": [
+        721989.405,
+        4486031.46,
+        727993.026,
+        4493909.233
+       ]
+      }
+     ],
+     "gap_units": 148.57,
+     "debug_image": "sheets_debug/one_building_dwg_s1.png",
+     "gap_m": 1.4857
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    722168.222,
+    4493031.976,
+    727826.932,
+    4493753.489
+   ],
+   "box_m": [
+    56.587,
+    7.215
+   ],
+   "entities": 2,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": {
+    "text": "PLANLAR",
+    "entity": "MTEXT:304EE",
+    "box": [
+     722329.364,
+     4493550.332,
+     722889.364,
+     4493675.332
+    ],
+    "language": null,
+    "keywords": []
+   },
+   "features": {
+    "entities": 1,
+    "texts": 1,
+    "title_box": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F087",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "lone_rectangle_with_texts",
+     "text": "title_box True",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r2",
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    725362.847,
+    4491480.383,
+    726880.045,
+    4492680.384
+   ],
+   "box_m": [
+    15.172,
+    12.0
+   ],
+   "entities": 2259,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI BRÜT 92 M2",
+    "entity": "MTEXT:36A77",
+    "box": [
+     725372.246,
+     4491300.325,
+     726992.246,
+     4491394.075
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 2250,
+    "texts": 9,
+    "room_labels": 8,
+    "wall_test": "hatch comb of 600 lines at 0 deg, median step 0.0144 dxf",
+    "area_labels": 8,
+    "wall_pairs": 227,
+    "closed_rectangles": 20,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:366F8",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.186,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 12.502
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:36A77",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI BRÜT 92 M2",
+      "region_id": "r2"
+     }
+    ]
+   },
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7253.628331,
+    0.0,
+    0.01,
+    -44914.803832
+   ],
+   "registration": {
+    "reference": "r4",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -21.415948,
+     -15.73488
+    ],
+    "residual_m": 0.0001,
+    "matched": 546,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:36A77",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2",
+     "region_id": "r2"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r3",
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    725362.944,
+    4489925.498,
+    726880.142,
+    4491125.999
+   ],
+   "box_m": [
+    15.172,
+    12.005
+   ],
+   "entities": 1888,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "alternative_floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+    "entity": "MTEXT:2F090",
+    "box": [
+     725372.246,
+     4489629.793,
+     727892.246,
+     4489723.543
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI",
+     "(Açık mutfak)"
+    ]
+   },
+   "features": {
+    "entities": 1877,
+    "texts": 11,
+    "room_labels": 8,
+    "wall_test": "hatch comb of 452 lines at 0 deg, median step 0.0143 dxf",
+    "area_labels": 10,
+    "wall_pairs": 247,
+    "closed_rectangles": 24,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2C4A5",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.186,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 12.502
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1b",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:2F090",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+      "region_id": "r3"
+     }
+    ]
+   },
+   "variant_group": "vg_L-1",
+   "variant": "Açık mutfak",
+   "variant_slug": "acik-mutfak",
+   "variant_gloss": "open kitchen",
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7253.629304,
+    0.0,
+    0.01,
+    -44899.259985
+   ],
+   "registration": {
+    "reference": "r4",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -21.41692,
+     -0.191033
+    ],
+    "residual_m": 0.0001,
+    "matched": 546,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F090",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+     "region_id": "r3"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r4",
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    723221.238,
+    4489906.895,
+    724738.464,
+    4491106.897
+   ],
+   "box_m": [
+    15.172,
+    12.0
+   ],
+   "entities": 1847,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI BRÜT 92M2",
+    "entity": "MTEXT:2F08F",
+    "box": [
+     723226.981,
+     4489629.793,
+     724726.981,
+     4489723.543
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 1834,
+    "texts": 13,
+    "room_labels": 12,
+    "wall_test": "hatch comb of 288 lines at 1 deg, median step 0.0017 dxf",
+    "area_labels": 12,
+    "wall_pairs": 314,
+    "closed_rectangles": 22,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2DA7F",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.586,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 0.4
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:2F08F",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI BRÜT 92M2",
+      "region_id": "r4"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7232.212384,
+    0.0,
+    0.01,
+    -44899.068952
+   ],
+   "registration": {
+    "reference": null,
+    "method": "reference",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "residual_m": 0.0,
+    "matched": 0,
+    "stairs_aligned": true,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F08F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI BRÜT 92M2",
+     "region_id": "r4"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r5",
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    724107.198,
+    4487815.596,
+    725724.386,
+    4489115.597
+   ],
+   "box_m": [
+    16.172,
+    13.0
+   ],
+   "entities": 2097,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ÇATI KAT PLANI",
+    "entity": "MTEXT:2FD2F",
+    "box": [
+     724495.524,
+     4487716.794,
+     725335.524,
+     4487810.544
+    ],
+    "language": "tr",
+    "keywords": [
+     "CATI KAT",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 2088,
+    "texts": 9,
+    "room_labels": 6,
+    "wall_test": "hatch comb of 452 lines at 0 deg, median step 0.0146 dxf",
+    "area_labels": 8,
+    "wall_pairs": 192,
+    "closed_rectangles": 28,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2F87A",
+     "layer": "_P3_S_Duvar_Ç",
+     "size_m": [
+      11.772,
+      8.6
+     ],
+     "closed": true,
+     "ends_m": 11.772
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": 1,
+    "label": "Çatı Katı",
+    "id": "L1",
+    "kind": "attic",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:2FD2F",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ÇATI KAT PLANI",
+      "region_id": "r5"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7241.571849,
+    0.0,
+    0.01,
+    -44878.655961
+   ],
+   "registration": {
+    "reference": "r4",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -9.359466,
+     20.412991
+    ],
+    "residual_m": 0.0001,
+    "matched": 546,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2FD2F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r5"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r6",
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    723229.664,
+    4486483.065,
+    726584.711,
+    4487476.935
+   ],
+   "box_m": [
+    33.55,
+    9.939
+   ],
+   "entities": 49,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "section",
+   "class_method": "geometry",
+   "class_confidence": 0.85,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "entities": 47,
+    "texts": 2,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 3,
+    "roof_lines": 8,
+    "level_marks": 2,
+    "ground_lines": 4,
+    "outer_walls": true,
+    "wall_pairs": 17,
+    "closed_rectangles": 0,
+    "window_rows": 0,
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "heights",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F85E",
+     "method": "vector",
+     "confidence": 0.85,
+     "rule": "slab_bands",
+     "text": "slab_bands 3, roof_lines 8, level_marks 2, ground_lines 4, outer_walls True, wall_pairs 17",
+     "region_id": "r6"
+    }
+   ],
+   "conflicts": []
+  }
+ ],
+ "stray": [
+  {
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "entity": "HATCH:6633",
+   "type": "HATCH",
+   "layer": "_P3_S_Duvar_T",
+   "box": [
+    699029.475,
+    4515647.816,
+    699125.561,
+    4516039.465
+   ],
+   "distance_m": 317.86,
+   "reason": "far outside the frame, 1 entity (0.01 % of the document)"
+  },
+  {
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "entity": "DIMENSION:34CEC",
+   "type": "DIMENSION",
+   "layer": "Deko_Olcu Ic",
+   "box": [
+    729604.85,
+    4491914.166,
+    729609.992,
+    4491924.166
+   ],
+   "distance_m": 20.95,
+   "reason": "far outside the frame; on a layer that is off or frozen (not drawn)"
+  },
+  {
+   "file": "one_building.dwg",
+   "sheet": "s1",
+   "entity": "DIMENSION:34CF2",
+   "type": "DIMENSION",
+   "layer": "Deko_Olcu Ic",
+   "box": [
+    729608.299,
+    4491922.666,
+    729617.799,
+    4491927.807
+   ],
+   "distance_m": 20.96,
+   "reason": "far outside the frame; on a layer that is off or frozen (not drawn)"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L-1",
+   "order": -1,
+   "label": "Bodrum Kat",
+   "kind": "basement",
+   "base_region": "r2",
+   "secondary_regions": [],
+   "alternatives": [
+    {
+     "region": "r3",
+     "variant": "Açık mutfak",
+     "slug": "acik-mutfak",
+     "level_id": "L-1b",
+     "base_unclear": false
+    }
+   ],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:36A77",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2",
+     "region_id": "r2"
+    }
+   ]
+  },
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r4",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F08F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI BRÜT 92M2",
+     "region_id": "r4"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "order": 1,
+   "label": "Çatı Katı",
+   "kind": "attic",
+   "base_region": "r5",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2FD2F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r5"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r2",
+    "r4",
+    "r5"
+   ]
+  },
+  {
+   "id": "l-1b-acik-mutfak",
+   "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+   "base": false,
+   "levels": [
+    "L-1b",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r3",
+    "r4",
+    "r5"
+   ],
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F090",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+     "region_id": "r3"
+    }
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [
+   "r6"
+  ],
+  "cut_axis": "x",
+  "cut_at": null,
+  "flipped": null,
+  "datum": {
+   "value": 43.0,
+   "method": "vector",
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "MTEXT:304D9",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "level_mark",
+     "region_id": "r6",
+     "text": "43.00"
+    }
+   ],
+   "note": "absolute level of the ground floor (building z = 0) from the level mark"
+  },
+  "levels": [
+   {
+    "level_id": "L-1",
+    "floor_z": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCEE",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.85,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "level_mark": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:304DD",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "40.00"
+      }
+     ],
+     "note": "printed 40.00 - datum 43.00"
+    },
+    "level_mark_target_z": {
+     "value": -3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:304DD",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "40.00"
+      }
+     ],
+     "note": "the line the mark points at (the bottom of a slab)"
+    }
+   },
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF3",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "level_mark": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:304D9",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "43.00"
+      }
+     ],
+     "note": "printed 43.00 - datum 43.00"
+    },
+    "level_mark_target_z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:304D9",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r6",
+       "text": "43.00"
+      }
+     ],
+     "note": "the line the mark points at (the top of a slab)"
+    }
+   },
+   {
+    "level_id": "L1",
+    "floor_z": {
+     "value": 3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF3",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 3.433,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD01",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_underside",
+       "region_id": "r6"
+      }
+     ],
+     "note": "sloped: the roof underside, highest under the ridge"
+    },
+    "floor_to_floor": null,
+    "level_mark": null,
+    "level_mark_target_z": null
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L-1"
+    ],
+    "thickness": {
+     "value": 0.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCEF",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "z_top": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCEE",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L-1",
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L0",
+     "L1"
+    ],
+    "thickness": {
+     "value": 0.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCF3",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r6"
+      }
+     ]
+    }
+   }
+  ],
+  "ground": [
+   {
+    "side": "left",
+    "z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2F85E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line",
+       "region_id": "r6"
+      }
+     ],
+     "note": "upper of 2 ground lines; also drawn: -3.15 m (LWPOLYLINE:304DE)"
+    }
+   },
+   {
+    "side": "right",
+    "z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:304CB",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line",
+       "region_id": "r6"
+      }
+     ],
+     "note": "upper of 2 ground lines; also drawn: -3.15 m (LWPOLYLINE:304DF)"
+    }
+   }
+  ],
+  "roof": {
+   "eaves_z": {
+    "value": 3.65,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FD04",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "0.50 m above the top floor"
+   },
+   "ridge_z": {
+    "value": 6.789,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FD04",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     },
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FD02",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     },
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FD00",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     },
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FCFE",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "3.64 m above the top floor"
+   },
+   "pitches_deg": [
+    {
+     "value": 40.4,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD04",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      },
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD02",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      },
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD00",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      },
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCFE",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      }
+     ]
+    },
+    {
+     "value": 13.3,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD04",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      },
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD02",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      },
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FD00",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      },
+      {
+       "file": "one_building.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:2FCFE",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r6"
+      }
+     ]
+    }
+   ],
+   "knee_wall": {
+    "value": 0.925,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FD04",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "the roof's top surface at the outer face of the outer wall above the top floor (a cross-check); the underside meets the outer face 0.66 m above the floor"
+   },
+   "overhang": {
+    "value": 0.5,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FCEC",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "left 0.50 m, right 0.50 m"
+   },
+   "thickness": {
+    "value": 0.2,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "one_building.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:2FD05",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r6"
+     }
+    ],
+    "note": "perpendicular to the first slope"
+   },
+   "profile": [
+    [
+     -0.5,
+     3.65
+    ],
+    [
+     1.5,
+     5.35
+    ],
+    [
+     7.586,
+     6.789
+    ],
+    [
+     13.672,
+     5.35
+    ],
+    [
+     15.672,
+     3.65
+    ]
+   ]
+  }
+ },
+ "exterior": {
+  "roof": {
+   "type": "mansard",
+   "type_source": "plan_roof_lines",
+   "outline": [
+    [
+     -0.4999,
+     -0.5
+    ],
+    [
+     15.672,
+     -0.5
+    ],
+    [
+     15.672,
+     12.5
+    ],
+    [
+     -0.4999,
+     12.5
+    ]
+   ],
+   "break_line": [
+    [
+     13.4722,
+     10.3
+    ],
+    [
+     13.4722,
+     1.7
+    ],
+    [
+     1.7001,
+     1.7
+    ],
+    [
+     1.7001,
+     10.3
+    ]
+   ],
+   "ridge_lines": [],
+   "covering": null,
+   "evidence": [
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:304CA",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_outline",
+     "region_id": "r5"
+    },
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F87A",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_break_line",
+     "region_id": "r5"
+    },
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2FD04",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_line",
+     "region_id": "r6"
+    },
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2FD02",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_line",
+     "region_id": "r6"
+    },
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2FD00",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_line",
+     "region_id": "r6"
+    },
+    {
+     "file": "one_building.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2FCFE",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_line",
+     "region_id": "r6"
+    }
+   ],
+   "note": "roof outline 16.17 x 13.00 m on r5; closed line inside it 11.77 x 8.60 m (LWPOLYLINE:2F87A): the slope changes there (mansard)"
+  },
+  "facade": [],
+  "openings_seen": [],
+  "site": null,
+  "north": null,
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [
+  {
+   "id": "sc_001",
+   "kind": "unit_mismatch",
+   "regions": [
+    "r1",
+    "r2",
+    "r3",
+    "r4",
+    "r5",
+    "r6"
+   ],
+   "description": "one_building.dwg: $INSUNITS 4 says mm, but 3 independent checks (area_labels, level_marks, door_widths) agree on cm and none supports mm: cm used",
+   "resolution": "cm used (user decision 8 of 8 Oct 2026: >= 2 independent checks agree)"
+  },
+  {
+   "id": "sc_002",
+   "kind": "level_mark_mismatch",
+   "regions": [
+    "r6"
+   ],
+   "description": "section r6: the level mark 40.00 (MTEXT:304DD) gives -3.00 m but points at -3.15 m (the bottom of a slab) (0.15 m apart)",
+   "resolution": "geometry wins: slab tops from the slab lines"
+  }
+ ],
+ "warnings": [
+  "the largest drawn polylines of the plans differ in size: r2 (L-1) LWPOLYLINE:366F8 on DBM_w_sld 7.19 x 10.50 m (open, ends 12.50 m apart); r3 (L-1b) LWPOLYLINE:2C4A5 on DBM_w_sld 7.19 x 10.50 m (open, ends 12.50 m apart); r4 (L0) LWPOLYLINE:2DA7F on DBM_w_sld 7.59 x 10.50 m (open, ends 0.40 m apart); r5 (L1) LWPOLYLINE:2F87A on _P3_S_Duvar_Ç 11.77 x 8.60 m (closed); the registered outlines (all long strokes, columns included) give residuals r2 0.0001, r3 0.0001, r5 0.0001 m; each level is kept as drawn",
+  "section r6: 2 horizontal lines outside the left wall; the upper one (+0.00 m) is read as the terrain, the others (-3.15 m (LWPOLYLINE:304DE)) are not",
+  "section r6: 2 horizontal lines outside the right wall; the upper one (+0.00 m) is read as the terrain, the others (-3.15 m (LWPOLYLINE:304DF)) are not",
+  "section r6: no cut line on the plans: the section's left end is taken as the building's min side along the cut axis (flipped unknown)",
+  "roof: the break line on r5 (LWPOLYLINE:2F87A) is 11.77 m wide along the cut, the section's slope changes 12.17 m apart (0.40 m); both kept as drawn",
+  "no elevation drawn: facade materials and outside openings are not drawn (facade empty)"
+ ],
+ "needs_review": [],
+ "questions": 0,
+ "answers": null
+}

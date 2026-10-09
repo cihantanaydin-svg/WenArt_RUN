@@ -1,0 +1,334 @@
+{
+ "room_id": "r_L-1b_oda",
+ "label": "Oda",
+ "room_type": "other",
+ "slots": [
+  {
+   "id": "f_L-1b_039.back_left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L-1b_039",
+   "host_type": "desk",
+   "note": "back left part",
+   "center": [
+    0.53,
+    11.575
+   ],
+   "max_size": [
+    0.37,
+    0.32,
+    2.0
+   ]
+  },
+  {
+   "id": "f_L-1b_039.back_right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L-1b_039",
+   "host_type": "desk",
+   "note": "back right part",
+   "center": [
+    1.47,
+    11.575
+   ],
+   "max_size": [
+    0.37,
+    0.32,
+    2.0
+   ]
+  },
+  {
+   "id": "f_L-1b_039.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art",
+    "clock"
+   ],
+   "host_id": "f_L-1b_039",
+   "host_type": "desk",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_040.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L-1b_040",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_041.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1b_041",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_041.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1b_041",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_043.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "candle"
+   ],
+   "host_id": "f_L-1b_043",
+   "host_type": "table_dining",
+   "note": "centre part",
+   "center": [
+    0.9,
+    8.3
+   ],
+   "max_size": [
+    0.7,
+    0.5,
+    2.0
+   ]
+  },
+  {
+   "id": "r_L-1b_oda.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L-1b_043",
+   "host_type": null,
+   "note": "f_L-1b_043"
+  },
+  {
+   "id": "r_L-1b_oda.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 2.97, 11.55",
+   "center": [
+    2.967,
+    11.551
+   ]
+  },
+  {
+   "id": "ceiling:over_f_L-1b_043",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light"
+   ],
+   "host_id": "f_L-1b_043",
+   "host_type": null,
+   "note": "over f L-1b 043"
+  },
+  {
+   "id": "ceiling:centre_r_L-1b_oda",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L-1b oda"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1b_039.back_left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements natural wood and greige walls."
+    },
+    {
+     "slot": "r_L-1b_oda.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Large palm in rattan pot adds organic texture and fills corner elegantly."
+    },
+    {
+     "slot": "f_L-1b_041.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warm pop of colour against light grey sofa and greige walls."
+    },
+    {
+     "slot": "ceiling:over_f_L-1b_043",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm light enhances natural wood tones and creates cozy ambiance."
+    },
+    {
+     "slot": "f_L-1b_043.centre",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Cream vase holds greenery, tying in with rattan pots and natural theme."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.447
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "r_L-1b_oda.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Adds lush greenery and fits the natural modern style."
+    },
+    {
+     "slot": "f_L-1b_039.back_left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant on desk brings life without clutter."
+    },
+    {
+     "slot": "f_L-1b_041.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Warm accent colour complements greige walls and natural tones."
+    },
+    {
+     "slot": "ceiling:centre_r_L-1b_oda",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic light enhances modern natural ambiance."
+    },
+    {
+     "slot": "f_L-1b_039.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Wood-framed art adds texture and warmth to the wall space."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.233
+  }
+ },
+ "agreed": [
+  {
+   "slot": "r_L-1b_oda.corner1",
+   "type": "plant_large",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Large palm in rattan pot adds organic texture and fills corner elegantly.",
+    "Adds lush greenery and fits the natural modern style."
+   ]
+  },
+  {
+   "slot": "f_L-1b_041.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warm pop of colour against light grey sofa and greige walls.",
+    "Warm accent colour complements greige walls and natural tones."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L-1b_039.back_left",
+   "type": "table_lamp",
+   "colour": "brass",
+   "reason": "Warm metallic glow complements natural wood and greige walls.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L-1b_043",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm light enhances natural wood tones and creates cozy ambiance.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1b_043.centre",
+   "type": "vase",
+   "colour": "cream",
+   "reason": "Cream vase holds greenery, tying in with rattan pots and natural theme.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1b_039.back_left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "reason": "Small plant on desk brings life without clutter.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L-1b_oda",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm metallic light enhances modern natural ambiance.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L-1b_039.wall",
+   "type": "wall_art",
+   "colour": "natural wood",
+   "reason": "Wood-framed art adds texture and warmth to the wall space.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1b_001",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L-1b_oda.corner1"
+  },
+  {
+   "id": "dec_L-1b_002",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1b_041.cushions"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

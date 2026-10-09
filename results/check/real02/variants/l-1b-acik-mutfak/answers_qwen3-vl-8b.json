@@ -1,0 +1,3280 @@
+{
+ "schema_version": "0.1",
+ "model_key": "qwen",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "slug": "qwen3-vl-8b",
+ "incomplete": false,
+ "calls": {
+  "check|cam_r_L-1b_acik_mutfak_1|cycles": {
+   "camera": "cam_r_L-1b_acik_mutfak_1",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [0, 0, 404, 643], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [455, 416, 991, 738]\n- E3: tall_cabinet (tall narrow cupboard or pantry unit); expected inside box [421, 151, 471, 572]\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [811, 401, 1000, 742], cut by the image edge\n- E5: fridge (refrigerator); expected inside box [933, 295, 1000, 411], cut by the image edge\n- E6: wall_cabinet (kitchen cabinet fixed to the wall above the counter); expected inside box [977, 152, 1000, 287], cut by the image edge\n- E7: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [400, 750, 581, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"tall_cabinet\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"fridge\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"wall_cabinet\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "tall_cabinet",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "fridge",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "wall_cabinet",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 4.75,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "532ae40af7c46e49107b9c883036882447f7d65cbbf07cf3ce1a9f924e91b80b",
+   "labels": {
+    "E1": "win_L-1b_001",
+    "E2": "f_L-1b_008",
+    "E3": "f_L-1b_049",
+    "E4": "f_L-1b_006",
+    "E5": "f_L-1b_032",
+    "E6": "f_L-1b_038",
+    "E7": "decoy"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_1|polished": {
+   "camera": "cam_r_L-1b_acik_mutfak_1",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [0, 0, 404, 643], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [455, 416, 991, 738]\n- E3: tall_cabinet (tall narrow cupboard or pantry unit); expected inside box [421, 151, 471, 572]\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [811, 401, 1000, 742], cut by the image edge\n- E5: fridge (refrigerator); expected inside box [933, 295, 1000, 411], cut by the image edge\n- E6: wall_cabinet (kitchen cabinet fixed to the wall above the counter); expected inside box [977, 152, 1000, 287], cut by the image edge\n- E7: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [400, 750, 581, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"tall_cabinet\",\n      \"confidence\": 0.98\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"fridge\",\n      \"confidence\": 0.98\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"wall_cabinet\",\n      \"confidence\": 0.98\n    },\n    \"E7\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "tall_cabinet",
+      "confidence": 0.98
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "fridge",
+      "confidence": 0.98
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "wall_cabinet",
+      "confidence": 0.98
+     },
+     "E7": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 4.478,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "fee362f6e250a41698bed0ccdba4356f7f83039dbc6e4e29b0a6145fc4671c56",
+   "labels": {
+    "E1": "win_L-1b_001",
+    "E2": "f_L-1b_008",
+    "E3": "f_L-1b_049",
+    "E4": "f_L-1b_006",
+    "E5": "f_L-1b_032",
+    "E6": "f_L-1b_038",
+    "E7": "decoy"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_acik_mutfak_1_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2_1|cycles": {
+   "camera": "cam_r_L-1b_acik_mutfak_2_1",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [400, 750, 581, 1000]\n- E2: window (glazed window with frame and glass); expected inside box [593, 0, 1000, 643], cut by the image edge\n- E3: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [41, 412, 542, 711]\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [0, 837, 305, 1000], cut by the image edge\n- E5: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [0, 399, 199, 742], cut by the image edge\n- E6: fridge (refrigerator); expected inside box [0, 296, 82, 409], cut by the image edge\n- E7: wall_cabinet (kitchen cabinet fixed to the wall above the counter); expected inside box [0, 152, 40, 288], cut by the image edge\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E6\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E7\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E6": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E7": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 4.732,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "5be1e621c60067b03b8395eff17ba5ae41a76b29e04e529fa288e93372b7a7ff",
+   "labels": {
+    "E1": "decoy",
+    "E2": "win_L-1b_002",
+    "E3": "f_L-1b_007",
+    "E4": "f_L-1b_033",
+    "E5": "f_L-1b_005",
+    "E6": "f_L-1b_031",
+    "E7": "f_L-1b_037"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_2_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2_2|cycles": {
+   "camera": "cam_r_L-1b_acik_mutfak_2_2",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: kitchen_island (free-standing kitchen counter); expected inside box [685, 393, 990, 743]\n- E2: window (glazed window with frame and glass); expected inside box [0, 0, 146, 564], cut by the image edge\n- E3: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [352, 374, 946, 762]\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [383, 459, 485, 799]\n- E5: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [450, 750, 631, 1000]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [468, 426, 644, 738]\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [245, 408, 366, 640]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [171, 413, 259, 635]\n- E9: bar_stool (tall stool at a counter or an island); expected inside box [748, 577, 891, 853]\n- E10: bar_stool (tall stool at a counter or an island); expected inside box [847, 570, 990, 834]\n- E11: bar_stool (tall stool at a counter or an island); expected inside box [630, 552, 749, 789]\n- E12: bar_stool (tall stool at a counter or an island); expected inside box [893, 549, 1000, 781], cut by the image edge\n- E13: stair (staircase with steps); expected inside box [951, 67, 1000, 500], cut by the image edge\n- E14: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [420, 409, 556, 438]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 1.0\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 1.0\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 1.0\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 1.0\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 1.0\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 1.0\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 1.0\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 1.0\n    },\n    \"E10\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 1.0\n    },\n    \"E11\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 1.0\n    },\n    \"E12\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 1.0\n    },\n    \"E13\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    },\n    \"E14\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 1.0
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 1.0
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 1.0
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 1.0
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 1.0
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 1.0
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 1.0
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 1.0
+     },
+     "E10": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 1.0
+     },
+     "E11": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 1.0
+     },
+     "E12": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 1.0
+     },
+     "E13": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     },
+     "E14": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 8.45,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "18b587dd38b451b2c1778b62393656e6b183620404c4b62dbb6223fea74e48e6",
+   "labels": {
+    "E1": "f_L-1b_017",
+    "E2": "win_L-1b_002",
+    "E3": "f_L-1b_001",
+    "E4": "f_L-1b_033",
+    "E5": "decoy",
+    "E6": "f_L-1b_029",
+    "E7": "f_L-1b_024",
+    "E8": "f_L-1b_023",
+    "E9": "f_L-1b_052",
+    "E10": "f_L-1b_051",
+    "E11": "f_L-1b_053",
+    "E12": "f_L-1b_050",
+    "E13": "f_L-1b_003",
+    "E14": "f_L-1b_030"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_2_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     864,
+     810,
+     1210,
+     1080
+    ],
+    "box_1000": [
+     450,
+     750,
+     631,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2_2|insertion:f_L-1b_017": {
+   "camera": "cam_r_L-1b_acik_mutfak_2_2",
+   "image_kind": "insertion:f_L-1b_017",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [450, 750, 631, 1000]\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [352, 374, 946, 762]\n- E3: window (glazed window with frame and glass); expected inside box [0, 0, 146, 564], cut by the image edge\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [383, 459, 485, 799]\n- E5: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [468, 426, 644, 738]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [245, 408, 366, 640]\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [171, 413, 259, 635]\n- E8: bar_stool (tall stool at a counter or an island); expected inside box [748, 577, 891, 853]\n- E9: bar_stool (tall stool at a counter or an island); expected inside box [847, 570, 990, 834]\n- E10: bar_stool (tall stool at a counter or an island); expected inside box [630, 552, 749, 789]\n- E11: bar_stool (tall stool at a counter or an island); expected inside box [893, 549, 1000, 781], cut by the image edge\n- E12: stair (staircase with steps); expected inside box [951, 67, 1000, 505], cut by the image edge\n- E13: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [420, 409, 556, 438]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"different\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E10\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E11\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E12\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E13\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "different",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E10": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E11": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E12": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E13": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 5.825,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "6ccea05e85341d286f4a926ad896d1ab65fa29df585dd391f17d9baf6fd70449",
+   "labels": {
+    "E1": "decoy",
+    "E2": "f_L-1b_001",
+    "E3": "win_L-1b_002",
+    "E4": "f_L-1b_033",
+    "E5": "f_L-1b_029",
+    "E6": "f_L-1b_024",
+    "E7": "f_L-1b_023",
+    "E8": "f_L-1b_052",
+    "E9": "f_L-1b_051",
+    "E10": "f_L-1b_053",
+    "E11": "f_L-1b_050",
+    "E12": "f_L-1b_003",
+    "E13": "f_L-1b_030"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_2_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     864,
+     810,
+     1210,
+     1080
+    ],
+    "box_1000": [
+     450,
+     750,
+     631,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2_2|removal:f_L-1b_017": {
+   "camera": "cam_r_L-1b_acik_mutfak_2_2",
+   "image_kind": "removal:f_L-1b_017",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: kitchen_island (free-standing kitchen counter); expected inside box [685, 393, 990, 743]\n- E2: window (glazed window with frame and glass); expected inside box [0, 0, 146, 564], cut by the image edge\n- E3: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [352, 374, 946, 762]\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [383, 459, 485, 799]\n- E5: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [450, 750, 631, 1000]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [468, 426, 644, 738]\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [245, 408, 366, 640]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [171, 413, 259, 635]\n- E9: bar_stool (tall stool at a counter or an island); expected inside box [748, 577, 891, 853]\n- E10: bar_stool (tall stool at a counter or an island); expected inside box [847, 570, 990, 834]\n- E11: bar_stool (tall stool at a counter or an island); expected inside box [630, 552, 749, 789]\n- E12: bar_stool (tall stool at a counter or an island); expected inside box [893, 549, 1000, 781], cut by the image edge\n- E13: stair (staircase with steps); expected inside box [951, 67, 1000, 500], cut by the image edge\n- E14: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [420, 409, 556, 438]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E10\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E11\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E12\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E13\": {\n      \"status\": \"present\",\n      \"seen_as\": \"stair\",\n      \"confidence\": 0.95\n    },\n    \"E14\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E10": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E11": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E12": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E13": {
+      "status": "present",
+      "seen_as": "stair",
+      "confidence": 0.95
+     },
+     "E14": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 6.411,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "2783b3f383ff1addbaa4af90c1205a6db5c2700b5714abead8f6b675840171b5",
+   "labels": {
+    "E1": "f_L-1b_017",
+    "E2": "win_L-1b_002",
+    "E3": "f_L-1b_001",
+    "E4": "f_L-1b_033",
+    "E5": "decoy",
+    "E6": "f_L-1b_029",
+    "E7": "f_L-1b_024",
+    "E8": "f_L-1b_023",
+    "E9": "f_L-1b_052",
+    "E10": "f_L-1b_051",
+    "E11": "f_L-1b_053",
+    "E12": "f_L-1b_050",
+    "E13": "f_L-1b_003",
+    "E14": "f_L-1b_030"
+   },
+   "images": [
+    "../controls/hide_f_L-1b_017/cam_r_L-1b_acik_mutfak_2_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     864,
+     810,
+     1210,
+     1080
+    ],
+    "box_1000": [
+     450,
+     750,
+     631,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2_3|cycles": {
+   "camera": "cam_r_L-1b_acik_mutfak_2_3",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [0, 0, 471, 465], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [439, 410, 1000, 1000], cut by the image edge\n- E3: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [200, 750, 381, 1000]\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [498, 469, 738, 1000], cut by the image edge\n- E5: kitchen_island (free-standing kitchen counter); expected inside box [878, 543, 1000, 1000], cut by the image edge\n- E6: bar_stool (tall stool at a counter or an island); expected inside box [572, 766, 733, 1000], cut by the image edge\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [370, 468, 489, 839]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [468, 405, 595, 483]\n- E9: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [580, 436, 751, 491]\n- E10: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [446, 400, 533, 477]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"kitchen_island\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bar_stool\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E10\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"tall_cabinet\",\n      \"box\": [878, 543, 1000, 1000]\n    ,\n      \"confidence\": 0.95\n    }\n  ],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "kitchen_island",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "bar_stool",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E10": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     }
+    },
+    "extras": [
+     {
+      "category": "tall_cabinet",
+      "box": [
+       878,
+       543,
+       1000,
+       1000
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 7.361,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "7caf884c63a09aac7b55e950615f2ec108ed7535e30374346323e50872a93a58",
+   "labels": {
+    "E1": "win_L-1b_002",
+    "E2": "f_L-1b_001",
+    "E3": "decoy",
+    "E4": "f_L-1b_029",
+    "E5": "f_L-1b_017",
+    "E6": "f_L-1b_053",
+    "E7": "f_L-1b_033",
+    "E8": "f_L-1b_024",
+    "E9": "f_L-1b_030",
+    "E10": "f_L-1b_023"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_2_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     384,
+     810,
+     730,
+     1080
+    ],
+    "box_1000": [
+     200,
+     750,
+     381,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2|cycles": {
+   "camera": "cam_r_L-1b_acik_mutfak_2",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [351, 68, 1000, 430], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [0, 605, 461, 1000], cut by the image edge\n- E3: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [0, 420, 486, 768], cut by the image edge\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [193, 462, 456, 738]\n- E5: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [500, 750, 681, 1000]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [947, 484, 1000, 920], cut by the image edge\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [427, 444, 521, 734]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [96, 442, 328, 505]\n- E9: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [239, 405, 381, 452]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.99\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.99
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 5.924,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "cb265ebd6ef57539a6fdf9f0bdefc74b69fccd5b76b73f61dd9e62589200a705",
+   "labels": {
+    "E1": "win_L-1b_001",
+    "E2": "f_L-1b_018",
+    "E3": "f_L-1b_002",
+    "E4": "f_L-1b_028",
+    "E5": "decoy",
+    "E6": "f_L-1b_008",
+    "E7": "f_L-1b_034",
+    "E8": "f_L-1b_027",
+    "E9": "f_L-1b_026"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     960,
+     810,
+     1306,
+     1080
+    ],
+    "box_1000": [
+     500,
+     750,
+     681,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_2|polished": {
+   "camera": "cam_r_L-1b_acik_mutfak_2",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [351, 68, 1000, 430], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [0, 605, 461, 1000], cut by the image edge\n- E3: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [0, 420, 486, 768], cut by the image edge\n- E4: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [193, 462, 456, 738]\n- E5: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [500, 750, 681, 1000]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [947, 484, 1000, 920], cut by the image edge\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [427, 444, 521, 734]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [96, 442, 328, 505]\n- E9: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [239, 405, 381, 452]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.99\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.99
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 5.599,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "e239f8a1b8e84c88776d573b54ca1029cea60589773fed163572780bfe56f089",
+   "labels": {
+    "E1": "win_L-1b_001",
+    "E2": "f_L-1b_018",
+    "E3": "f_L-1b_002",
+    "E4": "f_L-1b_028",
+    "E5": "decoy",
+    "E6": "f_L-1b_008",
+    "E7": "f_L-1b_034",
+    "E8": "f_L-1b_027",
+    "E9": "f_L-1b_026"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_acik_mutfak_2_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     960,
+     810,
+     1306,
+     1080
+    ],
+    "box_1000": [
+     500,
+     750,
+     681,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_3|cycles": {
+   "camera": "cam_r_L-1b_acik_mutfak_3",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [483, 583, 1000, 1000], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [320, 413, 903, 1000], cut by the image edge\n- E3: window (glazed window with frame and glass); expected inside box [0, 96, 500, 418], cut by the image edge\n- E4: tall_cabinet (tall narrow cupboard or pantry unit); expected inside box [498, 154, 572, 434]\n- E5: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [200, 750, 381, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.99\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"tall_cabinet\",\n      \"confidence\": 0.99\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.99
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "tall_cabinet",
+      "confidence": 0.99
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 3.667,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "ca185b57a7a2220e2f3d3bb4ddff2b62e3d794c1e41a5ad3b77375b37cfd08e2",
+   "labels": {
+    "E1": "f_L-1b_006",
+    "E2": "f_L-1b_008",
+    "E3": "win_L-1b_001",
+    "E4": "f_L-1b_049",
+    "E5": "decoy"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     384,
+     810,
+     730,
+     1080
+    ],
+    "box_1000": [
+     200,
+     750,
+     381,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_acik_mutfak_3|polished": {
+   "camera": "cam_r_L-1b_acik_mutfak_3",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Açık Mutfak (kitchen)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [483, 583, 1000, 1000], cut by the image edge\n- E2: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [320, 413, 903, 1000], cut by the image edge\n- E3: window (glazed window with frame and glass); expected inside box [0, 96, 500, 418], cut by the image edge\n- E4: tall_cabinet (tall narrow cupboard or pantry unit); expected inside box [498, 154, 572, 434]\n- E5: kitchen_counter (run of kitchen base cabinets with a worktop); expected inside box [200, 750, 381, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.9\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"tall_cabinet\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.9\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"other_furniture\",\n      \"box\": [320, 413, 903, 1000]\n    \n  ,\n    \"confidence\": 0.95\n  },\n  {\n    \"category\": \"other_furniture\",\n    \"box\": [0, 96, 500, 418],\n    \"confidence\": 0.95\n  }\n  ],\n  \"door_count\": 0,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.9
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "tall_cabinet",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.9
+     }
+    },
+    "extras": [
+     {
+      "category": "other_furniture",
+      "box": [
+       320,
+       413,
+       903,
+       1000
+      ],
+      "confidence": 0.95
+     },
+     {
+      "category": "other_furniture",
+      "box": [
+       0,
+       96,
+       500,
+       418
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 0,
+    "window_count": 1
+   },
+   "latency_s": 5.005,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "afd6e69aa83596323958b10f8f71cec723afb14dcb6b5e7f498e10532d454340",
+   "labels": {
+    "E1": "f_L-1b_006",
+    "E2": "f_L-1b_008",
+    "E3": "win_L-1b_001",
+    "E4": "f_L-1b_049",
+    "E5": "decoy"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_acik_mutfak_3_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "kitchen_counter",
+    "box_px": [
+     384,
+     810,
+     730,
+     1080
+    ],
+    "box_1000": [
+     200,
+     750,
+     381,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_koridor_1|cycles": {
+   "camera": "cam_r_L-1b_koridor_1",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Koridor (hall)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: stair (staircase with steps); expected inside box [28, 0, 422, 992], cut by the image edge\n- E2: door (door leaf in its frame in a wall opening); expected inside box [702, 0, 824, 989], cut by the image edge\n- E3: console_table (narrow table standing against a wall); expected inside box [710, 638, 1000, 1000], cut by the image edge\n- E4: dresser (chest of drawers); expected inside box [400, 750, 581, 1000]\n- E5: window (glazed window with frame and glass); expected inside box [448, 254, 666, 351]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [468, 375, 558, 544]\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [614, 379, 666, 692]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [448, 365, 484, 698]\n- E9: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [588, 361, 666, 463]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"stair\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"console_table\",\n      \"confidence\": 0.98\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"other_furniture\",\n      \"box\": [448, 365, 484, 698]\n    ,\n      \"confidence\": 0.98\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "stair",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "console_table",
+      "confidence": 0.98
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     }
+    },
+    "extras": [
+     {
+      "category": "other_furniture",
+      "box": [
+       448,
+       365,
+       484,
+       698
+      ],
+      "confidence": 0.98
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 6.486,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "23321eb215ecf9ebd399507e5aa513652af060ef7055b5a20c15b61473b8a7d6",
+   "labels": {
+    "E1": "f_L-1b_004",
+    "E2": "d_L-1b_001",
+    "E3": "f_L-1b_054",
+    "E4": "decoy",
+    "E5": "win_L-1b_001",
+    "E6": "f_L-1b_018",
+    "E7": "f_L-1b_006",
+    "E8": "f_L-1b_002",
+    "E9": "f_L-1b_008"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_koridor_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "dresser",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_koridor_1|polished": {
+   "camera": "cam_r_L-1b_koridor_1",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Koridor (hall)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: stair (staircase with steps); expected inside box [28, 0, 422, 992], cut by the image edge\n- E2: door (door leaf in its frame in a wall opening); expected inside box [702, 0, 824, 989], cut by the image edge\n- E3: console_table (narrow table standing against a wall); expected inside box [710, 638, 1000, 1000], cut by the image edge\n- E4: dresser (chest of drawers); expected inside box [400, 750, 581, 1000]\n- E5: window (glazed window with frame and glass); expected inside box [448, 254, 666, 351]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [468, 375, 558, 544]\n- E7: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [614, 379, 666, 692]\n- E8: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [448, 365, 484, 698]\n- E9: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [588, 361, 666, 463]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"stair\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"console_table\",\n      \"confidence\": 0.98\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E8\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    },\n    \"E9\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.98\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"other_furniture\",\n      \"box\": [448, 365, 484, 698]\n    ,\n      \"confidence\": 0.98\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "stair",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "console_table",
+      "confidence": 0.98
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E8": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     },
+     "E9": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.98
+     }
+    },
+    "extras": [
+     {
+      "category": "other_furniture",
+      "box": [
+       448,
+       365,
+       484,
+       698
+      ],
+      "confidence": 0.98
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 6.271,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "5376ef0f021553e15f25c79652e0ac2e37a23c8bbbfff20960b1c58a0626938b",
+   "labels": {
+    "E1": "f_L-1b_004",
+    "E2": "d_L-1b_001",
+    "E3": "f_L-1b_054",
+    "E4": "decoy",
+    "E5": "win_L-1b_001",
+    "E6": "f_L-1b_018",
+    "E7": "f_L-1b_006",
+    "E8": "f_L-1b_002",
+    "E9": "f_L-1b_008"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_koridor_1_a2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "dresser",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_koridor_2|cycles": {
+   "camera": "cam_r_L-1b_koridor_2",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Koridor (hall)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: stair (staircase with steps); expected inside box [567, 0, 1000, 1000], cut by the image edge\n- E2: console_table (narrow table standing against a wall); expected inside box [0, 556, 279, 1000], cut by the image edge\n- E3: door (door leaf in its frame in a wall opening); expected inside box [384, 87, 420, 663]\n- E4: dresser (chest of drawers); expected inside box [400, 750, 581, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"stair\",\n      \"confidence\": 1.0\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"console_table\",\n      \"confidence\": 1.0\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 1.0\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "stair",
+      "confidence": 1.0
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "console_table",
+      "confidence": 1.0
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 1.0
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     }
+    },
+    "extras": [],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 3.137,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "a08af5e8926f34bc3065309bf079958c771ed0a42b2c29004718831b655e6471",
+   "labels": {
+    "E1": "f_L-1b_004",
+    "E2": "f_L-1b_054",
+    "E3": "d_L-1b_002",
+    "E4": "decoy"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_koridor_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "dresser",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_koridor_2|polished": {
+   "camera": "cam_r_L-1b_koridor_2",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Koridor (hall)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: stair (staircase with steps); expected inside box [567, 0, 1000, 1000], cut by the image edge\n- E2: console_table (narrow table standing against a wall); expected inside box [0, 556, 279, 1000], cut by the image edge\n- E3: door (door leaf in its frame in a wall opening); expected inside box [384, 87, 420, 663]\n- E4: dresser (chest of drawers); expected inside box [400, 750, 581, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"stair\",\n      \"confidence\": 1.0\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"console_table\",\n      \"confidence\": 1.0\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 1.0\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "stair",
+      "confidence": 1.0
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "console_table",
+      "confidence": 1.0
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 1.0
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     }
+    },
+    "extras": [],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 2.588,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "cfb0565df8163a5253f3da4eb35e6cb8cd2d48ed815399795a79757e0cb8e793",
+   "labels": {
+    "E1": "f_L-1b_004",
+    "E2": "f_L-1b_054",
+    "E3": "d_L-1b_002",
+    "E4": "decoy"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_koridor_2_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "dresser",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_koridor_3|cycles": {
+   "camera": "cam_r_L-1b_koridor_3",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Koridor (hall)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: door (door leaf in its frame in a wall opening); expected inside box [0, 0, 265, 1000], cut by the image edge\n- E2: console_table (narrow table standing against a wall); expected inside box [287, 522, 590, 1000], cut by the image edge\n- E3: door (door leaf in its frame in a wall opening); expected inside box [808, 0, 832, 770], cut by the image edge\n- E4: dresser (chest of drawers); expected inside box [600, 750, 781, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"console_table\",\n      \"confidence\": 0.98\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 2,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "console_table",
+      "confidence": 0.98
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 2,
+    "window_count": 0
+   },
+   "latency_s": 2.62,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "65c2b22b68ad393de608163f5ac14b87f6e288b12a3f044adc9c167487cce7e1",
+   "labels": {
+    "E1": "d_L-1b_001",
+    "E2": "f_L-1b_054",
+    "E3": "d_L-1b_002",
+    "E4": "decoy"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_koridor_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "dresser",
+    "box_px": [
+     1152,
+     810,
+     1498,
+     1080
+    ],
+    "box_1000": [
+     600,
+     750,
+     781,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_koridor_3|polished": {
+   "camera": "cam_r_L-1b_koridor_3",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Koridor (hall)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: door (door leaf in its frame in a wall opening); expected inside box [0, 0, 265, 1000], cut by the image edge\n- E2: console_table (narrow table standing against a wall); expected inside box [287, 522, 590, 1000], cut by the image edge\n- E3: door (door leaf in its frame in a wall opening); expected inside box [808, 0, 832, 770], cut by the image edge\n- E4: dresser (chest of drawers); expected inside box [600, 750, 781, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"console_table\",\n      \"confidence\": 0.98\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 2,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "console_table",
+      "confidence": 0.98
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 2,
+    "window_count": 0
+   },
+   "latency_s": 2.501,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "b7897c4f53a0b8e789de7478992329616d65a5b83ca9c4bc88c417653aa586ea",
+   "labels": {
+    "E1": "d_L-1b_001",
+    "E2": "f_L-1b_054",
+    "E3": "d_L-1b_002",
+    "E4": "decoy"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_koridor_3_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "dresser",
+    "box_px": [
+     1152,
+     810,
+     1498,
+     1080
+    ],
+    "box_1000": [
+     600,
+     750,
+     781,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_1|cycles": {
+   "camera": "cam_r_L-1b_oda_1",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: armchair (upholstered chair for one person); expected inside box [137, 580, 567, 1000], cut by the image edge\n- E2: door (door leaf in its frame in a wall opening); expected inside box [78, 0, 211, 859], cut by the image edge\n- E3: bookshelf (open shelf unit); expected inside box [580, 183, 782, 745]\n- E4: bathtub (bathtub); expected inside box [600, 750, 781, 1000]\n- E5: table_dining (dining table); expected inside box [539, 521, 902, 951]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [312, 455, 652, 748]\n- E7: chair (single chair); expected inside box [0, 737, 170, 1000], cut by the image edge\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bookshelf\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"table_dining\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"chair\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"cushion\",\n      \"box\": [278, 578, 472, 695]\n    \n    ,\n    \"confidence\": 0.95\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "bookshelf",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "table_dining",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "chair",
+      "confidence": 0.95
+     }
+    },
+    "extras": [
+     {
+      "category": "cushion",
+      "box": [
+       278,
+       578,
+       472,
+       695
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 5.048,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "305f648834e5df342ce9f2c260322cd710ddf1bbce3eee86fc22a942808eee1b",
+   "labels": {
+    "E1": "f_L-1b_041",
+    "E2": "d_L-1b_001",
+    "E3": "f_L-1b_040",
+    "E4": "decoy",
+    "E5": "f_L-1b_043",
+    "E6": "f_L-1b_006",
+    "E7": "f_L-1b_042"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_oda_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     1152,
+     810,
+     1498,
+     1080
+    ],
+    "box_1000": [
+     600,
+     750,
+     781,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_1|insertion:f_L-1b_040": {
+   "camera": "cam_r_L-1b_oda_1",
+   "image_kind": "insertion:f_L-1b_040",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: armchair (upholstered chair for one person); expected inside box [137, 580, 567, 1000], cut by the image edge\n- E2: bathtub (bathtub); expected inside box [600, 750, 781, 1000]\n- E3: door (door leaf in its frame in a wall opening); expected inside box [78, 0, 211, 859], cut by the image edge\n- E4: table_dining (dining table); expected inside box [539, 521, 902, 951]\n- E5: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [312, 455, 652, 748]\n- E6: chair (single chair); expected inside box [0, 737, 170, 1000], cut by the image edge\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.98\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"table_dining\",\n      \"confidence\": 0.97\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"chair\",\n      \"confidence\": 0.92\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"bookshelf\",\n      \"box\": [583, 180, 783, 521]\n    ,\n      \"confidence\": 0.99\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.98
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "table_dining",
+      "confidence": 0.97
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "chair",
+      "confidence": 0.92
+     }
+    },
+    "extras": [
+     {
+      "category": "bookshelf",
+      "box": [
+       583,
+       180,
+       783,
+       521
+      ],
+      "confidence": 0.99
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 3.694,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "c84d4edcfaa161f1a6ec08156924e09928401617fea1aea5462f6e76dea7b7f2",
+   "labels": {
+    "E1": "f_L-1b_041",
+    "E2": "decoy",
+    "E3": "d_L-1b_001",
+    "E4": "f_L-1b_043",
+    "E5": "f_L-1b_006",
+    "E6": "f_L-1b_042"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_oda_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     1152,
+     810,
+     1498,
+     1080
+    ],
+    "box_1000": [
+     600,
+     750,
+     781,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_1|polished": {
+   "camera": "cam_r_L-1b_oda_1",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: armchair (upholstered chair for one person); expected inside box [137, 580, 567, 1000], cut by the image edge\n- E2: door (door leaf in its frame in a wall opening); expected inside box [78, 0, 211, 859], cut by the image edge\n- E3: bookshelf (open shelf unit); expected inside box [580, 183, 782, 745]\n- E4: bathtub (bathtub); expected inside box [600, 750, 781, 1000]\n- E5: table_dining (dining table); expected inside box [539, 521, 902, 951]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [312, 455, 652, 748]\n- E7: chair (single chair); expected inside box [0, 737, 170, 1000], cut by the image edge\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bookshelf\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"table_dining\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"chair\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"cushion\",\n      \"box\": [278, 575, 472, 690]\n    \n    ,\n    \"confidence\": 0.95\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "bookshelf",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "table_dining",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "chair",
+      "confidence": 0.95
+     }
+    },
+    "extras": [
+     {
+      "category": "cushion",
+      "box": [
+       278,
+       575,
+       472,
+       690
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 4.743,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "78a8ca1ee3a9de4760d68813a0701a76ee6dcdf0ed2da38bcece4476f377d939",
+   "labels": {
+    "E1": "f_L-1b_041",
+    "E2": "d_L-1b_001",
+    "E3": "f_L-1b_040",
+    "E4": "decoy",
+    "E5": "f_L-1b_043",
+    "E6": "f_L-1b_006",
+    "E7": "f_L-1b_042"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_oda_1_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     1152,
+     810,
+     1498,
+     1080
+    ],
+    "box_1000": [
+     600,
+     750,
+     781,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_1|removal:f_L-1b_040": {
+   "camera": "cam_r_L-1b_oda_1",
+   "image_kind": "removal:f_L-1b_040",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: armchair (upholstered chair for one person); expected inside box [137, 580, 567, 1000], cut by the image edge\n- E2: door (door leaf in its frame in a wall opening); expected inside box [78, 0, 211, 859], cut by the image edge\n- E3: bookshelf (open shelf unit); expected inside box [580, 183, 782, 745]\n- E4: bathtub (bathtub); expected inside box [600, 750, 781, 1000]\n- E5: table_dining (dining table); expected inside box [539, 521, 902, 951]\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [312, 455, 652, 748]\n- E7: chair (single chair); expected inside box [0, 737, 170, 1000], cut by the image edge\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"different\",\n      \"seen_as\": \"fridge\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"table_dining\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"present\",\n      \"seen_as\": \"chair\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"cushion\",\n      \"box\": [278, 580, 470, 690]\n    \n    ,\n    \"confidence\": 0.95\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "different",
+      "seen_as": "fridge",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "table_dining",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "present",
+      "seen_as": "chair",
+      "confidence": 0.95
+     }
+    },
+    "extras": [
+     {
+      "category": "cushion",
+      "box": [
+       278,
+       580,
+       470,
+       690
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 4.387,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "bb7aad32c763cc60c0516b4bf78050842586814edb182e7a12ebacaf9adc4d7c",
+   "labels": {
+    "E1": "f_L-1b_041",
+    "E2": "d_L-1b_001",
+    "E3": "f_L-1b_040",
+    "E4": "decoy",
+    "E5": "f_L-1b_043",
+    "E6": "f_L-1b_006",
+    "E7": "f_L-1b_042"
+   },
+   "images": [
+    "../controls/hide_f_L-1b_040/cam_r_L-1b_oda_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     1152,
+     810,
+     1498,
+     1080
+    ],
+    "box_1000": [
+     600,
+     750,
+     781,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_2|cycles": {
+   "camera": "cam_r_L-1b_oda_2",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: bathtub (bathtub); expected inside box [400, 200, 581, 450]\n- E2: bookshelf (open shelf unit); expected inside box [608, 17, 1000, 786], cut by the image edge\n- E3: table_dining (dining table); expected inside box [346, 614, 1000, 1000], cut by the image edge\n- E4: door (door leaf in its frame in a wall opening); expected inside box [43, 0, 244, 780], cut by the image edge\n- E5: armchair (upholstered chair for one person); expected inside box [0, 692, 353, 1000], cut by the image edge\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [349, 465, 742, 760]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bookshelf\",\n      \"confidence\": 1.0\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"table_dining\",\n      \"confidence\": 1.0\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 1.0\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 1.0\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 1.0\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"rug\",\n      \"box\": [349, 465, 742, 760]\n    ,\n      \"confidence\": 1.0\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "bookshelf",
+      "confidence": 1.0
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "table_dining",
+      "confidence": 1.0
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 1.0
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 1.0
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 1.0
+     }
+    },
+    "extras": [
+     {
+      "category": "rug",
+      "box": [
+       349,
+       465,
+       742,
+       760
+      ],
+      "confidence": 1.0
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 4.412,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "0841db71000274c7f3b6df5ec5d3d077cdb006842ab6a9942694103c81bb8e03",
+   "labels": {
+    "E1": "decoy",
+    "E2": "f_L-1b_040",
+    "E3": "f_L-1b_043",
+    "E4": "d_L-1b_001",
+    "E5": "f_L-1b_041",
+    "E6": "f_L-1b_006"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_oda_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     768,
+     216,
+     1114,
+     486
+    ],
+    "box_1000": [
+     400,
+     200,
+     581,
+     450
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_2|polished": {
+   "camera": "cam_r_L-1b_oda_2",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: bathtub (bathtub); expected inside box [400, 200, 581, 450]\n- E2: bookshelf (open shelf unit); expected inside box [608, 17, 1000, 786], cut by the image edge\n- E3: table_dining (dining table); expected inside box [346, 614, 1000, 1000], cut by the image edge\n- E4: door (door leaf in its frame in a wall opening); expected inside box [43, 0, 244, 780], cut by the image edge\n- E5: armchair (upholstered chair for one person); expected inside box [0, 692, 353, 1000], cut by the image edge\n- E6: furniture piece (type unverified) (any piece of furniture at that place); expected inside box [349, 465, 742, 760]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"bookshelf\",\n      \"confidence\": 1.0\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"desk\",\n      \"confidence\": 1.0\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 1.0\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 1.0\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"other_furniture\",\n      \"confidence\": 1.0\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"rug\",\n      \"box\": [349, 465, 742, 760]\n    ,\n      \"confidence\": 1.0\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "bookshelf",
+      "confidence": 1.0
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "desk",
+      "confidence": 1.0
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 1.0
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 1.0
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "other_furniture",
+      "confidence": 1.0
+     }
+    },
+    "extras": [
+     {
+      "category": "rug",
+      "box": [
+       349,
+       465,
+       742,
+       760
+      ],
+      "confidence": 1.0
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 4.043,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "ccc4e430c71cb1b18dc6c9592d8fe4ca6707b9a0877e93bfb9d2b4e8e4dceefb",
+   "labels": {
+    "E1": "decoy",
+    "E2": "f_L-1b_040",
+    "E3": "f_L-1b_043",
+    "E4": "d_L-1b_001",
+    "E5": "f_L-1b_041",
+    "E6": "f_L-1b_006"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_oda_2_a2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     768,
+     216,
+     1114,
+     486
+    ],
+    "box_1000": [
+     400,
+     200,
+     581,
+     450
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_3|cycles": {
+   "camera": "cam_r_L-1b_oda_3",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: armchair (upholstered chair for one person); expected inside box [501, 532, 984, 1000], cut by the image edge\n- E2: bathtub (bathtub); expected inside box [300, 750, 481, 1000]\n- E3: door (door leaf in its frame in a wall opening); expected inside box [873, 0, 1000, 916], cut by the image edge\n- E4: desk (work desk); expected inside box [0, 440, 151, 907], cut by the image edge\n- E5: plant_large (large potted plant standing on the floor); expected inside box [273, 218, 379, 684]\n- E6: chair (single chair); expected inside box [616, 509, 744, 692]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.99\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"desk\",\n      \"confidence\": 0.98\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"plant_large\",\n      \"confidence\": 0.99\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"chair\",\n      \"confidence\": 0.98\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"cushion\",\n      \"box\": [616, 509, 744, 692]\n    ,\n      \"confidence\": 0.98\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.99
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "desk",
+      "confidence": 0.98
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "plant_large",
+      "confidence": 0.99
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "chair",
+      "confidence": 0.98
+     }
+    },
+    "extras": [
+     {
+      "category": "cushion",
+      "box": [
+       616,
+       509,
+       744,
+       692
+      ],
+      "confidence": 0.98
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 4.459,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "5abb7ed8a11992a3844afc027c4f3ee6eedb9a6e277523a728cd3863b204c241",
+   "labels": {
+    "E1": "f_L-1b_041",
+    "E2": "decoy",
+    "E3": "d_L-1b_001",
+    "E4": "f_L-1b_039",
+    "E5": "dec_L-1b_001",
+    "E6": "f_L-1b_042"
+   },
+   "images": [
+    "../renders/cam_r_L-1b_oda_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     576,
+     810,
+     922,
+     1080
+    ],
+    "box_1000": [
+     300,
+     750,
+     481,
+     1000
+    ]
+   }
+  },
+  "check|cam_r_L-1b_oda_3|polished": {
+   "camera": "cam_r_L-1b_oda_3",
+   "image_kind": "polished",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of the room 'Oda (other)'. Check every expected element listed below.\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: armchair (upholstered chair for one person); expected inside box [501, 532, 984, 1000], cut by the image edge\n- E2: bathtub (bathtub); expected inside box [300, 750, 481, 1000]\n- E3: door (door leaf in its frame in a wall opening); expected inside box [873, 0, 1000, 916], cut by the image edge\n- E4: desk (work desk); expected inside box [0, 440, 151, 907], cut by the image edge\n- E5: plant_large (large potted plant standing on the floor); expected inside box [273, 218, 379, 684]\n- E6: chair (single chair); expected inside box [616, 509, 744, 692]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too dark, too small, hidden).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA door is a door leaf in its frame: an empty doorway without a door leaf is NOT a door (answer absent). A 'furniture piece (type unverified)' is present when any piece of furniture stands there.\n\nextras: every door, window, piece of furniture, lamp, curtain, rug or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, floor, ceiling or the view outside a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"armchair\",\n      \"confidence\": 0.98\n    },\n    \"E2\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.99\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"desk\",\n      \"confidence\": 0.99\n    },\n    \"E5\": {\n      \"status\": \"present\",\n      \"seen_as\": \"plant_large\",\n      \"confidence\": 0.99\n    },\n    \"E6\": {\n      \"status\": \"present\",\n      \"seen_as\": \"chair\",\n      \"confidence\": 0.98\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"cushion\",\n      \"box\": [616, 509, 744, 692]\n    \n    ,\n    \"confidence\": 0.98\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 0\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "armchair",
+      "confidence": 0.98
+     },
+     "E2": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.99
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "desk",
+      "confidence": 0.99
+     },
+     "E5": {
+      "status": "present",
+      "seen_as": "plant_large",
+      "confidence": 0.99
+     },
+     "E6": {
+      "status": "present",
+      "seen_as": "chair",
+      "confidence": 0.98
+     }
+    },
+    "extras": [
+     {
+      "category": "cushion",
+      "box": [
+       616,
+       509,
+       744,
+       692
+      ],
+      "confidence": 0.98
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0
+   },
+   "latency_s": 4.034,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "87ce88c143bbbf88ea7be7b02468d6a5f1c6e9b3bf8d50728c752b8756bf9dbb",
+   "labels": {
+    "E1": "f_L-1b_041",
+    "E2": "decoy",
+    "E3": "d_L-1b_001",
+    "E4": "f_L-1b_039",
+    "E5": "dec_L-1b_001",
+    "E6": "f_L-1b_042"
+   },
+   "images": [
+    "../polish/cam_r_L-1b_oda_3_a2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "bathtub",
+    "box_px": [
+     576,
+     810,
+     922,
+     1080
+    ],
+    "box_1000": [
+     300,
+     750,
+     481,
+     1000
+    ]
+   }
+  },
+  "check|ext_1|cycles": {
+   "camera": "ext_1",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of a building seen from outside. Check every expected element listed below (windows and doors in the facades).\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [545, 550, 585, 686]\n- E2: window (glazed window with frame and glass); expected inside box [361, 237, 438, 322]\n- E3: armchair (upholstered chair for one person); expected inside box [400, 750, 581, 1000]\n- E4: window (glazed window with frame and glass); expected inside box [666, 560, 700, 673]\n- E5: door (door leaf in its frame in a wall opening); expected inside box [258, 289, 283, 353]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too small, hidden, in shadow).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA window is glass in a frame in a wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is NOT a window or a door (answer absent).\n\nextras: every door, window, balcony railing, lamp or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, roof, chimney, ground, paving, grass, trees, the plot wall, the sky or anything you see through a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 1.0\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"plant\",\n      \"box\": [725, 315, 775, 365]\n    \n    ,\n    \"confidence\": 0.95\n  },\n  {\n    \"category\": \"curtain\",\n    \"box\": [550, 550, 575, 686],\n    \"confidence\": 0.95\n  },\n  {\n    \"category\": \"curtain\",\n    \"box\": [670, 560, 695, 673],\n    \"confidence\": 0.95\n  }\n  ],\n  \"door_count\": 0,\n  \"window_count\": 3\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 1.0
+     }
+    },
+    "extras": [
+     {
+      "category": "plant",
+      "box": [
+       725,
+       315,
+       775,
+       365
+      ],
+      "confidence": 0.95
+     },
+     {
+      "category": "curtain",
+      "box": [
+       550,
+       550,
+       575,
+       686
+      ],
+      "confidence": 0.95
+     },
+     {
+      "category": "curtain",
+      "box": [
+       670,
+       560,
+       695,
+       673
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 0,
+    "window_count": 3
+   },
+   "latency_s": 5.558,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "2d9621933c2788a0c33974f8536032ea61249e80796f98946db885c0172a021f",
+   "labels": {
+    "E1": "win_L0_001",
+    "E2": "win_L1_001",
+    "E3": "decoy",
+    "E4": "win_L0_002",
+    "E5": "d_L1_003"
+   },
+   "images": [
+    "../renders/ext_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "armchair",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|ext_2|cycles": {
+   "camera": "ext_2",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of a building seen from outside. Check every expected element listed below (windows and doors in the facades).\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [415, 550, 455, 686]\n- E2: window (glazed window with frame and glass); expected inside box [562, 237, 639, 322]\n- E3: window (glazed window with frame and glass); expected inside box [300, 559, 334, 673]\n- E4: door (door leaf in its frame in a wall opening); expected inside box [717, 289, 742, 353]\n- E5: armchair (upholstered chair for one person); expected inside box [400, 750, 581, 1000]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too small, hidden, in shadow).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA window is glass in a frame in a wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is NOT a window or a door (answer absent).\n\nextras: every door, window, balcony railing, lamp or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, roof, chimney, ground, paving, grass, trees, the plot wall, the sky or anything you see through a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.99\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 1,\n  \"window_count\": 3\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.99
+     }
+    },
+    "extras": [],
+    "door_count": 1,
+    "window_count": 3
+   },
+   "latency_s": 3.067,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "00ec621a8a082e5ec607a2f3548c09e5b6f03824cda97d82ff09a477680d6999",
+   "labels": {
+    "E1": "win_L0_004",
+    "E2": "win_L1_002",
+    "E3": "win_L0_003",
+    "E4": "d_L1_006",
+    "E5": "decoy"
+   },
+   "images": [
+    "../renders/ext_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "armchair",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|ext_3|cycles": {
+   "camera": "ext_3",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of a building seen from outside. Check every expected element listed below (windows and doors in the facades).\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: door (door leaf in its frame in a wall opening); expected inside box [678, 550, 702, 777]\n- E2: window (glazed window with frame and glass); expected inside box [271, 276, 333, 350]\n- E3: door (door leaf in its frame in a wall opening); expected inside box [421, 225, 456, 303]\n- E4: door (door leaf in its frame in a wall opening); expected inside box [831, 564, 845, 732]\n- E5: door (door leaf in its frame in a wall opening); expected inside box [635, 238, 677, 307]\n- E6: armchair (upholstered chair for one person); expected inside box [400, 750, 581, 1000]\n- E7: door (door leaf in its frame in a wall opening); expected inside box [769, 318, 804, 372]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too small, hidden, in shadow).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA window is glass in a frame in a wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is NOT a window or a door (answer absent).\n\nextras: every door, window, balcony railing, lamp or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, roof, chimney, ground, paving, grass, trees, the plot wall, the sky or anything you see through a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"lamp\",\n      \"box\": [678, 140, 685, 150]\n    ,\n      \"confidence\": 0.95\n    },\n    {\n      \"category\": \"lamp\",\n      \"box\": [750, 190, 756, 200]\n    ,\n      \"confidence\": 0.95\n    }\n  ],\n  \"door_count\": 2,\n  \"window_count\": 2\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     }
+    },
+    "extras": [
+     {
+      "category": "lamp",
+      "box": [
+       678,
+       140,
+       685,
+       150
+      ],
+      "confidence": 0.95
+     },
+     {
+      "category": "lamp",
+      "box": [
+       750,
+       190,
+       756,
+       200
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 2,
+    "window_count": 2
+   },
+   "latency_s": 5.584,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "7194956166cc42aa990919f3e65074211956597d46cbd4c9b416da6f1ff9d372",
+   "labels": {
+    "E1": "d_L0_012",
+    "E2": "win_L1_002",
+    "E3": "d_L1_006",
+    "E4": "d_L0_011",
+    "E5": "d_L1_005",
+    "E6": "decoy",
+    "E7": "d_L1_004"
+   },
+   "images": [
+    "../renders/ext_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "armchair",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|ext_4|cycles": {
+   "camera": "ext_4",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of a building seen from outside. Check every expected element listed below (windows and doors in the facades).\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: door (door leaf in its frame in a wall opening); expected inside box [297, 550, 322, 777]\n- E2: window (glazed window with frame and glass); expected inside box [667, 276, 729, 350]\n- E3: door (door leaf in its frame in a wall opening); expected inside box [544, 225, 579, 303]\n- E4: door (door leaf in its frame in a wall opening); expected inside box [155, 565, 169, 733]\n- E5: armchair (upholstered chair for one person); expected inside box [400, 750, 581, 1000]\n- E6: door (door leaf in its frame in a wall opening); expected inside box [323, 238, 365, 307]\n- E7: door (door leaf in its frame in a wall opening); expected inside box [196, 318, 231, 372]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too small, hidden, in shadow).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA window is glass in a frame in a wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is NOT a window or a door (answer absent).\n\nextras: every door, window, balcony railing, lamp or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, roof, chimney, ground, paving, grass, trees, the plot wall, the sky or anything you see through a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E3\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E6\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    },\n    \"E7\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.95\n    }\n  },\n  \"extras\": [],\n  \"door_count\": 2,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E3": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E6": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     },
+     "E7": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.95
+     }
+    },
+    "extras": [],
+    "door_count": 2,
+    "window_count": 1
+   },
+   "latency_s": 4.305,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "c76b3c1eccde7c0ed9807abfd3c6308eccd1f4e91f633cc5e47a6d77df443d38",
+   "labels": {
+    "E1": "d_L0_011",
+    "E2": "win_L1_001",
+    "E3": "d_L1_003",
+    "E4": "d_L0_012",
+    "E5": "decoy",
+    "E6": "d_L1_004",
+    "E7": "d_L1_005"
+   },
+   "images": [
+    "../renders/ext_4.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "armchair",
+    "box_px": [
+     768,
+     810,
+     1114,
+     1080
+    ],
+    "box_1000": [
+     400,
+     750,
+     581,
+     1000
+    ]
+   }
+  },
+  "check|ext_5|cycles": {
+   "camera": "ext_5",
+   "image_kind": "cycles",
+   "prompt_kind": "check",
+   "order": null,
+   "prompt": "Task: image 1 is one view of a building seen from outside. Check every expected element listed below (windows and doors in the facades).\n\nExpected elements (boxes are [x0, y0, x1, y1] on a 0..1000 grid of the image width and height, origin top-left):\n- E1: window (glazed window with frame and glass); expected inside box [406, 469, 458, 569]\n- E2: window (glazed window with frame and glass); expected inside box [532, 731, 651, 945]\n- E3: door (door leaf in its frame in a wall opening); expected inside box [331, 409, 356, 526]\n- E4: armchair (upholstered chair for one person); expected inside box [350, 750, 531, 1000]\n- E5: window (glazed window with frame and glass); expected inside box [673, 566, 746, 698]\n\nFor each label answer:\n- status: present = an element of that type is clearly visible at about that place (seen_as = the listed type); different = another kind of object is there instead (seen_as = what you see there); absent = nothing of that kind is there (seen_as = nothing); unsure = you cannot tell (too small, hidden, in shadow).\n- seen_as: one of the categories below, or nothing.\n- confidence: 0..1.\nA window is glass in a frame in a wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is NOT a window or a door (answer absent).\n\nextras: every door, window, balcony railing, lamp or other object you see that is NOT in the list above, with its category and box (0..1000). Do not list walls, roof, chimney, ground, paving, grass, trees, the plot wall, the sky or anything you see through a window. Empty list when there is none. At most 8.\n\ndoor_count, window_count: how many doors and how many windows are visible in image 1, fully or partly.\n\nCategories: door, window, bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, kitchen_counter, kitchen_island, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, stair, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet, wall_cabinet, cushion, book_set, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light, lamp, textile, other_furniture, other_object.\n\nAnswer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"elements\": {\n    \"E1\": {\n      \"status\": \"present\",\n      \"seen_as\": \"window\",\n      \"confidence\": 0.95\n    },\n    \"E2\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    },\n    \"E3\": {\n      \"status\": \"present\",\n      \"seen_as\": \"door\",\n      \"confidence\": 0.95\n    },\n    \"E4\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    },\n    \"E5\": {\n      \"status\": \"absent\",\n      \"seen_as\": \"nothing\",\n      \"confidence\": 0.98\n    }\n  },\n  \"extras\": [\n    {\n      \"category\": \"potted_plant\",\n      \"box\": [637, 447, 667, 492]\n    ,\n      \"confidence\": 0.95\n    }\n  ],\n  \"door_count\": 1,\n  \"window_count\": 1\n}",
+   "data": {
+    "elements": {
+     "E1": {
+      "status": "present",
+      "seen_as": "window",
+      "confidence": 0.95
+     },
+     "E2": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     },
+     "E3": {
+      "status": "present",
+      "seen_as": "door",
+      "confidence": 0.95
+     },
+     "E4": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     },
+     "E5": {
+      "status": "absent",
+      "seen_as": "nothing",
+      "confidence": 0.98
+     }
+    },
+    "extras": [
+     {
+      "category": "potted_plant",
+      "box": [
+       637,
+       447,
+       667,
+       492
+      ],
+      "confidence": 0.95
+     }
+    ],
+    "door_count": 1,
+    "window_count": 1
+   },
+   "latency_s": 4.243,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "3c64be42b7e18b10e749c0edd2082e5dbf502399fcf08f77b0a2401f4d639f1b",
+   "labels": {
+    "E1": "win_L1_001",
+    "E2": "win_L-1b_001",
+    "E3": "d_L1_003",
+    "E4": "decoy",
+    "E5": "win_L-1b_002"
+   },
+   "images": [
+    "../renders/ext_5.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": {
+    "type": "armchair",
+    "box_px": [
+     672,
+     810,
+     1018,
+     1080
+    ],
+    "box_1000": [
+     350,
+     750,
+     531,
+     1000
+    ]
+   }
+  },
+  "facade|ext_1|facade:front": {
+   "camera": "ext_1",
+   "image_kind": "facade:front",
+   "prompt_kind": "facade",
+   "order": null,
+   "prompt": "Task: image 1 is a crop of the front side of a building, seen from outside. Count the windows and the doors you can see in this crop, fully or partly.\n\nA window is glass in a frame in the wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is not a window or a door. Do not count roof windows, garage doors of other buildings, or anything you see through a window.\n\nAnswer window_count, door_count and confidence (0..1). Answer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"window_count\": 2,\n  \"door_count\": 0,\n  \"confidence\": 1.0\n}",
+   "data": {
+    "window_count": 2,
+    "door_count": 0,
+    "confidence": 1.0
+   },
+   "latency_s": 0.469,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "ba66b76cc18a555359843dd8c2016786c0efb4c6b3b02177e83693b8c207949a",
+   "labels": {},
+   "images": [
+    "ext_1_facade_front.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "facade|ext_2|facade:front": {
+   "camera": "ext_2",
+   "image_kind": "facade:front",
+   "prompt_kind": "facade",
+   "order": null,
+   "prompt": "Task: image 1 is a crop of the front side of a building, seen from outside. Count the windows and the doors you can see in this crop, fully or partly.\n\nA window is glass in a frame in the wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is not a window or a door. Do not count roof windows, garage doors of other buildings, or anything you see through a window.\n\nAnswer window_count, door_count and confidence (0..1). Answer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"window_count\": 2,\n  \"door_count\": 0,\n  \"confidence\": 1.0\n}",
+   "data": {
+    "window_count": 2,
+    "door_count": 0,
+    "confidence": 1.0
+   },
+   "latency_s": 0.648,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "2d0416f6b54835016d30422cffd66df917f7bbc0fb67ddb447ad8756658fd38c",
+   "labels": {},
+   "images": [
+    "ext_2_facade_front.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "facade|ext_3|facade:back": {
+   "camera": "ext_3",
+   "image_kind": "facade:back",
+   "prompt_kind": "facade",
+   "order": null,
+   "prompt": "Task: image 1 is a crop of the back side of a building, seen from outside. Count the windows and the doors you can see in this crop, fully or partly.\n\nA window is glass in a frame in the wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is not a window or a door. Do not count roof windows, garage doors of other buildings, or anything you see through a window.\n\nAnswer window_count, door_count and confidence (0..1). Answer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"window_count\": 0,\n  \"door_count\": 2,\n  \"confidence\": 1.0\n}",
+   "data": {
+    "window_count": 0,
+    "door_count": 2,
+    "confidence": 1.0
+   },
+   "latency_s": 0.618,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "23f7b31049664121436db094658c7f66dad7a0893cb408e699a5e79f41b427e4",
+   "labels": {},
+   "images": [
+    "ext_3_facade_back.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "facade|ext_4|facade:back": {
+   "camera": "ext_4",
+   "image_kind": "facade:back",
+   "prompt_kind": "facade",
+   "order": null,
+   "prompt": "Task: image 1 is a crop of the back side of a building, seen from outside. Count the windows and the doors you can see in this crop, fully or partly.\n\nA window is glass in a frame in the wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is not a window or a door. Do not count roof windows, garage doors of other buildings, or anything you see through a window.\n\nAnswer window_count, door_count and confidence (0..1). Answer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"window_count\": 0,\n  \"door_count\": 2,\n  \"confidence\": 1.0\n}",
+   "data": {
+    "window_count": 0,
+    "door_count": 2,
+    "confidence": 1.0
+   },
+   "latency_s": 0.572,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "27073b25b374b8d518f6b62937380beaf225b5089d344586d98460c4f1a08a1d",
+   "labels": {},
+   "images": [
+    "ext_4_facade_back.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "facade|ext_5|facade:front": {
+   "camera": "ext_5",
+   "image_kind": "facade:front",
+   "prompt_kind": "facade",
+   "order": null,
+   "prompt": "Task: image 1 is a crop of the front side of a building, seen from outside. Count the windows and the doors you can see in this crop, fully or partly.\n\nA window is glass in a frame in the wall; a door is a door leaf in a wall opening. A plain wall without glass or a leaf is not a window or a door. Do not count roof windows, garage doors of other buildings, or anything you see through a window.\n\nAnswer window_count, door_count and confidence (0..1). Answer only with JSON that follows the schema.",
+   "raw_text": "{\n  \"window_count\": 0,\n  \"door_count\": 0,\n  \"confidence\": 1.0\n}",
+   "data": {
+    "window_count": 0,
+    "door_count": 0,
+    "confidence": 1.0
+   },
+   "latency_s": 0.493,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "1a619e4bf8983446775248d7cd103db42be13fd001ff0de71fc2a39de6206fb8",
+   "labels": {},
+   "images": [
+    "ext_5_facade_front.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_acik_mutfak_1|polished|cp": {
+   "camera": "cam_r_L-1b_acik_mutfak_1",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.673,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "568a9aff7f6c8f6ee0b010bf18725544a218d16b37f28c07ce1e84f7fef8a4ab",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_1.png",
+    "../polish/cam_r_L-1b_acik_mutfak_1_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_acik_mutfak_1|polished|pc": {
+   "camera": "cam_r_L-1b_acik_mutfak_1",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.684,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "273de72836e07aacd8bf0e9d75f5378bb5c9b43e968085e5bb45bc3737b6068c",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_acik_mutfak_1_a1.png",
+    "../renders/cam_r_L-1b_acik_mutfak_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_acik_mutfak_2|polished|cp": {
+   "camera": "cam_r_L-1b_acik_mutfak_2",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.738,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "22f888207d8bf85678ea80fd21bf19aec14cda6ad87aca2d8b7ede12fa95e57a",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_2.png",
+    "../polish/cam_r_L-1b_acik_mutfak_2_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_acik_mutfak_2|polished|pc": {
+   "camera": "cam_r_L-1b_acik_mutfak_2",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.709,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "47a385f319b288b80708d9e98e83cb9be2f30811d31afa9df4a50c414077a7a0",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_acik_mutfak_2_a1.png",
+    "../renders/cam_r_L-1b_acik_mutfak_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_acik_mutfak_3|polished|cp": {
+   "camera": "cam_r_L-1b_acik_mutfak_3",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.674,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "1fb1777bf28eced6160b1fb992d505d07bdf30eadfff8b320aad8ef494d8d122",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_acik_mutfak_3.png",
+    "../polish/cam_r_L-1b_acik_mutfak_3_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_acik_mutfak_3|polished|pc": {
+   "camera": "cam_r_L-1b_acik_mutfak_3",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.681,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "473669525162102c256e17b1debce1113a7db509af66060e4612f009b8059dae",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_acik_mutfak_3_a1.png",
+    "../renders/cam_r_L-1b_acik_mutfak_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_koridor_1|polished|cp": {
+   "camera": "cam_r_L-1b_koridor_1",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.611,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "78253ba9416b37b7085cb6970986a7868be2d42e4ee448683e0dbf83fa7759cb",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_koridor_1.png",
+    "../polish/cam_r_L-1b_koridor_1_a2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_koridor_1|polished|pc": {
+   "camera": "cam_r_L-1b_koridor_1",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.604,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "8ae3eade62159b5dd51d6a6bfea1536700137e9d4ef2445dce116bec61a039c0",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_koridor_1_a2.png",
+    "../renders/cam_r_L-1b_koridor_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_koridor_2|polished|cp": {
+   "camera": "cam_r_L-1b_koridor_2",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.696,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "ea63136877b56d57bef181421ec4bbffe6744370243f66ca9968826a997c6452",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_koridor_2.png",
+    "../polish/cam_r_L-1b_koridor_2_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_koridor_2|polished|pc": {
+   "camera": "cam_r_L-1b_koridor_2",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.738,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "4f113e2cd579986f9368f46a01b5232d252c2284c22332d9655ad7d79acbd1db",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_koridor_2_a1.png",
+    "../renders/cam_r_L-1b_koridor_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_koridor_3|polished|cp": {
+   "camera": "cam_r_L-1b_koridor_3",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.664,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "8b9cf2d68d6e949fbed3c98a2011a5144574abdf510a7e3dddcee1f58d450eb6",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_koridor_3.png",
+    "../polish/cam_r_L-1b_koridor_3_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_koridor_3|polished|pc": {
+   "camera": "cam_r_L-1b_koridor_3",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.689,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "a6063b3906ff6acc4647df9975b954832a9f6e39da0c79974e5b1e14385b10fc",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_koridor_3_a1.png",
+    "../renders/cam_r_L-1b_koridor_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_oda_1|polished|cp": {
+   "camera": "cam_r_L-1b_oda_1",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.558,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "8f76a0c8325ab69fcbeac9059191c9cafd82cbcc10a8edcc44d97fe2970e55d6",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_oda_1.png",
+    "../polish/cam_r_L-1b_oda_1_a1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_oda_1|polished|pc": {
+   "camera": "cam_r_L-1b_oda_1",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.539,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "e68931c84ab8f405746d03b36f3ea5ea87888917097a0ca1716f69874232ed4f",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_oda_1_a1.png",
+    "../renders/cam_r_L-1b_oda_1.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_oda_2|polished|cp": {
+   "camera": "cam_r_L-1b_oda_2",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.548,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "bf15bb46db7d164b0c181aaf33a0271954cc6087a308da23aed5bcc366151c8d",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_oda_2.png",
+    "../polish/cam_r_L-1b_oda_2_a2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_oda_2|polished|pc": {
+   "camera": "cam_r_L-1b_oda_2",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 1.566,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "d30a671d33b6701dda93984f6148d80ca2762228c09fdf3115679efdd33e3f4c",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_oda_2_a2.png",
+    "../renders/cam_r_L-1b_oda_2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_oda_3|polished|cp": {
+   "camera": "cam_r_L-1b_oda_3",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "cp",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 0.608,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "ac5970441fe62b54c3d48ebce9b6917ca5f86b1f2ef1791e47f7b834dd223522",
+   "labels": {},
+   "images": [
+    "../renders/cam_r_L-1b_oda_3.png",
+    "../polish/cam_r_L-1b_oda_3_a2.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  },
+  "preference|cam_r_L-1b_oda_3|polished|pc": {
+   "camera": "cam_r_L-1b_oda_3",
+   "image_kind": "polished",
+   "prompt_kind": "preference",
+   "order": "pc",
+   "prompt": "Which image looks more like a real photograph of a room? Answer first, second or same, with your confidence from 0 to 1. Judge only how real the photo looks, not the style or the furniture.",
+   "raw_text": "{\n  \"choice\": \"same\",\n  \"confidence\": 1.0\n}",
+   "data": {
+    "choice": "same",
+    "confidence": 1.0
+   },
+   "latency_s": 0.618,
+   "error": null,
+   "attempts": 1,
+   "input_sha256": "4a29c05f89a43eae957061e6470b182df69ee8ae4df9921c837b2a8adba230bd",
+   "labels": {},
+   "images": [
+    "../polish/cam_r_L-1b_oda_3_a2.png",
+    "../renders/cam_r_L-1b_oda_3.png"
+   ],
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "decoy": null
+  }
+ }
+}

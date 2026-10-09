@@ -24,7 +24,8 @@
    "images": [
     "crops/sym_L-1_001_ctx.png",
     "crops/sym_L-1_001_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_002": {
    "task": "symbol_type",
@@ -44,7 +45,8 @@
    "images": [
     "crops/sym_L-1_002_ctx.png",
     "crops/sym_L-1_002_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_003": {
    "task": "symbol_type",
@@ -64,7 +66,8 @@
    "images": [
     "crops/sym_L-1_003_ctx.png",
     "crops/sym_L-1_003_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_004": {
    "task": "symbol_type",
@@ -84,7 +87,8 @@
    "images": [
     "crops/sym_L-1_004_ctx.png",
     "crops/sym_L-1_004_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_005": {
    "task": "symbol_type",
@@ -104,7 +108,8 @@
    "images": [
     "crops/sym_L-1_005_ctx.png",
     "crops/sym_L-1_005_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_006": {
    "task": "symbol_type",
@@ -124,7 +129,8 @@
    "images": [
     "crops/sym_L-1_006_ctx.png",
     "crops/sym_L-1_006_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_007": {
    "task": "symbol_type",
@@ -144,7 +150,8 @@
    "images": [
     "crops/sym_L-1_007_ctx.png",
     "crops/sym_L-1_007_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_008": {
    "task": "symbol_type",
@@ -164,7 +171,8 @@
    "images": [
     "crops/sym_L-1_008_ctx.png",
     "crops/sym_L-1_008_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_009": {
    "task": "symbol_type",
@@ -184,7 +192,8 @@
    "images": [
     "crops/sym_L-1_009_ctx.png",
     "crops/sym_L-1_009_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_010": {
    "task": "symbol_type",
@@ -204,7 +213,8 @@
    "images": [
     "crops/sym_L-1_010_ctx.png",
     "crops/sym_L-1_010_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_011": {
    "task": "symbol_type",
@@ -224,7 +234,8 @@
    "images": [
     "crops/sym_L-1_011_ctx.png",
     "crops/sym_L-1_011_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_012": {
    "task": "symbol_type",
@@ -244,7 +255,8 @@
    "images": [
     "crops/sym_L-1_012_ctx.png",
     "crops/sym_L-1_012_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_013": {
    "task": "symbol_type",
@@ -264,7 +276,8 @@
    "images": [
     "crops/sym_L-1_013_ctx.png",
     "crops/sym_L-1_013_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_014": {
    "task": "symbol_type",
@@ -284,7 +297,8 @@
    "images": [
     "crops/sym_L-1_014_ctx.png",
     "crops/sym_L-1_014_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_015": {
    "task": "symbol_type",
@@ -304,7 +318,8 @@
    "images": [
     "crops/sym_L-1_015_ctx.png",
     "crops/sym_L-1_015_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_016": {
    "task": "symbol_type",
@@ -324,7 +339,8 @@
    "images": [
     "crops/sym_L-1_016_ctx.png",
     "crops/sym_L-1_016_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_017": {
    "task": "symbol_type",
@@ -344,7 +360,8 @@
    "images": [
     "crops/sym_L-1_017_ctx.png",
     "crops/sym_L-1_017_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_018": {
    "task": "symbol_type",
@@ -364,7 +381,8 @@
    "images": [
     "crops/sym_L-1_018_ctx.png",
     "crops/sym_L-1_018_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_019": {
    "task": "symbol_type",
@@ -384,7 +402,8 @@
    "images": [
     "crops/sym_L-1_019_ctx.png",
     "crops/sym_L-1_019_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_020": {
    "task": "symbol_type",
@@ -404,7 +423,8 @@
    "images": [
     "crops/sym_L-1_020_ctx.png",
     "crops/sym_L-1_020_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_021": {
    "task": "symbol_type",
@@ -424,7 +444,8 @@
    "images": [
     "crops/sym_L-1_021_ctx.png",
     "crops/sym_L-1_021_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_022": {
    "task": "symbol_type",
@@ -444,7 +465,8 @@
    "images": [
     "crops/sym_L-1_022_ctx.png",
     "crops/sym_L-1_022_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_023": {
    "task": "symbol_type",
@@ -464,7 +486,8 @@
    "images": [
     "crops/sym_L-1_023_ctx.png",
     "crops/sym_L-1_023_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_024": {
    "task": "symbol_type",
@@ -484,7 +507,8 @@
    "images": [
     "crops/sym_L-1_024_ctx.png",
     "crops/sym_L-1_024_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_025": {
    "task": "symbol_type",
@@ -504,7 +528,8 @@
    "images": [
     "crops/sym_L-1_025_ctx.png",
     "crops/sym_L-1_025_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_026": {
    "task": "symbol_type",
@@ -524,7 +549,8 @@
    "images": [
     "crops/sym_L-1_026_ctx.png",
     "crops/sym_L-1_026_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_027": {
    "task": "symbol_type",
@@ -544,7 +570,8 @@
    "images": [
     "crops/sym_L-1_027_ctx.png",
     "crops/sym_L-1_027_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_028": {
    "task": "symbol_type",
@@ -564,7 +591,8 @@
    "images": [
     "crops/sym_L-1_028_ctx.png",
     "crops/sym_L-1_028_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_029": {
    "task": "symbol_type",
@@ -584,7 +612,8 @@
    "images": [
     "crops/sym_L-1_029_ctx.png",
     "crops/sym_L-1_029_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_030": {
    "task": "symbol_type",
@@ -604,7 +633,8 @@
    "images": [
     "crops/sym_L-1_030_ctx.png",
     "crops/sym_L-1_030_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_031": {
    "task": "symbol_type",
@@ -624,7 +654,8 @@
    "images": [
     "crops/sym_L-1_031_ctx.png",
     "crops/sym_L-1_031_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_032": {
    "task": "symbol_type",
@@ -644,7 +675,8 @@
    "images": [
     "crops/sym_L-1_032_ctx.png",
     "crops/sym_L-1_032_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_033": {
    "task": "symbol_type",
@@ -664,7 +696,8 @@
    "images": [
     "crops/sym_L-1_033_ctx.png",
     "crops/sym_L-1_033_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_034": {
    "task": "symbol_type",
@@ -684,7 +717,8 @@
    "images": [
     "crops/sym_L-1_034_ctx.png",
     "crops/sym_L-1_034_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_035": {
    "task": "symbol_type",
@@ -704,7 +738,8 @@
    "images": [
     "crops/sym_L-1_035_ctx.png",
     "crops/sym_L-1_035_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1_036": {
    "task": "symbol_type",
@@ -724,7 +759,8 @@
    "images": [
     "crops/sym_L-1_036_ctx.png",
     "crops/sym_L-1_036_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_001": {
    "task": "symbol_type",
@@ -744,7 +780,8 @@
    "images": [
     "crops/sym_L-1b_001_ctx.png",
     "crops/sym_L-1b_001_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_002": {
    "task": "symbol_type",
@@ -764,7 +801,8 @@
    "images": [
     "crops/sym_L-1b_002_ctx.png",
     "crops/sym_L-1b_002_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_003": {
    "task": "symbol_type",
@@ -784,7 +822,8 @@
    "images": [
     "crops/sym_L-1b_003_ctx.png",
     "crops/sym_L-1b_003_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_004": {
    "task": "symbol_type",
@@ -804,7 +843,8 @@
    "images": [
     "crops/sym_L-1b_004_ctx.png",
     "crops/sym_L-1b_004_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_005": {
    "task": "symbol_type",
@@ -824,7 +864,8 @@
    "images": [
     "crops/sym_L-1b_005_ctx.png",
     "crops/sym_L-1b_005_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_006": {
    "task": "symbol_type",
@@ -844,7 +885,8 @@
    "images": [
     "crops/sym_L-1b_006_ctx.png",
     "crops/sym_L-1b_006_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_007": {
    "task": "symbol_type",
@@ -864,7 +906,8 @@
    "images": [
     "crops/sym_L-1b_007_ctx.png",
     "crops/sym_L-1b_007_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_008": {
    "task": "symbol_type",
@@ -884,7 +927,8 @@
    "images": [
     "crops/sym_L-1b_008_ctx.png",
     "crops/sym_L-1b_008_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_009": {
    "task": "symbol_type",
@@ -904,7 +948,8 @@
    "images": [
     "crops/sym_L-1b_009_ctx.png",
     "crops/sym_L-1b_009_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_010": {
    "task": "symbol_type",
@@ -924,7 +969,8 @@
    "images": [
     "crops/sym_L-1b_010_ctx.png",
     "crops/sym_L-1b_010_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_011": {
    "task": "symbol_type",
@@ -944,7 +990,8 @@
    "images": [
     "crops/sym_L-1b_011_ctx.png",
     "crops/sym_L-1b_011_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_012": {
    "task": "symbol_type",
@@ -964,7 +1011,8 @@
    "images": [
     "crops/sym_L-1b_012_ctx.png",
     "crops/sym_L-1b_012_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_013": {
    "task": "symbol_type",
@@ -984,7 +1032,8 @@
    "images": [
     "crops/sym_L-1b_013_ctx.png",
     "crops/sym_L-1b_013_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_014": {
    "task": "symbol_type",
@@ -1004,7 +1053,8 @@
    "images": [
     "crops/sym_L-1b_014_ctx.png",
     "crops/sym_L-1b_014_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_015": {
    "task": "symbol_type",
@@ -1024,7 +1074,8 @@
    "images": [
     "crops/sym_L-1b_015_ctx.png",
     "crops/sym_L-1b_015_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_016": {
    "task": "symbol_type",
@@ -1044,7 +1095,8 @@
    "images": [
     "crops/sym_L-1b_016_ctx.png",
     "crops/sym_L-1b_016_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_017": {
    "task": "symbol_type",
@@ -1064,7 +1116,8 @@
    "images": [
     "crops/sym_L-1b_017_ctx.png",
     "crops/sym_L-1b_017_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_018": {
    "task": "symbol_type",
@@ -1084,7 +1137,8 @@
    "images": [
     "crops/sym_L-1b_018_ctx.png",
     "crops/sym_L-1b_018_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_019": {
    "task": "symbol_type",
@@ -1104,7 +1158,8 @@
    "images": [
     "crops/sym_L-1b_019_ctx.png",
     "crops/sym_L-1b_019_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_020": {
    "task": "symbol_type",
@@ -1124,7 +1179,8 @@
    "images": [
     "crops/sym_L-1b_020_ctx.png",
     "crops/sym_L-1b_020_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_021": {
    "task": "symbol_type",
@@ -1144,7 +1200,8 @@
    "images": [
     "crops/sym_L-1b_021_ctx.png",
     "crops/sym_L-1b_021_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_022": {
    "task": "symbol_type",
@@ -1164,7 +1221,8 @@
    "images": [
     "crops/sym_L-1b_022_ctx.png",
     "crops/sym_L-1b_022_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_023": {
    "task": "symbol_type",
@@ -1184,7 +1242,8 @@
    "images": [
     "crops/sym_L-1b_023_ctx.png",
     "crops/sym_L-1b_023_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_024": {
    "task": "symbol_type",
@@ -1204,7 +1263,8 @@
    "images": [
     "crops/sym_L-1b_024_ctx.png",
     "crops/sym_L-1b_024_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_025": {
    "task": "symbol_type",
@@ -1224,7 +1284,8 @@
    "images": [
     "crops/sym_L-1b_025_ctx.png",
     "crops/sym_L-1b_025_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L-1b_026": {
    "task": "symbol_type",
@@ -1244,7 +1305,8 @@
    "images": [
     "crops/sym_L-1b_026_ctx.png",
     "crops/sym_L-1b_026_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_001": {
    "task": "symbol_type",
@@ -1264,7 +1326,8 @@
    "images": [
     "crops/sym_L0_001_ctx.png",
     "crops/sym_L0_001_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_002": {
    "task": "symbol_type",
@@ -1284,7 +1347,8 @@
    "images": [
     "crops/sym_L0_002_ctx.png",
     "crops/sym_L0_002_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_003": {
    "task": "symbol_type",
@@ -1304,7 +1368,8 @@
    "images": [
     "crops/sym_L0_003_ctx.png",
     "crops/sym_L0_003_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_004": {
    "task": "symbol_type",
@@ -1324,7 +1389,8 @@
    "images": [
     "crops/sym_L0_004_ctx.png",
     "crops/sym_L0_004_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_005": {
    "task": "symbol_type",
@@ -1344,7 +1410,8 @@
    "images": [
     "crops/sym_L0_005_ctx.png",
     "crops/sym_L0_005_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_006": {
    "task": "symbol_type",
@@ -1364,7 +1431,8 @@
    "images": [
     "crops/sym_L0_006_ctx.png",
     "crops/sym_L0_006_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_007": {
    "task": "symbol_type",
@@ -1384,7 +1452,8 @@
    "images": [
     "crops/sym_L0_007_ctx.png",
     "crops/sym_L0_007_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_008": {
    "task": "symbol_type",
@@ -1404,7 +1473,8 @@
    "images": [
     "crops/sym_L0_008_ctx.png",
     "crops/sym_L0_008_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_009": {
    "task": "symbol_type",
@@ -1424,7 +1494,8 @@
    "images": [
     "crops/sym_L0_009_ctx.png",
     "crops/sym_L0_009_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_010": {
    "task": "symbol_type",
@@ -1444,7 +1515,8 @@
    "images": [
     "crops/sym_L0_010_ctx.png",
     "crops/sym_L0_010_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_011": {
    "task": "symbol_type",
@@ -1464,7 +1536,8 @@
    "images": [
     "crops/sym_L0_011_ctx.png",
     "crops/sym_L0_011_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_012": {
    "task": "symbol_type",
@@ -1484,7 +1557,8 @@
    "images": [
     "crops/sym_L0_012_ctx.png",
     "crops/sym_L0_012_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_013": {
    "task": "symbol_type",
@@ -1504,7 +1578,8 @@
    "images": [
     "crops/sym_L0_013_ctx.png",
     "crops/sym_L0_013_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_014": {
    "task": "symbol_type",
@@ -1524,7 +1599,8 @@
    "images": [
     "crops/sym_L0_014_ctx.png",
     "crops/sym_L0_014_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_015": {
    "task": "symbol_type",
@@ -1544,7 +1620,8 @@
    "images": [
     "crops/sym_L0_015_ctx.png",
     "crops/sym_L0_015_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L0_016": {
    "task": "symbol_type",
@@ -1564,7 +1641,8 @@
    "images": [
     "crops/sym_L0_016_ctx.png",
     "crops/sym_L0_016_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_001": {
    "task": "symbol_type",
@@ -1584,7 +1662,8 @@
    "images": [
     "crops/sym_L1_001_ctx.png",
     "crops/sym_L1_001_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_002": {
    "task": "symbol_type",
@@ -1604,7 +1683,8 @@
    "images": [
     "crops/sym_L1_002_ctx.png",
     "crops/sym_L1_002_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_003": {
    "task": "symbol_type",
@@ -1624,7 +1704,8 @@
    "images": [
     "crops/sym_L1_003_ctx.png",
     "crops/sym_L1_003_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_004": {
    "task": "symbol_type",
@@ -1644,7 +1725,8 @@
    "images": [
     "crops/sym_L1_004_ctx.png",
     "crops/sym_L1_004_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_005": {
    "task": "symbol_type",
@@ -1664,7 +1746,8 @@
    "images": [
     "crops/sym_L1_005_ctx.png",
     "crops/sym_L1_005_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_006": {
    "task": "symbol_type",
@@ -1684,7 +1767,8 @@
    "images": [
     "crops/sym_L1_006_ctx.png",
     "crops/sym_L1_006_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_007": {
    "task": "symbol_type",
@@ -1704,7 +1788,8 @@
    "images": [
     "crops/sym_L1_007_ctx.png",
     "crops/sym_L1_007_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_008": {
    "task": "symbol_type",
@@ -1724,7 +1809,8 @@
    "images": [
     "crops/sym_L1_008_ctx.png",
     "crops/sym_L1_008_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_009": {
    "task": "symbol_type",
@@ -1744,7 +1830,8 @@
    "images": [
     "crops/sym_L1_009_ctx.png",
     "crops/sym_L1_009_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_010": {
    "task": "symbol_type",
@@ -1764,7 +1851,8 @@
    "images": [
     "crops/sym_L1_010_ctx.png",
     "crops/sym_L1_010_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_011": {
    "task": "symbol_type",
@@ -1784,7 +1872,8 @@
    "images": [
     "crops/sym_L1_011_ctx.png",
     "crops/sym_L1_011_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_012": {
    "task": "symbol_type",
@@ -1804,7 +1893,8 @@
    "images": [
     "crops/sym_L1_012_ctx.png",
     "crops/sym_L1_012_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_013": {
    "task": "symbol_type",
@@ -1824,7 +1914,8 @@
    "images": [
     "crops/sym_L1_013_ctx.png",
     "crops/sym_L1_013_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   },
   "sym_L1_014": {
    "task": "symbol_type",
@@ -1844,7 +1935,8 @@
    "images": [
     "crops/sym_L1_014_ctx.png",
     "crops/sym_L1_014_iso.png"
-   ]
+   ],
+   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
   }
  }
 }

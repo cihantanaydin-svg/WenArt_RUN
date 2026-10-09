@@ -1,0 +1,33 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real02",
+ "stage": "pipeline_final",
+ "rc": null,
+ "status": "reused",
+ "seconds": 0.0,
+ "fingerprint": "82e35c031c5684329e11f5d1e6159696668c76532def55ede147af4a278e5e98",
+ "inputs": {
+  "projects/real02": "554e11de3e64c8b5f91d6c91dd2afdb98fdfbb50d2a0a30d0b833df623450d46",
+  "outputs/real02/sheets/answers_qwen3-vl-8b.json": null,
+  "outputs/real02/sheets/answers_glm-4.6v-flash.json": null,
+  "outputs/real02/recognition/answers_qwen3-vl-8b.json": "4d4502f04855396f5e49ec6f5def4ce113b3de9e65a7af6a3d3fb7538e8ef413",
+  "outputs/real02/recognition/answers_glm-4.6v-flash.json": "91d6f8571c120af9a52d686a773ab020cc4246b9386fdfd7c14a78e0cbdd282a",
+  "<LibreDWG VERSION>": "0.14 d9468ae"
+ },
+ "outputs": [
+  "sheets.json",
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-10-09T08:33:41Z",
+ "git_commit": "314cf5ff54541abd5e713a3d5a35c49f688a9a75",
+ "log": "logs/pipeline_final.log",
+ "note": null,
+ "run_id": "20261009-082737-full-20261009T083331Z",
+ "steps": [],
+ "written": {
+  "building.json": "2d88ca5f5ac62c1df239e32c232720be345362ec558e9c5bd253715863060ce7",
+  "sheets.json": "e8dc50f5337e838eb313bdf3875fb3780bd72438015fb8e9607966fc2ce47cfd"
+ }
+}

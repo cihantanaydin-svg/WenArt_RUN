@@ -1,0 +1,6750 @@
+{
+ "schema_version": "0.1",
+ "kind": "run",
+ "project": "real02",
+ "incomplete": false,
+ "models": {
+  "base": {
+   "repo": "Tongyi-MAI/Z-Image-Turbo",
+   "revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+   "licence": "Apache-2.0",
+   "files": [
+    "model_index.json",
+    "scheduler/*",
+    "text_encoder/*",
+    "tokenizer/*",
+    "transformer/*",
+    "vae/*"
+   ]
+  },
+  "controlnet": {
+   "repo": "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1",
+   "revision": "5155fc56d17821007d6f62ac192c09e0f0e72016",
+   "licence": "Apache-2.0",
+   "files": [
+    "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+   ],
+   "config_sha256": "f7225591bd7534c4ef9b9844c93a4d843813d55cd1f542b571af835cc70acba9"
+  },
+  "gate": {
+   "depth": {
+    "repo": "depth-anything/Depth-Anything-V2-Small-hf",
+    "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99",
+    "licence": "Apache-2.0"
+   },
+   "sam": {
+    "repo": "facebook/sam2.1-hiera-large",
+    "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610",
+    "licence": "Apache-2.0"
+   },
+   "dino": {
+    "repo": "facebook/dinov2-base",
+    "revision": "f9e44c814b77203eaa57a6bdbbd535f21ede1415",
+    "licence": "Apache-2.0"
+   }
+  }
+ },
+ "config": {
+  "models": {
+   "base": {
+    "repo": "Tongyi-MAI/Z-Image-Turbo",
+    "revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "licence": "Apache-2.0",
+    "allow_patterns": [
+     "model_index.json",
+     "scheduler/*",
+     "text_encoder/*",
+     "tokenizer/*",
+     "transformer/*",
+     "vae/*"
+    ],
+    "size_gb": 32.85
+   },
+   "controlnet": {
+    "repo": "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1",
+    "revision": "5155fc56d17821007d6f62ac192c09e0f0e72016",
+    "licence": "Apache-2.0",
+    "files": [
+     "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+    ],
+    "allow_patterns": [
+     "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+    ],
+    "config_dir": "configs/controlnet_union_2.1",
+    "size_gb": 6.71
+   }
+  },
+  "seed": 0,
+  "steps": 8,
+  "size": "native",
+  "ladder": [
+   {
+    "strength": 0.375,
+    "control": "geometry",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain"
+   },
+   {
+    "strength": 0.25,
+    "control": "canny",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain"
+   },
+   {
+    "strength": 0.125,
+    "control": "depth",
+    "scale": 0.8,
+    "size": "native",
+    "mode": "plain"
+   }
+  ],
+  "grids": {
+   "sweep": [
+    {
+     "role": "grid",
+     "strength": 0.125,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.25,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.5,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.25,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "1536x864",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "anchor"
+    },
+    {
+     "role": "presumed_bad",
+     "strength": 0.75,
+     "control": null,
+     "scale": null,
+     "size": "native",
+     "mode": "plain"
+    }
+   ],
+   "smoke": [
+    {
+     "role": "grid",
+     "strength": 0.25,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    },
+    {
+     "role": "grid",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain"
+    }
+   ]
+  },
+  "determinism_view": null
+ },
+ "thresholds": {
+  "edges": {
+   "hard": true,
+   "global_min": 0.935,
+   "region_min": 0.87,
+   "region_min_ref_px": 200,
+   "radius_px": 3,
+   "canny": {
+    "sigma": 1.5,
+    "low": 25,
+    "high": 75
+   }
+  },
+  "added_lines": {
+   "hard": true,
+   "region_max_len_frac": 0.04,
+   "min_len_frac": 0.04,
+   "unmatched_frac": 0.7
+  },
+  "depth": {
+   "hard": true,
+   "global_max": 0.05,
+   "region_max": 0.14,
+   "region_min_frac": 0.01
+  },
+  "masks": {
+   "hard": true,
+   "region_min": 0.62,
+   "region_min_frac": 0.005,
+   "sam_reliable_min": 0.7
+  },
+  "colour": {
+   "hard": true,
+   "global_max": 7.5,
+   "region_max": 8.0,
+   "region_min_frac": 0.01
+  },
+  "neutral": {
+   "hard": true,
+   "region_max_dchroma": 2.0
+  },
+  "features": {
+   "hard": false,
+   "region_min": 0.8,
+   "region_min_frac": 0.01
+  },
+  "calibration": {
+   "source": "run 1a, job 20261002-135133-polish",
+   "date": "2026-10-02",
+   "rule": "worst benign value of both projects with a 15 % margin, rounded",
+   "benign_accept": 1.0,
+   "negative_reject": 0.934,
+   "small_geometric_reject": 0.915,
+   "looser_than_start": [
+    "edges.global_min 0.95",
+    "depth.global_max 0.02",
+    "depth.region_max 0.05",
+    "masks.region_min 0.90"
+   ],
+   "tighter_than_start": [
+    "edges.region_min 0.85",
+    "colour.global_max 10",
+    "colour.region_max 15",
+    "neutral.region_max_dchroma 5"
+   ],
+   "user_ok": "2026-10-03",
+   "accepted_shortfall": null
+  }
+ },
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "torch": "2.9.1+cu128",
+ "diffusers": "0.40.0",
+ "memory_mode": "resident",
+ "peak_vram_gib": 22.5,
+ "peak_reserved_gib": 24.26,
+ "load_seconds": 2.3,
+ "encode_seconds": 2.0,
+ "seconds_per_forward": 1.299,
+ "forwards": 57,
+ "oom_retries": 0,
+ "stats_source": "this_run",
+ "seconds": 116.0,
+ "deadline": 1791539930.0,
+ "polish_allowed": true,
+ "attempt_list": [
+  {
+   "role": "ladder",
+   "strength": 0.375,
+   "control": "geometry",
+   "scale": 0.8,
+   "size": "native",
+   "mode": "plain"
+  },
+  {
+   "role": "ladder",
+   "strength": 0.25,
+   "control": "canny",
+   "scale": 0.8,
+   "size": "native",
+   "mode": "plain"
+  },
+  {
+   "role": "ladder",
+   "strength": 0.125,
+   "control": "depth",
+   "scale": 0.8,
+   "size": "native",
+   "mode": "plain"
+  }
+ ],
+ "views": [
+  {
+   "camera": "cam_r_L-1b_acik_mutfak_1",
+   "room_id": "r_L-1b_acik_mutfak",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_acik_mutfak_1.png",
+   "source_sha256": "537b9861bb61556378b62f8cf8983ee477c2d8b239d5d8b215d6b33821e9ad26",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, tall cabinet, fridge, wall cabinets. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "kitchen",
+    "room_words": "kitchen",
+    "family": "modern",
+    "walls": "tiles_light",
+    "walls_colour": null,
+    "accent": null,
+    "floor": "tiles_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "tall_cabinet",
+     "fridge",
+     "wall_cabinet"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_acik_mutfak_1_control_canny.png",
+    "depth": "cam_r_L-1b_acik_mutfak_1_control_depth.png",
+    "geometry": "cam_r_L-1b_acik_mutfak_1_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.81,
+     "png": "cam_r_L-1b_acik_mutfak_1_a1.png",
+     "sha256": "79dc37015ba193eb9582e8c05fa8e30c4aa8ce37915abab2a41ec6385c5485c6",
+     "attempt_key": "06c81454fa026f132b11669fee5d62310c324a0339795dad58cb9a9ad25f5d6f",
+     "panes_restored": 1,
+     "wall_lab": [
+      36.38,
+      4.15,
+      6.53
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [
+       {
+        "check": "features",
+        "region": "f_L-1b_049",
+        "value": 0.6701,
+        "threshold": 0.8,
+        "op": ">="
+       }
+      ],
+      "metrics": {
+       "edges": {
+        "global": 0.992,
+        "regions": {
+         "win_L-1b_001": 1.0,
+         "f_L-1b_006": 0.9846,
+         "f_L-1b_008": 0.9893,
+         "f_L-1b_032": 0.9919,
+         "f_L-1b_038": 1.0,
+         "f_L-1b_049": 0.9834
+        },
+        "skipped": {
+         "f_L-1b_036": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 9225,
+         "win_L-1b_001": 1602,
+         "f_L-1b_006": 1498,
+         "f_L-1b_008": 3260,
+         "f_L-1b_036": 105,
+         "f_L-1b_032": 369,
+         "f_L-1b_038": 285,
+         "f_L-1b_049": 783
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 6.2651,
+        "regions": {
+         "f_L-1b_006": 3.0179,
+         "f_L-1b_008": 3.3996,
+         "f_L-1b_049": 3.2604,
+         "struct:floor": 2.9783,
+         "struct:ceiling": 2.7007,
+         "struct:walls": 0.5835
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_036": "too_small",
+         "f_L-1b_032": "too_small",
+         "f_L-1b_038": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 0.4001
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00993,
+        "regions": {
+         "f_L-1b_006": 0.01748,
+         "f_L-1b_008": 0.01038,
+         "f_L-1b_049": 0.01549,
+         "struct:floor": 0.01166,
+         "struct:ceiling": 0.00402,
+         "struct:walls": 0.0087
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_036": "too_small",
+         "f_L-1b_032": "too_small",
+         "f_L-1b_038": "too_small"
+        },
+        "fit": {
+         "scale": 0.976208,
+         "shift": 0.016528,
+         "range": 6.275554
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_001": 0.9777,
+         "f_L-1b_006": 0.7741,
+         "f_L-1b_008": 0.988,
+         "f_L-1b_032": 0.9853,
+         "f_L-1b_049": 0.9841
+        },
+        "skipped": {
+         "f_L-1b_036": "too_small",
+         "f_L-1b_038": "too_small"
+        },
+        "reliability": {
+         "win_L-1b_001": 0.9727,
+         "f_L-1b_006": 0.9319,
+         "f_L-1b_008": 0.9698,
+         "f_L-1b_032": 0.9673,
+         "f_L-1b_049": 0.9832
+        }
+       },
+       "features": {
+        "global": 0.8973,
+        "regions": {
+         "win_L-1b_001": 0.9799,
+         "f_L-1b_006": 0.9168,
+         "f_L-1b_008": 0.9273,
+         "f_L-1b_049": 0.6701
+        },
+        "skipped": {
+         "f_L-1b_036": "too_small",
+         "f_L-1b_032": "too_small",
+         "f_L-1b_038": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_001": {
+         "kind": "window",
+         "pixels": 400015
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 20754
+        },
+        "f_L-1b_008": {
+         "kind": "furniture",
+         "pixels": 344498
+        },
+        "f_L-1b_036": {
+         "kind": "furniture",
+         "pixels": 92
+        },
+        "f_L-1b_032": {
+         "kind": "furniture",
+         "pixels": 15348
+        },
+        "f_L-1b_038": {
+         "kind": "furniture",
+         "pixels": 6013
+        },
+        "f_L-1b_049": {
+         "kind": "furniture",
+         "pixels": 38414
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 443745
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 50125
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 752348
+        }
+       },
+       "seconds": {
+        "edges": 0.01,
+        "added_lines": 0.029,
+        "colour": 0.022,
+        "depth": 0.215,
+        "masks": 0.403,
+        "features": 0.146
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "187a9a7a90d83373"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_1_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.794,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.85,
+     "gate_reused": false,
+     "cpu_seconds": 0.49,
+     "preview": "cam_r_L-1b_acik_mutfak_1_a1_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 1,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_acik_mutfak_2",
+   "room_id": "r_L-1b_acik_mutfak",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_acik_mutfak_2.png",
+   "source_sha256": "72127d4f70f447905795395cbd00047020f96b4a35761945230c44a33fa52436",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "kitchen",
+    "room_words": "kitchen",
+    "family": "modern",
+    "walls": "tiles_light",
+    "walls_colour": null,
+    "accent": null,
+    "floor": "tiles_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_acik_mutfak_2_control_canny.png",
+    "depth": "cam_r_L-1b_acik_mutfak_2_control_depth.png",
+    "geometry": "cam_r_L-1b_acik_mutfak_2_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.7,
+     "png": "cam_r_L-1b_acik_mutfak_2_a1.png",
+     "sha256": "2fe1697febd887168479bcfae6c96b505186f2f70dff608edf3605833b0b5f02",
+     "attempt_key": "aefc0c3704d75b7f42da96a2b67a52c83b756c39af0469c98773fd9a81acdaa2",
+     "panes_restored": 1,
+     "wall_lab": [
+      33.57,
+      3.84,
+      6.37
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9833,
+        "regions": {
+         "win_L-1b_001": 0.9977,
+         "f_L-1b_002": 0.9823,
+         "f_L-1b_008": 1.0,
+         "f_L-1b_018": 0.9651,
+         "f_L-1b_025": 1.0,
+         "f_L-1b_026": 1.0,
+         "f_L-1b_027": 0.998,
+         "f_L-1b_028": 0.9704,
+         "f_L-1b_034": 1.0
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 16177,
+         "win_L-1b_001": 3532,
+         "f_L-1b_002": 4697,
+         "f_L-1b_008": 877,
+         "f_L-1b_018": 1605,
+         "f_L-1b_025": 577,
+         "f_L-1b_026": 1010,
+         "f_L-1b_027": 1513,
+         "f_L-1b_028": 2063,
+         "f_L-1b_034": 1216
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 6.5405,
+        "regions": {
+         "f_L-1b_002": 2.8928,
+         "f_L-1b_008": 2.1139,
+         "f_L-1b_018": 2.4809,
+         "f_L-1b_028": 2.4862,
+         "struct:floor": 3.0032,
+         "struct:ceiling": 0.8418,
+         "struct:walls": 1.1362
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_025": "too_small",
+         "f_L-1b_026": "too_small",
+         "f_L-1b_027": "too_small",
+         "f_L-1b_034": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 0.0278
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.0068,
+        "regions": {
+         "f_L-1b_002": 0.01039,
+         "f_L-1b_008": 0.00558,
+         "f_L-1b_018": 0.00989,
+         "f_L-1b_028": 0.03035,
+         "struct:floor": 0.0072,
+         "struct:ceiling": 0.0023,
+         "struct:walls": 0.00214
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_025": "too_small",
+         "f_L-1b_026": "too_small",
+         "f_L-1b_027": "too_small",
+         "f_L-1b_034": "too_small"
+        },
+        "fit": {
+         "scale": 0.970555,
+         "shift": 0.026147,
+         "range": 11.083549
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_001": 0.9886,
+         "f_L-1b_008": 0.979,
+         "f_L-1b_018": 0.9412
+        },
+        "skipped": {
+         "f_L-1b_025": "too_small",
+         "f_L-1b_026": "too_small",
+         "f_L-1b_002": "sam_unreliable",
+         "f_L-1b_027": "sam_unreliable",
+         "f_L-1b_028": "sam_unreliable",
+         "f_L-1b_034": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_001": 0.9439,
+         "f_L-1b_002": 0.2785,
+         "f_L-1b_008": 0.9821,
+         "f_L-1b_018": 0.941,
+         "f_L-1b_027": 0.6146,
+         "f_L-1b_028": 0.5691,
+         "f_L-1b_034": 0.5059
+        }
+       },
+       "features": {
+        "global": 0.916,
+        "regions": {
+         "win_L-1b_001": 0.9878,
+         "f_L-1b_002": 0.9103,
+         "f_L-1b_008": 0.9269,
+         "f_L-1b_018": 0.959,
+         "f_L-1b_028": 0.9051
+        },
+        "skipped": {
+         "f_L-1b_025": "too_small",
+         "f_L-1b_026": "too_small",
+         "f_L-1b_027": "too_small",
+         "f_L-1b_034": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_001": {
+         "kind": "window",
+         "pixels": 367215
+        },
+        "f_L-1b_002": {
+         "kind": "furniture",
+         "pixels": 138236
+        },
+        "f_L-1b_008": {
+         "kind": "furniture",
+         "pixels": 38778
+        },
+        "f_L-1b_018": {
+         "kind": "furniture",
+         "pixels": 320931
+        },
+        "f_L-1b_025": {
+         "kind": "furniture",
+         "pixels": 2107
+        },
+        "f_L-1b_026": {
+         "kind": "furniture",
+         "pixels": 8391
+        },
+        "f_L-1b_027": {
+         "kind": "furniture",
+         "pixels": 14317
+        },
+        "f_L-1b_028": {
+         "kind": "furniture",
+         "pixels": 75890
+        },
+        "f_L-1b_034": {
+         "kind": "furniture",
+         "pixels": 20515
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 379439
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 23337
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 680873
+        }
+       },
+       "seconds": {
+        "edges": 0.012,
+        "added_lines": 0.032,
+        "colour": 0.021,
+        "depth": 0.08,
+        "masks": 0.129,
+        "features": 0.06
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "b03a59601140a839"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.692,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.34,
+     "gate_reused": false,
+     "cpu_seconds": 0.52,
+     "preview": "cam_r_L-1b_acik_mutfak_2_a1_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 1,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_acik_mutfak_2_1",
+   "room_id": "r_L-1b_acik_mutfak_2",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_acik_mutfak_2_1.png",
+   "source_sha256": "43ef5bc529b54bfa6fb50086cbf160cf3de94acdbe7aa20786c87b1d781fdf1b",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, fridge, wall cabinets. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "kitchen",
+    "room_words": "kitchen",
+    "family": "modern",
+    "walls": "tiles_light",
+    "walls_colour": null,
+    "accent": null,
+    "floor": "tiles_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "fridge",
+     "wall_cabinet"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_acik_mutfak_2_1_control_canny.png",
+    "depth": "cam_r_L-1b_acik_mutfak_2_1_control_depth.png",
+    "geometry": "cam_r_L-1b_acik_mutfak_2_1_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.71,
+     "png": "cam_r_L-1b_acik_mutfak_2_1_a1.png",
+     "sha256": "5f00c3eaafe0768d1dd8a907f137dc6c6cae29138c5329cff8d05ee2b5e2c530",
+     "attempt_key": "2704a4b9ef9f444ae9d32912db360b2004c181ebc13233631344da61ec9f6c2a",
+     "panes_restored": 1,
+     "wall_lab": [
+      38.09,
+      4.36,
+      7.2
+     ],
+     "gate": {
+      "decision": "reject",
+      "reasons": [
+       {
+        "check": "depth",
+        "region": "f_L-1b_033",
+        "value": 0.1653,
+        "threshold": 0.14,
+        "op": "<="
+       }
+      ],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9829,
+        "regions": {
+         "win_L-1b_002": 0.9799,
+         "f_L-1b_005": 0.9773,
+         "f_L-1b_007": 0.996,
+         "f_L-1b_033": 0.9824,
+         "f_L-1b_031": 0.9906,
+         "f_L-1b_037": 0.8827,
+         "f_L-1b_052": 0.9422
+        },
+        "skipped": {
+         "f_L-1b_001": "no_reference_px",
+         "f_L-1b_035": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 11092,
+         "win_L-1b_002": 1541,
+         "f_L-1b_001": 139,
+         "f_L-1b_005": 1983,
+         "f_L-1b_007": 3258,
+         "f_L-1b_033": 737,
+         "f_L-1b_035": 122,
+         "f_L-1b_031": 425,
+         "f_L-1b_037": 358,
+         "f_L-1b_052": 277
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 6.4196,
+        "regions": {
+         "f_L-1b_005": 3.3921,
+         "f_L-1b_007": 3.3746,
+         "f_L-1b_033": 4.8003,
+         "struct:floor": 3.4483,
+         "struct:ceiling": 1.6362,
+         "struct:walls": 1.1229
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 1.1975
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.01874,
+        "regions": {
+         "f_L-1b_005": 0.0337,
+         "f_L-1b_007": 0.01654,
+         "f_L-1b_033": 0.1653,
+         "struct:floor": 0.00958,
+         "struct:ceiling": 0.0015,
+         "struct:walls": 0.00565
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        },
+        "fit": {
+         "scale": 1.032361,
+         "shift": -0.062906,
+         "range": 7.80806
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.9861,
+         "f_L-1b_005": 0.9787,
+         "f_L-1b_007": 0.9948,
+         "f_L-1b_033": 0.9919,
+         "f_L-1b_031": 0.9158,
+         "f_L-1b_037": 0.9828
+        },
+        "skipped": {
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_052": "too_small"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.983,
+         "f_L-1b_005": 0.9674,
+         "f_L-1b_007": 0.9875,
+         "f_L-1b_033": 0.9658,
+         "f_L-1b_031": 0.9476,
+         "f_L-1b_037": 0.9755
+        }
+       },
+       "features": {
+        "global": 0.9025,
+        "regions": {
+         "win_L-1b_002": 0.9839,
+         "f_L-1b_005": 0.8934,
+         "f_L-1b_007": 0.9193,
+         "f_L-1b_033": 0.9085
+        },
+        "skipped": {
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 401629
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 1759
+        },
+        "f_L-1b_005": {
+         "kind": "furniture",
+         "pixels": 38653
+        },
+        "f_L-1b_007": {
+         "kind": "furniture",
+         "pixels": 299614
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 100642
+        },
+        "f_L-1b_035": {
+         "kind": "furniture",
+         "pixels": 189
+        },
+        "f_L-1b_031": {
+         "kind": "furniture",
+         "pixels": 18354
+        },
+        "f_L-1b_037": {
+         "kind": "furniture",
+         "pixels": 10470
+        },
+        "f_L-1b_052": {
+         "kind": "furniture",
+         "pixels": 1590
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 372494
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 62822
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 762080
+        }
+       },
+       "seconds": {
+        "edges": 0.011,
+        "added_lines": 0.028,
+        "colour": 0.021,
+        "depth": 0.074,
+        "masks": 0.128,
+        "features": 0.057
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "22abfe2d9f850d5f"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_1_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.701,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.32,
+     "gate_reused": false,
+     "cpu_seconds": 0.52
+    },
+    {
+     "k": 2,
+     "role": "ladder",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 2,
+     "steps": 8,
+     "sigmas": [
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.5,
+     "forwards": 2,
+     "seconds": 2.76,
+     "png": "cam_r_L-1b_acik_mutfak_2_1_a2.png",
+     "sha256": "987d2da80797073d30ddc6062e7b16b95a8a8658b83ee1542c2e22a16001f19c",
+     "attempt_key": "9c9c3dd369c397c5761c04099aff70232b9562b6f67a943a4dc8b42562eb0cc0",
+     "panes_restored": 1,
+     "wall_lab": [
+      38.54,
+      4.55,
+      7.26
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9919,
+        "regions": {
+         "win_L-1b_002": 0.9857,
+         "f_L-1b_005": 0.9854,
+         "f_L-1b_007": 0.9951,
+         "f_L-1b_033": 0.9851,
+         "f_L-1b_031": 0.9718,
+         "f_L-1b_037": 1.0,
+         "f_L-1b_052": 0.9711
+        },
+        "skipped": {
+         "f_L-1b_001": "no_reference_px",
+         "f_L-1b_035": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 11092,
+         "win_L-1b_002": 1541,
+         "f_L-1b_001": 139,
+         "f_L-1b_005": 1983,
+         "f_L-1b_007": 3258,
+         "f_L-1b_033": 737,
+         "f_L-1b_035": 122,
+         "f_L-1b_031": 425,
+         "f_L-1b_037": 358,
+         "f_L-1b_052": 277
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 5.5125,
+        "regions": {
+         "f_L-1b_005": 2.1071,
+         "f_L-1b_007": 2.7592,
+         "f_L-1b_033": 3.7279,
+         "struct:floor": 2.7183,
+         "struct:ceiling": 1.3922,
+         "struct:walls": 0.7963
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 1.0968
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.02633,
+        "regions": {
+         "f_L-1b_005": 0.00657,
+         "f_L-1b_007": 0.01776,
+         "f_L-1b_033": 0.0865,
+         "struct:floor": 0.04146,
+         "struct:ceiling": 0.01207,
+         "struct:walls": 0.01701
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        },
+        "fit": {
+         "scale": 0.964116,
+         "shift": 0.058599,
+         "range": 7.80806
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.9932,
+         "f_L-1b_005": 0.9833,
+         "f_L-1b_007": 0.9953,
+         "f_L-1b_033": 0.9917,
+         "f_L-1b_031": 0.968,
+         "f_L-1b_037": 0.9729
+        },
+        "skipped": {
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_052": "too_small"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.983,
+         "f_L-1b_005": 0.9674,
+         "f_L-1b_007": 0.9875,
+         "f_L-1b_033": 0.9658,
+         "f_L-1b_031": 0.9476,
+         "f_L-1b_037": 0.9755
+        }
+       },
+       "features": {
+        "global": 0.9196,
+        "regions": {
+         "win_L-1b_002": 0.9877,
+         "f_L-1b_005": 0.8924,
+         "f_L-1b_007": 0.9362,
+         "f_L-1b_033": 0.9325
+        },
+        "skipped": {
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 401629
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 1759
+        },
+        "f_L-1b_005": {
+         "kind": "furniture",
+         "pixels": 38653
+        },
+        "f_L-1b_007": {
+         "kind": "furniture",
+         "pixels": 299614
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 100642
+        },
+        "f_L-1b_035": {
+         "kind": "furniture",
+         "pixels": 189
+        },
+        "f_L-1b_031": {
+         "kind": "furniture",
+         "pixels": 18354
+        },
+        "f_L-1b_037": {
+         "kind": "furniture",
+         "pixels": 10470
+        },
+        "f_L-1b_052": {
+         "kind": "furniture",
+         "pixels": 1590
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 372494
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 62822
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 762080
+        }
+       },
+       "seconds": {
+        "edges": 0.011,
+        "added_lines": 0.028,
+        "colour": 0.023,
+        "depth": 0.059,
+        "masks": 0.063,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "22abfe2d9f850d5f"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_1_a2_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 2.739,
+     "sigma0": 0.5,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.21,
+     "gate_reused": false,
+     "cpu_seconds": 0.47
+    },
+    {
+     "k": 3,
+     "role": "ladder",
+     "strength": 0.125,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 3,
+     "steps": 8,
+     "sigmas": [
+      0.125
+     ],
+     "sigma0_numpy": 0.3,
+     "forwards": 1,
+     "seconds": 1.79,
+     "png": "cam_r_L-1b_acik_mutfak_2_1_a3.png",
+     "sha256": "0c0860d12675a12189b3a91ba6a80dd8c043b772057f067eac1f7e97ca737e09",
+     "attempt_key": "d6d2a686fc7f9737f484022a54eb83b0f7b432599f3e682e133166b0f634464c",
+     "panes_restored": 1,
+     "wall_lab": [
+      38.64,
+      4.65,
+      7.48
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.995,
+        "regions": {
+         "win_L-1b_002": 0.9916,
+         "f_L-1b_005": 0.9924,
+         "f_L-1b_007": 0.9969,
+         "f_L-1b_033": 0.9878,
+         "f_L-1b_031": 0.9906,
+         "f_L-1b_037": 1.0,
+         "f_L-1b_052": 0.9783
+        },
+        "skipped": {
+         "f_L-1b_001": "no_reference_px",
+         "f_L-1b_035": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 11092,
+         "win_L-1b_002": 1541,
+         "f_L-1b_001": 139,
+         "f_L-1b_005": 1983,
+         "f_L-1b_007": 3258,
+         "f_L-1b_033": 737,
+         "f_L-1b_035": 122,
+         "f_L-1b_031": 425,
+         "f_L-1b_037": 358,
+         "f_L-1b_052": 277
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 4.6014,
+        "regions": {
+         "f_L-1b_005": 1.4958,
+         "f_L-1b_007": 1.6305,
+         "f_L-1b_033": 2.5195,
+         "struct:floor": 1.8101,
+         "struct:ceiling": 0.5284,
+         "struct:walls": 0.5284
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 0.4524
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.02604,
+        "regions": {
+         "f_L-1b_005": 0.01198,
+         "f_L-1b_007": 0.02365,
+         "f_L-1b_033": 0.03982,
+         "struct:floor": 0.04771,
+         "struct:ceiling": 0.01313,
+         "struct:walls": 0.01682
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        },
+        "fit": {
+         "scale": 0.936565,
+         "shift": 0.115526,
+         "range": 7.80806
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.9584,
+         "f_L-1b_005": 0.9912,
+         "f_L-1b_007": 0.995,
+         "f_L-1b_033": 0.9946,
+         "f_L-1b_031": 0.9708,
+         "f_L-1b_037": 0.9884
+        },
+        "skipped": {
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_052": "too_small"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.983,
+         "f_L-1b_005": 0.9674,
+         "f_L-1b_007": 0.9875,
+         "f_L-1b_033": 0.9658,
+         "f_L-1b_031": 0.9476,
+         "f_L-1b_037": 0.9755
+        }
+       },
+       "features": {
+        "global": 0.9505,
+        "regions": {
+         "win_L-1b_002": 0.9903,
+         "f_L-1b_005": 0.9401,
+         "f_L-1b_007": 0.9666,
+         "f_L-1b_033": 0.9489
+        },
+        "skipped": {
+         "f_L-1b_001": "too_small",
+         "f_L-1b_035": "too_small",
+         "f_L-1b_031": "too_small",
+         "f_L-1b_037": "too_small",
+         "f_L-1b_052": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 401629
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 1759
+        },
+        "f_L-1b_005": {
+         "kind": "furniture",
+         "pixels": 38653
+        },
+        "f_L-1b_007": {
+         "kind": "furniture",
+         "pixels": 299614
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 100642
+        },
+        "f_L-1b_035": {
+         "kind": "furniture",
+         "pixels": 189
+        },
+        "f_L-1b_031": {
+         "kind": "furniture",
+         "pixels": 18354
+        },
+        "f_L-1b_037": {
+         "kind": "furniture",
+         "pixels": 10470
+        },
+        "f_L-1b_052": {
+         "kind": "furniture",
+         "pixels": 1590
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 372494
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 62822
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 762080
+        }
+       },
+       "seconds": {
+        "edges": 0.011,
+        "added_lines": 0.028,
+        "colour": 0.02,
+        "depth": 0.059,
+        "masks": 0.063,
+        "features": 0.024
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "22abfe2d9f850d5f"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_1_a3_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 1.773,
+     "sigma0": 0.3,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.21,
+     "gate_reused": false,
+     "cpu_seconds": 0.46,
+     "room_rule": true
+    }
+   ],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "room",
+   "complete": true,
+   "notes": [
+    "room rule ran a3",
+    "room rule: wall ΔE 5.569 > 5.0 in r_L-1b_acik_mutfak_2; a2 -> cycles"
+   ]
+  },
+  {
+   "camera": "cam_r_L-1b_acik_mutfak_2_2",
+   "room_id": "r_L-1b_acik_mutfak_2",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_acik_mutfak_2_2.png",
+   "source_sha256": "31a37f92ae70b43f7b62337a610daa093efb917a7ccaf926e7abc013af93a76a",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, kitchen island, bar stool. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "kitchen",
+    "room_words": "kitchen",
+    "family": "modern",
+    "walls": "tiles_light",
+    "walls_colour": null,
+    "accent": null,
+    "floor": "tiles_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "kitchen_island",
+     "bar_stool"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_acik_mutfak_2_2_control_canny.png",
+    "depth": "cam_r_L-1b_acik_mutfak_2_2_control_depth.png",
+    "geometry": "cam_r_L-1b_acik_mutfak_2_2_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.72,
+     "png": "cam_r_L-1b_acik_mutfak_2_2_a1.png",
+     "sha256": "099b6c27c58559d309f9eb2f7a07bceac7256f28397ab9a9902d86f27d90d0fb",
+     "attempt_key": "0f0575660154bee7c64e0e3ce94d53b4a39681a6183e7a1e98d41b3049f069c9",
+     "panes_restored": 1,
+     "wall_lab": [
+      44.03,
+      4.1,
+      6.44
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9788,
+        "regions": {
+         "win_L-1b_002": 0.9908,
+         "f_L-1b_001": 0.992,
+         "f_L-1b_023": 0.9929,
+         "f_L-1b_024": 0.9977,
+         "f_L-1b_029": 0.9923,
+         "f_L-1b_030": 1.0,
+         "f_L-1b_033": 0.9963,
+         "f_L-1b_017": 0.9631,
+         "f_L-1b_050": 0.9682,
+         "f_L-1b_051": 0.9675,
+         "f_L-1b_052": 0.9729,
+         "f_L-1b_053": 0.9321
+        },
+        "skipped": {
+         "f_L-1b_021": "no_reference_px",
+         "f_L-1b_003": "no_reference_px",
+         "f_L0_002": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 25167,
+         "win_L-1b_002": 1089,
+         "f_L-1b_001": 5599,
+         "f_L-1b_021": 138,
+         "f_L-1b_023": 844,
+         "f_L-1b_024": 1282,
+         "f_L-1b_029": 1952,
+         "f_L-1b_030": 518,
+         "f_L-1b_033": 1604,
+         "f_L-1b_017": 4688,
+         "f_L-1b_050": 2420,
+         "f_L-1b_051": 3472,
+         "f_L-1b_052": 2765,
+         "f_L-1b_053": 2872,
+         "f_L-1b_003": 62,
+         "f_L0_002": 0
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 6.8861,
+        "regions": {
+         "f_L-1b_001": 2.5001,
+         "f_L-1b_023": 5.6342,
+         "f_L-1b_024": 3.7388,
+         "f_L-1b_029": 2.9253,
+         "f_L-1b_033": 3.1106,
+         "f_L-1b_017": 1.9982,
+         "f_L-1b_051": 3.4751,
+         "f_L-1b_052": 3.1991,
+         "struct:floor": 3.0851,
+         "struct:ceiling": 1.8389,
+         "struct:walls": 0.7355
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 0.2019
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00759,
+        "regions": {
+         "f_L-1b_001": 0.01198,
+         "f_L-1b_023": 0.00261,
+         "f_L-1b_024": 0.00742,
+         "f_L-1b_029": 0.00433,
+         "f_L-1b_033": 0.00944,
+         "f_L-1b_017": 0.0113,
+         "f_L-1b_051": 0.01595,
+         "f_L-1b_052": 0.00997,
+         "struct:floor": 0.00564,
+         "struct:ceiling": 0.00201,
+         "struct:walls": 0.00829
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        },
+        "fit": {
+         "scale": 0.970731,
+         "shift": -0.034954,
+         "range": 5.375754
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.9403,
+         "f_L-1b_023": 0.9716,
+         "f_L-1b_024": 0.9641,
+         "f_L-1b_029": 0.9484,
+         "f_L-1b_017": 0.9775,
+         "f_L-1b_050": 0.9212,
+         "f_L-1b_051": 0.9029,
+         "f_L-1b_052": 0.9191,
+         "f_L-1b_053": 0.906
+        },
+        "skipped": {
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small",
+         "f_L-1b_001": "sam_unreliable",
+         "f_L-1b_033": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.7799,
+         "f_L-1b_001": 0.3788,
+         "f_L-1b_023": 0.972,
+         "f_L-1b_024": 0.904,
+         "f_L-1b_029": 0.8245,
+         "f_L-1b_033": 0.2711,
+         "f_L-1b_017": 0.8858,
+         "f_L-1b_050": 0.7407,
+         "f_L-1b_051": 0.8185,
+         "f_L-1b_052": 0.8741,
+         "f_L-1b_053": 0.913
+        }
+       },
+       "features": {
+        "global": 0.8964,
+        "regions": {
+         "win_L-1b_002": 0.96,
+         "f_L-1b_001": 0.9251,
+         "f_L-1b_023": 0.8919,
+         "f_L-1b_024": 0.917,
+         "f_L-1b_029": 0.9397,
+         "f_L-1b_033": 0.9418,
+         "f_L-1b_017": 0.8727,
+         "f_L-1b_051": 0.9684,
+         "f_L-1b_052": 0.968
+        },
+        "skipped": {
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 124333
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 91818
+        },
+        "f_L-1b_021": {
+         "kind": "furniture",
+         "pixels": 2085
+        },
+        "f_L-1b_023": {
+         "kind": "furniture",
+         "pixels": 32918
+        },
+        "f_L-1b_024": {
+         "kind": "furniture",
+         "pixels": 50767
+        },
+        "f_L-1b_029": {
+         "kind": "furniture",
+         "pixels": 64380
+        },
+        "f_L-1b_030": {
+         "kind": "furniture",
+         "pixels": 4558
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 65071
+        },
+        "f_L-1b_017": {
+         "kind": "furniture",
+         "pixels": 129799
+        },
+        "f_L-1b_050": {
+         "kind": "furniture",
+         "pixels": 14022
+        },
+        "f_L-1b_051": {
+         "kind": "furniture",
+         "pixels": 24227
+        },
+        "f_L-1b_052": {
+         "kind": "furniture",
+         "pixels": 26527
+        },
+        "f_L-1b_053": {
+         "kind": "furniture",
+         "pixels": 19580
+        },
+        "f_L-1b_003": {
+         "kind": "furniture",
+         "pixels": 4627
+        },
+        "f_L0_002": {
+         "kind": "furniture",
+         "pixels": 296
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 578436
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 126213
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 709140
+        }
+       },
+       "seconds": {
+        "edges": 0.012,
+        "added_lines": 0.041,
+        "colour": 0.023,
+        "depth": 0.089,
+        "masks": 0.136,
+        "features": 0.07
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "74df5403b01704b8"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_2_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.715,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.37,
+     "gate_reused": false,
+     "cpu_seconds": 0.48
+    },
+    {
+     "k": 2,
+     "role": "ladder",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 2,
+     "steps": 8,
+     "sigmas": [
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.5,
+     "forwards": 2,
+     "seconds": 2.77,
+     "png": "cam_r_L-1b_acik_mutfak_2_2_a2.png",
+     "sha256": "7a1355b7d76663da1b6c6160a19ec65c692bd37ff55cbabf9c36147734f1d5bf",
+     "attempt_key": "0c7e6efec94d6157e22b0c2ce70d1088b3624da8f5dc00f82def265f1aee9e22",
+     "panes_restored": 1,
+     "wall_lab": [
+      44.18,
+      4.17,
+      6.25
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9831,
+        "regions": {
+         "win_L-1b_002": 0.9366,
+         "f_L-1b_001": 0.9943,
+         "f_L-1b_023": 0.9882,
+         "f_L-1b_024": 0.9852,
+         "f_L-1b_029": 0.9954,
+         "f_L-1b_030": 1.0,
+         "f_L-1b_033": 0.9956,
+         "f_L-1b_017": 0.9761,
+         "f_L-1b_050": 0.9876,
+         "f_L-1b_051": 0.9675,
+         "f_L-1b_052": 0.9805,
+         "f_L-1b_053": 0.9819
+        },
+        "skipped": {
+         "f_L-1b_021": "no_reference_px",
+         "f_L-1b_003": "no_reference_px",
+         "f_L0_002": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 25167,
+         "win_L-1b_002": 1089,
+         "f_L-1b_001": 5599,
+         "f_L-1b_021": 138,
+         "f_L-1b_023": 844,
+         "f_L-1b_024": 1282,
+         "f_L-1b_029": 1952,
+         "f_L-1b_030": 518,
+         "f_L-1b_033": 1604,
+         "f_L-1b_017": 4688,
+         "f_L-1b_050": 2420,
+         "f_L-1b_051": 3472,
+         "f_L-1b_052": 2765,
+         "f_L-1b_053": 2872,
+         "f_L-1b_003": 62,
+         "f_L0_002": 0
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 5.8103,
+        "regions": {
+         "f_L-1b_001": 1.9202,
+         "f_L-1b_023": 3.418,
+         "f_L-1b_024": 2.8628,
+         "f_L-1b_029": 2.0867,
+         "f_L-1b_033": 2.2497,
+         "f_L-1b_017": 0.7987,
+         "f_L-1b_051": 1.4804,
+         "f_L-1b_052": 1.1536,
+         "struct:floor": 2.4775,
+         "struct:ceiling": 1.0496,
+         "struct:walls": 0.6878
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 0.2895
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00796,
+        "regions": {
+         "f_L-1b_001": 0.02251,
+         "f_L-1b_023": 0.00245,
+         "f_L-1b_024": 0.00544,
+         "f_L-1b_029": 0.02957,
+         "f_L-1b_033": 0.01002,
+         "f_L-1b_017": 0.0085,
+         "f_L-1b_051": 0.01151,
+         "f_L-1b_052": 0.00933,
+         "struct:floor": 0.00485,
+         "struct:ceiling": 0.00619,
+         "struct:walls": 0.0065
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        },
+        "fit": {
+         "scale": 0.986033,
+         "shift": 0.02809,
+         "range": 5.375754
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.8614,
+         "f_L-1b_023": 0.9759,
+         "f_L-1b_024": 0.9573,
+         "f_L-1b_029": 0.9467,
+         "f_L-1b_017": 0.9696,
+         "f_L-1b_050": 0.9632,
+         "f_L-1b_051": 0.9184,
+         "f_L-1b_052": 0.9034,
+         "f_L-1b_053": 0.9474
+        },
+        "skipped": {
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small",
+         "f_L-1b_001": "sam_unreliable",
+         "f_L-1b_033": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.7799,
+         "f_L-1b_001": 0.3788,
+         "f_L-1b_023": 0.972,
+         "f_L-1b_024": 0.904,
+         "f_L-1b_029": 0.8245,
+         "f_L-1b_033": 0.2711,
+         "f_L-1b_017": 0.8858,
+         "f_L-1b_050": 0.7407,
+         "f_L-1b_051": 0.8185,
+         "f_L-1b_052": 0.8741,
+         "f_L-1b_053": 0.913
+        }
+       },
+       "features": {
+        "global": 0.9213,
+        "regions": {
+         "win_L-1b_002": 0.9709,
+         "f_L-1b_001": 0.9351,
+         "f_L-1b_023": 0.9364,
+         "f_L-1b_024": 0.9417,
+         "f_L-1b_029": 0.9415,
+         "f_L-1b_033": 0.9596,
+         "f_L-1b_017": 0.9104,
+         "f_L-1b_051": 0.9776,
+         "f_L-1b_052": 0.9607
+        },
+        "skipped": {
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 124333
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 91818
+        },
+        "f_L-1b_021": {
+         "kind": "furniture",
+         "pixels": 2085
+        },
+        "f_L-1b_023": {
+         "kind": "furniture",
+         "pixels": 32918
+        },
+        "f_L-1b_024": {
+         "kind": "furniture",
+         "pixels": 50767
+        },
+        "f_L-1b_029": {
+         "kind": "furniture",
+         "pixels": 64380
+        },
+        "f_L-1b_030": {
+         "kind": "furniture",
+         "pixels": 4558
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 65071
+        },
+        "f_L-1b_017": {
+         "kind": "furniture",
+         "pixels": 129799
+        },
+        "f_L-1b_050": {
+         "kind": "furniture",
+         "pixels": 14022
+        },
+        "f_L-1b_051": {
+         "kind": "furniture",
+         "pixels": 24227
+        },
+        "f_L-1b_052": {
+         "kind": "furniture",
+         "pixels": 26527
+        },
+        "f_L-1b_053": {
+         "kind": "furniture",
+         "pixels": 19580
+        },
+        "f_L-1b_003": {
+         "kind": "furniture",
+         "pixels": 4627
+        },
+        "f_L0_002": {
+         "kind": "furniture",
+         "pixels": 296
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 578436
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 126213
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 709140
+        }
+       },
+       "seconds": {
+        "edges": 0.012,
+        "added_lines": 0.04,
+        "colour": 0.024,
+        "depth": 0.066,
+        "masks": 0.066,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "74df5403b01704b8"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_2_a2_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 2.759,
+     "sigma0": 0.5,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.23,
+     "gate_reused": false,
+     "cpu_seconds": 0.45,
+     "room_rule": true
+    },
+    {
+     "k": 3,
+     "role": "ladder",
+     "strength": 0.125,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 3,
+     "steps": 8,
+     "sigmas": [
+      0.125
+     ],
+     "sigma0_numpy": 0.3,
+     "forwards": 1,
+     "seconds": 1.79,
+     "png": "cam_r_L-1b_acik_mutfak_2_2_a3.png",
+     "sha256": "dd853beec8548b55db415d1d6db52c6acc322bc13b4be950f9360aea60f9b7a7",
+     "attempt_key": "84ea104efd1edf15bfe1518ca9b0d8d86df28e9e3bf07221175587a6df394c63",
+     "panes_restored": 1,
+     "wall_lab": [
+      44.44,
+      4.3,
+      6.52
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9894,
+        "regions": {
+         "win_L-1b_002": 0.9816,
+         "f_L-1b_001": 0.9946,
+         "f_L-1b_023": 0.9964,
+         "f_L-1b_024": 0.9953,
+         "f_L-1b_029": 0.9923,
+         "f_L-1b_030": 1.0,
+         "f_L-1b_033": 0.9969,
+         "f_L-1b_017": 0.997,
+         "f_L-1b_050": 0.9798,
+         "f_L-1b_051": 0.9824,
+         "f_L-1b_052": 0.9844,
+         "f_L-1b_053": 0.9889
+        },
+        "skipped": {
+         "f_L-1b_021": "no_reference_px",
+         "f_L-1b_003": "no_reference_px",
+         "f_L0_002": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 25167,
+         "win_L-1b_002": 1089,
+         "f_L-1b_001": 5599,
+         "f_L-1b_021": 138,
+         "f_L-1b_023": 844,
+         "f_L-1b_024": 1282,
+         "f_L-1b_029": 1952,
+         "f_L-1b_030": 518,
+         "f_L-1b_033": 1604,
+         "f_L-1b_017": 4688,
+         "f_L-1b_050": 2420,
+         "f_L-1b_051": 3472,
+         "f_L-1b_052": 2765,
+         "f_L-1b_053": 2872,
+         "f_L-1b_003": 62,
+         "f_L0_002": 0
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 4.8885,
+        "regions": {
+         "f_L-1b_001": 1.1714,
+         "f_L-1b_023": 2.1277,
+         "f_L-1b_024": 1.9674,
+         "f_L-1b_029": 1.2017,
+         "f_L-1b_033": 1.2339,
+         "f_L-1b_017": 0.5196,
+         "f_L-1b_051": 0.7109,
+         "f_L-1b_052": 0.953,
+         "struct:floor": 1.5994,
+         "struct:ceiling": 0.5549,
+         "struct:walls": 0.3106
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:ceiling": 0.1141
+        },
+        "skipped": {
+         "struct:walls": "albedo_texture"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00525,
+        "regions": {
+         "f_L-1b_001": 0.01124,
+         "f_L-1b_023": 0.00394,
+         "f_L-1b_024": 0.0099,
+         "f_L-1b_029": 0.01157,
+         "f_L-1b_033": 0.00549,
+         "f_L-1b_017": 0.01182,
+         "f_L-1b_051": 0.01191,
+         "f_L-1b_052": 0.00768,
+         "struct:floor": 0.00338,
+         "struct:ceiling": 0.00279,
+         "struct:walls": 0.00367
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        },
+        "fit": {
+         "scale": 0.990182,
+         "shift": 0.01904,
+         "range": 5.375754
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.8713,
+         "f_L-1b_023": 0.9853,
+         "f_L-1b_024": 0.9794,
+         "f_L-1b_029": 0.9461,
+         "f_L-1b_017": 0.9749,
+         "f_L-1b_050": 0.9451,
+         "f_L-1b_051": 0.9502,
+         "f_L-1b_052": 0.9199,
+         "f_L-1b_053": 0.9569
+        },
+        "skipped": {
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small",
+         "f_L-1b_001": "sam_unreliable",
+         "f_L-1b_033": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.7799,
+         "f_L-1b_001": 0.3788,
+         "f_L-1b_023": 0.972,
+         "f_L-1b_024": 0.904,
+         "f_L-1b_029": 0.8245,
+         "f_L-1b_033": 0.2711,
+         "f_L-1b_017": 0.8858,
+         "f_L-1b_050": 0.7407,
+         "f_L-1b_051": 0.8185,
+         "f_L-1b_052": 0.8741,
+         "f_L-1b_053": 0.913
+        }
+       },
+       "features": {
+        "global": 0.9494,
+        "regions": {
+         "win_L-1b_002": 0.9829,
+         "f_L-1b_001": 0.9553,
+         "f_L-1b_023": 0.9614,
+         "f_L-1b_024": 0.9626,
+         "f_L-1b_029": 0.9563,
+         "f_L-1b_033": 0.9722,
+         "f_L-1b_017": 0.9278,
+         "f_L-1b_051": 0.9863,
+         "f_L-1b_052": 0.968
+        },
+        "skipped": {
+         "f_L-1b_021": "too_small",
+         "f_L-1b_030": "too_small",
+         "f_L-1b_050": "too_small",
+         "f_L-1b_053": "too_small",
+         "f_L-1b_003": "too_small",
+         "f_L0_002": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 124333
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 91818
+        },
+        "f_L-1b_021": {
+         "kind": "furniture",
+         "pixels": 2085
+        },
+        "f_L-1b_023": {
+         "kind": "furniture",
+         "pixels": 32918
+        },
+        "f_L-1b_024": {
+         "kind": "furniture",
+         "pixels": 50767
+        },
+        "f_L-1b_029": {
+         "kind": "furniture",
+         "pixels": 64380
+        },
+        "f_L-1b_030": {
+         "kind": "furniture",
+         "pixels": 4558
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 65071
+        },
+        "f_L-1b_017": {
+         "kind": "furniture",
+         "pixels": 129799
+        },
+        "f_L-1b_050": {
+         "kind": "furniture",
+         "pixels": 14022
+        },
+        "f_L-1b_051": {
+         "kind": "furniture",
+         "pixels": 24227
+        },
+        "f_L-1b_052": {
+         "kind": "furniture",
+         "pixels": 26527
+        },
+        "f_L-1b_053": {
+         "kind": "furniture",
+         "pixels": 19580
+        },
+        "f_L-1b_003": {
+         "kind": "furniture",
+         "pixels": 4627
+        },
+        "f_L0_002": {
+         "kind": "furniture",
+         "pixels": 296
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 578436
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 126213
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 709140
+        }
+       },
+       "seconds": {
+        "edges": 0.012,
+        "added_lines": 0.038,
+        "colour": 0.025,
+        "depth": 0.071,
+        "masks": 0.067,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "74df5403b01704b8"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_2_a3_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 1.771,
+     "sigma0": 0.3,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.24,
+     "gate_reused": false,
+     "cpu_seconds": 0.46,
+     "room_rule": true
+    }
+   ],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "room",
+   "complete": true,
+   "notes": [
+    "room rule ran a2",
+    "room rule ran a3",
+    "room rule: wall ΔE 5.569 > 5.0 in r_L-1b_acik_mutfak_2; a1 -> cycles"
+   ]
+  },
+  {
+   "camera": "cam_r_L-1b_acik_mutfak_2_3",
+   "room_id": "r_L-1b_acik_mutfak_2",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_acik_mutfak_2_3.png",
+   "source_sha256": "30f28eb324273867ca43e701ac7ff8a4b85c67f53343abf26c53efb509136f8c",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, kitchen island, bar stool. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "kitchen",
+    "room_words": "kitchen",
+    "family": "modern",
+    "walls": "tiles_light",
+    "walls_colour": null,
+    "accent": null,
+    "floor": "tiles_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "kitchen_island",
+     "bar_stool"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_acik_mutfak_2_3_control_canny.png",
+    "depth": "cam_r_L-1b_acik_mutfak_2_3_control_depth.png",
+    "geometry": "cam_r_L-1b_acik_mutfak_2_3_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.72,
+     "png": "cam_r_L-1b_acik_mutfak_2_3_a1.png",
+     "sha256": "8fa4a16a438e1304872fe13561cbe8f3356aae9a48445f68b2fd79a62b321fb3",
+     "attempt_key": "10415529919d67576972cb3432b37da858982f2f733cdb6729fd667b32ba0581",
+     "panes_restored": 1,
+     "wall_lab": [
+      42.88,
+      3.9,
+      6.16
+     ],
+     "gate": {
+      "decision": "reject",
+      "reasons": [
+       {
+        "check": "edges",
+        "region": "f_L-1b_030",
+        "value": 0.6789,
+        "threshold": 0.87,
+        "op": ">="
+       },
+       {
+        "check": "edges",
+        "region": "f_L-1b_053",
+        "value": 0.8663,
+        "threshold": 0.87,
+        "op": ">="
+       },
+       {
+        "check": "masks",
+        "region": "f_L-1b_030",
+        "value": 0.6108,
+        "threshold": 0.62,
+        "op": ">="
+       }
+      ],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9571,
+        "regions": {
+         "win_L-1b_002": 0.995,
+         "f_L-1b_001": 0.9602,
+         "f_L-1b_023": 0.9355,
+         "f_L-1b_024": 0.9899,
+         "f_L-1b_029": 0.9683,
+         "f_L-1b_030": 0.6789,
+         "f_L-1b_033": 0.9894,
+         "f_L-1b_017": 0.9823,
+         "f_L-1b_053": 0.8663
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 14979,
+         "win_L-1b_002": 2413,
+         "f_L-1b_001": 3965,
+         "f_L-1b_023": 527,
+         "f_L-1b_024": 690,
+         "f_L-1b_029": 2651,
+         "f_L-1b_030": 545,
+         "f_L-1b_033": 1503,
+         "f_L-1b_017": 1130,
+         "f_L-1b_053": 2521
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 6.5006,
+        "regions": {
+         "f_L-1b_001": 2.1788,
+         "f_L-1b_029": 3.0413,
+         "f_L-1b_033": 3.146,
+         "f_L-1b_017": 1.6137,
+         "f_L-1b_053": 2.2951,
+         "struct:floor": 4.12,
+         "struct:walls": 0.7206
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small",
+         "struct:ceiling": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {},
+        "skipped": {
+         "struct:walls": "albedo_texture",
+         "struct:ceiling": "too_small"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00973,
+        "regions": {
+         "f_L-1b_001": 0.00386,
+         "f_L-1b_029": 0.00259,
+         "f_L-1b_033": 0.00364,
+         "f_L-1b_017": 0.11754,
+         "f_L-1b_053": 0.01214,
+         "struct:floor": 0.00257,
+         "struct:walls": 0.00163
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small",
+         "struct:ceiling": "too_small"
+        },
+        "fit": {
+         "scale": 1.013206,
+         "shift": 0.014019,
+         "range": 8.492957
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.957,
+         "f_L-1b_024": 0.6742,
+         "f_L-1b_029": 0.833,
+         "f_L-1b_030": 0.6108,
+         "f_L-1b_017": 0.9953,
+         "f_L-1b_053": 0.9703
+        },
+        "skipped": {
+         "f_L-1b_023": "too_small",
+         "f_L-1b_001": "sam_unreliable",
+         "f_L-1b_033": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.9112,
+         "f_L-1b_001": 0.5344,
+         "f_L-1b_024": 0.7259,
+         "f_L-1b_029": 0.9458,
+         "f_L-1b_030": 0.8231,
+         "f_L-1b_033": 0.5503,
+         "f_L-1b_017": 0.987,
+         "f_L-1b_053": 0.9603
+        }
+       },
+       "features": {
+        "global": 0.8972,
+        "regions": {
+         "win_L-1b_002": 0.9796,
+         "f_L-1b_001": 0.9525,
+         "f_L-1b_029": 0.9178,
+         "f_L-1b_033": 0.9787,
+         "f_L-1b_017": 0.8599,
+         "f_L-1b_053": 0.9269
+        },
+        "skipped": {
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 324483
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 281441
+        },
+        "f_L-1b_023": {
+         "kind": "furniture",
+         "pixels": 4328
+        },
+        "f_L-1b_024": {
+         "kind": "furniture",
+         "pixels": 12384
+        },
+        "f_L-1b_029": {
+         "kind": "furniture",
+         "pixels": 166074
+        },
+        "f_L-1b_030": {
+         "kind": "furniture",
+         "pixels": 11689
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 50284
+        },
+        "f_L-1b_017": {
+         "kind": "furniture",
+         "pixels": 107632
+        },
+        "f_L-1b_053": {
+         "kind": "furniture",
+         "pixels": 52740
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 282979
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 19102
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 757697
+        }
+       },
+       "seconds": {
+        "edges": 0.01,
+        "added_lines": 0.022,
+        "colour": 0.021,
+        "depth": 0.082,
+        "masks": 0.134,
+        "features": 0.063
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "f10765d2d4f60d32"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_3_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.713,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.34,
+     "gate_reused": false,
+     "cpu_seconds": 0.51
+    },
+    {
+     "k": 2,
+     "role": "ladder",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 2,
+     "steps": 8,
+     "sigmas": [
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.5,
+     "forwards": 2,
+     "seconds": 2.75,
+     "png": "cam_r_L-1b_acik_mutfak_2_3_a2.png",
+     "sha256": "2b9a7b7193104acd9c2e155084a0503e4369075f273fb2786cf6a5969d126ca7",
+     "attempt_key": "d85df73482c10d7f9d81792ec666b9c2eb500b1a061956e7aa693aaa4def5e29",
+     "panes_restored": 1,
+     "wall_lab": [
+      43.16,
+      3.94,
+      6.21
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9859,
+        "regions": {
+         "win_L-1b_002": 0.9843,
+         "f_L-1b_001": 0.9861,
+         "f_L-1b_023": 0.9905,
+         "f_L-1b_024": 0.9855,
+         "f_L-1b_029": 0.9857,
+         "f_L-1b_030": 0.9872,
+         "f_L-1b_033": 0.9887,
+         "f_L-1b_017": 0.992,
+         "f_L-1b_053": 0.9691
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 14979,
+         "win_L-1b_002": 2413,
+         "f_L-1b_001": 3965,
+         "f_L-1b_023": 527,
+         "f_L-1b_024": 690,
+         "f_L-1b_029": 2651,
+         "f_L-1b_030": 545,
+         "f_L-1b_033": 1503,
+         "f_L-1b_017": 1130,
+         "f_L-1b_053": 2521
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 5.4225,
+        "regions": {
+         "f_L-1b_001": 1.5273,
+         "f_L-1b_029": 2.5356,
+         "f_L-1b_033": 1.8912,
+         "f_L-1b_017": 1.1164,
+         "f_L-1b_053": 3.2074,
+         "struct:floor": 3.2072,
+         "struct:walls": 0.4455
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small",
+         "struct:ceiling": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {},
+        "skipped": {
+         "struct:walls": "albedo_texture",
+         "struct:ceiling": "too_small"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00946,
+        "regions": {
+         "f_L-1b_001": 0.00475,
+         "f_L-1b_029": 0.00376,
+         "f_L-1b_033": 0.00561,
+         "f_L-1b_017": 0.10603,
+         "f_L-1b_053": 0.01119,
+         "struct:floor": 0.00177,
+         "struct:walls": 0.00218
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small",
+         "struct:ceiling": "too_small"
+        },
+        "fit": {
+         "scale": 1.039539,
+         "shift": 0.08951,
+         "range": 8.492957
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.9456,
+         "f_L-1b_024": 0.9869,
+         "f_L-1b_029": 0.9041,
+         "f_L-1b_030": 0.8171,
+         "f_L-1b_017": 0.9961,
+         "f_L-1b_053": 0.9828
+        },
+        "skipped": {
+         "f_L-1b_023": "too_small",
+         "f_L-1b_001": "sam_unreliable",
+         "f_L-1b_033": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.9112,
+         "f_L-1b_001": 0.5344,
+         "f_L-1b_024": 0.7259,
+         "f_L-1b_029": 0.9458,
+         "f_L-1b_030": 0.8231,
+         "f_L-1b_033": 0.5503,
+         "f_L-1b_017": 0.987,
+         "f_L-1b_053": 0.9603
+        }
+       },
+       "features": {
+        "global": 0.9296,
+        "regions": {
+         "win_L-1b_002": 0.9836,
+         "f_L-1b_001": 0.9571,
+         "f_L-1b_029": 0.9413,
+         "f_L-1b_033": 0.979,
+         "f_L-1b_017": 0.8696,
+         "f_L-1b_053": 0.9231
+        },
+        "skipped": {
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 324483
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 281441
+        },
+        "f_L-1b_023": {
+         "kind": "furniture",
+         "pixels": 4328
+        },
+        "f_L-1b_024": {
+         "kind": "furniture",
+         "pixels": 12384
+        },
+        "f_L-1b_029": {
+         "kind": "furniture",
+         "pixels": 166074
+        },
+        "f_L-1b_030": {
+         "kind": "furniture",
+         "pixels": 11689
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 50284
+        },
+        "f_L-1b_017": {
+         "kind": "furniture",
+         "pixels": 107632
+        },
+        "f_L-1b_053": {
+         "kind": "furniture",
+         "pixels": 52740
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 282979
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 19102
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 757697
+        }
+       },
+       "seconds": {
+        "edges": 0.009,
+        "added_lines": 0.021,
+        "colour": 0.022,
+        "depth": 0.057,
+        "masks": 0.064,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "f10765d2d4f60d32"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_3_a2_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 2.733,
+     "sigma0": 0.5,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.2,
+     "gate_reused": false,
+     "cpu_seconds": 0.46
+    },
+    {
+     "k": 3,
+     "role": "ladder",
+     "strength": 0.125,
+     "control": "depth",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 3,
+     "steps": 8,
+     "sigmas": [
+      0.125
+     ],
+     "sigma0_numpy": 0.3,
+     "forwards": 1,
+     "seconds": 1.78,
+     "png": "cam_r_L-1b_acik_mutfak_2_3_a3.png",
+     "sha256": "abbf8409fe3fc8c2d1523c86e69c0a7a484b63a0269a30930e60decf23d10014",
+     "attempt_key": "62f03423bfc724cef7436fdd9e26a724b6f18d0cab86a48b3c9025e63919f6e3",
+     "panes_restored": 1,
+     "wall_lab": [
+      43.34,
+      3.95,
+      6.31
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.989,
+        "regions": {
+         "win_L-1b_002": 0.9979,
+         "f_L-1b_001": 0.9924,
+         "f_L-1b_023": 0.9943,
+         "f_L-1b_024": 0.987,
+         "f_L-1b_029": 0.9925,
+         "f_L-1b_030": 0.9853,
+         "f_L-1b_033": 0.996,
+         "f_L-1b_017": 0.9965,
+         "f_L-1b_053": 0.9591
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 14979,
+         "win_L-1b_002": 2413,
+         "f_L-1b_001": 3965,
+         "f_L-1b_023": 527,
+         "f_L-1b_024": 690,
+         "f_L-1b_029": 2651,
+         "f_L-1b_030": 545,
+         "f_L-1b_033": 1503,
+         "f_L-1b_017": 1130,
+         "f_L-1b_053": 2521
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 4.6473,
+        "regions": {
+         "f_L-1b_001": 1.1055,
+         "f_L-1b_029": 1.6047,
+         "f_L-1b_033": 1.183,
+         "f_L-1b_017": 0.5528,
+         "f_L-1b_053": 2.4797,
+         "struct:floor": 2.0534,
+         "struct:walls": 0.2597
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small",
+         "struct:ceiling": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {},
+        "skipped": {
+         "struct:walls": "albedo_texture",
+         "struct:ceiling": "too_small"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00781,
+        "regions": {
+         "f_L-1b_001": 0.00726,
+         "f_L-1b_029": 0.00487,
+         "f_L-1b_033": 0.00964,
+         "f_L-1b_017": 0.06496,
+         "f_L-1b_053": 0.027,
+         "struct:floor": 0.00211,
+         "struct:walls": 0.00167
+        },
+        "skipped": {
+         "win_L-1b_002": "too_small",
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small",
+         "struct:ceiling": "too_small"
+        },
+        "fit": {
+         "scale": 1.012061,
+         "shift": -0.00869,
+         "range": 8.492957
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_002": 0.983,
+         "f_L-1b_024": 0.6338,
+         "f_L-1b_029": 0.9861,
+         "f_L-1b_030": 0.7898,
+         "f_L-1b_017": 0.9974,
+         "f_L-1b_053": 0.9886
+        },
+        "skipped": {
+         "f_L-1b_023": "too_small",
+         "f_L-1b_001": "sam_unreliable",
+         "f_L-1b_033": "sam_unreliable"
+        },
+        "reliability": {
+         "win_L-1b_002": 0.9112,
+         "f_L-1b_001": 0.5344,
+         "f_L-1b_024": 0.7259,
+         "f_L-1b_029": 0.9458,
+         "f_L-1b_030": 0.8231,
+         "f_L-1b_033": 0.5503,
+         "f_L-1b_017": 0.987,
+         "f_L-1b_053": 0.9603
+        }
+       },
+       "features": {
+        "global": 0.9485,
+        "regions": {
+         "win_L-1b_002": 0.9887,
+         "f_L-1b_001": 0.9707,
+         "f_L-1b_029": 0.9554,
+         "f_L-1b_033": 0.9856,
+         "f_L-1b_017": 0.8908,
+         "f_L-1b_053": 0.9224
+        },
+        "skipped": {
+         "f_L-1b_023": "too_small",
+         "f_L-1b_024": "too_small",
+         "f_L-1b_030": "too_small"
+        }
+       },
+       "regions": {
+        "win_L-1b_002": {
+         "kind": "window",
+         "pixels": 324483
+        },
+        "f_L-1b_001": {
+         "kind": "furniture",
+         "pixels": 281441
+        },
+        "f_L-1b_023": {
+         "kind": "furniture",
+         "pixels": 4328
+        },
+        "f_L-1b_024": {
+         "kind": "furniture",
+         "pixels": 12384
+        },
+        "f_L-1b_029": {
+         "kind": "furniture",
+         "pixels": 166074
+        },
+        "f_L-1b_030": {
+         "kind": "furniture",
+         "pixels": 11689
+        },
+        "f_L-1b_033": {
+         "kind": "furniture",
+         "pixels": 50284
+        },
+        "f_L-1b_017": {
+         "kind": "furniture",
+         "pixels": 107632
+        },
+        "f_L-1b_053": {
+         "kind": "furniture",
+         "pixels": 52740
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 282979
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 19102
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 757697
+        }
+       },
+       "seconds": {
+        "edges": 0.009,
+        "added_lines": 0.02,
+        "colour": 0.023,
+        "depth": 0.056,
+        "masks": 0.064,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "f10765d2d4f60d32"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_2_3_a3_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 1.767,
+     "sigma0": 0.3,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.2,
+     "gate_reused": false,
+     "cpu_seconds": 0.44,
+     "room_rule": true
+    }
+   ],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "room",
+   "complete": true,
+   "notes": [
+    "room rule ran a3",
+    "room rule: wall ΔE 5.569 > 5.0 in r_L-1b_acik_mutfak_2; a2 -> cycles"
+   ]
+  },
+  {
+   "camera": "cam_r_L-1b_acik_mutfak_3",
+   "room_id": "r_L-1b_acik_mutfak",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_acik_mutfak_3.png",
+   "source_sha256": "9d275793af2e5c23d0035fdfcd9104ce3033574e9206d9ccfdb60522f3ef0834",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a kitchen in modern style. Light ceramic tile walls, light ceramic tile floor, tall cabinet. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "kitchen",
+    "room_words": "kitchen",
+    "family": "modern",
+    "walls": "tiles_light",
+    "walls_colour": null,
+    "accent": null,
+    "floor": "tiles_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "tall_cabinet"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_acik_mutfak_3_control_canny.png",
+    "depth": "cam_r_L-1b_acik_mutfak_3_control_depth.png",
+    "geometry": "cam_r_L-1b_acik_mutfak_3_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.72,
+     "png": "cam_r_L-1b_acik_mutfak_3_a1.png",
+     "sha256": "6897614a118f127308585ef575cc4db9b4c8aad1b4505c6d66778e5b3f32a0c6",
+     "attempt_key": "90e25e016ddd022d72fb6058ea35e3e72d0ca148163ceff00308698ab2eb4bfa",
+     "panes_restored": 1,
+     "wall_lab": [
+      33.18,
+      4.33,
+      6.83
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9881,
+        "regions": {
+         "win_L-1b_001": 0.9703,
+         "f_L-1b_006": 0.9843,
+         "f_L-1b_008": 0.9921,
+         "f_L-1b_049": 0.9936
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 11357,
+         "win_L-1b_001": 2928,
+         "f_L-1b_006": 1596,
+         "f_L-1b_008": 4573,
+         "f_L-1b_049": 941
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 5.9524,
+        "regions": {
+         "f_L-1b_006": 2.956,
+         "f_L-1b_008": 3.0223,
+         "f_L-1b_049": 2.3284,
+         "struct:floor": 2.9696,
+         "struct:walls": 0.6502
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "struct:ceiling": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {},
+        "skipped": {
+         "struct:walls": "albedo_texture",
+         "struct:ceiling": "too_small"
+        },
+        "albedo": {
+         "struct:walls": {
+          "material": "tiles_light",
+          "albedo_mode": "texture",
+          "source": "scene manifest materials.tiles_light__Tiles074",
+          "slot": "style_profile.wet_walls",
+          "wet": true
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": true
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00978,
+        "regions": {
+         "f_L-1b_006": 0.00649,
+         "f_L-1b_008": 0.01249,
+         "f_L-1b_049": 0.00772,
+         "struct:floor": 0.02687,
+         "struct:walls": 0.0039
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "struct:ceiling": "too_small"
+        },
+        "fit": {
+         "scale": 0.986563,
+         "shift": 0.058727,
+         "range": 11.453027
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "win_L-1b_001": 0.9965,
+         "f_L-1b_006": 0.9794,
+         "f_L-1b_008": 0.9781,
+         "f_L-1b_049": 0.9919
+        },
+        "skipped": {},
+        "reliability": {
+         "win_L-1b_001": 0.9127,
+         "f_L-1b_006": 0.9783,
+         "f_L-1b_008": 0.982,
+         "f_L-1b_049": 0.9861
+        }
+       },
+       "features": {
+        "global": 0.907,
+        "regions": {
+         "win_L-1b_001": 0.9834,
+         "f_L-1b_006": 0.9428,
+         "f_L-1b_008": 0.9432,
+         "f_L-1b_049": 0.8808
+        },
+        "skipped": {}
+       },
+       "regions": {
+        "win_L-1b_001": {
+         "kind": "window",
+         "pixels": 271178
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 373377
+        },
+        "f_L-1b_008": {
+         "kind": "furniture",
+         "pixels": 312077
+        },
+        "f_L-1b_049": {
+         "kind": "furniture",
+         "pixels": 39742
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 301814
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 17256
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 755475
+        }
+       },
+       "seconds": {
+        "edges": 0.011,
+        "added_lines": 0.021,
+        "colour": 0.022,
+        "depth": 0.078,
+        "masks": 0.124,
+        "features": 0.055
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "9a2bf792fdc7fcc5"
+     },
+     "debug_jpg": "cam_r_L-1b_acik_mutfak_3_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.71,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.31,
+     "gate_reused": false,
+     "cpu_seconds": 0.5,
+     "preview": "cam_r_L-1b_acik_mutfak_3_a1_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 1,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_koridor_1",
+   "room_id": "r_L-1b_koridor",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_koridor_1.png",
+   "source_sha256": "796d6cce55fbd94e77b0002b75e07abe6a2180d093587895a1d41961afd5db0a",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a hallway in modern style. Warm greige smooth painted walls, light oak wood floor, staircase, console table. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 16 mm lens.",
+   "prompt_words": {
+    "room_type": "hall",
+    "room_words": "hallway",
+    "family": "modern",
+    "walls": "paint",
+    "walls_colour": "warm greige",
+    "accent": null,
+    "floor": "wood_oak_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "stair",
+     "console_table"
+    ],
+    "decor": [],
+    "lens_mm": 16.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_koridor_1_control_canny.png",
+    "depth": "cam_r_L-1b_koridor_1_control_depth.png",
+    "geometry": "cam_r_L-1b_koridor_1_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.73,
+     "png": "cam_r_L-1b_koridor_1_a1.png",
+     "sha256": "35c42079b16954650624839ab232d46acf0f77b4e1dab3306a3fd1946ae94b11",
+     "attempt_key": "8e3721260b4704f13a9ba7684e99faa74b66531536d63963c80c1c2cfd925c32",
+     "panes_restored": 1,
+     "wall_lab": [
+      45.28,
+      2.76,
+      9.06
+     ],
+     "gate": {
+      "decision": "reject",
+      "reasons": [
+       {
+        "check": "edges",
+        "region": "f_L-1b_002",
+        "value": 0.8638,
+        "threshold": 0.87,
+        "op": ">="
+       },
+       {
+        "check": "colour",
+        "region": "f_L-1b_006",
+        "value": 9.112,
+        "threshold": 8.0,
+        "op": "<="
+       }
+      ],
+      "notes": [
+       {
+        "check": "features",
+        "region": "win_L-1b_001",
+        "value": 0.7302,
+        "threshold": 0.8,
+        "op": ">="
+       }
+      ],
+      "metrics": {
+       "edges": {
+        "global": 0.9848,
+        "regions": {
+         "d_L-1b_001": 0.9904,
+         "win_L-1b_001": 1.0,
+         "f_L-1b_002": 0.8638,
+         "f_L-1b_006": 0.9813,
+         "f_L-1b_008": 1.0,
+         "f_L-1b_018": 1.0,
+         "f_L-1b_015": 0.9877,
+         "f_L-1b_049": 1.0,
+         "f_L-1b_054": 0.9732,
+         "f_L-1b_004": 0.9849
+        },
+        "skipped": {
+         "f_L-1b_022": "no_reference_px",
+         "f_L-1b_028": "no_reference_px",
+         "f_L-1b_034": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 19392,
+         "d_L-1b_001": 3346,
+         "win_L-1b_001": 301,
+         "f_L-1b_002": 213,
+         "f_L-1b_006": 321,
+         "f_L-1b_008": 377,
+         "f_L-1b_018": 280,
+         "f_L-1b_022": 0,
+         "f_L-1b_028": 66,
+         "f_L-1b_034": 116,
+         "f_L-1b_015": 326,
+         "f_L-1b_049": 249,
+         "f_L-1b_054": 3433,
+         "f_L-1b_004": 7232
+        }
+       },
+       "added_lines": {
+        "global": 0.0329,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0329
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 5.6673,
+        "regions": {
+         "d_L-1b_001": 3.0182,
+         "f_L-1b_006": 9.112,
+         "f_L-1b_018": 7.435,
+         "f_L-1b_054": 1.1305,
+         "f_L-1b_004": 2.0425,
+         "struct:floor": 5.2803,
+         "struct:ceiling": 1.94,
+         "struct:walls": 1.3916
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_002": "too_small",
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.9781,
+         "struct:ceiling": 0.3399
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.01828,
+        "regions": {
+         "d_L-1b_001": 0.00451,
+         "f_L-1b_006": 0.00976,
+         "f_L-1b_018": 0.00975,
+         "f_L-1b_054": 0.01456,
+         "f_L-1b_004": 0.01629,
+         "struct:floor": 0.01268,
+         "struct:ceiling": 0.02889,
+         "struct:walls": 0.02453
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_002": "too_small",
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        },
+        "fit": {
+         "scale": 1.047788,
+         "shift": -0.347661,
+         "range": 10.400986
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.9391,
+         "win_L-1b_001": 0.988,
+         "f_L-1b_002": 0.9416,
+         "f_L-1b_006": 0.9609,
+         "f_L-1b_018": 0.9748,
+         "f_L-1b_054": 0.9838,
+         "f_L-1b_004": 0.9818
+        },
+        "skipped": {
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        },
+        "reliability": {
+         "d_L-1b_001": 0.7864,
+         "win_L-1b_001": 0.9348,
+         "f_L-1b_002": 0.8946,
+         "f_L-1b_006": 0.9474,
+         "f_L-1b_018": 0.9731,
+         "f_L-1b_054": 0.9769,
+         "f_L-1b_004": 0.9179
+        }
+       },
+       "features": {
+        "global": 0.8565,
+        "regions": {
+         "d_L-1b_001": 0.8875,
+         "win_L-1b_001": 0.7302,
+         "f_L-1b_006": 0.9252,
+         "f_L-1b_018": 0.8854,
+         "f_L-1b_054": 0.8974,
+         "f_L-1b_004": 0.8667
+        },
+        "skipped": {
+         "f_L-1b_002": "too_small",
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        }
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 172333
+        },
+        "win_L-1b_001": {
+         "kind": "window",
+         "pixels": 43161
+        },
+        "f_L-1b_002": {
+         "kind": "furniture",
+         "pixels": 11562
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 25772
+        },
+        "f_L-1b_008": {
+         "kind": "furniture",
+         "pixels": 6686
+        },
+        "f_L-1b_018": {
+         "kind": "furniture",
+         "pixels": 29625
+        },
+        "f_L-1b_022": {
+         "kind": "furniture",
+         "pixels": 59
+        },
+        "f_L-1b_028": {
+         "kind": "furniture",
+         "pixels": 426
+        },
+        "f_L-1b_034": {
+         "kind": "furniture",
+         "pixels": 98
+        },
+        "f_L-1b_015": {
+         "kind": "furniture",
+         "pixels": 550
+        },
+        "f_L-1b_049": {
+         "kind": "furniture",
+         "pixels": 236
+        },
+        "f_L-1b_054": {
+         "kind": "furniture",
+         "pixels": 162649
+        },
+        "f_L-1b_004": {
+         "kind": "furniture",
+         "pixels": 372642
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 383464
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 86736
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 767745
+        }
+       },
+       "seconds": {
+        "edges": 0.008,
+        "added_lines": 0.033,
+        "colour": 0.023,
+        "depth": 0.093,
+        "masks": 0.129,
+        "features": 0.062
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "2081dd5048122e09"
+     },
+     "debug_jpg": "cam_r_L-1b_koridor_1_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.724,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.35,
+     "gate_reused": false,
+     "cpu_seconds": 0.48
+    },
+    {
+     "k": 2,
+     "role": "ladder",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 2,
+     "steps": 8,
+     "sigmas": [
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.5,
+     "forwards": 2,
+     "seconds": 2.8,
+     "png": "cam_r_L-1b_koridor_1_a2.png",
+     "sha256": "8f9875699c0d3fa061385615730f55ffa9fed24130fd233feb1afd7fb38e7485",
+     "attempt_key": "35bd32083b272e31836ac4ca0a28f9e92fbd6fb5dda162954742d16540d7d157",
+     "panes_restored": 1,
+     "wall_lab": [
+      45.79,
+      3.0,
+      9.19
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9949,
+        "regions": {
+         "d_L-1b_001": 0.9967,
+         "win_L-1b_001": 1.0,
+         "f_L-1b_002": 0.9953,
+         "f_L-1b_006": 0.8879,
+         "f_L-1b_008": 0.9973,
+         "f_L-1b_018": 0.9964,
+         "f_L-1b_015": 1.0,
+         "f_L-1b_049": 1.0,
+         "f_L-1b_054": 0.9956,
+         "f_L-1b_004": 0.9974
+        },
+        "skipped": {
+         "f_L-1b_022": "no_reference_px",
+         "f_L-1b_028": "no_reference_px",
+         "f_L-1b_034": "no_reference_px"
+        },
+        "ref_px": {
+         "global": 19392,
+         "d_L-1b_001": 3346,
+         "win_L-1b_001": 301,
+         "f_L-1b_002": 213,
+         "f_L-1b_006": 321,
+         "f_L-1b_008": 377,
+         "f_L-1b_018": 280,
+         "f_L-1b_022": 0,
+         "f_L-1b_028": 66,
+         "f_L-1b_034": 116,
+         "f_L-1b_015": 326,
+         "f_L-1b_049": 249,
+         "f_L-1b_054": 3433,
+         "f_L-1b_004": 7232
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:ceiling": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 4.7579,
+        "regions": {
+         "d_L-1b_001": 1.9888,
+         "f_L-1b_006": 5.3862,
+         "f_L-1b_018": 5.2868,
+         "f_L-1b_054": 0.991,
+         "f_L-1b_004": 1.6402,
+         "struct:floor": 3.661,
+         "struct:ceiling": 1.8142,
+         "struct:walls": 0.9015
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_002": "too_small",
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.7814,
+         "struct:ceiling": 0.2205
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.01229,
+        "regions": {
+         "d_L-1b_001": 0.00517,
+         "f_L-1b_006": 0.00831,
+         "f_L-1b_018": 0.00664,
+         "f_L-1b_054": 0.00749,
+         "f_L-1b_004": 0.01687,
+         "struct:floor": 0.00771,
+         "struct:ceiling": 0.01005,
+         "struct:walls": 0.01524
+        },
+        "skipped": {
+         "win_L-1b_001": "too_small",
+         "f_L-1b_002": "too_small",
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        },
+        "fit": {
+         "scale": 1.077538,
+         "shift": -0.080632,
+         "range": 10.400986
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.9702,
+         "win_L-1b_001": 0.9855,
+         "f_L-1b_002": 0.9555,
+         "f_L-1b_006": 0.9608,
+         "f_L-1b_018": 0.9763,
+         "f_L-1b_054": 0.9873,
+         "f_L-1b_004": 0.9875
+        },
+        "skipped": {
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        },
+        "reliability": {
+         "d_L-1b_001": 0.7864,
+         "win_L-1b_001": 0.9348,
+         "f_L-1b_002": 0.8946,
+         "f_L-1b_006": 0.9474,
+         "f_L-1b_018": 0.9731,
+         "f_L-1b_054": 0.9769,
+         "f_L-1b_004": 0.9179
+        }
+       },
+       "features": {
+        "global": 0.8847,
+        "regions": {
+         "d_L-1b_001": 0.8982,
+         "win_L-1b_001": 0.8998,
+         "f_L-1b_006": 0.9555,
+         "f_L-1b_018": 0.9314,
+         "f_L-1b_054": 0.8908,
+         "f_L-1b_004": 0.8808
+        },
+        "skipped": {
+         "f_L-1b_002": "too_small",
+         "f_L-1b_008": "too_small",
+         "f_L-1b_022": "too_small",
+         "f_L-1b_028": "too_small",
+         "f_L-1b_034": "too_small",
+         "f_L-1b_015": "too_small",
+         "f_L-1b_049": "too_small"
+        }
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 172333
+        },
+        "win_L-1b_001": {
+         "kind": "window",
+         "pixels": 43161
+        },
+        "f_L-1b_002": {
+         "kind": "furniture",
+         "pixels": 11562
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 25772
+        },
+        "f_L-1b_008": {
+         "kind": "furniture",
+         "pixels": 6686
+        },
+        "f_L-1b_018": {
+         "kind": "furniture",
+         "pixels": 29625
+        },
+        "f_L-1b_022": {
+         "kind": "furniture",
+         "pixels": 59
+        },
+        "f_L-1b_028": {
+         "kind": "furniture",
+         "pixels": 426
+        },
+        "f_L-1b_034": {
+         "kind": "furniture",
+         "pixels": 98
+        },
+        "f_L-1b_015": {
+         "kind": "furniture",
+         "pixels": 550
+        },
+        "f_L-1b_049": {
+         "kind": "furniture",
+         "pixels": 236
+        },
+        "f_L-1b_054": {
+         "kind": "furniture",
+         "pixels": 162649
+        },
+        "f_L-1b_004": {
+         "kind": "furniture",
+         "pixels": 372642
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 383464
+        },
+        "struct:ceiling": {
+         "kind": "ceiling",
+         "pixels": 86736
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 767745
+        }
+       },
+       "seconds": {
+        "edges": 0.009,
+        "added_lines": 0.033,
+        "colour": 0.026,
+        "depth": 0.074,
+        "masks": 0.064,
+        "features": 0.024
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "2081dd5048122e09"
+     },
+     "debug_jpg": "cam_r_L-1b_koridor_1_a2_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 2.782,
+     "sigma0": 0.5,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.23,
+     "gate_reused": false,
+     "cpu_seconds": 0.48,
+     "preview": "cam_r_L-1b_koridor_1_a2_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 2,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_koridor_2",
+   "room_id": "r_L-1b_koridor",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_koridor_2.png",
+   "source_sha256": "b52f71b78c6c1ad7fab1e6103dc425274fcb60cbfe9896130ef928a8c9a6ba5d",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a hallway in modern style. Warm greige smooth painted walls, light oak wood floor, staircase, console table. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 16 mm lens.",
+   "prompt_words": {
+    "room_type": "hall",
+    "room_words": "hallway",
+    "family": "modern",
+    "walls": "paint",
+    "walls_colour": "warm greige",
+    "accent": null,
+    "floor": "wood_oak_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "stair",
+     "console_table"
+    ],
+    "decor": [],
+    "lens_mm": 16.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_koridor_2_control_canny.png",
+    "depth": "cam_r_L-1b_koridor_2_control_depth.png",
+    "geometry": "cam_r_L-1b_koridor_2_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.74,
+     "png": "cam_r_L-1b_koridor_2_a1.png",
+     "sha256": "401139cd32785f4fc134b0bfbf90801f910fe1d263a32925a435e636a47a9f70",
+     "attempt_key": "924a137111f77359e18a91418bdd661cddce1de2fc1d0461cb3ce12da6e5167d",
+     "panes_restored": 0,
+     "wall_lab": [
+      42.76,
+      3.16,
+      10.09
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9833,
+        "regions": {
+         "d_L-1b_002": 0.9994,
+         "f_L-1b_054": 0.9352,
+         "f_L-1b_004": 0.9803
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 13859,
+         "d_L-1b_002": 3426,
+         "f_L-1b_054": 1821,
+         "f_L-1b_004": 5494
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 4.4122,
+        "regions": {
+         "d_L-1b_002": 3.7193,
+         "f_L-1b_054": 1.9133,
+         "f_L-1b_004": 3.0041,
+         "struct:floor": 4.6342,
+         "struct:walls": 1.0668
+        },
+        "skipped": {}
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.8881
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.02097,
+        "regions": {
+         "d_L-1b_002": 0.00532,
+         "f_L-1b_054": 0.03624,
+         "f_L-1b_004": 0.03205,
+         "struct:floor": 0.00747,
+         "struct:walls": 0.01871
+        },
+        "skipped": {},
+        "fit": {
+         "scale": 1.034951,
+         "shift": -0.132801,
+         "range": 6.396556
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_002": 0.9374,
+         "f_L-1b_054": 0.9946
+        },
+        "skipped": {
+         "f_L-1b_004": "sam_unreliable"
+        },
+        "reliability": {
+         "d_L-1b_002": 0.8277,
+         "f_L-1b_054": 0.9835,
+         "f_L-1b_004": 0.3502
+        }
+       },
+       "features": {
+        "global": 0.8367,
+        "regions": {
+         "d_L-1b_002": 0.9162,
+         "f_L-1b_054": 0.8091,
+         "f_L-1b_004": 0.845
+        },
+        "skipped": {}
+       },
+       "regions": {
+        "d_L-1b_002": {
+         "kind": "door",
+         "pixels": 37048
+        },
+        "f_L-1b_054": {
+         "kind": "furniture",
+         "pixels": 170549
+        },
+        "f_L-1b_004": {
+         "kind": "furniture",
+         "pixels": 450796
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 347033
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 1061967
+        }
+       },
+       "seconds": {
+        "edges": 0.008,
+        "added_lines": 0.004,
+        "colour": 0.023,
+        "depth": 0.09,
+        "masks": 0.122,
+        "features": 0.052
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "c6f87bb83b1592fc"
+     },
+     "debug_jpg": "cam_r_L-1b_koridor_2_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.729,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.3,
+     "gate_reused": false,
+     "cpu_seconds": 0.46,
+     "preview": "cam_r_L-1b_koridor_2_a1_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 1,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_koridor_3",
+   "room_id": "r_L-1b_koridor",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_koridor_3.png",
+   "source_sha256": "b4ea01122b549886e367661c9ae960386ebc908736c9e92799575de63c789c60",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a hallway in modern style. Warm greige smooth painted walls, light oak wood floor, console table. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 16 mm lens.",
+   "prompt_words": {
+    "room_type": "hall",
+    "room_words": "hallway",
+    "family": "modern",
+    "walls": "paint",
+    "walls_colour": "warm greige",
+    "accent": null,
+    "floor": "wood_oak_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "console_table"
+    ],
+    "decor": [],
+    "lens_mm": 16.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_koridor_3_control_canny.png",
+    "depth": "cam_r_L-1b_koridor_3_control_depth.png",
+    "geometry": "cam_r_L-1b_koridor_3_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.74,
+     "png": "cam_r_L-1b_koridor_3_a1.png",
+     "sha256": "5dc02c640f490dc9934a306f9cef823d5ab54f27090b45464b091220a6b28686",
+     "attempt_key": "61e7c8ff44c49e2dabff5fd31c1321fe6e49d4d30e15fd065eaaef38ec56cfb1",
+     "panes_restored": 0,
+     "wall_lab": [
+      45.22,
+      3.11,
+      9.25
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9767,
+        "regions": {
+         "d_L-1b_001": 0.9955,
+         "d_L-1b_002": 0.9989,
+         "f_L-1b_054": 0.9376
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 15738,
+         "d_L-1b_001": 2638,
+         "d_L-1b_002": 4443,
+         "f_L-1b_054": 5143
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 4.3917,
+        "regions": {
+         "d_L-1b_001": 1.5313,
+         "d_L-1b_002": 1.7864,
+         "f_L-1b_054": 1.9557,
+         "struct:floor": 6.6583,
+         "struct:walls": 1.5683
+        },
+        "skipped": {}
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 1.4902
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.02176,
+        "regions": {
+         "d_L-1b_001": 0.01663,
+         "d_L-1b_002": 0.00302,
+         "f_L-1b_054": 0.01011,
+         "struct:floor": 0.00571,
+         "struct:walls": 0.02997
+        },
+        "skipped": {},
+        "fit": {
+         "scale": 0.976769,
+         "shift": -0.00594,
+         "range": 6.222469
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.9941,
+         "d_L-1b_002": 0.9674,
+         "f_L-1b_054": 0.9593
+        },
+        "skipped": {},
+        "reliability": {
+         "d_L-1b_001": 0.8592,
+         "d_L-1b_002": 0.9267,
+         "f_L-1b_054": 0.9753
+        }
+       },
+       "features": {
+        "global": 0.84,
+        "regions": {
+         "d_L-1b_001": 0.8308,
+         "d_L-1b_002": 0.9266,
+         "f_L-1b_054": 0.9135
+        },
+        "skipped": {}
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 548640
+        },
+        "d_L-1b_002": {
+         "kind": "door",
+         "pixels": 26804
+        },
+        "f_L-1b_054": {
+         "kind": "furniture",
+         "pixels": 189261
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 225976
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 1071480
+        }
+       },
+       "seconds": {
+        "edges": 0.007,
+        "added_lines": 0.017,
+        "colour": 0.022,
+        "depth": 0.09,
+        "masks": 0.122,
+        "features": 0.052
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "bdf600be2863eaf6"
+     },
+     "debug_jpg": "cam_r_L-1b_koridor_3_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.732,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.31,
+     "gate_reused": false,
+     "cpu_seconds": 0.49,
+     "preview": "cam_r_L-1b_koridor_3_a1_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 1,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_oda_1",
+   "room_id": "r_L-1b_oda",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_oda_1.png",
+   "source_sha256": "83cd061103e4efbade39b56f47b040a0b5377edc0f321f96222bb8713e1c4890",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a room in modern style. Warm greige smooth painted walls, light oak wood floor, armchair, bookshelf, dining table, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "other",
+    "room_words": "room",
+    "family": "modern",
+    "walls": "paint",
+    "walls_colour": "warm greige",
+    "accent": null,
+    "floor": "wood_oak_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "armchair",
+     "bookshelf",
+     "table_dining",
+     "chair"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_oda_1_control_canny.png",
+    "depth": "cam_r_L-1b_oda_1_control_depth.png",
+    "geometry": "cam_r_L-1b_oda_1_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.75,
+     "png": "cam_r_L-1b_oda_1_a1.png",
+     "sha256": "08ef21ca3b1563a0fbb265867141b63d579d72930bfe077d96885c0a9f0bca4b",
+     "attempt_key": "ed9c98f27ea11009703bd5b512cce8e71cc441f2f3d387fd6193fbf13ddb6a8b",
+     "panes_restored": 0,
+     "wall_lab": [
+      49.76,
+      2.51,
+      9.26
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9815,
+        "regions": {
+         "d_L-1b_001": 0.9881,
+         "f_L-1b_006": 0.9404,
+         "f_L-1b_040": 0.9878,
+         "f_L-1b_041": 0.9681,
+         "f_L-1b_042": 0.9772,
+         "f_L-1b_043": 0.9686
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 26339,
+         "d_L-1b_001": 3289,
+         "f_L-1b_006": 1293,
+         "f_L-1b_040": 12469,
+         "f_L-1b_041": 5233,
+         "f_L-1b_042": 1839,
+         "f_L-1b_043": 3889
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 3.7554,
+        "regions": {
+         "d_L-1b_001": 2.276,
+         "f_L-1b_006": 3.1074,
+         "f_L-1b_040": 1.3105,
+         "f_L-1b_041": 1.2323,
+         "f_L-1b_042": 2.164,
+         "f_L-1b_043": 2.5374,
+         "struct:floor": 2.2496,
+         "struct:walls": 1.2147
+        },
+        "skipped": {}
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 1.0251
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.01525,
+        "regions": {
+         "d_L-1b_001": 0.01137,
+         "f_L-1b_006": 0.01594,
+         "f_L-1b_040": 0.01368,
+         "f_L-1b_041": 0.03715,
+         "f_L-1b_042": 0.03365,
+         "f_L-1b_043": 0.00716,
+         "struct:floor": 0.00656,
+         "struct:walls": 0.01127
+        },
+        "skipped": {},
+        "fit": {
+         "scale": 0.975744,
+         "shift": -0.045961,
+         "range": 6.020882
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.9597,
+         "f_L-1b_006": 0.978,
+         "f_L-1b_040": 0.9406,
+         "f_L-1b_041": 0.9941,
+         "f_L-1b_042": 0.964,
+         "f_L-1b_043": 0.9604
+        },
+        "skipped": {},
+        "reliability": {
+         "d_L-1b_001": 0.839,
+         "f_L-1b_006": 0.9667,
+         "f_L-1b_040": 0.8898,
+         "f_L-1b_041": 0.9786,
+         "f_L-1b_042": 0.9555,
+         "f_L-1b_043": 0.9415
+        }
+       },
+       "features": {
+        "global": 0.8599,
+        "regions": {
+         "d_L-1b_001": 0.8917,
+         "f_L-1b_006": 0.9376,
+         "f_L-1b_040": 0.8807,
+         "f_L-1b_041": 0.8471,
+         "f_L-1b_042": 0.911,
+         "f_L-1b_043": 0.8751
+        },
+        "skipped": {}
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 218611
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 94699
+        },
+        "f_L-1b_040": {
+         "kind": "furniture",
+         "pixels": 159255
+        },
+        "f_L-1b_041": {
+         "kind": "furniture",
+         "pixels": 287067
+        },
+        "f_L-1b_042": {
+         "kind": "furniture",
+         "pixels": 53704
+        },
+        "f_L-1b_043": {
+         "kind": "furniture",
+         "pixels": 131658
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 153683
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 969651
+        }
+       },
+       "seconds": {
+        "edges": 0.007,
+        "added_lines": 0.004,
+        "colour": 0.023,
+        "depth": 0.088,
+        "masks": 0.126,
+        "features": 0.061
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "f98dec0339c0ea81"
+     },
+     "debug_jpg": "cam_r_L-1b_oda_1_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.735,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.31,
+     "gate_reused": false,
+     "cpu_seconds": 0.47,
+     "preview": "cam_r_L-1b_oda_1_a1_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 1,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_oda_2",
+   "room_id": "r_L-1b_oda",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_oda_2.png",
+   "source_sha256": "4c42d9f0a1aa08edaa7cabd620ccd9bb7fd35c1c5645dd13f6ae96b37a2e68fa",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a room in modern style. Warm greige smooth painted walls, light oak wood floor, bookshelf, dining table, armchair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "other",
+    "room_words": "room",
+    "family": "modern",
+    "walls": "paint",
+    "walls_colour": "warm greige",
+    "accent": null,
+    "floor": "wood_oak_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "bookshelf",
+     "table_dining",
+     "armchair"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_oda_2_control_canny.png",
+    "depth": "cam_r_L-1b_oda_2_control_depth.png",
+    "geometry": "cam_r_L-1b_oda_2_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.75,
+     "png": "cam_r_L-1b_oda_2_a1.png",
+     "sha256": "22ac2d29b4343159a2957ae7018d99e57bcfe5cb7bc0085e32aa160d232f11c6",
+     "attempt_key": "ff42e4686ef9f7a7fddfd529ad7aca7f92a1def7881ae4c2910e7ee89a517b83",
+     "panes_restored": 0,
+     "wall_lab": [
+      50.04,
+      2.37,
+      9.33
+     ],
+     "gate": {
+      "decision": "reject",
+      "reasons": [
+       {
+        "check": "edges",
+        "region": "f_L-1b_041",
+        "value": 0.8612,
+        "threshold": 0.87,
+        "op": ">="
+       }
+      ],
+      "notes": [
+       {
+        "check": "features",
+        "region": "f_L-1b_006",
+        "value": 0.7888,
+        "threshold": 0.8,
+        "op": ">="
+       },
+       {
+        "check": "features",
+        "region": "f_L-1b_043",
+        "value": 0.7799,
+        "threshold": 0.8,
+        "op": ">="
+       }
+      ],
+      "metrics": {
+       "edges": {
+        "global": 0.9797,
+        "regions": {
+         "d_L-1b_001": 0.9619,
+         "f_L-1b_006": 0.9835,
+         "f_L-1b_040": 0.992,
+         "f_L-1b_041": 0.8612,
+         "f_L-1b_043": 0.9969
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 35835,
+         "d_L-1b_001": 3723,
+         "f_L-1b_006": 1636,
+         "f_L-1b_040": 26655,
+         "f_L-1b_041": 3199,
+         "f_L-1b_043": 2576
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 3.7449,
+        "regions": {
+         "d_L-1b_001": 2.3986,
+         "f_L-1b_006": 4.2348,
+         "f_L-1b_040": 1.505,
+         "f_L-1b_041": 1.0457,
+         "f_L-1b_043": 1.342,
+         "struct:floor": 2.0598,
+         "struct:walls": 1.2616
+        },
+        "skipped": {}
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.9897
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.0078,
+        "regions": {
+         "d_L-1b_001": 0.0027,
+         "f_L-1b_006": 0.03527,
+         "f_L-1b_040": 0.00511,
+         "f_L-1b_041": 0.01541,
+         "f_L-1b_043": 0.01182,
+         "struct:floor": 0.00838,
+         "struct:walls": 0.00215
+        },
+        "skipped": {},
+        "fit": {
+         "scale": 0.946778,
+         "shift": 0.068846,
+         "range": 7.495071
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.8755,
+         "f_L-1b_006": 0.9829,
+         "f_L-1b_040": 0.9779,
+         "f_L-1b_041": 0.9945,
+         "f_L-1b_043": 0.9938
+        },
+        "skipped": {},
+        "reliability": {
+         "d_L-1b_001": 0.9456,
+         "f_L-1b_006": 0.9706,
+         "f_L-1b_040": 0.9458,
+         "f_L-1b_041": 0.9833,
+         "f_L-1b_043": 0.9829
+        }
+       },
+       "features": {
+        "global": 0.8519,
+        "regions": {
+         "d_L-1b_001": 0.904,
+         "f_L-1b_006": 0.7888,
+         "f_L-1b_040": 0.9123,
+         "f_L-1b_041": 0.8793,
+         "f_L-1b_043": 0.7799
+        },
+        "skipped": {}
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 299975
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 112772
+        },
+        "f_L-1b_040": {
+         "kind": "furniture",
+         "pixels": 510618
+        },
+        "f_L-1b_041": {
+         "kind": "furniture",
+         "pixels": 163288
+        },
+        "f_L-1b_043": {
+         "kind": "furniture",
+         "pixels": 393917
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 49854
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 540761
+        }
+       },
+       "seconds": {
+        "edges": 0.007,
+        "added_lines": 0.003,
+        "colour": 0.021,
+        "depth": 0.091,
+        "masks": 0.125,
+        "features": 0.058
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "70dfe132afb4982f"
+     },
+     "debug_jpg": "cam_r_L-1b_oda_2_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.736,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.31,
+     "gate_reused": false,
+     "cpu_seconds": 0.44
+    },
+    {
+     "k": 2,
+     "role": "ladder",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 2,
+     "steps": 8,
+     "sigmas": [
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.5,
+     "forwards": 2,
+     "seconds": 2.78,
+     "png": "cam_r_L-1b_oda_2_a2.png",
+     "sha256": "094cd671619daba604e81f0ab9a7ecb3bafae9ba4ced43dfa62ab12c8e3c1751",
+     "attempt_key": "5002113238e229fbc7052b956c55dad864fe4e9bf0258c1a710fd74a3e16cd2b",
+     "panes_restored": 0,
+     "wall_lab": [
+      50.41,
+      2.4,
+      9.32
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9928,
+        "regions": {
+         "d_L-1b_001": 0.9933,
+         "f_L-1b_006": 0.9908,
+         "f_L-1b_040": 0.993,
+         "f_L-1b_041": 0.99,
+         "f_L-1b_043": 0.9946
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 35835,
+         "d_L-1b_001": 3723,
+         "f_L-1b_006": 1636,
+         "f_L-1b_040": 26655,
+         "f_L-1b_041": 3199,
+         "f_L-1b_043": 2576
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 3.0048,
+        "regions": {
+         "d_L-1b_001": 2.1991,
+         "f_L-1b_006": 2.8609,
+         "f_L-1b_040": 1.0319,
+         "f_L-1b_041": 0.5611,
+         "f_L-1b_043": 0.9883,
+         "struct:floor": 1.5277,
+         "struct:walls": 1.0724
+        },
+        "skipped": {}
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.9895
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00906,
+        "regions": {
+         "d_L-1b_001": 0.00862,
+         "f_L-1b_006": 0.00438,
+         "f_L-1b_040": 0.00308,
+         "f_L-1b_041": 0.03021,
+         "f_L-1b_043": 0.0127,
+         "struct:floor": 0.01178,
+         "struct:walls": 0.00655
+        },
+        "skipped": {},
+        "fit": {
+         "scale": 0.955808,
+         "shift": 0.103092,
+         "range": 7.495071
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.8482,
+         "f_L-1b_006": 0.983,
+         "f_L-1b_040": 0.9795,
+         "f_L-1b_041": 0.9951,
+         "f_L-1b_043": 0.9955
+        },
+        "skipped": {},
+        "reliability": {
+         "d_L-1b_001": 0.9456,
+         "f_L-1b_006": 0.9706,
+         "f_L-1b_040": 0.9458,
+         "f_L-1b_041": 0.9833,
+         "f_L-1b_043": 0.9829
+        }
+       },
+       "features": {
+        "global": 0.8894,
+        "regions": {
+         "d_L-1b_001": 0.9252,
+         "f_L-1b_006": 0.9504,
+         "f_L-1b_040": 0.9356,
+         "f_L-1b_041": 0.8923,
+         "f_L-1b_043": 0.8646
+        },
+        "skipped": {}
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 299975
+        },
+        "f_L-1b_006": {
+         "kind": "furniture",
+         "pixels": 112772
+        },
+        "f_L-1b_040": {
+         "kind": "furniture",
+         "pixels": 510618
+        },
+        "f_L-1b_041": {
+         "kind": "furniture",
+         "pixels": 163288
+        },
+        "f_L-1b_043": {
+         "kind": "furniture",
+         "pixels": 393917
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 49854
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 540761
+        }
+       },
+       "seconds": {
+        "edges": 0.007,
+        "added_lines": 0.003,
+        "colour": 0.024,
+        "depth": 0.072,
+        "masks": 0.062,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "70dfe132afb4982f"
+     },
+     "debug_jpg": "cam_r_L-1b_oda_2_a2_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 2.76,
+     "sigma0": 0.5,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.19,
+     "gate_reused": false,
+     "cpu_seconds": 0.44,
+     "preview": "cam_r_L-1b_oda_2_a2_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 2,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "cam_r_L-1b_oda_3",
+   "room_id": "r_L-1b_oda",
+   "level_id": "L-1b",
+   "view_kind": "interior",
+   "source_png": "../renders/cam_r_L-1b_oda_3.png",
+   "source_sha256": "855529e922046e8bb5909ed590f5d6f5d2e7064846554d83141f412991a84e3a",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic interior photograph of a room in modern style. Warm greige smooth painted walls, light oak wood floor, armchair, desk, chair. Warm daytime light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 18 mm lens.",
+   "prompt_words": {
+    "room_type": "other",
+    "room_words": "room",
+    "family": "modern",
+    "walls": "paint",
+    "walls_colour": "warm greige",
+    "accent": null,
+    "floor": "wood_oak_light",
+    "floor_colour": null,
+    "mood": "warm daylight",
+    "lamps_on": false,
+    "furniture": [
+     "armchair",
+     "desk",
+     "chair"
+    ],
+    "decor": [],
+    "lens_mm": 18.0
+   },
+   "expected_source": "expected_view",
+   "controls": {
+    "canny": "cam_r_L-1b_oda_3_control_canny.png",
+    "depth": "cam_r_L-1b_oda_3_control_depth.png",
+    "geometry": "cam_r_L-1b_oda_3_control_geometry.png"
+   },
+   "attempts": [
+    {
+     "k": 1,
+     "role": "ladder",
+     "strength": 0.375,
+     "control": "geometry",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 1,
+     "steps": 8,
+     "sigmas": [
+      0.375,
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.642857,
+     "forwards": 3,
+     "seconds": 3.76,
+     "png": "cam_r_L-1b_oda_3_a1.png",
+     "sha256": "8a525e0cf88c52ccb6d88c34bec5ef83f9dfde5a2ccf99884628b760c2ee0701",
+     "attempt_key": "8ffef81249efd89f9e3dda1460e6c11fc1f8ff8f3640b448a1a8d720336582ff",
+     "panes_restored": 0,
+     "wall_lab": [
+      49.67,
+      2.4,
+      9.36
+     ],
+     "gate": {
+      "decision": "reject",
+      "reasons": [
+       {
+        "check": "edges",
+        "region": "f_L-1b_042",
+        "value": 0.8494,
+        "threshold": 0.87,
+        "op": ">="
+       }
+      ],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9742,
+        "regions": {
+         "d_L-1b_001": 0.9993,
+         "f_L-1b_039": 0.9765,
+         "f_L-1b_041": 0.9667,
+         "f_L-1b_042": 0.8494,
+         "dec_L-1b_001": 0.9783
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 22042,
+         "d_L-1b_001": 1457,
+         "f_L-1b_039": 3664,
+         "f_L-1b_041": 6190,
+         "f_L-1b_042": 697,
+         "dec_L-1b_001": 7326
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 3.5349,
+        "regions": {
+         "d_L-1b_001": 3.9865,
+         "f_L-1b_039": 0.9221,
+         "f_L-1b_041": 0.9293,
+         "dec_L-1b_001": 2.7208,
+         "struct:floor": 2.5421,
+         "struct:walls": 1.3978
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.9568
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00517,
+        "regions": {
+         "d_L-1b_001": 0.0051,
+         "f_L-1b_039": 0.00542,
+         "f_L-1b_041": 0.0157,
+         "dec_L-1b_001": 0.01011,
+         "struct:floor": 0.00355,
+         "struct:walls": 0.00282
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        },
+        "fit": {
+         "scale": 0.962348,
+         "shift": -0.021039,
+         "range": 6.686938
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.9952,
+         "f_L-1b_039": 0.9766,
+         "f_L-1b_041": 0.9858,
+         "dec_L-1b_001": 0.951
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        },
+        "reliability": {
+         "d_L-1b_001": 0.8687,
+         "f_L-1b_039": 0.9749,
+         "f_L-1b_041": 0.9172,
+         "dec_L-1b_001": 0.7556
+        }
+       },
+       "features": {
+        "global": 0.8514,
+        "regions": {
+         "d_L-1b_001": 0.8997,
+         "f_L-1b_039": 0.9449,
+         "f_L-1b_041": 0.8485,
+         "dec_L-1b_001": 0.9523
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        }
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 215056
+        },
+        "f_L-1b_039": {
+         "kind": "furniture",
+         "pixels": 62459
+        },
+        "f_L-1b_041": {
+         "kind": "furniture",
+         "pixels": 268839
+        },
+        "f_L-1b_042": {
+         "kind": "furniture",
+         "pixels": 4291
+        },
+        "dec_L-1b_001": {
+         "kind": "decor",
+         "pixels": 35325
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 309275
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 1173593
+        }
+       },
+       "seconds": {
+        "edges": 0.008,
+        "added_lines": 0.004,
+        "colour": 0.023,
+        "depth": 0.095,
+        "masks": 0.123,
+        "features": 0.055
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "0370323debc3eafe"
+     },
+     "debug_jpg": "cam_r_L-1b_oda_3_a1_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 3.745,
+     "sigma0": 0.642857,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.31,
+     "gate_reused": false,
+     "cpu_seconds": 0.48
+    },
+    {
+     "k": 2,
+     "role": "ladder",
+     "strength": 0.25,
+     "control": "canny",
+     "scale": 0.8,
+     "size": "native",
+     "mode": "plain",
+     "seed": 2,
+     "steps": 8,
+     "sigmas": [
+      0.25,
+      0.125
+     ],
+     "sigma0_numpy": 0.5,
+     "forwards": 2,
+     "seconds": 2.78,
+     "png": "cam_r_L-1b_oda_3_a2.png",
+     "sha256": "ea849b0c652f6f3560e7ecafc4e3dfebc14f13d641d403686f06531bff3c0a7b",
+     "attempt_key": "4823eb4d2e3335ac607eb0594bc800586a6063f7730f732a4094e51ffdda684d",
+     "panes_restored": 0,
+     "wall_lab": [
+      50.05,
+      2.63,
+      9.39
+     ],
+     "gate": {
+      "decision": "accept",
+      "reasons": [],
+      "notes": [],
+      "metrics": {
+       "edges": {
+        "global": 0.9831,
+        "regions": {
+         "d_L-1b_001": 1.0,
+         "f_L-1b_039": 0.9888,
+         "f_L-1b_041": 0.9911,
+         "f_L-1b_042": 0.9813,
+         "dec_L-1b_001": 0.9642
+        },
+        "skipped": {},
+        "ref_px": {
+         "global": 22042,
+         "d_L-1b_001": 1457,
+         "f_L-1b_039": 3664,
+         "f_L-1b_041": 6190,
+         "f_L-1b_042": 697,
+         "dec_L-1b_001": 7326
+        }
+       },
+       "added_lines": {
+        "global": 0.0,
+        "regions": {
+         "struct:floor": 0.0,
+         "struct:walls": 0.0
+        },
+        "skipped": {}
+       },
+       "colour": {
+        "global": 2.9942,
+        "regions": {
+         "d_L-1b_001": 2.8662,
+         "f_L-1b_039": 1.3122,
+         "f_L-1b_041": 0.9532,
+         "dec_L-1b_001": 2.1141,
+         "struct:floor": 1.8028,
+         "struct:walls": 1.054
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        }
+       },
+       "neutral": {
+        "global": null,
+        "regions": {
+         "struct:walls": 0.8632
+        },
+        "skipped": {},
+        "albedo": {
+         "struct:walls": {
+          "material": "paint",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.paint__plastered_wall__warm_greige",
+          "slot": "style_profile.walls",
+          "wet": false,
+          "colour": "warm greige",
+          "colour_linear_rgb": [
+           0.403,
+           0.36792,
+           0.30002
+          ],
+          "colour_lab": [
+           67.313,
+           -0.073,
+           8.39
+          ],
+          "colour_chroma": 8.39
+         },
+         "struct:ceiling": {
+          "material": "plaster_white",
+          "albedo_mode": "flat",
+          "source": "scene manifest materials.plaster_white",
+          "slot": "ceiling object",
+          "wet": false
+         }
+        }
+       },
+       "depth": {
+        "global": 0.00552,
+        "regions": {
+         "d_L-1b_001": 0.00285,
+         "f_L-1b_039": 0.01065,
+         "f_L-1b_041": 0.02022,
+         "dec_L-1b_001": 0.00617,
+         "struct:floor": 0.00153,
+         "struct:walls": 0.00324
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        },
+        "fit": {
+         "scale": 0.926567,
+         "shift": 0.031467,
+         "range": 6.686938
+        }
+       },
+       "masks": {
+        "global": null,
+        "regions": {
+         "d_L-1b_001": 0.9955,
+         "f_L-1b_039": 0.9795,
+         "f_L-1b_041": 0.9244,
+         "dec_L-1b_001": 0.9441
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        },
+        "reliability": {
+         "d_L-1b_001": 0.8687,
+         "f_L-1b_039": 0.9749,
+         "f_L-1b_041": 0.9172,
+         "dec_L-1b_001": 0.7556
+        }
+       },
+       "features": {
+        "global": 0.8704,
+        "regions": {
+         "d_L-1b_001": 0.9271,
+         "f_L-1b_039": 0.9615,
+         "f_L-1b_041": 0.8705,
+         "dec_L-1b_001": 0.9736
+        },
+        "skipped": {
+         "f_L-1b_042": "too_small"
+        }
+       },
+       "regions": {
+        "d_L-1b_001": {
+         "kind": "door",
+         "pixels": 215056
+        },
+        "f_L-1b_039": {
+         "kind": "furniture",
+         "pixels": 62459
+        },
+        "f_L-1b_041": {
+         "kind": "furniture",
+         "pixels": 268839
+        },
+        "f_L-1b_042": {
+         "kind": "furniture",
+         "pixels": 4291
+        },
+        "dec_L-1b_001": {
+         "kind": "decor",
+         "pixels": 35325
+        },
+        "struct:floor": {
+         "kind": "floor",
+         "pixels": 309275
+        },
+        "struct:walls": {
+         "kind": "wall",
+         "pixels": 1173593
+        }
+       },
+       "seconds": {
+        "edges": 0.007,
+        "added_lines": 0.004,
+        "colour": 0.024,
+        "depth": 0.073,
+        "masks": 0.062,
+        "features": 0.023
+       },
+       "size": [
+        1920,
+        1080
+       ]
+      },
+      "gate_key": "0370323debc3eafe"
+     },
+     "debug_jpg": "cam_r_L-1b_oda_3_a2_gate.jpg",
+     "reused": false,
+     "error": null,
+     "size_plan": {
+      "mode": "native",
+      "render": [
+       1920,
+       1080
+      ],
+      "model": [
+       1920,
+       1088
+      ],
+      "pad": [
+       0,
+       4,
+       0,
+       4
+      ]
+     },
+     "diffusion_seconds": 2.759,
+     "sigma0": 0.5,
+     "pipeline": "controlnet",
+     "gate_seconds": 0.2,
+     "gate_reused": false,
+     "cpu_seconds": 0.48,
+     "preview": "cam_r_L-1b_oda_3_a2_preview.jpg"
+    }
+   ],
+   "final": "polished",
+   "final_attempt": 2,
+   "reason": null,
+   "complete": true,
+   "notes": []
+  },
+  {
+   "camera": "ext_1",
+   "room_id": null,
+   "level_id": null,
+   "view_kind": "exterior",
+   "source_png": "../renders/ext_1.png",
+   "source_sha256": "30257cf88d33b77120b034d969ff3abbe7cd74b3dfef208cb4fd7c2fdda1edcb",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic architectural photograph of a house exterior in modern style, seen from a corner of the plot at eye level, two facades in view. Warm greige smooth rendered facade, anthracite concrete tile roof, dark bronze window frames. Light oak wood front door, grey concrete paver paving, lawn garden. Warm daytime sunlight under a clear sky, soft natural shadows, realistic materials and textures, sharp focus, 32.46 mm lens.",
+   "prompt_words": {
+    "view_kind": "exterior",
+    "view": "corner",
+    "family": "modern",
+    "mood": "warm daylight",
+    "looks": {
+     "facade": "warm greige smooth rendered facade",
+     "roof": "anthracite concrete tile roof",
+     "window_frame": "dark bronze window frames",
+     "door": "light oak wood front door",
+     "paving": "grey concrete paver paving",
+     "garden": "lawn garden"
+    },
+    "lens_mm": 32.46
+   },
+   "expected_source": "exterior_looks",
+   "controls": {},
+   "attempts": [],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "gate",
+   "complete": true,
+   "notes": [
+    "exterior gate polish_disabled: the exterior views keep the Cycles render (negative controls rejected 0.846 < 0.90 (52 comparisons): the gate lets geometry changes through)"
+   ]
+  },
+  {
+   "camera": "ext_2",
+   "room_id": null,
+   "level_id": null,
+   "view_kind": "exterior",
+   "source_png": "../renders/ext_2.png",
+   "source_sha256": "ac5dcccaa83c91bf43f90dc0796278a95a0fbb57100ed3294625a4f74250438c",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic architectural photograph of a house exterior in modern style, seen from a corner of the plot at eye level, two facades in view. Warm greige smooth rendered facade, anthracite concrete tile roof, dark bronze window frames. Light oak wood front door, grey concrete paver paving, lawn garden. Warm daytime sunlight under a clear sky, soft natural shadows, realistic materials and textures, sharp focus, 32.46 mm lens.",
+   "prompt_words": {
+    "view_kind": "exterior",
+    "view": "corner",
+    "family": "modern",
+    "mood": "warm daylight",
+    "looks": {
+     "facade": "warm greige smooth rendered facade",
+     "roof": "anthracite concrete tile roof",
+     "window_frame": "dark bronze window frames",
+     "door": "light oak wood front door",
+     "paving": "grey concrete paver paving",
+     "garden": "lawn garden"
+    },
+    "lens_mm": 32.46
+   },
+   "expected_source": "exterior_looks",
+   "controls": {},
+   "attempts": [],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "gate",
+   "complete": true,
+   "notes": [
+    "exterior gate polish_disabled: the exterior views keep the Cycles render (negative controls rejected 0.846 < 0.90 (52 comparisons): the gate lets geometry changes through)"
+   ]
+  },
+  {
+   "camera": "ext_3",
+   "room_id": null,
+   "level_id": null,
+   "view_kind": "exterior",
+   "source_png": "../renders/ext_3.png",
+   "source_sha256": "ea540877dd9c2cd9cf0bb95a302d2baef830db9bc0f67eac9654bf71e9f5d8b8",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic architectural photograph of a house exterior in modern style, seen from a corner of the plot at eye level, two facades in view. Warm greige smooth rendered facade, anthracite concrete tile roof, dark bronze window frames. Light oak wood front door, grey concrete paver paving, lawn garden. Warm daytime sunlight under a clear sky, soft natural shadows, realistic materials and textures, sharp focus, 32.46 mm lens.",
+   "prompt_words": {
+    "view_kind": "exterior",
+    "view": "corner",
+    "family": "modern",
+    "mood": "warm daylight",
+    "looks": {
+     "facade": "warm greige smooth rendered facade",
+     "roof": "anthracite concrete tile roof",
+     "window_frame": "dark bronze window frames",
+     "door": "light oak wood front door",
+     "paving": "grey concrete paver paving",
+     "garden": "lawn garden"
+    },
+    "lens_mm": 32.46
+   },
+   "expected_source": "exterior_looks",
+   "controls": {},
+   "attempts": [],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "gate",
+   "complete": true,
+   "notes": [
+    "exterior gate polish_disabled: the exterior views keep the Cycles render (negative controls rejected 0.846 < 0.90 (52 comparisons): the gate lets geometry changes through)"
+   ]
+  },
+  {
+   "camera": "ext_4",
+   "room_id": null,
+   "level_id": null,
+   "view_kind": "exterior",
+   "source_png": "../renders/ext_4.png",
+   "source_sha256": "e32dd8a55f7b350a72c65a516e540d26f1e9efbb26188b4cfdec77ac19e06df2",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic architectural photograph of a house exterior in modern style, seen from a corner of the plot at eye level, two facades in view. Warm greige smooth rendered facade, anthracite concrete tile roof, dark bronze window frames. Light oak wood front door, grey concrete paver paving, lawn garden. Warm daytime sunlight under a clear sky, soft natural shadows, realistic materials and textures, sharp focus, 32.46 mm lens.",
+   "prompt_words": {
+    "view_kind": "exterior",
+    "view": "corner",
+    "family": "modern",
+    "mood": "warm daylight",
+    "looks": {
+     "facade": "warm greige smooth rendered facade",
+     "roof": "anthracite concrete tile roof",
+     "window_frame": "dark bronze window frames",
+     "door": "light oak wood front door",
+     "paving": "grey concrete paver paving",
+     "garden": "lawn garden"
+    },
+    "lens_mm": 32.46
+   },
+   "expected_source": "exterior_looks",
+   "controls": {},
+   "attempts": [],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "gate",
+   "complete": true,
+   "notes": [
+    "exterior gate polish_disabled: the exterior views keep the Cycles render (negative controls rejected 0.846 < 0.90 (52 comparisons): the gate lets geometry changes through)"
+   ]
+  },
+  {
+   "camera": "ext_5",
+   "room_id": null,
+   "level_id": null,
+   "view_kind": "exterior",
+   "source_png": "../renders/ext_5.png",
+   "source_sha256": "8935178e65bcbd5e2155a0f7f6f369cc6e665192446fda86096152e77c61baf1",
+   "render_key": "61f78aac9cd99ca8",
+   "prompt": "Photorealistic architectural photograph of a house exterior in modern style, seen in a three-quarter aerial view from above, roof and two facades in view. Warm greige smooth rendered facade, anthracite concrete tile roof, dark bronze window frames. Light oak wood front door, grey concrete paver paving, lawn garden. Warm daytime sunlight under a clear sky, soft natural shadows, realistic materials and textures, sharp focus, 28.55 mm lens.",
+   "prompt_words": {
+    "view_kind": "exterior",
+    "view": "aerial",
+    "family": "modern",
+    "mood": "warm daylight",
+    "looks": {
+     "facade": "warm greige smooth rendered facade",
+     "roof": "anthracite concrete tile roof",
+     "window_frame": "dark bronze window frames",
+     "door": "light oak wood front door",
+     "paving": "grey concrete paver paving",
+     "garden": "lawn garden"
+    },
+    "lens_mm": 28.55
+   },
+   "expected_source": "exterior_looks",
+   "controls": {},
+   "attempts": [],
+   "final": "cycles",
+   "final_attempt": null,
+   "reason": "gate",
+   "complete": true,
+   "notes": [
+    "exterior gate polish_disabled: the exterior views keep the Cycles render (negative controls rejected 0.846 < 0.90 (52 comparisons): the gate lets geometry changes through)"
+   ]
+  }
+ ],
+ "rooms": {
+  "r_L-1b_acik_mutfak": {
+   "rule": "ok",
+   "rung": null,
+   "views": [
+    "cam_r_L-1b_acik_mutfak_1",
+    "cam_r_L-1b_acik_mutfak_2",
+    "cam_r_L-1b_acik_mutfak_3"
+   ],
+   "candidates": [
+    "cam_r_L-1b_acik_mutfak_1",
+    "cam_r_L-1b_acik_mutfak_2",
+    "cam_r_L-1b_acik_mutfak_3"
+   ],
+   "delta_e_max": 3.219
+  },
+  "r_L-1b_acik_mutfak_2": {
+   "rule": "downgraded",
+   "rung": null,
+   "views": [
+    "cam_r_L-1b_acik_mutfak_2_1",
+    "cam_r_L-1b_acik_mutfak_2_2",
+    "cam_r_L-1b_acik_mutfak_2_3"
+   ],
+   "candidates": [
+    "cam_r_L-1b_acik_mutfak_2_1",
+    "cam_r_L-1b_acik_mutfak_2_2",
+    "cam_r_L-1b_acik_mutfak_2_3"
+   ],
+   "delta_e_max": 5.569,
+   "delta_e_after": null
+  },
+  "r_L-1b_koridor": {
+   "rule": "ok",
+   "rung": null,
+   "views": [
+    "cam_r_L-1b_koridor_1",
+    "cam_r_L-1b_koridor_2",
+    "cam_r_L-1b_koridor_3"
+   ],
+   "candidates": [
+    "cam_r_L-1b_koridor_1",
+    "cam_r_L-1b_koridor_2",
+    "cam_r_L-1b_koridor_3"
+   ],
+   "delta_e_max": 3.165
+  },
+  "r_L-1b_oda": {
+   "rule": "ok",
+   "rung": null,
+   "views": [
+    "cam_r_L-1b_oda_1",
+    "cam_r_L-1b_oda_2",
+    "cam_r_L-1b_oda_3"
+   ],
+   "candidates": [
+    "cam_r_L-1b_oda_1",
+    "cam_r_L-1b_oda_2",
+    "cam_r_L-1b_oda_3"
+   ],
+   "delta_e_max": 0.662
+  }
+ },
+ "exterior_gate": {
+  "decision": "polish_disabled",
+  "polish_allowed": false,
+  "reasons": [
+   "negative controls rejected 0.846 < 0.90 (52 comparisons): the gate lets geometry changes through"
+  ],
+  "benign_accept": 1.0,
+  "negative_reject": 0.8462,
+  "n_benign": 24,
+  "n_negative": 52,
+  "source": "gate_calibration.json",
+  "from_base_project": false,
+  "views": [
+   "ext_1",
+   "ext_2",
+   "ext_3",
+   "ext_4",
+   "ext_5"
+  ],
+  "held": [
+   "ext_1",
+   "ext_2",
+   "ext_3",
+   "ext_4",
+   "ext_5"
+  ]
+ },
+ "warnings": [
+  "exterior gate polish_disabled: 5 exterior views keep the Cycles render"
+ ]
+}

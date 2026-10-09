@@ -1,0 +1,47 @@
+{
+ "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+ "label": "Oyun Aktivite Ve Dinlenme Odası",
+ "room_type": "other",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_008",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_009.cushions"
+  },
+  {
+   "id": "dec_L1_009",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_009.cushions"
+  },
+  {
+   "id": "dec_L1_010",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner1"
+  },
+  {
+   "id": "dec_L1_011",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L1_oyun_aktivite_ve_dinlenme_odasi.corner2"
+  },
+  {
+   "id": "dec_L1_012",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L1_oyun_aktivite_ve_dinlenme_odasi (twin, not asked)"
+ ]
+}
