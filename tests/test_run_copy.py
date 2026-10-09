@@ -369,7 +369,8 @@ def test_library_files_leave_model_files_out(tmp_path):
         put(lib / rel)
     put(lib / "big.json", size=CP.MAX_TEXT_BYTES + 1)
     got = sorted(f.relative_to(lib).as_posix() for f in CP.library_files(lib))
-    assert got == ["generate/images/x.png", "generate/plan.json", "judge/sheets/abo_X.jpg", "survey_abo.json"]
+    # Milestone 10: the generation's input images stay too (pod L1d: 310 MB of them filled the collection cap).
+    assert got == ["generate/plan.json", "judge/sheets/abo_X.jpg", "survey_abo.json"]
     assert CP.library_files(tmp_path / "nowhere") == []
 
 

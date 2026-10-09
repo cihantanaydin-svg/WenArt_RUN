@@ -1544,11 +1544,12 @@ def test_the_library_copy_leaves_model_files_out(tmp_path):
     lib = w.prep_root / "library"
     (lib / "generate").mkdir(parents=True)
     (lib / "generate" / "gen_sofa_1.glb").write_bytes(b"glTF")
-    (lib / "generate" / "gen_sofa_1.png").write_bytes(b"png")
+    (lib / "generate" / "gen_sofa_1.png").write_bytes(b"png")              # an input image (M10: stays too)
+    P.write_json(lib / "generate" / "gen_sofa_1.json", {"prompt": "a sofa"})
     P.write_json(lib / "survey_generated.json", {"candidates": []})
     assert w.prep().sync_library() == 2
     got = sorted(f.relative_to(w.results / "library").as_posix() for f in (w.results / "library").rglob("*"))
-    assert got == ["generate", "generate/gen_sofa_1.png", "survey_generated.json"]
+    assert got == ["generate", "generate/gen_sofa_1.json", "survey_generated.json"]
 
 
 def test_cli_options_of_the_library_sources(tmp_path, monkeypatch):

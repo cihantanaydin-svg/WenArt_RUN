@@ -106,6 +106,10 @@ LIBRARY_SOURCES = ("objaverse", "abo", "generated")   # = wenart.furniture.catal
 # The library work folder's files that never go to $RESULTS (``library_files``): model files (the GLBs live in the
 # sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
 LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fbx", ".part", ".tmp")
+# Milestone 10: nor the generation's input images (``generate/**/*.png``, about 0.5 MB each, 310 MB after pod L1d):
+# they filled the runner's 400 MB collection cap, so later result files were left out (pod L1d of 9 Oct 2026);
+# their prompts and records (``generate/**/*.json``) still go, as M9 committed them.
+LIBRARY_SKIP_GENERATE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
 IMAGE_AREAS = ("renders", "polish", "gate", "check", "realism", "final")   # folders that show a project's images
 VARIANTS_DIR = "variants"          # = wenart.run.stages.VARIANTS_DIR (Milestone 10)
 LOG_TAIL_LINES = 400
@@ -457,14 +461,18 @@ def library_files(library_dir: Path) -> list[Path]:
     """The files of a library work folder that go to ``$RESULTS/library`` (the prep job's copy): every survey file
     (``survey.json``, ``survey_abo.json``, ``survey_generated.json``), the thumbnails, judging sheets, requests
     and answers, ``accepted.json``, ``catalog_library.json``, the report, ``ATTRIBUTION.md`` and the generation plan
-    and images; never a model file (``LIBRARY_SKIP_SUFFIXES``: the GLBs stay in the caches and
-    ``<assets>/models/<source>/``), a symlink or a file over ``MAX_TEXT_BYTES``."""
+    and records; never a model file (``LIBRARY_SKIP_SUFFIXES``: the GLBs stay in the caches and
+    ``<assets>/models/<source>/``), a generation input image (``LIBRARY_SKIP_GENERATE_SUFFIXES`` under
+    ``generate/``), a symlink or a file over ``MAX_TEXT_BYTES``."""
     src = Path(library_dir)
     if not src.is_dir():
         return []
     out = []
     for f in sorted(src.rglob("*")):
         if not f.is_file() or f.is_symlink() or f.suffix.lower() in LIBRARY_SKIP_SUFFIXES:
+            continue
+        rel = f.relative_to(src)
+        if rel.parts[0] == "generate" and f.suffix.lower() in LIBRARY_SKIP_GENERATE_SUFFIXES:
             continue
         if f.stat().st_size > MAX_TEXT_BYTES:
             continue
