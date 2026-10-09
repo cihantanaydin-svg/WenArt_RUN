@@ -437,7 +437,11 @@ else the nearest point clear of the tall pieces, else the inner point itself. Th
 and says "INSIDE a proxy" only when it is in a tall piece (else its distance to the nearest wall); such a cramped
 view is then flagged `blocked unavoidable` by the pick.
 
-Blocked = model `near` > 0.30 or `max_single` > 0.50. Views per room: 3 when the room area ≥ 6 m², 2 when 3–6
+Blocked = model `near` > 0.30 or `max_single` > 0.50 or the nearest model surface (`min_depth`, planar) < 0.12 m
+(`SCORE["blocked_min_depth"]`; added in Milestone 10 after pod run F1: a fallback camera inside real02's stair
+box, in the 0.20 m well between the flights, saw a step side 0.08 m away under both share limits; a camera at a
+free point is never nearer than 0.2 m × cos(atan(18/14)) = 0.123 m planar, even at the 14 mm lens). Views per
+room: 3 when the room area ≥ 6 m², 2 when 3–6
 m², 1 when < 3 m². Greedy pick by score among unblocked candidates; a later pick must differ from every earlier
 one by ≥ 50° yaw or ≥ 1.0 m; a pick below 0.5 × the room's best score is dropped (at least 1 view per room). A
 room with no unblocked candidate gets its best blocked one with `warning: "blocked unavoidable"`. Ties: score,

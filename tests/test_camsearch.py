@@ -12,9 +12,12 @@ of pieces with a back (beds, chairs, sofas, toilets) is checked against the
 builder's parts and, ray by ray, against the built parametric meshes; the
 five searched views of pod run 20261003-205431 whose listed piece was not
 in the render are replayed from tests/fixtures/camsearch_pod_20261003.json.
+The min depth rule of the pick is replayed on real02's stair core (pod run
+F1: a fallback camera in the stair well, a step side 0.08 m from the lens).
 No Blender needed (one test runs the search inside Blender's Python when it
 is installed).
 """
+import copy
 import json
 import math
 import random
@@ -763,6 +766,109 @@ def test_a_long_piece_seen_from_the_side_is_listed_although_its_centre_is_outsid
         if not inside and share >= 0.1:
             found += 1
     assert found >= (1 if lens == 24.0 else 0)
+
+
+# --------------------------------------------------------------------------
+# A surface right in front of the lens: the min depth rule (pod run F1)
+# --------------------------------------------------------------------------
+
+def test_a_surface_nearer_than_0_12_m_blocks_the_view():
+    """Blocked also when the nearest model surface is nearer than ``SCORE["blocked_min_depth"]`` = 0.12 m
+    (planar depth): a step side 0.08 m from the lens fills a few columns only, under the near and the
+    single-element limits (pod run F1). ``measure`` gives the nearest finite depth of each row (inf when
+    nothing is hit); a share dict without ``min_depth`` is judged by the two share rules alone."""
+    assert C.SCORE["blocked_min_depth"] == 0.12
+    assert C.is_blocked({"near": 0.0, "max_single": 0.0, "min_depth": 0.08})
+    assert not C.is_blocked({"near": 0.0, "max_single": 0.0, "min_depth": 0.5})
+    assert not C.is_blocked({"near": 0.0, "max_single": 0.0, "min_depth": 0.12})
+    assert not C.is_blocked({"near": 0.0, "max_single": 0.0})
+    m = {"furn": 0.5, "open": 0.06, "floor": 0.30, "wall": 0.40, "window": 0.0, "ceiling": 0.10, "near": 0.10,
+         "max_single": 0.35, "d_wall": 1.5}
+    assert not C.score_terms(m)["blocked"] and C.score_terms(dict(m, min_depth=0.08))["blocked"]
+    # measure: a wall 0.85 m ahead of a 24 mm camera (the same planar depth over the whole frame), then a
+    # row whose rays hit nothing.
+    building = _building(4.0, 4.0)
+    model = C.RoomModel(building["rooms"][0], building)
+    a, b = C.ray_grid(lens_mm=24.0, shift_y=C.SHIFT_Y)
+    labels, depth = model.cast((3.15, 2.0, 1.25), C.yaw_directions([0], a, b))
+    assert model.measure(labels, depth, C.border_mask())[0]["min_depth"] == pytest.approx(0.85)
+    m = model.measure(np.full((1, a.size), C.NOTHING), np.full((1, a.size), np.inf), C.border_mask())[0]
+    assert m["min_depth"] == math.inf and not C.is_blocked(m)
+
+
+# real02's stair core (pod run F1, run 20261009-062657-full; its building_final.json is not in git): room
+# r_L0_oda, the plain opening o_L0_001 to the corridor, the four walls the room is derived from (they also
+# decide the stair's handrail sides) and the drawn U stair f_L0_001 with its stair block, which fills the
+# whole room. L1 is the level above (the stair rises floor to floor, 3.15 m).
+REAL02_STAIR_CORE = {
+    "project": {"id": "real02-stair-core"}, "status": "ok",
+    "levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 3.0},
+               {"id": "L1", "elevation": 3.15, "ceiling_height": 3.433}],
+    "walls": [{"id": "w_L0_005", "level_id": "L0", "start": [4.718, 7.519], "end": [10.456, 7.519], "thickness": 0.15},
+              {"id": "w_L0_006", "level_id": "L0", "start": [4.718, 9.836], "end": [10.456, 9.836], "thickness": 0.2},
+              {"id": "w_L0_011", "level_id": "L0", "start": [4.668, 5.944], "end": [4.668, 11.8], "thickness": 0.1},
+              {"id": "w_L0_013", "level_id": "L0", "start": [7.586, 1.7], "end": [7.586, 11.8], "thickness": 0.4}],
+    "openings": [{"id": "o_L0_001", "type": "opening", "level_id": "L0", "wall_id": "w_L0_011",
+                  "center": [4.668, 8.665], "width": 2.142, "height": 2.1, "sill_height": None}],
+    "rooms": [{"id": "r_L0_oda", "level_id": "L0", "label": "Oda", "room_type": "hall",
+               "polygon": [[4.718, 7.594], [7.386, 7.594], [7.386, 9.736], [4.718, 9.736]]}],
+    "furniture": [{
+        "id": "f_L0_001", "level_id": "L0", "room_id": "r_L0_oda", "type": "stair", "source": "from_documents",
+        "footprint": {"center": [6.0587, 8.6436], "size": [2.7141, 2.1], "rotation_deg": 0.0},
+        "front_deg": None, "height": None, "status": "verified", "build": True,
+        "asset": {"library": "parametric", "method": "parametric", "bbox_m": [2.7141, 2.1, 3.17]},
+        "stair": {"flights": [{"start": [4.7458, 8.0686], "end": [6.1458, 8.0686], "width": 0.95, "lines": 6,
+                               "spacing": 0.28},
+                              {"start": [5.0158, 9.2186], "end": [6.1358, 9.2186], "width": 0.95, "lines": 5,
+                               "spacing": 0.28}],
+                  "landing": {"polygon": [[6.1458, 7.5936], [6.1458, 9.6936], [7.4158, 9.6936], [7.4158, 7.5936]],
+                              "depth": 1.27},
+                  "direction": [1.0, 0.0], "direction_assumed": True, "turn": "U", "turn_assumed": True,
+                  "void_assumed": True, "riser_m": None, "riser_source": None}}],
+}
+
+
+def _min_depth(building: dict, plan: dict, grid=(480, 270)) -> float:
+    """Nearest planar depth the model sees from a plan's camera on a fine grid (on the pod run's views the
+    Cycles Z pass to within 0.1 mm)."""
+    room = next(r for r in building["rooms"] if r["id"] == plan["room_id"])
+    a, b = C.ray_grid(grid, plan["lens_mm"], shift_x=plan["shift_x"], shift_y=plan["shift_y"])
+    _, depth = C.RoomModel(room, building).cast(plan["position"],
+                                                C.camera_directions(plan["position"], plan["target"], a, b))
+    return float(depth[np.isfinite(depth)].min())
+
+
+def test_a_camera_in_a_stair_well_is_not_picked_next_to_a_step(monkeypatch):
+    """Pod run F1 (real02, cam_r_L0_oda_2; GPU test test_passes_exist_and_depth_is_plausible): the U stair fills
+    its 2.67 x 2.14 m core, so the camera stands at the room's inner point INSIDE the stair's box, in the 0.20 m
+    well between the flights. The model has the stair's open parts (review dwgblender-2), so the near share
+    (0.27) and the largest element (0.35) stayed under the blocked limits and the search picked yaws 180 and
+    330, past a step side 0.12 m away: min depth 0.108 / 0.082 m in the model and in the render, under the
+    GPU test's 0.1 m. The min depth rule blocks those two; the picks look along the well (yaws 150 and 0). The
+    fallback point and its warning stay, and a room whose every yaw is blocked still gets its best view."""
+    building = copy.deepcopy(REAL02_STAIR_CORE)
+    room = building["rooms"][0]
+    points, warning = C.candidate_positions(room, building)
+    assert points == [(6.052, 8.665)] and warning.endswith("camera at the room's inner point INSIDE a proxy")
+    model = C.RoomModel(room, building)
+    by_yaw = {c["yaw"]: c for c in C.score_candidates(model, points, lens_mm=16.0)}
+    pod = [by_yaw[180.0], by_yaw[330.0]]                         # the pod run's picks
+    for c in pod:
+        assert c["shares"]["near"] < C.SCORE["blocked_near"] and c["shares"]["max_single"] < C.SCORE["blocked_single"]
+        assert c["shares"]["min_depth"] < C.SCORE["blocked_min_depth"] and c["blocked"], c["yaw"]
+    fine = [_min_depth(building, C._plan(model, 1, c, warning, 16.0)) for c in pod]
+    assert max(fine) < C.SCORE["blocked_min_depth"] and min(fine) < 0.1          # 0.108 and 0.082 m
+    plans, scored = C.plan_room(room, building)
+    assert scored == 12 and len(plans) == C.room_view_count(room, building) == 2
+    assert [p["score"]["yaw_deg"] for p in plans] == [150.0, 0.0]
+    for p in plans:
+        assert p["position"] == [6.052, 8.665, 1.25] and p["lens_mm"] == 16.0
+        assert p["warning"] == warning and not p["score"]["blocked"]
+        assert _min_depth(building, p) >= C.SCORE["blocked_min_depth"], p["name"]
+    # Every yaw blocked (a min depth no view reaches): the best one, with both warnings.
+    monkeypatch.setitem(C.SCORE, "blocked_min_depth", 10.0)
+    (plan,), _ = C.plan_room(room, building)
+    assert plan["score"]["blocked"] and plan["warning"] == f"{warning}; {C.BLOCKED_WARNING}"
 
 
 # --------------------------------------------------------------------------

@@ -61,7 +61,8 @@ How:
   corners of the frame).
 - Per candidate: the share of rays of every label (each piece, each door or
   window, floor, ceiling, wall), whether a piece touches the frame border,
-  the share of rays nearer than 0.9 m and the median depth of the wall rays.
+  the share of rays nearer than 0.9 m, the median depth of the wall rays and
+  the nearest depth.
   ``score_terms`` turns them into the §4.1 score; every constant is in
   ``SCORE``.
 - Candidates: free points (``geom2d.point_is_free`` with the wall 0.3 m /
@@ -76,8 +77,10 @@ How:
 - Pick (``select_views``): views per room by the room area (3 from 6 m2,
   2 from 3 m2, else 1; Milestone 7: a room with nothing to show gets one
   view, and none below 2.5 m2, see below); a candidate is blocked when its
-  near share is over
-  0.30 or one element covers over 0.50 of the rays; greedy by score among
+  near share is over 0.30, one element covers over 0.50 of the rays or its
+  nearest surface is nearer than 0.12 m (planar; pod run F1: a camera at the
+  fallback point in a stair well, a step side 0.08 m from the lens, under
+  both share limits; ``is_blocked``); greedy by score among
   the unblocked candidates (ties: score, then x, y, yaw), a later pick must
   differ from every earlier one by at least 50 degrees of yaw or 1.0 m, and a
   pick below 0.5 x the room's best score is dropped (at least one view per
@@ -173,7 +176,8 @@ SCORE = {
         "ceiling": (1.0, 0.15),
     },
     "blocked_near": 0.30,             # blocked: near > 0.30 ...
-    "blocked_single": 0.50,           # ... or one piece / opening > 0.50
+    "blocked_single": 0.50,           # ... or one piece / opening > 0.50 ...
+    "blocked_min_depth": 0.12,        # ... or the nearest surface < 0.12 m (planar; pod run F1)
     "type_weight": {
         "bed": 3.0, "bed_double": 3.0, "bed_single": 3.0, "sofa": 3.0, "kitchen_counter": 3.0,
         "kitchen_island": 3.0,
@@ -335,8 +339,15 @@ def near_distance(lens_mm: float) -> float:
 
 
 def is_blocked(m: dict) -> bool:
-    """Blocked: the model's near share is over 0.30 or one element covers over 0.50 of the rays."""
-    return bool(float(m["near"]) > SCORE["blocked_near"] or float(m["max_single"]) > SCORE["blocked_single"])
+    """Blocked: the model's near share is over 0.30, one element covers over 0.50 of the rays, or the
+    nearest surface (``min_depth``, planar metres) is nearer than 0.12 m. The last rule is for a camera at
+    the fallback point inside a stair's box (pod run F1, real02's stair core): the stair is its open parts in
+    the model, so a step side 0.08 m from the lens fills a few columns only, under both share limits. A
+    camera at a free point (0.2 m from every floor piece, 0.3 m from the walls) sees nothing that near: at
+    least 0.2 m x cos(atan(18 / 14)) = 0.123 m planar at the widest 14 mm lens. A share dict without
+    ``min_depth`` has only the share rules."""
+    return bool(float(m["near"]) > SCORE["blocked_near"] or float(m["max_single"]) > SCORE["blocked_single"]
+                or float(m.get("min_depth", math.inf)) < SCORE["blocked_min_depth"])
 
 
 # --------------------------------------------------------------------------
@@ -661,7 +672,8 @@ class RoomModel:
     # ------------------------------------------------------------------
     def measure(self, labels: np.ndarray, depth: np.ndarray, border: np.ndarray,
                 near_m: Optional[float] = None) -> list[dict]:
-        """Model shares (the ``score_terms`` input) of each row of ``labels``/``depth`` (C x P);
+        """Model shares (the ``score_terms`` input) of each row of ``labels``/``depth`` (C x P) and the
+        nearest depth ``min_depth`` (metres, inf when no ray hits anything; ``is_blocked``);
         ``near_m``: the near distance of the camera's lens (``near_distance``; default ``SCORE["near_m"]``,
         the 24 mm one)."""
         near_m = SCORE["near_m"] if near_m is None else float(near_m)
@@ -677,6 +689,7 @@ class RoomModel:
         elements = np.concatenate([self.piece_codes, self.opening_codes]).astype(int)
         max_single = shares[:, elements].max(axis=1) if len(elements) else np.zeros(C)
         near = (depth < near_m).mean(axis=1)
+        min_depth = np.where(np.isfinite(depth), depth, np.inf).min(axis=1)     # inf: nothing hit
         wall = labels == WALL
         d_wall = np.zeros(C)
         has_wall = wall.any(axis=1)
@@ -696,7 +709,7 @@ class RoomModel:
                 "window": float(shares[i, self.window_codes].sum()) if len(self.window_codes) else 0.0,
                 "floor": float(shares[i, FLOOR]), "ceiling": float(shares[i, CEILING]),
                 "wall": float(shares[i, WALL]), "near": float(near[i]), "max_single": float(max_single[i]),
-                "d_wall": float(d_wall[i]),
+                "d_wall": float(d_wall[i]), "min_depth": float(min_depth[i]),
                 "elements": {self.elements[c - FIRST_ELEMENT]["id"]: float(shares[i, c])
                            for c in range(FIRST_ELEMENT, L) if counts[i, c]},
                 "cut": sorted(self.elements[c - FIRST_ELEMENT]["id"] for c in range(FIRST_ELEMENT, L) if bcounts[i, c]),
