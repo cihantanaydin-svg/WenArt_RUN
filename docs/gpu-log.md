@@ -56,5 +56,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-09 04:42 | k5vdwxva8alqyr | NVIDIA RTX PRO 6000 Blackwell Server Edition | 58 | 2.43 | M10 L2b: TRELLIS.2 generation for the thin new types (target 20, decor 15), thumbnails, both judge sessions (GLM: the material slots too), catalogue with material fields, GPU tests | unknown |
 | 2026-10-09 04:50 | dg3ea8edhye1l2 | NVIDIA RTX PRO 4000 Blackwell | 7 | 0.06 | M10 diagnostic: volume usage and the logs of pod L2b (read only) | unknown |
 | 2026-10-09 04:59 | 2aw8p6a9m8kvsw | NVIDIA RTX PRO 4000 Blackwell | 5 | 0.04 | M10 diagnostic after the volume grew to 250 GB: usage and the logs of pod L2b (read only) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-09 05:01 | pending:20261009-050157-prep | RTX PRO 6000 | 100 | 4.15 | M10 L2c: TRELLIS.2 generation for the 13 thin new types, thumbnails, both judge sessions (GLM: the material slots too), catalogue with material fields, GPU tests | creating (provisional, worst case) |
 
-**Total spent so far: $52.35** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $56.50** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
