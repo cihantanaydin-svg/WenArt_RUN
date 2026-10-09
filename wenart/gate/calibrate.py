@@ -641,7 +641,7 @@ def exterior_validation(cal: Optional[dict], limits: dict, thresholds: Optional[
     sub = {"benign": of_kind(cal.get("benign"), EXTERIOR), "negative": of_kind(cal.get("negative"), EXTERIOR),
            "rates": ext.get("rates") or {}, "thresholds": cal.get("thresholds"),
            "incomplete": bool(cal.get("incomplete") or cal.get("exterior_incomplete"))}
-    out = VAL.decide_validation(sub, limits, thresholds)
+    out = VAL.decide_validation(sub, limits, thresholds, kind=EXTERIOR)
     if cal.get("exterior") is None:
         out["reasons"].insert(0, "the calibration has no exterior block (made before Milestone 10, or the exterior "
                                  "views were not calibrated)")
