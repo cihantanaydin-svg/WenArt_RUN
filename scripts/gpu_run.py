@@ -56,6 +56,13 @@ RUNS_DIR = ROOT / "runs"
 MAX_PRICE_PER_H = 5.00          # user decision of 3 Oct 2026 (was $1.00)
 MAX_ACTION_USD = 5.00           # CLAUDE.md: ask the user before any single action costing more than $5
 MAX_PER_DAY = 30.00                 # raised from $10 to $20, then $30, by the user on 4 Oct 2026
+# One-day raises of the daily cap by the user (UTC date -> USD); other days keep MAX_PER_DAY.
+DAY_LIMITS = {"2026-10-09": 40.00}   # user, 9 Oct 2026 (M11 pods): "we can extend today caps to 40 usd"
+
+
+def day_limit(day: str | None = None) -> float:
+    """The daily cap of UTC date ``day`` (default today): ``DAY_LIMITS`` or ``MAX_PER_DAY``."""
+    return DAY_LIMITS.get(day or utc_now().strftime("%Y-%m-%d"), MAX_PER_DAY)
 MAX_MINUTES = 120
 IMAGE = "runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404"
 DATACENTER = "EU-RO-1"
@@ -200,9 +207,10 @@ def check_limits(price: float, minutes: int, spent_today: float) -> None:
     if minutes > MAX_MINUTES:
         raise RuntimeError(f"{minutes} min is over the {MAX_MINUTES} min limit per run")
     worst = price * minutes / 60
-    if spent_today + worst > MAX_PER_DAY:
+    limit = day_limit()
+    if spent_today + worst > limit:
         raise RuntimeError(f"today's spend ${spent_today:.2f} + worst case ${worst:.2f} "
-                           f"would pass the ${MAX_PER_DAY:.2f}/day limit")
+                           f"would pass the ${limit:.2f}/day limit")
 
 
 def our_pods(pods: list[dict]) -> list[dict]:
@@ -414,7 +422,7 @@ def cmd_status(_: argparse.Namespace) -> int:
     print(f"network volumes: {len(vols)}")
     for v in vols:
         print(f"  {v['id']} {v['name']} {v['size']} GB {v['dataCenter']}")
-    print(f"spent today (UTC): ${spent_today(pods):.2f} of ${MAX_PER_DAY:.2f} "
+    print(f"spent today (UTC): ${spent_today(pods):.2f} of ${day_limit():.2f} "
           f"(billing ${billing_today():.2f}, local log ${local_spent_on(GPU_LOG.read_text(), utc_now().strftime('%Y-%m-%d')):.2f})")
     return 0
 

@@ -93,7 +93,9 @@ def test_pick_gpu_refuses_expensive():
                             max_price=gpu_run.action_price_limit(115, over_5_ok=True))["name"] == "H100 SXM"
 
 
-def test_check_limits():
+def test_check_limits(monkeypatch):
+    import datetime as dt
+    monkeypatch.setattr(gpu_run, "utc_now", lambda: dt.datetime(2026, 10, 5, 12, 0, tzinfo=dt.timezone.utc))  # a $30 day
     gpu_run.check_limits(0.27, 120, 0.0)
     gpu_run.check_limits(1.01, 10, 0.0)                     # allowed since 3 Oct 2026 ($5/h limit)
     with pytest.raises(RuntimeError):
@@ -656,3 +658,16 @@ def test_volume_resize_only_grows_and_needs_the_ok(monkeypatch, capsys):
     assert calls[-1] == ("PATCH", "/v2/network-volumes/vol1", {"size": 250})
     out = capsys.readouterr().out
     assert "from 120 to 250 GB (+~$9.10/month" in out and "now 250 GB" in out
+
+
+def test_one_day_raise_of_the_daily_cap(monkeypatch):
+    """User, 9 Oct 2026: today's cap is $40; every other day keeps $30."""
+    import datetime as dt
+    assert gpu_run.day_limit("2026-10-09") == 40.00 and gpu_run.day_limit("2026-10-10") == 30.00
+    monkeypatch.setattr(gpu_run, "utc_now", lambda: dt.datetime(2026, 10, 9, 21, 0, tzinfo=dt.timezone.utc))
+    gpu_run.check_limits(2.6, 115, 33.0)                      # 33 + 4.98 = 37.98 <= 40
+    with pytest.raises(RuntimeError, match=r"\$40.00/day"):
+        gpu_run.check_limits(2.6, 115, 36.0)
+    monkeypatch.setattr(gpu_run, "utc_now", lambda: dt.datetime(2026, 10, 10, 1, 0, tzinfo=dt.timezone.utc))
+    with pytest.raises(RuntimeError, match=r"\$30.00/day"):
+        gpu_run.check_limits(2.6, 115, 26.0)
