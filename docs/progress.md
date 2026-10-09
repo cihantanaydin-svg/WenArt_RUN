@@ -715,6 +715,8 @@ Spec: `docs/milestone11.md` (the user named `docs/milestone10.md`, which is the 
   critic checklists, feedback routing, decision log, layout-engine and exterior work, test plan. Model pick:
   `Qwen/Qwen3.8-27B-FP8` (Apache-2.0) as agent and vision critic on the RTX PRO 6000 next to Cycles; fallback
   `Qwen/Qwen3.6-35B-A3B-FP8`. Three pods, ≈ $12.
-- **Waiting for you**: the `CLAUDE.md` wording (§16) and decisions D1–D8 (§15).
+- **Your OK of 9 Oct 2026** (D1–D8): `CLAUDE.md` updated (`d602269`); D5 and D6 became brief options with
+  evidence-based defaults (§17), still open questions about real02. Contracts frozen (§17, `fa31d58`); the build
+  runs in three parallel tracks: A agent core, B layout engine, C exterior/rooms/cameras.
 
 GPU cost so far: $65.68 of $100 (no pod in M11 yet). No pod is running.
