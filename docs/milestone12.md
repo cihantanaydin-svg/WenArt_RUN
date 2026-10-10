@@ -600,7 +600,7 @@ optional).
 | Ground at an outside door | the nearest ground point within 5 m of the door, else the terrain model, else the side's section ground line, else the default below |
 | **Nothing about the ground at all** | **D3a: the ground floor stands 0.15 m above the ground (one step, inferred)** – options: 0.00 (today: always flush, which reads wrong), 0.15 (pick: the usual minimum rise to keep water out), 0.45 (the facade plinth band of today) |
 | Terrain | ≥ 3 ground points → plane fit (residual ≤ 0.10 m) else a triangulated surface (TIN) over the plot; 1–2 points or section lines → per-side levels (today's model); none → flat. Beyond the plot it blends to flat over 20 m |
-| Steps at a door | rise > 0.02 m → steps: n = ceil(rise / 0.15), riser = rise / n (≤ 0.15 m outdoors), tread 0.30 m, 2·riser + tread ≈ 0.60 m; a landing of door width + 0.6 m × 1.2 m in front of the door; > 12 risers → an intermediate landing (values: secondary sources on TS 9111, flagged in §3.7) |
+| Steps at a door | rise ≤ 0.05 m → a flush threshold; rise > 0.05 m → steps: n = ceil(rise / 0.15), riser = rise / n (≤ 0.15 m outdoors), tread 0.30 m, 2·riser + tread ≈ 0.60 m; a landing of door width + 0.6 m × 1.2 m in front of the door; > 12 risers → an intermediate landing (values: secondary sources on TS 9111, flagged in §3.7) |
 | Ramp | only when drawn (`RAMPA`, a slope arrow with %) or when the brief asks for an accessible entrance; slope by rise: ≤ 0.15 m 1:12 (8 %), 0.16–0.50 m 1:14 (7 %), 0.51–1.00 m 1:16 (6 %), > 1.00 m 1:20 (5 %) (secondary source on TS 9111, flagged); handrails on both sides above 0.15 m |
 | Plinth | `SB.` mark, else threshold − ground; the facade plinth band (`facade.py`) follows this height (min 0.15 m) instead of the fixed 0.45 m paint band |
 | A door > 1.5 m above the ground | no longer ignored: finding L2 (door into the air); a balcony or terrace door is fine; else the agent decides (outside stair, or the door is not an entrance) |
@@ -611,7 +611,7 @@ optional).
 
 - **Terrain** (`blender/site.py`): the TIN or plane as a ground mesh with the plot, paths and paving draped on it;
   retaining edges where the terrain drops > 0.5 m at the plot boundary; flat beyond.
-- **Entrances:** steps (riser/tread from §3.3), landing, cheek walls, handrails above 0.45 m; a ramp with handrails
+- **Entrances:** steps (riser/tread from §3.3), landing, cheek walls, handrails above 0.45 m (our assumption, flagged); a ramp with handrails
   when inferred or drawn. All built objects carry the entrance id (object-index pass, checks).
 - **Plinth:** the facade plinth is a real raised base from ground to floor, not a paint band.
 - **Room floor offsets:** the shell builds a room's floor at its offset; a step (or flight) at each inner door
@@ -630,7 +630,7 @@ optional).
 | L2 | a door > 0.05 m above the ground in front with no steps or ramp (all rises, not only 0.05–1.5 m) | critical |
 | L3 | a level floor below the terrain at the outline (> 0.05 m) that is not a basement, or a basement window below ground without a light well or court | critical |
 | L4 | built floors and ground vs every vector mark: within 0.02 m, else a finding naming the mark (the conflict is listed) | major |
-| L5 | steps: riser 0.10–0.18 m, tread ≥ 0.28 m, 0.58 ≤ 2R + T ≤ 0.66 m; ramps within the slope table | major |
+| L5 | steps: outdoor riser 0.10–0.15 m, indoor ≤ 0.18 m, tread ≥ 0.28 m, 0.58 ≤ 2R + T ≤ 0.66 m; ramps within the slope table | major |
 | L6 | terrain slope ≤ 1:3 without a retaining edge; no terrain above a window sill without a light well | major |
 | L7 | every entrance is seen in ≥ 1 exterior view, and its steps or ramp are in that view's object-index pass | minor |
 
@@ -675,15 +675,15 @@ source of each number (§4.6).
 
 | Group | Anchor | Partners (required / optional) | Key rules |
 |---|---|---|---|
-| seating | sofa or corner sofa | TV unit opposite on the sofa's axis / coffee table, 1–2 armchairs, side table, floor lamp, rug | TV 1.8–3.5 m from the sofa front, facing it (± 10°); coffee table 0.35–0.50 m from the sofa front, inside the sofa–TV corridor; armchairs face the coffee table; TV not in front of a window |
-| dining | dining table | chairs by table size, evenly around / sideboard, pendant | ≥ 0.75 m behind every chair to a wall or piece (pull-out); chairs face the table |
-| sleeping (double) | double bed | 2 nightstands, one per side at the headboard / bench at the foot, rug, wardrobe in the room | headboard on a wall; ≥ 0.60 m free along both long sides; ≥ 0.70 m at the foot; a nightstand only where its side is free |
+| seating | sofa or corner sofa | TV unit opposite on the sofa's axis / coffee table, 1–2 armchairs, side table, floor lamp, rug | TV ≥ 1.5 m from the sofa front (score: 1.2–1.6 × the screen diagonal), facing it (± 10°); coffee table ≥ 0.30 m (score 0.35–0.45 m) from the sofa front, inside the sofa–TV corridor; armchairs face the coffee table; TV not in front of a window |
+| dining | dining table | chairs by table size, evenly around / sideboard, pendant | ≥ 0.81 m behind every chair to a wall or piece (score 0.91 m, 1.12 m where people walk past); chairs face the table |
+| sleeping (double) | double bed | 2 nightstands, one per side at the headboard / bench at the foot, rug, wardrobe in the room | headboard on a wall; ≥ 0.60 m free along both long sides and at the foot (score 0.75 m); a nightstand only where its side is free |
 | sleeping (single) | single bed | 1 nightstand / desk group | one long side may touch a wall |
-| storage | wardrobe | – | back to a wall, ≥ 0.90 m free in front (doors) |
-| work | desk | office chair / bookshelf, lamp | chair in front, ≥ 0.90 m behind the desk front; daylight from the side preferred |
-| kitchen run | counter run (I, L, U, galley) + island | sink, hob, fridge / dishwasher, wall cabinets | order fridge – sink – hob along the run; landing ≥ 0.40 m beside the sink, hob and fridge (sources §4.6); hob not under a window or beside a tall unit; work triangle legs 1.2–2.7 m, total ≤ 7.9 m; sink preferably under a window |
-| bathroom set | – | toilet, washbasin, shower or bathtub / washing machine, mirror | clear zone in front of the toilet and washbasin; shower/bath entry free; the door swing hits nothing |
-| entrance | – | shoe cabinet / console, mirror | walkway ≥ 0.90 m kept |
+| storage | wardrobe | – | back to a wall, ≥ 0.80 m free in front (doors; flagged assumption) |
+| work | desk | office chair / bookshelf, lamp | chair in front, ≥ 0.80 m behind the desk front (flagged assumption); daylight from the side preferred |
+| kitchen run | counter run (I, L, U, galley) + island | sink, hob, fridge / dishwasher, wall cabinets | order fridge – sink – hob along the run; landing beside the sink ≥ 0.46 m, the hob ≥ 0.30 m, the fridge ≥ 0.38 m on its handle side (§4.9); hob not under a window or beside a tall unit; work triangle legs 1.2–2.7 m, total ≤ 7.9 m; aisle ≥ 0.90 m; sink preferably under a window |
+| bathroom set | – | toilet, washbasin, shower or bathtub / washing machine, mirror | ≥ 0.53 m clear in front of the toilet, washbasin and tub (score 0.76 m); toilet centre ≥ 0.38 m from a side wall; shower/bath entry free; the door swing hits nothing |
+| entrance | – | shoe cabinet / console, mirror | main walkway ≥ 0.80 m kept |
 | children | single bed | desk group, wardrobe / toy storage | as the parts |
 | balcony | – | small table + 2 chairs | railing side free |
 
@@ -739,21 +739,21 @@ candidate 1. It never gives coordinates.
 Group checks replace the counting of F5 and run in the solver, the code critic, the edit validator and the tests
 (one function per check, `wenart/furniture/group_checks.py`):
 
-| Check | Rule (default numbers; sources in §4.9) |
+| Check | Rule (minimums; sources and recommended values in §4.9) |
 |---|---|
-| G1 | TV unit opposite the sofa: on the sofa's axis (± 0.3 m), facing it (± 10°), 1.8–3.5 m away |
-| G2 | coffee table between sofa and TV, 0.35–0.50 m from the sofa front |
+| G1 | TV unit opposite the sofa: on the sofa's axis (± 0.3 m), facing it (± 10°), ≥ 1.5 m away |
+| G2 | coffee table between sofa and TV, ≥ 0.30 m from the sofa front |
 | G3 | armchairs face the coffee table or the sofa (± 30°), ≤ 2.5 m from it |
 | G4 | one nightstand per free side of the bed head, touching the bed side ± 0.10 m, its front in the bed's direction |
-| G5 | bed: headboard on a wall; ≥ 0.60 m free along each free long side, ≥ 0.70 m at the foot |
-| G6 | dining: chairs = seats of the table size, evenly spread, each facing the table, ≥ 0.75 m pull-out behind each |
-| G7 | desk + chair in front; ≥ 0.90 m behind the desk front |
-| G8 | kitchen order fridge – sink – hob along the run; landing ≥ 0.40 m beside each; hob not under a window; triangle legs 1.2–2.7 m, sum ≤ 7.9 m |
+| G5 | bed: headboard on a wall; ≥ 0.60 m free along each free long side and at the foot |
+| G6 | dining: chairs = seats of the table size, evenly spread, each facing the table, ≥ 0.81 m pull-out behind each |
+| G7 | desk + chair in front; ≥ 0.80 m behind the desk front |
+| G8 | kitchen order fridge – sink – hob along the run; landings sink 0.46, hob 0.30, fridge 0.38 m; hob not under a window; triangle legs 1.2–2.7 m, sum ≤ 7.9 m; aisle ≥ 0.90 m |
 | G9 | kitchen completeness: a sink, a hob, a fridge in every kitchen (zone) |
-| G10 | bathroom completeness: toilet + washbasin (+ shower or bath in a bathroom); a clear zone in front of each fixture |
-| G11 | walkways: every door reaches every door and every use zone with ≥ 0.60 m (main path ≥ 0.80 m) |
+| G10 | bathroom completeness: toilet + washbasin (+ shower or bath in a bathroom); ≥ 0.53 m clear in front of each fixture; toilet centre ≥ 0.38 m from a side wall |
+| G11 | walkways: every door reaches every door and every use zone with ≥ 0.60 m (main path from the entrance ≥ 0.80 m) |
 | G12 | windows: no piece taller than the sill + 0.05 m within 0.30 m in front of a window |
-| G13 | wardrobe and other door-fronted storage: ≥ 0.90 m free in front |
+| G13 | wardrobe and other door-fronted storage: ≥ 0.80 m free in front |
 | G14 | no piece of a type its room (zone) never holds (F1 per zone) |
 
 Scene checks (Blender, after the build; `checks/scene.json`; findings routed to the stage that caused them):
@@ -786,8 +786,8 @@ Scene checks (Blender, after the build; `checks/scene.json`; findings routed to 
   backrest; the cushion's back touches it, leaning 10–15°, its bottom on the seat surface. A sofa or bed model whose
   audit says it already has cushions or pillows gets fewer or none (no duplicates).
 - **Pillows.** Against the headboard (or the wall), on the mattress top (ray), not on top of the model's own pillows.
-- **Throws and duvets.** Our own cloth mesh (folds modelled once) shrinkwrapped onto the bed or sofa top with a 5 mm
-  offset; never a library object squashed to 5 cm (fixes B7). Every bed whose model has no bedding gets a duvet and
+- **Throws and duvets.** Procedural textiles (§6.4): our own cloth mesh (folds modelled once) shrinkwrapped onto
+  the bed or sofa top with a 5 mm offset, any CC0 fabric in the style colours; never a library object squashed to 5 cm (fixes B7). Every bed whose model has no bedding gets a duvet and
   two pillows this way (fixes the bare mattresses).
 - **Objects on shelves, tables and counters:** ray casts as today (they work); shelves get one ray grid per shelf
   board (the board's real height from the mesh).
@@ -812,15 +812,102 @@ Scene checks (Blender, after the build; `checks/scene.json`; findings routed to 
 - Real proportions: non-uniform fit scale ≤ 10 % (was 15 %), mean scale 0.85–1.20 (was 0.75–1.30); outside →
   the next model; the size table becomes the audit's real-size table (§6).
 
-### 4.9 D15 – What we reuse from open-source layout work
+### 4.9 D15 – What we reuse from open-source layout work (checked 10 Oct 2026)
 
-_Filled from the verification in progress (repositories, licences and guideline sources)._
+Licences read from each repository's LICENSE file (raw.githubusercontent.com); papers through their project pages
+and Hugging Face paper pages (arxiv.org is blocked here).
+
+| Work | Code licence | Needs | What it is | Verdict |
+|---|---|---|---|---|
+| Holodeck (CVPR 2024), `allenai/Holodeck` | Apache-2.0 | Objaverse assets, GPT-4o; optional MILP path uses Gurobi (commercial) | LLM writes per-object constraints; grid DFS solver `DFS_Solver_Floor` (shapely) with edge/middle, near/far, in front of / side of, centre-aligned, face-to | **reuse the constraint vocabulary and the solver structure**; not a dependency (the module imports langchain/OpenAI at the top, unseeded `random.shuffle`, 30 s wall-clock stop); any copied code keeps the Apache notice |
+| Infinigen Indoors (CVPR 2024), `princeton-vl/infinigen` | BSD-3 | procedural assets; pins `bpy==4.2.0`, Python 3.11 | constraint language: hard constraints separate from score terms (`accessibility_cost`, `focus_score`, `angle_alignment_cost`, `StableAgainst`); simulated annealing | **ideas**: hard vs soft split, the accessibility frustum, focus score, "against a wall = slide along it"; cannot run in our Blender 5.2 |
+| ProcTHOR (NeurIPS 2022), `allenai/procthor` | Apache-2.0 | AI2-THOR (Unity) | rule-based houses; "asset groups" as JSON trees (`television-sofa`, `chair-diningtable-4`, `desk-with-chair`) with relative anchors, offsets, randomness, `corner/edge/middle`, room weights | **reuse the group JSON idea** for `groups.yaml` |
+| FlairGPT (Eurographics 2025) | no LICENSE (all rights reserved) | OpenAI | LLM picks from a fixed constraint library; scipy SLSQP + shapely solve | **idea only**: its function library is our checklist of score terms (next_to_wall, accessible, under_window, facing, between, surround, aligned, balanced) |
+| LayoutVLM (CVPR 2025), I-Design (ECCV-W 2024), AnyHome (ECCV 2024) | no LICENSE | OpenAI, Objaverse | VLM + differentiable relations / scene graphs | idea only |
+| HSM / SceneMotifCoder (3DV 2026 / 2025) | MIT | HSSD (non-commercial) | "scene motifs" (groups) as programs | idea (groups as programs) |
+| SceneWeaver (NeurIPS 2025) | BSD-3 | some tools on 3D-FUTURE | reason–act–reflect agent | idea for the agent loop |
+| Co-Layout (AAAI 2026) | repo unverified | – | grid integer programming for corridor connectivity | idea for G11 |
+| ATISS, DiffuScene, InstructScene, LayoutGPT weights, PhyScene, ReSpace, LLplace, SceneTeller | non-commercial licences or 3D-FRONT data | – | learned layouts | **not usable** |
+| Merrell et al. 2011 (SIGGRAPH), Yu et al. 2011 "Make It Home" | papers | – | cost terms: clearance, circulation, pairwise relations, conversation distance, alignment, balance; accessibility, visibility, door-to-door path | **our score-term names and starting weights** |
+
+Pick: our own deterministic solver (§4.4) in `wenart/furniture/solver.py` with the Holodeck constraint words, the
+Infinigen hard/soft split and the ProcTHOR group format; fixed order and a node budget (no wall clock, no random).
+
+**Default numbers and their sources** (US/UK guidelines; no Turkish furniture-clearance standard was found; the
+**minimums are hard checks, the recommended values are score terms**, so small Turkish rooms still get a layout):
+
+| Rule | Minimum (hard) | Recommended (score) | Source |
+|---|---|---|---|
+| Kitchen work triangle | legs 1.2–2.7 m, sum ≤ 7.9 m | – | NKBA Kitchen Planning Guidelines (media.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf), snippet |
+| Landing beside the sink | 0.46 m one side | 0.61 + 0.46 m | NKBA, snippet |
+| Landing beside the hob | 0.30 m one side | 0.30 + 0.38 m | NKBA, snippet |
+| Landing beside the fridge | 0.38 m on the handle side | – | NKBA, snippet |
+| Kitchen work aisle | 0.90 m (our minimum for small flats) | 1.07 m (one cook) | NKBA, snippet; our minimum flagged |
+| Main walkway | 0.80 m (flagged) | 0.91 m | NKBA, snippet |
+| Behind a seated diner | 0.81 m (no traffic) | 0.91 m (edge past), 1.12 m (walk past) | NKBA, snippet |
+| In front of toilet / washbasin / tub | 0.53 m | 0.76 m | NKBA Bath Planning Guidelines (media.nkba.org/uploads/2022/05/Bath-Planning-Guidelines.pdf), snippet |
+| Toilet centre to a side wall or fixture | 0.38 m | 0.46 m | NKBA bath, snippet |
+| Washbasin centre to a side wall | 0.38 m | 0.51 m | NKBA bath, snippet |
+| Bed sides and foot | 0.60 m (flagged: blog quoting the withdrawn DIN 18011) | 0.75 m | UK Approved Document M vol. 1, M4(2) (accessible dwellings), snippet |
+| Coffee table to the sofa front | 0.30 m | 0.35–0.45 m | blog quoting Panero & Zelnik, *Human Dimension & Interior Space* (flagged) |
+| Sofa to TV | 1.5 m | 1.2–1.6 × the screen diagonal (≈ 1.8–2.6 m for a 55" TV) | SMPTE/THX viewing angles via secondary sources (flagged) |
+| Secondary walkway between pieces | 0.60 m (flagged, our assumption) | 0.75 m | – |
+
+NKBA has a 5th edition (2024); the build re-checks these values against it if the PDF can be read, else they stay
+flagged. §4.2 and §4.6 use these numbers; all of them live in `groups.yaml` and the brief can change them.
 
 ## 5. C – A smarter AI in the pod
 
-### 5.1 D16 – The model
+### 5.1 D16 – The model: a bake-off on our own tasks
 
-_Filled from the verification in progress (model ids, sizes, licences, vLLM support)._
+Checked 10 Oct 2026 on the Hugging Face API (id, sha, licence tag, safetensors size) and the vLLM v0.30.0 source
+(our pin; v0.31.0 adds nothing we need). GB on disk.
+
+| Model (HF id @ sha) | Total / active | Licence | GB | Fits one RTX PRO 6000 next to Cycles | Published numbers (vendor's own) |
+|---|---|---|---|---|---|
+| `Qwen/Qwen3.8-27B-FP8` @017b9c7a (today) | 27.8B dense | Apache-2.0 | 30.9 | yes (measured 52 GB) | ClawEval-MM 57.4, ERQA 65.5, RealWorldQA 85.9, OSWorld-Verified 84.3 |
+| `Qwen/Qwen3.8-27B` (BF16) @1d4bf0f2 | same | Apache-2.0 | 55.6 | yes (≈ 65 GB, est.) | same model, no FP8 loss |
+| `meta-models/Muse-Glimmer-30B` @a4e59da5 (Aug 2026) | 29.6B dense | Apache-2.0 | 59.6 | yes (≈ 63 GB, est.) | OSWorld-Verified 65.9, MCP Atlas 75.5, MMMU-Pro 74 |
+| `google/gemma-4-31B-it` @842da379 | 30.7B dense | Apache-2.0 | 62.5 | borderline | MMMU-Pro 76.9, Tau2 76.9 |
+| `Qwen/Qwen3.5-122B-A10B` (GPTQ-Int4 / NVFP4) | 125B / 10B | Apache-2.0 | 79–84 | no (alone + sleep only) | not better than the 27B on any shared benchmark |
+| `mistralai/Mistral-Small-4-119B-2603-NVFP4` | 119B / 6.5B | Apache-2.0 | 70.8 | borderline, unverified | vision numbers only as images (blocked): unverified |
+| **`nvidia/Qwen3.8-Flash-Next-NVFP4` @fc694b54** | 180B / 6B | **custom (flag)**: `qwen-community-1.0` (Qwen's FP8 repo) | 132.7 | **no: 2 GPUs (TP2)**, ≈ 67 GB per GPU, Cycles in the rest | ClawEval-MM **64.4**, ERQA **72.3**, RealWorldQA 88.5 (+7, +7, +2.6 over the 27B) |
+| `stepfun-ai/Step-3.7-Flash-NVFP4` @4275532f | 198B / 11B | Apache-2.0 | 129.2 | no: 2 GPUs; sm_120 unverified (card: own docker image) | ClawEval-1.1 67.1, V* 95.3 |
+| `zai-org/GLM-4.6V-FP8` | 106B | MIT | 110 | no: 2 GPUs | older generation |
+| `openai/gpt-oss-120b`, Nemotron-3-Super-120B | 117–120B | Apache-2.0 / NVIDIA custom | 65–80 | – | **text only** |
+
+The Flash-Next licence (read from the repo's LICENSE): commercial use allowed; above 100 M monthly users or US$ 20 M
+monthly revenue the model name must be shown in the product; a company running a "Model as a Service" or an "AI
+Work Assistant" (coding/office productivity) business needs a separate licence from Qwen for commercial use;
+internal use that does not expose the model to third parties is exempt. A rendering pipeline is neither, but a
+future product that lets customers send their own prompts to the model could be "Model as a Service": **flag**.
+
+| Option | Verdict |
+|---|---|
+| a | keep the 27B FP8 and change nothing else | no: the tools are the main problem, but the model was never measured on our tasks |
+| b | a separate text planner (gpt-oss-120b) + a VLM critic | no: the planner's tasks are visual (plan crops, top-down candidates), and both do not fit next to Cycles |
+| **c** | **one VLM for planner and critic (different modes), code checks as the judge; pick the VLM by a bake-off on our tasks; a second family only for the independent second pass where no code check exists (typing an unknown piece)** | **pick** |
+
+**Bake-off (pod P1)**, a fixed task set prepared on the CPU from the committed real02/real03 data, every answer
+scored by code against a known truth:
+
+| Task | Items | Truth |
+|---|---|---|
+| T1 type an unknown drawn piece from its plan crop (+ neighbours, room) | 40 | labelled by hand from the plans, block names and the drawn context |
+| T2 find planted layout errors in top-down images (bed turned 180°, TV away from the sofa, nightstand at the foot, blocked door, chair facing away, 0–2 per room) | 30 rooms | planted by code |
+| T3 choose the best of 3 solver candidates (two with planted defects) | 20 | planted |
+| T4 find floating / sunk decor and wrong objects in renders | 20 views | the measured gaps of §1.3 and the wrong library objects |
+| T5 tool calls on a room brief: valid, allowed, in the plan | 20 | the validator |
+
+Candidates: the 27B FP8 (control) and BF16, each with thinking off and on for the critic; Muse-Glimmer-30B (another
+family, fits next to Cycles); Qwen3.8-Flash-Next NVFP4 on 2 GPUs (**needs your OK on the licence flag**; fallback
+Step-3.7-Flash, Apache-2.0, if you say no). Measured: accuracy per task, false findings, valid tool calls, seconds per
+call, VRAM next to a Cycles render. Rule: the bigger model is taken only if it beats the best single-GPU model by
+≥ 10 points on T1–T4 together (it doubles the pod price); else the best single-GPU model.
+
+A 2-GPU pod needs a runner change (`scripts/gpu_run.py` `"count": 1` → 2, container disk ≥ 250 GB for the
+weights); it costs $4.98/h (2 × $2.49, live price 10 Oct), i.e. $2.49 per GPU-hour, inside the $5 rule, but a 2 h
+worst case is $9.96 (> $5: needs `--over-5-ok`).
 
 ### 5.2 D17 – What the agent sees: a room brief
 
@@ -918,7 +1005,31 @@ with sizes in their titles) is shared by the audit, the fit, F2/S4 and the solve
   of using a wrong piece; the report lists them.
 - **Growth** only after your OK of a list (source, licence, count, download size).
 
-_Sources: filled from the verification in progress._
+**Sources checked 10 Oct 2026** (licence pages, APIs and bucket metadata; counts by script):
+
+| Source | Licence | What it has for our gaps | Download | Verdict |
+|---|---|---|---|---|
+| Poly Haven models (API) | CC0 | 521 models, 34 used: ≈ 45 unused indoor furniture (rustic/farmhouse, classic, Chinese classic, industrial stools, shelves, a day bed), ≈ 18 lights (chandeliers, industrial pendants, sconces), decor (vases 11, books 3, bowls, frames, mirror, clocks, baskets); **no sink, toilet, bath, fridge, washer** | 157 unused models in these categories: 1.0 GB at 2K | **add first** (`polyhaven.py` exists) |
+| ABO (bucket metadata) | CC BY 4.0 | 7,953 models, 538 used; unused: pillows 275 (15 used), rugs 817 (19), wall art 599 (13), headboards 206 (0); by the listing's style field: rustic/farmhouse 101 + 49 decor, industrial 108 (95 sofas), classic/traditional 84 + 120 decor; **0 kitchen or bath fixtures, no duvet, throw or curtain** | ≈ 300 picks ≈ 6.5 GB (whole archive 154 GiB: not needed) | **add** (style pass) |
+| Procedural textiles (our code; fabrics from ambientCG: 89 fabric, 16 carpet, 50 leather, 19 wicker; Poly Haven: 43 fabric) | CC0 textures, our code | throws, duvets, bed linen, curtains (pleated panel per window), blinds (slats / roller) | textures only | **build** (replaces 17 throws, 20 curtains, 9 blinds that are generated or Objaverse) |
+| Infinigen Indoors factories (`princeton-vl/infinigen`) | BSD-3 (LICENSE) | toilet, bathtub, bathroom sink, kitchen sink + tap, oven, dishwasher, microwave, beverage fridge, kitchen cabinets; books, bowls, pots; **no shower, washer or full-size fridge** | generated on the pod (own venv: Python 3.11, `bpy==4.2.0`), exported and converted to GLB | **add after a test batch** (procedural, real scale) |
+| Our parametric fixtures | ours | shower (tray + glass), washing machine, full-size fridge in standard sizes | – | **build** |
+| Google Scanned Objects (HF mirror) | CC BY 4.0 (object metadata; Google's pages blocked here) | ≈ 16 bowls, 18 mugs, 36 pots/saucers, 15 towels; 0 vases | ≈ 60 picks ≈ 0.5 GB | add (small decor) |
+| Objaverse++ annotations + TexVerse | annotations ODC-By; TexVerse objects CC BY / CC0 only (uploader-declared, **flag**) | quality and "realistic/scanned" labels to pre-filter Objaverse; TexVerse counts for our types to be measured on the pod | metadata 239 MB / 837 MB | optional, later |
+| Infinigen-Articulated (HF) | CC BY 4.0 (card) | fridge, oven, dishwasher USD archives (1.4–1.6 GB each) | per archive | flag, optional |
+| BlenderKit, Sketchfab direct, Fab, CGTrader, TurboSquid | royalty-free with redistribution limits, logins | – | – | **no** |
+| Kenney, Quaternius, Poly Pizza | CC0 (Poly Pizza mixed) | low-poly look | – | **no** (not photoreal) |
+| HSSD-models, 3D-FUTURE, PartNet-Mobility | non-commercial | – | – | **no** |
+
+So: **no open, commercial-safe library has realistic kitchen or bath fixtures**; they come from code (Infinigen
+factories, our parametric fixtures) and the audited generated models. Japandi and mediterranean have almost no
+labelled products anywhere (ABO: 0 Japanese-style listings, 6 boho/coastal pieces): those styles rely on the style
+fallback chain and recolouring (§4.8).
+
+**Growth order** (each step only after your OK of its list, in pod P4): (1) Poly Haven unused CC0, 1.0 GB;
+(2) procedural textiles and parametric shower / washer / fridge (no download); (3) Infinigen fixtures, a test batch
+first; (4) ABO style pass, ≈ 300 models, 6.5 GB; (5) GSO small decor, 0.5 GB; (6) optional: Objaverse++ / TexVerse
+CC BY and CC0 candidates, counted first.
 
 ## 7. E – Tests
 
@@ -939,22 +1050,96 @@ GPU (`pytest -m gpu`, on the pods): model serving and tool calls of the picked m
 thumbnails and a sample of vision answers; scene checks S1–S6 on each full run; decor S5 on every bed and sofa of
 the runs; exterior views show the entrances (L7); before/after contact sheets written.
 
-## 8. Pods and GPU cost
+## 8. Pods and GPU cost (estimate per step)
 
-_Filled after the model verification (the bake-off size depends on it)._
+Prices read live on 10 Oct 2026 (`scripts/gpu_run.py gpus`): RTX PRO 6000 $2.49/h (stock HIGH); 2 × RTX PRO 6000
+$4.98/h ($2.49 per GPU-hour). Measured times from M10/M11 (real02 G2d 81 min, real03 run 3 66 min, library
+thumbnails ≈ 50 min per ≈ 1,000 models, 1,700 judging sheets in ≈ 40 min).
+
+| Pod | Step | GPU | Minutes | Cost | Over $5 worst case? |
+|---|---|---|---|---|---|
+| P1 | model bake-off (§5.1): 5 tasks × 4–5 configurations, VRAM next to a Cycles render, GPU tests of the agent | 2 × RTX PRO 6000 (single-GPU models run two at a time) | ≤ 100 | ≈ $6–8.3 | **yes: needs `--over-5-ok`** |
+| P2 | library audit A (§6.1): thumbnails with scale reference, texture samples, code checks (mesh, size, licence, duplicates) | 1 × RTX PRO 6000 | ≤ 110 | ≈ $4–4.6 | no ($4.6) |
+| P3 | library audit B: vision check with the picked model, decisions, contact sheets, gap report | 1 GPU (2 if Flash-Next) | ≈ 50 | ≈ $2–4.2 | no |
+| P4 | library growth after your OK of the list (§6.4): downloads (≈ 8 GB), Infinigen fixtures, thumbnails, audit of the new items, catalogue | 1 GPU (2 if Flash-Next judges) | 1–2 pods ≤ 110 each | ≈ $4.6–9.2 (≈ $9–14 on 2 GPUs) | 2 GPUs: yes |
+| P5 | real03 full orchestrated run (levels, ground-floor exterior, solver, decor, agent) | 1 GPU (2 if Flash-Next) | 80–110 | ≈ $3.3–4.6 (≈ $6.6–9.1) | 2 GPUs: yes |
+| P6 | real02 full run (basement, attic, variant) | 1 (2) | 100–115 | ≈ $4.2–4.8 (≈ $8.3–9.6) | 2 GPUs: yes |
+| P7 | real01 + synthetic-01 (+ synthetic-07 if time: it has levels) | 1 (2) | 70–100 | ≈ $2.9–4.2 (≈ $5.8–8.3) | 2 GPUs: yes |
+| P8 | fix re-runs: expect 2–3 pods (M10/M11 needed 3–4 per milestone) | 1 (2) | 2–3 × 90 | ≈ $7.5–11 (≈ $15–22) | 2 GPUs: yes |
+| **M12** | | | ≈ 12–16 h of pods | **≈ $35–49 on 1 GPU; ≈ $55–80 if the agent runs on 2 GPUs** | |
+
+- Spent so far $89.37 → after M12 ≈ $124–138 (1 GPU) or ≈ $144–169 (2 GPUs), inside the $200 budget either way;
+  ≈ $10 kept for a contingency pod. I ask again before anything would pass $200.
+- $30 per day: at most ≈ 5 single-GPU or ≈ 3 two-GPU pods per day, so P1–P8 spread over 3–4 days. Today (10 Oct UTC)
+  $16.14 is spent; no pod starts before the build of step 2 is done and tested.
+- Every pod has the watchdog and self-stop (`scripts/pod_entry.sh`), one pod at a time, max 2 h; the agent loop and
+  the audit stop themselves before the deadline.
+- Where the money goes: the stronger model (P1 + the 2-GPU premium), the library audit (P2–P4) and more agent rounds
+  per run (the time budget fix gives each run ≈ 30 min more agent time at no extra cost). Not on repeated runs that
+  fail for the same reason: every pod's failures get CPU tests before the next pod.
 
 ## 9. Order of work after your OK
 
-_Filled with §8._
+| Step | What | Where |
+|---|---|---|
+| 2 | Build in parallel tracks with frozen contracts (as M11 §17): **L** levels (reader, schema, terrain, entrances, plinth, floors, single-region site, L-checks, level tools); **R** reading (symbols, dictionary, clusters, context typing, fixture fix, no boxes); **G** groups (`groups.yaml`), program, solver, G-checks, completion through the solver; **S** scene (decor host frame, ray casts, shrinkwrap, bedding, S1–S6, fit changes, B1/B3/B7); **A** agent (room brief, group and level tools, dry run, plan, memory, parallel sessions, budget, metrics, critic filter; the bake-off task set); **B** library (audit job, NC/SA removal, size table, gap report) | CPU, here |
+| 3 | CPU regression on real02/real03/real01/synthetic data: before/after top-down sheets, check counts; code review | here |
+| 4 | Pod P1 (bake-off) → model decision (report to you if it picks the 2-GPU model) | RunPod |
+| 5 | Pods P2, P3 (audit) → audit report and gap list to you → your OK on removals and downloads → P4 | RunPod |
+| 6 | Pods P5–P7, fixes, P8 | RunPod |
+| 7 | Report: before/after contact sheets per project, agent metrics, audit summary, open items; `docs/progress.md` | here |
+
+Commit, push and `docs/progress.md` after each step; no pod running at the end of a session.
 
 ## 10. Risks
 
-_Filled with §8._
+| Risk | Mitigation |
+|---|---|
+| Better reading breaks real02 (it was tuned on it) | regression tests on the committed real02/real03/real01 data before any pod; before/after top-down sheets |
+| Group templates do not fit small Turkish rooms | hard checks use the minimums, the recommended values only score; optional partners are dropped first; a room that fits no candidate keeps its drawn pieces and gets a finding, never random pieces |
+| Solver too slow in big open-plan rooms | beam width and a node budget per room (deterministic); zones split an open plan into kitchen / dining / living areas first |
+| Level marks misread (a dimension read as a mark) | marks need a keyword, a mark symbol or an attribute tag; vector marks win over inference; conflicts listed; L4 compares the built result with every mark |
+| Decor ray casts on bad meshes (holes, flipped normals) | the audit removes broken meshes; a ray miss falls back to the host's audited support height, flagged |
+| The 2-GPU model on sm_120 with TP2 is unverified | the bake-off is where it is proved; the 27B stays the fallback with the same code path |
+| The audit's vision check is as lenient as the M8–M10 judges | it sees the title, the scale reference and the dimensions; code checks decide size, licence, mesh and duplicates; a wrong object needs both the vision answer and the title check to stay |
+| Budget | per-pod estimates above; ask before $200; the 2-GPU premium only if the bake-off shows ≥ 10 points |
 
 ## 11. `CLAUDE.md` wording (proposed; applied only after your OK)
 
-_Filled with §8._
+1. Furniture rules, fixed equipment (your answer 1):
+   > Fixed equipment drawn in the documents (…) is treated like walls: same type, position, orientation and footprint
+   > as drawn. Style changes only the look. The AI may fix only a clear drawing or reading error, logged as
+   > `adjusted_by_ai` with the reason and the plan crop: a front that faces the wall, a misread size (then the size of
+   > a real product of that type), a piece through a wall or in a door swing (a move of at most 0.5 m).
+2. Furniture rules, new line:
+   > Rooms are furnished in functional groups (seating, dining, sleeping, work, kitchen run, bathroom set …) placed by
+   > the deterministic solver; the AI chooses the program and between solver candidates, never coordinates. No
+   > untyped piece is built: it is typed, recorded as not furniture, or listed for review.
+3. New section "Library rules":
+   > Only audited library models (`keep`) are used. Non-commercial, share-alike and no-derivatives licences are not
+   > used (user, 10 Oct 2026). Nothing is deleted from the volume without the user's OK. When no audited model fits,
+   > the run writes a `library gap` finding instead of using a wrong piece.
+4. Evidence rules, new line:
+   > Level marks (KOT texts, blocks and attributes) are source data for floor levels, door thresholds and the ground,
+   > with the same trust order as geometry; steps, ramps, plinth and terrain are inferred from them where not drawn.
+5. GPU limits (only if you approve 2-GPU pods in D16):
+   > A pod may have 2 GPUs when the price per GPU-hour stays within the limit; its worst case counts as one action.
 
 ## 12. Decisions for you
 
-_Filled with §8._
+| # | Question | Recommendation |
+|---|---|---|
+| D1–D6 | Levels: read every mark (text, attributes, symbols), new building-JSON fields, inference rules, terrain/steps/ramps/plinth in Blender, checks L1–L7, level tools (§3) | yes |
+| D3a | When nothing about the ground is drawn: the ground floor 0.15 m above the ground (one inferred step) instead of flush | 0.15 m |
+| D7 | Read all drawn furniture first; untyped pieces are not built but listed (no more white boxes) (§4.1) | yes |
+| D8–D11 | Groups as data, a program per room, a deterministic group solver with top-3 candidates, the VLM only chooses (§4.2–§4.5) | yes |
+| D12 | Group checks G1–G14 and scene checks S1–S6; US/UK guideline minimums as hard checks, recommended values as scores (§4.6, §4.9) | yes |
+| D13 | Decor in the host frame, ray casts and shrinkwrap on the built mesh; tolerances gap ≤ 1 cm, penetration ≤ 1 cm (hard) / 3 cm (soft hosts) (§4.7) | yes |
+| D14 | Only audited models; style fallback chain with recolour; parametric only for counters, wall cabinets, stairs (§4.8) | yes |
+| D15 | Our own solver with the Holodeck vocabulary, Infinigen's hard/soft split and ProcTHOR's group format (no dependency) (§4.9) | yes |
+| D16 | Model bake-off P1 including **Qwen3.8-Flash-Next** on 2 GPUs (custom licence, flagged: a "Model as a Service" or "AI Work Assistant" business needs a separate Qwen licence); if it wins by ≥ 10 points, the full runs use 2 GPUs | OK to include it (fallback Step-3.7-Flash if not) |
+| D17–D20 | Room brief, group tools, dry run, plan per room, memory, parallel sessions, measured time budget, metrics (§5.2–§5.5) | yes |
+| D21–D23 | Library audit job (code + vision checks, keep / fix / remove per item, contact sheet per type); "remove" = out of the catalogue, files stay until you OK a delete list; one size table; gap report (§6.1–§6.4) | yes |
+| D24 | Growth order of §6.4 (Poly Haven 1.0 GB, procedural textiles and fixtures, Infinigen fixtures after a test batch, ABO style pass 6.5 GB, GSO 0.5 GB); each list shown to you after the audit, nothing downloaded before your OK | yes |
+| §8 | GPU plan ≈ $35–49 (1 GPU) or ≈ $55–80 (2-GPU agent); P1 and 2-GPU runs need `--over-5-ok` | OK |
+| §11 | `CLAUDE.md` wording 1–4 (5 only with D16) | OK |

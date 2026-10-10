@@ -773,7 +773,7 @@ The user saw only the core. The flats were in `tekkat.dwg` all along; details in
 - Pods: 3 runs ($6.10). Run 3: 8 flats + core, 84 views, every room lit, agent 2 rounds; GPU tests 37/39.
 - Open: white boxes in some living rooms (untyped drawn pieces), 2 GPU tests, no exterior view.
 
-## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (step 0 done, 10 Oct 2026; waiting for your answers)
+## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (steps 0–1 done, 10 Oct 2026; waiting for your OK)
 
 Spec: `docs/milestone12.md` (prompt: `docs/prompts/milestone12.md`). Cloud session, CPU only, no pod, no code change.
 
@@ -794,5 +794,29 @@ Spec: `docs/milestone12.md` (prompt: `docs/prompts/milestone12.md`). Cloud sessi
   (mediterranean 21); both judges accepted wrong objects (an air bed, "Corpse" as a throw, street lamps); 114 models
   with wrong heights; the judges' quality score is never used (bug B1).
 - 11 plain bugs listed, not fixed (§1.7).
+
+GPU cost so far: $89.37 of $200. No pod is running.
+
+**Your answers of 10 Oct 2026:** misread fixed equipment may get a real product size and move ≤ 0.5 m (logged);
+real03 exterior with the ground floor only; the 18 NC/SA Objaverse models are removed from the catalogue.
+
+**Step 1, design** (`docs/milestone12.md` §2–§12, decisions D1–D24, sources checked 10 Oct 2026):
+- **Levels** (D1–D6): one reader for every level mark (texts in the Turkish forms, block attributes, symbols) on
+  plans, sections and site plans; new fields (marks, room floor offsets, door thresholds, ground points, terrain,
+  entrances, plinth); steps/ramps/plinth/terrain inferred and built; single drawn floors get a site; checks L1–L7;
+  level tools for the agent. Default when nothing is drawn: the ground floor 0.15 m above the ground (D3a).
+- **Furniture** (D7–D15): read every drawn piece first (symbols are never furniture; untyped pieces are not built but
+  listed); groups as data; a program per room; a deterministic group solver returning 3 candidates, the VLM only
+  chooses; group checks G1–G14 (NKBA / UK Part M minimums as hard checks) and scene checks S1–S6; decor in its host's
+  frame, ray casts and shrinkwrap on the built mesh (gap ≤ 1 cm, penetration ≤ 1 cm hard / 3 cm soft); audited models
+  only. Reuse: Holodeck's constraint vocabulary (Apache-2.0), Infinigen's hard/soft split (BSD-3), ProcTHOR's group
+  format (Apache-2.0); no learned model (3D-FRONT is non-commercial).
+- **Agent** (D16–D20): a model bake-off on our own tasks (Qwen3.8-27B FP8/BF16, Muse-Glimmer-30B, and on 2 GPUs
+  Qwen3.8-Flash-Next with a flagged custom licence); a room brief with locks and allowed edits, group tools, dry run,
+  a plan per room, memory across rounds, parallel sessions, a measured time budget, metrics.
+- **Library** (D21–D24): an audit job (scale-referenced thumbnails, code and vision checks, keep / fix / remove, a
+  contact sheet per type), nothing deleted without your OK, one size table, a gap report; growth from Poly Haven CC0,
+  procedural textiles and fixtures, Infinigen fixtures, an ABO style pass, GSO decor, each after your OK of its list.
+- **GPU estimate:** ≈ $35–49 (1 GPU) or ≈ $55–80 (agent on 2 GPUs) → ≈ $124–169 of $200 in total.
 
 GPU cost so far: $89.37 of $200. No pod is running.
