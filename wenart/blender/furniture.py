@@ -114,8 +114,11 @@ Milestone 12 (docs/milestone12.md §4.1, §4.6-§4.8, §6.4; track S):
 
 - No grey box: an ``unknown`` piece and a library gap (``asset.method == "none"``: no audited model fitted) are not
   built and listed in ``not_built`` (``refused_piece``); ``--proxies`` still builds the Milestone 3 boxes.
-- A piece stands on its room's floor (the level's elevation + the room's ``floor_offset_m``, ``piece_floor_z``);
-  the built object records ``wenart_front_deg`` and ``wenart_method`` for the scene checks.
+- A piece stands on its room's floor (``shell.room_floor_z``: the level's elevation + the room's ``floor_offset_m``,
+  sunken or raised; ``piece_floor_z``, the room by ``room_id`` or by the outline holding the piece), and so do floor
+  decor, wall art, bed dressings, hosted decor's floor fallbacks and the ``--proxies`` boxes; lights hang from the
+  level's ceiling, curtains and blinds stay at their window (``decor_floor``); the built object records
+  ``wenart_front_deg`` and ``wenart_method`` for the scene checks.
 - Hosted decor rests on the built, scaled host mesh (``_create_hosted_decor`` with ``wenart.blender.rest``): rays
   on the evaluated host (Bevel applied) find the seat, mattress, back, headboard, top or shelf board; a throw is our
   cloth draped on the host (``textiles``); every item is checked (S5) and placed once more, else not built
@@ -791,13 +794,74 @@ class _Materials:
         return over["slug"] if over else self.keys[key][0]
 
 
+def piece_room(building: dict, level: dict, item: dict) -> dict:
+    """The room a piece or decor item stands in (pure, Milestone 12): its ``room_id``, else the room of its level
+    whose outline holds its centre (rooms in id order), else ``{}`` (the level's own floor)."""
+    rooms = building.get("rooms") or []
+    room = next((r for r in rooms if item.get("room_id") is not None and r.get("id") == item.get("room_id")), None)
+    if room is not None:
+        return room
+    fp = item.get("footprint") or {}
+    centre = list(fp.get("center") or item.get("center") or [])[:2]
+    if len(centre) < 2:
+        return {}
+    for r in sorted((r for r in rooms if r.get("level_id") == level.get("id") and len(r.get("polygon") or []) >= 3),
+                    key=lambda r: str(r.get("id"))):
+        if G.point_in_polygon((float(centre[0]), float(centre[1])), [tuple(p[:2]) for p in r["polygon"]]):
+            return r
+    return {}
+
+
 def piece_floor_z(building: dict, level: dict, piece: dict) -> float:
-    """The floor a piece stands on (pure, Milestone 12): the level's elevation plus its room's ``floor_offset_m``
-    (track L's room floor levels; 0 when the room has none). = ``scene_checks.floor_z_of``."""
-    room = next((r for r in building.get("rooms") or [] if r.get("id") == piece.get("room_id")), {})
+    """The floor a piece or decor item stands on (pure, Milestone 12): ``shell.room_floor_z`` of its room (track L:
+    the level's elevation + the room's ``floor_offset_m``, sunken or raised; the level's floor without a room).
+    ``scene_checks.floor_z_of`` (S1, S5) and ``proxies.create_proxies`` use it too."""
+    from wenart.blender.shell import room_floor_z
+
+    room = piece_room(building, level, piece)
     offset = room.get("floor_offset_m")
-    return float(level["elevation"]) + (float(offset) if isinstance(offset, (int, float))
-                                        and not isinstance(offset, bool) else 0.0)
+    if isinstance(offset, bool) or not isinstance(offset, (int, float, type(None))):
+        room = dict(room, floor_offset_m=None)       # not a number: the level's floor
+    return room_floor_z(room, level)
+
+
+# Milestone 12: decor that does not stand on the room's floor. Lights hang from the level's ceiling (track L: the
+# ceiling stays the level's when a room's floor is sunken or raised; ``center[2]`` is measured from the level's
+# floor, decor_ai.ceiling_items); curtains and blinds follow their window, which the shell builds from the level's
+# floor (``shell.opening_vertical``), but a floor-length curtain reaches the room's own floor.
+CEILING_DECOR_TYPES = ("pendant_light", "ceiling_light")
+WINDOW_DECOR_TYPES = ("curtain", "blind")
+FLOOR_LENGTH_M = 0.05          # a curtain whose bottom is this close to the floor is floor-length
+MIN_WINDOW_DECOR_H_M = 0.10
+
+
+def decor_floor(building: dict, level: dict, item: dict) -> tuple[float, dict, str]:
+    """``(floor_z, item, how)`` for a decor item the builder places without rays (pure, Milestone 12): the item's
+    room floor (``piece_floor_z``: floor decor, wall art over its piece); a light hangs from the level's ceiling (the
+    level's floor); a curtain or blind at a window keeps its place at the window (``center[2]`` re-measured from the
+    room floor), a floor-length curtain is lengthened (sunken room) or shortened (raised room) to the room's floor.
+    ``item`` is a copy when it changed."""
+    level_z = float(level["elevation"])
+    if item.get("type") in CEILING_DECOR_TYPES:
+        return level_z, item, "the level's ceiling (lights)"
+    floor_z = piece_floor_z(building, level, item)
+    offset = floor_z - level_z
+    if abs(offset) < 1e-9 or item.get("type") not in WINDOW_DECOR_TYPES or not item.get("window_id"):
+        return floor_z, item, "the room's floor"
+    center = list(item.get("center") or [])
+    size = list(item.get("size") or [])
+    z = float(center[2]) if len(center) > 2 and center[2] is not None else 0.0
+    if len(center) < 2 or len(size) < 3 or size[2] is None:
+        return floor_z, item, "the room's floor"
+    h = float(size[2])
+    if item["type"] == "curtain" and z <= FLOOR_LENGTH_M + 1e-9:          # to the floor: the room's floor
+        new_z, new_h, how = z, h - offset, "the room's floor (floor-length curtain, top at its window)"
+    else:                                                                 # at the window: the same world height
+        new_z, new_h, how = z - offset, h, "its window (built from the level's floor)"
+    if new_h < MIN_WINDOW_DECOR_H_M:
+        new_h = MIN_WINDOW_DECOR_H_M
+    out = dict(item, center=[center[0], center[1], round(new_z, 4)], size=size[:2] + [round(new_h, 4)] + size[3:])
+    return floor_z, out, how
 
 
 def refused_piece(piece: dict) -> str | None:
@@ -847,8 +911,8 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     room's floor (``piece_floor_z``); a bed model without bedding is dressed (``needs_dressing``); hosted decor rests
     on the built host mesh (``rest.plan_decor`` / ``plan_throw``: placed, checked S5, placed once more, else not
     built: ``decor_not_rested``); ``summary["objects"]`` = ``{piece or decor id: object}`` (bedding:
-    ``<id>#dressing``) for the scene checks (``build.py``)."""
-    floor_z = float(level["elevation"])
+    ``<id>#dressing``) for the scene checks (``build.py``); every piece and decor item stands on its room's floor
+    (``shell.room_floor_z``: ``piece_floor_z``, ``decor_floor``), the ``--proxies`` boxes too."""
     mats = _Materials(library, style, assumed)
     mats.lamps_on = lamps_on(style)                   # Milestone 10: the interior evening mood lights the lamps
     mats.collection = collection
@@ -870,7 +934,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         proxies.create_proxies({"furniture": proxy_pieces}, level, collection, {
             "proxy": library.proxy("proxy"), "proxy_glass": library.proxy("proxy_glass"),
             "proxy_unverified": library.proxy("proxy_unverified")}, pass_indices, manifest_objects, assumed,
-            others=pieces)
+            others=pieces, floor_of=lambda p: piece_floor_z(building, level, p))
         for p in proxy_pieces:
             summary["by_method"]["proxy"] = summary["by_method"].get("proxy", 0) + 1
 
@@ -928,10 +992,9 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"its host {host['id']} is not built"})
                 continue
-        # the room's floor (Milestone 12: floor_offset_m); lights hang from the level's ceiling, which a raised floor
-        # does not raise
-        item_floor = (piece_floor_z(building, level, item) if item.get("room_id")
-                      and item.get("type") not in ("pendant_light", "ceiling_light") else floor_z)
+        # Milestone 12: the room's floor (shell.room_floor_z); lights from the level's ceiling, curtains and blinds at
+        # their window (decor_floor)
+        item_floor, item, _floor_how = decor_floor(building, level, item)
         if item.get("type") in WALL_DECOR_TYPES:
             built = dict({k[len("proxy:"):]: v for k, v in manifest_by_id.items() if k.startswith("proxy:")},
                          **entries)                      # the built boxes: pieces, and proxies behind --proxies
