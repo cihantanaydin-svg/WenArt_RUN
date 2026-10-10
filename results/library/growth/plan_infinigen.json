@@ -1,0 +1,151 @@
+{
+ "kind": "library_growth_plan",
+ "source": "infinigen",
+ "repo": "princeton-vl/infinigen",
+ "licence": "BSD-3-Clause (LICENSE read 10 Oct 2026: Copyright (c) 2023, Princeton University)",
+ "environment": {
+  "python": "3.11 (pyproject.toml requires-python ==3.11.*)",
+  "bpy": "4.2.0 (pyproject.toml)",
+  "venv": "/opt/wenart/venv-infinigen (container disk; never the volume)",
+  "note": "the factory module paths moved on main (version attribute infinigen2.__version__): the pod pins a commit and lists the factories it finds before generating"
+ },
+ "batch": [
+  {
+   "factory": "toilet",
+   "type": "toilet",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "bathtub",
+   "type": "bathtub",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "bathroom sink",
+   "type": "washbasin",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "kitchen sink",
+   "type": "sink_kitchen",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "oven",
+   "type": "stove",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "beverage fridge",
+   "type": "fridge",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "dishwasher",
+   "type": null,
+   "count": 1,
+   "seeds": [
+    0
+   ],
+   "note": "no type of ours: generated once to see it"
+  },
+  {
+   "factory": "microwave",
+   "type": null,
+   "count": 1,
+   "seeds": [
+    0
+   ],
+   "note": "no type of ours: generated once to see it"
+  },
+  {
+   "factory": "kitchen cabinet",
+   "type": null,
+   "count": 1,
+   "seeds": [
+    0
+   ],
+   "note": "no type of ours: generated once to see it"
+  },
+  {
+   "factory": "books",
+   "type": "books",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "bowl",
+   "type": "bowl",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  },
+  {
+   "factory": "pot",
+   "type": "plant_small",
+   "count": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "note": ""
+  }
+ ],
+ "steps": [
+  "clone at a pinned commit, record it",
+  "venv with Python 3.11 and bpy 4.2.0",
+  "list the asset factories of the commit (python -c ...); match the wanted names; stop when one is missing",
+  "generate count x seeds per factory, export GLB at real scale (metres, Z up)",
+  "python -m wenart.assets audit render / code / ask on the new GLBs; the user sees the sheets"
+ ],
+ "estimate_min": 40,
+ "pod": "P4 (after the user's OK of this plan)",
+ "downloads_mb": "about 1,500 (repo, venv, bpy wheel); no model files",
+ "written_utc": "2026-10-10T20:30:00Z"
+}
