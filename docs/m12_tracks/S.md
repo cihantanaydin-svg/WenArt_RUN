@@ -50,7 +50,7 @@ profiles, stabiliser rail, riser, arm, round rain head, mixer). Boxes = footprin
 
 `measure(meshes, building, caster_factory)` is the one code path; `measure_pure` uses the numpy caster, `run_scene_checks`
 reads the evaluated objects (`object_mesh`, world space, modifiers applied) and uses the BVH caster, writes
-`checks/scene_<level>.json`. S1 lowest vertex − (level elevation + room `floor_offset_m`) in −0.005 … +0.010 (wall-hung
+`checks/scene_<level>.json`. S1 lowest vertex − the room's floor (`floor_z_of` = the builder's `piece_floor_z`) in −0.005 … +0.010 (wall-hung
 pieces skipped); S2 sample points inside the walls' boxes (`wall_boxes`, `depth_in_wall`) and between pieces (ray parity in
 three directions, depth = shortest axis ray), kitchen-run members excepted; S3 `wenart_front_deg` of the object vs
 `front_deg`; S4 built box in the piece frame vs `sizes.real_range` ± 15 % (by-design types skipped); S5 decor on its host
@@ -79,8 +79,15 @@ a failed S5 sets `scene_checks_failed` and a warning (the render goes on: decisi
 ### 7. No grey box – `wenart/blender/furniture.py`
 
 `unknown` pieces and library gaps are refused (`refused_piece`, listed in `not_built`); `--proxies` keeps the Milestone 3
-boxes for debugging. Pieces, floor decor and wall art stand on their room's floor (`piece_floor_z`, with the room's
-`floor_offset_m`); pendant and ceiling lights keep the level's floor (the ceiling does not rise with a raised floor).
+boxes for debugging.
+
+### 8. Room floors (track L, lead follow-up) – `furniture.py`, `proxies.py`, `scene_checks.py`
+
+| What | Where |
+|---|---|
+| Every piece stands on its room's floor `shell.room_floor_z(room, level)` (level elevation + `floor_offset_m`, sunken or raised): the room by `room_id`, else the level's room whose outline holds the centre, else the level's floor; library models (`fit_vertices`), parametric pieces, lamps, bed dressings, the `--proxies` boxes | `furniture.piece_room`, `piece_floor_z`; `proxies.create_proxies(floor_of=)` |
+| Decor: floor decor and wall art on the room's floor; hosted decor's floor fallback (a throw or duvet hanging to the floor, `textiles.drape`) is the host's room floor; pendant and ceiling lights hang from the level's ceiling (it stays the level's; `center[2]` is measured from the level's floor); curtains and blinds stay at their window (the shell builds windows from the level's floor), a floor-length curtain reaches the room's floor (lengthened when sunken, shortened when raised) | `furniture.decor_floor` |
+| Scene checks: S1 and S5 (floor decor) against the same floor; S2's wall boxes start at the sunken floor as the shell builds the walls (`shell.wall_base_drop`) | `scene_checks.floor_z_of`, `wall_boxes` |
 
 ## Decisions within the design
 
@@ -106,7 +113,10 @@ heights, bare-bed bedding, throws on bed and sofa, shelves, tops, S5 tolerances,
 committed parametric hosts), `tests/test_scene_checks.py` (14: S1–S6 pass/fail, floor offset, kitchen-run exception,
 dressing, report), `tests/test_scene_fit.py` (18: B1, usable filter, audit fix as track B's writer leaves it, real products first, height
 check against `sizes.real_range`, decor `contact`, style chain, never a parametric sofa/bed/table, related types,
-by-design, gap on the piece, B7, usable decor, committed real02/real03).
+by-design, gap on the piece, B7, usable decor, committed real02/real03), `tests/test_scene_room_floor.py` (6: a sofa
+in a −0.30 m room, parametric and library, its bottom and S1 gap against the sunken floor and +0.30 on the level's
+elevation; room by outline; decor floors, lights, curtains and blinds; S5 rug; wall boxes and S2 below the level's
+floor; a throw hanging to the sunken floor).
 
 Changed (they pinned the old behaviour): `test_furniture_fit.py`, `test_furniture_fit_v2.py`, `test_recolour_apply.py`
 (caps, gaps instead of parametric, NC model refused, cushion proportions), `test_blender_furniture.py` (no type height;
@@ -164,14 +174,14 @@ mediterranean gaps (chairs) need the ABO style pass (§6.4 growth) or a broader 
 
 ## Changes needed in other tracks' files
 
-1. **Lead / track L – `wenart/blender/build.py` `FINGERPRINT_CODE`**: add `"wenart/furniture/__init__.py",
-   "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml"`: the scene checks
-   (S4 size table, S6 usable/by-design) and the bed dressing read them inside Blender;
-   `tests/test_blender_look.py::test_fingerprint_code_covers_the_build_import_closure` fails until then.
+1. ~~`FINGERPRINT_CODE`~~ (done by track L: the build fingerprint covers the catalogue and the size table).
    **Lead / track A – `wenart/run/stages.py` `FIT_CODE`** (fit and refit): add `"wenart/furniture/sizes.py",
-   "wenart/recognition/size_table.yaml"` (the fit's height check, D23);
-   `tests/test_run_stages.py::test_code_lists_cover_the_import_closure` fails until then (every other stage closure
-   is unchanged: the textile meshes live in `parametric.py`, the support rules and S5 tolerances in `rest.py`).
+   "wenart/recognition/size_table.yaml"` (the fit's height check, D23). On opus_branch_06 (5102125)
+   `tests/test_run_stages.py::test_code_lists_cover_the_import_closure` also misses the levels package and
+   `wenart/blender/**` in sheets / pipeline, and `catalog.py`, `sizes.py`, `wenart/levels/**`, `canonical.py`,
+   `views.py` in layout / decor (all through `wenart/levels/model.py`, imported by `wenart/ingest/generic/levels.py`,
+   which imports `wenart.blender` modules: the whole build comes with them); `wenart/levels/**` in gate / detect; `tests/test_run_agent.py::test_the_agent_stages_and_their_code_list` misses `wenart/levels/**`. The
+   room-floor change adds nothing to any closure (checked: identical before / after).
 2. **Lead – `wenart/schema/building.schema.json`**: `decor[].host_frame` also carries `turn_deg`, `anchor_id`,
    `wall_offset`; add a top-level `decor_dropped` array (`{id, type, host_id, anchor_ids, room_id, reason}`); `furniture[]
    .asset.method` may be `"none"` (a library gap, not built).
@@ -183,3 +193,6 @@ mediterranean gaps (chairs) need the ABO style pass (§6.4 growth) or a broader 
 5. **Track B**: the audit's `has_bedding`, `has_pillows`, `has_cushions` (beds and seats) and `audit.fixes`; real heights in
    `sizes.real_range` make S4 check the height too.
 6. **Track G**: `furniture[].group` lets the fit use a related type for a needed partner (`fit.group_needs`).
+7. **Lead / track L – `build.decor_under_roof`** measures a floor plant under a sloped ceiling from the level's floor;
+   in a sunken room it then has `-floor_offset_m` more headroom than it gets (minor; lights are right: they hang from
+   the level's ceiling).

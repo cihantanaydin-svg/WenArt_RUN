@@ -207,13 +207,15 @@ def proxy_geometry(piece: dict, floor_z: float, lift: float = 0.0, flat: bool = 
 
 
 def create_proxies(building: dict, level: dict, collection, materials: dict, pass_indices: dict,
-                   manifest_objects: list, assumed: list, others: list | None = None) -> list:
+                   manifest_objects: list, assumed: list, others: list | None = None, floor_of=None) -> list:
     """Create one Blender object per furniture piece of ``level``.
 
     ``materials`` maps ``"proxy"``, ``"proxy_glass"`` and ``"proxy_unverified"``
     to Blender materials. ``pass_indices`` is the id -> object-index table
     that render.py's Object Index pass uses; it is extended here.
     ``others``: every built piece of the level (``flat_reason``; default: the proxies themselves).
+    ``floor_of``: piece -> the floor it stands on (Milestone 12: ``furniture.piece_floor_z``, the room's floor;
+    default: the level's elevation).
     """
     from wenart.blender import common  # bpy inside
 
@@ -230,7 +232,7 @@ def create_proxies(building: dict, level: dict, collection, materials: dict, pas
             if abs(other_h - height) < 1e-3 and footprints_overlap(piece["footprint"], other_fp):
                 lift = COINCIDENT_LIFT
                 break
-        geo = proxy_geometry(piece, floor_z, lift, flat=bool(flat))
+        geo = proxy_geometry(piece, floor_z if floor_of is None else float(floor_of(piece)), lift, flat=bool(flat))
         placed.append((piece["footprint"], geo["height"]))
         parts = [geo["box"]]
         if geo["wedge"] is not None:
