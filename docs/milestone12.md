@@ -8,7 +8,11 @@ and wrong categories.
 
 Session: cloud (`CLAUDE_CODE_REMOTE=true`), branch `opus_branch_06`, 10 Oct 2026. Step 0 is CPU only (no pod).
 
-Status: **Step 0 (diagnosis) done, 10 Oct 2026; waiting for the user before Step 1 (design).**
+Status: **Step 0 (diagnosis) done, 10 Oct 2026; Step 1 (design, §2–§12) written 10 Oct 2026, waiting for the user's OK.**
+
+User answers to the step-0 questions (10 Oct 2026): (1) misread fixed equipment: the AI may set a real product size
+and move it up to 0.5 m, logged with evidence – **yes**; (2) real03 exterior: **ground floor only** (no inferred upper
+floors); (3) the 18 non-commercial / share-alike Objaverse models: **remove**.
 
 ## 1. Diagnosis (step 0, CPU, 10 Oct 2026)
 
@@ -513,3 +517,444 @@ of the style becomes parametric or is not built.
   memory across rounds, skip findings no tool can fix, cover every room in a budget, and work on groups.
 - **The library needs a real audit** (title, scale reference, real size, crude/low-poly, contact surfaces, licence)
   before more items are added; the gaps are biggest for kitchen and bath fixtures and for non-modern styles.
+
+## 2. Design overview (step 1)
+
+Four ideas carry the whole milestone:
+
+1. **Read first.** Level marks, furniture symbols and non-furniture symbols are read completely and given a place
+   in the building JSON, with evidence. Nothing unexplained is built (no white box, no level mark as a plant).
+2. **Groups, not pieces.** A room's program is a list of functional groups. A deterministic solver places whole
+   groups and returns ranked candidates; the vision model only chooses the program options and between candidates.
+   Layout, completion, the checks, the agent's tools and the tests all speak in groups.
+3. **Measure the built scene.** Decor rests on the real surface of the built host mesh; a scene check measures every
+   piece and decor item (floor contact, gap, overlap, front, real size) and fails the build when something floats or
+   cuts through.
+4. **An agent that sees what it may do.** The agent gets a structured room brief (locks, allowed edits, free wall
+   spans, group status, fixable findings only), group-level tools, a dry-run tool, a plan per room, memory across
+   rounds, parallel room sessions and a correct time budget. A stronger model is chosen by a bake-off on our own tasks.
+
+The library is audited before it is grown, and only audited models are used.
+
+```
+drawings ─► ingest: walls, openings, rooms, LEVEL MARKS (§3), FURNITURE + NON-FURNITURE SYMBOLS (§4.1)
+        ─► building JSON (levels, room floor offsets, door thresholds, ground points, terrain, entrances)
+        ─► program per room (§4.3) ─► group solver: top-3 candidates (§4.4) ─► VLM picks (§4.5)
+        ─► fit: audited library only (§4.8, §6) ─► decor in host frame (§4.7)
+        ─► Blender: terrain, steps, plinth (§3.4); decor ray-cast / shrinkwrap on the built mesh (§4.7)
+        ─► scene checks S1–S6 (§4.6) + group checks G1–G14 + level checks L1–L7 ─► agent rounds (§5) ─► final
+```
+
+## 3. A – Ground and levels
+
+### 3.1 D1 – Read every level mark
+
+| Option | What | Verdict |
+|---|---|---|
+| a | today: only marks on sections, strict pattern | no: real03 has ≈ 280 marks and 0 are read |
+| **b** | **text + block attributes + mark symbols on every drawing (plans, sections, site plans, elevations), one reader** | **pick** |
+| c | b + the vision model reads marks on scans and photos | later (scans): advisory, trust level 3, two passes (no code check exists) |
+
+- **Text:** one tolerant pattern family (`wenart/ingest/generic/levels.py`, new) for the Turkish and English forms:
+  `±0.00`, `+-0.00`, `+-0.00(dük)`, `+0.15`, `-0.45`, `KOT +3.00`, `KOT: +0.15`, `Ü.K.` / `ÜK` (upper level of a
+  slab), `S.K.` / `SK`, `T.Z.` / `TABİİ ZEMİN` (natural ground), `TESVİYE` (finished grade), `SB.` / `SUBASMAN`
+  (plinth), `BİNA GİRİŞ KOTU` (entrance), `ŞEV ÜST KOTU` (top of a slope), `±0.00 = 93.20` (relative = absolute), a
+  value with 2–3 decimals. Each match gives `value`, `relative | absolute`, a `kind` from its keyword, and the raw text.
+- **Block attributes:** every INSERT attribute whose tag is in a tag table (`KOT`, `KOT2`, `KOT-BINA`, `KOT-ARAZI`,
+  `BDK` "bitmiş döşeme", `TZK` "tabii zemin", `SBK`, `ELEV`, `LEVEL`) or whose value matches the pattern. The block's
+  insertion point (or the symbol's apex, `units_check.MARK_REACH`) is the mark's point.
+- **Mark symbols:** a triangle or arrow with a leader next to a matching text gives the point it marks (exists for
+  sections; extended to plans).
+- **Kind of a mark** (one rule table, evidence in every record): inside a room's polygon on a plan → that room's
+  finished floor; outside the building outline on a plan or site plan → ground (natural or finished grade by its
+  keyword); at a door → threshold / landing; on a section → slab top or ground line (as today); `SB.` → plinth;
+  `GİRİŞ` → entrance floor. Unknown → `unknown`, listed.
+- **Absolute and relative:** `±0.00 = 93.20` or a site note `TESVİYE 0.00 KOTU : 93.20` sets the datum; absolute
+  marks are converted with it. Two datums that disagree → conflict (DWG > vector PDF > scan, CLAUDE.md).
+- **Never furniture:** an INSERT read as a level mark, a room-number circle (a circle with one short text inside),
+  a north arrow, a section mark or an axis bubble is recorded in `symbols[]` with its kind and evidence and is never
+  a furniture candidate (fixes real03 `f_L0_142` and the 5 room-number circles, bug B11).
+- Fixes B10 (pattern) and B9 (report).
+
+### 3.2 D2 – A place for levels in the building JSON
+
+| New field | Content |
+|---|---|
+| `level_marks[]` | id, value, relative/absolute, kind, point (building XY), level id, room id or outside side, drawing (file, layout, entity or text id), method `vector`/`ocr`/`ai`, confidence, `used_for` |
+| `project.datum` (exists) | + `absolute_m` (e.g. 93.20), `source` |
+| `rooms[].floor_offset_m` | the room's finished floor above its level's elevation (default 0; from marks inside the room; a sunken living room −0.30, a raised entrance +0.15); `evidence`, `inferred` |
+| `openings[].threshold_z` | building z of a door's threshold (from the rooms on both sides; an outside door from its room) |
+| `site.ground.points[]` | x, y, z with evidence (marks outside the outline, section ground lines placed at their cut position on the plan) |
+| `site.terrain` | `kind: flat | planar | tin`, the points used, fitted slope, residual, `inferred` |
+| `site.entrances[]` | door id, threshold z, ground z in front, rise, `solution: none | steps | ramp | steps_and_ramp`, steps (n, riser, tread), landing (w × d), ramp (length, slope), `drawn | inferred`, evidence |
+| `site.plinth` | height above the ground along each side (from `SB.` marks, else threshold − ground), `inferred` |
+| `levels[].elevation_source` | the values `level_mark` and `elevation_drawing` are now written |
+
+The schema (`wenart/schema/building.schema.json`) and the validator get these fields; old buildings stay valid (all
+optional).
+
+### 3.3 D3 – Infer what the documents leave out (CLAUDE.md evidence rules)
+
+| Missing | Rule (every result `inferred: true`, listed in the report) |
+|---|---|
+| Ground at an outside door | the nearest ground point within 5 m of the door, else the terrain model, else the side's section ground line, else the default below |
+| **Nothing about the ground at all** | **D3a: the ground floor stands 0.15 m above the ground (one step, inferred)** – options: 0.00 (today: always flush, which reads wrong), 0.15 (pick: the usual minimum rise to keep water out), 0.45 (the facade plinth band of today) |
+| Terrain | ≥ 3 ground points → plane fit (residual ≤ 0.10 m) else a triangulated surface (TIN) over the plot; 1–2 points or section lines → per-side levels (today's model); none → flat. Beyond the plot it blends to flat over 20 m |
+| Steps at a door | rise > 0.02 m → steps: n = ceil(rise / 0.15), riser = rise / n (≤ 0.15 m outdoors), tread 0.30 m, 2·riser + tread ≈ 0.60 m; a landing of door width + 0.6 m × 1.2 m in front of the door; > 12 risers → an intermediate landing (values: secondary sources on TS 9111, flagged in §3.7) |
+| Ramp | only when drawn (`RAMPA`, a slope arrow with %) or when the brief asks for an accessible entrance; slope by rise: ≤ 0.15 m 1:12 (8 %), 0.16–0.50 m 1:14 (7 %), 0.51–1.00 m 1:16 (6 %), > 1.00 m 1:20 (5 %) (secondary source on TS 9111, flagged); handrails on both sides above 0.15 m |
+| Plinth | `SB.` mark, else threshold − ground; the facade plinth band (`facade.py`) follows this height (min 0.15 m) instead of the fixed 0.45 m paint band |
+| A door > 1.5 m above the ground | no longer ignored: finding L2 (door into the air); a balcony or terrace door is fine; else the agent decides (outside stair, or the door is not an entrance) |
+| A floor below the terrain | basement if the level is a basement (title, `BODRUM`, negative elevation with walls): light wells / courts as today, now written into the building JSON; else finding L3 |
+| A room's floor | the level's elevation unless a mark inside says otherwise; wet rooms keep the level floor (no assumed drop) |
+
+### 3.4 D4 – Build it in Blender
+
+- **Terrain** (`blender/site.py`): the TIN or plane as a ground mesh with the plot, paths and paving draped on it;
+  retaining edges where the terrain drops > 0.5 m at the plot boundary; flat beyond.
+- **Entrances:** steps (riser/tread from §3.3), landing, cheek walls, handrails above 0.45 m; a ramp with handrails
+  when inferred or drawn. All built objects carry the entrance id (object-index pass, checks).
+- **Plinth:** the facade plinth is a real raised base from ground to floor, not a paint band.
+- **Room floor offsets:** the shell builds a room's floor at its offset; a step (or flight) at each inner door
+  between rooms with different floors; the door frames start at the threshold.
+- **Single-region projects (U2):** a single drawn floor is built as a ground floor with its site, terrain and
+  entrances, unless its title marks it as an upper floor (`1. KAT`, `NORMAL KAT`, `FIRST FLOOR` …). The building
+  ends at that floor: a flat roof slab with a parapet (`roof.kind: flat_cut`, `inferred`, note "upper floors not
+  drawn") – real03 as you decided; real01 (one level, a house) gets its site too. Exterior cameras for such a
+  building: eye level, the entrances and the ground floor; no aerial view.
+
+### 3.5 D5 – Checks L1–L7 (code, in the critic, the validator and the tests)
+
+| Check | Rule | Severity |
+|---|---|---|
+| L1 | every outside door: top of steps / landing / ground in front = threshold ± 0.02 m | critical (door into the air / into the ground) |
+| L2 | a door > 0.05 m above the ground in front with no steps or ramp (all rises, not only 0.05–1.5 m) | critical |
+| L3 | a level floor below the terrain at the outline (> 0.05 m) that is not a basement, or a basement window below ground without a light well or court | critical |
+| L4 | built floors and ground vs every vector mark: within 0.02 m, else a finding naming the mark (the conflict is listed) | major |
+| L5 | steps: riser 0.10–0.18 m, tread ≥ 0.28 m, 0.58 ≤ 2R + T ≤ 0.66 m; ramps within the slope table | major |
+| L6 | terrain slope ≤ 1:3 without a retaining edge; no terrain above a window sill without a light well | major |
+| L7 | every entrance is seen in ≥ 1 exterior view, and its steps or ramp are in that view's object-index pass | minor |
+
+### 3.6 D6 – Agent tools for levels
+
+Read: `levels` (marks with their kind and use, level and room floors, door thresholds, ground points, terrain,
+entrances, conflicts, L-findings). Edit (validated by L1–L7, logged, labelled `corrected_by_ai` or `inferred`):
+`set_mark_kind(mark_id, kind, reason)`, `set_room_floor(room_id, offset_m, evidence)` (only from a mark or a drawn
+step line), `set_ground_point(x, y, z, evidence)`, `set_entrance(door_id, solution, reason)`, `set_terrain(kind)`.
+Geometry from the drawings stays the anchor: a mark wins over the agent unless it is a clear error (CLAUDE.md).
+
+### 3.7 Flags
+
+The step and ramp numbers come from secondary sources quoting TS 9111 (Ankara University course notes; a newspaper
+column; a MEB document); the Turkish regulation text (`mevzuat.gov.tr`) and the standard were blocked or paywalled
+here. They are defaults in `wenart/defaults.yaml` (`levels:`), flagged in the report, and the brief can change them.
+Sources: https://acikders.ankara.edu.tr/mod/resource/view.php?id=6217, https://www.posta.com.tr/yazarlar/tamer-heper/engelli-rampasi-kurallari-2917690,
+https://efeler.meb.gov.tr/meb_iys_dosyalar/2018_10/24145413_ERYYEBYLYRLYK_WORD.docx.
+
+## 4. B – Furniture overhaul
+
+### 4.1 D7 – Read the drawn furniture completely (before any layout)
+
+| Step | Rule |
+|---|---|
+| Non-furniture symbols | level marks, room-number circles, north arrows, axis bubbles, section marks, door-swing arcs (an arc whose centre is a door jamb), dimension outlines, text frames → `symbols[]` with kind and evidence (plan crop); never built, never furniture (CLAUDE.md: "removed only when clearly not furniture, logged with the plan crop") |
+| Block names | a TR/EN dictionary (`KANEPE`, `KOLTUK`, `BERJER`, `YATAK`, `KOMODİN`, `GARDIROP`, `DOLAP`, `MASA`, `SANDALYE`, `SEHPA`, `TV`, `LAVABO`, `KLOZET`, `WC`, `DUŞ`, `KÜVET`, `EVYE`, `OCAK`, `FIRIN`, `BUZDOLABI`, `ÇAMAŞIR`, `BULAŞIK` …) on the block name and its nested block names |
+| Clusters | an unbuilt cluster is split by block instance, then by connected stroke groups; each part is typed on its own (real03: 6 clusters over 92–100 % of their rooms) |
+| Context typing | rules before any AI: chairs around a rectangle → dining table + chairs; two 0.4–0.6 m squares at a bed's head → nightstands; a 0.55–0.65 m deep strip along a wall holding a sink or hob symbol → a counter run with that fixture; a square in front of a sofa → coffee table; a long low strip facing a sofa → TV unit |
+| Vision typing | what is left: the strongest model (§5.1) gets the plan crop with the piece outlined, its neighbours and room, and picks one of the size-fitting candidates or `not_furniture` (temperature 0; a second pass only where no code check confirms it, CLAUDE.md) |
+| Never a box | a piece still untyped is **not built**, listed with its crop under "needs review" in the report; no grey box in any image (fixes the 42 + 32 white boxes) |
+| Misread fixed equipment (U1) | a fixed piece whose drawn size is outside its type's real range by > 30 % (the 1.145 × 0.356 m toilets) gets the nearest real product size; a fixed piece through a wall or in a door swing may move ≤ 0.5 m to the nearest valid spot; `adjusted_by_ai` with `drawn_*` kept, reason and crop |
+| Open kitchens | a living room holding kitchen symbols gets a kitchen zone; the room-type rules apply per zone (a living room may hold a kitchen run in its kitchen zone) |
+
+### 4.2 D8 – Groups as data
+
+One YAML file `wenart/furniture/groups.yaml` replaces the five hard-coded templates in `groups.py`. Per group:
+anchor type(s), required and optional partners with their position in the anchor's frame (offset ranges, side,
+distance to the anchor's front or side), facing (to the anchor, to a focal point, parallel), use zones (where a person
+stands or sits), wall rules (back to wall, foot free), clearances, walkways, size variants by room size, and the
+source of each number (§4.6).
+
+| Group | Anchor | Partners (required / optional) | Key rules |
+|---|---|---|---|
+| seating | sofa or corner sofa | TV unit opposite on the sofa's axis / coffee table, 1–2 armchairs, side table, floor lamp, rug | TV 1.8–3.5 m from the sofa front, facing it (± 10°); coffee table 0.35–0.50 m from the sofa front, inside the sofa–TV corridor; armchairs face the coffee table; TV not in front of a window |
+| dining | dining table | chairs by table size, evenly around / sideboard, pendant | ≥ 0.75 m behind every chair to a wall or piece (pull-out); chairs face the table |
+| sleeping (double) | double bed | 2 nightstands, one per side at the headboard / bench at the foot, rug, wardrobe in the room | headboard on a wall; ≥ 0.60 m free along both long sides; ≥ 0.70 m at the foot; a nightstand only where its side is free |
+| sleeping (single) | single bed | 1 nightstand / desk group | one long side may touch a wall |
+| storage | wardrobe | – | back to a wall, ≥ 0.90 m free in front (doors) |
+| work | desk | office chair / bookshelf, lamp | chair in front, ≥ 0.90 m behind the desk front; daylight from the side preferred |
+| kitchen run | counter run (I, L, U, galley) + island | sink, hob, fridge / dishwasher, wall cabinets | order fridge – sink – hob along the run; landing ≥ 0.40 m beside the sink, hob and fridge (sources §4.6); hob not under a window or beside a tall unit; work triangle legs 1.2–2.7 m, total ≤ 7.9 m; sink preferably under a window |
+| bathroom set | – | toilet, washbasin, shower or bathtub / washing machine, mirror | clear zone in front of the toilet and washbasin; shower/bath entry free; the door swing hits nothing |
+| entrance | – | shoe cabinet / console, mirror | walkway ≥ 0.90 m kept |
+| children | single bed | desk group, wardrobe / toy storage | as the parts |
+| balcony | – | small table + 2 chairs | railing side free |
+
+### 4.3 D9 – Program per room
+
+A rule table turns room type, area, shape, doors, windows, the brief and the drawn anchors into a list of groups
+with options (e.g. living 18 m²: seating `{sofa + 2 armchairs | corner sofa}`, dining `{4 | 6}` if the room has
+no separate dining room; bedroom 12 m²: double sleeping + storage; < 9 m²: single + work). Drawn pieces are matched
+to groups first (a drawn sofa is the seating anchor; a drawn table with chairs is the dining group). A group whose
+anchor is drawn is **completed**: only its missing partners are added (`added_by_ai`, `completes_room: true`), never
+a second anchor (CLAUDE.md). Rooms with no drawn furniture get the full program in the project style.
+
+### 4.4 D10 – A deterministic group solver
+
+| Option | What | Verdict |
+|---|---|---|
+| a | today: VLM coordinates for single pieces + per-piece repair | no (§1.2) |
+| b | learned layout models (ATISS, DiffuScene, …) | no: trained on 3D-FRONT (non-commercial) |
+| c | LLM writes constraints, a solver places (Holodeck, LayoutVLM style) | the constraint idea yes; the LLM writing them no (non-deterministic, our groups are known) |
+| **d** | **our group templates + a deterministic candidate search with hard checks and scored soft terms (cost terms after Merrell et al. 2011 / Yu et al. 2011, constraint style after Holodeck / Infinigen); the VLM chooses between the top 3** | **pick** |
+
+How it works (`wenart/furniture/solver.py`, new; pure Python, numpy + shapely):
+1. **Free space.** Room polygon minus drawn locked pieces, door swings, window bands (for pieces taller than the
+   sill), radiators and the kitchen zone where it does not belong; a 5 cm occupancy raster for walkways.
+2. **Anchor candidates.** For back-to-wall groups every free wall span is sampled every 0.10 m with the group's size
+   variants (both directions along the span); free-standing anchors (dining table, island) on a 0.10 m grid in the
+   largest free area, rotated to the room's axes.
+3. **Partners.** Each anchor candidate instantiates its partners at the template positions (small search over the
+   allowed offsets and sides); a partner that does not fit is dropped only if optional.
+4. **Hard checks** on every group candidate: inside, no overlap, door swings free, windows free for tall pieces, use
+   zones free, wall contact where the template says so, and **walkway connectivity**: on the raster (distance
+   transform) every door reaches every other door and every use zone with ≥ 0.60 m (0.80 m for the main path from
+   the entrance door).
+5. **Soft score** (weights in `groups.yaml`, logged per candidate): wall use, sight lines (sofa → TV, bed → door
+   seen from the bed head, desk with side light), circulation length and no path through a seating group, daylight
+   for desk and dining, distance between groups that belong together (dining near the kitchen zone), balance of the
+   free area, distance from the drawn position for completed groups.
+6. **Search:** groups in priority order (drawn anchors first, then by area); a beam search (width 32) over the
+   groups' candidates; deterministic tie-breaks (score, then position, then id); returns the **top 3 full layouts**
+   with their score breakdown and a top-down image each.
+
+Reuse (§4.9): ideas and published cost terms; our own code (shapely, no Unity, no Blender 4.2 pin).
+
+### 4.5 D11 – What the vision model decides
+
+Only three things, each validated by code: (1) the program options of §4.3 (from the allowed list), (2) style
+details (materials, colours: as today), (3) **which of the 3 candidates** (top-down images with labels, the plan crop and the
+scores), with a reason. Temperature 0, strict JSON; a failed or invalid answer takes
+candidate 1. It never gives coordinates.
+
+### 4.6 D12 – Group checks G1–G14, scene checks S1–S6
+
+Group checks replace the counting of F5 and run in the solver, the code critic, the edit validator and the tests
+(one function per check, `wenart/furniture/group_checks.py`):
+
+| Check | Rule (default numbers; sources in §4.9) |
+|---|---|
+| G1 | TV unit opposite the sofa: on the sofa's axis (± 0.3 m), facing it (± 10°), 1.8–3.5 m away |
+| G2 | coffee table between sofa and TV, 0.35–0.50 m from the sofa front |
+| G3 | armchairs face the coffee table or the sofa (± 30°), ≤ 2.5 m from it |
+| G4 | one nightstand per free side of the bed head, touching the bed side ± 0.10 m, its front in the bed's direction |
+| G5 | bed: headboard on a wall; ≥ 0.60 m free along each free long side, ≥ 0.70 m at the foot |
+| G6 | dining: chairs = seats of the table size, evenly spread, each facing the table, ≥ 0.75 m pull-out behind each |
+| G7 | desk + chair in front; ≥ 0.90 m behind the desk front |
+| G8 | kitchen order fridge – sink – hob along the run; landing ≥ 0.40 m beside each; hob not under a window; triangle legs 1.2–2.7 m, sum ≤ 7.9 m |
+| G9 | kitchen completeness: a sink, a hob, a fridge in every kitchen (zone) |
+| G10 | bathroom completeness: toilet + washbasin (+ shower or bath in a bathroom); a clear zone in front of each fixture |
+| G11 | walkways: every door reaches every door and every use zone with ≥ 0.60 m (main path ≥ 0.80 m) |
+| G12 | windows: no piece taller than the sill + 0.05 m within 0.30 m in front of a window |
+| G13 | wardrobe and other door-fronted storage: ≥ 0.90 m free in front |
+| G14 | no piece of a type its room (zone) never holds (F1 per zone) |
+
+Scene checks (Blender, after the build; `checks/scene.json`; findings routed to the stage that caused them):
+
+| Check | Rule | Tolerance |
+|---|---|---|
+| S1 | every floor piece stands on its floor: lowest vertex z − floor z | −0.005 to +0.010 m |
+| S2 | no piece cuts a wall or another piece (BVH overlap of evaluated meshes; wall-hung types against their wall excepted) | ≤ 0.010 m depth |
+| S3 | the built front direction = the planned front | ≤ 10° |
+| S4 | the built size = a real size of its type (size table) | ± 15 % per axis, height included |
+| S5 | decor rests on its host (§4.7) | §4.7 |
+| S6 | every built piece is a typed, audited model or a by-design parametric type (counter, wall cabinet, stair) | no exception |
+
+### 4.7 D13 – Decor and soft furnishings rest on their host
+
+| Option | What | Verdict |
+|---|---|---|
+| a | today: a type-table height and the drawn footprint | no (§1.3) |
+| b | **ray casts on the built, scaled host mesh (Blender `BVHTree` of the evaluated object)** | **pick** for every decor item |
+| c | shrinkwrap a cloth mesh onto the host (deterministic modifier) | **pick** for throws and duvets |
+| d | rigid-body settle (≈ 20 frames, fixed substeps, deterministic for the same scene) | option for cushions if b looks stiff; measured on the pod |
+| e | cloth simulation | no: slow, not repeatable enough at our budget |
+
+- **Host frame.** Decor is stored in its host's frame (`host_id`, support `seat | mattress | back | headboard | top
+  | shelf_k | floor | wall`, u/v in the support's area, lean angle) instead of world x/y. Every edit of the host
+  (move, turn, resize, swap) moves its decor with it (fixes B3); the world position is computed in Blender only.
+- **Support surface.** A 3 × 3 grid of downward rays under the item's footprint onto the host mesh; the rest height
+  is the highest hit for hard items, the median for soft ones. No type-table height is used any more.
+- **Cushions.** A horizontal ray from the seat front towards the back at the cushion's centre height finds the real
+  backrest; the cushion's back touches it, leaning 10–15°, its bottom on the seat surface. A sofa or bed model whose
+  audit says it already has cushions or pillows gets fewer or none (no duplicates).
+- **Pillows.** Against the headboard (or the wall), on the mattress top (ray), not on top of the model's own pillows.
+- **Throws and duvets.** Our own cloth mesh (folds modelled once) shrinkwrapped onto the bed or sofa top with a 5 mm
+  offset; never a library object squashed to 5 cm (fixes B7). Every bed whose model has no bedding gets a duvet and
+  two pillows this way (fixes the bare mattresses).
+- **Objects on shelves, tables and counters:** ray casts as today (they work); shelves get one ray grid per shelf
+  board (the board's real height from the mesh).
+- **Plants:** on the floor or a top by rays; rugs on the floor (≤ 0.03 m thick, as today).
+- **Check S5** for every decor item, from the evaluated meshes: **gap** (item bottom to the support surface below,
+  over the 3 × 3 grid) ≤ 0.010 m; **penetration** (depth of the item's sample points inside the host, ray parity)
+  ≤ 0.010 m on hard hosts and ≤ 0.030 m on soft hosts (mattress, seat cushion: they would compress); at least 80 %
+  of the item's footprint over its support. An item that fails is placed once more (next free spot on the support);
+  if it fails again it is **not built** and logged (`decor_not_rested`, with the measured gap or depth). A build
+  with a built item that fails S5 fails (it cannot pass by construction; the check guards against bugs).
+- CPU tests use a pure-Python mesh ray caster on the same meshes (as `camsearch.py` does for cameras).
+
+### 4.8 D14 – Realistic furniture only
+
+- The fit uses **only models with audit status `keep`** (§6); `fix` models after their fix; `remove` never.
+- Style: a family fallback chain (e.g. mediterranean → rustic → classic → neutral; industrial → modern →
+  neutral) with recolour by material slots; the choice is logged as `style_fallback`. A type with no audited model
+  in any style → a **library gap** finding (§6.4) and the piece is built from the nearest audited model of a related
+  type only if its group needs it (a lounge chair for a missing armchair); never a parametric sofa, bed or table.
+- Parametric pieces only for the by-design types (kitchen counters and islands, wall cabinets, stairs).
+- Fix B1 (`quality_of`): the judges' quality ranks the candidates again; generated models stay last.
+- Real proportions: non-uniform fit scale ≤ 10 % (was 15 %), mean scale 0.85–1.20 (was 0.75–1.30); outside →
+  the next model; the size table becomes the audit's real-size table (§6).
+
+### 4.9 D15 – What we reuse from open-source layout work
+
+_Filled from the verification in progress (repositories, licences and guideline sources)._
+
+## 5. C – A smarter AI in the pod
+
+### 5.1 D16 – The model
+
+_Filled from the verification in progress (model ids, sizes, licences, vLLM support)._
+
+### 5.2 D17 – What the agent sees: a room brief
+
+A new read tool `room_brief(room_id)` replaces `room` + `plausibility` for the planner:
+
+| Part | Content |
+|---|---|
+| Pieces | id, type, source, built or not, size, front (never null: an inferred front is flagged), **lock state and allowed edits** (per tool: allowed / why not / move allowance left), group membership |
+| Groups | the program, each group's members, missing partners, its G-check results |
+| Free wall spans | id, wall id, start/end, length, what may stand there |
+| Findings | only **fixable** ones, each with the tools that can fix it; unfixable findings (locked, not built, needs review) are listed separately as "not yours" |
+| Memory | this room's earlier rejected edits with reasons, accepted edits, the open checklist |
+| Candidates | the solver's top 3 layouts with scores, top-down image ids |
+
+Unbuilt pieces are no longer drawn in the top-down images or offered to the vision critic (fixes B5).
+
+### 5.3 D18 – Tools that work on groups
+
+| Tool | What | Replaces |
+|---|---|---|
+| `relayout_room(candidate | program)` | take solver candidate k, or re-solve with other program options | free `move_piece` series |
+| `place_group(group, options)` | add a missing group (solver places it) | `add_piece` |
+| `complete_group(group_id)` | add a group's missing partners | single adds |
+| `move_group(group_id, span_id, offset)` | move a whole group along / to a free span; partners follow | piece moves |
+| `retype_piece(piece_id, type)` | candidates only from the size table and the room zone | `change_type` |
+| `mark_not_furniture(piece_id, kind, evidence)` | a symbol, mark or line read as furniture | `remove_piece` for misreads |
+| `fix_fixture(piece_id, size: product, move ≤ 0.5 m)` | U1 | – |
+| `set_front(piece_id, front_deg)` | for drawn pieces without a front | `rotate_piece` |
+| `dry_run(edit)` | the validator's answer without applying it; free of the try budget | – |
+| levels tools | §3.6 | – |
+| `report_library_gap(type, style, reason)` | §6.4 | – |
+| existing | `set_lighting`, camera, material, exterior tools, `finish` | kept |
+
+Every edit tool validates by code (G-, F-, L-checks, placer checks, CLAUDE.md locks), returns the failed checks with
+numbers ("TV 52° off the sofa axis, needs ≤ 10°"), and is logged as today.
+
+### 5.4 D19 – A plan per room, memory, coverage, budget
+
+- **Plan first:** the first answer of a room session is a JSON plan (program confirmed or changed, groups to fix,
+  findings in order, intended tools); the loop checks the plan against the room brief; the session ends when its
+  checklist is done or its budget is spent; open items go to the next round's plan.
+- **Memory across rounds:** a per-room ledger (`orchestrator/memory.json`): accepted and rejected edits with reasons,
+  candidates tried, open checklist. An edit identical to a rejected one is refused by the loop without a model call.
+- **Coverage:** code checks run on every room every round (seconds). Rooms are ranked by fixable severity × area,
+  then by "not visited yet"; every room with a fixable critical or major finding gets a session before any room gets
+  a second one. Room sessions run **in parallel** (4–8 streams on one vLLM server; G1 measured 167 tokens/s at 4
+  streams vs 46 at 1). The per-round cap becomes a time cap.
+- **Vision where it adds something:** typing unknown pieces (plan crop), choosing among candidates, judging looks
+  in renders (realism, wrong objects, decor that looks wrong), and exterior views; never for what code measures.
+  The critic gets the code findings so it does not repeat them, and only built pieces.
+- **Time budget:** the final-stage estimate uses the measured render throughput of round 0 on this pod (seconds per
+  view) instead of a fixed factor (fixes B6: 34.7 min estimated, 19.8 min real); the 20 min margin stays.
+- **Self-check:** the prompt asks for `dry_run` before an edit whose checks are unsure; the loop sends one edit at a
+  time per piece and shows its result before the next.
+
+### 5.5 D20 – Measure it
+
+Per run, in the log, the report and `orchestrator/metrics.json` (and `results/compare/<p>/agent_metrics.md` across
+runs): edits accepted / rejected by reason, rooms covered (code / vision / planner), findings before / after by check
+and severity, minutes and calls per room, tokens, time to the first accepted edit, repeats refused by memory.
+Targets for real03: ≥ 90 % of rooms with fixable findings visited, ≥ 60 % of edits accepted, critical findings 0,
+major findings −50 % against run 3.
+
+## 6. D – Library audit and growth
+
+### 6.1 D21 – The audit job (pod)
+
+`python -m wenart.assets audit` (`scripts/jobs/library_audit.sh`), resumable, results under `results/library/audit/`:
+
+| Part | What |
+|---|---|
+| Thumbnails | every furniture and decor model (1032 + 34 Poly Haven) rendered at its catalogue scale: 4 views (front ¾, side, top, back) at 512 px on a 0.5 m grid floor **with a scale reference** (a 1.75 m person silhouette and a 0.45 m seat-height bar) and the dimensions printed; every texture set (floors, walls, fabrics, worktops) as a 1 m sample with a 10 cm grid |
+| Code checks | size vs the real-size table per type (width, depth, height); pivot at the bottom centre; up axis; front axis vs geometry and judges; unit scale known or guessed; mesh: non-manifold edges, loose parts, flipped normals share, zero-area faces, open drawers (parts outside the main box), face count (crude < 3k faces for furniture); textures: present, resolution, missing files; duplicates (same type, box ± 1 cm, faces ± 1 %, texture hash); licence fields (NC, SA, ND → remove: U3); title vs type in any language (keyword table TR/EN/DE/NL/FR/ES/IT, "outdoor", "street", "low poly", "test", "stylized") |
+| Vision check | the picked model (§5.1) sees the 4 views with the scale reference, the title, the type and the dimensions: is it this type, is it a real manufactured product, indoor or outdoor, which styles, quality for a photoreal render (1–5 with anchored descriptions), has it bedding / cushions, decor: its contact surface (flat bottom, hangs, leans); one pass, a second only where code cannot confirm (the type of a model without a title) |
+| Decision | `keep` / `fix` / `remove` per item with the reason: **remove** = wrong object, outdoor, NC/SA licence, broken mesh, unfixable proportions, quality ≤ 2; **fix** = pivot, front, unit scale, size off by 15–30 %, missing bedding flag (fixes are catalogue fields, never edits of the GLB); **keep** = everything else |
+| Output | `audit.json` / `audit.csv` / `audit.md` (one row per item: id, type, source, licence, dims, checks, vision answers, decision, reason), a contact sheet per type with keep / fix / remove marked, summary tables per type and style |
+
+### 6.2 D22 – Nothing deleted without your OK
+
+"Remove" = the catalogue entry gets `audit: removed` and the fit never uses it; the GLB stays on the volume. The
+18 NC/SA models (U3) are removed from the catalogue at the start of the build. Deleting files from the volume needs a
+separate OK with the list.
+
+### 6.3 D23 – Size table
+
+One real-size table per type (`wenart/furniture/size_table.yaml`, existing ranges reviewed against the ABO products
+with sizes in their titles) is shared by the audit, the fit, F2/S4 and the solver.
+
+### 6.4 D24 – Gap report and growth
+
+- **Gap report** (`results/library/audit/gaps.md`): per room type and style, the group members needed (§4.2) vs the
+  `keep` models (target ≥ 5 per anchor type and style family, ≥ 3 per partner type); every gap with the sources that
+  could fill it.
+- **During a run** the fit and the agent write a `library_gap` finding (type, style, what was used instead) instead
+  of using a wrong piece; the report lists them.
+- **Growth** only after your OK of a list (source, licence, count, download size).
+
+_Sources: filled from the verification in progress._
+
+## 7. E – Tests
+
+CPU (`pytest -m "not gpu"`), one test per rule at least, hand-made rooms and the committed real02/real03 data:
+
+| Area | Tests |
+|---|---|
+| Levels | every pattern form of §3.1 (positive and negative); attribute tags; mark kind by position; datum conversion and conflict; no mark becomes furniture; terrain fit (plane, TIN, per side); steps and ramp sizing; plinth; L1–L7 pass/fail cases; real02 and real03 regression (marks read, ground points, entrances) |
+| Reading | symbol kinds (room-number circle, door arc, dimension outline); block dictionary; cluster split; context typing (chairs around a table, nightstands at a bed head, counter run with sink); misread toilet → product size; untyped → not built + listed |
+| Groups | `groups.yaml` schema; each template on a rectangle, an L room and a room with two doors |
+| Solver | determinism (same input → same 3 candidates); hard checks; walkway raster; beam search on real03 rooms; drawn anchors kept; completion adds only partners |
+| Checks | G1–G14 pass/fail; S1–S6 with mesh fixtures (pure-Python ray caster) |
+| Decor | host frame survives move/turn/resize; cushion against the real back; pillow on the mattress; throw shrinkwrap; S5 tolerances; no type-table height left |
+| Agent | room brief content; unfixable findings never sent; dry run; memory refuses repeats; parallel sessions with `MockModel`; time budget from measured throughput; metrics |
+| Library | audit code checks on fixture GLBs; decisions; NC/SA removed; `quality_of` fixed; gap report |
+
+GPU (`pytest -m gpu`, on the pods): model serving and tool calls of the picked model; bake-off answers stored; audit
+thumbnails and a sample of vision answers; scene checks S1–S6 on each full run; decor S5 on every bed and sofa of
+the runs; exterior views show the entrances (L7); before/after contact sheets written.
+
+## 8. Pods and GPU cost
+
+_Filled after the model verification (the bake-off size depends on it)._
+
+## 9. Order of work after your OK
+
+_Filled with §8._
+
+## 10. Risks
+
+_Filled with §8._
+
+## 11. `CLAUDE.md` wording (proposed; applied only after your OK)
+
+_Filled with §8._
+
+## 12. Decisions for you
+
+_Filled with §8._
