@@ -15,7 +15,7 @@ What (the checks, §4.6):
 
 | Check | Rule | Tolerance |
 |---|---|---|
-| S1 | a floor piece's lowest vertex - its floor (level elevation + the room's ``floor_offset_m``) | -0.005 .. +0.010 m |
+| S1 | a floor piece's lowest vertex - its room's floor (``shell.room_floor_z``: level elevation + ``floor_offset_m``) | -0.005 .. +0.010 m |
 | S2 | no piece cuts a wall (the building's wall boxes) or another piece (sample points of one inside the other, ray parity; depth = shortest axis ray) | <= 0.010 m |
 | S3 | the built front (``front_deg`` the builder records on the object, else the footprint's) vs the planned ``front_deg`` | <= 10 degrees |
 | S4 | the built box in the piece frame vs ``wenart.furniture.sizes.real_range`` of its type | +-15 % per axis (height when the table has one) |
@@ -67,12 +67,13 @@ def _violation(check: str, target: str, room_id, message: str, metrics: dict) ->
 
 
 def floor_z_of(building: dict, piece: dict) -> float:
-    """The floor a piece stands on: its level's elevation plus its room's ``floor_offset_m`` (Milestone 12 levels,
-    track L; 0 when the room has none)."""
-    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == piece.get("level_id")), {})
-    room = next((r for r in building.get("rooms") or [] if r.get("id") == piece.get("room_id")), {})
-    offset = room.get("floor_offset_m")
-    return float(level.get("elevation") or 0.0) + (float(offset) if isinstance(offset, (int, float)) else 0.0)
+    """The floor a piece or floor decor item stands on: the builder's ``furniture.piece_floor_z`` (track L's
+    ``shell.room_floor_z`` of its room: the level's elevation + ``floor_offset_m``; the room by id or by outline), so
+    S1 and S5 measure against the floor the builder placed it on."""
+    from wenart.blender.furniture import piece_floor_z
+
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == piece.get("level_id")), None)
+    return piece_floor_z(building, dict(level or {}, elevation=float((level or {}).get("elevation") or 0.0)), piece)
 
 
 def wall_hung(piece: dict) -> bool:
@@ -128,17 +129,23 @@ def size_failures(ftype: str, size, tol: float = TOLERANCES["size_rel"]) -> list
 
 def wall_boxes(building: dict, level_id: str) -> list[dict]:
     """The walls of a level as oriented boxes ``{id, a, b, thickness, z0, z1}`` (openings not cut: a piece in a
-    door reveal counts as in the wall)."""
+    door reveal counts as in the wall). Milestone 12: a wall beside a sunken room starts at that room's floor, as
+    the shell builds it (``shell.wall_base_drop``)."""
+    from wenart.blender.shell import wall_base_drop
+
     level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), {})
     z0 = float(level.get("elevation") or 0.0)
+    rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == level_id]
     out = []
     for w in building.get("walls") or []:
         if w.get("level_id") != level_id or not w.get("start") or not w.get("end"):
             continue
         h = w.get("height")
         h = float(h.get("value") if isinstance(h, dict) else h) if h else float(level.get("ceiling_height") or 2.7)
+        drop = wall_base_drop({"start": w["start"], "end": w["end"], "thickness": float(w.get("thickness") or 0.1)},
+                              rooms)
         out.append({"id": w["id"], "a": tuple(map(float, w["start"][:2])), "b": tuple(map(float, w["end"][:2])),
-                    "thickness": float(w.get("thickness") or 0.1), "z0": z0, "z1": z0 + h})
+                    "thickness": float(w.get("thickness") or 0.1), "z0": z0 + drop, "z1": z0 + h})
     return out
 
 
@@ -289,10 +296,7 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             if dtype not in FLOOR_DECOR:
                 m["s5"] = "not measured (no host)"
                 continue
-            level = next((lv for lv in building.get("levels") or [] if lv.get("id") == item.get("level_id")), {})
-            room = next((r for r in building.get("rooms") or [] if r.get("id") == item.get("room_id")), {})
-            off = room.get("floor_offset_m") if isinstance(room.get("floor_offset_m"), (int, float)) else 0.0
-            rm = R.floor_rest(mesh["verts"], float(level.get("elevation") or 0.0) + float(off))
+            rm = R.floor_rest(mesh["verts"], floor_z_of(building, item))      # the room's floor (track L)
         else:
             host_ids = [hid for hid in (host["id"], f"{host['id']}#dressing") if hid in meshes]
             if not host_ids:
