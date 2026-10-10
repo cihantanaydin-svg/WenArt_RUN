@@ -86,6 +86,8 @@ CHECK_TOOLS: dict[str, tuple[str, ...]] = {
     "S4": ("swap_model", "resize_piece"),
     "S6": ("retype_piece", "swap_model", "report_library_gap"),
     "LG": ("report_library_gap", "swap_model", "retype_piece"),
+    "NR": ("retype_piece", "mark_not_furniture"),       # an untyped drawn piece (not built) left for review
+    "RC": ("retype_piece",),
     "L1": ("set_entrance", "set_ground_point"),
     "L2": ("set_entrance",),
     "L3": ("set_ground_point", "set_terrain", "set_room_floor"),
@@ -404,6 +406,11 @@ def _pt(xy):
 # Findings: fixable or not yours
 # --------------------------------------------------------------------------
 
+# Findings whose target is not built on purpose: typing the untyped piece (or recording it as not furniture) is the
+# fix (CLAUDE.md "never an unexplained box"; docs/milestone12.md §4.1).
+UNBUILT_FIXABLE = frozenset({"NR"})
+
+
 def _check_tools(check: str) -> tuple[str, ...]:
     return CHECK_TOOLS.get(check) or ()
 
@@ -426,7 +433,7 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
         ok: list = []
         whys: list = []
         if piece is not None:
-            if not built(piece):
+            if not built(piece) and check not in UNBUILT_FIXABLE:
                 not_yours.append(dict(base, why="not built: it is in no render; leave it"))
                 continue
             for t in tools:

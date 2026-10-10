@@ -146,6 +146,7 @@ from __future__ import annotations
 
 import re
 import shutil
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
@@ -2193,7 +2194,12 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "assets": asset_licences(inp),
         "contact_sheets": sheets,
         "building": {"status": b.get("status"), "unverified": list(b.get("unverified") or []),
-                     "conflicts": list(b.get("conflicts") or [])},
+                     "conflicts": list(b.get("conflicts") or []),
+                     # Milestone 12 (docs/milestone12.md §4.1): untyped drawn pieces left for a person (not built)
+                     # and the drawn symbols read as not furniture, by kind
+                     "needs_review_items": list(b.get("needs_review") or []),
+                     "symbols_by_kind": dict(sorted(Counter(s.get("kind") or "other"
+                                                            for s in b.get("symbols") or []).items()))},
         "intake": intake_summary(inp.intake),
         "kept_on_volume": kept_on_volume(views) if inp.private else [],
         # Milestone 7 (§9.4)
@@ -2934,6 +2940,14 @@ def report_markdown(manifest: dict) -> str:
     if unv_views:
         lines += ["", "Unverified pieces in view:", ""]
         lines += [f"- {cam}: {', '.join(ids)}" for cam, ids in unv_views]
+    items = b.get("needs_review_items") or []
+    lines += ["", "Drawn pieces left for review (untyped, not built; docs/milestone12.md §4.1):", ""]
+    lines += (C.table(["id", "kind", "room", "reason", "crop"],
+                      [[i.get("id"), i.get("kind"), i.get("room_id"), i.get("reason"), i.get("crop")] for i in items])
+              if items else ["None."])
+    symbols = b.get("symbols_by_kind") or {}
+    lines += ["", "Drawn symbols read as not furniture (never built): "
+              + (", ".join(f"{k} {n}" for k, n in symbols.items()) if symbols else "none") + "."]
     lines += ["", "Conflicts:", ""]
     if b["conflicts"]:
         lines += C.table(["id", "kind", "elements", "description", "resolution"],

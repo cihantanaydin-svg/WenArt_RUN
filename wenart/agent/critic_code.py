@@ -147,6 +147,32 @@ def library_gaps(building: dict) -> list[dict]:
     return out
 
 
+NEEDS_REVIEW_CHECK = "NR"
+READING_CONFLICT_CHECK = "RC"
+
+
+def reading_items(building: dict) -> list[dict]:
+    """Milestone 12 (docs/milestone12.md §4.1, track R): one ``NR`` violation (major) per untyped drawn piece the reading
+    left for review (``needs_review``; not built, never an unexplained box: the agent may type it from its plan crop
+    or record it as not furniture) and one ``RC`` violation (minor) per ``type_disagreement`` conflict (the drawing
+    overruled an AI type)."""
+    out = []
+    for item in building.get("needs_review") or []:
+        crop = f" (plan crop {item['crop']})" if item.get("crop") else ""
+        out.append({"check": NEEDS_REVIEW_CHECK, "severity": "major", "target": item.get("id"),
+                    "room_id": item.get("room_id"),
+                    "message": f"untyped drawn piece left for review: {item.get('reason') or item.get('kind')}{crop}",
+                    "metrics": {"kind": item.get("kind")}})
+    for c in building.get("conflicts") or []:
+        if c.get("kind") != "type_disagreement":
+            continue
+        ids = list(c.get("element_ids") or [])
+        out.append({"check": READING_CONFLICT_CHECK, "severity": "minor", "target": ids[0] if ids else None,
+                    "room_id": None, "message": str(c.get("description") or "type disagreement")[:300],
+                    "metrics": {"resolution": str(c.get("resolution") or "")[:200]}})
+    return out
+
+
 def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: Optional[dict] = None, *,
         plausibility_fn: Optional[Callable] = None, exterior_fn: Optional[Callable] = None,
         views_fn: Optional[Callable] = None, groups_fn: Optional[Callable] = None,
@@ -235,6 +261,7 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
     if (scene_manifest or {}).get("furniture"):
         family("scene_manifest", None, lambda: manifest_violations(scene_manifest, scene_read), lambda fn: fn())
     family("library", None, lambda: library_gaps(building), lambda fn: fn())
+    family("reading", None, lambda: reading_items(building), lambda fn: fn())
     return {"findings": _unique(findings), "checks": checks, "scores": scores, "mean": mean,
             "scene_summary": manifest_summary(scene_manifest)}
 
@@ -251,4 +278,4 @@ FAMILY_OF = {**{k: "plausibility" for k in ("F1", "F2", "F3", "F4", "F5", "F6", 
              **{f"G{i}": "groups" for i in range(1, 15)},
              **{f"L{i}": "levels" for i in range(1, 8)},
              **{f"S{i}": "scene" for i in range(1, 7)},
-             LIBRARY_GAP_CHECK: "library"}
+             LIBRARY_GAP_CHECK: "library", NEEDS_REVIEW_CHECK: "reading", READING_CONFLICT_CHECK: "reading"}

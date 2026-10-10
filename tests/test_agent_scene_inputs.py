@@ -117,3 +117,25 @@ def test_group_findings_are_reported_once():
     out = CC.run({"rooms": [{"id": "r1"}], "furniture": []}, None, None, **q)
     assert sorted(f["id"] for f in out["findings"]) == ["c:F3:f1", "c:G14:f9", "c:G4:f2"]
     assert CC.FAMILY_OF["G14"] == "groups"
+
+
+def test_needs_review_and_type_disagreements_reach_the_planner():
+    """Milestone 12 (§4.1, track R): an untyped drawn piece left for review is a fixable NR finding (typing it or
+    recording it as not furniture is the fix, although it is not built); a type disagreement is a minor RC finding."""
+    from wenart.agent import brief as BR, critic_code as CC
+    building = {"furniture": [{"id": "f_L0_090", "room_id": "r1", "type": "unknown", "build": False,
+                               "source": "from_documents"}],
+                "needs_review": [{"id": "f_L0_090", "kind": "untyped", "reason": "no size or context fits",
+                                  "crop": "crops/f_L0_090.png", "room_id": "r1", "level_id": "L0"}],
+                "conflicts": [{"id": "c1", "kind": "type_disagreement", "element_ids": ["f_L0_091"],
+                               "description": "the drawing says sink, both passes said fridge",
+                               "resolution": "drawn block name kept"}]}
+    got = CC.reading_items(building)
+    assert [(v["check"], v["severity"], v["target"]) for v in got] == [("NR", "major", "f_L0_090"),
+                                                                      ("RC", "minor", "f_L0_091")]
+    assert "crops/f_L0_090.png" in got[0]["message"]
+    assert CC.FAMILY_OF["NR"] == CC.FAMILY_OF["RC"] == "reading"
+    allowed = {"f_L0_090": {"retype_piece": {"allowed": True}, "mark_not_furniture": {"allowed": True}}}
+    fixable, not_yours = BR.classify([CC.finding(v) for v in got[:1]], building, "r1", allowed, {}, {})
+    assert [f["check"] for f in fixable] == ["NR"] and set(fixable[0]["tools"]) == {"retype_piece", "mark_not_furniture"}
+    assert not not_yours
