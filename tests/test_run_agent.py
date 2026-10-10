@@ -293,7 +293,7 @@ def test_run_polish_off_and_the_calibrated_final_estimate(monkeypatch, tmp_path)
     from wenart.run import stages as S
 
     assert S.EST_FINAL_FACTOR == 2.2
-    base = S.est_final(10, polish=False) / S.EST_FINAL_FACTOR
+    base = S.est_final(10, polish=False) / S.EST_FINAL_FACTOR_NO_POLISH     # real03 run 2: 1.6 without polish
     assert S.est_final(10, polish=True) > S.est_final(10, polish=False) > base
     text = (Path(__file__).resolve().parents[1] / "scripts" / "jobs" / "full.sh").read_text()
     assert 'if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi' in text

@@ -710,6 +710,9 @@ EST_REPORT_S = 60.0
 # Pod G2 (real02, 9 Oct 2026, RTX PRO 6000): the final stages took ≈ 3,600 s where est_final gave 1,650 s (6000
 # scale): build 442 s, controls 211 s, gate 963 s and polish 1,125 s were far above their per-stage estimates.
 EST_FINAL_FACTOR = 2.2
+# real03 run 2 (10 Oct 2026, RTX PRO 6000, polish off, 84 views): the final stages took 1,998 s where the unscaled
+# estimate gave 1,302 s (x 1.53); with 2.2 the agent got no round at all. Without polish the factor is this.
+EST_FINAL_FACTOR_NO_POLISH = 1.6
 
 
 def est_previews(views: int) -> float:
@@ -723,4 +726,4 @@ def est_final(views: int, seqs: int = 4, polish: bool = True) -> float:
     if polish:
         total += EST_GATE_S + est_polish(views) + est_detect(views)
     total += EST_AGENT_CHECK_CALL_S * EST_CHECK_CALLS_PER_VIEW * max(0, views) / max(1, seqs)
-    return (total + EST_REPORT_S) * EST_FINAL_FACTOR
+    return (total + EST_REPORT_S) * (EST_FINAL_FACTOR if polish else EST_FINAL_FACTOR_NO_POLISH)

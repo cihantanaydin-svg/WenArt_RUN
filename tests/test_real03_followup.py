@@ -212,3 +212,20 @@ def test_small_or_thin_unknowns_that_fit_no_type_are_drawn_marks():
     props = {p["piece_id"]: p for p in infer.infer_types(b)}
     assert props["tap"]["type"] == "detail" and props["tap"]["build"] is False
     assert props["line"]["build"] is False and "thinner than" in props["line"]["reason"]
+
+
+# --- pod run 2 (wxj7cj91tloewx): dark core rooms, the agent's time budget -----------------------------------------
+
+def test_only_windows_in_outer_walls_bring_daylight():
+    walls = {"w1": {"id": "w1", "exterior": True}, "w2": {"id": "w2", "exterior": False}}
+    assert LT.daylight_window({"wall_id": "w1"}, walls, True)
+    assert not LT.daylight_window({"wall_id": "w2"}, walls, True)       # glazing between the hall and the stair
+    assert LT.daylight_window({"wall_id": "w2"}, walls, False)          # no exterior flags at all: as before
+
+
+def test_the_final_estimate_without_polish_uses_its_own_factor():
+    from wenart.run import stages as S
+    with_polish = S.est_final(84, 4, polish=True)
+    without = S.est_final(84, 4, polish=False)
+    assert without / S.EST_FINAL_FACTOR_NO_POLISH * S.EST_FINAL_FACTOR > without
+    assert without < with_polish and S.EST_FINAL_FACTOR_NO_POLISH < S.EST_FINAL_FACTOR

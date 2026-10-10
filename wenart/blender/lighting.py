@@ -266,6 +266,17 @@ def light_power(area: float, n_lights: int, dim: bool, factor: float = 1.0) -> t
     return max(AREA_LIGHT_MIN_W, total / n), per_m2
 
 
+def daylight_window(opening: dict, walls_by_id: dict, flagged: bool) -> bool:
+    """Whether a window brings daylight into its room (pure): one on an outer wall (``exterior``). real03 run 2
+    (10 Oct 2026): glazing in the walls between the floor hall, the stairs and the lift lobby counted as daylight,
+    so those rooms got no ceiling light and rendered black. A building whose walls carry no ``exterior`` flag at all
+    (``flagged`` False) keeps every window."""
+    if not flagged:
+        return True
+    wall = walls_by_id.get(opening.get("wall_id"))
+    return wall is None or bool(wall.get("exterior"))
+
+
 def window_floor_ratio(windows: list[dict], level: dict, levels_above: bool, floor_area: float) -> float:
     """Window opening area (width x height, ``shell.opening_vertical``) over the floor area."""
     from wenart.blender.shell import opening_vertical
@@ -387,6 +398,8 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     from wenart.blender.overrides import lighting_of
 
     agent_lights = lighting_of(building)   # the agent's set_lighting (real03 follow-up)
+    walls_by_id = {w["id"]: w for w in building.get("walls") or []}
+    flagged = any(w.get("exterior") for w in walls_by_id.values())
     area_lights = []
     for level in levels:
         floor_z = float(level["elevation"])
@@ -401,7 +414,8 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                 polygon = polygon[:-1]
             if len(polygon) < 3:
                 continue
-            windows = [o for o in room_openings(room, polygon, building) if o["type"] == "window"]
+            windows = [o for o in room_openings(room, polygon, building) if o["type"] == "window"
+                       and daylight_window(o, walls_by_id, flagged)]
             area = G.polygon_area(polygon)
             ratio = window_floor_ratio(windows, level, levels_above, area) if windows else None
             why = fill_light_reason(windows, ratio)
