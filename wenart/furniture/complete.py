@@ -1416,6 +1416,8 @@ def write_room_debug(rec: RoomCompletion, building: dict, debug_dir: Path) -> No
         draw_room_png(rec, building, debug_dir / f"{rec.room_id}.png")
     except ImportError as exc:   # matplotlib missing: the JSON is the record, the PNG is a convenience
         print(f"complete: debug PNG for {rec.room_id} skipped ({exc})", file=sys.stderr)
+    except Exception as exc:     # noqa: BLE001 - real03: an odd geometry must not fail the stage over a picture
+        print(f"complete: debug PNG for {rec.room_id} not drawn ({type(exc).__name__}: {exc})", file=sys.stderr)
 
 
 COLOURS = {"drawn": "tab:green", "changed": "tab:blue", "added": "tab:orange"}
@@ -1435,11 +1437,13 @@ def draw_room_png(rec: RoomCompletion, building: dict, path: Path) -> None:
     ax.set_aspect("equal")
     ax.add_patch(MplPolygon(list(ctx.polygon.exterior.coords), closed=True, fill=False, lw=2, color="black"))
     for door in ctx.doors:
-        ax.add_patch(MplPolygon(list(door.zone.exterior.coords), closed=True, color="grey", alpha=0.2))
-        if door.swing is not None and not door.swing.is_empty:
-            ax.add_patch(MplPolygon(list(door.swing.exterior.coords), closed=True, color="grey", alpha=0.12))
+        for part in placer.polygon_parts(door.zone):
+            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="grey", alpha=0.2))
+        for part in placer.polygon_parts(door.swing):
+            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="grey", alpha=0.12))
     for win in ctx.windows:
-        ax.add_patch(MplPolygon(list(win.band.exterior.coords), closed=True, color="tab:cyan", alpha=0.3))
+        for part in placer.polygon_parts(win.band):
+            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:cyan", alpha=0.3))
     items = {f["id"]: f for f in building["furniture"] if f.get("room_id") == room["id"]}
     changed = {c["id"] for c in rec.changes if c["status"] == "applied"}
     proposals = {c["id"] for c in rec.changes if c.get("type_proposal")}

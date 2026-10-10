@@ -186,3 +186,29 @@ def test_agent_lighting_override_is_read_within_its_range():
                                           "r2": {"factor": 9.0, "reason": "too much"}}}}
     assert BO.lighting_of(b) == {"r1": {"factor": 2.0, "reason": "dark hall"}}
     assert BO.lighting_of({}) == {}
+
+
+# --- pod run 1 (n6bh2aag0y2amy): layout debug drawing, drawn marks --------------------------------------------
+
+def test_polygon_parts_of_odd_geometries():
+    from shapely.geometry import MultiPolygon, box
+    from wenart.furniture import placer
+    assert placer.polygon_parts(None) == [] and placer.polygon_parts(Polygon()) == []
+    assert len(placer.polygon_parts(MultiPolygon([box(0, 0, 1, 1), box(2, 2, 3, 3)]))) == 2
+    assert placer.polygon_parts(box(0, 0, 1, 1))[0].area == 1.0
+
+
+def test_small_or_thin_unknowns_that_fit_no_type_are_drawn_marks():
+    from wenart.furniture import infer
+    room = {"id": "r1", "level_id": "L0", "label": "Banyo", "room_type": "bathroom",
+            "polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}
+
+    def piece(pid, size):
+        return {"id": pid, "level_id": "L0", "room_id": "r1", "type": "unknown", "source": "from_documents",
+                "footprint": {"center": [1.0, 1.0], "size": size, "rotation_deg": 0.0}, "front_deg": None,
+                "status": "unverified", "evidence": []}
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}], "rooms": [room], "walls": [],
+         "openings": [], "furniture": [piece("tap", [0.25, 0.12]), piece("line", [1.1, 0.1])]}
+    props = {p["piece_id"]: p for p in infer.infer_types(b)}
+    assert props["tap"]["type"] == "detail" and props["tap"]["build"] is False
+    assert props["line"]["build"] is False and "thinner than" in props["line"]["reason"]

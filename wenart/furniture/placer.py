@@ -373,6 +373,16 @@ class RoomContext:
         return best
 
 
+def polygon_parts(geom) -> list[Polygon]:
+    """The non-empty polygons of a shapely geometry (a window band cut by an odd room outline can be empty, a
+    MultiPolygon or a collection: real03, 10 Oct 2026); for the debug drawings, which need exterior rings."""
+    if geom is None or geom.is_empty:
+        return []
+    if geom.geom_type == "Polygon":
+        return [geom]
+    return [g for part in getattr(geom, "geoms", []) for g in polygon_parts(part)]
+
+
 def _unit(v) -> tuple[float, float]:
     n = math.hypot(v[0], v[1])
     return (v[0] / n, v[1] / n) if n > 1e-12 else (1.0, 0.0)

@@ -21,6 +21,8 @@ How (deterministic; the agent may confirm or change the type later on the plan c
    either way), that the room type allows (``schemas.allowed_types``, plus stand-alone lamps, plants and side
    tables) and whose position rule holds (``schemas.ORIENTATION_RULES``: a back-to-wall type has a side on a wall;
    a free piece has a side on a wall or a group partner near). Exactly one -> that type (confidence 0.6).
+1c. **Mark** (real03): an unknown footprint that fits no type and is smaller than ``MARK_SIDE_M`` both ways or
+   thinner than ``MARK_THIN_M`` is a drawn mark (a tap, a valve, a threshold line): not built (type ``detail``).
 3. **One named**: several fit, but exactly one of them was named by an AI pass (``type_candidates``) -> that type
    (confidence 0.55).
 4. The front of an inferred type with a front: the side opposite the only side on a wall; a seat faces its nearest
@@ -70,6 +72,10 @@ def outline_holds(poly, mates: list[dict]) -> list[str]:
 
 
 DETAIL_TYPE = "detail"            # a drawn part inside a typed piece (not a furniture type: not built)
+# real03 (10 Oct 2026): a symbol smaller than this both ways (a tap, a valve) or thinner than MARK_THIN_M (a
+# threshold, a shelf line) that fits no type is a drawn mark, not a piece: not built (rule 1c).
+MARK_SIDE_M = 0.30
+MARK_THIN_M = 0.20
 DETAIL_INSIDE = 0.6
 
 
@@ -199,6 +205,16 @@ def infer_types(building: dict) -> list[dict]:
         if host is not None:
             reason = (f"drawn inside {host['type']} {host['id']} ({DETAIL_INSIDE:.0%} or more of it): a detail of that "
                       f"piece (a sink bowl, an appliance front), not a piece of its own (not built)")
+            out.append({"piece_id": item["id"], "type": DETAIL_TYPE, "build": False, "reason": reason,
+                        "confidence": CONF_OUTLINE, "evidence": _evidence(item, reason, CONF_OUTLINE)})
+            continue
+        size_now = sorted(float(v) for v in item["footprint"]["size"])
+        if (size_now[1] < MARK_SIDE_M or size_now[0] < MARK_THIN_M) and not any(
+                PL._fits(t, size_now) for t in PL._size_table() if t not in SKIP_TYPES):
+            reason = (f"{size_now[1]:.2f} x {size_now[0]:.2f} m fits no type and is "
+                      + (f"smaller than {MARK_SIDE_M} m both ways" if size_now[1] < MARK_SIDE_M
+                         else f"thinner than {MARK_THIN_M} m")
+                      + ": a drawn mark (a tap, a valve, a threshold or shelf line), not a piece (not built)")
             out.append({"piece_id": item["id"], "type": DETAIL_TYPE, "build": False, "reason": reason,
                         "confidence": CONF_OUTLINE, "evidence": _evidence(item, reason, CONF_OUTLINE)})
             continue

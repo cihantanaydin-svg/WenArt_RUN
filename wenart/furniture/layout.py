@@ -475,6 +475,8 @@ def write_room_debug(room: dict, layout: RoomLayout, debug_dir: Path) -> None:
         draw_room_png(room, layout, debug_dir / f"{room['id']}.png")
     except ImportError as exc:   # matplotlib missing: the JSON is the record, the PNG is a convenience
         print(f"layout: debug PNG for {room['id']} skipped ({exc})", file=sys.stderr)
+    except Exception as exc:     # noqa: BLE001 - real03: an odd geometry must not fail the stage over a picture
+        print(f"layout: debug PNG for {room['id']} not drawn ({type(exc).__name__}: {exc})", file=sys.stderr)
 
 
 def draw_room_png(room: dict, layout: RoomLayout, path: Path) -> None:
@@ -490,12 +492,14 @@ def draw_room_png(room: dict, layout: RoomLayout, path: Path) -> None:
         ax.set_aspect("equal")
         ax.add_patch(MplPolygon(list(ctx.polygon.exterior.coords), closed=True, fill=False, lw=2, color="black"))
         for door in ctx.doors:
-            ax.add_patch(MplPolygon(list(door.zone.exterior.coords), closed=True, color="tab:orange", alpha=0.25))
-            if door.swing is not None and not door.swing.is_empty:
-                ax.add_patch(MplPolygon(list(door.swing.exterior.coords), closed=True, color="tab:orange", alpha=0.15))
+            for part in placer.polygon_parts(door.zone):
+                ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:orange", alpha=0.25))
+            for part in placer.polygon_parts(door.swing):
+                ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:orange", alpha=0.15))
             ax.plot(*door.approach_point, "o", color="tab:orange", ms=4)
         for win in ctx.windows:
-            ax.add_patch(MplPolygon(list(win.band.exterior.coords), closed=True, color="tab:blue", alpha=0.25))
+            for part in placer.polygon_parts(win.band):
+                ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:blue", alpha=0.25))
         if pass_no is None:
             ax.set_title(f"{room['label']} ({room['id']}): no proposal")
             continue
