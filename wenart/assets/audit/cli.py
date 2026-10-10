@@ -105,6 +105,8 @@ def cmd_render(args) -> int:
         items = [i for i in items if i["id"] in set(args.ids)]
     if args.types:
         items = [i for i in items if i["type"] in set(args.types.split(","))]
+    if args.smoke:
+        items = smoke_items(items, args.smoke)
     work = Path(args.work or (_audit(args) / "work"))
     deadline = R.deadline_of(args.deadline)
     doc = R.render_jobs(items, Path(args.assets), work, s, deadline)
@@ -118,7 +120,7 @@ def cmd_render(args) -> int:
     if args.plan:
         return EXIT_OK
     rc = R.run_render(doc, args.blender or R.default_blender(), work, workers)
-    if args.textures:
+    if args.textures and not args.smoke:
         man = _read(Path(args.assets) / "manifest.json") or {}
         tj = R.texture_jobs(man, Path(args.assets), work)
         if tj:
@@ -127,7 +129,25 @@ def cmd_render(args) -> int:
                 rc = EXIT_DEADLINE if rc_t == EXIT_DEADLINE else EXIT_NOTHING
         R.overlay_textures(work, _audit(args), s)
     R.compose_all(items, work, _audit(args), s)
+    if args.smoke:
+        measures = R.read_measures(work)
+        ok = [i["id"] for i in items if (measures.get(i["id"]) or {}).get("ok")]
+        print(f"audit render smoke: {len(ok)} of {len(items)} model(s) measured and rendered: {ok}")
+        return EXIT_OK if ok and len(ok) == len(items) else EXIT_NOTHING
     return rc
+
+
+def smoke_items(items: list, n: int) -> list:
+    """``n`` models for a smoke render before the full run: the first of each source in turn (GLB and glTF)."""
+    by: dict = {}
+    for it in items:
+        by.setdefault(it.get("source"), []).append(it)
+    out: list = []
+    while len(out) < n and any(by.values()):
+        for src in sorted(by):
+            if by[src] and len(out) < n:
+                out.append(by[src].pop(0))
+    return out
 
 
 def _render_textures(R, tdoc: dict, args, work: Path) -> int:
@@ -174,9 +194,21 @@ def _answers(args, items):
     return A.load_answers(_audit(args), model), A.load_answers(_audit(args), model, second=True)
 
 
-def cmd_ask(args) -> int:
-    from wenart.assets.audit import ask as A
+def second_pass_ids(items: list, first: dict) -> set:
+    """The models of pass 2: no title evidence (generated, a title naming no type) and pass 1 says it is the type."""
     from wenart.assets.audit import checks as CK
+    out = set()
+    for it in items:
+        v = CK.title_check(it, set())[0]["metrics"]["verdict"]
+        a = first.get(it["id"])
+        if v in ("silent", "generated") and a and a.get("is_type") is True:
+            out.add(it["id"])
+    return out
+
+
+def cmd_ask(args) -> int:
+    """Pass 1, pass 2 or both (``--pass both``: one server session for both)."""
+    from wenart.assets.audit import ask as A
     from wenart.assets.audit import render as R
     cfg = load_config()
     items = _items(args)
@@ -187,31 +219,31 @@ def cmd_ask(args) -> int:
         return EXIT_NOTHING
     version = (cfg.get("ask") or {}).get("version", "m12.1")
     model = _model(args)
-    second = args.pass_ == 2
-    only = None
-    if second:
-        first = A.load_answers(audit, model)
-        only = set()
-        for it in items:
-            v = CK.title_check(it, set())[0]["metrics"]["verdict"]
-            a = first.get(it["id"])
-            if v in ("silent", "generated") and a and a.get("is_type") is True:
-                only.add(it["id"])
-    doc = A.build_requests(items, mdoc, audit, version, only, second)
-    print(f"audit ask: {len(doc['items'])} request(s) (pass {2 if second else 1}), model {model.id}")
-    if not doc["items"]:
-        return EXIT_OK
     deadline = R.deadline_of(args.deadline)
     workers = args.workers or int((cfg.get("ask") or {}).get("workers", 4))
+    passes = [1, 2] if args.pass_ == "both" else [int(args.pass_)]
+
+    def run(url: str) -> int:
+        rc = EXIT_OK
+        for n in passes:
+            second = n == 2
+            only = second_pass_ids(items, A.load_answers(audit, model)) if second else None
+            doc = A.build_requests(items, mdoc, audit, version, only, second)
+            print(f"audit ask: {len(doc['items'])} request(s) (pass {n}), model {model.id}")
+            if doc["items"]:
+                rc = A.ask(audit, model, url, second=second, workers=workers, deadline=deadline)
+            if rc != EXIT_OK:
+                return rc
+        return rc
     if args.serve:
         from wenart.run import servers as S
         try:
             with S.server(model.key, deadline, job_dir=Path(args.job_dir) if args.job_dir else None) as url:
-                return A.ask(audit, model, url, second=second, workers=workers, deadline=deadline)
+                return run(url)
         except S.ServerError as exc:
             print(f"audit ask: server error: {exc}")
             return EXIT_SERVER
-    return A.ask(audit, model, args.server, second=second, workers=workers, deadline=deadline)
+    return run(args.server)
 
 
 def decide_all(args, items=None):
@@ -380,6 +412,8 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--types", default=None, help="comma list of types")
     s.add_argument("--textures", action="store_true", help="also the texture sets of <assets>/manifest.json")
     s.add_argument("--plan", action="store_true", help="only write render_plan.json")
+    s.add_argument("--smoke", type=int, default=0, help="render only N models (one per source in turn); exit 1 "
+                   "unless every one was measured and rendered")
     s = common(sub.add_parser("code", help="code checks"))
     s.add_argument("--work", default=None)
     s.add_argument("--dry", action="store_true", help="catalogue fields only (no render)")
@@ -390,7 +424,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--server", default="http://127.0.0.1:8001/v1")
     s.add_argument("--serve", action="store_true", help="start and stop the vLLM server (wenart.run.servers)")
     s.add_argument("--job-dir", default=None)
-    s.add_argument("--pass", dest="pass_", type=int, default=1, choices=[1, 2])
+    s.add_argument("--pass", dest="pass_", default="1", choices=["1", "2", "both"])
     s.add_argument("--workers", type=int, default=None)
     s.add_argument("--deadline", default=None)
     s = common(sub.add_parser("decide", help="keep / fix / remove"))

@@ -142,15 +142,15 @@ def mesh_arrays(meshes):
         try:
             me.calc_loop_triangles()
             n_v, n_t = len(me.vertices), len(me.loop_triangles)
-            co = np.empty(n_v * 3, dtype=np.float64)
+            co = np.empty(n_v * 3, dtype=np.float32)          # the property's own type: the fast path
             me.vertices.foreach_get("co", co)
-            co = co.reshape(-1, 3)
+            co = co.reshape(-1, 3).astype(np.float64)
             mw = np.array(ob.matrix_world, dtype=np.float64)
             co = co @ mw[:3, :3].T + mw[:3, 3]
-            tri = np.empty(n_t * 3, dtype=np.int64)
+            tri = np.empty(n_t * 3, dtype=np.int32)
             me.loop_triangles.foreach_get("vertices", tri)
             verts.append(co)
-            tris.append(tri.reshape(-1, 3) + offset)
+            tris.append(tri.reshape(-1, 3).astype(np.int64) + offset)
             offset += n_v
             colour_attrs += len(getattr(me, "color_attributes", None) or [])
         finally:
@@ -281,12 +281,15 @@ def main(jobs_path):
     scene.world = world
     try:
         world.use_nodes = True
-    except (AttributeError, TypeError):
+    except (AttributeError, TypeError):      # always node-based in newer Blender versions
         pass
-    bg = next((n for n in world.node_tree.nodes if n.type == "BACKGROUND"), None)
     grey = float(s.get("background", 0.75))
+    tree = getattr(world, "node_tree", None)
+    bg = next((n for n in tree.nodes if n.type == "BACKGROUND"), None) if tree is not None else None
     if bg is not None:
         bg.inputs["Color"].default_value = (grey, grey, grey, 1.0)
+    else:
+        world.color = (grey, grey, grey)
     cam = bpy.data.objects.new("audit_cam", bpy.data.cameras.new("audit_cam"))
     cam.data.sensor_width = float(s.get("sensor_mm", 36))
     scene.collection.objects.link(cam)

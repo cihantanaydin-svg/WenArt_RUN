@@ -422,3 +422,74 @@ def test_material_tags_of_the_catalogue_follow_both_judges(cfg):
     if tables and not any("glass" in e["material_tags"] for e in tables):
         warnings.warn("no coffee table model is tagged glass: 'glass coffee table' takes the parametric glass top")
     assert tags["counts"]["models"] >= len([e for e in entries if "material_tags" in e]) - len(tags["unjudged"])
+
+
+# --------------------------------------------------------------------------
+# Milestone 12: the library audit (docs/milestone12.md §6.1, pods P2 and P3; scripts/jobs/library_audit_*.sh).
+# ``WENART_AUDIT`` = the audit folder (default ``$WENART_RESULTS/library/audit``); the tests skip without it.
+# --------------------------------------------------------------------------
+
+AUDIT = Path(os.environ.get("WENART_AUDIT") or RESULTS / "library" / "audit")
+
+
+def audit_doc(name: str) -> dict:
+    doc = OV.read_json(AUDIT / name)
+    if doc is None:
+        pytest.skip(f"{AUDIT / name} not found (written by the audit pods)")
+    return doc
+
+
+def test_audit_render_measured_every_model_on_the_gpu():
+    from PIL import Image
+
+    from wenart.assets.audit import items as I
+    plan, mdoc = audit_doc("render_plan.json"), audit_doc("measure.json")
+    items = I.load_items()
+    measures, sheets = mdoc["measures"], mdoc["sheets"]
+    missing = {m["id"] for m in plan["missing"]}
+    done = [i for i in items if i["id"] in measures]
+    assert len(done) + len(missing) >= 0.95 * len(items), (len(done), len(missing), len(items))
+    assert len(missing) <= 0.05 * len(items), sorted(missing)[:20]
+    ok = [m for m in measures.values() if m.get("ok")]
+    assert len(ok) >= 0.95 * len(done)
+    assert {m.get("device") for m in ok} <= {"OPTIX", "CUDA"}, "the audit renders ran on the CPU"
+    for iid, m in measures.items():
+        if m.get("ok"):
+            assert iid in sheets and (AUDIT / sheets[iid]).is_file(), iid
+            assert m["faces"] > 0 and len(m["size"]) == 3 and m.get("textures") is not None, iid
+    first = next(iter(sheets.values()))
+    w, h = Image.open(AUDIT / first).size
+    assert w == 1024 and h > 1024                                   # 2 x 512 px views under the printed header
+
+
+def test_audit_render_code_checks_used_the_measurements():
+    code = audit_doc("code.json")
+    assert code["mode"] == "full" and code["measured"] > 0
+
+
+def test_audit_judge_answered_every_sheet_and_decided():
+    from wenart.assets.audit import ask as A
+    model = A.model_of(os.environ.get("AUDIT_MODEL_KEY") or "agent")
+    reqs = audit_doc("ask/requests.json")
+    answers = A.load_answers(AUDIT, model)
+    assert len(answers) >= 0.98 * len(reqs["items"]), (len(answers), len(reqs["items"]))
+    doc = audit_doc("audit.json")
+    assert doc["mode"] == "full"
+    assert {r["status"] for r in doc["items"]} <= {"keep", "fix", "removed", "pending"}
+    pending = [r["id"] for r in doc["items"] if r["status"] == "pending"]
+    assert len(pending) <= 0.02 * len(doc["items"]), pending[:20]
+    licence = [r for r in doc["items"] if any("not allowed" in x for x in r["reasons"])]
+    assert len(licence) == 18                                       # U3: the NC / SA models stay removed
+
+
+def test_audit_judge_wrote_valid_catalogue_copies():
+    from wenart.assets.audit import write as W
+    lib = audit_doc("catalogue/catalog_library.json")
+    ph = audit_doc("catalogue/catalog.json")
+    C.validate(lib, complete=False)
+    C.Catalog(C.merge(ph, lib))
+    summary = W.summary(lib)
+    assert summary.get("unaudited", 0) <= 0.02 * sum(summary.values()), summary
+    for e in [e for s in ("entries", "decor") for e in lib.get(s) or []]:
+        if (e.get("audit") or {}).get("status") == "removed":
+            assert not C.usable(e)
