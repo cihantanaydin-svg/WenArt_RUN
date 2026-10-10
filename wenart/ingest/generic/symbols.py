@@ -51,7 +51,9 @@ walls is split into counter legs, a peninsula (``kitchen_island``), the named ho
 """
 from __future__ import annotations
 
+import hashlib
 import math
+import re
 import statistics
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -187,6 +189,22 @@ BLOCK_KEYWORDS_M10: tuple[tuple[str, str], ...] = (
     ("WALL_CABINET", "wall_cabinet"), ("UST_DOLAP", "wall_cabinet"), ("USTDOLAP", "wall_cabinet"),
 )
 BLOCK_GENERIC_M10: tuple[tuple[str, str], ...] = (("YATAK", "bed"), ("MASA", "table"))
+# Milestone 12 (docs/milestone12.md §4.1 D7): more Turkish and English words, tried first, matched like the M10 words
+# (folded: İ/ı -> I, Ş -> S, Ç -> C, ...; words of up to four letters only as a whole word of the name). The more
+# specific word comes first (DISHWASHER before WASHER, ALT_DOLAP before the M7 DOLAP). A dishwasher (BULAŞIK
+# makinesi) is a base unit of the counter run: a kitchen counter piece.
+BLOCK_KEYWORDS_M12: tuple[tuple[str, str], ...] = (
+    ("DISHWASHER", "kitchen_counter"), ("BULASIK", "kitchen_counter"), ("ALT_DOLAP", "kitchen_counter"),
+    ("ALTDOLAP", "kitchen_counter"), ("WASHING_MACHINE", "washing_machine"), ("WASHER", "washing_machine"),
+    ("DRYER", "washing_machine"), ("KURUTMA", "washing_machine"), ("CAMASIR", "washing_machine"),
+    ("REFRIGERATOR", "fridge"), ("BUZDOLAB", "fridge"), ("FIRIN", "stove"), ("OVEN", "stove"), ("COOKER", "stove"),
+    ("EVYE", "sink_kitchen"), ("VANITY", "washbasin"), ("LAVATORY", "washbasin"), ("JAKUZI", "bathtub"),
+    ("BERJER", "armchair"), ("CEKYAT", "sofa"), ("GARDIROP", "wardrobe"), ("GARDROP", "wardrobe"),
+    ("CLOSET", "wardrobe"), ("KOMODIN", "nightstand"), ("BOOKCASE", "bookshelf"), ("SHELF", "bookshelf"),
+    ("DRESSER", "dresser"), ("ORTA_SEHPA", "table_coffee"), ("YAN_SEHPA", "side_table"), ("TELEVIZYON", "tv_unit"),
+    ("TV_UNITE", "tv_unit"), ("TABURE", "bar_stool"), ("SAKSI", "potted_plant"), ("BITKI", "potted_plant"),
+    ("ABAJUR", "floor_lamp"), ("LAMBADER", "floor_lamp"),
+)
 SEAT_KEYWORDS = ("KOLTUK",)
 WHOLE_WORD_MAX = 4
 _FOLD = str.maketrans({"İ": "I", "ı": "i", "Ş": "S", "ş": "s", "Ğ": "G", "ğ": "g", "Ü": "U", "ü": "u", "Ö": "O",
@@ -741,13 +759,16 @@ def top_contours(cl: Cluster) -> list[tuple[Polygon, list[int]]]:
 
 
 def _block_keyword(name: str) -> Optional[str]:
-    return keyword_type(name)
+    # Milestone 12: the composite split groups strokes by the instances the M7-M11 words name, so the parts (and the
+    # questions and answers) of earlier rounds stay as they were; the M12 words type the parts.
+    return keyword_type(name, extended=False)
 
 
-def keyword_type(name: str) -> Optional[str]:
-    """The type word of a block name: the Milestone 10 words first (folded name, whole words for short ones), then
-    the M7 keywords (substring of the upper-case or the folded name: DUŞ is DUS), then the generic M10 words; None
-    when no word matches. Generic words (``bed``, ``table``, ``seat``) are resolved by ``block_type``."""
+def keyword_type(name: str, extended: bool = True) -> Optional[str]:
+    """The type word of a block name: the Milestone 12 words (``extended``) and the Milestone 10 words first (folded
+    name, whole words for short ones), then the M7 keywords (substring of the upper-case or the folded name: DUŞ is
+    DUS), then the generic M10 words; None when no word matches. Generic words (``bed``, ``table``, ``seat``) are
+    resolved by ``block_type``."""
     folded = (name or "").translate(_FOLD).upper()
     words = set(folded.replace(".", "_").split("_"))
 
@@ -757,6 +778,9 @@ def keyword_type(name: str) -> Optional[str]:
                 return key, ftype
         return None, None
 
+    key, ftype = match(BLOCK_KEYWORDS_M12) if extended else (None, None)
+    if ftype is not None:
+        return ftype
     key, ftype = match(BLOCK_KEYWORDS_M10)
     if ftype is not None:
         return ftype
@@ -1252,16 +1276,18 @@ def _chains(segs: list[Seg], to_f) -> list[list[Seg]]:
     return chains
 
 
-def counter_rule(cl: Cluster, walls: list, openings: list, theta: float) -> list[dict]:
+def counter_rule(cl: Cluster, walls: list, openings: list, theta: float, loose_in_blocks: bool = False) -> list[dict]:
     """Kitchen counter legs (§2.8): a chain of >= 2 straight segments whose two ends lie within 50 mm of a wall
     face (openings included) with segments parallel to a wall face at 0.45-0.75 m. Returns one dict per leg
-    ``{"rect_f", "front_f", "wall", "segs", "length", "depth"}`` (aligned frame)."""
+    ``{"rect_f", "front_f", "wall", "segs", "length", "depth"}`` (aligned frame). ``loose_in_blocks`` (Milestone 12
+    re-read): the cluster's strokes are the loose drawing of a block holding blocks (a flat inserted as a block,
+    real03), so they count as loose strokes."""
     to_f, from_f = _frame(theta)
     faces = _wall_faces(walls, openings, to_f)
     out = []
     # Milestone 11 (docs/milestone11.md §1.2 U12): a block's own strokes are never a counter run (real02: five strokes
     # of a bedroom wardrobe block were read as counter legs); a counter drawn as a block is typed by its name.
-    loose = [s for s in cl.segs if not s.stroke.block]
+    loose = list(cl.segs) if loose_in_blocks else [s for s in cl.segs if not s.stroke.block]
     for chain, a_end, b_end in _chains(loose, to_f):
         if len(chain) < 2:
             continue
@@ -1640,7 +1666,8 @@ def _face_info(faces, point) -> tuple[Optional[str], Optional[str]]:
 def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openings: list[OpeningItem], texts_m: list,
               dims: list, outline, faces: list, *, wall_strokes=(), site_walls=(), level_id: Optional[str] = None,
               file_rel: Optional[str] = None, page_no: Optional[int] = None, units_to_m: Optional[float] = None,
-              size_table: Optional[dict] = None, notes: Optional[list] = None
+              size_table: Optional[dict] = None, notes: Optional[list] = None, extra_out: Optional[list] = None,
+              symbols_out: Optional[list] = None
               ) -> tuple[list[FurnitureItem], list[dict], list[dict]]:
     """Furniture pieces typed by rules or block names, AI candidates and site decor (all page metres).
 
@@ -1653,6 +1680,12 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     clusters (never asked); AI candidate dicts ``{key, footprint, strokes, bbox, room_hint, front_candidates, fits,
     item}`` whose ``item`` is the FurnitureItem (``unknown``, ``unverified``, ``type_method "none"``) to keep until
     answers exist; site decor dicts ``{kind, center, size, evidence[, id]}``.
+
+    Milestone 12 (track R): clusters nobody types (larger than 4.5 m, composites, parts fitting no type) are re-read
+    (``reread``). Every piece and candidate whose strokes are a symbol gets ``details["symbol"]`` (``whole_symbol``;
+    or ``details["not_furniture"]`` for a column or decor) for ``reading.read_furniture``. With ``extra_out`` (a list)
+    the never-asked unknown pieces that fit a type become extra candidates there (``extra_key``; the core asks them
+    after its own); with ``symbols_out`` the symbols found inside re-read clusters are appended there.
     """
     notes = notes if notes is not None else []
     if size_table is None:
@@ -1737,6 +1770,8 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     wall_polys = [TP.wall_polygon(w) for w in walls]
     pieces: list[FurnitureItem] = []
     cands: list[dict] = []
+    reread_symbols: list[dict] = []
+    page_containers = containers_of(s.stroke for s in segs)
     details = 0
     line_ids: list[str] = []
     parts_all: list[tuple[Cluster, int]] = []
@@ -1787,6 +1822,21 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                 notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
                              f"{MAX_SIDE_M} m: unknown, unverified, not asked, not built")
             for big in rest:
+                # Milestone 12 (track R): what stays larger than 4.5 m is re-read (symbol strokes out, one part per
+                # block instance and stroke group); only when that gives nothing is it recorded as before.
+                got = reread(big, ctx, table, walls, openings, wall_polys, texts_m, notes, raster_page,
+                             containers=page_containers,
+                             why=f"cluster larger than {MAX_SIDE_M} m") if len(big.segs) <= OVERSIZE_SPLIT_MAX_SEGS \
+                    else {"items": [], "symbols": []}
+                for it in got["items"]:
+                    if it.type == "unknown" and max(it.size) > MAX_SIDE_M:
+                        it.details.update(oversize=True, build=False)
+                if got["symbols"] or [it for it in got["items"] if not it.details.get("oversize")]:
+                    pieces.extend(got["items"])
+                    reread_symbols.extend(got["symbols"])
+                    notes.append(f"cluster larger than {MAX_SIDE_M} m re-read (M12): {len(got['items'])} pieces, "
+                                 f"{len(got['symbols'])} symbols")
+                    continue
                 bfp = footprint([p for s in big.segs for p in s.pts], ctx.theta)
                 pieces.append(_unknown(big, bfp, ctx, raster_page, f"cluster larger than {MAX_SIDE_M} m on a side: "
                                        "a group of drawn pieces, not built", {"oversize": True, "build": False}))
@@ -1869,6 +1919,17 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                 continue
         if n > 1 or not types:
             reason = (f"possible group of {n} pieces" if n > 1 else "fits no size-table type")
+            # Milestone 12 (track R): never asked, so it may be re-read; the re-read is kept when it found more than
+            # the one unknown piece it started from.
+            got = reread(part, ctx, table, walls, openings, wall_polys, texts_m, notes, raster_page, why=reason,
+                         containers=page_containers)
+            typed = [it for it in got["items"] if it.type != "unknown"]
+            if typed or got["symbols"] or len(got["items"]) > 1:
+                pieces.extend(got["items"])
+                reread_symbols.extend(got["symbols"])
+                notes.append(f"unknown piece {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) "
+                             f"({reason}) re-read (M12): {len(got['items'])} pieces, {len(got['symbols'])} symbols")
+                continue
             pieces.append(_unknown(part, fp, ctx, raster_page, reason,
                                    dict({"composite": n} if n > 1 else {}, **shape)))
             notes.append(f"unknown piece {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {reason}")
@@ -1901,8 +1962,89 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         notes.append(f"{len(line_ids)} line details (minimum rectangle thinner than {LINE_DETAIL_M} m: single lines, "
                      f"not furniture) ignored: {_short_ids(line_ids)}")
     decor = _site_decor(outside, ctx, raster_page, notes, wall_geom)
+    pieces = _m12_pass(pieces, cands, segs, texts_m, openings, ctx, raster_page, table, faces, wall_polys,
+                       reread_symbols, notes, extra_out, symbols_out)
     apply_room_checks(pieces, cands, faces, notes)
     return pieces, cands, decor
+
+
+def _m12_pass(pieces: list[FurnitureItem], cands: list[dict], segs: list[Seg], texts, openings: list, ctx: _Ctx,
+              raster: bool, table: dict, faces, wall_polys: list, reread_symbols: list, notes: list,
+              extra_out: Optional[list], symbols_out: Optional[list]) -> list[FurnitureItem]:
+    """Milestone 12 (track R), the end of ``furniture``: every piece and candidate whose strokes are a symbol (or a
+    column, or decor) is marked (``whole_symbol``; the drawing outranks the AI passes, CLAUDE.md trust order); the
+    candidates keep their re-read part (``cand["_part"]``) for the core's re-read after the answers; with
+    ``extra_out`` the never-asked unknown pieces that fit a type become extra candidates (``extra_candidate``)."""
+    index: dict[str, list[Seg]] = {}
+    for s in segs:
+        index.setdefault(s.stroke.id, []).append(s)
+    jambs = opening_jambs(openings)
+
+    def strokes_of(item: FurnitureItem) -> list[Seg]:
+        return [s for sid in expand_ids(item.evidence.get("entity")) for s in index.get(sid, [])]
+
+    marked = 0
+    for item in pieces + [c["item"] for c in cands]:
+        keys = copy_keys(strokes_of(item))
+        if keys:
+            item.details["copy_keys"] = keys
+        if item.type == "stair" or item.details.get("build") is False:
+            continue
+        found = whole_symbol(strokes_of(item), texts, jambs)
+        if found is None:
+            continue
+        item.details["not_furniture" if "as" in found else "symbol"] = dict(found)
+        marked += 1
+    if marked:
+        notes.append(f"{marked} drawn pieces are symbols, columns or decor, not furniture (M12; moved by the reading "
+                     f"step)")
+    for cand in cands:
+        part = strokes_of(cand["item"])
+        if part:
+            cand["_part"] = Cluster(part)
+    if symbols_out is not None:
+        symbols_out.extend(reread_symbols)
+    if extra_out is None:
+        return pieces
+    kept = []
+    for item in pieces:
+        part = strokes_of(item)
+        if (item.type != "unknown" or item.details.get("build") is False or item.details.get("symbol")
+                or item.details.get("not_furniture") or not part or item.details.get("oversize")):
+            kept.append(item)
+            continue
+        fp = footprint([p for s in part for p in s.pts], ctx.theta)
+        if not fitting_types(table, (fp[1], fp[2]), "L" if item.details.get("l_outline") else None):
+            kept.append(item)                     # nothing to offer: the reading step lists it (needs review)
+            continue
+        extra_out.append(extra_candidate(Cluster(part), fp, item, ctx, raster, faces, wall_polys, table))
+    if len(kept) < len(pieces):
+        notes.append(f"{len(pieces) - len(kept)} never-asked unknown pieces that fit a type are asked as extra "
+                     f"questions (M12)")
+    return kept
+
+
+def extra_candidate(part: Cluster, fp, item: FurnitureItem, ctx: _Ctx, raster: bool, faces, wall_polys: list,
+                    table: dict) -> dict:
+    """An AI candidate for a never-asked unknown piece (Milestone 12): as ``_candidate`` but keyed by its strokes
+    (``extra_key``) and keeping the piece's own evidence and details (the re-read reason, a door swing)."""
+    shape = "L" if item.details.get("l_outline") else None
+    types = fitting_types(table, (fp[1], fp[2]), shape)
+    cand = _candidate(part, fp, ctx, raster, faces, front_candidates(part.segs, fp[0], fp[4], wall_polys, [],
+                                                                     ctx.theta, table), types, 0)
+    key = extra_key(ctx.level_id, part.stroke_ids())
+    cand["key"] = key
+    cand["extra"] = True
+    if shape:
+        cand["footprint"]["shape"] = shape
+    cand["item"].details.update({k: v for k, v in item.details.items() if k not in ("candidate_key",)},
+                                candidate_key=key)
+    cand["item"].evidence = item.evidence
+    sides = _sides(fp[4])
+    cand["wall_fronts"] = [_snap_deg(_outward_deg(sides[k], fp[0]), ctx.theta)
+                           for k in near_wall_sides(sides, fp[0], wall_polys)]
+    cand["_part"] = part
+    return cand
 
 
 def apply_room_checks(pieces: list[FurnitureItem], candidates: list[dict], faces: list, notes: list) -> None:
@@ -2045,6 +2187,32 @@ def corner_back_front(centre, corners, wall_polys: list, theta: float) -> Option
     return _snap_deg(_outward_deg(sides[long_k], centre) + 180.0, theta)
 
 
+STRAY_MAX = 2                      # at most this many straight lines are left out of a named block's footprint
+CHAIR_RULE_TYPES: tuple[str, ...] = ("chair", "office_chair", "bar_stool", "armchair", "ottoman")
+
+
+def trim_stray_lines(part: Cluster, ftype: str, table: dict, theta: float) -> Optional[tuple[tuple, str]]:
+    """Milestone 12 (real03's ``klozet1``: a 1.15 m axis line through a 0.36 x 0.85 m toilet made it 1.145 x 0.356 m):
+    the footprint of a named block without the straight lines that stick out of it (longest first, at most
+    ``STRAY_MAX``), when that footprint fits the named type; ``(footprint, note)`` or None."""
+    by_stroke: dict[str, list[Seg]] = {}
+    for s in part.segs:
+        by_stroke.setdefault(s.stroke.id, []).append(s)
+    lines = sorted((sid for sid, ss in by_stroke.items() if len(ss) == 1 and not ss[0].curve and not ss[0].dot
+                    and len(set(ss[0].pts)) == 2), key=lambda sid: (-by_stroke[sid][0].length, sid))
+    left_out: list[str] = []
+    for sid in lines[:STRAY_MAX]:
+        left_out.append(sid)
+        rest = [p for k, ss in by_stroke.items() if k not in left_out for s in ss for p in s.pts]
+        if len(rest) < 3:
+            return None
+        fp = footprint(rest, theta)
+        if fits(table, ftype, (fp[1], fp[2])):
+            return fp, (f"{len(left_out)} straight line(s) drawn past the {ftype} ({', '.join(left_out)}: an axis or "
+                        f"reference line) left out of its footprint")
+    return None
+
+
 def _unique_front(fronts: list[dict]) -> Optional[dict]:
     """The one deterministic front of ``front_candidates`` (rules that agree are merged there), else None."""
     return fronts[0] if len(fronts) == 1 else None
@@ -2066,10 +2234,20 @@ def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
     ftype = block_type(names, (fp[1], fp[2]), table, "L" if lsh else None)
     if ftype is None:
         return None
+    trim_note = None
+    if not lsh and not fits(table, ftype, (fp[1], fp[2])):
+        trimmed = trim_stray_lines(part, ftype, table, ctx.theta)
+        if trimmed is not None:
+            fp, trim_note = trimmed
     front, rule = (lsh["front_deg"], None) if lsh and ftype == "sofa_corner" else (None, None)
     if front is None and ftype not in FRONTLESS_BLOCK_TYPES and wall_polys is not None:
-        found = _unique_front(front_candidates(part.segs, fp[0], fp[4], wall_polys, list(others or []), ctx.theta,
-                                               table))
+        fronts = front_candidates(part.segs, fp[0], fp[4], wall_polys, list(others or []), ctx.theta, table)
+        if ftype not in CHAIR_RULE_TYPES:
+            # Milestone 12: "a chair faces the nearest table" is for seats; a toilet or washing machine named by its
+            # block next to a table-sized piece is no chair (real03: toilets and washing machines faced sideways).
+            fronts = [dict(c, rule="; ".join(r for r in c["rule"].split("; ") if not r.startswith("chair faces")))
+                      for c in fronts if any(not r.startswith("chair faces") for r in c["rule"].split("; "))]
+        found = _unique_front(fronts)
         if found is not None:
             front, rule = found["front_deg"], found["rule"]
             width, depth = size_rotation(fp[1], fp[2], fp[3], front)[0]
@@ -2082,6 +2260,7 @@ def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
     box = ctx.box(fp[4])
     ok = fits(table, ftype, (fp[1], fp[2]))
     note = None if ok else f"block name says {ftype} but {fp[1]:.2f} x {fp[2]:.2f} m does not fit its size range"
+    note = "; ".join(x for x in (trim_note, note) if x) or None
     if rule:
         note = "; ".join(x for x in (note, f"front {front:g} deg: {rule}") if x)
     ev = ctx.evidence(part.stroke_ids(), confidence=0.9, raster=raster, box=box, note=note)
@@ -2405,9 +2584,10 @@ def table_chair_items(split: dict, ctx: _Ctx, raster: bool, table: dict, named: 
     return out
 
 
-def _appliance_type(s: Seg) -> Optional[str]:
+def _appliance_type(s: Seg, extended: bool = False) -> Optional[str]:
+    # The M11 kitchen split keeps its M7-M11 words (Milestone 12: the parts of earlier rounds stay as they were).
     for name in reversed((s.stroke.block or "").split("/")):
-        t = keyword_type(name) if name else None
+        t = keyword_type(name, extended) if name else None
         if t in KITCHEN_APPLIANCES:
             return t
     return None
@@ -2434,10 +2614,11 @@ def _outline_polygons(segs: list[Seg], to_f) -> list[tuple[Polygon, list[Seg]]]:
     return out
 
 
-def counter_legs(poly: Polygon, faces: list[dict]) -> Optional[tuple[list[dict], list[tuple]]]:
+def counter_legs(poly: Polygon, faces: list[dict], cover: float = COUNTER_COVER
+                 ) -> Optional[tuple[list[dict], list[tuple]]]:
     """A counter outline (aligned frame) as legs along wall faces and free blocks (a peninsula or island):
     ``([{"rect": (x0, y0, x1, y1), "front_f", "depth", "length"}], [(x0, y0, x1, y1)])``, or None when it is no
-    counter run (no leg, or the legs and blocks cover < ``COUNTER_COVER`` of it). A leg is the outline within 0.75 m
+    counter run (no leg, or the legs and blocks cover < ``cover``, default ``COUNTER_COVER``, of it). A leg is the outline within 0.75 m
     of a wall face it lies on, 0.45-0.75 m deep and filling its box; a corner goes to the longer leg."""
     from shapely.geometry import box as sbox
 
@@ -2481,8 +2662,15 @@ def counter_legs(poly: Polygon, faces: list[dict]) -> Optional[tuple[list[dict],
             continue
         r = max(getattr(r, "geoms", [r]), key=lambda g: g.area)
         x0, y0, x1, y1 = r.bounds
+        if r.area < 0.9 * (x1 - x0) * (y1 - y0):
+            # Milestone 12 (real03): a longer leg that stops short of the corner leaves an L; the leg is its part of
+            # full depth (``_full_depth``), the corner piece goes with it only where the leg reaches.
+            full = _full_depth(r, bool(lg["front_f"][0]))
+            if full is None:
+                continue
+            x0, y0, x1, y1 = full
         length = (y1 - y0) if lg["front_f"][0] else (x1 - x0)
-        if length < 0.3 or r.area < 0.9 * (x1 - x0) * (y1 - y0):
+        if length < 0.3:
             continue
         kept.append(dict(lg, rect=(x0, y0, x1, y1), length=length))
     if not kept:
@@ -2498,9 +2686,24 @@ def counter_legs(poly: Polygon, faces: list[dict]) -> Optional[tuple[list[dict],
             blocks.append((x0, y0, x1, y1))
     covered = sum(sbox(*k["rect"]).intersection(poly).area for k in kept) + sum(
         sbox(*b).intersection(poly).area for b in blocks)
-    if covered < COUNTER_COVER * poly.area:
+    if covered < cover * poly.area:
         return None
     return kept, blocks
+
+
+def _full_depth(r, along_y: bool) -> Optional[tuple[float, float, float, float]]:
+    """The longest box of ``r``'s full depth (across the leg) along the leg's axis (y for a leg on a vertical wall
+    face), between two of ``r``'s vertex coordinates; None when there is none."""
+    x0, y0, x1, y1 = r.bounds
+    cuts = sorted({round(p[1] if along_y else p[0], 6) for p in r.exterior.coords})
+    inside = r.buffer(0.002, join_style="mitre")
+    best = None
+    for i, a in enumerate(cuts):
+        for b in cuts[i + 1:]:
+            box = (x0, a, x1, b) if along_y else (a, y0, b, y1)
+            if (best is None or b - a > best[0]) and inside.contains(sbox(*box)):
+                best = (b - a, box)
+    return best[1] if best else None
 
 
 def kitchen_split(cl: Cluster, walls: list, openings: list, theta: float) -> Optional[dict]:
@@ -2695,3 +2898,590 @@ def _radial(cl: Cluster) -> bool:
         if d <= tol:
             n += 1
     return n >= 8
+
+
+# --------------------------------------------------------------------------
+# Milestone 12 (docs/milestone12.md §4.1 D7, track R): non-furniture symbols and the deeper re-read
+# --------------------------------------------------------------------------
+#
+# What the drawing says about a stroke before its shape: a layer whose name says door, text, area outline, axis,
+# section, level mark, wall, structure, view line or services holds no furniture (real03: the "MYD - IZ-1" trace
+# lines along the facades and the "MYD - ALAN-NET" area outlines chained whole living rooms into 5-13 m clusters;
+# door details on "MYD - KAPI" and "Pkapı" were typed console tables and shoe cabinets by both AI passes). Strong
+# shapes say what a drawn symbol is: a small circle with a short number inside is a room-number tag, a quarter arc
+# with its leaf is a door swing. Symbols are recorded (``building["symbols"]`` by ``reading.read_furniture``) and
+# never built (CLAUDE.md: "removed only when clearly not furniture, logged with the plan crop as evidence").
+#
+# The re-read (``reread``) takes a cluster nobody typed (an oversized cluster, a composite that fits no type, an AI
+# candidate still unknown after its answers) apart: symbol strokes out, then one part per block instance and per
+# connected stroke group, each typed on its own (block name, stair, counter run, table + chairs). Parts that no rule
+# types are asked as extra questions with content keys (``extra_key``): the keys and input hashes of the questions of
+# earlier rounds stay as they were, so their answers still apply.
+
+SYMBOL_KINDS: tuple[str, ...] = ("level_mark", "room_number", "north_arrow", "axis_bubble", "section_mark",
+                                 "door_arc", "dimension_outline", "text_frame", "other")
+# Words of a layer name (folded, upper case; keys of up to three letters only as a whole word, longer ones anywhere
+# in a word: "Pkapı" is a door layer) -> what its strokes are. Furniture words win (a sanitary layer "Pvitrifiye").
+FURNITURE_LAYER_WORDS: tuple[str, ...] = ("TEFRIS", "MOBILYA", "FURN", "VITRIFIYE", "SIHHI", "SANITARY", "FIXTURE",
+                                          "PLUMB", "APPLIANCE", "EQUIP", "MUTFAK", "KITCHEN")
+LAYER_WORDS: tuple[tuple[str, str], ...] = (
+    ("KOTA", "dimension_outline"), ("KOT", "level_mark"), ("LEVEL", "level_mark"),
+    ("ALAN", "dimension_outline"), ("AREA", "dimension_outline"), ("OLCU", "dimension_outline"),
+    ("DIM", "dimension_outline"),
+    ("TEXT", "text_frame"), ("YAZI", "text_frame"), ("ETIKET", "text_frame"), ("TAG", "text_frame"),
+    ("ANNO", "text_frame"), ("NOTE", "text_frame"),
+    ("AKS", "axis_bubble"), ("AXIS", "axis_bubble"), ("GRID", "axis_bubble"),
+    ("KESIT", "section_mark"), ("SECTION", "section_mark"), ("NORTH", "north_arrow"), ("KUZEY", "north_arrow"),
+    ("KAPI", "door"), ("DOOR", "door"), ("PENCERE", "door"), ("WINDOW", "door"), ("CAM", "door"), ("GLASS", "door"),
+    ("GLAZ", "door"), ("DOGRAMA", "door"),
+    ("KOLON", "structure"), ("COLUMN", "structure"), ("BETON", "structure"), ("PERDE", "structure"),
+    ("KIRIS", "structure"), ("BEAM", "structure"), ("BA", "structure"),
+    ("DEKO", "decor"), ("DECOR", "decor"), ("AKSESUAR", "decor"), ("ACCESSOR", "decor"),
+    ("DUVAR", "other"), ("WALL", "other"), ("DOSEME", "other"), ("SLAB", "other"), ("IZ", "other"), ("GOR", "other"),
+    ("GORUNUS", "other"), ("HIDDEN", "other"), ("OVERHEAD", "other"), ("TARAMA", "other"), ("HATCH", "other"),
+    ("MEKANIK", "other"), ("ELEKTRIK", "other"), ("TESISAT", "other"), ("HVAC", "other"), ("ASANSOR", "other"),
+    ("LIFT", "other"), ("ELEVATOR", "other"), ("CATI", "other"), ("ROOF", "other"), ("BAGIMSIZ", "other"),
+)
+# Pseudo kinds of a whole piece that is not furniture but stays in the building: a column stands in the room (kept as
+# a not-built obstacle), decor is left to the decor stage.
+NOT_FURNITURE_AS: dict[str, str] = {"structure": "column", "decor": "decor"}
+LAYER_SHARE = 0.9                   # a piece is a symbol by its layers when >= 90 % of its strokes say so
+ROOM_NUMBER_RADIUS_M = (0.10, 0.35)  # a room-number tag: a circle 0.20-0.70 m across ...
+ROOM_NUMBER_RE = re.compile(r"^[A-Z]{0,2}-?\d{1,3}[A-Z]?$")       # ... with one short number inside
+DOOR_RADIUS_M = (0.40, 1.40)        # a door swing: a 45-135 deg arc of 0.40-1.40 m ...
+DOOR_SWEEP_DEG = (45.0, 135.0)
+LEAF_THIN_M = 0.08                  # ... with its leaf (a line or a strip <= 8 cm) from the hinge
+HINGE_M = 0.05
+HINGE_WALL_M = 0.15                 # a lone arc (its leaf owned by the opening) hinged within 15 cm of a wall
+NORTH_TEXTS = ("N", "K", "KUZEY", "NORTH")
+EXTRA_KEY_HEX = 8
+DETAIL_INSIDE_LEG = 0.6             # a part >= 60 % inside a counter leg is a detail of it (a dishwasher front)
+
+
+def _fold_words(name: Optional[str]) -> list[str]:
+    folded = (name or "").translate(_FOLD).upper()
+    return [w for w in re.split(r"[^A-Z0-9]+", folded) if w]
+
+
+def _word_hit(key: str, words: list[str]) -> bool:
+    return key in words if len(key) <= 3 else any(key in w for w in words)
+
+
+def layer_kind(layer: Optional[str]) -> Optional[str]:
+    """What a layer name says about its strokes: ``"furniture"``, a symbol kind of ``SYMBOL_KINDS``, the pseudo kinds
+    ``"door"`` (a door or window layer: ``door_arc`` or ``other`` by shape), ``"structure"``, ``"decor"``, or None
+    (nothing). Only the layer's own name counts (``xref$0$LAYER`` -> ``LAYER``; ``xref|LAYER`` -> ``LAYER``)."""
+    if not layer:
+        return None
+    words = _fold_words(re.split(r"[$|]", layer)[-1])
+    if any(_word_hit(k, words) for k in FURNITURE_LAYER_WORDS):
+        return "furniture"
+    for key, kind in LAYER_WORDS:
+        if _word_hit(key, words):
+            return kind
+    return None
+
+
+def stroke_kind(st: Stroke) -> Optional[str]:
+    """``layer_kind`` of a stroke, unless a block of its chain names a furniture type (a WC block on a services layer
+    is furniture)."""
+    for name in reversed((st.block or "").split("/")):
+        if name and keyword_type(name) is not None:
+            return "furniture"
+    return layer_kind(st.layer)
+
+
+def split_symbol_strokes(segs: list[Seg]) -> tuple[list[Seg], dict[str, list[Seg]]]:
+    """(furniture segments, {kind: segments}) by ``stroke_kind``; segments of no kind stay furniture."""
+    keep: list[Seg] = []
+    out: dict[str, list[Seg]] = {}
+    for s in segs:
+        kind = stroke_kind(s.stroke)
+        if kind in (None, "furniture"):
+            keep.append(s)
+        else:
+            out.setdefault(kind, []).append(s)
+    return keep, out
+
+
+def _full_circle(s: Seg) -> Optional[tuple[tuple[float, float], float]]:
+    arc = s.stroke.arc
+    if not s.curve or not arc:
+        return None
+    if abs(float(arc["end_deg"]) - float(arc["start_deg"])) < 359.0:
+        return None
+    return (float(arc["center"][0]), float(arc["center"][1])), float(arc["radius"])
+
+
+def _sweep(arc: dict) -> float:
+    return (float(arc["end_deg"]) - float(arc["start_deg"])) % 360.0
+
+
+def _text_centres(texts) -> list[tuple[float, float, str]]:
+    out = []
+    for t in texts or []:
+        box = t.box if hasattr(t, "box") else t["box"]
+        text = t.text if hasattr(t, "text") else t["text"]
+        out.append(((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0, str(text)))
+    return out
+
+
+def room_number_sign(segs: list[Seg], texts) -> Optional[str]:
+    """Why ``segs`` are a room-number tag (one circle 0.20-0.70 m across, every other stroke inside it, a short
+    number such as ``5``, ``12``, ``A3`` written inside), else None (real03: the TAG_BBOLUM circles 1-8, read as
+    floor lamps by both AI passes)."""
+    circles = [(s, c) for s in segs for c in [_full_circle(s)] if c and ROOM_NUMBER_RADIUS_M[0] <= c[1] <=
+               ROOM_NUMBER_RADIUS_M[1]]
+    if len(circles) != 1:
+        return None
+    circle, ((cx, cy), r) = circles[0]
+    for s in segs:
+        if s is not circle and any(math.dist(p, (cx, cy)) > 1.05 * r for p in s.pts):
+            return None
+    for tx, ty, text in _text_centres(texts):
+        word = re.sub(r"\s+", "", text.translate(_FOLD).upper())
+        if math.dist((tx, ty), (cx, cy)) <= r and ROOM_NUMBER_RE.match(word):
+            return f"circle {2 * r:.2f} m across with the number {text.strip()!r} inside: a room-number tag"
+    return None
+
+
+def north_arrow_sign(segs: list[Seg], texts) -> Optional[str]:
+    """A circle with an arrow and the letter N (K for Kuzey) inside or next to it: a north arrow."""
+    circles = [c for c in (_full_circle(s) for s in segs) if c and 0.15 <= c[1] <= 1.5]
+    if not circles or len(segs) < 2:
+        return None
+    (cx, cy), r = max(circles, key=lambda c: c[1])
+    for tx, ty, text in _text_centres(texts):
+        if text.translate(_FOLD).upper().strip() in NORTH_TEXTS and math.dist((tx, ty), (cx, cy)) <= 1.6 * r:
+            return f"circle {2 * r:.2f} m across with an arrow and {text.strip()!r}: a north arrow"
+    return None
+
+
+def _sector(s: Seg) -> Optional[Polygon]:
+    poly = Polygon([tuple(s.stroke.arc["center"])] + list(s.pts))
+    poly = poly if poly.is_valid else poly.buffer(0)
+    return None if poly.is_empty else poly
+
+
+def opening_jambs(openings: list) -> list[tuple[float, float]]:
+    """Both ends of every opening (OpeningItems or building dicts with ``center``, ``width``, ``rotation_deg``): the
+    jambs a door leaf is hinged at."""
+    out = []
+    for o in openings or []:
+        centre = o.center if hasattr(o, "center") else o.get("center")
+        width = o.width if hasattr(o, "width") else o.get("width")
+        rot = o.rotation_deg if hasattr(o, "rotation_deg") else o.get("rotation_deg", 0.0)
+        if centre is None or not width:
+            continue
+        ux, uy = math.cos(math.radians(rot or 0.0)), math.sin(math.radians(rot or 0.0))
+        h = float(width) / 2.0
+        out += [(centre[0] - ux * h, centre[1] - uy * h), (centre[0] + ux * h, centre[1] + uy * h)]
+    return out
+
+
+def door_swing(segs: list[Seg], jambs: Optional[list] = None) -> Optional[tuple[list[Seg], list[Seg], str]]:
+    """``(swing segments, other segments, reason)`` when ``segs`` hold a door swing: one or two arcs of 45-135 deg
+    and 0.40-1.40 m radius with the thin strokes inside their sectors (the leaf open or closed: lines or strips
+    <= 8 cm). The door is told by its leaf, a strip <= 8 cm wide and >= 70 % of the radius long with an end at the
+    hinge (the arc centre, 5 cm), or by a hinge within 15 cm of an opening's jamb (``jambs``: the leaf belongs to the
+    opening). None otherwise: a chair's half-round back is too small, a quadrant shower's sides are plain lines and
+    its corner is no jamb."""
+    if any(keyword_type(n) for s in segs for n in (s.stroke.block or "").split("/") if n):
+        return None                         # a furniture-named block (a quadrant shower, a corner sofa)
+    arcs = [s for s in segs if s.curve and s.stroke.arc and DOOR_RADIUS_M[0] <= float(s.stroke.arc["radius"]) <=
+            DOOR_RADIUS_M[1] and DOOR_SWEEP_DEG[0] <= _sweep(s.stroke.arc) <= DOOR_SWEEP_DEG[1]]
+    if not arcs or len(arcs) > 2:
+        return None
+    sectors = [p for p in (_sector(a) for a in arcs) if p is not None]
+    if not sectors:
+        return None
+    zone = unary_union(sectors).buffer(0.03)
+    hinges = [tuple(a.stroke.arc["center"]) for a in arcs]
+    r = max(float(a.stroke.arc["radius"]) for a in arcs)
+    swing = list(arcs)
+    leaf = False
+    by_stroke: dict[str, list[Seg]] = {}
+    for s in segs:
+        if s not in arcs and not s.dot and not s.curve and s.geom.length > 0:
+            by_stroke.setdefault(s.stroke.id, []).append(s)
+    for sid in sorted(by_stroke):
+        ss = by_stroke[sid]
+        geom = unary_union([s.geom for s in ss])
+        line = len(ss) == 1 and len(set(ss[0].pts)) <= 2
+        if not (line or short_side(ss) <= LEAF_THIN_M):
+            continue
+        if geom.intersection(zone).length < 0.9 * geom.length:
+            continue
+        swing.extend(ss)
+        pts = [p for s in ss for p in s.pts]
+        if not line and any(min(math.dist(p, h) for p in pts) <= HINGE_M for h in hinges) and \
+                max(_rect_sides(geom)) >= 0.7 * r:
+            leaf = True
+    at_jamb = any(math.dist(j, h) <= HINGE_WALL_M for j in (jambs or []) for h in hinges)
+    if not leaf and not at_jamb:
+        return None
+    rest = [s for s in segs if s not in swing]
+    why = (f"{len(arcs)} quarter arc(s) of {r:.2f} m " + ("with its leaf from the hinge" if leaf else
+                                                         "hinged at an opening's jamb") + ": a door swing")
+    return swing, rest, why
+
+
+def whole_symbol(segs: list[Seg], texts=None, jambs: Optional[list] = None) -> Optional[dict]:
+    """``{"kind", "reason"}`` (or ``{"as": "column" | "decor", "reason"}``) when the strokes of one piece are a
+    symbol, not furniture: a room-number tag, a north arrow, a door swing and nothing else, or >= 90 % of its strokes on
+    non-furniture layers (none on a furniture layer or in a furniture-named block). None otherwise."""
+    if not segs:
+        return None
+    why = room_number_sign(segs, texts)
+    if why:
+        return {"kind": "room_number", "reason": why}
+    why = north_arrow_sign(segs, texts)
+    if why:
+        return {"kind": "north_arrow", "reason": why}
+    swing = door_swing(segs, jambs)
+    if swing is not None and not swing[1]:
+        return {"kind": "door_arc", "reason": swing[2]}
+    kinds = [stroke_kind(s.stroke) for s in segs]
+    if "furniture" in kinds:
+        return None
+    named = [k for k in kinds if k is not None]
+    if not named or len(named) < LAYER_SHARE * len(kinds):
+        return None
+    kind = max(sorted(set(named)), key=named.count)
+    layers = sorted({re.split(r"[$|]", s.stroke.layer or "")[-1] for s, k in zip(segs, kinds) if k == kind})
+    reason = f"drawn on the {', '.join(repr(x) for x in layers[:3])} layer(s): {kind}, not furniture"
+    if kind in NOT_FURNITURE_AS:
+        return {"as": NOT_FURNITURE_AS[kind], "reason": reason}
+    if kind == "door":
+        kind = "door_arc" if any(s.curve and s.stroke.arc for s in segs) else "other"
+    return {"kind": kind, "reason": reason}
+
+
+def expand_ids(entity: Optional[str]) -> list[str]:
+    """``id_ranges`` back to ids (``path:3-5,curve:9`` -> path:3, path:4, path:5, curve:9), in order."""
+    out: list[str] = []
+    for part in (entity or "").split(","):
+        head, _, tail = part.partition(":")
+        match = re.fullmatch(r"(\d+)-(\d+)", tail)
+        if match:
+            out.extend(f"{head}:{n}" for n in range(int(match.group(1)), int(match.group(2)) + 1))
+        elif part:
+            out.append(part)
+    return out
+
+
+def copy_keys(segs: list[Seg]) -> list[str]:
+    """Keys that are equal for two pieces drawn by the same entities of the same block definition in two inserts of
+    that block (real03: the four 1+1 B flats are one block inserted four times; entity 36 of each is the same bathtub).
+    One key per level ``j`` >= 1 of the block chain: the hash of the strokes' (block names from ``j`` on, entity
+    indices below ``j``). Empty for strokes outside blocks."""
+    rows: dict[int, set] = {}
+    depth = None
+    for s in segs:
+        if not s.stroke.block:
+            return []
+        names = s.stroke.block.split("/")
+        parts = s.stroke.id.split("#", 1)[0].split("/")
+        if len(parts) < len(names) + 1:
+            return []
+        depth = len(names) if depth is None else min(depth, len(names))
+        for j in range(1, len(names)):
+            rows.setdefault(j, set()).add(("/".join(names[j:]), "/".join(parts[j + 1:])))
+    out = []
+    for j in range(1, depth or 0):
+        digest = hashlib.sha1(repr(sorted(rows[j])).encode("utf-8")).hexdigest()[:12]
+        out.append(f"{j}:{digest}")
+    return out
+
+
+def extra_key(level_id: Optional[str], stroke_ids) -> str:
+    """The question key of a re-read part: ``sym_<level>_x<hash of its stroke ids>``. A content key, so it is the same
+    in every round whatever else the round asks (the sequential keys of the core's candidates must not move)."""
+    digest = hashlib.sha1("\n".join(sorted(set(stroke_ids))).encode("utf-8")).hexdigest()[:EXTRA_KEY_HEX]
+    return f"sym_{level_id}_x{digest}" if level_id else f"sym_x{digest}"
+
+
+def symbol_record(segs: list[Seg], kind: str, reason: str, ctx: "_Ctx", raster: bool) -> dict:
+    """A symbol found in the strokes (page metres; the core moves ``center`` to the building frame)."""
+    fp = footprint([p for s in segs for p in s.pts], ctx.theta)
+    size, rotation = size_rotation(fp[1], fp[2], fp[3], None)
+    box = ctx.box(fp[4])
+    ids = sorted({s.stroke.id for s in segs}, key=_id_key)
+    ev = ctx.evidence(ids, raster=raster, box=box, note=reason)
+    return {"kind": kind, "reason": reason, "center": list(_r(fp[0])), "size": list(size), "rotation_deg": rotation,
+            "box": box, "evidence": [ev], "stroke_ids": ids}
+
+
+def _object_key(st: Stroke) -> str:
+    """The block instance a stroke belongs to as an object: the innermost instance whose block name names a furniture
+    type (a tap block inside a shower block belongs to the shower; a chair block inside a dining block is a chair),
+    else the innermost instance (``INSERT:7C/5/20`` for a sink block nested in a flat block); the chain for ids of
+    another form; "" for a stroke outside any block."""
+    if not st.block:
+        return ""
+    names = st.block.split("/")
+    parts = st.id.split("#", 1)[0].split("/")
+    if len(parts) < len(names) + 1:
+        return f"{st.block}|"
+    named = [i for i, n in enumerate(names) if n and keyword_type(n) is not None]
+    depth = named[-1] + 1 if named else len(names)
+    return "/".join(parts[:depth])
+
+
+def containers_of(strokes) -> set[str]:
+    """Block instances that hold other block instances among ``strokes`` (a flat block holding sink and fridge
+    blocks): their own strokes are loose drawing, not one object. Taken over the whole page (``furniture``, the core)
+    so that a re-read of a few strokes of a flat still knows the flat is a container."""
+    out: set[str] = set()
+    for st in strokes:
+        parts = _object_key(st).split("/")
+        for i in range(1, len(parts)):
+            out.add("/".join(parts[:i]))
+    return out
+
+
+def _containers(segs: list[Seg], given: Optional[set] = None) -> set[str]:
+    return containers_of(s.stroke for s in segs) | set(given or ())
+
+
+def _is_loose(st: Stroke, containers: set[str]) -> bool:
+    key = _object_key(st)
+    return key == "" or key in containers or key.endswith("|")
+
+
+def object_groups(segs: list[Seg], table: dict, theta: float, containers: Optional[set] = None) -> list[Cluster]:
+    """One part per block instance and connected stroke group (``_object_key``): a block that holds no other block (a
+    sink, a fridge, a shower with its tap) is one object, ``part.note`` ``["block"]``, never merged into another part
+    (unless it draws several things that together fit no type: then it is split like loose strokes); the loose strokes
+    of a block holding blocks (a flat) are clustered at 20 mm and a part lying >= 80 % inside another is merged into
+    it (``_merge_contained``: a bed's pillows; a sink in a counter stays its own)."""
+    by_inst: dict[str, list[Seg]] = {}
+    for s in segs:
+        by_inst.setdefault(_object_key(s.stroke), []).append(s)
+    containers = _containers(segs, containers)
+    blocks: list[Cluster] = []
+    loose: list[Cluster] = []
+    for key in sorted(by_inst):
+        groups = sorted(clusters_of(by_inst[key], CLUSTER_M), key=lambda c: c.stroke_ids()[0])
+        whole = Cluster(by_inst[key], note=["block"])
+        if key and key not in containers and not key.endswith("|") and (
+                len(groups) == 1 or fitting_types(table, whole.size(theta))):
+            blocks.append(whole)
+        else:
+            loose.extend(groups)                  # a flat's own strokes, or a block drawing several things
+    return blocks + _merge_contained(loose, table, theta)
+
+
+DRAIN_RADIUS_M = (0.015, 0.06)      # a sink's or basin's drain: a small full circle
+KITCHEN_NEAR_M = 1.0                # a kitchen appliance block this close makes an outline along the walls a counter
+# The re-read takes a counter outline whose legs cover >= 80 % of it (real03's 1+1 B counter ends in a 0.2 m^2 step
+# round a column: 86 %); the uncovered rest is left out.
+REREAD_COUNTER_COVER = 0.8
+
+
+def _drain(segs: list[Seg]) -> bool:
+    """A drain among the strokes: a full circle 3-12 cm across."""
+    return any(c is not None and DRAIN_RADIUS_M[0] <= c[1] <= DRAIN_RADIUS_M[1] for c in map(_full_circle, segs))
+
+
+def _leg_front(poly: Polygon, leg_polys: list, leg_fronts: list) -> Optional[float]:
+    """The front of the counter leg that holds most of ``poly`` (None without one)."""
+    best = None
+    for lp, front in zip(leg_polys, leg_fronts):
+        share = poly.intersection(lp).area
+        if share > 0 and (best is None or share > best[0]):
+            best = (share, front)
+    return best[1] if best else None
+
+
+def _kitchen_block(s: Seg) -> bool:
+    """A stroke of a kitchen appliance block (hob, sink, fridge, dishwasher, base cabinet) by its name."""
+    return bool(_appliance_type(s, True)) or any(keyword_type(n) == "kitchen_counter"
+                                                for n in (s.stroke.block or "").split("/") if n)
+
+
+def _kitchen_near(geom, segs: list[Seg]) -> bool:
+    """A kitchen appliance block within ``KITCHEN_NEAR_M`` of ``geom`` (page metres). Local on purpose: a whole flat
+    re-read at once holds the kitchen blocks, but the vanity in its bathroom is no counter."""
+    near = geom.buffer(KITCHEN_NEAR_M)
+    return any(_kitchen_block(s) and near.intersects(s.geom) for s in segs)
+
+
+def _counter_runs(keep: list[Seg], ctx: "_Ctx", walls: list, openings: list, raster: bool, notes: list,
+                  containers: Optional[set] = None
+                  ) -> tuple[list[FurnitureItem], list[Polygon], list[Optional[float]], set]:
+    """Counter runs among the loose strokes of a re-read cluster (Milestone 12, real03: every counter is drawn in the
+    flat block itself): a closed outline of loose strokes joined end to end (``contours``) along wall faces
+    (``counter_legs``), or an open front line running between wall faces (``counter_rule``), with two legs or a
+    kitchen appliance block near it. Returns (counter items, leg polygons, leg fronts, ids of the used segments)."""
+    containers = _containers(keep, containers)
+    loose = [s for s in keep if _is_loose(s.stroke, containers)]
+    to_f, from_f = _frame(ctx.theta)
+    faces = _wall_faces(walls, openings, to_f)
+    items: list[FurnitureItem] = []
+    polys: list[Polygon] = []
+    fronts: list[Optional[float]] = []
+    used: set = set()
+
+    def add_leg(leg: dict, note: str) -> None:
+        item = _counter_item(leg, walls, ctx, raster)
+        item.evidence["note"] = note
+        items.append(item)
+        x0, y0, x1, y1 = leg["rect_f"]
+        polys.append(Polygon([from_f(p) for p in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]))
+        fronts.append(item.front_deg)
+
+    for poly, members in sorted(contours(loose), key=lambda pm: (-pm[0].area, sorted(pm[1]))):
+        segs = [loose[i] for i in members]
+        if poly.area < 0.3 or any(id(s) in used for s in segs) or len({s.stroke.id for s in segs}) > 4:
+            continue
+        found = counter_legs(Polygon([to_f(p) for p in poly.exterior.coords]).buffer(0), faces, REREAD_COUNTER_COVER)
+        if found is None or not (len(found[0]) >= 2 or _kitchen_near(poly, keep)):
+            continue
+        for lg in found[0]:
+            add_leg({"rect_f": lg["rect"], "front_f": lg["front_f"], "segs": segs, "length": lg["length"],
+                     "depth": lg["depth"]}, "kitchen counter run drawn as one outline along the walls (M12 re-read)")
+        for (x0, y0, x1, y1) in found[1]:
+            notes.append(f"counter outline {segs[0].stroke.id}: a free block {x1 - x0:.2f} x {y1 - y0:.2f} m left "
+                         f"to the re-read")
+        used.update(id(s) for s in segs)
+        notes.append(f"counter outline {segs[0].stroke.id}: {len(found[0])} legs (M12 re-read)")
+    by_stroke: dict[str, list[Seg]] = {}
+    for s in loose:
+        if id(s) not in used and s.stroke.kind == "polyline" and not s.curve:
+            by_stroke.setdefault(s.stroke.id, []).append(s)
+    for sid in sorted(by_stroke):
+        segs = by_stroke[sid]
+        if len(segs) < 2:
+            continue
+        legs = counter_rule(Cluster(segs), walls, openings, ctx.theta, loose_in_blocks=True)
+        if not legs or not (len(legs) >= 2 or _kitchen_near(unary_union([s.geom for s in segs]), keep)):
+            continue
+        for leg in legs:
+            add_leg(leg, "kitchen counter: its front line runs between wall faces (M12 re-read)")
+        used.update(id(s) for s in segs)
+        notes.append(f"counter front line {sid}: {len(legs)} legs (M12 re-read)")
+    return items, polys, fronts, used
+
+
+def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, wall_polys: list, texts,
+           notes: list, raster: bool = False, why: str = "", containers: Optional[set] = None) -> dict:
+    """The deeper re-read of an untyped cluster: ``{"items": [FurnitureItem], "symbols": [symbol records]}``.
+
+    1. Strokes on non-furniture layers leave the cluster (``split_symbol_strokes``); their groups >= 0.20 m are
+       symbols (a room-number tag by its shape, a door layer group with an arc a ``door_arc``).
+    2. Counter runs drawn as loose outlines or front lines along the walls (``_counter_runs``).
+    3. The rest is split by block instance and connected stroke group (``object_groups``). Each part: details
+       (< 0.20 m) and lines are dropped; a room-number tag, a north arrow or a lone door swing is a symbol; a door
+       swing on a part (a fridge drawn with its door) is a symbol and the part goes on without it (``details["door"]``);
+       the stair rule; a bowl with a drain in a counter leg or beside a kitchen block is the kitchen sink; another part
+       >= 60 % inside a counter leg is a detail of it (a dishwasher front); a block name (``_block_item``, its L
+       outline kept); loose strokes drawn as a table with chairs around it (``split_table_chairs``); what is left is an
+       ``unknown`` piece (``details["reread"]``, ``l_outline``/``l_front``, ``drain``, ``door``: the reading step's
+       context rules and the core's extra question use them).
+    """
+    keep, removed = split_symbol_strokes(cl.segs)
+    jambs = opening_jambs(openings)
+    symbols: list[dict] = []
+    dropped = 0
+    for kind in sorted(removed):
+        for g in sorted(clusters_of(removed[kind], CLUSTER_M), key=lambda c: c.stroke_ids()[0]):
+            if max(g.size(ctx.theta)) < DETAIL_M:
+                dropped += 1
+                continue
+            k = kind
+            if kind == "door":
+                k = "door_arc" if any(s.curve and s.stroke.arc for s in g.segs) else "other"
+            elif kind in NOT_FURNITURE_AS:
+                k = "other"
+            layers = sorted({re.split(r"[$|]", s.stroke.layer or "")[-1] for s in g.segs})
+            why_k = (f"drawn on the {', '.join(repr(x) for x in layers[:3])} layer(s) inside a furniture cluster: "
+                     f"{kind}, not furniture")
+            sign = room_number_sign(g.segs, texts)
+            if sign:
+                k, why_k = "room_number", sign
+            symbols.append(symbol_record(g.segs, k, why_k, ctx, raster))
+    items, leg_polys, leg_fronts, used = _counter_runs(keep, ctx, walls, openings, raster, notes, containers)
+    rest = [s for s in keep if id(s) not in used]
+    later: list[tuple[Cluster, Optional[str]]] = []
+    for part in object_groups(rest, table, ctx.theta, containers):
+        if max(part.size(ctx.theta)) < DETAIL_M or short_side(part.segs) < LINE_DETAIL_M:
+            dropped += 1
+            continue
+        sign = room_number_sign(part.segs, texts)
+        if sign:
+            symbols.append(symbol_record(part.segs, "room_number", sign, ctx, raster))
+            continue
+        sign = north_arrow_sign(part.segs, texts)
+        if sign:
+            symbols.append(symbol_record(part.segs, "north_arrow", sign, ctx, raster))
+            continue
+        door_note = None
+        swing = door_swing(part.segs, jambs)
+        if swing is not None:
+            symbols.append(symbol_record(swing[0], "door_arc", swing[2], ctx, raster))
+            if not swing[1]:
+                continue
+            part = Cluster(swing[1], note=list(part.note))
+            door_note = "drawn with a door swing (a cabinet or appliance door)"
+            if max(part.size(ctx.theta)) < DETAIL_M:
+                continue
+        fp = footprint([p for s in part.segs for p in s.pts], ctx.theta)
+        stair = stair_rule(part, ctx.theta) if max(fp[1], fp[2]) <= MAX_SIDE_M else None
+        if stair is not None:
+            items.append(_stair_item(part, stair, fp, ctx, raster, notes))
+            continue
+        later.append((part, door_note))
+    for part, door_note in later:
+        lsh = l_shape(part, ctx.theta)
+        fp = lsh["fp"] if lsh else footprint([p for s in part.segs for p in s.pts], ctx.theta)
+        poly = Polygon(fp[4])
+        in_leg = bool(leg_polys) and poly.area > 0 and max(poly.intersection(lp).area for lp in leg_polys) >= \
+            DETAIL_INSIDE_LEG * poly.area
+        named = keyword_type((_block_chain(part) or "").split("/")[-1])
+        drain = _drain(part.segs)
+        own = {id(s) for s in part.segs}
+        if drain and named in (None, "sink_kitchen") and fits(table, "sink_kitchen", (fp[1], fp[2])) and (
+                in_leg or _kitchen_near(poly, [s for s in keep if id(s) not in own])):
+            front = _leg_front(poly, leg_polys, leg_fronts)
+            items.append(_rule_item(part.segs, fp, "sink_kitchen", front, ctx, raster, table,
+                                    "a bowl with its drain " + ("in a counter leg" if in_leg else "beside the "
+                                                                "kitchen appliances") + " (M12 re-read)"))
+            continue
+        if in_leg and named not in KITCHEN_APPLIANCES:
+            dropped += 1                    # a dishwasher, drawers or a door front drawn in a counter leg
+            continue
+        item = _block_item(part, fp, ctx, raster, table, lsh, wall_polys, [])
+        if item is not None and not fits(table, item.type, tuple(item.size)):
+            item = None                     # a piece of a named block (a bed's pillow) is not the named piece
+        if item is not None:
+            if lsh:
+                item.details.update(l_details(lsh))
+            if door_note:
+                item.evidence["note"] = "; ".join(x for x in (item.evidence.get("note"), door_note) if x)
+            items.append(item)
+            continue
+        split = split_table_chairs(part, table, ctx.theta) if "block" not in part.note and not lsh else None
+        if split is not None:
+            items.extend(table_chair_items(split, ctx, raster, table))
+            continue
+        reason = "re-read part of an untyped cluster" + (f" ({why})" if why else "")
+        details = dict({"reread": why or "cluster"}, **(l_details(lsh) if lsh else round_shape(part.segs)))
+        if lsh:
+            details["l_front"] = lsh["front_deg"]
+        if drain:
+            details["drain"] = True
+        if door_note:
+            details["door"] = True
+            reason += f"; {door_note}"
+        items.append(_unknown(part, fp, ctx, raster, reason, details))
+    if dropped:
+        notes.append(f"re-read of {cl.stroke_ids()[0]}: {dropped} details, lines or symbol strokes dropped")
+    index: dict[str, list[Seg]] = {}
+    for s in cl.segs:
+        index.setdefault(s.stroke.id, []).append(s)
+    for item in items:
+        keys = copy_keys([s for sid in expand_ids(item.evidence.get("entity")) for s in index.get(sid, [])])
+        if keys:
+            item.details["copy_keys"] = keys
+    return {"items": items, "symbols": symbols}
