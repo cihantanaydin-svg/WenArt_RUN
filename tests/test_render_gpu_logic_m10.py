@@ -277,17 +277,22 @@ def _index_project(outputs: Path, building: dict, objects: list) -> tuple:
 
 def test_the_real02_cut_reproduces_the_pod_model_shares():
     """The fixture is the pod's case: the model sees 0.0104 of the wardrobe's fitted box (two grid columns at the
-    left border of 192 x 108 rays), none of it with the box 1 or 2 cm smaller per side."""
+    left border of 192 x 108 rays), none of it with the box 1 or 2 cm smaller per side.
+
+    Milestone 12 (docs/milestone12.md §4.1 D7, CLAUDE.md "no untyped piece is built"): the untyped drawn piece
+    f_L0_032 is no longer built as a grey box, so it hides nothing: the bed f_L0_021 behind it shows 0.0694 (was
+    0.0491 with the box) and f_L0_032 has no share."""
     shares = camsearch.model_shares(REAL02_BEDROOM, REAL02_CAMERA)
     assert shares["f_L0_012"] == pytest.approx(0.0104, abs=1e-4)
-    assert shares["f_L0_021"] == pytest.approx(0.0491, abs=1e-4) and shares["f_L0_043"] < 0.005
+    assert shares["f_L0_021"] == pytest.approx(0.0694, abs=1e-4) and shares["f_L0_043"] < 0.005
+    assert "f_L0_032" not in shares
     for slack in (0.01, 0.02):
         smaller = copy.deepcopy(REAL02_BEDROOM)
         box = _wardrobe(smaller)["asset"]["bbox_m"]
         box[0], box[1] = box[0] - 2 * slack, box[1] - 2 * slack
         got = camsearch.model_shares(smaller, REAL02_CAMERA)
         assert got.get("f_L0_012", 0.0) == 0.0 and got["d_L0_005"] > shares["d_L0_005"]   # the door behind it
-        assert all(got[f] == shares[f] for f in ("f_L0_021", "f_L0_032", "f_L0_043"))
+        assert all(got[f] == shares[f] for f in ("f_L0_021", "f_L0_043"))
 
 
 def test_the_real02_wardrobe_is_allowed_as_library_box_edge_only(tmp_path, monkeypatch, capsys):
