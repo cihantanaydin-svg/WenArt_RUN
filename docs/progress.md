@@ -773,7 +773,7 @@ The user saw only the core. The flats were in `tekkat.dwg` all along; details in
 - Pods: 3 runs ($6.10). Run 3: 8 flats + core, 84 views, every room lit, agent 2 rounds; GPU tests 37/39.
 - Open: white boxes in some living rooms (untyped drawn pieces), 2 GPU tests, no exterior view.
 
-## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (steps 0–1 done, 10 Oct 2026; waiting for your OK)
+## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (steps 0–1 done and approved 10 Oct 2026; build in progress)
 
 Spec: `docs/milestone12.md` (prompt: `docs/prompts/milestone12.md`). Cloud session, CPU only, no pod, no code change.
 
@@ -820,3 +820,13 @@ real03 exterior with the ground floor only; the 18 NC/SA Objaverse models are re
 - **GPU estimate:** ≈ $35–49 (1 GPU) or ≈ $55–80 (agent on 2 GPUs) → ≈ $124–169 of $200 in total.
 
 GPU cost so far: $89.37 of $200. No pod is running.
+
+**Your OK of 10 Oct 2026:** D1–D24, D3a (0.15 m), D16 (bake-off with Qwen3.8-Flash-Next on 2 GPUs; 2-GPU full runs if
+it wins by ≥ 10 points), the GPU plan with `--over-5-ok` for P1 and 2-GPU pods, `CLAUDE.md` wording 1–5 (applied,
+`842bbef`).
+
+**Step 2, build (started 10 Oct 2026):** contracts frozen (`docs/milestone12.md` §13, `4a6701e`: stubs with fixed
+signatures, pipeline and build hooks, schema fields, DXF attribute tags in the text evidence, `scripts/gpu_run.py
+--gpu-count 2`); six tracks build in parallel: L levels, R reading, G groups and solver, S scene/decor/fit,
+A agent/run/bake-off, B library audit.
+
