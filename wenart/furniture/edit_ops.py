@@ -614,6 +614,12 @@ def _remove(b: dict, args: dict) -> list[str]:
     room = _room(b, item.get("room_id")) if item.get("room_id") else {}
     if _fixed(item) and not schemas.misplaced_fixed(item["type"], room.get("room_type")):
         raise EditRejected("drawn_lock", f"{item['id']}: drawn fixed equipment ({item['type']}) is never removed")
+    if not _fixed(item):
+        # Milestone 12 (CLAUDE.md: "A drawn piece is removed only when it is clearly not furniture (logged with the
+        # plan crop as evidence)"): a drawn piece leaves the scene only through mark_not_furniture (kind + evidence);
+        # misplaced fixed equipment (a kitchen piece read in a stair room) may still be removed with a reason.
+        raise EditRejected("drawn_lock", f"{item['id']}: a drawn {item['type']} is removed only when it is clearly "
+                                         f"not furniture: use mark_not_furniture with its kind and the plan-crop evidence")
     if not str(args.get("reason") or "").strip():
         raise EditRejected("reason", f"{item['id']}: a drawn piece is removed only with a reason")
     if item.get("build") is False:
