@@ -65,15 +65,12 @@ def _vision_check() -> dict:
 
 
 def _furniture() -> dict:
-    """The M4 layout and, Milestone 10, the completion of a furnished room (``complete.answer_schema``): with changes
-    and additions, and the keep mode's empty lists (``maxItems: 0``)."""
-    from wenart.furniture import complete as CMP
+    """The M4 layout and, Milestone 12, the choice among the solver's candidates (``prompts.choice_schema``, used
+    by the layout and the completion of furnished rooms)."""
+    from wenart.furniture import prompts as FP
     from wenart.furniture import schemas as FS
-    full = {"change_ids": ["f_L0_001", "f_L0_002"], "change_types": ["sofa", "sofa_corner"], "styles": ["modern"],
-            "colours": ["light grey"], "add": {"table_coffee": 1, "floor_lamp": 1}}
-    keep = dict(full, change_ids=[], change_types=[], add={})
-    return {"furniture/layout": FS.grammar_schema(), "furniture/complete": CMP.answer_schema(full),
-            "furniture/complete keep": CMP.answer_schema(keep)}
+    return {"furniture/layout": FS.grammar_schema(), "furniture/choice of 2": FP.choice_schema(2),
+            "furniture/choice of 3": FP.choice_schema(3)}
 
 
 def _objaverse() -> dict:
