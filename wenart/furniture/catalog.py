@@ -576,14 +576,76 @@ def parametric_height(ftype: str) -> float:
 
 # Milestone 12 contract (docs/milestone12.md §4.8, §6.2, §13.2; owner: track S; the audit fields: track B).
 NOT_USABLE_LICENCE_MARKERS = ("-NC", "-SA", "-ND")
+NOT_USABLE_FLAGS = ("non_commercial", "share_alike", "no_derivatives")
+REMOVED_STATUSES = ("removed", "remove")
+# Types built from code by design (docs/milestone12.md §4.8, D14): the kitchen counter run and island, wall cabinets
+# and stairs are made to the drawing; our parametric fixtures (§6.4: shower tray and glass, washing machine,
+# full-size fridge in standard sizes) fill their types when no audited model fits. Every other parametric piece is a
+# library gap (never a parametric sofa, bed or table).
+BY_DESIGN_PARAMETRIC_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "wall_cabinet", "stair",
+                                               "shower", "washing_machine", "fridge")
+PARAMETRIC_FIXTURE_TYPES: tuple[str, ...] = ("shower", "washing_machine", "fridge")
 
 
 def usable(entry: dict) -> bool:
     """A library entry the fit may use: its audit status is not ``removed`` (``entry["audit"]["status"]`` in keep /
     fix, or no audit yet) and its licence is not non-commercial, share-alike or no-derivatives (CLAUDE.md library
-    rules, user OK of 10 Oct 2026)."""
+    rules, user OK of 10 Oct 2026): neither the licence text (``-NC``, ``-SA``, ``-ND``) nor the catalogue's
+    ``licence_flag`` says so. Works on a catalogue entry and on a fitted ``asset`` dict alike."""
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
-    if audit.get("status") == "removed":
+    if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
+        return False
+    if entry.get("licence_flag") in NOT_USABLE_FLAGS:
         return False
     licence = str(entry.get("licence") or entry.get("license") or "").upper()
     return not any(m in licence for m in NOT_USABLE_LICENCE_MARKERS)
+
+
+def unusable_reason(entry: dict) -> Optional[str]:
+    """Why ``usable`` refuses an entry (None when it is usable)."""
+    audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
+    if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
+        reasons = "; ".join(str(r) for r in audit.get("reasons") or []) or "no reason recorded"
+        return f"audit: removed ({reasons})"
+    if not usable(entry):
+        return f"licence {entry.get('licence')} ({entry.get('licence_flag') or 'NC/SA/ND'}): not used (CLAUDE.md)"
+    return None
+
+
+def effective(entry: dict) -> dict:
+    """The entry as the fit uses it: an audit ``fix`` applies its ``fixes`` (catalogue fields such as
+    ``front_axis``, ``unit_scale``, ``bbox_m``, ``has_bedding``; never an edit of the GLB, §6.1)."""
+    audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
+    fixes = audit.get("fixes") if isinstance(audit.get("fixes"), dict) else {}
+    if str(audit.get("status") or "").lower() != "fix" or not fixes:
+        return entry
+    return dict(entry, **fixes)
+
+
+def by_design_parametric(piece: dict) -> bool:
+    """True for a piece built from code by design (``BY_DESIGN_PARAMETRIC_TYPES``; a made-to-measure vanity or
+    built-in wardrobe of its design, Milestone 10 §4.4)."""
+    if piece.get("type") in BY_DESIGN_PARAMETRIC_TYPES:
+        return True
+    design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
+    return bool((piece.get("type") == "washbasin" and design.get("vanity"))
+                or (piece.get("type") == "wardrobe" and design.get("built_in")))
+
+
+def model_flag(entry: Optional[dict], flag: str) -> Optional[bool]:
+    """A dressing flag of a model or its fitted asset (track B's audit: ``has_bedding``, ``has_pillows``,
+    ``has_cushions``), None when the audit has not said (docs/milestone12.md §13.3)."""
+    value = (entry or {}).get(flag)
+    return value if isinstance(value, bool) else None
+
+
+def has_own_bedding(asset: Optional[dict]) -> bool:
+    """A bed model that is already made up (its own duvet or pillows): the audit's ``has_bedding`` / ``has_pillows``;
+    until the audit has run a model without the flags counts as bare (a mattress model, §1.3)."""
+    return bool(model_flag(asset, "has_bedding") or model_flag(asset, "has_pillows"))
+
+
+def has_own_cushions(asset: Optional[dict]) -> bool:
+    """A seat model with loose cushions of its own (the audit's ``has_cushions``): decor cushions would duplicate
+    them (§4.7)."""
+    return bool(model_flag(asset, "has_cushions"))
