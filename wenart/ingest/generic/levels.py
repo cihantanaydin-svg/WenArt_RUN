@@ -90,6 +90,8 @@ def apply_levels(build, works: dict) -> None:
         if m.get("group"):
             rec["block_ref"] = m["group"]
     new = LMOD.infer_levels(b)
+    build.building.clear()
+    build.building.update(new)
     rec = new.get("level_inference") or {}
     for c in rec.get("conflicts") or []:
         build.conflict(c["kind"], c["element_ids"], c["description"], c["resolution"])
@@ -108,5 +110,3 @@ def apply_levels(build, works: dict) -> None:
     build.warn(summary)
     for w in warnings + list(rec.get("warnings") or []):
         build.warn(f"levels: {w}")
-    build.building.clear()
-    build.building.update(new)

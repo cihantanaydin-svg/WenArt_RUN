@@ -262,17 +262,19 @@ def steps_for(rise: float, width: float, params: dict, outdoor: bool = True) -> 
     rmax = float(params["riser_max_outdoor" if outdoor else "riser_max_indoor"])
     n = max(1, int(math.ceil(rise / rmax - 1e-9)))
     riser = rise / n
+    # tread: the rule's at least, deeper when low risers need it to keep 2 R + T within the step rule
+    tread = max(float(params["tread"]), math.ceil((float(params["step_rule"][0]) - 2 * riser) * 100 - 1e-6) / 100.0)
     per = max(1, int(params["landing_every_risers"]))
     flights, left = [], n
     while left > 0:
         k = min(per, left)
         flights.append(k)
         left -= k
-    return {"count": n, "riser": _r(riser, 4), "tread": _r(params["tread"]), "rule_2r_t": _r(2 * riser + float(
-        params["tread"]), 4), "flights": flights, "intermediate_landings": len(flights) - 1,
+    return {"count": n, "riser": _r(riser, 4), "tread": _r(tread), "rule_2r_t": _r(2 * riser + tread, 4),
+            "flights": flights, "intermediate_landings": len(flights) - 1,
             "width": _r(width), "handrails": rise > float(params["handrail_from"]),
             "cheek_walls": rise > float(params["cheek_wall_from"]),
-            "run": _r((n - 1) * float(params["tread"]) + (len(flights) - 1) * float(params["landing_depth"]))}
+            "run": _r((n - len(flights)) * tread + (len(flights) - 1) * float(params["landing_depth"]))}
 
 
 def ramp_for(rise: float, params: dict) -> Optional[dict]:
@@ -396,6 +398,14 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
             counts[round(z, 2)] = counts.get(round(z, 2), 0) + 1
         best = max(counts, key=lambda z: (counts[z], -abs(z - float(lv.get("elevation") or 0.0))))
         old = float(lv.get("elevation") or 0.0)
+        gl = ground_level(b)
+        if gl is not None and lv["id"] == gl["id"] and abs(best - old) > tol and \
+                (counts[best] < 2 or counts[best] * 2 < len(zs)):
+            # the ground floor (building z 0 by convention) moves only when most of its floor marks agree
+            warnings.append(f"level {lv['id']}: its floor marks disagree ({', '.join(f'{z:+.2f}' for z in sorted(counts))}"
+                            f"); the elevation {old:+.2f} m is kept")
+            continue
+        old = float(lv.get("elevation") or 0.0)
         if abs(best - old) > tol:
             warnings.append(f"level {lv['id']}: elevation {old:+.2f} m (assumed) -> {best:+.2f} m from "
                             f"{counts[best]} floor mark(s)")
@@ -499,6 +509,7 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
         if len(outline) >= 3 and _dist_to_polygon(p, outline) > float(params["ground_reach"]):
             continue                              # another drawing on the sheet (classified unknown by the reader)
         cand.append(m)
+    force = (ground.get("terrain_override") or {}).get("kind")     # the agent's set_terrain (edits.py)
     points, rejected = [], []
     if cand:
         med = _median([m["z"] for m in cand])
@@ -517,10 +528,18 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
         _use(m, "ground")
     surface = None
     source = None
-    if len(points) >= 3:
+    if force == "flat" and points and not drawn_levels:
+        z = _median([m["z"] for m in points])
+        drawn_levels = [{"side": "all", "azimuth_deg": None, "from_mark": points[0]["id"],
+                         "z": {"value": _r(z), "method": "vector", "confidence": 1.0,
+                               "evidence": [e for m in points for e in _mark_ev(m)][:2] or
+                               [_evidence(file, "level_mark", "ground marks", 1.0)],
+                               "note": f"set_terrain flat: the median of {len(points)} ground mark(s)"}}]
+        source = "marks"
+    if len(points) >= 3 and force not in ("flat", "sides"):
+        residual = {"planar": float("inf"), "tin": -1.0}.get(force, float(params["plane_residual"]))
         surface = T.fit_surface([(m["point"][0], m["point"][1], m["z"]) for m in points],
-                                plane_residual=float(params["plane_residual"]),
-                                blend_m=float(params["terrain_blend"]))
+                                plane_residual=residual, blend_m=float(params["terrain_blend"]))
         if surface["kind"] in ("planar", "tin"):
             source = "marks"
             surface.update(inferred=False, source="ground marks",
@@ -528,7 +547,7 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
                                   f"{surface['residual']:.2f} m)")
         else:
             surface = None
-    if source is None and points:
+    if source is None and points and force != "flat":
         # 1-2 points (or points on one line): one level per side, unless a drawn level holds that side.
         from wenart.blender.site import side_of
         north, north_src = S.north_deg(b)
@@ -581,6 +600,8 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
         surface.update(inferred=source == "D3a", source=source,
                        reason={"D3a": "nothing about the ground drawn (D3a)", "site_note": "the site note's level",
                                "section": "the drawn ground lines per side", "marks": "ground marks per side"}[source])
+    if force:
+        surface["agent"] = dict(ground["terrain_override"])
     ground["surface"] = surface
     ground["terrain"] = surface["kind"]
     ground["source"] = source
@@ -613,6 +634,7 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
     ids = {lv["id"] for lv in levels}
     lowered = {i for ch in tm.get("changes") or [] for i in ch.get("opening_ids") or []}
     ramp_doors = {r.get("door_id") for r in (b.get("site") or {}).get("drawn_ramps") or [] if isinstance(r, dict)}
+    overrides = (b.get("site") or {}).get("entrance_overrides") or {}       # the agent's set_entrance (edits.py)
     brief_ramp = bool(params.get("accessible_entrance"))
     out = []
     for o in b.get("openings") or []:
@@ -691,6 +713,9 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                 rec["solution"] = "steps_and_ramp"
                 rec["drawn"] = True
                 rec["reason"] += f"; a drawn ramp {rec['ramp']['ratio']}"
+        agent = overrides.get(o["id"])
+        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"]:
+            _apply_entrance_override(rec, agent, max(rise, 0.0), top, width, params)
         rec["evidence"].append(_evidence(file, "entrance", rec["reason"]))
         out.append(rec)
     # The main entrance: the widest door of the main facade (the side with the most entrances at the ground).
@@ -712,6 +737,27 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
             main["solution"] = "steps_and_ramp"
             main["reason"] += f"; brief levels.accessible_entrance: a ramp {main['ramp']['ratio']} (inferred)"
     return out
+
+
+def _apply_entrance_override(rec: dict, agent: dict, rise: float, top: float, width: float, params: dict) -> None:
+    """The agent's ``set_entrance`` solution on an entrance record (mutated): steps and / or a ramp sized by the
+    rules for the same rise, or none; ``adjusted_by_ai`` keeps the reason and the solution before."""
+    sol = agent.get("solution")
+    before = rec["solution"]
+    landing = {"width": _r(width + float(params["landing_extra_width"])), "depth": _r(params["landing_depth"]),
+               "z": _r(top)}
+    steps = steps_for(rise, width + float(params["landing_extra_width"]), params)
+    ramp = ramp_for(rise, params)
+    if sol == "none" or (steps is None and ramp is None):
+        rec.update(solution="none", steps=None, ramp=None, landing=None)
+    elif sol == "steps":
+        rec.update(solution="steps", steps=steps, ramp=None, landing=landing)
+    elif sol == "ramp":
+        rec.update(solution="ramp", steps=None, ramp=ramp, landing=landing)
+    elif sol == "steps_and_ramp":
+        rec.update(solution="steps_and_ramp", steps=steps, ramp=ramp, landing=landing)
+    rec["adjusted_by_ai"] = {"reason": agent.get("reason") or "", "before": before}
+    rec["reason"] += f"; set_entrance {sol} (agent: {agent.get('reason') or 'no reason'})"
 
 
 def _north(b: dict) -> tuple[float, bool]:
@@ -816,7 +862,8 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
               "conflicts": conflicts, "warnings": warnings, "inner_steps": [], "basements": [],
               "params": {k: v for k, v in params.items() if not k.startswith("_")},
               "params_from_brief": list(params["_from_brief"]),
-              "flagged": "step and ramp numbers: secondary sources on TS 9111 (docs/milestone12.md §3.7)"}
+              "flagged": "step and ramp numbers: secondary sources on TS 9111 (docs/milestone12.md §3.7)",
+              "edits": list((building.get("level_inference") or {}).get("edits") or [])}
     b["level_inference"] = record
     gl = ground_level(b)
     if gl is None:

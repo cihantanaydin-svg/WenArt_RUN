@@ -842,7 +842,7 @@ def record_steps(e: dict, face) -> dict:
     d, z = depth, top
     if st:
         n = int(st["count"])
-        r = float(st["riser"])
+        r = (top - ground) / n if n > 0 and top > ground else float(st["riser"])   # exact (the record rounds it)
         t = float(st["tread"])
         flights = [int(k) for k in st.get("flights") or [n]]
         done = 0

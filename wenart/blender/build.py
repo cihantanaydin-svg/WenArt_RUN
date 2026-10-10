@@ -161,7 +161,9 @@ REPO_ROOT = _repo_root()
 # fingerprint through brief_args too), the style package (vocabulary + track C's finishes and colours).
 FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry.py", "wenart/canonical.py",
                     "wenart/furniture/catalog.json", "wenart/__init__.py", "wenart/views.py", "wenart/brief.py",
-                    "wenart/defaults.yaml")
+                    "wenart/defaults.yaml",
+                    # Milestone 12 (track L): the terrain surface of site.ground (wenart.levels.terrain)
+                    "wenart/levels/__init__.py", "wenart/levels/terrain.py")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
