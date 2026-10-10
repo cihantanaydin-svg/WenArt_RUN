@@ -245,3 +245,42 @@ def test_a_room_number_tag_among_the_furniture_is_marked_a_symbol():
     pieces, cands, _ = _furniture([circle], texts=[_text("12", (4.0, 3.0))])
     found = list(pieces) + [c["item"] for c in cands]
     assert len(found) == 1 and found[0].details["symbol"]["kind"] == "room_number"
+
+
+def test_the_unknown_parts_of_a_re_read_that_fit_a_type_are_asked_under_content_keys():
+    sofa = _rect(1.0, 1.0, 3.2, 1.9)
+    table = _rect(5.0, 3.0, 6.2, 3.8)
+    trace = R.stroke([(0.8, 1.9), (8.0, 1.9)])
+    hook = R.stroke([(6.2, 3.0), (6.2, 1.9)])
+    trace.layer = hook.layer = "MYD - IZ-1"
+    extras = []
+    pieces, cands, _ = _furniture([sofa, table, trace, hook], extra_out=extras)
+    # The M7 split takes the table out as an ordinary candidate (sequential key); the sofa is what the re-read found
+    # in the 7 m rest: asked under the hash of its stroke ids.
+    assert [c["key"] for c in cands] == ["sym_L0_001"] and c_ids(cands[0]) == [table.id]
+    assert [e["key"] for e in extras] == [SY.extra_key("L0", [sofa.id])] and extras[0]["extra"] is True
+    assert extras[0]["item"].details["candidate_key"] == extras[0]["key"]
+    assert not [p for p in pieces if p.type == "unknown"]               # asked, not left as boxes
+
+
+def c_ids(cand):
+    return SY.expand_ids(cand["item"].evidence.get("entity"))
+
+
+def _ctx():
+    return SY._Ctx("t.dxf", 1, 1.0, 0.0, "L0")
+
+
+def test_a_counter_drawn_as_one_outline_along_two_walls_is_re_read_as_its_legs_with_the_sink():
+    """real03: the counters are loose outlines of the flat block, chained into the living room's cluster."""
+    walls = _room()
+    counter = R.stroke([(0.1, 5.9), (3.0, 5.9), (3.0, 5.3), (0.7, 5.3), (0.7, 3.0), (0.1, 3.0)], closed=True)
+    bowl = _rect(1.2, 5.35, 2.0, 5.85)
+    drain = _circle((1.6, 5.6), 0.03)
+    notes = []
+    got = SY.reread(SY.Cluster(_segs([counter, bowl, drain])), _ctx(), TABLE, walls, [],
+                    [TP.wall_polygon(w) for w in walls], [], notes)
+    types = sorted(it.type for it in got["items"])
+    assert types == ["kitchen_counter", "kitchen_counter", "sink_kitchen"], notes
+    sink = next(it for it in got["items"] if it.type == "sink_kitchen")
+    assert sink.front_deg == 270.0 and "drain" in sink.evidence["note"]
