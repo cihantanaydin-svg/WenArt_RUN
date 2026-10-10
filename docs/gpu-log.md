@@ -72,4 +72,4 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-10 15:33 | wxj7cj91tloewx | NVIDIA RTX PRO 6000 Blackwell Server Edition | 62 | 2.56 | real03 whole ground floor, run 2 (run 1 stopped at the layout debug drawing): orchestrated, polish off, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-10 16:43 | oesbppzw7hsnmb | NVIDIA RTX PRO 6000 Blackwell Server Edition | 66 | 2.76 | real03 whole ground floor, run 3: lights in the core rooms (daylight only through outer walls), agent time budget without polish; orchestrated, polish off, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 
-**Total spent so far: $89.37** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $89.37** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)

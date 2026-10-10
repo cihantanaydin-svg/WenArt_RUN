@@ -110,8 +110,11 @@ At least:
 
 - All hard rules of `CLAUDE.md` stay: GPU limits, one pod at a time, self-stopping pods, `scripts/gpu_run.py`,
   secrets, evidence and logging, open-weight models and open-source tools only.
-- **Budget**: the project total is about $89 of the $100 budget. Give me the GPU cost estimate of this milestone
-  with the design and wait for my OK before going over $100 in total.
+- **Budget**: the project GPU budget is now $200 in total (raised from $100 on 10 Oct 2026); about $89 is spent,
+  so about $110 is left. The other limits stay ($5.00 per GPU-hour, $30 per day, 2 h per pod run, one pod at a
+  time). Give me the GPU cost estimate of this milestone, per step, with the design and wait for my OK before
+  going over $200 in total. Use the budget where it makes the AI smarter and the results better (a stronger
+  model, the library audit, more agent rounds), not for repeated runs that fail for the same reason.
 - Ask me before: any limit, deleting data or library items, a new Network Volume, a single action over $5.
 - Commit and push after each step; update `docs/progress.md`; before ending a session check that no pod runs.
 - Communication: simple English, short reports, tables for comparisons. Stop after Step 0 and after Step 1 for my
