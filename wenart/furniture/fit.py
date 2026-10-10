@@ -122,7 +122,9 @@ from typing import Optional
 
 from wenart.furniture import catalog as C
 
-NON_UNIFORM_CAP = 1.15
+# Milestone 12 (docs/milestone12.md §4.8 D14): real proportions: a model is stretched by at most 10 % between its
+# axes (was 15 %) and scaled by 0.85-1.20 on average (was 0.75-1.30); outside -> the next model.
+NON_UNIFORM_CAP = 1.10
 PARAMETRIC_LIBRARY = "parametric"
 PARAMETRIC_LICENCE = "n/a"
 FROZEN_KEYS = ("id", "level_id", "room_id", "type", "type_raw", "source", "footprint", "front_deg", "height",
@@ -219,8 +221,13 @@ def units_known(entry: dict) -> bool:
 
 
 def quality_of(entry: dict) -> float:
-    """The judge's mean photoreal quality (1-5); ``DEFAULT_QUALITY`` when missing or not a number."""
+    """The judges' mean photoreal quality (1-5); ``DEFAULT_QUALITY`` when missing or not a number. Milestone 12
+    (B1): the catalogue stores the two judges' answers as a list ``[q1, q2]``: its mean (the old code read only a
+    number, so every model ranked at 3.0)."""
     q = entry.get("quality")
+    if isinstance(q, (list, tuple)):
+        vals = [float(v) for v in q if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)]
+        return sum(vals) / len(vals) if vals else DEFAULT_QUALITY
     if isinstance(q, bool) or not isinstance(q, (int, float)) or not math.isfinite(q):
         return DEFAULT_QUALITY
     return float(q)
@@ -288,7 +295,7 @@ def usable_candidates(ftype: str, candidates: list[dict], style_family: Optional
     return usable, excluded, None
 
 
-UNIFORM_RANGE = (0.75, 1.30)   # a model stretched more than this looks wrong (a 1.1 m tall sofa)
+UNIFORM_RANGE = (0.85, 1.20)   # a model stretched more than this looks wrong (a 1.1 m tall sofa); M12: was 0.75-1.30
 
 
 def _srgb_to_lab(rgb) -> tuple[float, float, float]:
@@ -410,7 +417,24 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     and, with ``style_family``, models of another style are no candidates
     (``usable_candidates``). Milestone 10: ``design`` (the piece's look) keeps only the models that can show it
     (``look_of``); none left -> parametric with the reason. An L-shaped piece keeps only the models with its
-    chaise side (``chaise_side_candidates``); none left -> the parametric L, which builds the drawn side."""
+    chaise side (``chaise_side_candidates``); none left -> the parametric L, which builds the drawn side.
+
+    Milestone 12 (docs/milestone12.md §4.8 D14, §6.4; track S), in this order:
+
+    1. only usable models (``catalog.usable``: no audit ``removed``, no NC/SA/ND licence; an audit ``fix`` applies
+       its catalogue fixes, ``catalog.effective``); refused ones are listed under ``excluded``;
+    2. the style family, then its fallback chain (``STYLE_FALLBACK``, e.g. mediterranean -> rustic -> classic;
+       ``neutral`` models count for every family); a model of a fallback family records ``style_fallback`` (it is
+       recoloured through its material slots when the design asks for a colour, ``look_of``);
+    3. a design (colour, material tags) no model can show is dropped before a gap: ``design_not_shown``;
+    4. the by-design parametric types (``catalog.BY_DESIGN_PARAMETRIC_TYPES``: counters, islands, wall cabinets,
+       stairs; our shower, washing machine and fridge fixtures when no model fits) are parametric;
+    5. a piece its group needs (``group_needs``: a group member or a drawn piece) takes a model of the nearest
+       related type (``RELATED_TYPES``: a chair for a missing armchair, a sideboard for a TV unit), with
+       ``library_gap``;
+    6. else a library gap: ``method: "none"`` (not built: never a parametric sofa, bed or table) and
+       ``library_gap = {type, style, used, reason}``.
+    """
     ftype = piece["type"]
     width, depth = piece["footprint"]["size"]
     if not (width > 0 and depth > 0):
@@ -421,7 +445,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         # Milestone 11 (edit_ops swap_model): the agent's model is tried alone first, through the same rules; when
         # it fails them the normal ranking decides and the asset says so.
         entry = next((e for e in catalog.candidates(ftype) if e.get("id") == pin), None)
-        if entry is not None:
+        if entry is not None and C.usable(entry):
             pinned = fit_piece(dict(piece, asset_pin=None), _OneModel(catalog, entry), cap, uniform_range,
                                style_family, design)
             if pinned.get("method") == "library":
@@ -429,15 +453,63 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 return pinned
         asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design)
         asset["pin_refused"] = (f"{pin}: not a {ftype} model of the catalogue" if entry is None
+                                else f"{pin}: {C.unusable_reason(entry)}" if not C.usable(entry)
                                 else f"{pin}: fails the fit rules (style, caps, look)")
         return asset
     candidates = catalog.candidates(ftype)
     if not candidates:
-        if ftype in catalog.parametric_types:
-            reason = f"type {ftype} is parametric in the catalogue"
-        else:
-            reason = f"no catalogue entry for type {ftype}"
-        return parametric_fit(piece, reason, style_family=style_family)
+        if ftype in catalog.parametric_types and (ftype == "unknown" or (C.by_design_parametric(piece) and ftype
+                                                                         not in C.PARAMETRIC_FIXTURE_TYPES)):
+            asset = parametric_fit(piece, f"type {ftype} is parametric in the catalogue", style_family=style_family)
+            if ftype != "unknown":
+                asset["by_design"] = True
+            return asset
+        if ftype in catalog.parametric_types:              # Milestone 12: parametric only by design (D14)
+            return _no_model(piece, catalog, f"type {ftype} is parametric in the catalogue (no model)", [], [],
+                             cap, uniform_range, style_family)
+        return _no_model(piece, catalog, f"no catalogue entry for type {ftype}", [], [], cap, uniform_range,
+                         style_family)
+    usable, refused = split_usable(candidates)
+    if not usable:
+        return _no_model(piece, catalog, f"no usable {ftype} model (audit or licence)", [], refused, cap,
+                         uniform_range, style_family)
+    chain = style_chain(style_family)
+    tried, excluded, reasons = [], list(refused), []
+    for fam in chain:
+        got = _fit_family(piece, usable, fam, cap, uniform_range, design)
+        if got.get("method") == "library":
+            got["excluded"] = excluded + got.get("excluded", [])
+            if fam != style_family:
+                got["style_fallback"] = {"wanted": style_family, "used": fam, "chain": list(chain),
+                                         "why": "; ".join(reasons)}
+            return got
+        reasons.append(got["fallback_reason"] if fam is None else f"{fam}: {got['fallback_reason']}")
+        seen = {t["id"] for t in tried}
+        tried += [t for t in got.get("candidates") or [] if t["id"] not in seen]
+        known = {x["id"] for x in excluded}
+        excluded += [x for x in got.get("excluded") or [] if x["id"] not in known]
+    if design:
+        for fam in chain:
+            got = _fit_family(piece, usable, fam, cap, uniform_range, None)
+            if got.get("method") == "library":
+                got["excluded"] = excluded + got.get("excluded", [])
+                got["design_not_shown"] = {k: design[k] for k in ("material_tags", "fabric_colour", "colour")
+                                           if design.get(k)}
+                if fam != style_family:
+                    got["style_fallback"] = {"wanted": style_family, "used": fam, "chain": list(chain),
+                                             "why": "; ".join(reasons)}
+                return got
+    return _no_model(piece, catalog, "; ".join(reasons) or f"no {ftype} model fits", tried, excluded, cap,
+                     uniform_range, style_family)
+
+
+def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str], cap: float,
+                uniform_range: tuple[float, float], design: Optional[dict]) -> dict:
+    """The Milestone 7-11 fit of one style family on the usable candidates: the bed rule, the style filter, the
+    chaise side, the design's looks, the fit v2 rank order and the caps. Returns the library ``asset`` or a
+    parametric record whose ``fallback_reason`` says why none fitted."""
+    ftype = piece["type"]
+    width, depth = piece["footprint"]["size"]
     candidates, excluded, reason = usable_candidates(ftype, candidates, style_family)
     if not candidates:
         return parametric_fit(piece, reason, excluded=excluded, style_family=style_family)
@@ -446,8 +518,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         excluded += side_excluded
         if not candidates:
             return parametric_fit(piece, f"no {ftype} model with its chaise on the {side} (library models are not "
-                                         "mirrored); the parametric L takes the drawn side",
-                                  excluded=excluded, style_family=style_family)
+                                         "mirrored)", excluded=excluded, style_family=style_family)
     looks: dict[str, dict] = {}
     if design:
         kept = []
@@ -461,8 +532,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         if not kept:
             asked = {k: design[k] for k in ("material_tags", "fabric_colour", "colour") if design.get(k)}
             return parametric_fit(piece, f"no {ftype} model can show the design {asked} (recolour, colour or "
-                                         "material tags); the parametric piece takes it",
-                                  excluded=excluded, style_family=style_family)
+                                         "material tags)", excluded=excluded, style_family=style_family)
         candidates = kept
         # Recolourable wood first among equals: a stable sort keeps the fit v2 order otherwise.
     ordered = rank_candidates(candidates, width, depth)
@@ -489,7 +559,8 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 "aspect_error": err, "front_axis": entry["front_axis"],
                 "up_axis": entry["up_axis"], "origin_offset": list(entry["origin_offset"]),
                 "rotation_fix_deg": C.reorient_rotation_deg(entry),
-                "front_axis_confidence": entry["front_axis_confidence"], "candidates": tried, "cap": cap, "uniform_range": list(uniform_range),
+                "front_axis_confidence": entry["front_axis_confidence"], "candidates": tried, "cap": cap,
+                "uniform_range": list(uniform_range),
                 "styles": list(entry.get("styles") or []), "style_family": style_family, "excluded": excluded,
                 "quality": entry.get("quality"), "units_known": known, "ranking": ranking_reasons(tried, tried[-1]),
             }
@@ -502,6 +573,9 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 asset["gltf"] = entry["gltf"]
             if "licence_flag" in entry:
                 asset["licence_flag"] = entry["licence_flag"]
+            for key in AUDIT_ASSET_FIELDS:                      # Milestone 12: the audit and its dressing flags
+                if key in entry:
+                    asset[key] = entry[key]
             if piece["type"] in C.BED_TYPES and not C.has_mattress(entry) and is_bed_frame(entry):
                 asset.update(bed_frame_record(entry, width, depth, scales[2]))
                 asset["bbox_m"][2] = max(asset["bbox_m"][2], asset["bedding"]["top_m"])
@@ -519,6 +593,97 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     return parametric_fit(piece, reason, tried, excluded=excluded, style_family=style_family)
 
 
+# Milestone 12 (docs/milestone12.md §4.8 D14): the style family fallback chain (each step also takes ``neutral``
+# models: ``catalog.styles_match``); logged as ``style_fallback`` on the asset.
+STYLE_FALLBACK: dict[str, tuple[str, ...]] = {
+    "mediterranean": ("rustic", "classic"), "rustic": ("classic", "mediterranean"), "classic": ("rustic",),
+    "industrial": ("modern",), "japandi": ("scandinavian", "minimal"), "scandinavian": ("minimal", "modern"),
+    "modern minimal": ("minimal", "modern"), "minimal": ("modern minimal", "modern"),
+    "modern": ("modern minimal", "minimal"),
+}
+# The nearest related type a group may use when its own type has no usable model (§4.8: "a lounge chair for a
+# missing armchair"); never for sofas, beds, tables and the bath and kitchen fixtures (a gap instead).
+RELATED_TYPES: dict[str, tuple[str, ...]] = {
+    "armchair": ("chair",), "chaise": ("armchair",), "ottoman": ("bench",), "bench": ("ottoman",),
+    "side_table": ("nightstand",), "nightstand": ("side_table",), "tv_unit": ("sideboard", "dresser"),
+    "sideboard": ("tv_unit", "dresser"), "dresser": ("sideboard", "tv_unit"), "console_table": ("sideboard",),
+    "shoe_cabinet": ("sideboard", "dresser"), "bookshelf": ("display_cabinet", "tall_cabinet"),
+    "display_cabinet": ("bookshelf", "tall_cabinet"), "tall_cabinet": ("wardrobe", "display_cabinet"),
+    "wardrobe": ("tall_cabinet",), "bar_stool": ("chair",), "office_chair": ("chair",), "desk": ("console_table",),
+    "bunk_bed": ("bed_single",),
+}
+# Audit fields (track B, contract §13.3) a fitted asset carries: the S6 check and the scene builder read them.
+AUDIT_ASSET_FIELDS: tuple[str, ...] = ("audit", "real_product", "has_bedding", "has_cushions", "has_pillows",
+                                       "has_mattress", "contact")
+NOT_BUILT_METHOD = "none"
+
+
+def style_chain(style_family: Optional[str]) -> list[Optional[str]]:
+    """The families the fit tries in order: the project's, then its ``STYLE_FALLBACK`` chain ([None] without a
+    family: every model)."""
+    if style_family is None:
+        return [None]
+    return [style_family] + [f for f in STYLE_FALLBACK.get(style_family, ()) if f != style_family]
+
+
+def split_usable(candidates: list[dict]) -> tuple[list[dict], list[dict]]:
+    """``(usable entries with their audit fixes applied, excluded rows)`` (``catalog.usable``)."""
+    usable, refused = [], []
+    for e in candidates:
+        if C.usable(e):
+            usable.append(C.effective(e))
+        else:
+            refused.append({"id": e["id"], "reason": C.unusable_reason(e)})
+    return usable, refused
+
+
+def group_needs(piece: dict) -> bool:
+    """A piece its group needs (§4.8): a member of a functional group (``furniture[].group``, track G) or a piece
+    drawn in the documents (CLAUDE.md: drawn furniture is kept)."""
+    return bool(isinstance(piece.get("group"), dict) and piece["group"].get("group_id")) or \
+        piece.get("source") == "from_documents"
+
+
+def gap_fit(piece: dict, reason: str, candidates: Optional[list] = None, excluded: Optional[list] = None,
+            style_family: Optional[str] = None) -> dict:
+    """A library gap (§4.8, §6.4): no usable model fits and the type is not parametric by design: ``method:
+    "none"`` (the scene builder does not build it) and ``library_gap`` (copied onto the piece by
+    ``fit_building``); the parametric box stays as ``bbox_m`` for the planners."""
+    asset = parametric_fit(piece, reason, candidates, excluded, style_family)
+    asset.update({"library": NOT_BUILT_METHOD, "asset_id": f"none:{piece['type']}", "method": NOT_BUILT_METHOD,
+                  "library_gap": {"type": piece["type"], "style": style_family, "used": "nothing (not built)",
+                                  "reason": reason}})
+    return asset
+
+
+def _no_model(piece: dict, catalog, reason: str, tried: list, excluded: list, cap: float,
+              uniform_range: tuple[float, float], style_family: Optional[str]) -> dict:
+    """What a piece gets when no usable model of its type fits: our parametric fixture (by design), a model of a
+    related type its group needs, or a library gap."""
+    ftype = piece["type"]
+    if ftype in C.BY_DESIGN_PARAMETRIC_TYPES:
+        asset = parametric_fit(piece, f"{reason}; our parametric {ftype.replace('_', ' ')} (by design, "
+                                      "docs/milestone12.md §6.4)", tried, excluded, style_family)
+        asset["by_design"] = True
+        asset["library_gap"] = {"type": ftype, "style": style_family, "used": "our parametric fixture (by design)",
+                                "reason": reason}
+        return asset
+    if group_needs(piece):
+        for rt in RELATED_TYPES.get(ftype, ()):
+            usable, _refused = split_usable(catalog.candidates(rt))
+            for fam in style_chain(style_family):
+                got = _fit_family(dict(piece, type=rt), usable, fam, cap, uniform_range, None)
+                if got.get("method") == "library":
+                    got["related_type"] = rt
+                    got["excluded"] = list(excluded) + got.get("excluded", [])
+                    got["library_gap"] = {"type": ftype, "style": style_family,
+                                          "used": f"related type {rt}: {got['asset_id']}"
+                                                  + (f" ({fam} style)" if fam != style_family else ""),
+                                          "reason": reason}
+                    return got
+    return gap_fit(piece, reason, tried, excluded, style_family)
+
+
 def bed_frame_record(entry: dict, width: float, depth: float, z_scale: float) -> dict:
     """The bed-frame fields of a fitted asset (docs/milestone8.md §4): ``bed_frame``, the catalogue
     ``deck_height_m`` and ``bedding`` (``wenart.blender.parametric.frame_bedding_info``: deck and mattress
@@ -533,9 +698,15 @@ def bed_frame_record(entry: dict, width: float, depth: float, z_scale: float) ->
 # Decor (docs/milestone8.md §4): types that may use a library decor model; book sets stay parametric.
 DECOR_LIBRARY_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",
                                         "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9
-                                        # Milestone 10 (docs/milestone10.md §4.6)
-                                        "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
+                                        # Milestone 10 (docs/milestone10.md §4.6); Milestone 12 (§4.7, §6.4, B7):
+                                        # throws, curtains and blinds are our procedural textiles, never a model
+                                        "books", "candle", "basket", "tray", "clock",
                                         "sculpture", "plant_large", "pendant_light", "ceiling_light")
+PROCEDURAL_DECOR_TYPES: tuple[str, ...] = ("throw", "curtain", "blind")   # wenart.blender.textiles
+# Milestone 12 (§4.7, B7): a cushion model keeps its real proportions: scaled uniformly to the cushion's width and
+# height (their scales may differ by at most this), its thickness then in CUSHION_THICKNESS_M.
+CUSHION_PROPORTION_CAP = 1.10
+CUSHION_THICKNESS_M = (0.06, 0.28)
 # Milestone 9 (docs/milestone9.md §3, §5): wall decor hangs like wall art (its width, the model's aspect); tabletop
 # decor keeps the model's proportions and real size, scaled down (never up) to fit the item's box ("within").
 WALL_DECOR_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
@@ -580,8 +751,9 @@ def decor_entries(catalog, dtype: str) -> list[dict]:
             found.append(e)
     out: dict[str, dict] = {}
     for e in found:
-        if e.get("id") and not e.get("parametric") and (e.get("gltf") or e.get("glb")) and e.get("bbox_m"):
-            out.setdefault(str(e["id"]), e)
+        if e.get("id") and not e.get("parametric") and (e.get("gltf") or e.get("glb")) and e.get("bbox_m") \
+                and C.usable(e):                                  # Milestone 12: audited, no NC/SA/ND licence
+            out.setdefault(str(e["id"]), C.effective(e))
     return [out[k] for k in sorted(out)]
 
 
@@ -609,6 +781,19 @@ def _decor_fit(entry: dict, item: dict, dtype: str) -> Optional[dict]:
     width, depth = (float(v) for v in item["size"][:2])
     bw, bd, bh = (float(v) for v in entry["bbox_m"][:3])
     front = entry["front_axis"]
+    if dtype == "cushion":                        # Milestone 12 (B7): real proportions, never stretched
+        if len(item["size"]) < 3 or not item["size"][2]:
+            return None                           # a lying cushion (ottoman, bench): the procedural one
+        height = float(item["size"][2])
+        sw, sh = width / bw, height / bh
+        if max(sw, sh) / min(sw, sh) > CUSHION_PROPORTION_CAP + 1e-9:
+            return None
+        s = (sw + sh) / 2.0
+        if not CUSHION_THICKNESS_M[0] - 1e-9 <= bd * s <= CUSHION_THICKNESS_M[1] + 1e-9:
+            return None
+        return {"fit_scale": [round(s, 4)] * 3, "bbox_m": [round(bw * s, 4), round(bd * s, 4), round(bh * s, 4)],
+                "front_axis": front, "turned_deg": 0.0, "target": "within", "non_uniform": round(max(sw, sh)
+                                                                                                 / min(sw, sh), 4)}
     if dtype in SURFACE_DECOR_TYPES:              # Milestone 9: real size, scaled down to the item box, never up
         height = float(item["size"][2]) if len(item["size"]) > 2 and item["size"][2] else None
         limits = [width / bw, depth / bd] + ([height / bh] if height else [])
@@ -715,6 +900,11 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     for original, piece in zip(building.get("furniture", []), fitted.get("furniture", [])):
         design = design_of(piece, style) if (style is not None or piece.get("design")) else None
         piece["asset"] = fit_piece(piece, catalog, cap=cap, style_family=style_family, design=design or None)
+        # Milestone 12 (§4.8, §6.4): the library gap (type, style, what was used instead) is a finding on the piece
+        if piece["asset"].get("library_gap"):
+            piece["library_gap"] = dict(piece["asset"]["library_gap"])
+        else:
+            piece.pop("library_gap", None)
         for key in FROZEN_KEYS:
             if original.get(key) != piece.get(key):  # cannot happen; guards future edits
                 raise RuntimeError(f"fit changed {key} of {piece['id']}")
@@ -725,11 +915,12 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
 
 def assert_only_assets_changed(before: dict, after: dict) -> None:
     """Raise AssertionError unless ``after`` equals ``before`` except for
-    ``furniture[].asset`` and ``decor[].asset``."""
+    ``furniture[].asset`` and ``decor[].asset`` (Milestone 12: and ``furniture[].library_gap``)."""
     a, b = copy.deepcopy(before), copy.deepcopy(after)
     for doc in (a, b):
         for piece in doc.get("furniture", []):
             piece.pop("asset", None)
+            piece.pop("library_gap", None)
         for item in doc.get("decor") or []:
             item.pop("asset", None)
     if json.dumps(a, sort_keys=True) != json.dumps(b, sort_keys=True):
@@ -772,6 +963,8 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
     ranking: list[str] = []
     frames: list[str] = []
     flags: dict[str, str] = {}
+    gaps: list[str] = []
+    style_fallbacks: list[str] = []
     for piece in pieces:
         asset = piece.get("asset")
         if not asset:
@@ -783,7 +976,16 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
                     f"{piece['status']} | {fp['size'][0]:.2f} x {fp['size'][1]:.2f} | {asset['method']} | "
                     f"{asset['asset_id']} | {asset['licence']} | {_fmt_scale(asset['fit_scale'])} | {err} | "
                     f"{asset['bbox_m'][2]:.2f} |")
-        if asset["method"] == "parametric":
+        if asset.get("library_gap"):                                  # Milestone 12 (§6.4)
+            gaps.append(f"- {piece['id']} ({piece['type']}, style {asset['library_gap'].get('style')}): "
+                        f"{asset['library_gap'].get('used')}; {asset['library_gap'].get('reason')}")
+        if asset.get("style_fallback"):
+            sf = asset["style_fallback"]
+            style_fallbacks.append(f"- {piece['id']} ({piece['type']}): {asset['asset_id']} of style {sf['used']} "
+                                   f"(wanted {sf['wanted']}; chain {' -> '.join(str(f) for f in sf['chain'])})")
+        if asset["method"] == NOT_BUILT_METHOD:
+            pass
+        elif asset["method"] == "parametric":
             fallbacks.append((piece["id"], piece["type"], asset.get("fallback_reason", "")))
         else:
             licences[(asset["library"], asset["asset_id"], asset["licence"])] += 1
@@ -807,8 +1009,10 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
     lines = [f"# Furniture fit report{': ' + title if title else ''}", ""]
     project = building.get("project")
     project_id = project.get("id", "?") if isinstance(project, dict) else str(project or "?")
+    not_built = sum(1 for p in pieces if (p.get("asset") or {}).get("method") == NOT_BUILT_METHOD)
     lines.append(f"Project: {project_id}; {len(pieces)} pieces, "
-                 f"{len(pieces) - len(fallbacks) - len(missing)} library fits, {len(fallbacks)} parametric fallbacks"
+                 f"{len(pieces) - len(fallbacks) - len(missing) - not_built} library fits, {len(fallbacks)} parametric "
+                 f"fallbacks" + (f", {not_built} library gaps (not built)" if not_built else "") +
                  f"{', ' + str(len(missing)) + ' without fit' if missing else ''}. "
                  f"Non-uniform scale cap {round((NON_UNIFORM_CAP - 1) * 100)} %. Footprints, types, rotations, rooms "
                  f"and statuses are as in the building JSON (fitting never changes them).")
@@ -822,6 +1026,10 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += [f"- {pid} ({ftype}): {reason}" for pid, ftype, reason in fallbacks]
     else:
         lines.append("- none")
+    if gaps:
+        lines += ["", "## Library gaps (docs/milestone12.md §6.4: no audited model; what was used instead)", ""] + gaps
+    if style_fallbacks:
+        lines += ["", "## Style fallbacks (§4.8)", ""] + style_fallbacks
     lines += ["", "## Library assets and licences", ""]
     if licences:
         lines += [f"- {aid} ({lib}, {lic}) x {n}" for (lib, aid, lic), n in sorted(licences.items())]

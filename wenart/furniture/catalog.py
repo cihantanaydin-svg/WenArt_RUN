@@ -579,12 +579,15 @@ NOT_USABLE_LICENCE_MARKERS = ("-NC", "-SA", "-ND")
 NOT_USABLE_FLAGS = ("non_commercial", "share_alike", "no_derivatives")
 REMOVED_STATUSES = ("removed", "remove")
 # Types built from code by design (docs/milestone12.md §4.8, D14): the kitchen counter run and island, wall cabinets
-# and stairs are made to the drawing; our parametric fixtures (§6.4: shower tray and glass, washing machine,
-# full-size fridge in standard sizes) fill their types when no audited model fits. Every other parametric piece is a
-# library gap (never a parametric sofa, bed or table).
-BY_DESIGN_PARAMETRIC_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "wall_cabinet", "stair",
-                                               "shower", "washing_machine", "fridge")
-PARAMETRIC_FIXTURE_TYPES: tuple[str, ...] = ("shower", "washing_machine", "fridge")
+# and stairs are made to the drawing; the kitchen and bath fixtures come from code when no audited model fits (§6.4:
+# "no open, commercial-safe library has realistic kitchen or bath fixtures; they come from code": our shower, washing
+# machine and full-size fridge now, the Infinigen fixtures later), because drawn fixed equipment is built like a
+# wall (CLAUDE.md furniture rules) and never left out; such a piece still records its ``library_gap``. Every other
+# parametric piece is a library gap (never a parametric sofa, bed or table).
+PARAMETRIC_FIXTURE_TYPES: tuple[str, ...] = ("shower", "washing_machine", "fridge", "toilet", "washbasin", "bathtub",
+                                             "sink_kitchen", "stove")
+BY_DESIGN_PARAMETRIC_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "wall_cabinet",
+                                               "stair") + PARAMETRIC_FIXTURE_TYPES
 
 
 def usable(entry: dict) -> bool:
