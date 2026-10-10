@@ -178,10 +178,6 @@ def test_outline_area_must_match_its_label(tmp_path):
 # real03 end to end
 # --------------------------------------------------------------------------
 
-REAL03_LABELS = {"YANGIN MERDİVENİ": 14.17, "KAT MERDİVENİ": 14.17, "GÜVENLİK HOLÜ": 3.38, "KAT HOLÜ": 46.94,
-                 "RÜZGARLIK": 9.64}
-
-
 @pytest.fixture(scope="module")
 def real03(tmp_path_factory):
     if not dwg.available_converters():
@@ -193,22 +189,24 @@ def real03(tmp_path_factory):
     return b, out
 
 
-def test_real03_builds_from_room_outlines(real03):
+def test_real03_reads_the_whole_ground_floor(real03):
+    """real03 follow-up (10 Oct 2026, docs/milestone11.md §19.8): with the patched LibreDWG the flats are in the DXF;
+    their clipped blocks, ring walls and the concrete core give the whole floor from vector geometry, so the
+    room-outline fallback of the core-only reading is no longer needed."""
     b, out = real03
-    assert b["status"] != "needs_review", b["warnings"]
-    rooms = {r["label_raw"]: r for r in b["rooms"]}
-    assert set(rooms) == set(REAL03_LABELS)
-    for name, area in REAL03_LABELS.items():
-        assert rooms[name]["area_label"] == pytest.approx(area)
-        assert rooms[name]["area_computed"] == pytest.approx(area, rel=0.01)
-    inferred = [w for w in b["walls"] if w.get("inferred")]
-    assert len(inferred) >= 20 and len(inferred) == len(b["walls"])
-    assert all(w["evidence"][0]["method"] == "inferred" and w["status"] == "unverified" for w in inferred)
-    # The title block (legend block) gives no walls: every wall lies around the core (26.5 x 15 m).
+    assert b["status"] == "ok", b["warnings"]
+    types = [r["room_type"] for r in b["rooms"]]
+    assert types.count("living") == 8 and types.count("bathroom") == 8 and types.count("stair") == 2
+    assert types.count("bedroom") >= 9
+    labels = {r["label_raw"] for r in b["rooms"]}
+    assert {"KAT HOLÜ", "RÜZGARLIK", "KAT MERDİVENİ", "YANGIN MERDİVENİ"} <= labels
+    assert "SUBSTATİON" not in labels                    # a services-layer text, no room name
+    assert not [w for w in b["walls"] if w.get("inferred")]
+    assert any("ring:" in str(w["evidence"][0].get("entity")) for w in b["walls"])
+    # The title block (legend block) gives no walls: every wall lies in the building (33.2 x 14.6 m).
     for w in b["walls"]:
         for x, y in (w["start"], w["end"]):
-            assert -0.5 <= x <= 27.0 and -0.5 <= y <= 15.5
-    doors = [o for o in b["openings"] if o["type"] == "door"]
-    assert len(doors) == 4
-    assert any("walls inferred from room outlines" in w for w in b["warnings"])
-    assert "Walls inferred from room outlines" in (out / "report.md").read_text(encoding="utf-8")
+            assert -0.5 <= x <= 34.0 and -0.5 <= y <= 15.5
+    # Oversized furniture clusters are recorded, never built as boxes.
+    assert all(f.get("build") is False for f in b["furniture"]
+               if f["type"] == "unknown" and max(f["footprint"]["size"]) > 4.5)

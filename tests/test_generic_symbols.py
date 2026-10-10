@@ -108,7 +108,11 @@ def test_an_armchair_with_open_arm_lines_keeps_its_own_piece_in_a_large_cluster_
             R.stroke([(xb, 2.232), (xb, 2.941)]), R.stroke([(x1, 2.232), (xb, 2.232)]), R.stroke([(x1, 2.941), (xb, 2.941)])]
     pieces, cands, _ = _furn(tv + column + shelf + body + arms, walls=_room(0.0, 0.0, 9.0, 9.0))
     sizes = [tuple(round(v, 2) for v in sorted(p.size)) for p in _all(pieces, cands)]
-    assert sorted(sizes) == [(0.79, 0.82), (2.76, 5.54)]             # the TV unit cluster does not take it
+    # the TV unit cluster does not take it. real03 (10 Oct 2026): the oversized cluster is split; the column is its own
+    # piece and the 5.1 m rest stays one unknown that is not built.
+    assert sorted(sizes) == [(0.4, 0.4), (0.79, 0.82), (2.36, 5.14)], sorted(sizes)
+    big = [p for p in _all(pieces, cands) if max(getattr(p, "size", (0, 0))) > 4.5]
+    assert all(p.details.get("build") is False for p in big)
 
 
 def test_contained_sink_stays_its_own_piece_but_a_bed_outline_and_pillows_do_not():

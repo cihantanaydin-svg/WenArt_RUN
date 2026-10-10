@@ -843,7 +843,9 @@ def test_raster_wall_joints_a_pixel_open_are_closed():
     south, north = wall((0.0, 0.0), (3.0, 0.0)), wall((0.0, 4.0), (3.0, 4.0))
     short = wall((0.08, 2.0), (2.925, 2.0))                     # 5 mm short of the west wall
     room = [west, east, south, north, short]
-    assert len([f for f in TP.faces(room) if f.area > 0.5]) == 1                 # one face through the slit
+    # real03 (10 Oct 2026): faces close slits up to 2 x topology.SLIT_CLOSE_M themselves, so the 5 mm slit no
+    # longer joins the two rooms even before the joint rule moves the wall end.
+    assert len([f for f in TP.faces(room) if f.area > 0.5]) == 2
     run_a, run_b = wall((5.0, 2.0), (6.0, 2.0)), wall((6.005, 2.0), (7.0, 2.0))  # a run, 5 mm apart: no joint
     far = wall((5.0, 0.0), (5.0, 1.0)), wall((5.825, 0.5), (7.0, 0.5))           # 0.75 m short: a passage
     walls = room + [run_a, run_b, *far]

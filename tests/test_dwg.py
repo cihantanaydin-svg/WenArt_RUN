@@ -220,7 +220,7 @@ def test_committed_dwg_is_the_pinned_file():
 def test_dxf2dwg_reproduces_the_committed_dwg(tmp_path):
     written = dwg.dxf_to_dwg(SOURCE_06, tmp_path / "again.dwg")
     assert hashlib.sha256(written.read_bytes()).hexdigest() == DWG_SHA256_06
-    assert dwg.libredwg_version(dwg.find_tool("dxf2dwg")) == "0.14 d9468ae"
+    assert dwg.libredwg_version(dwg.find_tool("dxf2dwg")) == "0.14 d9468ae p1"
 
 
 @pytest.fixture(scope="module")
@@ -233,7 +233,7 @@ def converted_06(tmp_path_factory):
 @NEEDS_LIBREDWG
 def test_synthetic_06_dwg_reads_like_its_dxf(converted_06):
     conv = converted_06
-    assert conv.converter.startswith("libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors")
+    assert conv.converter.startswith("libredwg dwg2dxf 0.14 d9468ae p1; audit: 0 errors")
     assert conv.acadver == "AC1015" and conv.release == "R2000" and conv.audit_errors == 0
     source = Counter(e.dxftype() for e in recover.readfile(str(SOURCE_06))[0].modelspace())
     assert conv.entity_counts == dict(sorted(source.items()))
@@ -347,8 +347,8 @@ def test_synthetic_06_pipeline_dwg_run_equals_dxf_run_and_matches_truth(tmp_path
 
 def test_libredwg_pins_agree_everywhere():
     """dwg.py, the pod setup and the cloud setup build and expect the same LibreDWG (§5.1)."""
-    version = f"{dwg.LIBREDWG_TAG} {dwg.LIBREDWG_COMMIT[:7]}"
-    assert version == "0.14 d9468ae"
+    version = dwg.LIBREDWG_VERSION
+    assert version == "0.14 d9468ae p1"          # the pinned commit + the block-index patch (real03, 10 Oct 2026)
     for script in ("scripts/pod_setup_recognition.sh", "scripts/cloud-setup.sh"):
         text = (ROOT / script).read_text(encoding="utf-8")
         assert f"LIBREDWG_TAG={dwg.LIBREDWG_TAG}\n" in text and f"LIBREDWG_COMMIT={dwg.LIBREDWG_COMMIT}\n" in text

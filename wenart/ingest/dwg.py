@@ -40,6 +40,8 @@ from ezdxf import recover
 
 LIBREDWG_TAG = "0.14"
 LIBREDWG_COMMIT = "d9468ae948b8f07a08efa756c19f8916052358c0"
+LIBREDWG_PATCH = "p1"                     # the block-index patch of the setup scripts (10 Oct 2026)
+LIBREDWG_VERSION = f"{LIBREDWG_TAG} {LIBREDWG_COMMIT[:7]} {LIBREDWG_PATCH}"
 BIN_ENV = "WENART_LIBREDWG_BIN"
 POD_BIN = Path("/workspace/tools/libredwg/bin")
 SESSION_BIN = Path("~/.cache/wenart/libredwg/bin")

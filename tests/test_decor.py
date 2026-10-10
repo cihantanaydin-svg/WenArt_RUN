@@ -182,7 +182,7 @@ def test_prayer_rooms_get_no_decor_and_build_false_pieces_host_none():
     row = next(r for r in rows if r["room_id"] == sofa_room)
     assert row["note"] == "prayer room: no decor (docs/milestone7.md §0)" and row["cushions"] == row["books"] == 0
     assert "prayer room: no decor" in D.decor_report(out, rows)
-    assert D.NO_DECOR_ROOM_TYPES == ("prayer",)
+    assert D.NO_DECOR_ROOM_TYPES == ("prayer", "stair", "shaft")
     # build: false hosts nothing.
     building = load_truth("synthetic-01")
     for f in building["furniture"]:

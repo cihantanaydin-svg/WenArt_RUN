@@ -18,7 +18,7 @@ READ = ["building_summary", "room", "room_topdown", "plan_crop", "plausibility",
         "catalog", "stage_status"]
 EDIT = ["move_piece", "rotate_piece", "resize_piece", "change_type", "swap_model", "add_piece", "add_group",
         "remove_piece", "relayout_room", "set_room_type", "set_camera", "add_camera", "remove_camera", "set_material",
-        "set_exterior", "correct_geometry", "rerun_stage"]
+        "set_exterior", "set_lighting", "correct_geometry", "rerun_stage"]   # set_lighting: real03 follow-up
 
 
 def ctx_for(tmp_path, **kw):

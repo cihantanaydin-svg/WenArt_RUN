@@ -111,9 +111,10 @@ def test_room_type_priority_covers_every_keyword_type():
     keyword_types = {room_type for _, room_type in B._ROOM_TYPE_KEYWORDS}
     assert keyword_types <= set(B.ROOM_TYPE_PRIORITY) <= set(B.ROOM_TYPES)
     assert len(B.ROOM_TYPE_PRIORITY) == len(set(B.ROOM_TYPE_PRIORITY))
-    # docs/milestone7.md §1.3 adds dining and prayer (between kitchen and hall) to the M6 order.
-    assert B.ROOM_TYPE_PRIORITY == ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "dining",
-                                    "prayer", "hall", "other")
+    # docs/milestone7.md §1.3 adds dining and prayer (between kitchen and hall) to the M6 order; real03 (10 Oct
+    # 2026, docs/milestone11.md §19.8) adds stair and shaft after balcony (YANGIN MERDİVENİ is a stair room).
+    assert B.ROOM_TYPE_PRIORITY == ("wc", "bathroom", "storage", "balcony", "stair", "shaft", "bedroom", "living",
+                                    "kitchen", "dining", "prayer", "hall", "other")
     assert {t for _, t in B._ENGLISH_ROOM_KEYWORDS} == set(B.ROOM_TYPE_PRIORITY)
 
 

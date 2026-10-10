@@ -1037,7 +1037,7 @@ def _libredwg_script(tmp_path: Path, body: str, fake_head: str = "") -> subproce
     ``ninja`` (writes three stand-in programs into the build folder)."""
     text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
     functions = "\n".join(f"{name}() {{\n{_bash_function_body(text, name)}}}"
-                          for name in ("libredwg_usable", "build_libredwg"))
+                          for name in ("libredwg_usable", "patch_libredwg", "build_libredwg"))
     bin_dir = tmp_path / "fake-bin"
     bin_dir.mkdir(parents=True, exist_ok=True)
     _write_tool(bin_dir / "git", f"""case "$1" in
@@ -1066,7 +1066,7 @@ def test_libredwg_is_reused_only_when_complete_pinned_and_working(tmp_path):
         assert proc.returncode == 0, proc.stderr
         return proc.stdout.strip()
 
-    def install(case: str, version: str = "0.14 d9468ae", tools=("dwg2dxf", "dwgread", "dxf2dwg"), rc: int = 0):
+    def install(case: str, version: str = "0.14 d9468ae p1", tools=("dwg2dxf", "dwgread", "dxf2dwg"), rc: int = 0):
         bin_dir = tmp_path / case / "tools" / "libredwg" / "bin"
         bin_dir.mkdir(parents=True)
         for name in tools:
@@ -1098,4 +1098,4 @@ def test_libredwg_build_checks_the_commit_before_installing(tmp_path):
     assert "-G Ninja" in cmake and "-DBUILD_SHARED_LIBS=OFF" in cmake and "fast/build/libredwg" in cmake
     bin_dir = tmp_path / "good" / "tools" / "libredwg" / "bin"
     assert sorted(p.name for p in bin_dir.iterdir()) == ["VERSION", "dwg2dxf", "dwgread", "dxf2dwg"]
-    assert (bin_dir / "VERSION").read_text(encoding="utf-8") == "0.14 d9468ae\n"
+    assert (bin_dir / "VERSION").read_text(encoding="utf-8") == "0.14 d9468ae p1\n"
