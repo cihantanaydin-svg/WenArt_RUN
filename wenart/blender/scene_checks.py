@@ -219,7 +219,7 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             for w in walls:
                 d = max((depth_in_wall(p, w) for p in pts), default=0.0)
                 if d > worst[0]:
-                    worst = (d, w["id"])
+                    worst = (float(d), w["id"])
             counts["S2"]["checked"] += 1
             m["wall_depth_m"] = round(worst[0], 4)
             if worst[0] > tol["overlap_m"] + 1e-9:
@@ -271,8 +271,8 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
                 continue
             if not _boxes_overlap(boxes[a], boxes[b], tol["overlap_m"]):
                 continue
-            depth = max(R.penetration(caster(b), R.sample_points(meshes[a]["verts"], MAX_PAIR_SAMPLES)),
-                        R.penetration(caster(a), R.sample_points(meshes[b]["verts"], MAX_PAIR_SAMPLES)))
+            depth = float(max(R.penetration(caster(b), R.sample_points(meshes[a]["verts"], MAX_PAIR_SAMPLES)),
+                              R.penetration(caster(a), R.sample_points(meshes[b]["verts"], MAX_PAIR_SAMPLES))))
             counts["S2"]["checked"] += 1
             if depth > tol["overlap_m"] + 1e-9:
                 fail("S2", a, pa.get("room_id"), f"{pa['type']} {a} and {pb['type']} {b} cut each other by "
