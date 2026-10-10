@@ -458,11 +458,11 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
                      openings: list, texts_m: list, rows: list[dict], level_id: str, file_rel: str,
                      page_no: Optional[int], s: float, no_ai: bool, raster: bool,
                      strokes_m: Optional[list] = None) -> tuple[dict, list]:
-    """Milestone 12 (docs/milestone12.md §4.1, track R): an AI candidate still ``unknown`` after its answers (or with
-    ``--no-ai``, where no answers come) is re-read (``symbols.reread``): its symbol strokes out, one part per block
+    """Milestone 12 (docs/milestone12.md §4.1, track R): an AI candidate still ``unknown`` after its answers (the
+    passes disagree or say unknown) is re-read (``symbols.reread``): its symbol strokes out, one part per block
     instance and stroke group, each typed on its own. Its question stays as it was (same key and hash: the answers of
-    every round still apply); only the piece is replaced, when the re-read found more than the one unknown piece.
-    Returns ``({candidate key: replacement items}, unknown pieces that fit no type)``; the replacement's unknown parts
+    every round still apply); only the piece is replaced, when the re-read found more than the one unknown piece. A
+    candidate without answers keeps its piece (only a block name the M12 words read types it, ``_m12_named``). Returns ``({candidate key: replacement items}, unknown pieces that fit no type)``; the replacement's unknown parts
     that fit a type are added to ``extras`` (asked under content keys), its symbols to ``symbols``."""
     pending = set(ex.report.get("pending") or [])
     # A round with answers for this page waits for none of its questions (one without answers was not in that round).
@@ -506,6 +506,10 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
                 replaced[cand["key"]] = made
                 ex.notes.append(f"{cand['key']}: typed {item.type} by the AI passes, but drawn as a table with "
                                 f"{len(made) - 1} chairs: split (M12)")
+            continue
+        if not item.type_candidates:
+            # Not answered (``--no-ai``, or a question whose answers no longer apply): its question stays open and the
+            # piece stays as asked (unknown), so twins drawn differently stay alike (real02's L1 corridors).
             continue
         if containers is None:
             containers = SY.containers_of(strokes_m or [])
