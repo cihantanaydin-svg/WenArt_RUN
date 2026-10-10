@@ -93,14 +93,14 @@ pipeline runs): `tests/test_outline_walls.py::test_real03_furniture_is_read_comp
 
 `pipeline.run_project` with the committed recognition answers (`results/recognition/<project>`), CPU, LibreDWG from
 `scripts/cloud-setup.sh`. Before = the fork point (`4a6701e`, M11 reading); after = this branch merged with
-`opus_branch_06` (tracks A, B, G, L, S). real03: 182 s, real02: 239 s.
+`opus_branch_06` (tracks A, B, G, L, S). real03: 173 s, real02: 228 s.
 
 | real03 (D Blok ground floor, 8 flats) | before | after |
 |---|---|---|
 | built unknown boxes | 43 | **0** |
 | oversized clusters (> 4.5 m, 92–100 % of their rooms, not built) | 7 | **0** (all 7 re-read into pieces and symbols) |
-| candidates still unknown after their answers, re-read | – | 6 |
-| symbols (never built) | 0 | **75**: other 36 (trace, view, door-detail lines), door_arc 20, room_number 8, text_frame 8, dimension_outline 3 (+ track L's level-mark symbol) |
+| candidates the passes left unknown, re-read | – | 4 |
+| symbols (never built) | 0 | **71**: other 32 (trace, view, door-detail lines), door_arc 20, room_number 8, text_frame 8, dimension_outline 3 (+ track L's level-mark symbol) |
 | AI types the drawing overrules (conflicts) | – | 7 `type_disagreement`: 3 "floor lamps" are room-number circles, a "stair" is a trace line, a "side table" a view line, 2 "sofas" are a table with its chairs (before the merge also 4 "console tables" on the door layer, whose answers no longer apply, see below) |
 | kitchen counters / sinks / fridges / stoves | 0 / 0 / 0 / 10 | **14 / 8 / 8 / 8** (2 hobs drawn twice inside the OCAK block, not built) |
 | dining tables / chairs | 0 / 0 | **6 / 18** (2 drawn sets the AI called sofas) |
@@ -110,14 +110,14 @@ pipeline runs): `tests/test_outline_walls.py::test_real03_furniture_is_read_comp
 | fixed pieces adjusted (U1) | – | 7 (6 showers and a washbasin through a wall, moved 0.10–0.15 m) |
 | drawn fronted pieces without a front | 31 of 80 | **4 of 128** (29 fronts inferred) |
 | kitchen zones (open kitchens in living rooms) | 0 | 8 |
-| not built, explained | 33 (unknown) | 21 details (vanities, drawn twice, small marks), 2 untyped |
+| not built, explained | 33 (unknown) | 21 details (vanities, drawn twice, small marks), 4 columns (inside re-read clusters), 2 untyped |
 | needs review | – | 2 (a 1.50 x 0.60 m piece the passes call dresser / wardrobe, a 0.40 x 0.20 m mark) |
 | recognition questions | 95 | 95 old (keys kept) + 26 extra (content keys, unanswered) |
 
 | real02 (villa, 4 plan regions) | before | after |
 |---|---|---|
 | built unknown boxes | 40 | **0** |
-| symbols / columns / decor (not built) | 0 / 0 / 0 | 2 / **8** (`A-BA` layer, kept as obstacles) / 6 (`Deko_*` layers) |
+| symbols / columns / decor (not built) | 0 / 0 / 0 | 0 / **10** (`A-BA` layer, 2 of them inside re-read clusters; kept as obstacles) / 6 (`Deko_*` layers) |
 | sinks (EVYE blocks: the M12 word) | 0 (4 called fridge by the AI) | **4** (+ 8 parts of the same blocks drawn twice, not built); fridges 4 → 0 |
 | dining tables / chairs | 4 / 36 | 10 / 50 (two 0.79 m round tables by size and room with their 2 chairs; four 0.79 x 0.65 tables with 2 chairs each split by geometry) |
 | armchairs | 2 | 8 (4 by the pair rule at a coffee table) |
@@ -132,26 +132,36 @@ input hash (real03 95/95, real02 90/90, checked before the merge). After merging
 `question.choices` of 28 real03 and 26 real02 questions change (new fitting types: `floor_lamp` 21, `bar_stool` 10,
 `tall_cabinet` 1, `dresser` 1 on real03), so their input hashes change and those answers no longer apply. Nothing
 else in the questions changed. The next recognition round must ask them again (or the choices of a question could be
-frozen to the size table it was asked with). Until then those pieces are re-read by geometry or listed for review.
+frozen to the size table it was asked with). Until then those pieces are typed by the building-level context
+rules and the size inference where they can be, else not built and listed for review.
 
-`--no-ai` (what `tests/test_outline_walls.py` runs on real03): 0 built unknown, 8 sinks / fridges / toilets / 8
-washbasins (bowl with drain in a bathroom; the AI calls 6 of them showers), 14 counter legs, 18 needs review.
+`--no-ai` (what `tests/test_outline_walls.py` runs on real03; the asked candidates get no answers, those no rule
+types stay unknown, not built and listed): 0 built unknown, 12 counter legs, 6 sinks, 6 fridges, 8 toilets, 8 corner
+sofas, 6 coffee tables, 6 TV units, 11 nightstands, 71 symbols, 8 kitchen zones, 29 needs review. real01 `--no-ai`: 16 of 20 pieces typed (before 5),
+4 needs review (the drawing room's sofas, coffee table and round piece, which only the AI types).
 
 ## 5. What is left
 
 - **The extra questions need a GPU round.** The re-read's unknown parts that fit a type are written to
-  `recognition/requests.json` under content keys (format unchanged); until a recognition round answers them they are
-  not built and listed under "needs review" (real03 26, real02 6). The same round should ask again the 28 + 26
-  questions whose choices track B's size table changed (§4). No pod was run in this track.
+  `recognition/requests.json` under content keys (format unchanged: real03 26, real02 6); until a recognition round
+  answers them the context rules and the size inference type what they can, the rest is not built and listed under
+  "needs review". The same round should ask again the 28 + 26 questions whose choices track B's size table changed
+  (§4). No pod was run in this track.
 - **Axis bubbles and section marks** are told by their layer names only; a grid bubble with a digit inside on a
   furniture-neutral layer is caught by the room-number shape (kind `room_number`, still never furniture). No shape
   rule for section marks.
 - **AI types that no code check contradicts stay**: 6 of real03's bathroom bowls with a drain (0.70 x 0.68 m, block
-  `A$C38267379`) are "showers" for both AI passes; without the AI the reading calls them washbasins (bowl with a drain
-  in a bathroom). Both sizes are borderline for both types, so the agreeing passes win; the agent's critic can
-  look at them.
+  `A$C38267379`) are "showers" for both AI passes; a re-read of them without the answers (an earlier experiment of
+  this track) called them washbasins (bowl with a drain in a bathroom). Both sizes are borderline for both types, so
+  the agreeing passes win; the agent's critic can look at them.
 - **real02**: the two kitchen-side clusters of 5.54 x 0.60 m and 5.14 x 2.37 m in the L-1 / L-1b Salons stay untyped
   after the re-read (listed for review); most real02 review items are pieces whose two AI passes disagree.
+- **real02 L1 twins with the answers**: each attic corridor holds a 1.52 x 0.60 m table with seats drawn around it.
+  The AI called one a bench (both passes) and disagreed on the other; the reading splits both into a table and its
+  seats (the table-with-chairs rule over the AI on one, the re-read on the other), but the two are drawn differently
+  (a block and two polylines; loose lines, two stool blocks and a chair whose centre lies in the terrace), so the L1
+  corridor and terrace pairs are no longer mirror twins in the answers run (each is rendered on its own). The
+  `--no-ai` run keeps them (`tests/test_real02_pipeline.py::test_attic_rooms_and_twins`).
 - **Crops**: a symbol or a review item has a crop only when its piece was asked (`recognition/crops/<key>_ctx.png`);
   the others are on the per-page debug image.
 - **Vision typing model**: the leftovers go through the existing two-pass recognition questions (candidates = the
@@ -167,5 +177,6 @@ washbasins (bowl with drain in a bathroom; the AI calls 6 of them showers), 14 c
 | lead | `wenart/report/final.py` | list `building["needs_review"]` (piece, room, reason, crop) and the symbol counts in the final report too (the ingest `report.md` has them in "Reading (Milestone 12)") |
 | lead | `wenart/schema/building.schema.json` | document: furniture `front_inferred` (text), `not_built_reason`, `inferred_as` (`column`, `decor`, `detail`, `rug`), `adjusted_by_ai.rule` / `changed` / `crop`; `needs_review[]` `room_id` / `level_id`; the items of `rooms[].zones` (as above); symbol ids `sy_<level>_NNN` (track R) next to `sym_<piece>` (track L) |
 | lead / A | recognition runner (pod round) | answer the extra questions (`sym_<level>_x<8 hex>` keys) in the next recognition round; the answer files and their format are unchanged |
-| B | – | nothing: `sizes.product_size`, `real_range` and `fits` are used as they are |
+| B / lead | `wenart/recognition/size_table.yaml`, `recognition/symbols.py` | `sizes.product_size`, `real_range` and `fits` are used as they are. Note: a question's choices come from the size table, so the new table changed the input hashes of 28 real03 and 26 real02 questions and their answers no longer apply (§4): re-ask them in the next round, or freeze a question's choices to the table it was asked with |
+| lead | `tests/test_real02_pipeline.py` | `test_alternative_basement_rooms_twins_and_same_as` fails on `opus_branch_06` itself (checked on an export of `9635c95`): the L-1b face is labelled "Salon" ("the label with the largest printed area (else the first) kept"), the test expects "Açık Mutfak"; not touched by track R |
 | L | – | nothing: a level mark still among the pieces after `apply_levels` is moved as `level_mark` (`_is_mark` uses `marks.parse_mark`) |
