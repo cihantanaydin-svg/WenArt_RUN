@@ -194,6 +194,20 @@ def test_a_refused_refit_rolls_the_round_back(tmp_path, models):
     assert [f.get("type") for f in json.loads((out / "building_final.json").read_text())["furniture"]] != ["armchair"]
 
 
+def test_a_refit_that_fails_again_rolls_back_every_agent_edit(tmp_path, models):
+    """Pod G2c (real02): the refit refused an edit of an earlier round, failed again after the round's rollback, and
+    the project ended without final renders. Now every agent edit is rolled back and the project goes on (M10)."""
+    rc = {"refit": lambda cli: 1 if len(cli.find("refit")) in (2, 3) else 0}
+    r = orchestrated(tmp_path, [CHANGE, FINISH], [[F1]], rc=rc)
+    assert r.run(**r.kwargs) == 0
+    assert len(r.cli.find("refit")) == 4 and r.manifest()["projects"][0]["state"] == "ok"
+    assert r.cli.find("render")                                   # the final renders run
+    out = tmp_path / "outputs" / "p1"
+    entry = json.loads(OV.overrides_path(out).read_text())["edits"][0]
+    assert entry["result"]["accepted"] is False
+    assert r.record("p1", "refit")["status"] == "ok"
+
+
 def test_a_failed_agent_server_leaves_the_m10_result(tmp_path, models):
     r = orchestrated(tmp_path, [CHANGE], [[F1]], fail={"agent": "early_exit"})
     assert r.run(**r.kwargs) == 1                                # the check cannot run without its server

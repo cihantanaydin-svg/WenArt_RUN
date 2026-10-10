@@ -1812,13 +1812,14 @@ class Orchestrator:
         self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary['accepted']} edit(s) accepted, "
                                        f"{summary['rejected']} rejected; stop: {STOPS.get(stop, stop)}")
 
-    def rollback_round(self, pr: ProjectRun, round_no: int, why: str) -> int:
-        """The accepted edits of ``round_no`` are taken back (a refit that refuses them would fail the project)."""
+    def rollback_round(self, pr: ProjectRun, round_no: Optional[int], why: str) -> int:
+        """The accepted edits of ``round_no`` (every round when None) are taken back (a refit that refuses them would
+        fail the project)."""
         from wenart.agent import overrides as OV
         ov = OV.Overrides(pr.out)
         n = 0
         for e in ov.edits:
-            if int(e.get("round") or 0) == int(round_no) and (e.get("result") or {}).get("accepted"):
+            if (round_no is None or int(e.get("round") or 0) == int(round_no)) and (e.get("result") or {}).get("accepted"):
                 e["result"].update(accepted=False, rolled_back=why)
                 n += 1
         if n:
@@ -1826,7 +1827,7 @@ class Orchestrator:
         return n
 
     def rollback_locked(self, pr: ProjectRun, round_no: int) -> int:
-        """The edits of ``round_no`` that the refit's locked check would refuse (``wenart.furniture.locked``, run on
+        """The accepted edits (of any round; ``round_no`` is the current one) that the refit's locked check would refuse (``wenart.furniture.locked``, run on
         ``building_agent.json`` against ``building.json`` as the refit does) are rolled back; returns their number."""
         from wenart.agent import overrides as OV
         from wenart.furniture import locked
@@ -1846,7 +1847,7 @@ class Orchestrator:
         n = 0
         for e in ov.edits:
             res = e.get("result") or {}
-            if int(e.get("round") or 0) != int(round_no) or not res.get("accepted"):
+            if not res.get("accepted"):         # pod G2c: the refused edit may be of an earlier round
                 continue
             ids = {str(x) for x in [(e.get("args") or {}).get("piece_id"), (e.get("args") or {}).get("room_id"),
                                     *(res.get("changed_ids") or [])] if x}
@@ -1880,9 +1881,23 @@ class Orchestrator:
             n = self.rollback_round(pr, round_no, f"refit {rec.status} ({rec.note})")
             pr.terminal = before
             self.stage_agent_apply(pr)
-            self.stage_refit(pr)
-            return {"status": "failed", "note": f"refit refused the round's edits: {n} edit(s) rolled back",
-                    "seconds": round(self.now() - t0, 1)}
+            rec = self.stage_refit(pr)
+            note = f"refit refused the round's edits: {n} edit(s) rolled back"
+            if rec.status not in ST.GOING_ON:
+                # Pod G2c: the refit failed again (an earlier round's edit) and the project ended without final
+                # renders. The agent never leaves a project worse than the M10 chain: every edit is rolled back.
+                n_all = self.rollback_round(pr, None, f"refit {rec.status} ({rec.note}): every agent edit rolled back")
+                pr.terminal = before
+                self.stage_agent_apply(pr)
+                rec = self.stage_refit(pr)
+                note += f"; refit failed again: all {n_all} agent edit(s) rolled back"
+                if rec.status not in ST.GOING_ON:
+                    note += "; refit still fails without agent edits"
+                else:
+                    pr.terminal = before
+            else:
+                pr.terminal = before
+            return {"status": "failed", "note": note, "seconds": round(self.now() - t0, 1)}
         self.stage_build(pr)
         if self.status_of(pr, "build") != "ok":
             return {"status": "failed", "note": "build failed", "seconds": round(self.now() - t0, 1)}

@@ -724,3 +724,21 @@ GPU tests: 2 failures (`test_every_model_answered_its_calls`, `test_style_photo_
 read `CHECK_MODELS=qwen glm`, while an orchestrated run checks with the agent model alone (D8). The agent read the
 style test photo correctly (walls `plaster_charcoal`, floor `concrete_polished`). Fix: the scheduler gives the GPU
 tests the run's check models (test). real01 passed only because answers of an older run were on the volume.
+
+### 19.5 Pod G2c – real02 orchestrated with the G2b fixes (10 Oct 2026, `c5hsyi78s9z975`, 52 min, $2.14)
+
+3 rounds, 18 edits accepted, 125 rejected (findings: critical 7 → 6, major 119 → 109). Among the accepted edits: a
+dashed circular play-area outline and a curtain strip removed in the play room, which was retyped `living`; armchairs
+turned to the sofa group; lone AI chairs and a floating AI tall cabinet removed; a second oversized bed resized;
+flat panels of the attic toilet and washbasin swapped for library models; an unknown 0.62 × 0.60 m box in the counter
+run typed `sink_kitchen`.
+
+The run ended badly: the refit refused that last edit (`f_L-1b_006: fixed equipment changed its type`) in round 3,
+failed again after the round's rollback (the edit was of round 2), and the project ended without final renders (the
+GPU tests then had no project). Fixes (tests):
+
+| # | Cause | Fix |
+|---|---|---|
+| 1 | the locked check treated a not-built drawn `unknown` as fixed equipment; `edit_ops` lets the agent type it (CLAUDE.md: never an unexplained box) | an unbuilt `unknown` may be typed; other not-built pieces stay |
+| 2 | the partial rollback looked at the current round only | it looks at every accepted edit the locked check names |
+| 3 | a refit that failed after the round's rollback ended the project | then every agent edit is rolled back and the project goes on with the M10 result |

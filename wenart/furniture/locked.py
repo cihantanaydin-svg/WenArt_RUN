@@ -228,7 +228,9 @@ def _agent_problems(src: dict, fin: dict, keep: bool) -> list[str]:
     # Pod G2 (real02): the fixed equipment of CLAUDE.md is schemas.FIXED_TYPES, as in edit_ops; the other
     # UNCHANGEABLE_TYPES (documented-only and rule-only types, e.g. a floor lamp) keep their type but move like
     # other drawn furniture (the refit refused a validated 0.3 m floor lamp move and rolled the round back).
-    fixed = src["type"] in schemas.FIXED_TYPES or src.get("build") is False
+    # Pod G2c: a drawn ``unknown`` that was not built (a detail or an unclear symbol) may be typed by the agent (CLAUDE.md:
+    # "never an unexplained box"), as edit_ops allows; other not-built pieces stay as they are.
+    fixed = src["type"] in schemas.FIXED_TYPES or (src.get("build") is False and src["type"] != "unknown")
     if src["type"] in schemas.UNCHANGEABLE_TYPES and not fixed and src["type"] != fin["type"] and not keep:
         out.append(f"{pid}: {src['type']} changed its type (no room type lists a type to change it into)")
     if fixed or keep:

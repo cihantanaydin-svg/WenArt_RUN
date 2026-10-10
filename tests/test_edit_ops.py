@@ -294,3 +294,19 @@ def test_a_wall_snap_may_move_a_drawn_piece_up_to_1_2_m():
     free = copy.deepcopy(fin)
     del free["adjusted_by_ai"]["snapped_wall"]
     assert any("moved 1.050 m" in p for p in locked._agent_problems(src, free, keep=False))
+
+
+def test_refit_accepts_the_agent_typing_an_unbuilt_unknown():
+    """Pod G2c (real02 f_L-1b_006): the agent typed a not-built drawn unknown (0.62 x 0.60 m in the counter run) as a
+    kitchen sink; edit_ops accepted it, the locked check called it fixed equipment. CLAUDE.md: never an unexplained
+    box. An unbuilt unknown may be typed; a not-built piece of a known type stays as it is."""
+    import copy
+    from wenart.furniture import locked
+
+    src = {"id": "f1", "type": "unknown", "source": "from_documents", "level_id": "L0", "room_id": "r1", "build": False,
+           "footprint": {"center": [1.0, 0.3], "size": [0.62, 0.6], "rotation_deg": 0.0}, "front_deg": None}
+    fin = dict(copy.deepcopy(src), type="sink_kitchen", drawn_type="unknown", build=True,
+               adjusted_by_ai={"reason": "sink in the counter run", "changed": {"type": "unknown"}})
+    assert locked._agent_problems(src, fin, keep=False) == []
+    lamp = dict(copy.deepcopy(src), type="floor_lamp")
+    assert locked._agent_problems(lamp, dict(fin, drawn_type="floor_lamp"), keep=False)
