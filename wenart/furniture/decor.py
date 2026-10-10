@@ -889,3 +889,12 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# Milestone 12 contract (docs/milestone12.md §4.7, §13.2; owner: track S). Stub by the lead.
+def sync_to_hosts(building: dict) -> dict:
+    """A new building whose decor follows its hosts: every decor item with ``host`` (host frame) gets its world
+    ``center`` / ``rotation_deg`` recomputed from its host piece; decor whose host is gone or not built is dropped
+    (listed in ``decor_dropped``). Called after every accepted agent edit and by ``agent apply``."""
+    import copy as _copy
+    return _copy.deepcopy(building)

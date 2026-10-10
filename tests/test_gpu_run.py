@@ -688,3 +688,19 @@ def test_drive_upload_secret_check(monkeypatch):
     assert calls[0] == ("GET", "/v2/account/secrets?name=rclone_conf")
     text = (Path(__file__).resolve().parents[1] / "scripts" / "gpu_run.py").read_text()
     assert 'RCLONE_CONF="{{ RUNPOD_SECRET_" + DRIVE_SECRET + " }}"' in text and '"RCLONE_")' in text
+
+
+def test_two_gpu_pods_of_10_oct_2026():
+    """Milestone 12 (CLAUDE.md, user OK of 10 Oct 2026): a pod may have 2 GPUs; the $5 limit is per GPU-hour and the
+    worst case counts both GPUs (over $5 needs --over-5-ok)."""
+    assert gpu_run.GPU_COUNTS == (1, 2)
+    assert gpu_run.action_price_limit(100, count=2) == pytest.approx(5.0 * 60 / 100 / 2)        # $1.50/GPU-hour
+    assert gpu_run.action_price_limit(100, over_5_ok=True, count=2) == 5.0
+    body = gpu_run.pod_create_body("wenart-x", "NVIDIA RTX PRO 6000", None, {}, None, 250, gpu_count=2)
+    assert body["gpu"]["count"] == 2 and body["disk"] == 250
+    assert gpu_run.pod_create_body("wenart-x", "g", None, {}, None)["gpu"]["count"] == 1
+    gpu_run.check_limits(2.49, 100, 0.0, count=2)                 # $8.30 worst case, under the day limit
+    with pytest.raises(RuntimeError, match="day limit"):
+        gpu_run.check_limits(2.49, 120, 22.0, count=2)            # 22 + 9.96 > 30
+    with pytest.raises(RuntimeError, match="allowed"):
+        gpu_run.check_limits(2.49, 60, 0.0, count=3)

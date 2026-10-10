@@ -572,3 +572,18 @@ def aspect_error(entry: dict, width: float, depth: float) -> float:
 
 def parametric_height(ftype: str) -> float:
     return PARAMETRIC_HEIGHTS.get(ftype, PARAMETRIC_HEIGHTS["unknown"])
+
+
+# Milestone 12 contract (docs/milestone12.md §4.8, §6.2, §13.2; owner: track S; the audit fields: track B).
+NOT_USABLE_LICENCE_MARKERS = ("-NC", "-SA", "-ND")
+
+
+def usable(entry: dict) -> bool:
+    """A library entry the fit may use: its audit status is not ``removed`` (``entry["audit"]["status"]`` in keep /
+    fix, or no audit yet) and its licence is not non-commercial, share-alike or no-derivatives (CLAUDE.md library
+    rules, user OK of 10 Oct 2026)."""
+    audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
+    if audit.get("status") == "removed":
+        return False
+    licence = str(entry.get("licence") or entry.get("license") or "").upper()
+    return not any(m in licence for m in NOT_USABLE_LICENCE_MARKERS)

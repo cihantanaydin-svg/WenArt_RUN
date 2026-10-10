@@ -873,6 +873,12 @@ def main(argv: list[str]) -> int:
         summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
+        # Milestone 12 (docs/milestone12.md §4.6-§4.7, contract §13.3; hook owned by track S): the scene checks S1-S6
+        # of this level's built furniture and decor (``summary["objects"]``: {piece or decor id: object}).
+        from wenart.blender import scene_checks as SC
+        scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
+                                           out / "checks" / f"scene_{level['id']}.json")
+        furniture_summary.setdefault("scene_checks", {})[level["id"]] = scene_report.get("counts") or {}
         # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
         splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
         furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash

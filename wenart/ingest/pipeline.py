@@ -2190,6 +2190,11 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _check_outlines(build)
     if build.sheets is not None:
         _building_m10(build, project_dir)
+    # Milestone 12 (docs/milestone12.md §3, §4.1, contract §13.2): the level marks (track L), then the furniture
+    # reading (track R), before the type inference.
+    from wenart.ingest.generic import levels as LV, reading as RD
+    LV.apply_levels(build, works)
+    RD.read_furniture(build, works)
     _infer_types(build)
     masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):

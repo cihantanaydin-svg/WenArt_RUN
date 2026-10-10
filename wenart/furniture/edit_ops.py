@@ -682,3 +682,15 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
                   f"{op} accepted: score {100 - before_score['penalty']} -> {100 - after_score['penalty']}")
     out["penalty_before"], out["penalty_after"] = before_score["penalty"], after_score["penalty"]
     return out
+
+
+# Milestone 12 contract (docs/milestone12.md §5.3, §13.2; owner: track G). Stubs by the lead; track G builds them.
+def dry_run(building: dict, edit: dict, *, catalog=None) -> dict:
+    """The validator's answer for ``edit`` without applying it: the ``apply_edit`` result with ``building`` None."""
+    res = apply_edit(building, edit, catalog=catalog)
+    return dict(res, building=None)
+
+
+def allowed_edits(building: dict, piece_id: str) -> dict:
+    """Per tool name: ``{"allowed": bool, "why": str, "move_left_m": float | None}`` for one piece (the room brief)."""
+    return {}

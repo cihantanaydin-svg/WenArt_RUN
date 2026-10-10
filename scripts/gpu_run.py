@@ -76,6 +76,7 @@ POD_PREFIX = "wenart-"
 # fast RTX cards. Measured: the RTX 4090 renders and polishes 25-30 % faster than the RTX PRO 4500 (M5 runs
 # 1a/2). Not measured yet: everything else; the RTX PRO 6000 (96 GB) has the same Blackwell architecture as the
 # PRO 4500 (the lowest-risk upgrade; in stock in EU-RO-1 on 3 Oct 2026, $2.09/h).
+GPU_COUNTS = (1, 2)       # Milestone 12 (CLAUDE.md, user OK of 10 Oct 2026): a pod may have 2 GPUs
 GPU_PRIORITY = ["RTX PRO 6000", "RTX PRO 6000 WK", "RTX 5090", "RTX PRO 5000", "L40S", "H200 SXM", "H200 NVL",
                 "H100 SXM", "H100 NVL", "H100 PCIe", "RTX 4090", "RTX 6000 Ada", "L40", "A100 SXM", "A100 PCIe",
                 "RTX PRO 4500", "RTX 5000 Ada", "RTX PRO 4000", "RTX A6000", "A40", "RTX A5000"]
@@ -171,12 +172,13 @@ def utc_now() -> dt.datetime:
 
 
 # ---------------------------------------------------------------------- pure logic
-def action_price_limit(minutes: int, over_5_ok: bool = False) -> float:
-    """$/h limit for one pod of ``minutes``: the per-hour limit, and (unless the user OK'd a bigger action with
-    ``--over-5-ok``) the price at which the pod's worst case stays within MAX_ACTION_USD."""
+def action_price_limit(minutes: int, over_5_ok: bool = False, count: int = 1) -> float:
+    """$/GPU-hour limit for one pod of ``minutes`` with ``count`` GPUs: the per-GPU-hour limit, and (unless the user
+    OK'd a bigger action with ``--over-5-ok``) the price at which the pod's worst case (all its GPUs) stays within
+    MAX_ACTION_USD. Milestone 12 (CLAUDE.md, user OK of 10 Oct 2026): a pod may have 2 GPUs."""
     if over_5_ok or minutes <= 0:
         return MAX_PRICE_PER_H
-    return min(MAX_PRICE_PER_H, MAX_ACTION_USD * 60.0 / minutes)
+    return min(MAX_PRICE_PER_H, MAX_ACTION_USD * 60.0 / minutes / max(1, count))
 
 
 def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | None,
@@ -210,12 +212,15 @@ def secret_exists(name: str) -> bool:
     return any(s.get("name") == name for s in r.get("secrets") or [])
 
 
-def check_limits(price: float, minutes: int, spent_today: float) -> None:
+def check_limits(price: float, minutes: int, spent_today: float, count: int = 1) -> None:
+    """``price``: $ per GPU-hour; the worst case counts every GPU of the pod."""
+    if count not in GPU_COUNTS:
+        raise RuntimeError(f"{count} GPUs per pod: allowed {GPU_COUNTS}")
     if price > MAX_PRICE_PER_H:
         raise RuntimeError(f"${price}/h is over the ${MAX_PRICE_PER_H}/h limit")
     if minutes > MAX_MINUTES:
         raise RuntimeError(f"{minutes} min is over the {MAX_MINUTES} min limit per run")
-    worst = price * minutes / 60
+    worst = price * count * minutes / 60
     limit = day_limit()
     if spent_today + worst > limit:
         raise RuntimeError(f"today's spend ${spent_today:.2f} + worst case ${worst:.2f} "
@@ -293,12 +298,12 @@ def append_gpu_log(text: str, row: dict) -> str:
 
 
 def pod_create_body(name: str, gpu_id: str, volume_id: str | None, env: dict, dc: str | None,
-                    disk_gb: int = CONTAINER_DISK_GB) -> dict:
+                    disk_gb: int = CONTAINER_DISK_GB, gpu_count: int = 1) -> dict:
     body = {
         "name": name,
         "image": IMAGE,
         "cloud": "SECURE",
-        "gpu": {"id": gpu_id, "count": 1, "minCudaVersion": "12.8"},
+        "gpu": {"id": gpu_id, "count": gpu_count, "minCudaVersion": "12.8"},
         "disk": disk_gb,
         "ports": ["8000/http"],
         "env": env,
@@ -747,12 +752,15 @@ def cmd_run(a: argparse.Namespace) -> int:
     if not a.no_volume and volume is None:
         raise RuntimeError(f"no network volume '{VOLUME_NAME}'; run 'volume-create' or use --no-volume")
     dc = volume["dataCenter"] if volume else None
+    count = getattr(a, "gpu_count", 1) or 1
     gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu,
-                   max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False)))
+                   max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False), count))
     today = spent_today(pods)
-    check_limits(gpu["price"], minutes, today)
-    worst = gpu["price"] * minutes / 60
-    print(f"GPU {gpu['name']} ({gpu['memory']} GB) ${gpu['price']}/h, stock {gpu['availability']}, "
+    check_limits(gpu["price"], minutes, today, count)
+    worst = gpu["price"] * count * minutes / 60
+    if count > 1:
+        gpu = dict(gpu, name=f"{count}x {gpu['name']}")
+    print(f"GPU {gpu['name']} ({gpu['memory']} GB each) ${gpu['price']}/h per GPU, stock {gpu['availability']}, "
           f"DC {dc or 'any'}, max {minutes} min -> worst case ${worst:.2f}; spent today ${today:.2f}")
     if a.dry_run:
         print("dry run, no pod created"); return 0
@@ -766,7 +774,7 @@ def cmd_run(a: argparse.Namespace) -> int:
         "REPO_URL": a.repo_url, "REPO_COMMIT": commit,
         "MAX_RUNTIME_S": str(minutes * 60), "GRACE_S": str(a.grace),
         "HF_TOKEN": "{{ RUNPOD_SECRET_hf_token }}", "HF_HOME": "/workspace/hf",
-        "WENART_IMAGE": IMAGE, "WENART_EXPECT_VOLUME": "1" if volume else "0",
+        "WENART_IMAGE": IMAGE, "WENART_EXPECT_VOLUME": "1" if volume else "0", "WENART_GPU_COUNT": str(count),
     }
     if getattr(a, "drive_upload", False):
         # User request of 10 Oct 2026: the pod uploads the 3D files to Google Drive with the user's rclone config,
@@ -791,7 +799,8 @@ def cmd_run(a: argparse.Namespace) -> int:
     t0 = time.time()
     pod_id = None
     try:
-        pod = api("POST", "/v2/pods", pod_create_body(name, gpu["id"], volume["id"] if volume else None, env, dc, a.disk), retries=1)
+        pod = api("POST", "/v2/pods", pod_create_body(name, gpu["id"], volume["id"] if volume else None, env, dc, a.disk,
+                                                      gpu_count=count), retries=1)
         pod_id = pod["id"]
     except ApiError as e:
         print(f"pod creation failed: {e}; checking for an orphan named {name}")
@@ -807,7 +816,7 @@ def cmd_run(a: argparse.Namespace) -> int:
     status_url = f"https://{pod_id}-8000.proxy.runpod.net/{token}/"
     result = "unknown"
     gpu_name = gpu["name"]
-    price = gpu["price"]
+    price = gpu["price"] * count
     last_state = None
     final_status: dict | None = None
     self_stopped = False
@@ -840,8 +849,11 @@ def cmd_run(a: argparse.Namespace) -> int:
                 time.sleep(POLL_S)
                 continue
             pod_status = p["status"]
-            price = p.get("cost") or price
+            # The API's cost is the pod's rate; with 2 GPUs the log never counts less than both GPUs' prices.
+            price = max(p.get("cost") or 0.0, gpu["price"] * count) if count > 1 else (p.get("cost") or price)
             gpu_name = (p.get("gpu") or {}).get("id", gpu_name)
+            if count > 1 and not str(gpu_name).startswith(f"{count}x "):
+                gpu_name = f"{count}x {gpu_name}"
             if pod_status == "RUNNING" and first_running is None:
                 first_running = time.time()
             if first_running and not seen_status and time.time() - first_running > BOOT_TIMEOUT_S:
@@ -897,7 +909,7 @@ def cmd_run(a: argparse.Namespace) -> int:
         try:
             p = api("GET", f"/v2/pods/{pod_id}")
             pod_status = p["status"]
-            price = p.get("cost") or price
+            price = max(p.get("cost") or 0.0, gpu["price"] * count) if count > 1 else (p.get("cost") or price)
         except ApiError as e:
             print(f"final status read failed: {e}")
         if pod_status not in ("EXITED", "TERMINATED") and not result.startswith("api unreachable"):
@@ -1045,6 +1057,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="seconds the pod waits after the job before stopping itself (the runner stops it "
                         "earlier, right after a successful collection)")
     r.add_argument("--disk", type=int, default=CONTAINER_DISK_GB, help="container disk GB (wiped with the pod; ~$0.10/GB/month)")
+    r.add_argument("--gpu-count", type=int, default=1, choices=GPU_COUNTS,
+                   help="GPUs in the pod (Milestone 12, user OK of 10 Oct 2026: 2 for the large agent model)")
     r.add_argument("--env", action="append", metavar="KEY=VALUE", help="extra environment variable for the job (repeatable)")
     r.add_argument("--purpose", help="text for docs/gpu-log.md")
     r.add_argument("--no-volume", action="store_true", help="run without the network volume (nothing persists)")

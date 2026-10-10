@@ -1145,3 +1145,70 @@ Commit, push and `docs/progress.md` after each step; no pod running at the end o
 | D24 | Growth order of §6.4 (Poly Haven 1.0 GB, procedural textiles and fixtures, Infinigen fixtures after a test batch, ABO style pass 6.5 GB, GSO 0.5 GB); each list shown to you after the audit, nothing downloaded before your OK | yes |
 | §8 | GPU plan ≈ $35–49 (1 GPU) or ≈ $55–80 (2-GPU agent); P1 and 2-GPU runs need `--over-5-ok` | OK |
 | §11 | `CLAUDE.md` wording 1–4 (5 only with D16) | OK |
+
+## 13. Contracts of the build (frozen 10 Oct 2026; only the lead edits this section)
+
+### 13.1 Tracks and file ownership
+
+| Track | Builds | Owns (only this track edits) | Tests |
+|---|---|---|---|
+| **L** levels | §3: D1–D6, D3a, B9, B10; single-region site and exterior (U2) | `wenart/levels/**`, `wenart/ingest/generic/levels.py`, `wenart/sheets/**`, `wenart/blender/site.py`, `facade.py`, `shell.py`, `exterior.py`, `exterior_checks.py`, `roof.py`, `cameras.py`, `camsearch.py`, `build.py` (not the S hook block), `wenart/defaults.yaml`, `wenart/brief.py`, `wenart/report/m10.py` | `tests/test_levels_*.py` + the matching existing tests |
+| **R** reading | §4.1: D7, B11 (with `levels.marks.parse_mark`), U1 at ingest, kitchen zones, no built unknowns | `wenart/ingest/generic/reading.py`, `wenart/ingest/generic/symbols.py`, `core.py`, `labels.py`, `outlines.py`, `wenart/ingest/dxf_generic.py`, `wenart/ingest/pipeline.py` (not the hook lines), `wenart/ingest/raster.py`, `wenart/furniture/infer.py`, `wenart/recognition/**` (not `size_table.yaml`) | `tests/test_reading_*.py` + matching |
+| **G** groups | §4.2–§4.6, §4.9: D8–D12, D15 (groups.yaml, program, solver, G-checks, layout and completion through the solver, group edit ops, `dry_run`, `allowed_edits`, U1 in the validators) | `wenart/furniture/groups.yaml` (new), `groups.py`, `program.py`, `solver.py`, `group_checks.py`, `layout.py`, `complete.py`, `placer.py`, `plausibility.py`, `schemas.py`, `edit_ops.py`, `locked.py`, `prompts.py` | `tests/test_groups_*.py`, `tests/test_solver_*.py` + matching |
+| **S** scene | §4.7–§4.8: D13, D14 (host frame, rays, shrinkwrap, procedural textiles and bedding, parametric shower / washer / fridge, curtains, blinds), S1–S6, B1, B3, B7, `catalog.usable` in the fit, style fallback chain | `wenart/furniture/decor.py`, `decor_ai.py`, `fit.py`, `catalog.py`, `wenart/blender/furniture.py`, `parametric.py`, `proxies.py`, `materials.py`, `looks.py`, `scene_checks.py`, the scene-check hook block in `build.py` | `tests/test_scene_*.py`, `tests/test_decor_*.py` + matching |
+| **A** agent and run | §5: D16–D20 (bake-off task set and job, TP2 serving, room brief, group and level tools, dry run, plan, memory, parallel sessions, measured budget, metrics, critic filter), B5, B6, B8; wiring of G-, L-, S-checks and `library_gap` findings into the critic; layout stage on the agent model | `wenart/agent/**`, `wenart/run/**`, `wenart/vision_check/**`, `wenart/report/**` (not `m10.py`), `scripts/jobs/*.sh` (not `library_*`), `scripts/pod_setup_*.sh` (not `library`), `scripts/pod_requirements*.txt` | `tests/test_agent_*.py`, `tests/test_run_*.py`, `tests/test_bakeoff_*.py`, `tests/gpu/test_agent.py` + matching |
+| **B** library | §6: D21–D24 (audit job, decisions, contact sheets, gap report, size table, growth scaffolding behind your OK), U3 (NC/SA out of the catalogue now) | `wenart/assets/**`, `wenart/furniture/catalog_library.json`, `catalog.json`, `wenart/furniture/sizes.py`, `wenart/recognition/size_table.yaml`, `scripts/jobs/library_*.sh`, `results/library/**` | `tests/test_library_*.py`, `tests/test_audit_*.py`, `tests/gpu/test_library.py` + matching |
+| Lead | contracts, stubs, merges | `CLAUDE.md`, `docs/**`, `wenart/schema/building.schema.json`, `scripts/gpu_run.py`, `tests/test_m12_contracts.py`, `tests/test_gpu_run.py` | – |
+
+A track that needs a change in another track's file writes it into its report; the lead decides. Every track keeps
+`pytest -m "not gpu"` green for the files it touches and adds tests that fail on the old code.
+
+### 13.2 Interfaces (stubs committed by the lead; signatures frozen, `tests/test_m12_contracts.py`)
+
+| Module (owner) | Functions | Used by |
+|---|---|---|
+| `wenart/levels/marks.py` (L) | `parse_mark(text) -> {value, relative, absolute, kind_hint, raw} | None`; `MARK_ATTRIBUTE_TAGS` | L, R (marks are never furniture) |
+| `wenart/levels/model.py` (L) | `infer_levels(building, brief=None) -> building` | L (ingest), A (after level edits) |
+| `wenart/levels/checks.py` (L) | `CHECKS` L1–L7; `check_levels(building, scene_manifest=None, render_manifest=None) -> [Violation]` | A (critic, validator), tests |
+| `wenart/levels/edits.py` (L) | `LEVEL_EDIT_OPS`, `LEVEL_EDIT_SCHEMAS`, `apply_level_edit(building, edit) -> apply_edit-style result` | A (level tools) |
+| `wenart/ingest/generic/levels.py` (L) | `apply_levels(build, works) -> None` (pipeline hook, before reading) | pipeline |
+| `wenart/ingest/generic/reading.py` (R) | `read_furniture(build, works) -> None` (pipeline hook, before the type inference) | pipeline |
+| `wenart/furniture/program.py` (G) | `room_program(building, room_id, brief=None, choices=None) -> Program` | G, A (room brief) |
+| `wenart/furniture/solver.py` (G) | `solve_room(building, room_id, program=None, *, k=3, fixed_ids=None) -> [Candidate]`; `apply_candidate(building, room_id, candidate) -> building` | G (layout stage), A (`relayout_room`) |
+| `wenart/furniture/group_checks.py` (G) | `CHECKS` G1–G14; `check_room(building, room_id) -> [Violation]`; `check_building(building) -> {rooms, counts}` | A, G, tests |
+| `wenart/furniture/groups.py` (G) | `load_groups() -> {name: template}`; `group_members(building, room_id) -> [...]`; `place_group` (kept) | G, A |
+| `wenart/furniture/edit_ops.py` (G) | `EDIT_OPS` (+ `place_group`, `complete_group`, `move_group`, `retype_piece`, `mark_not_furniture`, `fix_fixture`, `set_front`; `relayout_room` takes `candidate`), `EDIT_SCHEMAS`, `apply_edit` (kept), `dry_run(building, edit, *, catalog=None)`, `allowed_edits(building, piece_id) -> {tool: {allowed, why, move_left_m}}` | A |
+| `wenart/furniture/sizes.py` (B) | `real_range(ftype) -> {width, depth, height, product} | None`; `product_size(ftype, drawn) -> (w, d)`; `fits(ftype, size, tolerance=0.15)` | R, G, S, B |
+| `wenart/furniture/decor.py` (S) | `sync_to_hosts(building) -> building` | A (after every accepted edit and in `agent apply`) |
+| `wenart/furniture/catalog.py` (S) | `usable(entry) -> bool` (audit status, NC/SA/ND) | S (fit), B |
+| `wenart/blender/scene_checks.py` (S) | `CHECKS` S1–S6, `TOLERANCES`; `run_scene_checks(building, scene_objects, out_path)` (Blender, hook in `build.py`); `measure_pure(meshes, building)` (CPU tests) | build, A (critic reads `checks/scene_<level>.json`) |
+
+`Violation = {check, severity, target, room_id, message, metrics}` everywhere (the M11 format).
+
+### 13.3 Data between the tracks
+
+- Building JSON (schema committed by the lead, all optional): `level_marks[]`, `symbols[]`, `needs_review[]`,
+  `rooms[].floor_offset_m` / `floor_evidence` / `program` / `zones`, `openings[].threshold_z`,
+  `site.ground.points` / `surface` (terrain kinds `planar`, `tin`), `site.entrances[]`, `site.plinth`,
+  `furniture[].group {group_id, group, role}`, `furniture[].library_gap`, `decor[].host_frame {support, u, v,
+  lean_deg, shelf}`.
+- Zones (R → G): `rooms[].zones = [{zone_id, kind: kitchen | dining | living | work | sleeping, polygon, evidence}]`;
+  the room-type rules apply per zone (G).
+- DXF attribute tags: the text evidence of an ATTRIB carries `attrib_tag` (lead, `dxf_generic._run`) for L.
+- Catalogue (B → S, A): `entries[]` / `decor[]` get `audit = {status: keep | fix | removed, reasons: [str],
+  fixes: {field: value}, version: "m12", checked_utc}` and the flags `real_product`, `has_bedding`, `has_cushions`,
+  `has_pillows` (beds and seats), `contact` (decor: `flat_bottom | hangs | leans | drapes`). Until the audit has
+  run, an entry without `audit` is usable unless its licence is NC/SA/ND (`catalog.usable`).
+- Scene checks (S → A): `outputs/<p>/build/checks/scene_<level>.json` (`{violations, counts, measured}`); the build
+  manifest's furniture summary gets `scene_checks: {level: counts}`.
+- Agent memory (A): `outputs/<p>/orchestrator/memory.json`; metrics `orchestrator/metrics.json`.
+- Layout stage (G's CLI, A's command line): `python -m wenart.furniture.layout <fitted> --style --server --model
+  --out --debug --project-dir` stays; in an orchestrated run A passes the agent server and model.
+- Bake-off (A): `scripts/jobs/bakeoff_m12.sh`, task set `tests/fixtures/m12_bakeoff/`, results
+  `results/bakeoff_m12/`; models in `wenart/vision_check/check.yaml` (`models.bakeoff`): `Qwen/Qwen3.8-27B-FP8`
+  @017b9c7af6b5689d5dd426a76e0bc077eb5ca20a, `Qwen/Qwen3.8-27B` @1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0,
+  `meta-models/Muse-Glimmer-30B` @a4e59da52a7bc87ae7251dd5545c0dd437c44b68, `nvidia/Qwen3.8-Flash-Next-NVFP4`
+  @fc694b54fb0174e0913e6adf86691ef85a4ead47 (TP2; fallback `stepfun-ai/Step-3.7-Flash-NVFP4`
+  @4275532ffd9a9496ff36b7a2dc4a9db1048da438).
+- Runner (lead): `scripts/gpu_run.py run --gpu-count 2` (the pod gets `WENART_GPU_COUNT`); `--over-5-ok` for P1 and
+  every 2-GPU pod (user OK of 10 Oct 2026).

@@ -746,7 +746,7 @@ class _Reader:
     # ---- texts -------------------------------------------------------------
 
     def _run(self, eid: str, text: str, corners, height: float, rotation: float, layer: str,
-             chain: Optional[str]) -> None:
+             chain: Optional[str], tag: Optional[str] = None) -> None:
         xs = [c[0] for c in corners]
         ys = [c[1] for c in corners]
         box = (_r(min(xs)), _r(min(ys)), _r(max(xs)), _r(max(ys)))
@@ -756,6 +756,10 @@ class _Reader:
         evidence = []
         if self.file_rel is not None:
             evidence.append(B.evidence(self.file_rel, "vector", 1.0, layer=layer, entity=eid, block=chain, text=text))
+            if tag:
+                # Milestone 12 (docs/milestone12.md §3.1, contract §13.3): the attribute tag (KOT, BDK, TZK ...) for
+                # the level-mark reader.
+                evidence[-1]["attrib_tag"] = tag
         self.texts.append(TextRun(id=eid, text=text, box=box, height=_r(height), rotation_deg=_r(rotation % 360.0),
                                   source="vector", evidence=evidence))
 
@@ -800,7 +804,8 @@ class _Reader:
         y0, y1 = baseline - DESCENT * h, baseline + h
         local = [(dx, y0), (dx + width, y0), (dx + width, y1), (dx, y1)]
         corners = self._place(local, anchor, rotation, ocs)
-        self._run(eid, text, corners, h, rotation, layer, chain)
+        self._run(eid, text, corners, h, rotation, layer, chain,
+                  tag=str(entity.dxf.tag) if entity.dxftype() == "ATTRIB" and entity.dxf.get("tag") else None)
 
     @staticmethod
     def _place(local, anchor: Vec3, rotation_deg: float, ocs=None) -> list[tuple[float, float]]:

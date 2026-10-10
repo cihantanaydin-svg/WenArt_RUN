@@ -389,3 +389,15 @@ def _finish(room: dict, group: str, a: placer.Piece, members: list[placer.Piece]
               for k, (p, c) in enumerate(zip(keep, checks))]
     reason = f"{group}: {a.type} at {list(a.center)} with {len(keep) - 1} of {len(members)} members"
     return _result(True, pieces, failed, reason)
+
+
+# Milestone 12 contract (docs/milestone12.md §4.2, §13.2; owner: track G). Stubs by the lead.
+def load_groups() -> dict:
+    """``groups.yaml`` parsed and validated: ``{group name: template}``."""
+    return {}
+
+
+def group_members(building: dict, room_id: str) -> list[dict]:
+    """``[{"group_id", "group", "anchor_id", "member_ids", "missing": [type]}]`` of one room (from the pieces' ``group``
+    fields, else matched by the templates)."""
+    return []
