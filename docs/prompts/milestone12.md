@@ -19,9 +19,13 @@ The pipeline now reads whole floors (real02, real03), but the results are not go
    a bed has its headboard on a wall with a nightstand on each side; a desk has its chair; a kitchen is a counter
    run with sink, hob and fridge in a working order; bathrooms follow real layouts) and keep walkways, doors and
    windows free. Untyped drawn pieces still show up as white boxes.
-3. **The AI in the pod must be much smarter.** This is the most important point. Today it reaches only a few of 55
+3. **Decor and soft furnishings do not sit right**: pillows and cushions float above beds and sofas or sink into
+   them, throws, vases, books and plants hover or cut through surfaces. Everything must rest on what holds it.
+   And the furniture itself must look realistic: real products with real proportions and materials, not crude or
+   low-quality models.
+4. **The AI in the pod must be much smarter.** This is the most important point. Today it reaches only a few of 55
    rooms, accepts 4 edits and rejects 73, and does not plan.
-4. **The library**: I see furniture and decor that look unrealistic or do not exist as real products, wrong sizes,
+5. **The library**: I see furniture and decor that look unrealistic or do not exist as real products, wrong sizes,
    wrong categories. We need a full check of the whole library, and when the library is not good enough the AI must
    say so and suggest what to add.
 
@@ -32,7 +36,8 @@ Using the committed results (`results/*/real02`, `results/*/real03`, the agent l
 `wenart/furniture/`, `wenart/blender/site.py`, `wenart/sheets/`, `assets/`, `wenart/furniture/catalog*.json`):
 
 - List, with evidence (file, view, piece id), every way furniture goes wrong today: random placement, groups broken
-  apart, wrong facing, blocked doors and windows, white boxes, wrong scale, pieces in rooms that never hold them.
+  apart, wrong facing, blocked doors and windows, white boxes, wrong scale, pieces in rooms that never hold them,
+  pillows and decor floating above or sinking into their host, crude or unrealistic models.
 - Explain why the agent edits get rejected (73 of 77 in real03 run 3) and why it covers so few rooms.
 - Explain what the pipeline knows today about ground and floor levels, where level marks are read, and where that
   information is lost.
@@ -67,6 +72,13 @@ At least:
 - No unexplained boxes: every drawn piece is typed (rules, vision, the agent) or recorded as not furniture.
 - Code checks for every group rule; a render-side check that pieces stand on the floor, face their group and
   match their real size.
+- Decor and soft furnishings rest on their host: pillows and cushions against the headboard or backrest and on
+  the mattress or seat top, throws draped on a surface, objects on shelves, tables and counters, plants on the
+  floor or a surface. Use the real top surface of the host mesh (ray casts or a short physics settle in Blender),
+  not its bounding box; a check measures the gap and the overlap of every decor item with its host and fails a
+  build where something floats or cuts through (state the tolerance).
+- Realistic furniture only: every piece the layout uses comes from the audited library (D), with real
+  proportions, materials and detail; a piece that fails the audit is not used, and the gap is reported.
 
 **C. A smarter AI in the pod**
 - Re-evaluate the agent model: the strongest open-weight vision-language model that fits the pod (RTX PRO 6000,
@@ -81,7 +93,9 @@ At least:
 - A full audit job on the pod: every model, decor item and texture rendered as a thumbnail with a scale reference;
   code checks (real dimensions against the size table, pivot and up axis, mesh and texture errors, duplicates,
   licence fields) and a vision check (is it what its type says, does it look like a real product, which styles it
-  fits). Output: a table per item with keep / fix / remove and the reason, and a contact sheet per type.
+  fits, is it good enough for a photoreal render). Decor and soft furnishings too: pillows, throws, rugs, vases,
+  books, plants (their contact surfaces and real sizes). Output: a table per item with keep / fix / remove and the
+  reason, and a contact sheet per type.
 - Nothing is deleted without my OK (CLAUDE.md).
 - Gap report: what each room type and style needs for good groups and what the library lacks; suggestions to add,
   only open-licence sources that allow commercial use (verify each source and licence), with download size, and
