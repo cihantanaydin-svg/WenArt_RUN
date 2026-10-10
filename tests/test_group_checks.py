@@ -214,6 +214,10 @@ def test_unbuilt_pieces_are_not_judged():
     unknown = M.building(w=W, h=H, furniture=[M.fp("u1", "unknown", (2.25, 4.8), (1.0, 0.35), front=270.0)])
     assert not found(unknown)
     assert not GR.piece_is_built({"type": "unknown"}) and GR.piece_is_built({"type": "sofa", "asset": None})
+    from wenart.furniture import decor
+    samples = [{"type": "sofa"}, {"type": "sofa", "build": False}, {"type": "unknown"}, {"type": "toilet", "asset":
+               {"method": "none"}}, {"type": "toilet", "asset": {"method": "catalogue"}}, None, {}]
+    assert [GR.piece_is_built(s) for s in samples] == [decor.piece_is_built(s) for s in samples]   # = track S's
 
 
 def test_use_zones_follow_the_piece_frame():
