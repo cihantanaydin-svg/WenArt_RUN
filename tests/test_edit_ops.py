@@ -162,9 +162,13 @@ def test_remove_added_piece_and_drawn_piece_rules():
     assert res["accepted"] and not [f for f in res["building"]["furniture"] if f["id"] == "f_L0_003"]
     assert res["building"]["decor"] == []
     drawn = E.apply_edit(b, edit("remove", piece_id="f_L0_002"))
-    assert drawn["accepted"]
-    w = next(f for f in drawn["building"]["furniture"] if f["id"] == "f_L0_002")
-    assert w["build"] is False and w["adjusted_by_ai"]["changed"] == {"build": None}
+    # Milestone 12 (CLAUDE.md): a drawn piece leaves only as "not furniture", with its kind and evidence
+    assert not drawn["accepted"] and "mark_not_furniture" in drawn["message"]
+    marked = E.apply_edit(b, edit("mark_not_furniture", piece_id="f_L0_002", kind="other",
+                                  evidence="duplicate outline of the wardrobe (plan crop)"))
+    assert marked["accepted"]
+    w = next(f for f in marked["building"]["furniture"] if f["id"] == "f_L0_002")
+    assert w["build"] is False and w["adjusted_by_ai"]["not_furniture"] == "other"
     basin = M.fp("f_L0_009", "washbasin", (2.5, 3.78), (0.6, 0.45), front=270.0)
     res = E.apply_edit(M.building(room_type="bathroom", furniture=[basin]), edit("remove", piece_id="f_L0_009"))
     assert not res["accepted"]

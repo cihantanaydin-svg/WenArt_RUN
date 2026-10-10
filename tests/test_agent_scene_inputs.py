@@ -9,7 +9,8 @@
 - the build manifest's furniture summary gives findings: a decor item that did not rest (minor S5 on its host),
   and a failed build whose S5 file is missing (critical); ``scene_summary`` reports the counts;
 - the ``levels`` tool shows track L's data (marks with kind and use, room floors, thresholds, ground, entrances,
-  ``level_inference``, L-findings) and the level tools take track L's schemas (``LEVEL_EDIT_SCHEMAS``).
+  ``level_inference``, L-findings) and the level tools take track L's schemas (``LEVEL_EDIT_SCHEMAS``);
+- track G's group findings are reported once (plausibility runs G1-G13, the group family adds the rest).
 """
 from __future__ import annotations
 
@@ -101,3 +102,18 @@ def test_the_levels_tool_shows_track_l_data(tmp_path):
         params = reg.tools[op].parameters
         assert params["required"] == edits.LEVEL_EDIT_SCHEMAS[op]["required"]
         assert set(params["properties"]) == set(edits.LEVEL_EDIT_SCHEMAS[op]["properties"])
+
+
+def test_group_findings_are_reported_once():
+    """Track G: plausibility runs G1-G13 (F5's place) and leaves G5's headboard part to F3; the group family adds
+    only the rest (G14 here), so the critic reports one finding per fault."""
+    def v(check, target, part=None):
+        return {"check": check, "severity": "major", "target": target, "room_id": "r1", "message": check,
+                "metrics": {"part": part} if part else {}}
+
+    plaus = {"rooms": {"r1": {"score": 50, "violations": [v("G4", "f2"), v("F3", "f1")]}}, "mean": 50}
+    groups = {"rooms": {"r1": [v("G4", "f2"), v("G5", "f1", "headboard"), v("G14", "f9")]}}
+    q = dict(_quiet(), plausibility_fn=lambda b: plaus, groups_fn=lambda b: groups)
+    out = CC.run({"rooms": [{"id": "r1"}], "furniture": []}, None, None, **q)
+    assert sorted(f["id"] for f in out["findings"]) == ["c:F3:f1", "c:G14:f9", "c:G4:f2"]
+    assert CC.FAMILY_OF["G14"] == "groups"

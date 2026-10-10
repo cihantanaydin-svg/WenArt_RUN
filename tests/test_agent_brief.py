@@ -5,7 +5,10 @@ tracks' functions faked: every built piece has a front (an inferred one flagged)
 allows with the move allowance left; an unbuilt piece is only listed as not built; groups carry their missing
 partners and G-check numbers; free wall spans leave out door frames and pieces against the wall and mark window
 parts; candidates come with scores and an image; findings are split into fixable (with the tools that fix them) and
-"not yours" (not built, locked, no tool); track G's ``allowed_edits`` replaces the fallback rules when it answers."""
+"not yours" (not built, locked, no tool); track G's ``allowed_edits`` replaces the fallback rules when it answers
+(the fallback is injected where a test is about it: ``fakes``), with the agent's stricter rule on top (a drawn piece
+is removed only as "not furniture"); the brief's wall spans are track G's ``free_spans`` (``move_group`` takes their
+ids)."""
 from __future__ import annotations
 
 import copy
@@ -44,7 +47,7 @@ def fakes(**kw):
               "group_violations": []},
              {"rank": 2, "score": 0.61, "terms": {"walls": 0.7}, "pieces": [], "groups": [],
               "group_violations": [{"check": "G5", "severity": "major"}]}]
-    out = dict(members_fn=lambda b, r: members, group_checks_fn=lambda b, r: viol,
+    out = dict(members_fn=lambda b, r: members, group_checks_fn=lambda b, r: viol, allowed_fn=lambda b, pid: {},
                program_fn=lambda b, r: {"groups": [{"group_id": "g_sleep", "group": "sleeping_double",
                                                     "anchor_id": "f1", "required": True, "options": ["double"],
                                                     "chosen": "double", "drawn": True}], "reason": "bedroom 14 m2"},
@@ -65,8 +68,9 @@ def test_pieces_fronts_locks_and_the_unbuilt_cluster():
     assert pieces["f1"]["allowed"]["move_piece"] is True and pieces["f1"]["move_left_m"] == 0.3
     assert "mark_not_furniture" in pieces["f1"]["allowed"]["remove_piece"]
     # drawn fixed equipment: only a front fix, the U1 fixture fix, another model
-    assert {t for t, v in pieces["f4"]["allowed"].items() if v is True} == {"set_front", "fix_fixture", "swap_model"}
-    assert pieces["f4"]["lock"].startswith("may: set_front, fix_fixture")
+    assert {t for t, v in pieces["f4"]["allowed"].items() if v is True} == {"rotate_piece", "set_front", "fix_fixture",
+                                                                           "swap_model"}
+    assert pieces["f4"]["lock"].startswith("may: rotate_piece, set_front, fix_fixture")
     assert pieces["f1"]["group"] == {"group_id": "g_sleep"} and out["allowed_source"] == ["fallback"]
     # a drawn piece already moved 0.25 m has 0.05 m left
     moved = copy.deepcopy(b)
@@ -97,7 +101,8 @@ def test_fixable_and_not_yours():
     out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes())
     fixable = {f["id"]: f["tools"] for f in out["findings"]["fixable"]}
     not_yours = {f["id"]: f["why"] for f in out["findings"]["not_yours"]}
-    assert fixable["c:F3:f1"] == ["move_piece", "move_group", "set_front"]     # a re-layout never moves a drawn bed
+    # a re-layout never moves a drawn bed
+    assert fixable["c:F3:f1"] == ["move_piece", "move_group", "rotate_piece", "set_front"]
     assert fixable["c:F7:f4"] == ["fix_fixture"]                    # U1: the misread toilet may be fixed
     assert fixable["c:R5:r1"] == ["set_lighting"] and fixable["c:G4:f2"][0] == "complete_group"
     assert "not built" in not_yours["c:F9:f5"] and "decor stage" in not_yours["c:S5:f1"]
@@ -119,6 +124,33 @@ def test_track_g_allowed_edits_replace_the_fallback_and_op_names_are_mapped():
     assert a["set_front"]["allowed"] is False
     a2, src2 = BR.allowed_of(toy(), next(f for f in toy()["furniture"] if f["id"] == "f3"), lambda b, pid: {})
     assert src2 == "fallback" and a2["remove_piece"]["allowed"] and not a2["mark_not_furniture"]["allowed"]
+
+
+def test_track_g_answers_with_the_drawn_removal_rule_and_its_spans():
+    """With track G's real ``allowed_edits`` and ``free_spans``: a drawn bed may turn (rotate_piece) but has a front
+    already (no set_front) and is removed only as not furniture; an AI piece may be removed; the spans carry G's ids."""
+    b = toy()
+    out = BR.room_brief(b, "r1", findings=FINDINGS, **{k: v for k, v in fakes().items() if k != "allowed_fn"})
+    pieces = {p["id"]: p for p in out["pieces"]}
+    assert out["allowed_source"] == ["edit_ops"]
+    f1 = pieces["f1"]["allowed"]
+    assert f1["rotate_piece"] is True and f1["set_front"] is not True and "mark_not_furniture" in f1["remove_piece"]
+    fixable = {f["id"]: f["tools"] for f in out["findings"]["fixable"]}
+    assert "rotate_piece" in fixable["c:F3:f1"] and "set_front" not in fixable["c:F3:f1"]
+    ai = copy.deepcopy(b)
+    next(f for f in ai["furniture"] if f["id"] == "f1")["source"] = "added_by_ai"
+    a, src = BR.allowed_of(ai, next(f for f in ai["furniture"] if f["id"] == "f1"))
+    assert src == "edit_ops" and a["remove_piece"]["allowed"] is True
+    from wenart.furniture import edit_ops
+    ids = [s["span_id"] for s in edit_ops.free_spans(b, "r1")]
+    spans = out["free_wall_spans"]
+    assert [s["id"] for s in spans] == ids and all(s["id"].startswith("r1.s") for s in spans)
+    assert all(s["into_room_deg"] is not None and s["fits"] for s in spans)
+
+    def broken(building, room_id):
+        raise ValueError("no spans")
+
+    assert BR.wall_spans(b, "r1", spans_fn=broken) == BR.free_wall_spans(b, "r1")   # the brief's own spans then
 
 
 def test_free_wall_spans():
