@@ -2762,6 +2762,8 @@ def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
 # --------------------------------------------------------------------------
 
 GENERATED_AUTHOR = "generated (TRELLIS.2-4B)"
+# The ``via`` of a generated model (Milestone 12 B2: it carried the Objaverse line): made here, from no dataset.
+GENERATED_VIA = "generated for WenArt_RUN (TRELLIS.2-4B, MIT, from a Z-Image-Turbo image, Apache-2.0)"
 GENERATED_FIELDS = ("prompt", "image_sha256", "model", "revision", "seed")      # = catalog.GENERATED_FIELDS
 
 
@@ -2819,7 +2821,8 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
         "styles": list(dec["styles"]), "style_note": dec["style_note"], "kind": kind,
         "glb": cache_rel(source, uid), "sha256_glb": sha, "uid": uid,
         "title": title, "author": cand.get("author") or (GENERATED_AUTHOR if source == "generated" else ""),
-        "source_url": cand.get("source_url") or "", "via": cand.get("via") or cfg["attribution"]["via"],
+        "source_url": cand.get("source_url") or "",
+        "via": cand.get("via") or (GENERATED_VIA if source == "generated" else cfg["attribution"]["via"]),
         "attribution": credit_line(cand, cfg),
         "polycount": m.get("triangles"), "vertices": m.get("vertices"),
         "textured": bool((cand.get("glb_info") or {}).get("textured")),

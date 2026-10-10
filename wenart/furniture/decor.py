@@ -77,10 +77,21 @@ Milestone 11 (docs/milestone11.md §1.1 E2): under the sloped attic ceiling (``c
 makes it) a corner whose ceiling is lower than the plant (+ 10 cm) gets no plant (``ceiling_over``); the AI
 decorator's floor corners and tabletop heights use the same ceiling. A drawn rug outline (``infer.py``) is no rug
 blocker.
+
+Milestone 12 (docs/milestone12.md §4.7 D13, contract §13.2; track S): every decor item carries a ``host_frame``
+(``support`` seat | mattress | back | headboard | top | shelf | floor | wall | ceiling, ``u`` / ``v`` as shares of
+its host's footprint, ``turn_deg``, ``lean_deg``, ``shelf``; an anchored rug, picture or pendant: ``anchor_id``) next
+to its world ``center`` (``attach_host_frames``, called by ``add_decor`` and the AI decorator); ``sync_to_hosts``
+recomputes the world position from the host after any edit (move, turn, resize, swap) and drops decor whose host is
+gone, not built or retyped (``decor_dropped``, fixes B3). Heights are not stored: the scene builder finds the real
+support on the built mesh (``wenart.blender.rest``). Cushions are real-size standing cushions (``CUSHION_SIZE``,
+``PILLOW_SIZE``: width, thickness, height) and none go on a seat or bed whose model already has its own
+(``takes_cushions``); untyped pieces and library gaps host nothing (``piece_is_built``).
 """
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import sys
@@ -107,8 +118,10 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
                                       "sculpture", "pendant_light")
 MAX_DECOR_M = 0.6
-CUSHION_SIZE = (0.45, 0.15)       # standing against a sofa back
-PILLOW_SIZE = (0.5, 0.3)          # lying at the head of a bed
+# Milestone 12 (§4.7, B7): real sizes (width, thickness, height): a 45 cm square cushion standing against a sofa
+# back, a 50 cm one leaning at a bed's head (in front of the sleeping pillows); never stretched by a model fit.
+CUSHION_SIZE = (0.45, 0.15, 0.45)  # standing against a sofa back
+PILLOW_SIZE = (0.5, 0.15, 0.5)     # leaning at the head of a bed
 BOOK_SIZE = (0.3, 0.22)
 PLANT_SIZE = (0.4, 0.4)
 PLANT_HEIGHT_M = 1.0
@@ -290,8 +303,9 @@ def plant_position(room: dict, furniture: list[dict], building: dict) -> tuple[O
 
 
 def _usable_anchor(piece: dict) -> bool:
-    """A piece decor may be placed around: verified (type and place trusted) and built."""
-    return piece.get("status") == "verified" and piece.get("build", True) is not False
+    """A piece decor may be placed around: verified (type and place trusted) and built (Milestone 12:
+    ``piece_is_built``: no untyped piece, no library gap)."""
+    return piece.get("status") == "verified" and piece_is_built(piece)
 
 
 def _to_local(geom, center, rotation_deg: float):
@@ -635,6 +649,7 @@ def add_decor(building: dict) -> tuple[dict, list[dict]]:
                                               f"{sum(1 for c in copies if c['room_id'] == rid)} item(s)"})
     for note in notes + copy_notes:
         rows.append({"room_id": "-", "label": "-", "note": note})
+    attach_host_frames(out)                           # Milestone 12: every item in its host's frame
     return out, rows
 
 
@@ -657,8 +672,10 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
         row["note"] = f"{room['room_type']} room: no decor (docs/milestone7.md §0)"
         return items, row
     for host in pieces:
-        if host.get("status") != "verified" or host["type"] not in HOST_TYPES or host.get("build", True) is False:
+        if host.get("status") != "verified" or host["type"] not in HOST_TYPES or not piece_is_built(host):
             continue
+        if HOST_TYPES[host["type"]] == "cushion" and not takes_cushions(host):
+            continue                                  # Milestone 12: the model has its own cushions or bedding
         for item in host_decor(host):
             assert max(item["size"]) <= MAX_DECOR_M
             items.append({"id": new_id(room["level_id"]), "kind": "decor", "type": item["type"],
@@ -848,6 +865,7 @@ def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id)
                 new["wall_id"] = _nearest_wall_id(building, room["level_id"], wp)
             new.update(id=new_id(room["level_id"]), level_id=room["level_id"], room_id=rid, mirrored_from=item["id"],
                        reason=f"copied from {item['id']} of {pid} ({'mirrored twin' if kind == 'twin' else 'same as'})")
+            new.pop("host_frame", None)              # Milestone 12: re-attached in the room's own host's frame
             out.append(new)
     return out, notes
 
@@ -891,10 +909,209 @@ if __name__ == "__main__":
     sys.exit(main())
 
 
-# Milestone 12 contract (docs/milestone12.md §4.7, §13.2; owner: track S). Stub by the lead.
+# --------------------------------------------------------------------------
+# Milestone 12 (docs/milestone12.md §4.7, D13; contract §13.2, §13.3; track S): decor in its host's frame
+# --------------------------------------------------------------------------
+
+# Where an item rests (``decor[].host_frame.support``): on a seat, a mattress, against a seat back or a headboard,
+# on a top, a shelf board, the floor, a wall or the ceiling. The rules live in ``wenart.blender.rest`` (pure numpy:
+# the scene builder and the scene checks read them inside Blender, whose Python has no shapely) and are the same here.
+from wenart.blender.rest import (BED_HOSTS, CEILING_SUPPORT_TYPES, LYING_SEAT_HOSTS, SEAT_BACK_HOSTS,  # noqa: E402
+                                 SHELF_HOSTS, SUPPORTS, TOP_HOST_TYPES, WALL_SUPPORT_TYPES, support_fits, support_of)
+
+LEAN_DEG = 12.0                   # a cushion leans 10-15 degrees on its back (§4.7)
+DEFAULT_SHELF = 1                 # books on the second board from the bottom (the Milestone 4 rest height)
+WALL_FOLLOW_GAP_M = 0.35          # wall art follows its piece while the piece's back stays this close to the wall
+THROW_BED_WIDTH_SHARE = 0.95      # = decor_ai: a throw across a bed's foot is this share of the bed's width
+NOT_BUILT_ASSET_METHODS: tuple[str, ...] = ("none",)   # fit.py: a library gap (no audited model, not built)
+
+
+def piece_is_built(piece: Optional[dict]) -> bool:
+    """A piece the scene builds: ``build`` not false, typed (no ``unknown``: never a grey box, §4.1) and not a
+    library gap left unbuilt by the fit (``asset.method == "none"``, §4.8)."""
+    if not piece or piece.get("build", True) is False or piece.get("type") == "unknown":
+        return False
+    return (piece.get("asset") or {}).get("method") not in NOT_BUILT_ASSET_METHODS
+
+
+def takes_cushions(host: dict) -> bool:
+    """A seat or bed takes decor cushions unless its model already has them (the audit's ``has_cushions`` on a
+    seat, ``has_pillows`` / ``has_cushions`` on a bed: §4.7, no duplicates)."""
+    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
+
+    def flag(name: str) -> bool:                   # = catalog.model_flag (track B's audit flags; absent: False)
+        return asset.get(name) is True
+
+    if host.get("type") in BED_HOSTS:          # its own pillows or scatter cushions (a duvet alone takes cushions)
+        return not (flag("has_pillows") or flag("has_cushions"))
+    return not flag("has_cushions")
+
+
+def _frame_ref(item: dict, pieces: dict) -> tuple[Optional[dict], Optional[str]]:
+    """``(the piece whose frame the item lives in, how)``: its host, else the first anchor (a rug under its group, a
+    picture over its piece, a pendant over its table), else None (a plant in a corner, a curtain at its window)."""
+    if item.get("host_id"):
+        return pieces.get(item["host_id"]), "host"
+    anchors = [a for a in item.get("anchor_ids") or [] if a]
+    if anchors:
+        return pieces.get(anchors[0]), "anchor"
+    return None, None
+
+
+def host_frame_of(item: dict, ref: Optional[dict], how: Optional[str] = "host") -> dict:
+    """The host frame of a decor item in the frame of ``ref`` (its host or first anchor) from its world position:
+    ``support``, ``u`` / ``v`` = its centre as shares of the host footprint (-0.5 .. +0.5 on the host; u along the
+    width, v along the depth, +v = back), ``turn_deg`` = its rotation minus the host's, ``lean_deg`` (cushions
+    against a back or a headboard), ``shelf`` (books on a shelf: the board index) and, for an anchor,
+    ``anchor_id``. Wall items keep ``u`` along their wall (shares of the piece's width) and ``wall_offset`` (the
+    centre in front of the wall point). An item without a frame piece has only its support (it stays where it is)."""
+    dtype = item.get("type")
+    support = support_of(dtype, ref.get("type") if (ref is not None and how == "host") else None)
+    frame: dict = {"support": support}
+    if ref is None:
+        return frame
+    fp = ref["footprint"]
+    w, d = (float(v) for v in fp["size"][:2])
+    rot = float(fp["rotation_deg"])
+    if how == "anchor":
+        frame["anchor_id"] = ref["id"]
+    if support == "wall" and item.get("wall_point"):
+        r = math.radians(float(item.get("rotation_deg") or 0.0))
+        wx, wy = (float(v) for v in item["wall_point"][:2])
+        along = (wx - float(fp["center"][0])) * math.cos(r) + (wy - float(fp["center"][1])) * math.sin(r)
+        frame["u"] = round(along / w, 4) if w > 1e-9 else 0.0
+        frame["wall_offset"] = [round(float(item["center"][0]) - wx, 4), round(float(item["center"][1]) - wy, 4)]
+        return frame
+    p = G.rotate_point((float(item["center"][0]), float(item["center"][1])), -rot,
+                       (float(fp["center"][0]), float(fp["center"][1])))
+    frame["u"] = round((p[0] - float(fp["center"][0])) / w, 4) if w > 1e-9 else 0.0
+    frame["v"] = round((p[1] - float(fp["center"][1])) / d, 4) if d > 1e-9 else 0.0
+    frame["turn_deg"] = round(G.normalise_angle(float(item.get("rotation_deg") or rot) - rot), 3)
+    frame["lean_deg"] = LEAN_DEG if (dtype == "cushion" and support in ("back", "headboard")) else 0.0
+    frame["shelf"] = DEFAULT_SHELF if support == "shelf" else None
+    return frame
+
+
+def attach_host_frames(building: dict) -> dict:
+    """In place: a ``host_frame`` on every decor item that has none (from its current world position); returns
+    the building. The decor stages call it once their items are placed."""
+    pieces = {p["id"]: p for p in building.get("furniture") or []}
+    for item in building.get("decor") or []:
+        if isinstance(item.get("host_frame"), dict) and item["host_frame"].get("support"):
+            continue
+        ref, how = _frame_ref(item, pieces)
+        item["host_frame"] = host_frame_of(item, ref, how)
+    return building
+
+
+def _world_of(frame: dict, ref: dict) -> tuple[tuple[float, float], float]:
+    fp = ref["footprint"]
+    w, d = (float(v) for v in fp["size"][:2])
+    rot = float(fp["rotation_deg"])
+    c = (float(fp["center"][0]), float(fp["center"][1]))
+    p = G.rotate_point((c[0] + float(frame.get("u") or 0.0) * w, c[1] + float(frame.get("v") or 0.0) * d), rot, c)
+    return (p[0], p[1]), G.normalise_angle(rot + float(frame.get("turn_deg") or 0.0))
+
+
+def _follow_wall(item: dict, frame: dict, ref: dict) -> Optional[str]:
+    """In place: a wall item slides along its wall with its piece (``u`` of the piece's width from the foot of the
+    piece's centre on the wall line); returns why it cannot follow (the piece turned away from the wall or left
+    it), None when it followed."""
+    fp = ref["footprint"]
+    r = math.radians(float(item.get("rotation_deg") or 0.0))
+    ux, uy = math.cos(r), math.sin(r)                         # along the wall
+    nx, ny = math.sin(r), -math.cos(r)                        # into the room (local -Y)
+    wx, wy = (float(v) for v in item["wall_point"][:2])
+    cx, cy = (float(v) for v in fp["center"][:2])
+    if abs((G.normalise_angle(float(fp["rotation_deg"]) - math.degrees(r)) + 180.0) % 360.0 - 180.0) > 10.0:
+        return "its piece no longer stands with its back to this wall"
+    back = (float(fp["size"][1]) / 2.0)
+    dist = (cx - wx) * nx + (cy - wy) * ny - back             # the piece's back edge in front of the wall face
+    if not -0.05 <= dist <= WALL_FOLLOW_GAP_M:
+        return f"its piece's back is {dist:.2f} m from the wall (more than {WALL_FOLLOW_GAP_M} m)"
+    along_c = (cx - wx) * ux + (cy - wy) * uy
+    shift = along_c + float(frame.get("u") or 0.0) * float(fp["size"][0])
+    new_wp = (wx + ux * shift, wy + uy * shift)
+    off = frame.get("wall_offset") or [float(item["center"][0]) - wx, float(item["center"][1]) - wy]
+    item["wall_point"] = [round(new_wp[0], 3), round(new_wp[1], 3)]
+    item["center"] = [round(new_wp[0] + float(off[0]), 3), round(new_wp[1] + float(off[1]), 3)] + \
+        list(item.get("center", [])[2:])
+    return None
+
+
+def _drop(item: dict, reason: str) -> dict:
+    return {"id": item.get("id"), "type": item.get("type"), "host_id": item.get("host_id"),
+            "anchor_ids": list(item.get("anchor_ids") or []), "room_id": item.get("room_id"), "reason": reason}
+
+
 def sync_to_hosts(building: dict) -> dict:
     """A new building whose decor follows its hosts: every decor item with ``host`` (host frame) gets its world
     ``center`` / ``rotation_deg`` recomputed from its host piece; decor whose host is gone or not built is dropped
-    (listed in ``decor_dropped``). Called after every accepted agent edit and by ``agent apply``."""
-    import copy as _copy
-    return _copy.deepcopy(building)
+    (listed in ``decor_dropped``). Called after every accepted agent edit and by ``agent apply``.
+
+    Milestone 12 (§4.7, fixes B3): an item without a ``host_frame`` gets one from its current position first
+    (``attach_host_frames``); hosted items take the host's room and level, and a throw across a bed's foot its
+    width (``THROW_BED_WIDTH_SHARE``); items on a top, a seat or a mattress are never wider or deeper than the host.
+    Anchored items follow their first anchor: a rug and a pendant in its frame, wall art along its wall while the
+    piece keeps its back to it. Dropped (with the reason): the host gone, not built (``piece_is_built``) or retyped
+    to a type without the item's support; every anchor of a rug, picture or pendant gone; wall art whose piece left
+    its wall. Items without a frame piece (corner plants, curtains, room-centre lights) stay. Deterministic and
+    idempotent (sync of a synced building changes nothing)."""
+    out = copy.deepcopy(building)
+    attach_host_frames(out)
+    pieces = {p["id"]: p for p in out.get("furniture") or []}
+    kept, dropped = [], []
+    for item in out.get("decor") or []:
+        frame = item["host_frame"]
+        if item.get("host_id"):
+            host = pieces.get(item["host_id"])
+            if host is None:
+                dropped.append(_drop(item, f"its host {item['host_id']} is gone"))
+                continue
+            if not piece_is_built(host):
+                dropped.append(_drop(item, f"its host {host['id']} is not built"))
+                continue
+            if not support_fits(frame.get("support"), host.get("type")):
+                dropped.append(_drop(item, f"its host {host['id']} is now a {host.get('type')} without a "
+                                           f"{frame.get('support')}"))
+                continue
+            (x, y), rot = _world_of(frame, host)
+            item["center"] = [round(x, 3), round(y, 3)] + list(item.get("center", [])[2:])
+            item["rotation_deg"] = round(rot, 3)
+            item["room_id"], item["level_id"] = host.get("room_id"), host.get("level_id")
+            size = list(item.get("size") or [])
+            hw, hd = (float(v) for v in host["footprint"]["size"][:2])
+            if size and frame.get("support") == "mattress" and item.get("type") == "throw":
+                size[0] = round(THROW_BED_WIDTH_SHARE * hw, 3)
+            elif size and frame.get("support") in ("top", "seat", "mattress"):
+                size[0] = round(min(float(size[0]), hw), 3)
+                if len(size) > 1:
+                    size[1] = round(min(float(size[1]), hd), 3)
+            item["size"] = size
+            kept.append(item)
+            continue
+        anchors = [a for a in item.get("anchor_ids") or [] if a]
+        if anchors:
+            live = [pieces[a] for a in anchors if a in pieces and piece_is_built(pieces[a])]
+            if not live:
+                dropped.append(_drop(item, f"its pieces {', '.join(anchors)} are gone or not built"))
+                continue
+            ref = pieces.get(frame.get("anchor_id") or anchors[0])
+            if ref is None or not piece_is_built(ref):
+                kept.append(item)                              # its first piece left: it stays where it is
+                continue
+            if frame.get("support") == "wall" and item.get("wall_point"):
+                why = _follow_wall(item, frame, ref)
+                if why is not None:
+                    dropped.append(_drop(item, why))
+                    continue
+            elif frame.get("support") in ("floor", "ceiling") and "u" in frame:
+                (x, y), rot = _world_of(frame, ref)
+                item["center"] = [round(x, 3), round(y, 3)] + list(item.get("center", [])[2:])
+                if frame.get("support") == "floor":
+                    item["rotation_deg"] = round(rot, 3)
+        kept.append(item)
+    out["decor"] = kept
+    if dropped or building.get("decor_dropped"):
+        out["decor_dropped"] = list(building.get("decor_dropped") or []) + dropped
+    return out

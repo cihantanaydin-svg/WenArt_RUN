@@ -14,17 +14,30 @@
     into ``assets/models/`` and records them in the manifest with measured boxes.
 ``python -m wenart.assets models verify``
     lists the catalogue ids against the Poly Haven model listing (no download).
+``python -m wenart.assets audit <step>`` (Milestone 12, docs/milestone12.md §6.1)
+    the library audit: licences, render, code, ask, decide, sheets, gaps, write, dry, status
+    (``wenart/assets/audit/cli.py``).
+``python -m wenart.assets growth <source> list | ingest`` (Milestone 12, §6.4)
+    candidate lists for the library's growth; ingest only with an approved list (``wenart/assets/audit/growth.py``).
 """
 from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from wenart.assets.fetch import fetch_for_style, verify_vocabulary
 
 
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["audit"]:                      # Milestone 12 (docs/milestone12.md §6.1): the library audit
+        from wenart.assets.audit.cli import main as audit_main
+        return audit_main(argv[1:])
+    if argv[:1] == ["growth"]:                     # Milestone 12 (§6.4 D24): candidate lists, ingest behind an OK
+        from wenart.assets.audit.growth import main as growth_main
+        return growth_main(argv[1:])
     parser = argparse.ArgumentParser(description="CC0 texture and HDRI fetcher")
     sub = parser.add_subparsers(dest="command", required=True)
     fetch = sub.add_parser("fetch", help="download the assets of a style profile")

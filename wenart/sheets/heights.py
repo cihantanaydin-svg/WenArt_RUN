@@ -174,12 +174,12 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
         g.profile, g.profile_ids, outer = _envelope(roof, _metres(PROFILE_TOL_M, mpu, 0.001, width))
         g.underside = [ln for ln in roof if ln.key not in outer]
 
-    # Level marks.
+    # Level marks (Milestone 12: every form of wenart.levels.marks; the record keeps relative / absolute apart).
     segs = UC.segments(region.strokes())
-    for t, value in UC.mark_texts(region.texts):
+    for t, rec in UC.mark_records(region.texts):
         mp = UC.mark_point(t, segs)
         if mp is not None:
-            g.marks.append((t, value, (mp[0], mp[1]), mp[2]))
+            g.marks.append((t, rec["value"], (mp[0], mp[1]), mp[2], rec))
 
     # Ground lines: horizontal lines outside the walls that reach within 1 m of them; a level mark's own line (a line
     # that starts at the mark's apex and runs to the wall) is no ground line; a mark standing on a ground line is.
@@ -332,23 +332,43 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
     def z(y: float) -> float:
         return (y - zero_y) * s
 
-    # Datum and marks.
+    # Datum and marks. Milestone 12: a mark is relative (``+3.15``, ``±0.00``) or absolute (``43.00``), a pair
+    # (``±0.00 = 43.00``) both; a mark is compared with the datum mark in a frame both have (``mark_z``).
     marks = []
-    for t, value, (mx, my), how in section.marks:
-        marks.append({"t": t, "value": value, "y": my, "how": how})
+    for t, value, (mx, my), how, *rest in section.marks:
+        rec = rest[0] if rest else {"value": value, "relative": True, "absolute": None}
+        marks.append({"t": t, "value": value, "y": my, "how": how,
+                      "rel": rec["value"] if rec.get("relative") else None,
+                      "abs": rec.get("absolute") if rec.get("absolute") is not None else
+                      (None if rec.get("relative") else rec["value"])})
     datum = None
     if marks:
         near = min(marks, key=lambda m: abs(m["y"] - zero_y))
         if abs(near["y"] - zero_y) * s <= MARK_TOL_M:
             datum = near
-            out["datum"] = _value(near["value"], "vector",
+            out["datum"] = _value(near["abs"] if near["abs"] is not None else near["value"], "vector",
                                   [_ev(file_rel, near["t"].id, "level_mark", rid, near["t"].text)],
                                   note="absolute level of the ground floor (building z = 0) from the level mark")
+
+    def mark_z(m: dict) -> Optional[float]:
+        """The building z a mark gives: its value minus the datum mark's, in a frame both have."""
+        if datum is None:
+            return None
+        if m["rel"] is not None and datum["rel"] is not None:
+            return m["rel"] - datum["rel"]
+        if m["abs"] is not None and datum["abs"] is not None:
+            return m["abs"] - datum["abs"]
+        return None
+
     if datum is not None:
         for m in marks:
             if m is datum:
                 continue
-            value_z = m["value"] - datum["value"]
+            value_z = mark_z(m)
+            if value_z is None:
+                warnings.append(f"section {rid}: the level mark {m['t'].text} ({m['t'].id}) and the datum mark "
+                                f"{datum['t'].text} are in different frames (relative / absolute): not compared")
+                continue
             drawn_z = z(m["y"])
             if abs(value_z - drawn_z) > MARK_TOL_M:
                 what = _what_at(section, m["y"])
@@ -386,12 +406,13 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
             entry["floor_to_floor"] = None
         mark = None
         if datum is not None:
-            mark = next((m for m in marks if abs(m["value"] - datum["value"] - z(yt)) <= MARK_TOL_M), None) or \
-                next((m for m in marks if abs(m["y"] - yt) * s <= MARK_TOL_M), None)
+            mark = next((m for m in marks if mark_z(m) is not None and abs(mark_z(m) - z(yt)) <= MARK_TOL_M),
+                        None) or \
+                next((m for m in marks if mark_z(m) is not None and abs(m["y"] - yt) * s <= MARK_TOL_M), None)
         if mark is not None:
             ev = [_ev(file_rel, mark["t"].id, "level_mark", rid, mark["t"].text)]
-            entry["level_mark"] = _value(mark["value"] - datum["value"], "vector", ev,
-                                         note=f"printed {mark['t'].text} - datum {datum['value']:.2f}")
+            entry["level_mark"] = _value(mark_z(mark), "vector", ev,
+                                         note=f"printed {mark['t'].text} - datum {datum['t'].text}")
             entry["level_mark_target_z"] = _value(z(mark["y"]), "vector", ev,
                                                   note=f"the line the mark points at{_what_at(section, mark['y'])}")
         else:
