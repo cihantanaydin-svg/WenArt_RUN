@@ -928,17 +928,20 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"its host {host['id']} is not built"})
                 continue
+        # the room's floor (Milestone 12: floor_offset_m); lights hang from the level's ceiling, which a raised floor
+        # does not raise
+        item_floor = (piece_floor_z(building, level, item) if item.get("room_id")
+                      and item.get("type") not in ("pendant_light", "ceiling_light") else floor_z)
         if item.get("type") in WALL_DECOR_TYPES:
             built = dict({k[len("proxy:"):]: v for k, v in manifest_by_id.items() if k.startswith("proxy:")},
                          **entries)                      # the built boxes: pieces, and proxies behind --proxies
-            entry = _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, pass_indices,
+            entry = _create_wall_art(item, n, level, item_floor, collection, library, assets_dir, pass_indices,
                                      built, on_level, warnings, geo_cache, summary["decor_skipped"], mats=mats)
         elif hosted_support(item, host) is not None and host_entry.get("kind") == "furniture":
             entry = _create_hosted_decor(item, host, n, level, piece_floor_z(building, level, host), collection,
                                          library, mats, assets_dir, pass_indices, host_entry, warnings, geo_cache,
                                          casters, summary, assumed)
         else:
-            item_floor = piece_floor_z(building, level, item) if item.get("room_id") else floor_z
             entry = _create_decor(item, host, n, level, item_floor, collection, library, mats, assets_dir,
                                   pass_indices, host_entry, warnings, geo_cache, skipped=summary["decor_skipped"],
                                   assumed=assumed)

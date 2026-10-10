@@ -12,7 +12,7 @@ with CPU tests). 10 Oct 2026.
 |---|---|
 | Every decor item gets `host_frame` = `support` (seat, mattress, back, headboard, top, shelf, floor, wall, ceiling), `u` / `v` (its centre as shares of the host footprint, -0.5 … +0.5, +v = back), `turn_deg`, `lean_deg` (12° for cushions on a back or headboard), `shelf` (books: board 1); anchored items (rug, picture, pendant) also `anchor_id`, wall items `wall_offset` | `decor.host_frame_of`, `decor.attach_host_frames` (called by `add_decor` and `decor_ai.apply`) |
 | `sync_to_hosts(building)`: hosted items take the host's new centre / rotation / room / level (move, turn, resize, swap); a throw across a bed's foot takes 0.95 × the new width; top/seat/mattress items never wider than the host; a rug and a pendant follow their first anchor; wall art slides along its wall with its piece. Dropped into `decor_dropped` with the reason: host gone, not built (`piece_is_built`: `build: false`, `unknown`, library gap), retyped without the support; all anchors gone; a picture whose piece left its wall. Idempotent, deterministic | `decor.sync_to_hosts`, `_follow_wall` |
-| Support rules (pure numpy, also used inside Blender) | `wenart/blender/rest.py`: `support_of`, `support_fits`, `item_support` (re-exported by `decor.py`) |
+| Support rules and the S5 tolerances (pure numpy, also used inside Blender, where shapely is missing) | `wenart/blender/rest.py`: `support_of`, `support_fits`, `item_support`, `REST_TOLERANCES` (rules re-exported by `decor.py`, tolerances by `scene_checks.TOLERANCES`) |
 | No decor cushions on a seat or bed whose model has its own (`has_cushions`, `has_pillows`, `has_bedding`) | `decor.takes_cushions`, `decor_ai._cushions`, `decor.rule_decor_room` |
 | Real cushion sizes: `CUSHION_SIZE` 0.45 × 0.15 × 0.45 m (standing), `PILLOW_SIZE` 0.50 × 0.15 × 0.50 m (leaning at a bed head) | `decor.py` constants |
 
@@ -29,14 +29,14 @@ with CPU tests). 10 Oct 2026.
 | No type-table rest height: `parametric.decor_rest_height` removed; `furniture.decor_height_above_floor` = the item's own `center[2]` or the floor (a proxy box's top only behind `--proxies`) | `parametric.py`, `furniture.py` |
 | Rigid-body settle | not built (an option of the design; off by default; only if the rays look stiff on the pod) |
 
-### 3. Procedural textiles (§6.4, B7) – `wenart/blender/textiles.py` (new)
+### 3. Procedural textiles (§6.4, B7) – `wenart/blender/textiles.py` (new; the host-free mesh makers in `parametric.py`)
 
 | What | Where |
 |---|---|
-| Filled cushion / pillow (two bulging faces, thin seam, drawn-in edges, closed mesh), standing or lying | `textiles.cushion_mesh`, `lying_cushion_mesh`; `parametric.decor_parts("cushion")` |
-| Cloth draped like a shrinkwrap: grid rays down onto the host, underside 5 mm above the hit + modelled folds; points past the top hang down by the length they reach past the edge, pushed out of the side by horizontal rays | `textiles.drape`, `cloth_solid`, `throw_parts`, `flat_cloth` |
+| Filled cushion / pillow (two bulging faces, thin seam, drawn-in edges, closed mesh), standing or lying | `parametric.cushion_mesh`, `lying_cushion_mesh` (re-exported by `textiles`); `parametric.decor_parts("cushion")` |
+| Cloth draped like a shrinkwrap: grid rays down onto the host, underside 5 mm above the hit + modelled folds; points past the top hang down by the length they reach past the edge, pushed out of the side by horizontal rays | `textiles.drape`, `throw_parts`; `parametric.cloth_solid`, `flat_cloth` |
 | Every library bed without bedding (a mattress model: not a M8 frame, audit says no bedding) gets a duvet over the foot 75 % (0.30 m overhang, ends before the pillows), a turned-down band and 2 pillows (1 on beds < 1.30 m) lying 14° against the headboard on the mattress; object `dress_<id>` with the bed's id and pass index, recorded as assumed | `textiles.duvet_and_pillows`; `furniture.needs_dressing`, `_dress_bed` |
-| Curtains: an open pair of pleated panels (sine pleats, 0.12 m pitch) under a rod; blinds: roller (default) or slats (`blind_kind: slats`) | `textiles.curtain_parts`, `blind_parts` |
+| Curtains: an open pair of pleated panels (sine pleats, 0.12 m pitch) under a rod; blinds: roller (default) or slats (`blind_kind: slats`) | `parametric.curtain_parts`, `blind_parts` (via `parametric.decor_parts`) |
 | Throws, curtains and blinds never take a library model (B7: no "JuiceMachine" squashed to 5 cm) | `fit.PROCEDURAL_DECOR_TYPES` |
 
 ### 4. Parametric fixtures (§6.4) – `wenart/blender/parametric.py`
@@ -64,9 +64,11 @@ a failed S5 sets `scene_checks_failed` and a warning (the render goes on: decisi
 
 | Rule | Where |
 |---|---|
-| Only `catalog.usable` models (audit not removed, no NC/SA/ND by licence text or `licence_flag`); an audit `fix` applies its `fixes`; refused ones listed under `excluded` | `fit.split_usable`, `catalog.usable`, `unusable_reason`, `effective` |
+| Only `catalog.usable` models (audit not removed, no NC/SA/ND by licence text or `licence_flag`); an audit `fix` is used as track B's writer left it (the fixes are in the catalogue fields; `audit.fixes` holds the new values, `before` the old); refused ones listed under `excluded` | `fit.split_usable`, `catalog.usable`, `unusable_reason`, `audit_status` |
 | B1: `quality_of` takes the mean of the judges' list | `fit.quality_of` |
 | Caps: non-uniform ≤ 10 % (was 15), mean scale 0.85–1.20 (was 0.75–1.30) | `fit.NON_UNIFORM_CAP`, `UNIFORM_RANGE` |
+| One size table (D23): the fitted height must be inside the type's real height range of `wenart.furniture.sizes.real_range` ± 15 % (a 0.89 m bathtub, a 0.54 m stove: the next model); every tried candidate records `height_m`, `height_ok` | `fit.real_height_range`, `height_fits` |
+| Track B's flags when present: `real_product: true` ranks first within its size step; `has_bedding` / `has_pillows` / `has_cushions` decide the bed dressing and the decor cushions; decor models need a `contact` that suits their type (`flat_bottom` on tops and floors, `hangs` on walls and ceilings, cushions `leans` / `flat_bottom`); `audit`, `real_product`, `has_*`, `contact` travel with the asset | `fit.rank_key`, `fit.AUDIT_ASSET_FIELDS`, `catalog.DECOR_CONTACTS`, `contact_fits`, `decor.takes_cushions`, `furniture.needs_dressing` |
 | Style chain (neutral at every step): mediterranean → rustic → classic; rustic → classic → mediterranean; classic → rustic; industrial → modern; japandi → scandinavian → minimal; scandinavian → minimal → modern; modern minimal → minimal → modern; minimal → modern minimal → modern; modern → modern minimal → minimal; logged `style_fallback`; a design colour no model can show is dropped before a gap (`design_not_shown`) | `fit.STYLE_FALLBACK`, `style_chain` |
 | Parametric only by design: counters, islands, wall cabinets, stairs, and the kitchen/bath fixtures (shower, washing machine, fridge, toilet, washbasin, bathtub, kitchen sink, stove) when no audited model fits (with a `library_gap` record) | `catalog.BY_DESIGN_PARAMETRIC_TYPES`, `PARAMETRIC_FIXTURE_TYPES`, `by_design_parametric` (also a vanity / built-in wardrobe design) |
 | Nearest related type only when the group needs the piece (a group member or a drawn piece): `fit.RELATED_TYPES` (armchair → chair, TV unit → sideboard/dresser, …; never sofas, beds, tables, fixtures) | `fit._no_model`, `group_needs` |
@@ -77,7 +79,8 @@ a failed S5 sets `scene_checks_failed` and a warning (the render goes on: decisi
 ### 7. No grey box – `wenart/blender/furniture.py`
 
 `unknown` pieces and library gaps are refused (`refused_piece`, listed in `not_built`); `--proxies` keeps the Milestone 3
-boxes for debugging. Pieces stand on their room's floor (`piece_floor_z`).
+boxes for debugging. Pieces, floor decor and wall art stand on their room's floor (`piece_floor_z`, with the room's
+`floor_offset_m`); pendant and ceiling lights keep the level's floor (the ceiling does not rise with a raised floor).
 
 ## Decisions within the design
 
@@ -101,8 +104,9 @@ New: `tests/test_decor_host_frame.py` (16: frame fields, follow move/turn/resize
 idempotency, committed real02/real03), `tests/test_decor_rest.py` (16: real seat and reclined back, arms, mattress
 heights, bare-bed bedding, throws on bed and sofa, shelves, tops, S5 tolerances, re-placement, closed textile meshes,
 committed parametric hosts), `tests/test_scene_checks.py` (14: S1–S6 pass/fail, floor offset, kitchen-run exception,
-dressing, report), `tests/test_scene_fit.py` (15: B1, usable filter, audit fix, style chain, never a parametric sofa/bed/
-table, related types, by-design, gap on the piece, B7, usable decor, committed real02/real03).
+dressing, report), `tests/test_scene_fit.py` (18: B1, usable filter, audit fix as track B's writer leaves it, real products first, height
+check against `sizes.real_range`, decor `contact`, style chain, never a parametric sofa/bed/table, related types,
+by-design, gap on the piece, B7, usable decor, committed real02/real03).
 
 Changed (they pinned the old behaviour): `test_furniture_fit.py`, `test_furniture_fit_v2.py`, `test_recolour_apply.py`
 (caps, gaps instead of parametric, NC model refused, cushion proportions), `test_blender_furniture.py` (no type height;
@@ -139,6 +143,10 @@ through the style chain):
 | real03 before | 89 / 24 | 53 / 60 | 52 / 61 | 35 / 78 | 40 / 73 | 45 / 68 | 10 / 103 |
 | real03 after | 78 (1) / 12 / 23 | 78 (37) / 12 / 23 | 68 (25) / 22 / 23 | 78 (68) / 12 / 23 | 39 (9) / 39 / 35 | 39 (18) / 39 / 35 | 39 (33) / 39 / 35 |
 
+With track B's merged size table (heights) and catalogue (18 NC/SA entries `removed`) the height check refuses
+124–293 tried candidates per run and family but nearly always another model fits: real02 unchanged, real03 modern /
+scandinavian / industrial 78 → 75 library (3 fixtures that are too high or too low go parametric), japandi 68 → 65.
+
 After, "parametric" = by-design types only (fixtures). Gaps, real02 modern: wardrobe 4, dining table 4, tall cabinet 3,
 sofa 2, coffee table 2, double bed 2; real02 classic/rustic/mediterranean: chair 40, bench 8, bar stool 7, double bed 6;
 real03: console table 6–8, TV unit 7 (classic), bookshelf 3, sofa 2–3, shoe cabinet 3. The classic/rustic/
@@ -160,6 +168,10 @@ mediterranean gaps (chairs) need the ABO style pass (§6.4 growth) or a broader 
    "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml"`: the scene checks
    (S4 size table, S6 usable/by-design) and the bed dressing read them inside Blender;
    `tests/test_blender_look.py::test_fingerprint_code_covers_the_build_import_closure` fails until then.
+   **Lead / track A – `wenart/run/stages.py` `FIT_CODE`** (fit and refit): add `"wenart/furniture/sizes.py",
+   "wenart/recognition/size_table.yaml"` (the fit's height check, D23);
+   `tests/test_run_stages.py::test_code_lists_cover_the_import_closure` fails until then (every other stage closure
+   is unchanged: the textile meshes live in `parametric.py`, the support rules and S5 tolerances in `rest.py`).
 2. **Lead – `wenart/schema/building.schema.json`**: `decor[].host_frame` also carries `turn_deg`, `anchor_id`,
    `wall_offset`; add a top-level `decor_dropped` array (`{id, type, host_id, anchor_ids, room_id, reason}`); `furniture[]
    .asset.method` may be `"none"` (a library gap, not built).
