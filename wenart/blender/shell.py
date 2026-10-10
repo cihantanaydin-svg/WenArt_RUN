@@ -218,6 +218,9 @@ def opening_vertical(opening: dict, level: dict, levels_above: bool) -> tuple[fl
             height = ceiling - float(sill)
             assumed["height"] = height
     bottom = floor_z + float(sill)
+    if kind in ("door", "opening") and opening.get("threshold_z") is not None:
+        # Milestone 12 (track L): a door's frame starts at its threshold (the higher room floor beside it).
+        bottom = float(opening["threshold_z"]) + float(sill)
     if kind == "opening":
         # Runs up to the ceiling; build_walls cuts through the wall top when the
         # opening reaches it and build_openings closes it with a soffit face.
@@ -227,6 +230,57 @@ def opening_vertical(opening: dict, level: dict, levels_above: bool) -> tuple[fl
         # cutter never shares a face with the wall top.
         top = min(bottom + float(height), floor_z + ceiling - 0.001)
     return bottom, top, assumed
+
+
+def room_floor_z(room: dict, level: dict) -> float:
+    """Milestone 12 (docs/milestone12.md §3.2, track L): a room's finished floor: its level's elevation + its
+    ``floor_offset_m`` (0 when not marked)."""
+    return float(level["elevation"]) + float(room.get("floor_offset_m") or 0.0)
+
+
+def wall_base_drop(wall: dict, rooms: list[dict], reach_extra: float = 0.05) -> float:
+    """Milestone 12 (pure): how far (<= 0) a wall starts below its level's floor: the lowest negative
+    ``floor_offset_m`` of the rooms whose outline runs along it (within half its thickness + ``reach_extra``)."""
+    low = 0.0
+    reach = float(wall["thickness"]) / 2.0 + reach_extra
+    a, b = wall["start"], wall["end"]
+    for r in rooms:
+        off = float(r.get("floor_offset_m") or 0.0)
+        poly = r.get("polygon") or []
+        if off >= low or len(poly) < 3:
+            continue
+        for i in range(len(poly)):
+            p, q = poly[i], poly[(i + 1) % len(poly)]
+            mid = G.segment_midpoint(p, q)
+            if G.point_segment_distance(mid, a, b) <= reach and G.distance(p, q) > 1e-6:
+                low = off
+                break
+    return low
+
+
+def inner_step(opening: dict, wall: dict, rooms: list[dict], level: dict) -> dict | None:
+    """Milestone 12 (pure): the step block under a door or doorless opening between two rooms whose floors differ
+    by more than 5 mm: ``{"polygon", "z0", "z1", "rise", "low_room", "high_room"}`` (the opening width x the wall
+    thickness, from the lower floor up to the threshold), else None."""
+    cx, cy, _ = opening_centre_on_wall(opening, wall)
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + 0.05
+    sides = []
+    for s in (1.0, -1.0):
+        p = (cx + s * nx * reach, cy + s * ny * reach)
+        sides.append(next((r for r in rooms if len(r.get("polygon") or []) >= 3 and G.point_in_polygon(p, r["polygon"])),
+                          None))
+    if None in sides:
+        return None
+    za, zb = room_floor_z(sides[0], level), room_floor_z(sides[1], level)
+    if abs(za - zb) <= 0.005:
+        return None
+    low, high = (sides[0], sides[1]) if za < zb else (sides[1], sides[0])
+    top = float(opening["threshold_z"]) if opening.get("threshold_z") is not None else max(za, zb)
+    poly = G.rotated_rectangle((cx, cy), (float(opening["width"]), float(wall["thickness"])),
+                               G.segment_angle_deg(wall["start"], wall["end"]))
+    return {"polygon": [tuple(p) for p in poly], "z0": min(za, zb), "z1": top, "rise": round(abs(za - zb), 4),
+            "low_room": low["id"], "high_room": high["id"]}
 
 
 def wall_height(wall: dict, level: dict, has_level_above: bool) -> tuple[float, dict]:
@@ -620,10 +674,14 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             # under a roof terrace the parapet height instead (roof.parapet_cuts).
             height, wall_assumed = float(roof_cut["top"]) + 0.5 - floor_z, {}
             parapets = trimmed_spans(wall, start, end, (roof_cut.get("parapets") or {}).get(wall["id"]) or [])
+        # Milestone 12 (track L): a wall beside a sunken room floor starts at that floor (no gap under the wall).
+        drop = wall_base_drop(wall, rooms)
+        wz = floor_z + drop
+        height -= drop
         if parapets:
-            verts, faces = wall_pieces(start, end, float(wall["thickness"]), floor_z, height, cut_planes, parapets)
+            verts, faces = wall_pieces(start, end, float(wall["thickness"]), wz, height, cut_planes, parapets)
         else:
-            verts, faces = geom2d.box((mid[0], mid[1], floor_z + height / 2.0),
+            verts, faces = geom2d.box((mid[0], mid[1], wz + height / 2.0),
                                       (length, float(wall["thickness"]), height), angle)
             if cut_planes is not None:
                 verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
@@ -638,7 +696,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             assumed.append({"object": wall["id"], "field": "not_built", "value": True, "reason": reason})
             continue
         if cut_planes is not None:
-            height = max(v[2] for v in verts) - floor_z
+            height = max(v[2] for v in verts) - wz
         ob = common.new_mesh_object(wall["id"], verts, faces, collection=collection, wenart_id=wall["id"],
                                     kind="wall", status=wall.get("status", "verified"), materials=slots)
         objects.append(ob)
@@ -654,7 +712,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             # Door cutters start a little below the floor so no coplanar faces
             # remain; an opening that reaches the wall top also runs above it.
             cut_bottom = bottom if opening["type"] == "window" else bottom - extra
-            cut_top = top + extra if cut_full_height(top, floor_z, height) else top
+            cut_top = top + extra if cut_full_height(top, wz, height) else top
             cx, cy, _shift = opening_centre_on_wall(opening, wall)  # shift recorded in build_openings
             cv, cf = geom2d.box((cx, cy, (cut_bottom + cut_top) / 2.0),
                                 (float(opening["width"]), float(wall["thickness"]) + extra, cut_top - cut_bottom),
@@ -697,7 +755,9 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             entry["runs_to"] = f"the next floor (slab {slab_above['id']} top {float(slab_above['z_top']):.3f} m)"
         if cut_planes is not None:
             entry["runs_to"] = "the roof underside (knee wall / gable end)"
-            entry["z_range"] = [round(floor_z, 4), round(floor_z + height, 4)]
+            entry["z_range"] = [round(wz, 4), round(wz + height, 4)]
+        if drop < 0:
+            entry["base_drop"] = round(drop, 4)          # Milestone 12: down to a sunken room floor beside it
         if parapets:
             entry["parapet"] = [{"s": [round(a, 4), round(b, 4)], "z_top": round(z, 4)} for a, b, z in parapets]
             entry["runs_to"] += "; a parapet under the roof terrace"
@@ -1540,9 +1600,18 @@ def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, l
     if room is None:
         warnings.append(f"{opening['id']}: no room on either side; threshold gets the style floor material")
     mat, wet = floor_material(room or {}, style, library)
-    z = floor_z + (DEFAULTS["threshold_lift"] if has_below else 0.0)
-    verts, faces = geom2d.polygon_face(
-        G.rotated_rectangle(centre, (float(opening["width"]), float(wall["thickness"])), angle), z, facing_up=True)
+    # Milestone 12 (track L): the threshold at the door's threshold_z; between two rooms whose floors differ, a
+    # step block from the lower floor up to it (inner_step).
+    base = float(opening["threshold_z"]) if opening.get("threshold_z") is not None else floor_z
+    z = base + (DEFAULTS["threshold_lift"] if has_below else 0.0)
+    level = {"elevation": floor_z}
+    step = inner_step(opening, wall, rooms, level)
+    if step is not None:
+        verts, faces = geom2d.prism(step["polygon"], step["z0"], z)
+    else:
+        verts, faces = geom2d.polygon_face(
+            G.rotated_rectangle(centre, (float(opening["width"]), float(wall["thickness"])), angle), z,
+            facing_up=True)
     ob = common.new_mesh_object(f"{opening['id']}_threshold", verts, faces, collection=collection,
                                 wenart_id=opening["id"], kind="floor", status=opening.get("status", "verified"),
                                 materials=[mat])
@@ -1554,6 +1623,9 @@ def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, l
         "room_type": room.get("room_type") if room else None, "wet": wet, "center_shift": round(shift, 4),
         "lifted": z - floor_z,
     })
+    if step is not None:
+        manifest_objects[-1]["step"] = {"rise": step["rise"], "low_room": step["low_room"],
+                                        "high_room": step["high_room"]}
     return ob
 
 
@@ -1648,9 +1720,10 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
         if len(room["polygon"]) < 3:
             warnings.append(f"{room['id']}: polygon with fewer than 3 points, no floor")
             continue
-        fv, ff, fcut = ceiling_faces(room["polygon"], [[v] for v in floor_voids], floor_z)
-        fv, ff = geom2d.polygon_face(room["polygon"], floor_z, facing_up=True) if not fcut else \
-            geom2d.polygon_faces(room["polygon"], [floor_voids[i] for i in fcut], floor_z, facing_up=True)
+        rz = room_floor_z(room, level)           # Milestone 12: the room's own floor (floor_offset_m)
+        fv, ff, fcut = ceiling_faces(room["polygon"], [[v] for v in floor_voids], rz)
+        fv, ff = geom2d.polygon_face(room["polygon"], rz, facing_up=True) if not fcut else \
+            geom2d.polygon_faces(room["polygon"], [floor_voids[i] for i in fcut], rz, facing_up=True)
         if not ff:
             warnings.append(f"{room['id']}: the stair opening covers the whole floor; no floor face")
             continue
@@ -1665,6 +1738,9 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
         })
         if fcut:
             manifest_objects[-1]["stair_void"] = f"{len(fcut)} opening(s) of the slab under the level cut out"
+        if abs(rz - floor_z) > 1e-9:
+            manifest_objects[-1].update(floor_z=round(rz, 4), floor_offset_m=room.get("floor_offset_m"),
+                                        floor_source=room.get("floor_source"))
         if room["id"] in open_rooms:
             manifest_objects[-1]["open_to_sky"] = True
             continue                          # a roof terrace: no ceiling
@@ -1733,7 +1809,7 @@ def build_skirting(building: dict, level: dict, collection, library, style: dict
         spans = skirting_spans(polygon, gaps)
         if not spans:
             continue
-        verts, faces = skirting_boxes(polygon, spans, floor_z)
+        verts, faces = skirting_boxes(polygon, spans, room_floor_z(room, level))   # M12: the room floor
         name = f"skirting_{room['id']}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="wall",
                                     status="assumed", materials=[mat])

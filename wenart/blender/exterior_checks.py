@@ -305,6 +305,22 @@ def _x3(building: dict, prep: dict, out: list) -> None:
         out.append(_v("X3", "minor", "entrance", "no outside door at or near the ground (entrance)"))
     inferred = site.get("inferred") or {}
     stepped = {s["opening_id"] for s in inferred.get("steps") or []}
+    records = (vb.get("site") or {}).get("entrances") if isinstance(vb.get("site"), dict) else None
+    if isinstance(records, list):
+        # Milestone 12 (docs/milestone12.md §3.5, track L): every outside door of site.entrances, every rise (a door
+        # more than 1.5 m up is no longer left out: it is a door into the air).
+        for r in records:
+            if not isinstance(r, dict):
+                continue
+            rise = float(r.get("threshold_z") or 0.0) - float(r.get("ground_z") or 0.0)
+            if r.get("into_air") or rise > 1.5:
+                out.append(_v("X3", "critical", r.get("door_id"), f"door {r.get('door_id')} is {rise:.2f} m above the "
+                                                                  f"ground with nothing to reach it (a door into the "
+                                                                  f"air)", rise=rise))
+            elif rise > 0.05 and (r.get("solution") in (None, "none") or r.get("door_id") not in stepped):
+                out.append(_v("X3", "major", r.get("door_id"), f"entrance {r.get('door_id')} is {rise:.2f} m above "
+                                                               f"the ground with no steps or ramp", rise=rise))
+        return
     for e in ents:
         if e["rise"] > 0.05 and e["opening_id"] not in stepped:
             out.append(_v("X3", "major", e["opening_id"], f"entrance {e['opening_id']} is {e['rise']:.2f} m above the "

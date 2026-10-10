@@ -133,7 +133,8 @@ def plan_cameras(building: dict, level_id: str, policy: str = "m5", lens_mm: flo
     for room in building["rooms"]:
         if room["level_id"] != level_id:
             continue
-        plans.extend(plan_room_cameras(room, building, floor_z))
+        # Milestone 12 (track L): the camera stands on the room's own floor (floor_offset_m)
+        plans.extend(plan_room_cameras(room, building, floor_z + float(room.get("floor_offset_m") or 0.0)))
     return plans
 
 

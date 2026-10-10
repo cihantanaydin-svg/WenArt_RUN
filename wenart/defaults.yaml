@@ -119,3 +119,40 @@ brief:
   roof_terraces: auto              # D5: auto = a terrace is cut into the roof when the plan of that level draws it as a room with a door to it, else the roof stays closed | cut | closed
   site_options:                    # brief.yaml may also write these inside site: {mode: full, front_court: auto}
     front_court: auto              # D6: auto = an inferred sunken court in front of a basement window whose sill is > 1.0 m below the ground, else the light well | yes | no
+  # Milestone 12 (docs/milestone12.md §3.3, decision D3a of 10 Oct 2026): the ground and the entrances. Any key of the
+  # top-level `levels:` block below may be set here too (brief.yaml `levels: {riser_max_outdoor: 0.16}`).
+  levels:
+    ground_rise: 0.15              # D3a: nothing about the ground drawn -> the ground floor stands this far above the ground (one inferred step)
+    accessible_entrance: false     # true: the main entrance gets a ramp (and steps) by the slope table
+
+# Milestone 12 (docs/milestone12.md §3.3, §3.7): level and entrance rules (wenart.levels.model.level_params). FLAGGED:
+# the step and ramp numbers come from SECONDARY sources quoting TS 9111 (Ankara University course notes, a newspaper
+# column, a MEB document); the regulation text itself was not reachable. The report lists them; the brief's `levels:`
+# block overrides any of them. The reach and tolerance values are our own assumptions.
+levels:
+  flush_max: 0.05                  # a rise up to this is a flush threshold (no step)
+  riser_max_outdoor: 0.15          # TS 9111 (secondary source)
+  riser_min_outdoor: 0.10          # L5 (secondary source)
+  riser_max_indoor: 0.18           # L5 (secondary source)
+  tread: 0.30                      # TS 9111 (secondary source); 2 risers + 1 tread = 0.60
+  tread_min: 0.28                  # L5
+  step_rule: [0.58, 0.66]          # L5: 2 R + T
+  landing_depth: 1.20              # in front of the door (secondary source)
+  landing_extra_width: 0.60        # landing width = door width + this
+  landing_every_risers: 12         # more risers -> an intermediate landing
+  handrail_from: 0.45              # handrails on entrance steps rising more than this (our assumption, flagged)
+  cheek_wall_from: 0.45            # cheek walls beside entrance steps rising more than this (our assumption)
+  ramp_slopes: [[0.15, 0.0833], [0.50, 0.0714], [1.00, 0.0625], [99.0, 0.05]]   # rise up to (m) -> slope: 1:12, 1:14, 1:16, 1:20 (secondary source)
+  ramp_handrail_from: 0.15         # ramps rising more than this get handrails on both sides (secondary source)
+  ramp_width: 1.20                 # our assumption
+  door_into_air: 1.50              # a door this far above the ground with no steps is a finding (L2), not an entrance
+  door_ground_reach: 5.0           # a ground point within this of a door gives the ground in front of it
+  door_mark_reach: 1.5             # a mark outside within this of an outside door is its threshold / landing
+  ground_reach: 25.0               # a mark farther from the building is another drawing on the sheet (not ground)
+  ground_outlier: 3.0              # a ground point this far from the median of the others is listed, not used
+  room_offset_max: 1.0             # a floor mark further than this from its level's floor is not the room floor (a stair landing)
+  plane_residual: 0.10             # ground points within this of a plane: planar terrain, else a triangulated one
+  terrain_blend: 20.0              # beyond the ground points the terrain blends to flat over this
+  plinth_min: 0.15                 # the facade plinth is at least this high
+  mark_tol: 0.02                   # L4: built floors and ground vs the marks
+  parapet: 0.30                    # flat_cut roof (a single drawn ground floor): the parapet above the roof slab (our assumption)
