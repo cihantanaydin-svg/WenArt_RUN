@@ -213,11 +213,12 @@ def test_real03_reads_the_whole_ground_floor(real03):
 
 
 def test_real03_furniture_is_read_completely(real03):
-    """Milestone 12 track R (docs/milestone12.md §4.1 D7): no untyped box is built, every unbuilt piece says why; the
-    room-number circles, door swings and trace / area / text-frame strokes are symbols; the counter runs, sinks,
-    fridges, dining sets and corner sofas of the eight flats are read (before: 43 built unknown boxes, 7 oversized
-    clusters, no counter, sink or fridge); the toilets have their real size (the axis line through the klozet block
-    is left out: 0.36 x 0.53 m, before 1.145 x 0.356 m); each living room's open kitchen is a zone."""
+    """Milestone 12 track R (docs/milestone12.md §4.1 D7), without AI answers: no untyped box is built, every unbuilt
+    piece says why; the room-number circles, door swings and trace / area / text-frame strokes are symbols; the
+    counter runs, sinks, fridges and corner sofas of the eight flats are read from the drawing (before: 43 built
+    unknown boxes, 7 oversized clusters, no counter, sink or fridge); the toilets have their real size (the axis line
+    through the klozet block is left out: 0.36 x 0.53 m, before 1.145 x 0.356 m); each living room's open kitchen is
+    a zone. The candidates the AI is asked about stay unknown (not built, listed for review) until answered."""
     from collections import Counter
 
     from wenart.furniture import sizes
@@ -229,8 +230,8 @@ def test_real03_furniture_is_read_completely(real03):
     kinds = Counter(s["kind"] for s in b["symbols"])
     assert kinds["room_number"] == 8 and kinds["door_arc"] >= 15 and kinds["text_frame"] >= 4 and kinds["other"] >= 20
     types = Counter(f["type"] for f in built)
-    assert types["kitchen_counter"] >= 8 and types["table_dining"] >= 4 and types["sofa_corner"] >= 6
-    assert all(types[t] == 8 for t in ("sink_kitchen", "fridge", "toilet"))
+    assert types["kitchen_counter"] >= 8 and types["sofa_corner"] >= 6 and types["toilet"] == 8
+    assert types["sink_kitchen"] >= 6 and types["fridge"] >= 6 and types["table_dining"] >= 2
     assert all(sizes.fits("toilet", f["footprint"]["size"]) for f in built if f["type"] == "toilet")
     assert sorted(r["room_type"] for r in b["rooms"] if r.get("zones")) == ["living"] * 8
     review = {n["id"] for n in b["needs_review"]}
