@@ -162,3 +162,21 @@ def test_m11_groups_are_split_and_no_counter_is_read_in_a_bedroom(building):
         assert len(counters) == 4 and all(p["front_deg"] is not None for p in counters)
         assert [p["type"] for p in f if p["room_id"] == kitchen and p["type"] == "stove"] == ["stove"]
     assert not [p for p in f if p["type"] == "kitchen_counter" and "yatak" in (p["room_id"] or "")]
+
+
+def test_m12_every_drawn_piece_is_typed_or_explained(building):
+    """Milestone 12 track R (docs/milestone12.md §4.1 D7): no untyped box is built (before: 40) and every unbuilt piece
+    says why; the concrete columns on the 'A-BA' layer stay as not-built obstacles; the 'tekil_villa_evye' blocks are
+    kitchen sinks by the M12 word EVYE (the AI passes called them fridges); the open kitchen of each L-1b Salon is a
+    kitchen zone."""
+    f = building["furniture"]
+    built = [p for p in f if p.get("build") is not False]
+    assert not [p for p in built if p["type"] == "unknown"]
+    assert all(p.get("not_built_reason") or p.get("inferred_reason") for p in f if p.get("build") is False)
+    assert Counter(p.get("inferred_as") for p in f if p.get("build") is False)["column"] >= 8
+    sinks = sorted(p["room_id"] for p in built if p["type"] == "sink_kitchen")
+    assert sinks == ["r_L-1_mutfak", "r_L-1_mutfak_2", "r_L-1b_salon", "r_L-1b_salon_2"]
+    assert not [p for p in built if p["type"] == "fridge"]
+    assert sorted(r["id"] for r in building["rooms"] if r.get("zones")) == ["r_L-1b_salon", "r_L-1b_salon_2"]
+    review = {n["id"] for n in building["needs_review"]}
+    assert review and all(p.get("build") is False for p in f if p["id"] in review)

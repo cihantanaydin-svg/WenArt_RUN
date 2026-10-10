@@ -38,6 +38,13 @@ questions, key and ``input_sha256`` must match) or the dict ``recognition.answer
 where the crops are written (``<rec_dir>/crops``); without it the input hashes are computed from the canonical crop
 description alone (no files). ``no_ai`` only changes the report: unanswered candidates stay ``unknown`` /
 ``unverified`` either way, and nothing is pending.
+
+Milestone 12 (docs/milestone12.md §4.1, track R): the never-asked unknown pieces that fit a type and the unknown
+parts of re-read clusters are asked as extra questions (content keys ``sym_<level>_x<hash>``, appended after the
+core's candidates, so the keys and hashes of earlier rounds do not move); a candidate still unknown after its
+answers is re-read (``_reread_unknowns``) and replaced by its parts; a block name only the M12 words read types its
+candidate after the answers (``_m12_named``); the symbols found are passed in ``ex.report["symbols"]`` to
+``reading.read_furniture``.
 """
 from __future__ import annotations
 
@@ -320,7 +327,7 @@ def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = N
 
 def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wall_polys: list, others: list, answers,
                    no_ai: bool, rec_dir: Optional[Path], level_id: str, raster=None,
-                   evidence_only: bool = False) -> None:
+                   evidence_only: bool = False, base: Optional[list] = None) -> None:
     """Crops and questions for every candidate; the two-pass rule where answers exist (§3.3). Raster candidates are
     pixel crops of the rectified page (``raster.image``, context ``{image, to_px}``, §3.1); an evidence-only raster
     page asks nothing (§0).
@@ -328,9 +335,15 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
     The question carries the item's facts (``recognition.symbols.question_facts``, prep pod finding P5): on vector
     pages also the room's printed label and type (``room_label``/``room_type``) and the neighbours among this page's
     candidates of the same face (``room_index``; ``symbols.neighbour_facts``). Raster questions carry neither: their
-    names and clusters may change with the label answers of the same round, and the hash must not."""
+    names and clusters may change with the label answers of the same round, and the hash must not.
+
+    Milestone 12 (track R): ``base`` (the core's own candidates) marks ``cands`` as the extra candidates of the
+    re-read: each one's neighbours are counted among ``base`` and itself only (so they do not depend on what else a
+    round re-reads), and the questions and pending keys are added to the report's."""
+    append = base is not None
     if not cands:
-        ex.report["questions"], ex.report["pending"] = [], []
+        if not append:
+            ex.report["questions"], ex.report["pending"] = [], []
         return
     is_raster = page.source_kind.startswith("raster")
     if is_raster and (raster is None or evidence_only):
@@ -349,6 +362,11 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
         s = float(ex.report["units_to_m"])
         raster_context = {"image": raster.image, "to_px": [1.0 / s, 0.0, 0.0, 0.0, -1.0 / s, float(page.size[1])]}
         neighbours = {}
+    elif append:
+        def facts(c):
+            return {"key": c["key"], "footprint": c["footprint"], "room_index": c.get("room_index")}
+        neighbours = {c["key"]: RS.neighbour_facts([facts(b) for b in base] + [facts(c)]).get(c["key"])
+                      for c in cands}
     else:
         neighbours = RS.neighbour_facts([{"key": c["key"], "footprint": c["footprint"],
                                           "room_index": c.get("room_index")} for c in cands])
@@ -397,12 +415,132 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
         ex.warnings.extend(result.get("warnings") or [])
         ex.warnings.extend(assumed)
         decided += 1
-    ex.report["questions"] = items
-    ex.report["pending"] = [] if no_ai else pending
-    ex.report["answers_applied"] = decided
+    if append:
+        ex.report["questions"] = list(ex.report.get("questions") or []) + items
+        ex.report["pending"] = list(ex.report.get("pending") or []) + ([] if no_ai else pending)
+        ex.report["answers_applied"] = int(ex.report.get("answers_applied") or 0) + decided
+    else:
+        ex.report["questions"] = items
+        ex.report["pending"] = [] if no_ai else pending
+        ex.report["answers_applied"] = decided
     if pending:
         ex.notes.append(f"{len(pending)} of {len(cands)} furniture candidates have no complete pair of answers"
                         + (" (--no-ai: they stay unknown, unverified)" if no_ai else ""))
+
+
+def _room_fields(cand: dict, rows: list[dict]) -> None:
+    pt = Point(cand["footprint"]["center"])
+    index = next((k for k, r in enumerate(rows) if r["polygon"].contains(pt)), None)
+    row = rows[index] if index is not None else None
+    cand["room_type"] = row["room_type"] if row else None
+    cand["room_label"] = row["label"] if row else None
+    cand["room_index"] = index
+    cand["_ids"] = _expand_ids(cand["item"].evidence.get("entity"))
+
+
+def _m12_named(part, ctx, raster: bool, table: dict, wall_polys: list):
+    """The piece a candidate's block name gives by the Milestone 12 words alone (``symbols.BLOCK_KEYWORDS_M12``), when
+    its footprint fits that type; None otherwise (no name, or a name the earlier words already read)."""
+    chain = SY._block_chain(part)
+    if chain is None:
+        return None
+    names = list(reversed(chain.split("/")))
+    fp = SY.footprint([p for s in part.segs for p in s.pts], ctx.theta)
+    if SY.block_type(names, (fp[1], fp[2]), table, extended=False) is not None:
+        return None
+    item = SY._block_item(part, fp, ctx, raster, table, None, wall_polys, [])
+    if item is None or not SY.fits(table, item.type, (fp[1], fp[2])):
+        return None
+    return item
+
+
+def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict], symbols: list[dict], walls: list,
+                     openings: list, texts_m: list, rows: list[dict], level_id: str, file_rel: str,
+                     page_no: Optional[int], s: float, no_ai: bool, raster: bool,
+                     strokes_m: Optional[list] = None) -> tuple[dict, list]:
+    """Milestone 12 (docs/milestone12.md §4.1, track R): an AI candidate still ``unknown`` after its answers (the
+    passes disagree or say unknown) is re-read (``symbols.reread``): its symbol strokes out, one part per block
+    instance and stroke group, each typed on its own. Its question stays as it was (same key and hash: the answers of
+    every round still apply); only the piece is replaced, when the re-read found more than the one unknown piece. A
+    candidate without answers keeps its piece (only a block name the M12 words read types it, ``_m12_named``). Returns ``({candidate key: replacement items}, unknown pieces that fit no type)``; the replacement's unknown parts
+    that fit a type are added to ``extras`` (asked under content keys), its symbols to ``symbols``."""
+    pending = set(ex.report.get("pending") or [])
+    # A round with answers for this page waits for none of its questions (one without answers was not in that round).
+    waiting = not no_ai and not ex.report.get("answers_applied")
+    table, _src = SY.load_size_table()
+    ctx = SY._Ctx(file_rel, page_no, s, SY._dominant(walls), level_id)
+    wall_polys = [TP.wall_polygon(w) for w in walls]
+    known = {c["key"] for c in cands + extras}
+    containers = None
+    replaced: dict[str, list] = {}
+    loose: list = []
+    for cand in cands:
+        item, part = cand["item"], cand.get("_part")
+        if part is None or item.details.get("build") is False or item.details.get("symbol") or \
+                item.details.get("not_furniture"):
+            continue
+        if waiting and (cand["key"] in pending or not item.type_candidates):
+            continue                                # a round without answers: it waits for them
+        named = _m12_named(part, ctx, raster, table, wall_polys)
+        if named is not None:
+            # A block name only the Milestone 12 words read (the candidate was asked before they existed): the name
+            # outranks the AI passes; the question stays as it was.
+            named.details["reread_of"] = cand["key"]
+            if item.type not in ("unknown", named.type):
+                named.details["ai_overridden"] = {"type": item.type, "type_candidates": list(item.type_candidates),
+                                                  "reason": f"the block name says {named.type}"}
+            replaced[cand["key"]] = [named]
+            ex.notes.append(f"{cand['key']}: typed {named.type} by its block name {named.type_raw} (M12 words)")
+            continue
+        if item.type not in ("unknown",) + SY.TABLE_TYPES:
+            # Context before AI (§4.1): chairs drawn around a rectangle are a dining set, whatever the passes said
+            # (real03: two passes called the drawn 0.9 x 1.4 m table with its chairs a sofa).
+            split = SY.split_table_chairs(part, table, ctx.theta)
+            if split is not None:
+                made = SY.table_chair_items(split, ctx, raster, table)
+                for it in made:
+                    it.details["reread_of"] = cand["key"]
+                made[0].details["ai_overridden"] = {"type": item.type, "type_candidates": list(item.type_candidates),
+                                                    "reason": "a table with chairs drawn around it (vector geometry "
+                                                              "outranks the AI passes)"}
+                replaced[cand["key"]] = made
+                ex.notes.append(f"{cand['key']}: typed {item.type} by the AI passes, but drawn as a table with "
+                                f"{len(made) - 1} chairs: split (M12)")
+            continue
+        if not item.type_candidates:
+            # Not answered (``--no-ai``, or a question whose answers no longer apply): its question stays open and the
+            # piece stays as asked (unknown), so twins drawn differently stay alike (real02's L1 corridors).
+            continue
+        if containers is None:
+            containers = SY.containers_of(strokes_m or [])
+        got = SY.reread(part, ctx, table, walls, openings, wall_polys, texts_m, ex.notes, raster,
+                        why="AI candidate still unknown after its answers", containers=containers)
+        typed = [it for it in got["items"] if it.type != "unknown"]
+        if not (typed or got["symbols"] or len(got["items"]) > 1):
+            continue
+        out = []
+        for it in got["items"]:
+            it.details["reread_of"] = cand["key"]
+            if it.type != "unknown" or it.details.get("not_furniture"):
+                out.append(it)              # typed, or a column the reading step keeps as a not-built obstacle
+                continue
+            sub = SY.Cluster([sg for sid in SY.expand_ids(it.evidence.get("entity")) for sg in part.segs
+                              if sg.stroke.id == sid])
+            fp = SY.footprint([p for sg in sub.segs for p in sg.pts], ctx.theta) if sub.segs else None
+            if fp is None or not SY.fitting_types(table, (fp[1], fp[2]), "L" if it.details.get("l_outline") else None):
+                loose.append(it)
+                continue
+            extra = SY.extra_candidate(sub, fp, it, ctx, raster, [], wall_polys, table)
+            if extra["key"] in known:
+                continue
+            known.add(extra["key"])
+            _room_fields(extra, rows)
+            extras.append(extra)
+        symbols.extend(got["symbols"])
+        replaced[cand["key"]] = out
+        ex.notes.append(f"{cand['key']}: still unknown after its answers, re-read (M12): {len(got['items'])} pieces "
+                        f"({len(typed)} typed), {len(got['symbols'])} symbols")
+    return replaced, loose
 
 
 # --------------------------------------------------------------------------
@@ -980,18 +1118,20 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         ex.review.append(f"{where}: outer walls do not close ({problem})")
     outline = TP.building_outline(bwalls, b_openings)
 
-    # 5. Furniture, separators, faces.
+    # 5. Furniture, separators, faces. Milestone 12 (track R): the re-read's extra candidates and its symbols.
+    extras: list[dict] = []
+    symbols: list[dict] = []
     pieces, cands, decor = SY.furniture(non_wall, owned, bwalls, b_openings, texts_m, dims, outline, [],
                                         wall_strokes=wall_strokes, site_walls=site["boundary_walls"],
                                         level_id=level_id, file_rel=file_rel, page_no=page_no, units_to_m=s,
-                                        notes=ex.notes)
+                                        notes=ex.notes, extra_out=extras, symbols_out=symbols)
     site["decor"] = decor
     stairs = [p for p in pieces if p.type == "stair"]
     seps, sep_log = TP.separators(bwalls, b_openings, gap_log, blocks, stairs, units_to_m=s)
     rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)
-    SY.apply_room_checks(pieces, cands, [{"polygon": r["polygon"], "room_type": r["room_type"], "label": r["label"]}
-                                         for r in rows], ex.notes)
-    for cand in cands:
+    SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
+                                                   "label": r["label"]} for r in rows], ex.notes)
+    for cand in cands + extras:
         pt = Point(cand["footprint"]["center"])
         index = next((k for k, r in enumerate(rows) if r["polygon"].contains(pt)), None)
         row = rows[index] if index is not None else None
@@ -1022,14 +1162,15 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             # Accepted VLM label boxes, checked against the page (``_blank_run``: inside the face, text-sized, only
             # letter-sized strokes inside), are blanked before the final clustering (§3.4): those glyph strokes are
             # no furniture.
+            extras, symbols = [], []
             pieces, cands, decor = SY.furniture(non_wall, owned, bwalls, b_openings, texts_m + ai_runs, dims, outline,
                                                 [], wall_strokes=wall_strokes, site_walls=site["boundary_walls"],
                                                 level_id=level_id, file_rel=file_rel, page_no=page_no,
-                                                units_to_m=s, notes=ex.notes)
+                                                units_to_m=s, notes=ex.notes, extra_out=extras, symbols_out=symbols)
             site["decor"] = decor
-            SY.apply_room_checks(pieces, cands, [{"polygon": r["polygon"], "room_type": r["room_type"],
-                                                  "label": r["label"]} for r in rows], ex.notes)
-        for cand in cands:
+            SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
+                                                           "label": r["label"]} for r in rows], ex.notes)
+        for cand in cands + extras:
             pt = Point(cand["footprint"]["center"])
             row = next((r for r in rows if r["polygon"].contains(pt)), None)
             cand["room_type"] = row["room_type"] if row else None
@@ -1089,6 +1230,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         others.append(({st.id}, (min(xs), min(ys), max(xs), max(ys)), st.pts))
     _ask_and_apply(ex, page, cands, wall_polys, others, answers, no_ai, Path(rec_dir) if rec_dir is not None else None,
                    level_id, raster=raster, evidence_only=evidence_only)
+    # Milestone 12 (track R): candidates still unknown after their answers are re-read; the extra candidates (the
+    # re-read's parts that fit a type) are asked after the core's own, under content keys.
+    replaced, loose = _reread_unknowns(ex, cands, extras, symbols, bwalls, b_openings, texts_m, rows, level_id,
+                                       file_rel, page_no, s, no_ai, is_raster, non_wall)
+    _ask_and_apply(ex, page, extras, wall_polys, others, answers, no_ai, Path(rec_dir) if rec_dir is not None else None,
+                   level_id, raster=raster, evidence_only=evidence_only, base=cands)
     if label_items:
         ex.report["questions"] = list(ex.report.get("questions") or []) + label_items
         if not no_ai:
@@ -1111,10 +1258,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         _shift_wall(w, sh)
     for o in b_openings + seps:
         _shift_opening(o, sh)
-    furniture = pieces + [c["item"] for c in cands]
+    furniture = list(pieces)
+    for c in cands:
+        furniture.extend(replaced.get(c["key"], [c["item"]]))
+    furniture += loose + [c["item"] for c in extras]
     for f in furniture:
         _shift_piece(f, sh)
     _shift_site(site, sh)
+    for sym in symbols:
+        sym["center"] = [round(sym["center"][0] - ox, ROUND), round(sym["center"][1] - oy, ROUND)]
+        sym["level_id"] = level_id
+    ex.report["symbols"] = symbols
     for row in sep_log:
         if row.get("line"):
             row["line_building"] = [list(sh.p(q)) for q in row["line"]]
@@ -1124,7 +1278,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.furniture = furniture
     ex.site = site
     # The candidates as asked (page metres, the crop and hash inputs); their FurnitureItems are in ex.furniture.
-    ex.candidates = [{k: v for k, v in c.items() if k not in ("item", "_ids")} for c in cands]
+    ex.candidates = [{k: v for k, v in c.items() if k not in ("item", "_ids", "_part")} for c in cands + extras]
     ex.report["origin_m"] = [ox, oy]
     if is_raster:
         _raster_evidence_boxes(ex, page)
