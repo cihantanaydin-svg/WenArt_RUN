@@ -1,0 +1,71 @@
+# Library audit settings (docs/milestone12.md §6.1-§6.4, D21-D24; wenart/assets/audit/). Designer values unless a
+# source is named; the real sizes live in wenart/recognition/size_table.yaml (D23), read by wenart/furniture/sizes.py.
+version: m12
+
+# Code checks (checks.py) and decisions (decide.py, §6.1: remove = wrong object, outdoor, NC/SA/ND licence, broken
+# mesh, unfixable proportions, quality <= 2; fix = pivot, front, unit scale, size off by 15-30 %, bedding flag; keep =
+# everything else). Fixes are catalogue fields, never edits of a GLB.
+size:
+  ok: 0.15                # the uniform scale to the real ranges within 15 %: keep (the size table's tolerance)
+  fix: 0.30               # 15-30 % off: fix (rescale the catalogue's unit_scale and boxes)
+  slack: 0.03             # the proportion test widens every range by 3 % (rounding of product boxes)
+mesh:
+  crude_faces: 3000       # furniture with fewer triangles is crude (removed unless the vision quality is >= 4)
+  broken_flipped_share: 0.30     # share of manifold edges with an inconsistent winding (flipped normals)
+  broken_zero_area_share: 0.20   # share of faces with zero area
+  warn_boundary_share: 0.25      # share of open (boundary) edges: a warning only (glTF models are often open)
+  outside_part_m: 0.05    # a part whose box sticks out of the main body by more than this (an open drawer): warning
+  outside_part_share: 0.005      # ... and holds at least this share of the surface
+  merge_eps_m: 0.00001    # vertices closer than this are one (UV seams split vertices in glTF)
+textures:
+  min_px: 512             # the largest texture below this: warning
+duplicates:
+  box_m: 0.01             # same type, every box side within 1 cm ...
+  faces_share: 0.01       # ... the face count within 1 % ...
+  # ... and the same texture (hash of the texture images, measured on the pod; before it: the same GLB sha256 or the
+  # same material colours of recolour.py), else a colour variant, kept
+quality:
+  remove_max: 2           # vision quality <= 2: remove
+  crude_keep_min: 4       # a crude or "not a real product" model stays only with quality >= 4
+  fallback_min: 3         # the M8-M10 judges' quality (both) <= 3: remove (all accepted ones were >= 4)
+pivot_tol_m: 0.01         # origin_offset vs the bottom centre of the box
+
+# Render (render.py, pod P2): every model at its catalogue scale, 4 views, the scale reference, the dimensions
+# printed; texture sets as a 1 m sample with a 10 cm grid.
+render:
+  resolution: 512
+  samples: 24
+  views: [front34, side, top, back]
+  elevation_deg: 22
+  front_azimuth_deg: -35  # the front 3/4 view: turned from the front (-Y) toward the model's left (-X)
+  lens_mm: 50
+  sensor_mm: 36
+  margin: 1.10
+  grid_m: 0.5             # floor grid; 0.1 m for items whose largest side is below small_item_m
+  small_item_m: 0.6
+  person_height_m: 1.75   # a person silhouette next to every item whose largest side is >= small_item_m
+  seat_bar_m: 0.45        # a seat-height bar next to every item
+  reference_gap_m: 0.30
+  background: 0.75
+  floor_grey: 0.55
+  line_grey: 0.12
+  sun_energy: 3.0
+  sheet_jpeg_quality: 88
+  tile_px: 256            # contact sheet tiles
+  texture_px: 512         # texture samples: 1 m square, top view
+  texture_grid_m: 0.1
+  workers: 3              # Blender processes (one GPU; import and measuring are CPU bound)
+  seconds_per_item: 4.0   # planning: measured M10 rate 3 s per item for 4 x 256 px; 512 px and the mesh stats
+
+# Vision question (ask.py, pod P3). The model is a check.yaml key (wenart/vision_check/check.yaml models); the bake-off
+# (track A, docs/milestone12.md §5.1) picks it; --model-key overrides.
+ask:
+  model_key: agent
+  version: m12.1          # part of every request's input hash: bump when the question or the sheets change
+  workers: 4
+  second_pass: true       # a type question where code cannot confirm (no title evidence) and pass 1 says no
+
+# Gaps (gaps.py, D24): targets per room type and style family.
+gaps:
+  anchor_min: 5
+  partner_min: 3
