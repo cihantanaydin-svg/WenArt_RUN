@@ -995,7 +995,7 @@ separate OK with the list.
 
 ### 6.3 D23 – Size table
 
-One real-size table per type (`wenart/furniture/size_table.yaml`, existing ranges reviewed against the ABO products
+One real-size table per type (`wenart/recognition/size_table.yaml` read through `wenart/furniture/sizes.py`; ranges reviewed against the ABO products
 with sizes in their titles) is shared by the audit, the fit, F2/S4 and the solver.
 
 ### 6.4 D24 – Gap report and growth
