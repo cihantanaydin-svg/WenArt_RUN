@@ -210,3 +210,29 @@ def test_real03_reads_the_whole_ground_floor(real03):
     # Oversized furniture clusters are recorded, never built as boxes.
     assert all(f.get("build") is False for f in b["furniture"]
                if f["type"] == "unknown" and max(f["footprint"]["size"]) > 4.5)
+
+
+def test_real03_furniture_is_read_completely(real03):
+    """Milestone 12 track R (docs/milestone12.md §4.1 D7): no untyped box is built, every unbuilt piece says why; the
+    room-number circles, door swings and trace / area / text-frame strokes are symbols; the counter runs, sinks,
+    fridges, dining sets and corner sofas of the eight flats are read (before: 43 built unknown boxes, 7 oversized
+    clusters, no counter, sink or fridge); the toilets have their real size (the axis line through the klozet block
+    is left out: 0.36 x 0.53 m, before 1.145 x 0.356 m); each living room's open kitchen is a zone."""
+    from collections import Counter
+
+    from wenart.furniture import sizes
+
+    b, out = real03
+    built = [f for f in b["furniture"] if f.get("build") is not False]
+    assert not [f for f in built if f["type"] == "unknown"]
+    assert all(f.get("not_built_reason") or f.get("inferred_reason") for f in b["furniture"] if f.get("build") is False)
+    kinds = Counter(s["kind"] for s in b["symbols"])
+    assert kinds["room_number"] == 8 and kinds["door_arc"] >= 15 and kinds["text_frame"] >= 4 and kinds["other"] >= 20
+    types = Counter(f["type"] for f in built)
+    assert types["kitchen_counter"] >= 8 and types["table_dining"] >= 4 and types["sofa_corner"] >= 6
+    assert all(types[t] == 8 for t in ("sink_kitchen", "fridge", "toilet"))
+    assert all(sizes.fits("toilet", f["footprint"]["size"]) for f in built if f["type"] == "toilet")
+    assert sorted(r["room_type"] for r in b["rooms"] if r.get("zones")) == ["living"] * 8
+    review = {n["id"] for n in b["needs_review"]}
+    assert all(f.get("build") is False for f in b["furniture"] if f["id"] in review)
+    assert "## Reading (Milestone 12)" in (out / "report.md").read_text(encoding="utf-8")

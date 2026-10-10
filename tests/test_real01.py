@@ -318,7 +318,12 @@ def test_every_reference_footprint_is_found(run):
     assert len(furniture) == REF["counts"]["furniture_total"] == len(refs)
     assert _matches(furniture, refs, _piece_ok) == (1.0, 1.0)
     for f in furniture:
-        assert f["source"] == "from_documents" and f["room_id"] is not None and f["build"] is True
+        assert f["source"] == "from_documents" and f["room_id"] is not None
+    # Milestone 12 (docs/milestone12.md §4.1 D7, never a box): without the AI answers (--no-ai) a piece no rule,
+    # context or size inference types is not built and is listed for review; every typed piece is built.
+    untyped = sorted(f["id"] for f in furniture if f["type"] == "unknown")
+    assert all(f["build"] is (f["type"] != "unknown") for f in furniture)
+    assert sorted(n["id"] for n in run["building"]["needs_review"]) == untyped
 
 
 def test_rule_types_stair_and_counter_legs(run):

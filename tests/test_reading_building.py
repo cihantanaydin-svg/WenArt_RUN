@@ -107,6 +107,22 @@ def test_seats_around_a_dining_table_are_chairs_facing_it():
     assert _piece(build.building, "c2")["type"] == "chair" and _piece(build.building, "c2")["front_deg"] == 270.0
 
 
+def test_a_table_with_seats_drawn_around_it_is_a_dining_set():
+    """real01 --no-ai: the table and its six chairs are asked, nothing answers; the drawing says what they are."""
+    table = M.fp("t", "unknown", (2.5, 2.0), (1.24, 0.74), front=None)
+    seats = [M.fp(f"c{k}", "unknown", c, (0.46, 0.38), front=None)
+             for k, c in enumerate([(2.2, 1.4), (2.8, 1.4), (2.2, 2.6), (2.8, 2.6), (1.65, 2.0)])]
+    lone = M.fp("x", "unknown", (4.4, 3.5), (1.24, 0.74), front=None)
+    build = _build([table, lone] + seats, room_type="dining", window=None)
+    RD.read_furniture(build, {})
+    t = _piece(build.building, "t")
+    assert t["type"] == "table_dining" and t["inferred"] is True and t.get("type_method") is None
+    assert "5 seats drawn around it on 3 sides" in t["inferred_reason"]
+    fronts = {f["id"]: f["front_deg"] for f in build.building["furniture"] if f["type"] == "chair"}
+    assert fronts == {"c0": 90.0, "c1": 90.0, "c2": 270.0, "c3": 270.0, "c4": 0.0}
+    assert "seats drawn around it" not in (_piece(build.building, "x").get("inferred_reason") or "")   # none there
+
+
 def test_a_coffee_table_and_a_tv_unit_face_the_sofa():
     sofa = M.fp("s", "sofa", (2.5, 3.55), (2.2, 0.9), front=270.0)
     coffee = M.fp("ct", "unknown", (2.5, 2.4), (1.0, 0.6), front=None)

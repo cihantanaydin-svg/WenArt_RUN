@@ -22,7 +22,8 @@ What, in order (each step deterministic, every change logged in the piece's evid
 2. **Context typing** (before any inference): an L outline with seat-deep arms in a living room is a corner sofa;
    an unknown box drawn with a door swing beside the counter run (or closing it, proud of it) is a fridge; a
    0.5-0.75 m deep strip along a wall holding a sink or hob is a counter; two small squares at a bed's head are
-   nightstands; small pieces at a dining table are chairs facing it; a bowl with a drain in a bathroom is a
+   nightstands; a table-sized piece with seats drawn around it on two sides is a dining table, and small pieces
+   at a dining table are chairs facing it; a bowl with a drain in a bathroom is a
    washbasin and the counter under it its vanity; two equal seats across a coffee table are armchairs; a table in
    front of a sofa is a coffee table; a long low strip at a wall facing a sofa is a TV unit. A fixed piece drawn
    inside another of its type is drawn twice (not built).
@@ -84,6 +85,7 @@ HEAD_TYPES = ("bed_double", "bed_single", "bunk_bed", "toilet")
 CHAIR_SIDE_M = (0.30, 0.65)        # a chair (or its half-round back drawn alone) ...
 CHAIR_REACH_M = 0.40               # ... this close to a dining table faces it
 CHAIR_DEPTH_M = 0.45               # a chair drawn shallower (its back alone) reaches this deep towards the table
+DINING_SEATS_MIN = 3               # a table-sized piece with this many seats around it (on two sides) is a dining table
 ARMCHAIR_REACH_M = 0.60            # two equal seats this close to a coffee table, on opposite sides, are armchairs
 VANITY_SHARE = 0.3                 # an unknown counter under >= 30 % of a washbasin is its vanity
 DUPLICATE_SHARE = 0.6              # a fixed piece this much inside a block-named one of its type is drawn twice
@@ -360,16 +362,15 @@ def _set_type(build, f: dict, ftype: str, reason: str, front: Optional[float] = 
               confidence: float = 0.75) -> None:
     from wenart.furniture import infer as INF
 
+    # Typed from its neighbours: an inference (CLAUDE.md), so like ``wenart.furniture.infer`` the piece keeps its
+    # ``type_method`` and ``status`` and carries ``inferred`` with its reason (listed in the report).
     old = f["type"]
     f["type"] = ftype
-    f["type_method"] = "rule"
     f["inferred"] = True
     f["inferred_reason"] = reason
     f.setdefault("evidence", []).append(_ev(f, CONTEXT_RULE, reason, confidence))
     if front is not None:
         INF.set_front(f, front)
-    elif f.get("front_deg") is not None:
-        pass
     build.warn(f"{f['id']}: {old} -> {ftype} by context: {reason}")
 
 
@@ -480,6 +481,21 @@ def context_types(build, items: dict) -> dict:
                               snap_front(f, float(bed["front_deg"])))
                     bump("nightstand")
                     break
+        # Dining table: a table-sized piece with seat-sized pieces drawn around it on two or more of its sides
+        # (docs/milestone12.md §4.1: "chairs around a rectangle -> dining table + chairs"; real01 --no-ai).
+        for f in _unknowns(pieces):
+            if not sizes.fits("table_dining", tuple(f["footprint"]["size"])):
+                continue
+            poly = rect(f)
+            seats = [g for g in _unknowns(pieces) if g is not f and _seat_sized(g)
+                     and rect(g).distance(poly) <= CHAIR_REACH_M]
+            sides_hit = {_side_of(f, rect(g)) for g in seats}
+            if len(seats) >= DINING_SEATS_MIN and len(sides_hit) >= 2:
+                _set_type(build, f, "table_dining", f"a {f['footprint']['size'][0]:.2f} x "
+                          f"{f['footprint']['size'][1]:.2f} m table with {len(seats)} seats drawn around it on "
+                          f"{len(sides_hit)} sides: a dining table")
+                bump("table_dining")
+        built = [f for f in pieces if f.get("build") is not False]
         # Chairs: small pieces (a seat, or the half-round back drawn alone) around a dining table face it.
         tables = [f for f in built if f["type"] in ("table_dining", "kitchen_island")]
         for f in _unknowns(pieces):
@@ -582,6 +598,23 @@ def context_types(build, items: dict) -> dict:
                     bump("tv_unit")
                     break
     return counts
+
+
+def _seat_sized(f: dict) -> bool:
+    w, d = sorted(f["footprint"]["size"], reverse=True)
+    return CHAIR_SIDE_M[0] <= w <= CHAIR_SIDE_M[1] and d >= 0.12
+
+
+def _side_of(table: dict, poly: Polygon) -> int:
+    """Which side of ``table`` (0 front -Y, 1 right +X, 2 back +Y, 3 left -X in its own frame) ``poly`` is at."""
+    cx, cy = table["footprint"]["center"]
+    w, d = (float(v) for v in table["footprint"]["size"][:2])
+    t = math.radians(float(table["footprint"].get("rotation_deg") or 0.0))
+    dx, dy = poly.centroid.x - cx, poly.centroid.y - cy
+    lx, ly = dx * math.cos(t) + dy * math.sin(t), -dx * math.sin(t) + dy * math.cos(t)
+    if abs(lx) / max(w / 2.0, 1e-6) >= abs(ly) / max(d / 2.0, 1e-6):
+        return 1 if lx > 0 else 3
+    return 2 if ly > 0 else 0
 
 
 def _same_size(f: dict, g: dict, tol: float = 0.05) -> bool:
@@ -1120,6 +1153,9 @@ def read_furniture(build, works: dict) -> None:
         context["drawn_twice"] = twice
     inferred = infer(build, pending)
     fixed = fix_fixed(build, items)
+    fronts += infer_fronts(build)
+    for k, v in context_types(build, items).items():          # partners of the anchors the inference typed
+        context[k] = context.get(k, 0) + v                     # (real01 --no-ai: the beds by their size)
     fronts += infer_fronts(build)
     zones = kitchen_zones(build)
     review = never_a_box(build, items, pending)
