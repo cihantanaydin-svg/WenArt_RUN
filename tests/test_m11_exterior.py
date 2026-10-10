@@ -36,8 +36,14 @@ from wenart.blender import shell
 from wenart.blender import site as S
 
 ROOT = Path(__file__).resolve().parents[1]
-REAL02 = ROOT / "results" / "furniture" / "real02" / "building_final.json"
-REAL02_SCENE = ROOT / "results" / "renders" / "real02" / "scene_manifest.json"
+# real02 of pod F1b (M10), frozen: the committed results are the M11 runs now.
+REAL02 = ROOT / "tests" / "fixtures" / "m11_f1b" / "real02_building_final.json.gz"
+REAL02_SCENE = ROOT / "tests" / "fixtures" / "m11_f1b" / "real02_scene_manifest.json.gz"
+
+
+def _gz_json(path):
+    import gzip
+    return json.loads(gzip.decompress(path.read_bytes()).decode("utf-8"))
 EXAMPLE = ROOT / "docs" / "examples" / "building_m10.example.json"
 BLENDER = cli.find_blender()
 needs_blender = pytest.mark.skipif(BLENDER is None, reason="no Blender binary (WENART_BLENDER)")
@@ -45,7 +51,7 @@ needs_blender = pytest.mark.skipif(BLENDER is None, reason="no Blender binary (W
 
 @pytest.fixture(scope="module")
 def real02():
-    return json.loads(REAL02.read_text(encoding="utf-8"))
+    return _gz_json(REAL02)
 
 
 @pytest.fixture(scope="module")
@@ -504,7 +510,7 @@ def test_override_schemas_are_strict_json_schemas():
 
 
 def test_check_exterior_finds_the_known_real02_problems_in_the_committed_f1b_scene(real02):
-    scene = json.loads(REAL02_SCENE.read_text(encoding="utf-8"))
+    scene = _gz_json(REAL02_SCENE)
     r = X.check_exterior(real02, scene)
     by = {(v["check"], v["target"]) for v in r["violations"]}
     for target in ("dec_L1_006", "dec_L1_007", "f_L1_001", "f_L1_002"):    # E3, E4: through the roof
@@ -519,7 +525,7 @@ def test_check_exterior_finds_the_known_real02_problems_in_the_committed_f1b_sce
 
 
 def test_check_views_v1_and_v3_on_the_committed_scene(real02):
-    scene = json.loads(REAL02_SCENE.read_text(encoding="utf-8"))
+    scene = _gz_json(REAL02_SCENE)
     r = X.check_views(real02, scene)["views"]
     assert all(any(v["check"] == "V3" for v in vs) for vs in r.values())     # stripes in every F1b view
     assert any(v["check"] == "V1" and "inside f_L0_001 (stair)" in v["message"] for v in r["cam_r_L0_oda_1"])

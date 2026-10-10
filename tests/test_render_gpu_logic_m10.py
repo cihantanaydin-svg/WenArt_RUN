@@ -155,8 +155,9 @@ def test_exterior_and_open_sky_views_pass_with_the_pod_depths(tmp_path, monkeypa
     # A closed room (no roof opening) keeps the coverage bound.
     ("cam_r_L0_banyo_1", {"min": 0.47, "max": 38.9, "coverage": 0.785}, "coverage not over 0.9"),
     # The open-sky room keeps the interior depth range.
-    ("cam_r_L1_teras_1", {"min": 0.08, "max": 38.9, "coverage": 0.785}, "0.1 < min < max < 60"),
-    ("cam_r_L1_teras_1", {"min": 0.46, "max": 74.7, "coverage": 0.785}, "0.1 < min < max < 60"),
+    # M11 (pod G2b): a room open to the sky sees the ground to the horizon: the exterior clip end applies.
+    ("cam_r_L1_teras_1", {"min": 0.08, "max": 38.9, "coverage": 0.785}, "0.1 < min < max < 3000"),
+    ("cam_r_L1_teras_1", {"min": 0.46, "max": 3600.0, "coverage": 0.785}, "0.1 < min < max < 3000"),
     # Exterior views: within the clip end (exterior.CLIP_END, 3000 m since M11: the flat ground reaches 1000 m),
     # not mostly sky.
     ("ext_5", {"min": 19.4, "max": 3600.0, "coverage": 0.864}, "0.1 < min < max < 3000"),

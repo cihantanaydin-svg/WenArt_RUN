@@ -1,6 +1,6 @@
 """real02 regression of the Milestone 11 layout engine (docs/milestone11.md §10 "real02 regression"): the code
-critic (plausibility) finds the known problems of §1.2 in the committed ``results/furniture/real02/
-building_final.json`` (pod F1b, before the step 0 fixes), the scripted edits raise the room scores, and invalid
+critic (plausibility) finds the known problems of §1.2 in real02's ``building_final.json`` of pod F1b (before the
+step 0 fixes; frozen in ``tests/fixtures/m11_f1b/``, the committed results are the M11 runs now), the scripted edits raise the room scores, and invalid
 edits are rejected with the failed checks."""
 import json
 from pathlib import Path
@@ -11,14 +11,14 @@ from wenart import geometry as G
 from wenart.furniture import edit_ops as E
 from wenart.furniture import plausibility as PL
 
-PATH = Path(__file__).resolve().parents[1] / "results" / "furniture" / "real02" / "building_final.json"
-pytestmark = pytest.mark.skipif(not PATH.is_file(), reason="results/furniture/real02 not committed")
+PATH = Path(__file__).resolve().parent / "fixtures" / "m11_f1b" / "real02_building_final.json.gz"
 META = {"round": 1, "model": "scripted"}
 
 
 @pytest.fixture(scope="module")
 def building():
-    return json.loads(PATH.read_text(encoding="utf-8"))
+    import gzip
+    return json.loads(gzip.decompress(PATH.read_bytes()).decode("utf-8"))
 
 
 @pytest.fixture(scope="module")

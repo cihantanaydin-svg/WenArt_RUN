@@ -641,7 +641,7 @@ hedges, trees, sunken courts and the physical sky.
 
 ### 19.1 Pod G1 – agent model check (9 Oct 2026, `3n5gzxuuv9c8sc`, RTX PRO 6000 Server, 22 min, $0.91)
 
-Results: `results/agent/g1/`. Exit 1 because of one GPU test (below); every model check passed.
+Results: `results/agent_check/g1/`. Exit 1 because of one GPU test (below); every model check passed.
 
 | Check | `Qwen3.8-27B-FP8` (agent) | with MTP | `Qwen3.6-35B-A3B-FP8` (agent_fast) |
 |---|---|---|---|

@@ -736,6 +736,9 @@ Spec and report: `docs/milestone11.md` (§18 as built, §19 pods, §20 report).
 - Results: real02 (G2d): 4 rounds, 20 edits accepted, complete; real01 (G3): 4 rounds, 5 edits (living room fixed:
   score 80 → 100); synthetic-01: 1 edit. Before/after sheets: `results/compare/<p>/before_after_*.jpg`.
 - GPU tests: G2d 37 of 39 (1 fixed in the test, 1 open: §20.4 #3).
+- CPU tests: the final full run gave 4292 passed, 8 failed; all 8 were tests reading the committed real02 results
+  (now the M11 ones), the G1 folder name and the terrace depth limit; fixed (F1b data frozen in
+  `tests/fixtures/m11_f1b/`), those files pass (70 tests).
 - Open items: §20.4 (grey boxes in real02, many major findings still open, polish off in orchestrated runs).
 
 GPU cost so far: $81.53 of $100. No pod is running.
