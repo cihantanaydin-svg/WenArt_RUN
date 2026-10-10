@@ -138,7 +138,7 @@ layout stage on `building_fitted.json`, no vision model (the solver's best). Bot
 | F8 major | 6 | 2 | | F8 major | 2 | 1 |
 | mean plausibility score | 57.5 | **67.3** | | mean score | 62.5 | **67.6** |
 | rooms with a hard failure in the best candidate | – | 0 | | | – | 0 |
-| solver s per room (mean / median / max) | – | 0.31 / 0.33 / 0.52 | | | – | 0.29 / 0.18 / 1.89 |
+| solver s per room (mean / median / max, shared CPU) | – | 0.34 / 0.36 / 0.57 | | | – | 0.29 / 0.16 / 1.99 |
 
 What stays is drawn: bathrooms (G10), beds (G5), drawn kitchens without a hob (G8/G9), F2/F3/F9 of drawn pieces and
 real03's misread boxes (giant diagonal unknowns over whole rooms) — the agent's `fix_fixture`, `retype_piece`,
