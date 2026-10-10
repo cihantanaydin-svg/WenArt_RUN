@@ -117,7 +117,7 @@ def test_the_orchestrated_run(tmp_path, models):
     assert r.run(**r.kwargs) == 0
     names = r.cli.names()
     assert [ph["phase"] for ph in r.manifest()["phases"]] == [1, 2, 3, 4, 5, 6, 7, 8, SC.AGENT_PHASE, 10, 11]
-    assert r.servers.starts == ["qwen", "agent"]                 # layout (Qwen), then one agent session
+    assert r.servers.starts == ["agent"]           # M12: one agent session from the layout to the final check
     order = ["layout", "decor", "refit", "build", "previews", "agent apply", "render", "select-controls",
              "gate calibrate", "polish", "expected", "check run", "combine", "report", "pytest"]
     idx = [first(names, n) for n in order]

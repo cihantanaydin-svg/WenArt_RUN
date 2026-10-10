@@ -101,7 +101,7 @@ import subprocess
 import sys
 import time
 import traceback
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Callable, Optional
@@ -375,6 +375,9 @@ class ProjectRun:
     label: Optional[str] = None
     no_views: bool = False              # an alternative whose scene has no camera: build and export only
     agent_loop: object = None           # Milestone 11: the project's wenart.agent.loop.AgentLoop (orchestrated runs)
+    # Milestone 12 (B6): round 0 measured on this pod: {"build_s", "previews_s", "views"} (the final-stage estimate)
+    round0: dict = field(default_factory=dict)
+    agent_model: object = None          # the agent model client of the loop (its critic calls give the call seconds)
 
     @property
     def name(self) -> str:
@@ -446,6 +449,11 @@ class Orchestrator:
         self._libredwg: Optional[tuple] = None    # (LibreDWG VERSION string,) once looked up
         self.phase = 0
         self.exit_code: Optional[int] = None
+        # Milestone 12: one agent server session from the layout (phase 3) to the final check (phase 12)
+        self._agent_stack: Optional[ExitStack] = None
+        self._agent_url: Optional[str] = None
+        self._agent_error: Optional[SV.ServerError] = None   # the agent server did not start (not tried again)
+        self._layout_fallback = False                        # then the layout ran on Qwen
 
     # ----- small helpers -------------------------------------------------
 
@@ -832,9 +840,12 @@ class Orchestrator:
             plan = list(enumerate([self.phase1, self.phase2, self.phase3, self.phase4, self.phase5, self.phase6,
                                    self.phase7, lambda: self.vlm_phase(8, "qwen"), lambda: self.vlm_phase(9, "glm"),
                                    self.phase10], start=1))
-        for n, fn in plan:
-            with self.phase_block(n):
-                fn()
+        try:
+            for n, fn in plan:
+                with self.phase_block(n):
+                    fn()
+        finally:
+            self.close_agent_session()          # M12: the agent session opened for the layout never outlives the run
         with self.phase_block(11):
             lists = self.phase11()
         self.exit_code = self.compute_exit()
@@ -1429,10 +1440,17 @@ class Orchestrator:
         settings = C.load_settings(pr.ref.project_dir)
         return n + sum(1 for r in C.furnished_rooms(building) if C.completion_skip_reason(r, settings) is None)
 
+    def layout_key(self) -> str:
+        """The model of the layout and the AI decor questions: the agent model in an orchestrated run (M12 §13.3:
+        the layout's ``--server`` / ``--model``; the decor questions follow the layout in the same session), else
+        Qwen (the M10 chain, and the fallback when the agent server does not start)."""
+        return self.opts.agent_key if self.agent_on() and not self._layout_fallback else "qwen"
+
     def layout_fp(self, pr: ProjectRun) -> tuple[str, dict, list]:
-        cmd = S.layout(self.tools, pr.ref, "<server>")
+        key = self.layout_key()
+        cmd = S.layout(self.tools, pr.ref, "<server>", key)
         args = list(cmd[1:])
-        args[args.index("<server>")] = f"{self.tools.model_id('qwen')}@{self.tools.model_revision('qwen')}"
+        args[args.index("<server>")] = f"{self.tools.model_id(key)}@{self.tools.model_revision(key)}"
         ins = ST.file_hashes([pr.out / "building_fitted.json", pr.out / "style.json",
                               pr.ref.project_dir / "brief.yaml"])         # M10: furnished_rooms keys
         return ST.fingerprint("layout", S.STAGE_VERSION["layout"], args, ins, self.code("layout")), ins, args
@@ -1448,13 +1466,14 @@ class Orchestrator:
             self.finish(pr, "layout", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
             return
         if url is None:
-            self.finish(pr, "layout", "failed", "server qwen not available", fingerprint=fp, inputs=ins)
+            self.finish(pr, "layout", "failed", f"server {self.layout_key()} not available", fingerprint=fp,
+                        inputs=ins)
             return
         # The layout sends its calls one at a time (2 passes per room): no division by the server's sequences.
         if not self.can_start(S.est_calls(2 * pr.layout_rooms, 1)):
             self.not_started(pr, "layout")
             return
-        rc = self.run_step(pr, "layout", "layout", S.layout(self.tools, pr.ref, url))
+        rc = self.run_step(pr, "layout", "layout", S.layout(self.tools, pr.ref, url, self.layout_key()))
         if rc == 0:
             self.finish(pr, "layout", "ok", fingerprint=fp, inputs=ins)
         elif rc == TIMEOUT_RC:
@@ -1493,20 +1512,31 @@ class Orchestrator:
                     self.stage_decor_ask(pr, None)
                 self.photos_finish(pr)
             return
-        need = need_recog + [pr for pr in need_photos + need_layout + need_decor if pr not in need_recog]
+        # Milestone 12 (§13.3): in an orchestrated run the layout and the decor questions use the agent model, on the
+        # agent session that stays open until the final check (phase 12); Qwen keeps the recognition and the photos.
+        agent_layout = self.layout_key() != "qwen"
+        later = [] if agent_layout else need_layout + need_decor
+        need = need_recog + [pr for pr in need_photos + later if pr not in need_recog]
 
         def fail(pr, status, note):
             if pr in need_recog and not pr.finalized:
                 self.finish(pr, "recognize", status if status == "incomplete" else "warning", note, merge=True,
                             outputs=self.recognition_outputs(pr))
-            if pr in need_layout:
+            if pr in need_layout and not agent_layout:
                 self.finish(pr, "layout", status, note)
             elif status == "incomplete" and pr in need_photos:
                 self.finish(pr, "photos", "incomplete", note, merge=True)
-            if pr in need_decor and "decor_ask" not in pr.records:
+            if pr in need_decor and "decor_ask" not in pr.records and not agent_layout:
                 self.finish(pr, "decor_ask", "warning", f"{note}: rule decor")
 
-        cm = self.start_session("qwen", need, fail)
+        def layout_and_decor(url: Optional[str]) -> None:
+            for pr in self.runs:
+                if pr.active and pr.layout_rooms:
+                    self.stage_layout(pr, url)
+                if pr.active and not (pr.pending and not pr.finalized):
+                    self.stage_decor_ask(pr, url)
+
+        cm = self.start_session("qwen", need, fail) if need else None
         if cm is not None:
             try:
                 with cm as url:
@@ -1523,11 +1553,8 @@ class Orchestrator:
                         if pr.active and pr.photos and pr.new_photo_answers and not pr.terms_applied \
                                 and self.photos_complete(pr):
                             self.apply_terms(pr, restyle=True)
-                    for pr in self.runs:
-                        if pr.active and pr.layout_rooms:
-                            self.stage_layout(pr, url)
-                        if pr.active and not (pr.pending and not pr.finalized):
-                            self.stage_decor_ask(pr, url)
+                    if not agent_layout:
+                        layout_and_decor(url)
             except SV.ServerError as exc:
                 self.out(f"phase 3: {exc}")
                 status = "incomplete" if exc.reason == "deadline" else "failed"
@@ -1535,12 +1562,14 @@ class Orchestrator:
                     if pr.active and not pr.finalized and \
                             "ask qwen" not in [s["name"] for s in pr.parts.get("recognize", [])]:
                         self.recognition_server_failed(pr, "qwen", exc)
-                for pr in need_layout:
+                for pr in ([] if agent_layout else need_layout):
                     if pr.active and "layout" not in pr.records:
                         self.finish(pr, "layout", status, f"server qwen: {exc.reason}")
-                for pr in need_decor:
+                for pr in ([] if agent_layout else need_decor):
                     if pr.active and "decor_ask" not in pr.records:
                         self.finish(pr, "decor_ask", "warning", f"server qwen: {exc.reason}: rule decor")
+        if agent_layout:
+            self.agent_layout_session(layout_and_decor)
         for pr in self.runs:
             # Questions without a Qwen session (a server error): the final building with the answers there are.
             if pr.active and pr.pending and not pr.finalized:
@@ -1592,9 +1621,10 @@ class Orchestrator:
 
     def decor_ask_fp(self, pr: ProjectRun) -> tuple[str, dict, list]:
         src = self.decor_source(pr)
-        cmd = S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", "<server>")
+        key = self.layout_key()
+        cmd = S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", "<server>", key)
         args = list(cmd[1:])
-        args[args.index("<server>")] = f"{self.tools.model_id('qwen')}@{self.tools.model_revision('qwen')}"
+        args[args.index("<server>")] = f"{self.tools.model_id(key)}@{self.tools.model_revision(key)}"
         ins = ST.file_hashes([src, pr.out / "style.json"])
         return ST.fingerprint("decor_ask", S.STAGE_VERSION["decor_ask"], args, ins, self.code("decor_ask")), ins, args
 
@@ -1622,14 +1652,16 @@ class Orchestrator:
             self.finish(pr, "decor_ask", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
             return
         if url is None:
-            self.finish(pr, "decor_ask", "warning", "server qwen not available: rule decor", inputs=ins)
+            self.finish(pr, "decor_ask", "warning", f"server {self.layout_key()} not available: rule decor",
+                        inputs=ins)
             return
         if not self.can_start(S.est_calls(2 * pr.decor_rooms, 1)):
             self.not_started(pr, "decor_ask")
             return
         src = self.decor_source(pr)
         rc = self.run_step(pr, "decor_ask", "decor_ask",
-                           S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", url))
+                           S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", url,
+                                       self.layout_key()))
         if rc == 0:
             self.finish(pr, "decor_ask", "ok", fingerprint=fp, inputs=ins)
         elif rc == TIMEOUT_RC:
@@ -1748,15 +1780,111 @@ class Orchestrator:
         return AgentModel(url, str(m.get("id") or self.opts.agent_key), str(m.get("revision") or ""))
 
     def final_estimate(self, pr: ProjectRun) -> float:
-        """Seconds the final stages of ``pr`` need (``stages.est_final`` / GPU speed): the loop stops when they
-        would not fit before the deadline - 20 min (§8)."""
+        """Seconds the final stages of ``pr`` need: the loop stops when they would not fit before the deadline - 20
+        min (§8). Milestone 12 (B6: real03 run 3 estimated 34.7 min, took 19.8): from the round-0 previews measured on
+        this pod (``stages.est_final_measured``: the final render scales with the preview seconds per view, the check
+        with the critic's measured call seconds); without a measurement (a resumed run that reused its previews) the
+        M11 estimate (``stages.est_final`` / GPU speed)."""
         views = pr.views or self.scene_views(pr)
-        return S.est_final(views, self.seqs(self.opts.agent_key), self.polish_on(pr)) / self.gpu_speed()
+        seqs = self.seqs(self.opts.agent_key)
+        r0 = pr.round0 or {}
+        if r0.get("previews_s") and r0.get("views"):
+            return S.est_final_measured(views, float(r0["previews_s"]), int(r0["views"]), seqs=seqs,
+                                        polish=self.polish_on(pr), gpu_speed=self.gpu_speed(),
+                                        critic_call_s=self.critic_call_seconds(pr))
+        return S.est_final(views, seqs, self.polish_on(pr)) / self.gpu_speed()
+
+    @staticmethod
+    def critic_call_seconds(pr: ProjectRun) -> Optional[float]:
+        """Mean seconds of the agent model's successful vision calls of this project (None before the first)."""
+        calls = [c for c in getattr(pr.agent_model, "calls", None) or []
+                 if c.get("kind") == "critic" and not c.get("error") and c.get("seconds")]
+        return sum(float(c["seconds"]) for c in calls) / len(calls) if calls else None
+
+    # ----- Milestone 12: one agent session from the layout to the final check ------------------------------
+
+    def open_agent_session(self, need: list, on_fail: Callable[[ProjectRun, str, str], None]) -> Optional[str]:
+        """The agent server's URL: the open session (phase 3 started it for the layout), else a new one that stays
+        open until ``close_agent_session`` (the end of phase 12). None when the deadline leaves no time for the
+        start; ``ServerError`` when the server does not start."""
+        if self._agent_url is not None:
+            return self._agent_url
+        if self._agent_error is not None:          # it failed in phase 3: not started twice
+            raise self._agent_error
+        cm = self.start_session(self.opts.agent_key, need, on_fail)
+        if cm is None:
+            return None
+        stack = ExitStack()
+        try:
+            url = stack.enter_context(cm)
+        except BaseException:
+            stack.close()
+            raise
+        self._agent_stack, self._agent_url = stack, url
+        return url
+
+    def close_agent_session(self) -> None:
+        stack, self._agent_stack, self._agent_url = self._agent_stack, None, None
+        if stack is not None:
+            stack.close()
+
+    def agent_layout_session(self, layout_and_decor: Callable[[Optional[str]], None]) -> None:
+        """Phase 3 of an orchestrated run: the layout and the decor questions on the agent server (the session stays
+        open for phase 12, so the server starts once)."""
+        for pr in self.runs:                    # questions without a Qwen session: the final building first
+            if pr.active and pr.pending and not pr.finalized:
+                self.finalize(pr)
+                if pr.active:
+                    self.layout_prepare(pr)
+        need = [pr for pr in self.runs if pr.active and ((pr.layout_rooms and "layout" not in pr.records
+                                                          and not self.layout_reusable(pr))
+                                                         or (not (pr.pending and not pr.finalized)
+                                                             and "decor_ask" not in pr.records
+                                                             and self.decor_wanted(pr)))]
+        if not need:
+            return
+        key = self.opts.agent_key
+
+        def fail(pr, status, note):
+            if pr.layout_rooms and "layout" not in pr.records:
+                self.finish(pr, "layout", status, note)
+            if "decor_ask" not in pr.records:
+                self.finish(pr, "decor_ask", "warning", f"{note}: rule decor")
+
+        try:
+            url = self.open_agent_session(need, fail)
+        except SV.ServerError as exc:
+            self.out(f"phase 3: {exc}")
+            self._agent_error = exc
+            if exc.reason == "deadline":
+                for pr in need:
+                    if pr.active:
+                        fail(pr, "incomplete", f"server {key}: {exc.reason}")
+                return
+            # the agent server does not start: the layout and the decor questions on Qwen (the M10 chain); phase 12
+            # then leaves the M10 result without agent rounds
+            self._layout_fallback = True
+            self.out(f"phase 3: the layout falls back to qwen (server {key}: {exc.reason})")
+            cm = self.start_session("qwen", need, fail)
+            if cm is None:
+                return
+            try:
+                with cm as qurl:
+                    layout_and_decor(qurl)
+            except SV.ServerError as exc2:
+                for pr in need:
+                    if pr.active:
+                        fail(pr, "incomplete" if exc2.reason == "deadline" else "failed",
+                             f"server qwen: {exc2.reason}")
+            return
+        if url is not None:
+            layout_and_decor(url)
 
     def phase_agent(self) -> None:
         """Milestone 11 (§8): one agent server session for every project: round 0 (build + previews), the rounds
         (``wenart.agent.loop.AgentLoop``), then the final chain on the same session (phases 5-8: final renders,
-        gate, polish, detect, expected, the one-pass check) and the final round for critical findings."""
+        gate, polish, detect, expected, the one-pass check) and the final round for critical findings. Milestone 12:
+        the session phase 3 opened for the layout is used (no second start); it is closed at the end."""
         bases = [pr for pr in self.runs if pr.active and pr.base is None]
         key = self.opts.agent_key
 
@@ -1764,23 +1892,26 @@ class Orchestrator:
             self.finish(pr, "agent", "incomplete" if status == "incomplete" else "warning",
                         f"{note}: the M10 result without agent rounds", outputs=[])
 
-        cm = self.start_session(key, bases, fail) if bases else None
-        if cm is None:
-            self.final_chain(None)
-            return
         try:
-            with cm as url:
+            try:
+                url = self.open_agent_session(bases, fail) if bases else None
+            except SV.ServerError as exc:
+                self.out(f"agent phase: {exc}")
                 for pr in bases:
-                    if pr.active:
-                        self.agent_project(pr, url)
-                self.final_chain(url)
+                    if "agent" not in pr.records:
+                        fail(pr, "incomplete" if exc.reason == "deadline" else "warning",
+                             f"server {key}: {exc.reason}")
+                url = None
+            if url is None:
+                self.close_agent_session()
+                self.final_chain(None)
                 return
-        except SV.ServerError as exc:
-            self.out(f"agent phase: {exc}")
             for pr in bases:
-                if "agent" not in pr.records:
-                    fail(pr, "incomplete" if exc.reason == "deadline" else "warning", f"server {key}: {exc.reason}")
-        self.final_chain(None)
+                if pr.active:
+                    self.agent_project(pr, url)
+            self.final_chain(url)
+        finally:
+            self.close_agent_session()
 
     def agent_project(self, pr: ProjectRun, url: str) -> None:
         """Round 0 (the scene and the previews of every view), then the loop (``AgentLoop.run``)."""
@@ -1790,12 +1921,22 @@ class Orchestrator:
             self.finish(pr, "agent", "warning", "no scene: no agent rounds", outputs=[])
             return
         pr.views = self.scene_views(pr)
-        if self.stage_agent_previews(pr) not in ("ok", "warning") or \
+        previews_status = self.stage_agent_previews(pr)
+        if previews_status not in ("ok", "warning") or \
                 not (pr.out / S.PREVIEW_DIR / "render_manifest.json").is_file():
             self.finish(pr, "agent", "warning", "no previews: no agent rounds", outputs=[])
             return
+        # M12 (B6): round 0 measured on this pod -> the final-stage estimate
+        steps = pr.parts.get("agent_previews") or []
+        builds = pr.parts.get("build") or []
+        if previews_status == "ok" and steps:
+            pr.round0 = {"previews_s": float(steps[-1]["seconds"]), "views": pr.views,
+                         "build_s": float(builds[-1]["seconds"]) if builds else None}
+            self.out(f"{pr.name} round 0 measured: {pr.views} preview(s) in {pr.round0['previews_s']:.0f} s")
         kwargs = dict(self.agent_loop_kwargs)
-        loop = AgentLoop(pr.out, self.make_agent_model(url, pr),
+        kwargs.setdefault("workers", self.seqs(self.opts.agent_key))     # M12: parallel room sessions
+        pr.agent_model = self.make_agent_model(url, pr)
+        loop = AgentLoop(pr.out, pr.agent_model,
                          rerun=lambda stage, views, rnd, final: self.agent_rerun(pr, stage, views, rnd, final),
                          clock=self.clock, deadline=self.deadline, final_estimate=lambda: self.final_estimate(pr),
                          max_rounds=self.opts.agent_rounds, out=self.out, project=pr.name, **kwargs)

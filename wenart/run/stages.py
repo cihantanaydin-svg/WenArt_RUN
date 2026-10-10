@@ -390,21 +390,21 @@ def fit(tools: Tools, ref: ProjectRef) -> list[str]:
             "--out", _out(ref, "building_fitted.json"), "--assets", t(tools.assets)]
 
 
-def layout(tools: Tools, ref: ProjectRef, url: str) -> list[str]:
+def layout(tools: Tools, ref: ProjectRef, url: str, key: str = "qwen") -> list[str]:
     """The empty-room layout (M4) and the completion of furnished rooms (M10 §2) in one run; ``--project-dir``: the
     brief keys furnished_rooms, furnished_rooms_keep(_size), render.twin_rooms (its brief.yaml is in the
-    fingerprint through the project folder)."""
+    fingerprint through the project folder). ``key``: the model (M12: the agent model in an orchestrated run)."""
     return [tools.py, "-m", "wenart.furniture.layout", _out(ref, "building_fitted.json"), "--style",
-            _out(ref, "style.json"), "--server", url, "--model", tools.model_id("qwen"), "--out",
+            _out(ref, "style.json"), "--server", url, "--model", tools.model_id(key), "--out",
             _out(ref, "building_furnished.json"), "--debug", _out(ref, "layout_debug"), "--passes", "2",
             "--project-dir", t(ref.project_dir)]
 
 
-def decor_ask(tools: Tools, ref: ProjectRef, furnished: bool, url: str) -> list[str]:
+def decor_ask(tools: Tools, ref: ProjectRef, furnished: bool, url: str, key: str = "qwen") -> list[str]:
     """The AI decor's two passes per room (Milestone 9, docs/milestone9.md §4), stored by key in the answers file."""
     src = "building_furnished.json" if furnished else "building_fitted.json"
     return [tools.py, "-m", "wenart.furniture.decor_ai", "ask", _out(ref, src), "--style", _out(ref, "style.json"),
-            "--server", url, "--model", tools.model_id("qwen"), "--answers", _out(ref, DECOR_ANSWERS)]
+            "--server", url, "--model", tools.model_id(key), "--answers", _out(ref, DECOR_ANSWERS)]
 
 
 def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:
@@ -719,6 +719,42 @@ EST_FINAL_FACTOR_NO_POLISH = 1.6
 
 def est_previews(views: int) -> float:
     return EST_RENDER_FIXED_S + EST_PREVIEW_PER_VIEW_S * max(0, views)
+
+
+# Milestone 12 (docs/milestone12.md §5.4 "time budget", bug B6): the final stages from what round 0 measured on this
+# pod. Calibrated on real03 run 3 (RTX PRO 6000, 83 views, polish off): round-0 previews ≈ 290 s (the agent_previews
+# record: 480 s for round 0 + a 5-view re-run of ≈ 190 s), final render 663 s (x 2.3), export 76 s, controls 83 s,
+# expected 56 s, the agent's check 309 s, combine 55 s; the other M11 runs (real01 18 views, synthetic-01 29,
+# real02 41): controls 56-96 s, check 124-192 s (≈ 75 s + 2.9 s per view at 4 sequences), expected and combine
+# ≈ 0.5-2.2 and 0.6-0.8 s per view. Flagged: the ratio is re-measured on every pod (metrics, the run log).
+FINAL_RENDER_PER_PREVIEW = 2.3
+EST_CONTROLS_MEASURED_S = 100.0
+EST_CHECK_FIXED_S = 75.0
+EST_CHECK_PER_VIEW_S = 2.9
+EST_CHECK_CALL_S_M11 = 5.6           # the mean vision call of real03 run 3: the check scales with this pod's calls
+EST_EXPECTED_FIXED_S = 10.0
+EST_EXPECTED_PER_VIEW_S = 1.0
+EST_COMBINE_FIXED_S = 5.0
+EST_COMBINE_PER_VIEW_S = 0.7
+
+
+def est_final_measured(views: int, previews_s: float, preview_views: int, *, seqs: int = 4, polish: bool = False,
+                       gpu_speed: float = 1.0, critic_call_s: Optional[float] = None) -> float:
+    """Seconds of the final stages (render, export, controls, gate/polish/detect when on, expected, the agent's check,
+    combine, report) from round 0 on this pod: the final render = the measured preview seconds per view x views x
+    ``FINAL_RENDER_PER_PREVIEW``; the check scales with the measured vision call seconds and the server's sequences;
+    the polish part keeps the M11 factor (it has no round-0 measurement)."""
+    per_view = float(previews_s) / max(1, int(preview_views))
+    render = per_view * max(0, views) * FINAL_RENDER_PER_PREVIEW
+    blender = render + EST_EXPORT_S / max(gpu_speed, 1e-6) + EST_CONTROLS_MEASURED_S
+    call = float(critic_call_s) if critic_call_s else EST_CHECK_CALL_S_M11
+    check = (EST_CHECK_FIXED_S + EST_CHECK_PER_VIEW_S * max(0, views)) * (4.0 / max(1, seqs)) * (
+        call / EST_CHECK_CALL_S_M11)
+    cpu = (EST_EXPECTED_FIXED_S + EST_EXPECTED_PER_VIEW_S * views + EST_COMBINE_FIXED_S
+           + EST_COMBINE_PER_VIEW_S * views + EST_REPORT_S)
+    polish_s = ((EST_GATE_S + est_polish(views) + est_detect(views)) * EST_FINAL_FACTOR / max(gpu_speed, 1e-6)
+                if polish else 0.0)
+    return blender + check + cpu + polish_s
 
 
 def est_final(views: int, seqs: int = 4, polish: bool = True) -> float:
