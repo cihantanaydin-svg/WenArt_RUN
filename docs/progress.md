@@ -772,3 +772,27 @@ The user saw only the core. The flats were in `tekkat.dwg` all along; details in
   to the building they were made on. Lights: one per 3 m in long rooms; only windows in outer walls bring daylight.
 - Pods: 3 runs ($6.10). Run 3: 8 flats + core, 84 views, every room lit, agent 2 rounds; GPU tests 37/39.
 - Open: white boxes in some living rooms (untyped drawn pieces), 2 GPU tests, no exterior view.
+
+## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (step 0 done, 10 Oct 2026; waiting for your answers)
+
+Spec: `docs/milestone12.md` (prompt: `docs/prompts/milestone12.md`). Cloud session, CPU only, no pod, no code change.
+
+**Step 0, diagnosis** (§1, five read-only reviews, every count by script):
+- **Furniture** (§1.2): most drawn pieces are not read into usable pieces (real03: 42 built `unknown` boxes, 6 unbuilt
+  clusters over 92–100 % of their rooms, no kitchen counter, sink, fridge, washbasin or dining set built; room-number
+  circles and a level mark built as furniture). The AI adds single pieces with raw coordinates; the placer repairs each
+  alone; the 5 group templates are used by no stage; the checks count partners, they never judge the arrangement.
+- **Decor** (§1.3): cushion and throw heights come from a type table (bed 0.55 m, sofa seat 0.45 m), not the built
+  model; agent edits leave the decor behind; throws in the library include a juice machine and benches squashed to 5 cm.
+- **Agent** (§1.4): real03 run 3: 5 accepted, 73 rejected (53 aimed at pieces no tool may change: locked fixed equipment
+  with misread sizes, unbuilt pieces); 12 of 35 rooms reached (120 calls per round, final-stage estimate 15 min too
+  long); no plan, memory or dry run.
+- **Levels** (§1.5): no level mark on plans, site plans or in blocks is read (the pattern rejects `+-0.00`, `KOT:`,
+  `SB. KOTU :`); no room floor levels, door thresholds or terrain; the ground floor always sits at grade; single-region
+  projects (real01, real03) get no site and no exterior view.
+- **Library** (§1.6): 1032 models (ABO 538, Objaverse 213, generated 281); 68 of 333 (type, style) pairs empty
+  (mediterranean 21); both judges accepted wrong objects (an air bed, "Corpse" as a throw, street lamps); 114 models
+  with wrong heights; the judges' quality score is never used (bug B1).
+- 11 plain bugs listed, not fixed (§1.7).
+
+GPU cost so far: $89.37 of $200. No pod is running.

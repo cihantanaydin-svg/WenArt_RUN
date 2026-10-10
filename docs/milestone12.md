@@ -8,7 +8,7 @@ and wrong categories.
 
 Session: cloud (`CLAUDE_CODE_REMOTE=true`), branch `opus_branch_06`, 10 Oct 2026. Step 0 is CPU only (no pod).
 
-Status: **Step 0 (diagnosis) in progress: §1.5 (levels) pending.**
+Status: **Step 0 (diagnosis) done, 10 Oct 2026; waiting for the user before Step 1 (design).**
 
 ## 1. Diagnosis (step 0, CPU, 10 Oct 2026)
 
@@ -32,8 +32,8 @@ Status: **Step 0 (diagnosis) in progress: §1.5 (levels) pending.**
 | Furniture | pieces scattered, TV not facing the sofa, nightstands at mid-bed, lone stoves in living rooms, white boxes | most drawn pieces are not read into usable pieces (real03: 42 built `unknown` boxes, 6 unbuilt clusters over 92–100 % of their rooms); the AI adds **single pieces with raw coordinates**; the placer repairs each piece alone; the 5 group templates exist but **no stage uses them**; the checks count pieces, they do not judge arrangements |
 | Decor | cushions float over beds or sink into sofa backs, throws hang in the air or are not throws | cushion and throw height comes from a **fixed table per type** (bed 0.55 m, sofa seat 0.45 m), not from the built model; x/y from the drawn footprint; agent edits move the furniture and leave the decor behind; nothing measures gaps |
 | Realism | boxy sofas, bare mattresses, low-poly lamps, stretched pillows | 42 + 28 boxes or code-made pieces in real03; library models that are the wrong object; a bug makes the judges' quality score unused |
-| Agent | 4 of 77 edits accepted, 12 of 35 rooms visited, no plan | 73 % of the rejected edits target pieces **no tool may change** (locked fixed equipment, unbuilt pieces); tools take raw coordinates and do not show locks or free space; 120-call cap per round, a time estimate 15 min too long; no memory, no dry run |
-| Levels | buildings on flat ground, doors without steps | level marks (KOT) are **not read** anywhere (see §1.5) |
+| Agent | 5 of 78 edits accepted (73 rejected), 12 of 35 rooms visited, no plan | 73 % of the rejected edits target pieces **no tool may change** (locked fixed equipment, unbuilt pieces); tools take raw coordinates and do not show locks or free space; 120-call cap per round, a time estimate 15 min too long; no memory, no dry run |
+| Levels | buildings on flat ground, doors flush on the grass, no exterior at all for real01/real03 | level marks (KOT) on plans, site plans and in blocks are **never read** (the one pattern rejects the Turkish forms); the model has no room floor levels, door thresholds or terrain; the ground defaults to ±0.00 so the ground floor always sits at grade; single-region projects skip site and exterior |
 | Library | air bed as a double bed, "Corpse" as a throw, table lamp stretched to a floor lamp, bathtubs 0.89 m high | judges see a 256 px sheet with no scale reference and no title; no real-size check for the 286 models without real units; the quality score is lost; 28 % of the furniture is generated |
 
 ### 1.2 Furniture placement
@@ -225,7 +225,7 @@ tolerance.
 
 **53 of 73 (73 %) aimed at pieces no edit is allowed to change.**
 
-**Accepted (5):** a floor lamp moved 0.3 m (its door-blocking critical stays open), a sofa turned to face its TV, a
+**Accepted (5; §19.8 of M11 counted 4 applied):** a floor lamp moved 0.3 m (its door-blocking critical stays open), a sofa turned to face its TV, a
 room-number circle and a dimension outline removed (real fixes), and `r_L0_oda_19` retyped `living` (wrong: it is a
 lift lobby).
 
@@ -301,7 +301,95 @@ wrong retype. The 3 critical "black render" findings got no `set_lighting` call.
 
 ### 1.5 Ground and floor levels
 
-_Pending (review still running)._
+No converted DXF of real02/real03 is in the repo and LibreDWG is not built in this session, so the drawings were
+scanned for text with a small DWG string decompressor (scratchpad `levels_diag/dwg_strings.py`). It shows which texts
+and attribute values a file holds, **not** whether they are in model space or on a visible layer (marked "scan").
+
+**What the building JSON holds today** (real02 = `results/furniture/real02/building_final.json`)
+
+| Field | Written at | real02 value |
+|---|---|---|
+| `project.datum` | `ingest/pipeline.py:1949` (from `sheets/heights.py:341-346`) | 43.00 (MTEXT 304D9, the section) |
+| `levels[].elevation`, `elevation_source` | `sheets/to_building.py:62-65`; no section: `pipeline.py:334` (order × 3.00 m) | L-1 −3.00, L0 0.00, L1 3.15, all `section` |
+| `levels[].ceiling_height`, `floor_to_floor` | `to_building.py:66-70` | 2.85 / 3.00 / 3.43; 3.00 / 3.15 / – |
+| `slabs[].z_top`, `thickness` | `to_building.py:192` | −3.00, 0.00, 3.15; 0.15 |
+| `site.ground.levels[]` (one z per side) | `to_building.py:497-543` | left 0.00, right 0.00 (section ground lines); note "also drawn: −3.15" |
+| `site.ground.terrain`, `light_wells` | `to_building.py:543` | `flat`, `[]` (always) |
+| `roof.eaves_height` / `ridge_height` | `to_building.py:275` | 3.65 / 6.79 |
+| door `sill_height` | ingest | null: every door starts at its level's floor |
+| conflict `level_mark_mismatch` | `heights.py:355` | the mark 40.00 points at −3.15 (geometry wins) |
+
+**No field at all** for: a room's own floor level (sunken living room, raised entrance, wet-room step; schema
+`building.schema.json:366-392`), a door's threshold vs the ground outside, spot heights, contours, road level, the
+plinth (subasman) level. `elevation_source` allows `level_mark` and `elevation_drawing`, but no code writes them. The
+per-level `level_mark` lives only in `sheets.json` (`heights.py:386-399`). real01 and real03 are single-region
+projects: the sheets/heights step is skipped (`pipeline.py:2036`, `:2191`); their L0 sits at 0.0 with no datum, no
+slabs and `site.ground: null`.
+
+**Where level marks are read**
+
+| Reader | file:line | Use |
+|---|---|---|
+| Section | `heights.py:177-181` → `units_check.py:224-279` | the mark at the ground-floor slab top becomes the datum; other marks are only compared with the slab lines (`heights.py:347-360`): a difference is a conflict, the geometry wins |
+| Elevation drawing | `sheets/exterior.py:208-253` | drawing y → building z for facade bands only |
+| Unit check | `units_check.py:281-304` | pairs of marks set the drawing unit |
+| **Floor plans, site plans** | – | **never read**: `ingest/generic/labels.py:202-221` skips bare numbers; `site_of` (`exterior.py:394-460`) reads no heights |
+| Block attributes (KOT, BDK, TZK, KOT-BINA, KOT-ARAZI) | – | never read |
+
+The mark pattern `MARK_RE` (`units_check.py:60`) accepts `±0.00`, `+0.15`, `-0.45`, `43.00`, `KOT +3.00` and **rejects**
+the common Turkish forms `+-0.00`, `+-0.00(dük)`, `KOT: +0.15`, `Ü.K. +0.15`, `T.Z. -0.45`, `±0.00 KOT`,
+`SB. KOTU : 93.20`, `BİNA GİRİŞ KOTU : 93.20` (tested).
+
+**How Blender places floors and ground**
+
+| Item | Code | Today |
+|---|---|---|
+| Floors | `blender/shell.py:1631`, `:184-220` | every room of a level at `level.elevation`; doors from the level floor |
+| Ground | `blender/site.py:126-203`, `:243-264`, `:1005-1011` | one z per side, blended at the corners; a side with no data takes the mean of the others; **no ground drawn → z 0 with a basement, else the lowest floor: the ground floor always sits exactly at grade**; flat to 1000 m |
+| Basement | `site.py:206-240`, `:365-452`, `:972-993` | an outside door below ground lowers that side to the door's floor; a window below ground gets a 0.8 m light well, > 1 m below an inferred 3 m sunken court with a parapet |
+| Entrance steps | `site.py:650-668`, `:721-740` | only doors 0.05–1.5 m above the ground get a landing and 0.17 m steps; **no ramps**; a door > 1.5 m up is ignored |
+| Plinth | `blender/facade.py:33`, `:210-230` | a 0.45 m band painted at the wall foot; it never raises the floor |
+| Slope, terraces, retaining walls | – | none (per-side levels only) |
+| Single-region projects | `blender/build.py:545-548` (`is_whole_building`: slabs, roof or variants) | **no ground, site or exterior views at all**: real01 18 + 0 views, real03 83 + 0 (this is why real03 has no exterior, §19.8 open item) |
+
+**Where the information is lost**
+1. Drawing → ingest: marks on plans and site plans are never read; the pattern rejects the Turkish forms; a mark
+   symbol on a plan can become furniture (real03 `f_L0_142`, below).
+2. Section → `sheets.json`: a mark that is not at a slab top only makes a conflict; lower ground lines go into a
+   note (`heights.py:419-426`); marks never set the ground.
+3. `sheets.json` → building JSON: `level_fields` drops the per-level `level_mark` (`to_building.py:48-75`);
+   single-region projects drop the whole heights and site step.
+4. Building JSON → Blender: default ground ±0.00 (`site.py:1011`); doors > 1.5 m above ground ignored
+   (`site.py:662`); the built light wells and courts exist only in the scene manifest, not in the building JSON.
+5. Report: `report/m10.py:327`, `:422` print the ground z object as "-" (real02 `final_report.md:685`: "drawn ground
+   levels: left -, right -" although the JSON has 0.00).
+
+**Checks and agent tools:** X1 levels stacked (`exterior_checks.py:189-210`), X3 an entrance > 0.05 m above ground
+without steps (only doors the site code counts as entrances, rise ≤ 1.5 m, `:303-311`), X4 ground/path/plot
+(`:314-343`), X5 storey height 2.6–3.3 m, door and sill heights (`:346-384`). **Missing:** floors or ground against the
+level marks; a door > 1.5 m above ground (into the air); a floor below the terrain without a basement (a door below
+the drawn ground is only a warning, `site.py:403`). The agent can read level elevations and `site.ground`
+(`agent/tools.py:357`, `:481-499`); `set_exterior` changes only roof, ground look, path, fence, trees, front court
+and sun; `correct_geometry` only gaps, duplicate walls and off-wall openings (and is record-only, M11 §18.1). **No
+tool sets a level elevation, ground z, slope, steps, ramp, plinth height or room floor offset.**
+
+**Evidence**
+
+| Project | Drawn | Built |
+|---|---|---|
+| real02 (`one_building.dwg`) | section: MTEXT marks `43.00` (datum) and `40.00`, ground lines ±0.00 and −3.15 on both sides; scan: 20 `KOT_PLN` block attributes, tag BDK "Bitmiş Döşeme Kotu" (finished floor; a TZK "Tabi Zemin Kotu" prompt too): 37.00, 40.00 ×5, 43.00 ×7, 44.00, 45.00, 46.00 ×5 – none reached `sheets.json` (the region text counts equal the 45 model-space MTEXTs, so they are probably in unused block definitions; to confirm on the converted DXF) | flat ground 0.00 on all four sides (front and back = "mean of the drawn sides"); ground floor at grade, both entrances (d_L0_011/012) rise 0.00, no steps: the doors sit flush on the grass (`ext_6`); the basement fully buried with 3 inferred 3 m sunken courts and parapets (white boxes in `ext_1`); the −3.15 line ignored (footing or lower garden: nothing decides) |
+| real03 (`tekkat.dwg`) | scan: site note "D BLOK 1BK+ZK+12K / TESVİYE 0.00 KOTU : 93.20 / SB. KOTU : 93.20 / BİNA GİRİŞ KOTU : 93.20"; ≈ 280 level-mark attribute values (tags KOT, KOT2, KOT-BINA, KOT-ARAZI: +0.00, +3.20 … +44.80, −2.00, −4.00, 93.20); `+-0.00(dük)`, "Subasman Kotu:", "100.18(şev üst kotu)", a road-levels xref; on the plan a "+0.00 / 93.20" mark in the Rüzgarlık (`cam_r_L0_ruzgarlik_1_plan.jpg`) | the mark became furniture **`f_L0_142`** (unknown, 0.90 × 0.34 m, INSERT 7C9C9/48; pass 1 "circle with crosshairs", pass 2 "potted_plant"), built as a 0.8 m box; L0 at 0.00 with an assumed 2.70 m ceiling, no datum, no ground, no exterior; the unit check reports "level_marks: 0 samples" |
+| real01 (PDF) | 47 words, no level marks | flat L0 at 0 (consistent), but no ground and no exterior |
+
+**Root causes, ranked**
+1. **Level marks on plans, site plans and in blocks are never read**, and the one pattern that reads them rejects the
+   usual Turkish forms.
+2. **The model has no place for them**: no per-room floor level, no door threshold vs ground, no spot heights or
+   terrain; the ground is one z per side and defaults to ±0.00, so the ground floor always sits at grade.
+3. **Single-region projects skip heights, site and exterior altogether** (real01, real03).
+4. **Steps only for 0.05–1.5 m rises, no ramps; the plinth is paint**, not a raised floor.
+5. **No check or agent tool for levels**: nothing compares the built floors and ground with the marks, nothing
+   catches a door into the air or into the ground, and the agent cannot correct a level.
 
 ### 1.6 The library
 
@@ -405,9 +493,15 @@ of the style becomes parametric or is not built.
 | B6 | final-stage time estimate 15 min too long without polish | `scheduler.py:1750` (factor 1.6) | the agent stops after 2 rounds, the pod ends 30 min early |
 | B7 | throws squashed to 0.05 m whatever the model; bed pillows stretched to 0.6 m tall | `fit.py:606-644`, `decor_ai.py:1168-1190` | slabs and towers instead of throws and pillows |
 | B8 | `loop.py:10` docstring says 40 calls per round, the code 120 | `loop.py` | doc only |
+| B9 | the report prints the ground z object as "-" | `report/m10.py:327`, `:422` | "drawn ground levels: left -, right -" in real02's report |
+| B10 | `MARK_RE` rejects `+-0.00`, `KOT:`, `Ü.K.`, `T.Z.`, `SB. KOTU :` | `units_check.py:60` | real03: 0 level marks read |
+| B11 | level-mark and room-number symbols are typed as furniture | `infer.py`, recognition | real03 f_L0_142 (a KOT mark), 5 room-number circles as lamps and boxes |
 
 ### 1.8 What this means for the design
 
+- **Levels are a reading problem first.** The drawings hold the marks (real03 ≈ 280 KOT attributes and a site note
+  with 93.20 m); the pipeline reads none of them on plans. Read them, give the building JSON a place for them (room
+  floor levels, door thresholds, ground points), then build steps, ramps, plinth and terrain from them and check them.
 - **Read before you place.** Most of the visible chaos in real03 starts at ingest: drawn pieces not typed, misread
   sizes, symbols and labels built as furniture, whole furnished areas lost in unbuilt clusters. A group-based solver
   cannot fix a room whose drawn sofa, table and counter run are invisible to it.
