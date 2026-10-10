@@ -108,6 +108,33 @@ def cushion_mesh(w: float, t: float, h: float, grid: tuple[int, int] = CUSHION_G
     return _part(verts, faces, key, role)
 
 
+def lying_cushion_mesh(w: float, d: float, t: float, key: str = "colour_fabric", role: str = "cushion") -> Part:
+    """A cushion lying flat in the box ``w x d x t`` (thickness along Z from 0): ``cushion_mesh`` turned so its
+    faces look up and down."""
+    part = cushion_mesh(w, t, d, key=key, role=role)
+    part["verts"] = [(x, z - d / 2.0, y + t / 2.0) for x, y, z in part["verts"]]
+    # (x, y, z) -> (x, z, y) mirrors the winding: reverse the faces to keep them outward
+    part["faces"] = [list(reversed(f)) for f in part["faces"]]
+    zmin = min(v[2] for v in part["verts"])
+    part["verts"] = [(x, y, z - zmin) for x, y, z in part["verts"]]
+    return part
+
+
+def flat_cloth(w: float, d: float, t: float, key: str = "colour_fabric", role: str = "throw") -> Part:
+    """A cloth lying on a flat top (no host to drape over): its modelled folds on a plane, ``t`` at most high."""
+    nu = max(2, int(round(w / CLOTH_STEP_M)))
+    nv = max(2, int(round(d / CLOTH_STEP_M)))
+    grid = np.zeros((nu + 1, nv + 1, 3))
+    for i in range(nu + 1):
+        for j in range(nv + 1):
+            x, y = -w / 2.0 + w * i / nu, -d / 2.0 + d * j / nv
+            grid[i, j] = (x, y, min(t, CLOTH_THICKNESS_M + fold(x + w / 2.0, y + d / 2.0, w, d) * 0.5))
+    part = cloth_solid(grid, CLOTH_THICKNESS_M, key=key, role=role, along=(0.0, 0.0, 1.0))
+    zmin = min(v[2] for v in part["verts"])
+    part["verts"] = [(x, y, z - zmin) for x, y, z in part["verts"]]
+    return part
+
+
 # --------------------------------------------------------------------------
 # Cloth draped on the host
 # --------------------------------------------------------------------------
@@ -120,14 +147,16 @@ def fold(x: float, y: float, w: float, d: float) -> float:
 
 
 def drape(caster, host_fp: dict, rect: Sequence[float], floor_z: float, step: float = CLOTH_STEP_M,
-          offset: float = CLOTH_OFFSET_M, top_band: float = rest.TOP_BAND_M) -> dict:
+          offset: float = CLOTH_OFFSET_M, top_band: float = rest.TOP_BAND_M,
+          thickness: float = CLOTH_THICKNESS_M) -> dict:
     """A cloth over the rectangle ``rect`` = (x0, y0, x1, y1) in the host frame, draped on the host mesh.
 
     Returns ``{"grid": (nu + 1) x (nv + 1) x 3 world points, "on_top": bool grid, "top_z": the median top, "share":
     on-top share}``. A grid point is on top when its downward ray hits the host within ``top_band`` of the median
-    top (5 mm ``offset`` + folds above the hit); the others hang: from the nearest on-top point (grid distance) the
-    cloth falls by the plan length it reaches past it, pushed out of the host's side by a horizontal ray (offset
-    outside the hit), never below the floor + 2 cm."""
+    top (the grid is the cloth's top: its underside, ``thickness`` lower, rests 5 mm ``offset`` + folds above the
+    hit); the others hang: from the nearest on-top point (grid distance) the cloth falls by the plan length it
+    reaches past it, pushed out of the host's side by a horizontal ray (offset + thickness outside the hit), never
+    below the floor + 2 cm."""
     x0, y0, x1, y1 = (float(v) for v in rect)
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
     nu = max(2, int(round((x1 - x0) / step)))
@@ -157,7 +186,7 @@ def drape(caster, host_fp: dict, rect: Sequence[float], floor_z: float, step: fl
     for i, j in tops:
         lx, ly = local[i, j]
         wx, wy = rest.to_world(hc, rot, lx, ly)
-        grid[i, j] = (wx, wy, hit_z[i, j] + offset + fold(lx - x0, ly - y0, w, d))
+        grid[i, j] = (wx, wy, hit_z[i, j] + offset + thickness + fold(lx - x0, ly - y0, w, d))
     top_arr = np.array(tops)
     for i in range(nu + 1):
         for j in range(nv + 1):
@@ -175,9 +204,9 @@ def drape(caster, host_fp: dict, rect: Sequence[float], floor_z: float, step: fl
             far = (ewx + ox * 1.0, ewy + oy * 1.0, z)
             side = caster.ray(far, (-ox, -oy, 0.0), 1.2)
             if side is not None and side[0] <= 1.05:          # the side at most 5 cm inside the edge
-                px, py = side[1][0] + ox * (offset + CLOTH_THICKNESS_M), side[1][1] + oy * (offset + CLOTH_THICKNESS_M)
+                px, py = side[1][0] + ox * (offset + thickness), side[1][1] + oy * (offset + thickness)
             else:
-                px, py = ewx + ox * (offset + CLOTH_THICKNESS_M), ewy + oy * (offset + CLOTH_THICKNESS_M)
+                px, py = ewx + ox * (offset + thickness), ewy + oy * (offset + thickness)
             grid[i, j] = (px, py, z)
     return {"grid": grid, "on_top": on_top, "top_z": top_z, "share": float(on_top.mean())}
 
@@ -193,11 +222,13 @@ def _vertex_normals(grid: np.ndarray) -> np.ndarray:
 
 
 def cloth_solid(grid: np.ndarray, thickness: float = CLOTH_THICKNESS_M, key: str = "colour_fabric",
-                role: str = "throw") -> Part:
+                role: str = "throw", along: Optional[Sequence[float]] = None) -> Part:
     """The draped sheet as a thin closed solid: the top layer = the grid, the bottom layer ``thickness`` below it
-    along the vertex normals, joined at the rim; outward normals."""
+    along the vertex normals (or along the fixed direction ``along``: a flat cloth, a curtain panel, so the solid
+    stays inside its box), joined at the rim; outward normals."""
     nu, nv = grid.shape[0] - 1, grid.shape[1] - 1
-    normals = _vertex_normals(grid)
+    normals = _vertex_normals(grid) if along is None else np.broadcast_to(np.asarray(along, dtype=np.float64),
+                                                                           grid.shape)
     top = grid
     bottom = grid - normals * thickness
     verts = [tuple(p) for p in top.reshape(-1, 3)] + [tuple(p) for p in bottom.reshape(-1, 3)]
@@ -269,8 +300,10 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
         parts.append(dict(mesh, verts=rest.pose_vertices(mesh["verts"], pose)))
         poses.append(pose)
     y_head = -d / 2.0 + DUVET_SHARE * d
+    pillow_foot = min(rest.to_local(hc, rot, v[0], v[1])[1] for p in parts for v in p["verts"])
+    y_head = min(y_head, pillow_foot - 0.03)            # the duvet ends just before the pillows
     rect = (-w / 2.0 - DUVET_SIDE_DROP_M, -d / 2.0 - DUVET_SIDE_DROP_M, w / 2.0 + DUVET_SIDE_DROP_M, y_head)
-    got = drape(caster, host_fp, rect, floor_z)
+    got = drape(caster, host_fp, rect, floor_z, thickness=DUVET_THICKNESS_M)
     if got["grid"] is None:
         return None
     parts.append(cloth_solid(got["grid"], DUVET_THICKNESS_M, key="duvet", role="duvet"))
@@ -317,7 +350,7 @@ def _pleated_panel(x0: float, x1: float, h: float, depth: float, key: str) -> Pa
             z = h * j / nv
             flare = 1.0 + 0.25 * (1.0 - j / nv)
             grid[i, j] = (x, amp * flare * math.sin(2.0 * math.pi * (x - x0) / PLEAT_PITCH_M) * 0.5, z)
-    part = cloth_solid(grid, CURTAIN_LAYER_M, key=key, role="panel")
+    part = cloth_solid(grid, CURTAIN_LAYER_M, key=key, role="panel", along=(0.0, 1.0, 0.0))
     part["smooth"] = True
     return part
 

@@ -109,6 +109,19 @@ Milestone 10 (docs/milestone10.md §4.4-§4.7, §1.6b row 15; track F):
   a basket, a tray, a wall clock, a sculpture, a large plant of its species in
   its pot (key ``pot``), a pendant on its cord and a flush ceiling light; keys
   ``colour_*`` take the item's colour name.
+
+Milestone 12 (docs/milestone12.md §4.7, §6.4; track S):
+
+- Our kitchen and bath fixtures in standard sizes (the fit builds them when no audited model fits, by design):
+  a full-size fridge-freezer (carcass, ventilation plinth, freezer and fridge doors with 3 mm gaps and bar handles
+  inside the footprint), a front-loading washing machine (top plate, kick plate, control panel with drawer, display
+  and dial, a porthole of glass over the dark drum in a chrome ring) and a shower (white tray with a drain, a glass
+  front of a fixed panel and a door, glass sides in chrome profiles, a stabiliser rail, a riser, an arm with a rain
+  head and a mixer).
+- Cushions, throws, curtains and blinds are our procedural textiles (``wenart.blender.textiles``: a filled cushion,
+  standing or lying; a cloth with folds; pleated curtain panels; roller or slatted blinds).
+- No type-table rest height for decor (``decor_rest_height`` removed): decor rests on the built mesh
+  (``wenart.blender.rest``).
 """
 from __future__ import annotations
 
@@ -564,14 +577,41 @@ def _counter(w: float, d: float, h: float, island: bool = False) -> list[Part]:
     return parts
 
 
+# Milestone 12 (docs/milestone12.md §6.4 D24, track S): our full-size fridge, washing machine and shower in standard
+# sizes, built from the footprint (the fit takes them when no audited model fits: kitchen and bath fixtures come
+# from code). Real proportions: doors inset in front of the carcass with 3 mm gaps, handles inside the footprint.
+FIXTURE_GAP_M = 0.003
+FRIDGE_DOOR_T = 0.045            # the doors' thickness in front of the carcass
+FRIDGE_FREEZER_SHARE = 0.36      # a bottom freezer: this share of the height under the fridge door
+FRIDGE_PLINTH_M = 0.08
+WASHER_PANEL_M = 0.14            # the control panel strip at the top front
+WASHER_FRONT_T = 0.012
+SHOWER_TRAY_M = 0.04
+SHOWER_GLASS_T = 0.008
+SHOWER_PROFILE_M = 0.02          # the chrome profiles at the glass edges
+
+
 def _fridge(w: float, d: float, h: float) -> list[Part]:
-    hx = w / 2.0 - 0.08
-    return [
-        _box(0.0, 0.0, 0.0, w, d, h, "steel", "body"),
-        _box(0.0, -d / 2.0 - PROUD / 4.0, h * 0.7, w, PROUD / 2.0, 0.01, "dark", "front"),   # door split line
-        _box(hx, -d / 2.0 - PROUD / 2.0, h * 0.72, 0.02, PROUD, h * 0.2, "dark", "handle"),  # freezer handle
-        _box(hx, -d / 2.0 - PROUD / 2.0, h * 0.3, 0.02, PROUD, h * 0.35, "dark", "handle"),  # fridge handle
+    """A full-size fridge-freezer (Milestone 12): carcass, a dark ventilation plinth, a bottom freezer door and the
+    fridge door above it with 3 mm gaps, a vertical bar handle on each door (inside the footprint), a top cap."""
+    t = min(FRIDGE_DOOR_T, d * 0.1)
+    face = -d / 2.0 + t                            # the doors' back = the carcass front
+    plinth = min(FRIDGE_PLINTH_M, h * 0.06)
+    split = plinth + (h - plinth) * FRIDGE_FREEZER_SHARE
+    g = FIXTURE_GAP_M
+    hx = w / 2.0 - 0.06
+    parts = [
+        _box(0.0, face + (d / 2.0 - face) / 2.0, 0.0, w, d / 2.0 - face, h, "steel", "body"),
+        _box(0.0, (-d / 2.0 + 0.02 + face) / 2.0, 0.0, w - 0.02, face - (-d / 2.0 + 0.02), plinth - g, "dark",
+             "plinth"),
+        _box(0.0, -d / 2.0 + 0.012 + (t - 0.012) / 2.0, plinth, w - 2 * g, t - 0.012, split - plinth - g / 2.0,
+             "steel", "front"),
+        _box(0.0, -d / 2.0 + 0.012 + (t - 0.012) / 2.0, split + g / 2.0, w - 2 * g, t - 0.012,
+             h - split - g / 2.0 - g, "steel", "front"),
     ]
+    for z0, z1 in ((plinth + 0.06, split - 0.12), (split + 0.12, split + 0.12 + (h - split) * 0.45)):
+        parts.append(_box(hx, -d / 2.0 + 0.006, z0, 0.022, 0.012, max(0.1, z1 - z0), "steel", "handle"))
+    return parts
 
 
 def _stove(w: float, d: float, h: float) -> list[Part]:
@@ -638,14 +678,33 @@ def _toilet(w: float, d: float, h: float) -> list[Part]:
 
 
 def _shower(w: float, d: float, h: float) -> list[Part]:
-    tray_h = 0.05
-    return [
-        _box(0.0, 0.0, 0.0, w, d, tray_h, "ceramic", "tray"),
-        _box(0.0, -d / 2.0 + 0.005, tray_h, w, 0.01, h - tray_h, "glass", "front"),
-        _box(-(w / 2.0 - 0.005), 0.005, tray_h, 0.01, d - 0.01, h - tray_h, "glass", "side"),
-        _box((w / 2.0 - 0.005), 0.005, tray_h, 0.01, d - 0.01, h - tray_h, "glass", "side"),
-        _cylinder_z(0.0, d / 2.0 - 0.1, h - 0.15, 0.03, 0.03, 0.01, "steel", "head", n=12),
+    """A shower (Milestone 12): a low white tray with a steel drain, clear glass on the front (a fixed panel and a
+    door with a 6 mm gap) and both sides in chrome profiles with a top stabiliser rail, and on the back a riser
+    pipe, an arm and a round rain head with a mixer at hand height."""
+    tray = min(SHOWER_TRAY_M, h * 0.05)
+    gt, pm = SHOWER_GLASS_T, SHOWER_PROFILE_M
+    gh = h - tray
+    parts = [
+        _box(0.0, 0.0, 0.0, w, d, tray, "ceramic", "tray"),
+        _cylinder_z(0.0, 0.0, tray, min(0.05, w / 8.0), min(0.05, d / 8.0), 0.002, "steel", "drain", n=20),
     ]
+    door = w * 0.5
+    fixed = w - door - 0.006 - 2 * pm
+    yf = -d / 2.0 + gt / 2.0
+    parts.append(_box(-w / 2.0 + pm + fixed / 2.0, yf, tray, fixed, gt, gh - 0.01, "glass", "front"))
+    parts.append(_box(w / 2.0 - pm - door / 2.0, yf, tray + 0.005, door - 0.006, gt, gh - 0.02, "glass", "front"))
+    for sx in (-1, 1):
+        parts.append(_box(sx * (w / 2.0 - gt / 2.0), pm / 2.0, tray, gt, d - pm, gh - 0.01, "glass", "side"))
+        parts.append(_box(sx * (w / 2.0 - pm / 2.0), -d / 2.0 + pm / 2.0, tray, pm, pm, gh, "steel", "frame"))
+        parts.append(_box(sx * (w / 2.0 - pm / 2.0), d / 2.0 - pm / 2.0, tray, pm, pm, gh, "steel", "frame"))
+    parts.append(_box(0.0, -d / 2.0 + pm / 2.0, h - pm, w - 2 * pm, pm, pm, "steel", "rail"))
+    riser_y = d / 2.0 - 0.03
+    head_r = min(0.12, w / 5.0, d / 5.0)
+    parts.append(_cylinder_z(0.0, riser_y, 1.0, 0.012, 0.012, h - 0.12 - 1.0, "steel", "pipe", n=12))
+    parts.append(_cylinder_y(0.0, riser_y - 0.25, h - 0.13, 0.01, 0.01, 0.25, "steel", "arm", n=12))
+    parts.append(_cylinder_z(0.0, riser_y - 0.25, h - 0.16, head_r, head_r, 0.015, "steel", "head", n=32))
+    parts.append(_box(0.0, riser_y + 0.005, 1.05, 0.08, 0.04, 0.16, "steel", "mixer"))
+    return parts
 
 
 def _bathtub(w: float, d: float, h: float) -> list[Part]:
@@ -657,13 +716,27 @@ def _bathtub(w: float, d: float, h: float) -> list[Part]:
 
 
 def _washing_machine(w: float, d: float, h: float) -> list[Part]:
-    r = min(w, d) * 0.28
-    return [
-        _box(0.0, 0.0, 0.0, w, d, h, "painted", "body"),
-        _cylinder_y(0.0, -d / 2.0 - PROUD / 2.0, h * 0.45, r + 0.02, r + 0.02, PROUD / 2.0, "steel", "front", n=28),
-        _cylinder_y(0.0, -d / 2.0 - PROUD, h * 0.45, r, r, PROUD / 2.0, "dark", "front", n=28),
-        _box(0.0, -d / 2.0 - PROUD / 4.0, h - 0.12, w - 0.04, PROUD / 2.0, 0.08, "dark", "front"),
+    """A front-loading washing machine (Milestone 12): a white body with a top plate, a dark kick plate, the control
+    panel strip with a detergent drawer, a dark display and a steel dial, and the porthole door: a chrome ring
+    around a glass window in front of the dark drum."""
+    ft = min(WASHER_FRONT_T, d * 0.03)
+    face = -d / 2.0 + ft
+    r = min(w, h) * 0.25
+    zc = h * 0.42
+    panel = min(WASHER_PANEL_M, h * 0.18)
+    parts = [
+        _box(0.0, face + (d / 2.0 - face) / 2.0, 0.0, w, d / 2.0 - face, h - 0.02, "painted", "body"),
+        _box(0.0, 0.0, h - 0.02, w, d, 0.02, "painted", "top"),
+        _box(0.0, face - ft / 4.0, 0.0, w - 0.04, ft / 2.0, 0.07, "dark", "plinth"),
+        _box(-w / 2.0 + 0.11, face - ft / 2.0, h - panel + 0.015, 0.18, ft, panel - 0.05, "painted", "front"),
+        _box(w * 0.05, face - ft / 4.0, h - panel + 0.035, w * 0.22, ft / 2.0, panel * 0.4, "dark", "front"),
+        _cylinder_y(w / 2.0 - 0.08, face - ft, h - panel / 2.0 - 0.01, 0.028, 0.028, ft, "steel", "front", n=24),
+        # the porthole, front to back: the glass, the dark drum seen through it, the chrome ring around them
+        _cylinder_y(0.0, face - ft, zc, r, r, ft / 3.0, "glass", "front", n=40),
+        _cylinder_y(0.0, face - ft * 2.0 / 3.0, zc, r, r, ft / 3.0, "dark", "front", n=40),
+        _cylinder_y(0.0, face - ft / 3.0, zc, r + 0.035, r + 0.035, ft / 3.0, "steel", "front", n=40),
     ]
+    return parts
 
 
 # --------------------------------------------------------------------------
@@ -2007,28 +2080,14 @@ def _plant_large(w: float, d: float, h: float, species: str | None = None) -> li
 def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
     """The parametric fallback of a Milestone 10 decor type (``decor_parts``)."""
     r = min(w, d) / 2.0
-    if dtype == "curtain":                    # an open pair of pleated panels under a rod
-        parts = [_cylinder_x(-w / 2.0, 0.0, h - 0.02, 0.012, 0.012, w, "steel", "rod", n=12)]
-        pw = w * CURTAIN_PANEL_SHARE
-        k = CURTAIN_PLEATS
-        bw = pw / k
-        for sx in (-1, 1):
-            x0 = sx * (w / 2.0) - (pw if sx > 0 else 0.0)
-            for i in range(k):
-                y = (d / 4.0) * (1 if i % 2 == 0 else -1)
-                parts.append(_box(x0 + bw * (i + 0.5), y, 0.0, bw, d / 2.0, h - 0.05, "colour_fabric",
-                                  "panel"))
-        return parts
-    if dtype == "blind":                      # a roller blind drawn down to its box's bottom: roller, panel, bar
-        tube = min(0.03, d / 2.0, h / 4.0)
-        bar = min(0.02, h / 8.0)
-        return [_cylinder_x(-w / 2.0, 0.0, h - tube, tube, tube, w, "colour_fabric", "roller", n=16),
-                _box(0.0, -tube * 0.4, bar, w - 0.02, 0.004, h - tube - bar, "colour_fabric", "panel"),
-                _box(0.0, -tube * 0.4, 0.0, w - 0.02, min(0.012, d), bar, "dark", "bar")]
-    if dtype == "throw":                      # a draped blanket and its folded edge
-        return [_superellipsoid(0.0, 0.0, 0.0, w, d, h, 0.2, 0.08, "colour_fabric", "throw", n_eta=10, n_om=32),
-                _superellipsoid(0.0, -d / 2.0 + d * 0.12, h * 0.4, w * 0.98, d * 0.22, h * 0.6, 0.3, 0.1,
-                                "colour_fabric", "fold", n_om=24)]
+    from wenart.blender import textiles as T     # Milestone 12 (§6.4): our procedural textiles
+
+    if dtype == "curtain":                    # an open pair of pleated panels under a rod (one per window)
+        return T.curtain_parts(w, d, h)
+    if dtype == "blind":                      # a roller blind (default) or a slatted blind (item ``blind_kind``)
+        return T.blind_parts(w, d, h, kind=str((item or {}).get("blind_kind") or "roller"))
+    if dtype == "throw":                      # without a host: a flat cloth with its folds (on a host: textiles.drape)
+        return [T.flat_cloth(w, d, min(h, T.CLOTH_THICKNESS_M * 2.0))]
     if dtype == "books":                      # a stack of three books lying flat
         keys = ("dark", "painted", "terracotta")
         parts, z = [], 0.0
@@ -2156,8 +2215,12 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = No
     plant's species)."""
     if dtype in _NEW_DECOR:
         return _new_decor_parts(dtype, w, d, h, item)
-    if dtype == "cushion":
-        return [_box(0.0, 0.0, 0.0, w, d, h, "fabric", "body")]
+    if dtype == "cushion":                         # Milestone 12: a filled cushion (textiles), not a box
+        from wenart.blender import textiles as T
+
+        if d > h:                                  # lying (an ottoman's, a bench's): thickness = the height
+            return [T.lying_cushion_mesh(w, d, h, key="fabric", role="body")]
+        return [T.cushion_mesh(w, d, h, key="fabric", role="body")]
     if dtype == "book_set":
         parts = []
         n = max(2, min(6, int(w / 0.04)))
@@ -2203,28 +2266,9 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = No
     raise KeyError(f"no decor builder for {dtype!r}")
 
 
-def decor_rest_height(host_type: str | None, host_height: float, dtype: str,
-                      host_size: Sequence[float] | None = None) -> float:
-    """Height above the floor where a decor item rests on its host: cushions
-    on the sofa seat, books on a shelf or a top, plants on the floor. On a
-    bed built parametrically (``host_size`` = its footprint ``(w, d)``) the
-    item rests on the bedding top (``bedding_top``: the soft pillows rise
-    above the type height, docs/milestone6.md §5 row 8); without
-    ``host_size`` (a library bed, a proxy) on the type height as before."""
-    if dtype in ("plant", "mirror", "plant_large") or not host_type:
-        return 0.0
-    if dtype == "throw" and host_type in BED_TYPES and host_size is not None:
-        return round(bedding_top(float(host_size[0]), float(host_size[1]), float(host_height)) - 0.03, 4)
-    if dtype == "throw" and host_type in SEAT_HOST_TYPES:
-        return sofa_seat_height(host_height)
-    if host_type in SEAT_HOST_TYPES:
-        return sofa_seat_height(host_height) if dtype == "cushion" else host_height
-    if host_type == "bookshelf":
-        shelves = shelf_heights(host_height)
-        return shelves[1] if len(shelves) > 1 else (shelves[0] if shelves else host_height)
-    if host_type in BED_TYPES and host_size is not None:
-        return round(bedding_top(float(host_size[0]), float(host_size[1]), float(host_height)), 4)
-    return host_height
+# Milestone 12 (docs/milestone12.md §4.7, D13): ``decor_rest_height`` (the type-table rest height: a library bed's
+# decor at 0.55 m, a sofa's at 0.45 m, a parametric bed's on the pillow top) is gone; decor rests on the built,
+# scaled host mesh (``wenart.blender.rest``).
 
 
 # --------------------------------------------------------------------------

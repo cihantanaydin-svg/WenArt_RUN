@@ -879,6 +879,14 @@ def main(argv: list[str]) -> int:
         scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
                                            out / "checks" / f"scene_{level['id']}.json")
         furniture_summary.setdefault("scene_checks", {})[level["id"]] = scene_report.get("counts") or {}
+        for key in ("decor_not_rested", "dressed_beds"):            # decor not built (S5 twice), dressed beds
+            furniture_summary.setdefault(key, []).extend(summary.get(key) or [])
+        if (scene_report.get("counts") or {}).get("failed_build"):
+            # a built item failing S5 cannot happen by construction (rest.plan_decor checks it); recorded as a failed
+            # build (critical violations in checks/scene_<level>.json, read by the critic), the render goes on
+            furniture_summary["scene_checks_failed"] = True
+            warnings.append(f"level {level['id']}: scene check S5 failed for a built decor item; see "
+                            f"checks/scene_{level['id']}.json")
         # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
         splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
         furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash

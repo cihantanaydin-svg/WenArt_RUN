@@ -73,6 +73,9 @@ def test_piece_boxes_of_every_type_are_the_milestone_5_boxes():
            "bunk_bed", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet"}   # M10 types
     types = (set(P.PARAMETRIC_TYPES) - {"stair", "side_table", "floor_lamp", "potted_plant"} - m10) | {"unknown"}
     assert {k.split("|")[0] for k in table} == types
+    # Milestone 12 (docs/milestone12.md §6.4): our new fridge, washing machine and shower keep their handles and
+    # fronts inside the footprint (the old ones stood 8 mm proud): their box is the footprint, at least as high
+    m12_fixtures = {"fridge", "washing_machine", "shower"}
     for key, want in table.items():
         ftype, size, height = key.split("|")
         w, d = (float(v) for v in size.split("x"))
@@ -80,6 +83,11 @@ def test_piece_boxes_of_every_type_are_the_milestone_5_boxes():
                  "height": None if height == "None" else float(height)}
         box = P.piece_bbox(piece)
         rect = P.obstacle_rect(piece)
+        if ftype in m12_fixtures:
+            assert box[0] == pytest.approx(w, abs=1e-6) and box[1] == pytest.approx(d, abs=1e-6), key
+            height_want = piece["height"] or P.proxy_height(ftype, None)[0]
+            assert box[2] >= height_want - 0.02 and box[3] == want[3] and rect["size"] == [w, d], key
+            continue
         assert [round(v, 6) for v in box[:3]] + [box[3]] == want[:4], key
         assert [round(v, 6) for v in rect["size"]] == want[4:], key
         assert rect["center"] == [1.0, 2.0] and rect["rotation_deg"] == 30.0
@@ -234,11 +242,12 @@ def test_bedding_details_and_rest_height():
     assert F.design_details("sofa", P.build_parts("sofa", 2.0, 0.9, 0.85)) == []
     top = P.bedding_top(1.6, 2.0, 0.55)
     assert top == pytest.approx(max(v[2] for p in parts if p["key"] in ("bedding", "duvet") for v in p["verts"]))
-    host = {"id": "b", "type": "bed_double", "height": None,
-            "footprint": {"center": [0, 0], "size": [1.6, 2.0], "rotation_deg": 0.0}}
-    assert F.decor_height_above_floor({"type": "cushion"}, host, True)[0] == pytest.approx(round(top, 4))
-    assert F.decor_height_above_floor({"type": "cushion"}, host, False)[0] == pytest.approx(0.55)  # library bed
-    assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0, 0.7]}, host, True)[0] == 0.7
+    # Milestone 12 (docs/milestone12.md §4.7): no type-table rest height (a library bed's cushions at 0.55 m, a
+    # parametric bed's on the pillow top): hosted decor rests on the built mesh (wenart.blender.rest)
+    assert not hasattr(P, "decor_rest_height")
+    entry = {"kind": "furniture", "size": [1.6, 2.0, 0.55]}
+    assert F.decor_height_above_floor({"type": "cushion"}, entry) == (0.0, "floor")
+    assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0, 0.7]}, entry)[0] == 0.7
 
 
 # Milestone 10 (track C, docs/milestone10.md §4.5): the furniture veneers of the new woods (Poly Haven, 1 m tiles).

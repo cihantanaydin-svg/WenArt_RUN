@@ -362,7 +362,7 @@ def test_parametric_mirror_and_tabletop_decor_stay_in_their_boxes():
     assert len(glass) == 1 and min(v[1] for v in glass[0]["verts"]) == pytest.approx(-0.015)   # on the front face
     assert F.mirror_box({"size": [0.6, 0.04], "max_height_m": 0.5}) == [0.6, P.MIRROR_FRAME_M, 0.5]
     assert F.mirror_box({"size": [0.6, 0.04]})[2] == pytest.approx(0.75)
-    assert P.decor_rest_height("dresser", 0.8, "mirror") == 0.0
+    assert not hasattr(P, "decor_rest_height")          # Milestone 12: no type-table rest height (§4.7)
 
 
 # --------------------------------------------------------------------------

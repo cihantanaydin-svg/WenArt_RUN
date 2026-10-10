@@ -535,4 +535,100 @@ def floor_rest(item_verts, floor_z: float) -> dict:
             "support_share": 1.0, "grid_points": 0, "soft": False}
 
 
+# --------------------------------------------------------------------------
+# One decor item: place, build, measure, place once more, or not build (§4.7)
+# --------------------------------------------------------------------------
+
+SOFT_DECOR: tuple[str, ...] = ("cushion", "throw")      # the median of the ray grid, not the highest hit
+SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single",
+                                    "bed_double", "bunk_bed", "crib")
+SOFT_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard")
+ATTEMPTS = 2                      # placed, then placed once more, then not built (``decor_not_rested``)
+
+
+def place_item(support: str, caster, host_fp: dict, center, size, rotation_deg: float, soft_item: bool,
+               lean_deg: float = 0.0, shelf: Optional[int] = None, attempt: int = 0) -> Optional[dict]:
+    """The pose of an item on its support (``host_frame.support``): leaning on a back or a headboard, on a shelf
+    board, or lying on a top, a seat or a mattress; None when the host offers no support there."""
+    if support in ("back", "headboard"):
+        return place_leaning(caster, host_fp, center, size, lean_deg or LEAN_DEG,
+                             turn_deg=float(rotation_deg) - float(host_fp["rotation_deg"]), attempt=attempt)
+    if support == "shelf":
+        return place_on_shelf(caster, center, size, rotation_deg, shelf, attempt)
+    if support in ("top", "seat", "mattress"):
+        return place_on_top(caster, center, size, rotation_deg, soft_item, host_center=host_fp["center"],
+                            attempt=attempt)
+    return None
+
+
+def local_bounds(verts) -> tuple[float, float, float]:
+    arr = np.asarray(verts, dtype=np.float64).reshape(-1, 3)
+    span = arr.max(axis=0) - arr.min(axis=0)
+    return float(span[0]), float(span[1]), float(span[2])
+
+
+def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support: str,
+               lean_deg: float = 0.0, shelf: Optional[int] = None, attempts: int = ATTEMPTS) -> dict:
+    """Place one hosted decor item on the built host (``caster``) and check it (S5, §4.7).
+
+    ``local_verts`` / ``local_faces``: the item's mesh in its own frame (bottom on z = 0, centred, front -Y): a
+    parametric or textile part, or a library model fitted to its box. Returns ``{"verts", "faces", "pose",
+    "rest", "footprint", "attempt"}`` (world vertices that pass S5) or ``{"not_rested": {id, type, host_id,
+    support, reason, measured, attempts}}`` after ``attempts`` placements (the second one moves the spot)."""
+    w, d, h = local_bounds(local_verts)
+    fp = host["footprint"]
+    host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
+               "rotation_deg": float(fp["rotation_deg"])}
+    soft_item = item.get("type") in SOFT_DECOR
+    soft_host = host.get("type") in SOFT_HOST_TYPES and support in SOFT_SUPPORTS
+    rot = float(item.get("rotation_deg") if item.get("rotation_deg") is not None else host_fp["rotation_deg"])
+    center = item.get("center") or host_fp["center"]
+    last = {"reason": "no support under the item", "measured": None}
+    for attempt in range(attempts):
+        pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean_deg, shelf, attempt)
+        if pose is None:
+            last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})", "measured": None}
+            continue
+        verts = local_verts
+        if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
+            k = pose["size"][0] / w
+            verts = [(x * k, y, z) for x, y, z in local_verts]
+        world = pose_vertices(verts, pose)
+        foot = {"center": list(pose["center"]), "size": [pose["size"][0], d], "rotation_deg": pose["rotation_deg"]}
+        m = measure_rest(world, local_faces, caster, foot, soft_host)
+        ok, why = rest_ok(m)
+        if ok:
+            return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
+                    "footprint": foot, "attempt": attempt + 1}
+        last = {"reason": "; ".join(why), "measured": m}
+    return {"not_rested": {"id": item.get("id"), "type": item.get("type"), "host_id": host.get("id"),
+                           "support": support, "reason": last["reason"], "measured": last["measured"],
+                           "attempts": attempts}}
+
+
+def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
+    """A throw draped on its host (``textiles.throw_parts``) and checked (S5 over its rectangle on the top)."""
+    from wenart.blender import textiles as T
+
+    fp = host["footprint"]
+    host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
+               "rotation_deg": float(fp["rotation_deg"])}
+    got = T.throw_parts(caster, host_fp, item, floor_z)
+    if got is None:
+        return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
+                               "reason": "the cloth found no top under it", "measured": None, "attempts": 1}}
+    part = got["parts"][0]
+    x0, y0, x1, y1 = got["rect"]
+    cx, cy = to_world(host_fp["center"], host_fp["rotation_deg"], (x0 + x1) / 2.0, (y0 + y1) / 2.0)
+    foot = {"center": [cx, cy], "size": [(x1 - x0) * 0.8, (y1 - y0) * 0.8], "rotation_deg": host_fp["rotation_deg"]}
+    soft = host.get("type") in SOFT_HOST_TYPES
+    m = measure_rest(part["verts"], part["faces"], caster, foot, soft)
+    ok, why = rest_ok(m)
+    if not ok:
+        return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
+                               "reason": "; ".join(why), "measured": m, "attempts": 1}}
+    return {"verts": part["verts"], "faces": part["faces"], "parts": got["parts"], "rest": m, "footprint": foot,
+            "attempt": 1, "pose": {"how": "draped on the host (shrinkwrap, 5 mm)", "share": got["drape"]["share"]}}
+
+
 Placer = Callable[..., Optional[dict]]

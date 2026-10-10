@@ -941,8 +941,9 @@ def piece_is_built(piece: Optional[dict]) -> bool:
 
 
 def support_of(dtype: Optional[str], host_type: Optional[str]) -> str:
-    """The support of a decor type on a host type (None: no host) (§4.7)."""
-    if host_type is None:
+    """The support of a decor type on a host type (None: no host) (§4.7); a floor plant or a rug beside its piece
+    stands on the floor, a picture hangs on the wall, a light from the ceiling, whatever piece it belongs to."""
+    if host_type is None or dtype in WALL_SUPPORT_TYPES + CEILING_SUPPORT_TYPES + ("plant", "plant_large", "rug"):
         if dtype in WALL_SUPPORT_TYPES:
             return "wall"
         if dtype in CEILING_SUPPORT_TYPES:
