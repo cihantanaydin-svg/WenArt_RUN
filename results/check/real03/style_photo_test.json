@@ -1,0 +1,58 @@
+{
+ "schema_version": "0.1",
+ "kind": "style_photo_passes",
+ "calls": [
+  {
+   "file": "../../../tests/fixtures/style_photo_synthetic-03_salon.jpg",
+   "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+   "model_key": "agent",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "slug": "qwen3.8-27b-fp8",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "style_photo_synthetic-03_salon.jpg",
+    "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+    "passes": [
+     {
+      "model_key": "agent",
+      "model": "Qwen/Qwen3.8-27B-FP8",
+      "pass": 3,
+      "data": {
+       "floor": "concrete_polished",
+       "walls": "plaster_charcoal",
+       "light": "cool daylight",
+       "family": "modern minimal"
+      },
+      "error": null,
+      "raw_text": "{\n  \"floor\": \"concrete_polished\",\n  \"walls\": \"plaster_charcoal\",\n  \"light\": \"cool daylight\",\n  \"family\": \"modern minimal\"\n}",
+      "latency_s": 1.202
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "agent": "concrete_polished"
+     },
+     "walls": {
+      "agent": "plaster_charcoal"
+     },
+     "light": {
+      "agent": "cool daylight"
+     },
+     "family": {
+      "agent": "modern minimal"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 1.34
+  }
+ ],
+ "incomplete": false
+}

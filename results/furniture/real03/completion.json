@@ -1,0 +1,371 @@
+{
+ "kind": "completion",
+ "project": "real03",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "settings": {
+  "furnished_rooms": "complete",
+  "furnished_rooms_keep": [],
+  "furnished_rooms_keep_size": false,
+  "render.twin_rooms": "one",
+  "assumed": [
+   "furnished_rooms",
+   "furnished_rooms_keep",
+   "furnished_rooms_keep_size",
+   "render.twin_rooms"
+  ],
+  "brief": "projects/real03/brief.yaml",
+  "warnings": []
+ },
+ "rooms": [
+  {
+   "room_id": "r_L0_kat_holu",
+   "label": "Kat Holü",
+   "room_type": "hall",
+   "room_subtype": null,
+   "state": "completed",
+   "reason": "",
+   "partner": null,
+   "drawn": [
+    {
+     "id": "f_L0_003",
+     "type": "unknown",
+     "kind": "changeable",
+     "unverified": true,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       11.7103,
+       4.9351
+      ],
+      "wall_id": null
+     }
+    }
+   ],
+   "missing": {},
+   "anchor_missing": false,
+   "addable": {
+    "console_table": 1,
+    "shoe_cabinet": 1,
+    "bench": 1
+   },
+   "change_types": [
+    "dresser",
+    "chair",
+    "bookshelf",
+    "console_table",
+    "shoe_cabinet",
+    "bench"
+   ],
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.261,
+     "error": null,
+     "transport_error": false,
+     "changes": 0,
+     "added": 1
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.239,
+     "error": null,
+     "transport_error": false,
+     "changes": 0,
+     "added": 1
+    }
+   ],
+   "chosen_pass": 1,
+   "changes": [],
+   "added": [
+    {
+     "id": "f_L0_010",
+     "type": "console_table",
+     "center": [
+      11.71,
+      5.34
+     ],
+     "size": [
+      1.2,
+      0.35
+     ],
+     "rotation_deg": 166.9,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    }
+   ],
+   "refused": [],
+   "dropped": [],
+   "wall_cabinets": [],
+   "drawn_layout": {
+    "pieces": {},
+    "walkways": []
+   },
+   "latency_s": 2.5
+  },
+  {
+   "room_id": "r_L0_yangin_merdiveni",
+   "label": "Yangın Merdiveni",
+   "room_type": "other",
+   "room_subtype": null,
+   "state": "completed",
+   "reason": "",
+   "partner": null,
+   "drawn": [
+    {
+     "id": "f_L0_001",
+     "type": "kitchen_counter",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       4.8991,
+       10.5577
+      ],
+      "wall_id": null
+     }
+    }
+   ],
+   "missing": {},
+   "anchor_missing": false,
+   "addable": {
+    "armchair": 2,
+    "chair": 4,
+    "table_dining": 1,
+    "bookshelf": 1,
+    "desk": 1
+   },
+   "change_types": [],
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.609,
+     "error": null,
+     "transport_error": false,
+     "changes": 0,
+     "added": 4
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 0.202,
+     "error": null,
+     "transport_error": false,
+     "changes": 0,
+     "added": 0
+    }
+   ],
+   "chosen_pass": 1,
+   "changes": [],
+   "added": [
+    {
+     "id": "f_L0_011",
+     "type": "armchair",
+     "center": [
+      4.094,
+      11.734
+     ],
+     "size": [
+      0.9,
+      0.9
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_012",
+     "type": "chair",
+     "center": [
+      5.5,
+      11.5
+     ],
+     "size": [
+      0.5,
+      0.5
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_013",
+     "type": "table_dining",
+     "center": [
+      5.3,
+      12.2
+     ],
+     "size": [
+      1.2,
+      0.8
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_014",
+     "type": "bookshelf",
+     "center": [
+      3.796,
+      13.0
+     ],
+     "size": [
+      1.0,
+      0.35
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    }
+   ],
+   "refused": [],
+   "dropped": [],
+   "wall_cabinets": [],
+   "drawn_layout": {
+    "pieces": {
+     "f_L0_001": [
+      "inside_room"
+     ]
+    },
+    "walkways": []
+   },
+   "latency_s": 3.811
+  },
+  {
+   "room_id": "r_L0_kat_merdiveni",
+   "label": "Kat Merdiveni",
+   "room_type": "other",
+   "room_subtype": null,
+   "state": "completed",
+   "reason": "",
+   "partner": null,
+   "drawn": [
+    {
+     "id": "f_L0_002",
+     "type": "kitchen_island",
+     "kind": "fixed",
+     "unverified": false,
+     "anchor": {
+      "kind": "centre",
+      "point": [
+       21.2991,
+       10.5577
+      ],
+      "wall_id": null
+     }
+    }
+   ],
+   "missing": {},
+   "anchor_missing": false,
+   "addable": {
+    "armchair": 2,
+    "chair": 4,
+    "table_dining": 1,
+    "bookshelf": 1,
+    "desk": 1
+   },
+   "change_types": [],
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 2.76,
+     "error": null,
+     "transport_error": false,
+     "changes": 0,
+     "added": 3
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 2.88,
+     "error": null,
+     "transport_error": false,
+     "changes": 0,
+     "added": 3
+    }
+   ],
+   "chosen_pass": 1,
+   "changes": [],
+   "added": [
+    {
+     "id": "f_L0_015",
+     "type": "armchair",
+     "center": [
+      21.0,
+      11.8
+     ],
+     "size": [
+      0.9,
+      0.9
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_016",
+     "type": "chair",
+     "center": [
+      20.3,
+      11.1
+     ],
+     "size": [
+      0.5,
+      0.5
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_017",
+     "type": "table_dining",
+     "center": [
+      21.9,
+      11.7
+     ],
+     "size": [
+      1.6,
+      0.9
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    }
+   ],
+   "refused": [],
+   "dropped": [],
+   "wall_cabinets": [],
+   "drawn_layout": {
+    "pieces": {
+     "f_L0_002": [
+      "inside_room"
+     ]
+    },
+    "walkways": []
+   },
+   "latency_s": 5.64
+  }
+ ],
+ "rooms_completed": 3,
+ "rooms_copied": 0,
+ "changes_applied": 0,
+ "pieces_added": 8,
+ "wall_cabinets": 0,
+ "locked_violations": [],
+ "latency_s": 11.951
+}

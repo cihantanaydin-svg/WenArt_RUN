@@ -1,0 +1,374 @@
+{
+ "kind": "decor_ai_answers",
+ "version": "m10.1",
+ "answers": {
+  "543ca500caf857d981cefa9176da86b5946e2aaa6cb10aa380351bdfcbe5a16f": {
+   "room_id": "r_L0_ruzgarlik",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_004.back_left",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements natural wood and greige walls."
+     },
+     {
+      "slot": "r_L0_ruzgarlik.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Large indoor plant in rattan pot adds greenery and warmth."
+     },
+     {
+      "slot": "r_L0_ruzgarlik.corner2",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Second plant balances the space and enhances natural aesthetic."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_ruzgarlik",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Modern pendant with warm brass finish adds focal point and light."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_004.back_left\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements natural wood and greige walls.\"\n    },\n    {\n      \"slot\": \"r_L0_ruzgarlik.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant in rattan pot adds greenery and warmth.\"\n    },\n    {\n      \"slot\": \"r_L0_ruzgarlik.corner2\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Second plant balances the space and enhances natural aesthetic.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_ruzgarlik\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Modern pendant with warm brass finish adds focal point and light.\"\n    }\n  ]\n}",
+   "latency_s": 2.63
+  },
+  "1c474a450f406cefa5e9652a55ba2ca7e1ba7b4c9bacedde7b02d4e36b47f79a": {
+   "room_id": "r_L0_ruzgarlik",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "r_L0_ruzgarlik.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Large indoor plant adds greenery and warmth matching the natural style."
+     },
+     {
+      "slot": "r_L0_ruzgarlik.corner2",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Second plant balances the space and enhances the natural, lush feel."
+     },
+     {
+      "slot": "f_L0_004.back_left",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm brass lamp complements dark bronze frames and adds soft lighting."
+     },
+     {
+      "slot": "f_L0_004.wall",
+      "type": "wall_art",
+      "colour": "cream",
+      "reason": "Cream-toned art harmonizes with greige walls and maintains a calm, modern aesthetic."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"r_L0_ruzgarlik.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant adds greenery and warmth matching the natural style.\"\n    },\n    {\n      \"slot\": \"r_L0_ruzgarlik.corner2\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Second plant balances the space and enhances the natural, lush feel.\"\n    },\n    {\n      \"slot\": \"f_L0_004.back_left\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass lamp complements dark bronze frames and adds soft lighting.\"\n    },\n    {\n      \"slot\": \"f_L0_004.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream-toned art harmonizes with greige walls and maintains a calm, modern aesthetic.\"\n    }\n  ]\n}",
+   "latency_s": 2.659
+  },
+  "a724e4d2469a6d682f6fdac810af2036dfa9db91795f99386deb8edab0d18af2": {
+   "room_id": "r_L0_kat_holu",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_010.left",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Adds natural elegance with a neutral tone matching the warm greige walls."
+     },
+     {
+      "slot": "r_L0_kat_holu.corner1",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Large indoor plant in rattan pot brings lush greenery and warmth to the corner."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_kat_holu",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass pendant light enhances modern natural style with soft ambient glow."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.left\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds natural elegance with a neutral tone matching the warm greige walls.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_holu.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant in rattan pot brings lush greenery and warmth to the corner.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_kat_holu\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass pendant light enhances modern natural style with soft ambient glow.\"\n    }\n  ]\n}",
+   "latency_s": 2.084
+  },
+  "f463a9572d1fe4ca1569ca63dfb09d1fb6554a260334d5865f9553dffb791551": {
+   "room_id": "r_L0_kat_holu",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_010.left",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Adds natural warmth and complements the greige walls and rattan pots."
+     },
+     {
+      "slot": "r_L0_kat_holu.corner1",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Large indoor plant enhances the modern natural style with organic texture."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_kat_holu",
+      "type": "ceiling_light",
+      "colour": "brass",
+      "reason": "Warm brass light enhances daylight and matches dark bronze frames."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.left\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds natural warmth and complements the greige walls and rattan pots.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_holu.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant enhances the modern natural style with organic texture.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_kat_holu\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light enhances daylight and matches dark bronze frames.\"\n    }\n  ]\n}",
+   "latency_s": 2.008
+  },
+  "180867fbe1a538bdd9092e6f0752bf4cad7c3dbb35f437750acceba1be9fe1cd": {
+   "room_id": "r_L0_guvenlik_holu",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_006.wall",
+      "type": "mirror",
+      "colour": "cream",
+      "reason": "Reflects light and enhances the airy, modern feel of the hall."
+     },
+     {
+      "slot": "f_L0_006.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Adds organic warmth and complements the natural wood furniture."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_guvenlik_holu",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass light adds a touch of luxury and matches the dark bronze frames."
+     },
+     {
+      "slot": "f_L0_007.centre",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Cream vase holds a small plant and harmonizes with the neutral palette."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_006.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"cream\",\n      \"reason\": \"Reflects light and enhances the airy, modern feel of the hall.\"\n    },\n    {\n      \"slot\": \"f_L0_006.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds organic warmth and complements the natural wood furniture.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_guvenlik_holu\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light adds a touch of luxury and matches the dark bronze frames.\"\n    },\n    {\n      \"slot\": \"f_L0_007.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream vase holds a small plant and harmonizes with the neutral palette.\"\n    }\n  ]\n}",
+   "latency_s": 2.645
+  },
+  "c6ca16a53a280bffb90d637227443756a8445e421d43d69cd03b823c83f42f37": {
+   "room_id": "r_L0_guvenlik_holu",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_006.wall",
+      "type": "mirror",
+      "colour": "natural wood",
+      "reason": "Reflects light and enhances space in modern natural style."
+     },
+     {
+      "slot": "f_L0_006.left",
+      "type": "plant_small",
+      "colour": "mustard",
+      "reason": "Adds warmth and life with a pop of mustard against greige walls."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_guvenlik_holu",
+      "type": "ceiling_light",
+      "colour": "brass",
+      "reason": "Warm brass light complements natural wood and enhances daylight ambiance."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_006.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Reflects light and enhances space in modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_006.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and life with a pop of mustard against greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_guvenlik_holu\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light complements natural wood and enhances daylight ambiance.\"\n    }\n  ]\n}",
+   "latency_s": 2.001
+  },
+  "9de647fe75ec59bea8af1104123af09b87e1abbee56e89efbcaad711c25288f5": {
+   "room_id": "r_L0_yangin_merdiveni",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_011.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the armchair, matching the greige walls and natural palette."
+     },
+     {
+      "slot": "f_L0_013.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant on dining table brings life without clutter, in natural wood pot."
+     },
+     {
+      "slot": "r_L0_yangin_merdiveni.corner1",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Large plant in corner adds greenery and anchors the space with natural wood pot."
+     },
+     {
+      "slot": "r_L0_yangin_merdiveni.corner2",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Second large plant balances the room and enhances the natural, modern aesthetic."
+     },
+     {
+      "slot": "ceiling:over_f_L0_013",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass pendant light complements dark bronze frames and enhances daylight ambiance."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_011.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the armchair, matching the greige walls and natural palette.\"\n    },\n    {\n      \"slot\": \"f_L0_013.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant on dining table brings life without clutter, in natural wood pot.\"\n    },\n    {\n      \"slot\": \"r_L0_yangin_merdiveni.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large plant in corner adds greenery and anchors the space with natural wood pot.\"\n    },\n    {\n      \"slot\": \"r_L0_yangin_merdiveni.corner2\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Second large plant balances the room and enhances the natural, modern aesthetic.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_013\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass pendant light complements dark bronze frames and enhances daylight ambiance.\"\n    }\n  ]\n}",
+   "latency_s": 3.538
+  },
+  "7090ae349eae75154f012a082f8827ff0e5c36175f1e0f310b163d2395d9a02a": {
+   "room_id": "r_L0_yangin_merdiveni",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "r_L0_yangin_merdiveni.corner1",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Adds lush greenery and warmth with a large plant in a natural wood pot."
+     },
+     {
+      "slot": "r_L0_yangin_merdiveni.corner2",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Balances the space with another large plant, enhancing the natural, modern aesthetic."
+     },
+     {
+      "slot": "f_L0_011.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds a warm pop of colour that complements the greige walls and natural wood."
+     },
+     {
+      "slot": "f_L0_013.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant on dining table brings life without overwhelming the space."
+     },
+     {
+      "slot": "ceiling:over_f_L0_013",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass light enhances the natural, modern feel and complements dark bronze frames."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"r_L0_yangin_merdiveni.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds lush greenery and warmth with a large plant in a natural wood pot.\"\n    },\n    {\n      \"slot\": \"r_L0_yangin_merdiveni.corner2\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Balances the space with another large plant, enhancing the natural, modern aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_011.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds a warm pop of colour that complements the greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_013.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant on dining table brings life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_013\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light enhances the natural, modern feel and complements dark bronze frames.\"\n    }\n  ]\n}",
+   "latency_s": 3.522
+  },
+  "9ca0ed27c36c7aea492d0c7db961dc88bf1a31d9c30c8736529cd6c8d0ef8dfe": {
+   "room_id": "r_L0_kat_merdiveni",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_015.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the armchair, matching the room’s natural and modern aesthetic."
+     },
+     {
+      "slot": "r_L0_kat_merdiveni.corner1",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture."
+     },
+     {
+      "slot": "r_L0_kat_merdiveni.corner2",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Second large plant balances the space and reinforces the lush, natural theme."
+     },
+     {
+      "slot": "ceiling:over_f_L0_017",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass pendant light adds modern elegance and enhances the ambient daylight."
+     },
+     {
+      "slot": "r_L0_kat_merdiveni.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Cream rug softens the floor and ties in with the neutral palette while adding texture."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_015.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the armchair, matching the room’s natural and modern aesthetic.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_merdiveni.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_merdiveni.corner2\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Second large plant balances the space and reinforces the lush, natural theme.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_017\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass pendant light adds modern elegance and enhances the ambient daylight.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_merdiveni.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream rug softens the floor and ties in with the neutral palette while adding texture.\"\n    }\n  ]\n}",
+   "latency_s": 3.55
+  },
+  "68525b6cdbf99894de349e6f7be2550bbdb0f6957d3cb0554cf5a5c56492636f": {
+   "room_id": "r_L0_kat_merdiveni",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "r_L0_kat_merdiveni.corner1",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Adds lush greenery and fits the natural modern style."
+     },
+     {
+      "slot": "r_L0_kat_merdiveni.corner2",
+      "type": "plant_large",
+      "colour": "natural wood",
+      "reason": "Balances the space with another large plant for visual harmony."
+     },
+     {
+      "slot": "f_L0_015.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the neutral sofa."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_kat_merdiveni",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements the natural wood and greige walls."
+     },
+     {
+      "slot": "f_L0_017.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life without overwhelming the dining table."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"r_L0_kat_merdiveni.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds lush greenery and fits the natural modern style.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_merdiveni.corner2\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Balances the space with another large plant for visual harmony.\"\n    },\n    {\n      \"slot\": \"f_L0_015.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the neutral sofa.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_kat_merdiveni\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements the natural wood and greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_017.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life without overwhelming the dining table.\"\n    }\n  ]\n}",
+   "latency_s": 3.28
+  }
+ },
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "generated_utc": "2026-10-10T10:54:01Z"
+}

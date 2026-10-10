@@ -1,0 +1,70 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "glm",
+ "model": "zai-org/GLM-4.6V-Flash",
+ "slug": "glm-4.6v-flash",
+ "incomplete": false,
+ "calls": {
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "630b817a96b20fab3322ad03865e39841c66bffc4cda6f6258d6c68abb01f03f",
+   "data": {
+    "type": "kitchen_counter",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object's footprint and size match a kitchen counter, and it is drawn along a wall."
+   },
+   "raw_text": "{\n    \"type\": \"kitchen_counter\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and size match a kitchen counter, and it is drawn along a wall.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.887,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "7a4534061fab9491552f457c4bc46e4bdadbb6b25385c7c50bdcff461b550df5",
+   "data": {
+    "type": "kitchen_island",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object is a long, free-standing counter, matching the size and shape of a kitchen island."
+   },
+   "raw_text": "{\n    \"type\": \"kitchen_island\",\n    \"front\": \"none\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object is a long, free-standing counter, matching the size and shape of a kitchen island.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.928,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "0c3f1cbe3157252f63038d96345e413b2827dc5588f3f17c300a95cabb95aae5",
+   "data": {
+    "type": "console_table",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches the size and shape of a console table, and its orientation suggests the front is to the right."
+   },
+   "raw_text": "{\n    \"type\": \"console_table\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches the size and shape of a console table, and its orientation suggests the front is to the right.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.956,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  }
+ }
+}

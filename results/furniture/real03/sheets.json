@@ -1,0 +1,312 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "real03",
+ "created_utc": "2026-10-10T10:47:16Z",
+ "code_commit": "87831c156",
+ "inputs": [
+  {
+   "file": "tekkat.dwg",
+   "size": 5983373,
+   "sha256": "36132173e4192611e132348ba33561c21ffe4804aed10b0874245dcf1216c738"
+  },
+  {
+   "file": "brief.yaml",
+   "size": 501,
+   "sha256": "2ab7a83dd970e43a363ed17e9a579e4fcc91860b653bda234a999d7f1c2965d0"
+  }
+ ],
+ "multi_region": false,
+ "documents": [
+  {
+   "file": "tekkat.dwg",
+   "format": "dwg",
+   "converter": "libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 3029 fixes",
+   "units": {
+    "insunits": 5,
+    "metres_per_unit": 0.01,
+    "method": "dxf_insunits",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": "cm",
+      "score": 0.833,
+      "samples": 6,
+      "note": "5 labels alone in a closed outline, 1 regions with >= 2 labels"
+     },
+     {
+      "check": "level_marks",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 1"
+     },
+     {
+      "check": "door_widths",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 4,
+      "note": "median door radius 90 units"
+     },
+     {
+      "check": "wall_thickness",
+      "unit": null,
+      "score": 0.462,
+      "samples": 78,
+      "note": "median face-pair distance 25 units; no unit fits 50% of the samples"
+     },
+     {
+      "check": "text_height",
+      "unit": null,
+      "score": null,
+      "samples": 46,
+      "note": "median text height 12.5 units; cm and in fit equally well"
+     },
+     {
+      "check": "dimensions",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 2"
+     }
+    ],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      7132.51,
+      150.0,
+      11277.116,
+      4856.81
+     ],
+     "frames": [],
+     "gap_units": 94.073,
+     "debug_image": "sheets_debug/tekkat_dwg_s1.png",
+     "gap_m": 0.9407
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "tekkat.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    6300.0,
+    0.0,
+    11550.0,
+    5300.0
+   ],
+   "box_m": [
+    52.5,
+    53.0
+   ],
+   "entities": 49,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI",
+    "entity": "ATTRIB:7C14C",
+    "box": [
+     11177.8,
+     219.938,
+     11372.2,
+     245.25
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 2,
+    "texts": 47,
+    "room_labels": 2,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 5,
+    "wall_pairs": 54,
+    "closed_rectangles": 0,
+    "street_words": true,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "page": 1,
+      "layer": "MYD - TEXT-LEJAND",
+      "entity": "ATTRIB:7C14C",
+      "method": "vector",
+      "block": "*U62",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI",
+      "region_id": "r1"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "page": 1,
+     "layer": "MYD - TEXT-LEJAND",
+     "entity": "ATTRIB:7C14C",
+     "method": "vector",
+     "block": "*U62",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  }
+ ],
+ "stray": [],
+ "levels": [
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r1",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "page": 1,
+     "layer": "MYD - TEXT-LEJAND",
+     "entity": "ATTRIB:7C14C",
+     "method": "vector",
+     "block": "*U62",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r1"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L0"
+   ],
+   "regions": [
+    "r1"
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [],
+  "cut_axis": null,
+  "cut_at": null,
+  "flipped": null,
+  "datum": null,
+  "levels": [
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   }
+  ],
+  "ground": [],
+  "roof": {
+   "eaves_z": null,
+   "ridge_z": null,
+   "pitches_deg": [],
+   "knee_wall": null,
+   "overhang": null,
+   "thickness": null,
+   "profile": []
+  }
+ },
+ "exterior": {
+  "roof": null,
+  "facade": [],
+  "openings_seen": [],
+  "site": null,
+  "north": null,
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [],
+ "warnings": [],
+ "needs_review": [],
+ "questions": 0,
+ "answers": null
+}

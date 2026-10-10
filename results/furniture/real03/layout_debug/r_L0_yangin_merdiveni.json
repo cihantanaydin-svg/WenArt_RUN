@@ -1,0 +1,878 @@
+{
+ "room_id": "r_L0_yangin_merdiveni",
+ "label": "Yangın Merdiveni",
+ "room_type": "other",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_001",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     4.8991,
+     10.5577
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "missing": {},
+ "anchor_missing": false,
+ "addable": {
+  "armchair": 2,
+  "chair": 4,
+  "table_dining": 1,
+  "bookshelf": 1,
+  "desk": 1
+ },
+ "change_types": [],
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 3.609,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": [
+     {
+      "type": "armchair",
+      "center": [
+       4.0,
+       11.5
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.9,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Adds a cozy seating spot near the kitchen counter."
+     },
+     {
+      "type": "chair",
+      "center": [
+       5.5,
+       11.5
+      ],
+      "rotation_deg": 0,
+      "size": [
+       0.5,
+       0.5
+      ],
+      "against_wall": false,
+      "reason": "Adds a small chair for casual seating near the counter."
+     },
+     {
+      "type": "table_dining",
+      "center": [
+       5.0,
+       12.0
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.6,
+       0.9
+      ],
+      "against_wall": false,
+      "reason": "Adds a small dining table for light meals or coffee."
+     },
+     {
+      "type": "bookshelf",
+      "center": [
+       3.0,
+       13.0
+      ],
+      "rotation_deg": 270,
+      "size": [
+       1.0,
+       0.35
+      ],
+      "against_wall": true,
+      "reason": "Adds a wall-mounted bookshelf for storage and decor."
+     }
+    ]
+   },
+   "prompt": "Task: complete this room of unspecified use labelled 'Yangın Merdiveni' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yangin_merdiveni\", \"label\": \"Yangın Merdiveni\", \"room_type\": \"other\", \"room_subtype\": null, \"area_m2\": 14.17, \"polygon_m\": [[3.6, 9.1], [6.2, 9.1], [6.2, 14.55], [3.6, 14.55]], \"doors\": [], \"windows\": []}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_001\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [4.9, 10.56], \"size\": [2.6, 0.55], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.9, 10.56]}, \"against_wall\": null}]\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: armchair (2), chair (4), table_dining (1), bookshelf (1), desk (1)\nA good completion: a few pieces that suit the room; keep it sparse.\n\nTypes with their size options [width, depth]:\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n\nRules for changes: no drawn piece may change its type or size in this room (changes: []).\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: always an empty list [] (no drawn piece may change its type or size here)\n- added: a list (the most important piece first) of objects with type (one of armchair, chair, table_dining, bookshelf, desk), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"armchair\",\n      \"center\": [4.0, 11.5],\n      \"rotation_deg\": 0,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Adds a cozy seating spot near the kitchen counter.\"\n    },\n    {\n      \"type\": \"chair\",\n      \"center\": [5.5, 11.5],\n      \"rotation_deg\": 0,\n      \"size\": [0.5, 0.5],\n      \"against_wall\": false,\n      \"reason\": \"Adds a small chair for casual seating near the counter.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [5.0, 12.0],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Adds a small dining table for light meals or coffee.\"\n    },\n    {\n      \"type\": \"bookshelf\",\n      \"center\": [3.0, 13.0],\n      \"rotation_deg\": 270,\n      \"size\": [1.0, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Adds a wall-mounted bookshelf for storage and decor.\"\n    }\n  ]\n}",
+   "changes": 0,
+   "added": 4
+  },
+  {
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 0.202,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": []
+   },
+   "prompt": "Task: complete this room of unspecified use labelled 'Yangın Merdiveni' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: armchair (2), chair (4), table_dining (1), bookshelf (1), desk (1)\nA good completion: a few pieces that suit the room; keep it sparse.\n\nRules for changes: no drawn piece may change its type or size in this room (changes: []).\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_001\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [4.9, 10.56], \"size\": [2.6, 0.55], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.9, 10.56]}, \"against_wall\": null}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yangin_merdiveni\", \"label\": \"Yangın Merdiveni\", \"room_type\": \"other\", \"room_subtype\": null, \"area_m2\": 14.17, \"polygon_m\": [[3.6, 9.1], [6.2, 9.1], [6.2, 14.55], [3.6, 14.55]], \"doors\": [], \"windows\": []}\n\nFields of the answer:\n- changes: always an empty list [] (no drawn piece may change its type or size here)\n- added: a list (the most important piece first) of objects with type (one of armchair, chair, table_dining, bookshelf, desk), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": []\n}",
+   "changes": 0,
+   "added": 0
+  }
+ ],
+ "chosen_pass": 1,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L0_011",
+   "type": "armchair",
+   "center": [
+    4.094,
+    11.734
+   ],
+   "size": [
+    0.9,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L0_012",
+   "type": "chair",
+   "center": [
+    5.5,
+    11.5
+   ],
+   "size": [
+    0.5,
+    0.5
+   ],
+   "rotation_deg": 180.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L0_013",
+   "type": "table_dining",
+   "center": [
+    5.3,
+    12.2
+   ],
+   "size": [
+    1.2,
+    0.8
+   ],
+   "rotation_deg": 0.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L0_014",
+   "type": "bookshelf",
+   "center": [
+    3.796,
+    13.0
+   ],
+   "size": [
+    1.0,
+    0.35
+   ],
+   "rotation_deg": 90.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_001": [
+    "inside_room"
+   ]
+  },
+  "walkways": []
+ },
+ "latency_s": 3.811,
+ "question": {
+  "room": {
+   "room_id": "r_L0_yangin_merdiveni",
+   "label": "Yangın Merdiveni",
+   "room_type": "other",
+   "room_subtype": null,
+   "area_m2": 14.17,
+   "polygon_m": [
+    [
+     3.6,
+     9.1
+    ],
+    [
+     6.2,
+     9.1
+    ],
+    [
+     6.2,
+     14.55
+    ],
+    [
+     3.6,
+     14.55
+    ]
+   ],
+   "doors": [],
+   "windows": []
+  },
+  "drawn": [
+   {
+    "id": "f_L0_001",
+    "type": "kitchen_counter",
+    "kind": "fixed",
+    "center": [
+     4.9,
+     10.56
+    ],
+    "size": [
+     2.6,
+     0.55
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      4.9,
+      10.56
+     ]
+    },
+    "against_wall": null
+   }
+  ],
+  "change_ids": [],
+  "change_types": [],
+  "add": {
+   "armchair": 2,
+   "chair": 4,
+   "table_dining": 1,
+   "bookshelf": 1,
+   "desk": 1
+  },
+  "missing": {},
+  "anchor_missing": false,
+  "anchors": [],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 0
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 9,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "type",
+      "center",
+      "rotation_deg",
+      "size",
+      "against_wall",
+      "reason"
+     ],
+     "properties": {
+      "type": {
+       "enum": [
+        "armchair",
+        "chair",
+        "table_dining",
+        "bookshelf",
+        "desk"
+       ]
+      },
+      "center": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "rotation_deg": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 360
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "against_wall": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   }
+  }
+ },
+ "placements": {
+  "1": {
+   "pieces": [
+    {
+     "type": "armchair",
+     "center": [
+      4.094,
+      11.734
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.9,
+      0.9
+     ],
+     "against_wall": false,
+     "reason": "Adds a cozy seating spot near the kitchen counter.",
+     "proposed": {
+      "center": [
+       4.0,
+       11.5
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 3,
+       "type": "armchair",
+       "step": "snap",
+       "before": {
+        "center": [
+         4.0,
+         11.5
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         4.094,
+         11.534
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 5,
+       "type": "armchair",
+       "step": "slide",
+       "before": {
+        "center": [
+         4.094,
+         11.534
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         4.094,
+         11.734
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "failed": [
+        "clearance_ok"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "type": "chair",
+     "center": [
+      5.5,
+      11.5
+     ],
+     "rotation_deg": 180.0,
+     "size": [
+      0.5,
+      0.5
+     ],
+     "against_wall": false,
+     "reason": "Adds a small chair for casual seating near the counter.",
+     "proposed": {
+      "center": [
+       5.5,
+       11.5
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.5,
+       0.5
+      ]
+     },
+     "repairs": [
+      {
+       "step": "face_host",
+       "piece": 2,
+       "type": "chair",
+       "before": {
+        "center": [
+         5.5,
+         11.5
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.5,
+         0.5
+        ]
+       },
+       "after": {
+        "center": [
+         5.5,
+         11.5
+        ],
+        "rotation_deg": 180.0,
+        "size": [
+         0.5,
+         0.5
+        ]
+       },
+       "host_type": "table_dining",
+       "failed": [],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "type": "table_dining",
+     "center": [
+      5.3,
+      12.2
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.8
+     ],
+     "against_wall": false,
+     "reason": "Adds a small dining table for light meals or coffee.",
+     "proposed": {
+      "center": [
+       5.0,
+       12.0
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 2,
+       "type": "table_dining",
+       "step": "slide",
+       "before": {
+        "center": [
+         5.0,
+         12.0
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         5.3,
+         12.2
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      },
+      {
+       "iteration": 4,
+       "type": "table_dining",
+       "step": "shrink",
+       "before": {
+        "center": [
+         5.3,
+         12.2
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         5.3,
+         12.2
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "type": "bookshelf",
+     "center": [
+      3.796,
+      13.0
+     ],
+     "rotation_deg": 90.0,
+     "size": [
+      1.0,
+      0.35
+     ],
+     "against_wall": true,
+     "reason": "Adds a wall-mounted bookshelf for storage and decor.",
+     "proposed": {
+      "center": [
+       3.0,
+       13.0
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.0,
+       0.35
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "bookshelf",
+       "step": "snap",
+       "before": {
+        "center": [
+         3.0,
+         13.0
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.0,
+         0.35
+        ]
+       },
+       "after": {
+        "center": [
+         3.796,
+         13.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.35
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "wall_contact"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [],
+   "log": [
+    {
+     "iteration": 1,
+     "piece": 3,
+     "type": "bookshelf",
+     "step": "snap",
+     "before": {
+      "center": [
+       3.0,
+       13.0
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.0,
+       0.35
+      ]
+     },
+     "after": {
+      "center": [
+       3.796,
+       13.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.35
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "wall_contact"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 2,
+     "piece": 2,
+     "type": "table_dining",
+     "step": "slide",
+     "before": {
+      "center": [
+       5.0,
+       12.0
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       5.3,
+       12.2
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 3,
+     "piece": 0,
+     "type": "armchair",
+     "step": "snap",
+     "before": {
+      "center": [
+       4.0,
+       11.5
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       4.094,
+       11.534
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 4,
+     "piece": 2,
+     "type": "table_dining",
+     "step": "shrink",
+     "before": {
+      "center": [
+       5.3,
+       12.2
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       5.3,
+       12.2
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.8
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 5,
+     "piece": 0,
+     "type": "armchair",
+     "step": "slide",
+     "before": {
+      "center": [
+       4.094,
+       11.534
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       4.094,
+       11.734
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "failed": [
+      "clearance_ok"
+     ],
+     "ok": true
+    }
+   ],
+   "iterations": 5,
+   "anchor_first": false
+  }
+ }
+}

@@ -1,0 +1,209 @@
+{
+ "schema_version": "0.1",
+ "project": "real03",
+ "model_keys": [
+  "agent"
+ ],
+ "single_pass": true,
+ "metrics": {
+  "baseline": {
+   "views": 14,
+   "views_computed": 14,
+   "required_elements": 19,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
+  },
+  "models": {
+   "agent": {
+    "calls": 14,
+    "answered": 14,
+    "answer_rate": 1.0,
+    "decoys": 14,
+    "decoy_accept": 0.0,
+    "fa_missing_single": 0.0
+   }
+  },
+  "fa_missing": null,
+  "fa_extra": null,
+  "count_error": null,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": 0.6,
+  "swap_flagged": 1.0,
+  "swap_confirmed": null,
+  "detector_insertion": {
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
+  },
+  "controls": {
+   "removal": {
+    "n": 5,
+    "flagged": 0.8,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_kat_holu_1",
+      "kind": "removal:d_L0_004",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_kat_holu_2",
+      "kind": "removal:f_L0_010",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_ruzgarlik_1",
+      "kind": "removal:d_L0_002",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_ruzgarlik_2",
+      "kind": "removal:f_L0_005",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yangin_merdiveni_2",
+      "kind": "removal:f_L0_013",
+      "flagged": true,
+      "confirmed": false
+     }
+    ]
+   },
+   "insertion": {
+    "n": 5,
+    "flagged": 0.6,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_kat_holu_1",
+      "kind": "insertion:d_L0_004",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_kat_holu_2",
+      "kind": "insertion:f_L0_010",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_ruzgarlik_1",
+      "kind": "insertion:d_L0_002",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_ruzgarlik_2",
+      "kind": "insertion:f_L0_005",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yangin_merdiveni_2",
+      "kind": "insertion:f_L0_013",
+      "flagged": false,
+      "confirmed": false
+     }
+    ]
+   },
+   "swap": {
+    "n": 1,
+    "flagged": 1.0,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_ruzgarlik_3",
+      "kind": "swap:f_L0_004",
+      "flagged": true,
+      "confirmed": false
+     }
+    ]
+   }
+  }
+ },
+ "targets": {
+  "fa_missing_max": 0.05,
+  "fa_extra_max": 0.1,
+  "removal_flagged_min": 0.8,
+  "removal_confirmed_min": 0.6,
+  "insertion_min": 0.6,
+  "decoy_accept_max": 0.1
+ },
+ "missed": [
+  {
+   "target": "fa_missing_max",
+   "metric": "fa_missing",
+   "value": null,
+   "threshold": 0.05,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "fa_extra_max",
+   "metric": "fa_extra",
+   "value": null,
+   "threshold": 0.1,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": null,
+   "threshold": 0.8,
+   "op": ">=",
+   "reason": "single pass"
+  },
+  {
+   "target": "removal_confirmed_min",
+   "metric": "removal_confirmed",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "single pass"
+  },
+  {
+   "target": "insertion_min",
+   "metric": "insertion",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "single pass"
+  }
+ ],
+ "advisory": true,
+ "advisory_reasons": [
+  "single pass: no two-model agreement",
+  "fa_missing None misses <= 0.05 (single pass)",
+  "fa_extra None misses <= 0.1 (single pass)",
+  "removal_flagged None misses >= 0.8 (single pass)",
+  "removal_confirmed None misses >= 0.6 (single pass)",
+  "insertion None misses >= 0.6 (single pass)"
+ ],
+ "plan_ab": {
+  "cameras": [],
+  "pairs": 0,
+  "removal_pairs": 0,
+  "fa_missing_without": null,
+  "fa_missing_with": null,
+  "fa_extra_without": null,
+  "fa_extra_with": null,
+  "removal_confirmed_without": null,
+  "removal_confirmed_with": null,
+  "favours_plan": false,
+  "used": false,
+  "adopted": false,
+  "text": "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop",
+  "note": "not enough plan A/B answers to compare"
+ }
+}

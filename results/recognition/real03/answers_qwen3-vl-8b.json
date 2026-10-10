@@ -1,0 +1,70 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "qwen",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "slug": "qwen3-vl-8b",
+ "incomplete": false,
+ "calls": {
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "630b817a96b20fab3322ad03865e39841c66bffc4cda6f6258d6c68abb01f03f",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"none\",\n  \"confidence\": 0.8,\n  \"reason\": \"The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.829,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "7a4534061fab9491552f457c4bc46e4bdadbb6b25385c7c50bdcff461b550df5",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"none\",\n  \"confidence\": 0.8,\n  \"reason\": \"The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.852,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "0c3f1cbe3157252f63038d96345e413b2827dc5588f3f17c300a95cabb95aae5",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.85,
+    "reason": "The object is a circle with crosshairs, resembling a target or fixture, not matching any standard furniture footprint."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"none\",\n  \"confidence\": 0.85,\n  \"reason\": \"The object is a circle with crosshairs, resembling a target or fixture, not matching any standard furniture footprint.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.637,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  }
+ }
+}

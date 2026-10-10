@@ -1,0 +1,265 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_requests",
+ "project": "real03",
+ "crop_version": "m7.1",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "pass": 1
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "pass": 2
+  }
+ },
+ "items": [
+  {
+   "key": "sym_L0_001",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ],
+   "context": {
+    "file": "tekkat.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "YANGIN MERDİVENİ",
+    "footprint": {
+     "center": [
+      78.7011,
+      25.3217
+     ],
+     "size": [
+      2.6,
+      0.55
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     77.4011,
+     25.0467,
+     80.0011,
+     25.5967
+    ],
+    "crop": {
+     "object_box": [
+      77401,
+      25047,
+      80001,
+      25597
+     ],
+     "ctx_box": [
+      76621,
+      23242,
+      80781,
+      27402
+     ],
+     "iso_box": [
+      77076,
+      23697,
+      80326,
+      26947
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "tv_unit",
+     "sideboard",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.6,
+     0.55
+    ],
+    "room": {
+     "label": "YANGIN MERDİVENİ",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "630b817a96b20fab3322ad03865e39841c66bffc4cda6f6258d6c68abb01f03f"
+  },
+  {
+   "key": "sym_L0_002",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ],
+   "context": {
+    "file": "tekkat.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "other",
+    "room_label": "KAT MERDİVENİ",
+    "footprint": {
+     "center": [
+      95.1011,
+      25.3217
+     ],
+     "size": [
+      2.6,
+      0.55
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     93.8011,
+     25.0467,
+     96.4011,
+     25.5967
+    ],
+    "crop": {
+     "object_box": [
+      93801,
+      25047,
+      96401,
+      25597
+     ],
+     "ctx_box": [
+      93021,
+      23242,
+      97181,
+      27402
+     ],
+     "iso_box": [
+      93476,
+      23697,
+      96726,
+      26947
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "tv_unit",
+     "sideboard",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.6,
+     0.55
+    ],
+    "room": {
+     "label": "KAT MERDİVENİ",
+     "type": "other"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "7a4534061fab9491552f457c4bc46e4bdadbb6b25385c7c50bdcff461b550df5"
+  },
+  {
+   "key": "sym_L0_003",
+   "task": "symbol_type",
+   "page": null,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ],
+   "context": {
+    "file": "tekkat.dwg",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "hall",
+    "room_label": "KAT HOLÜ",
+    "footprint": {
+     "center": [
+      85.5123,
+      19.6991
+     ],
+     "size": [
+      0.9008,
+      0.3408
+     ],
+     "rotation_deg": 166.866
+    },
+    "bbox": [
+     85.0646,
+     19.5877,
+     85.9896,
+     19.9377
+    ],
+    "crop": {
+     "object_box": [
+      85065,
+      19588,
+      85990,
+      19938
+     ],
+     "ctx_box": [
+      84277,
+      18513,
+      86777,
+      21013
+     ],
+     "iso_box": [
+      84949,
+      19185,
+      86105,
+      20341
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "washbasin",
+     "toilet",
+     "tv_unit",
+     "bookshelf",
+     "potted_plant",
+     "ottoman",
+     "bench",
+     "console_table",
+     "sideboard",
+     "shoe_cabinet",
+     "display_cabinet",
+     "tall_cabinet",
+     "wall_cabinet",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.9,
+     0.34
+    ],
+    "room": {
+     "label": "KAT HOLÜ",
+     "type": "hall"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "0c3f1cbe3157252f63038d96345e413b2827dc5588f3f17c300a95cabb95aae5"
+  }
+ ]
+}

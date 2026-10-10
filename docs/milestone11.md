@@ -808,3 +808,23 @@ PoC total: $81.53 of $100. No pod is running.
 | 6 | Not built in track B: bed + nightstand and desk + chair splitting (U15), the play room's round table + chairs (U9), three twin causes (M7) |
 | 7 | 2 recognition answers stale on real02 (crops changed between the two pipeline runs) |
 | 8 | Exterior: low-poly trees and plain hedges (look), D5/D6 defaults kept |
+
+### 19.7 real03 – D Blok ground-floor core (10 Oct 2026, `hl7t5rqh3uugo9`, 42 min, $1.74)
+
+Input: `projects/real03/tekkat.dwg` (the user's file). Its flats are empty external-reference blocks, so only the core
+is drawn; the walls are inferred from the five labelled room outlines (`wenart/ingest/generic/outlines.py`, all 30
+walls `inferred`, `unverified`). Style: real02's brief (user's choice). Run ok, every GPU test green; 14 interior
+views, no exterior view.
+
+Agent: 4 rounds, 11 edits accepted, 46 rejected. It removed AI-added furniture that does not belong in a stair room
+(armchair, bookshelf, a chair, a dining table), a sliver box in the hall, snapped a console to the wall and resized a
+table. Left open: 2 critical (the floor hall renders nearly black), 6 major.
+
+What the run shows (to fix):
+
+| # | What | Cause | Fix |
+|---|---|---|---|
+| 1 | "kitchen counter" and "kitchen island" in the two stair rooms | the AI typed the stair flights' projection lines (layer `IZ-2`) as kitchen pieces; the stair blocks are empty | stair rooms take no kitchen types (type check against the room); the agent may retype or remove a drawn fixed piece that its room type does not allow (a clear error, CLAUDE.md) — today `drawn_lock` refused it 16 times |
+| 2 | desk, bookshelf, dining table, chairs in the stair rooms and the entrance lobby | "YANGIN / KAT MERDİVENİ" and "RÜZGARLIK" are typed `other`, so the layout furnished them | label rules: `... MERDİVEN...` → stair room, `RÜZGARLIK` / `HOL` → hall (no furnishing beyond a console) |
+| 3 | the 47 m² floor hall nearly black (critical R5, not fixed) | no window, the assumed ceiling light is too weak for a long corridor, and the agent has no lighting tool | a `set_lighting` tool (room light strength / extra lights) and the dark-room rule scaling with room length |
+| 4 | no exterior view | — (the core alone; not investigated) | check after #1–#3 |

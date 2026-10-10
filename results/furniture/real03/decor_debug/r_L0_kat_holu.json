@@ -1,0 +1,212 @@
+{
+ "room_id": "r_L0_kat_holu",
+ "label": "Kat Holü",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L0_010.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_010",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    12.002,
+    5.272
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_010.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_010",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    11.418,
+    5.408
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "r_L0_kat_holu.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 0.50, 6.35",
+   "center": [
+    0.5,
+    6.35
+   ]
+  },
+  {
+   "id": "r_L0_kat_holu.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 10.15, 5.00",
+   "center": [
+    10.15,
+    5.0
+   ]
+  },
+  {
+   "id": "ceiling:centre_r_L0_kat_holu",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 kat holu"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_010.left",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds natural elegance with a neutral tone matching the warm greige walls."
+    },
+    {
+     "slot": "r_L0_kat_holu.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Large indoor plant in rattan pot brings lush greenery and warmth to the corner."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_kat_holu",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant light enhances modern natural style with soft ambient glow."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.084
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_010.left",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds natural warmth and complements the greige walls and rattan pots."
+    },
+    {
+     "slot": "r_L0_kat_holu.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "reason": "Large indoor plant enhances the modern natural style with organic texture."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_kat_holu",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light enhances daylight and matches dark bronze frames."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.008
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_010.left",
+   "type": "vase",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds natural elegance with a neutral tone matching the warm greige walls.",
+    "Adds natural warmth and complements the greige walls and rattan pots."
+   ]
+  },
+  {
+   "slot": "r_L0_kat_holu.corner1",
+   "type": "plant_large",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Large indoor plant in rattan pot brings lush greenery and warmth to the corner.",
+    "Large indoor plant enhances the modern natural style with organic texture."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_kat_holu",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm brass pendant light enhances modern natural style with soft ambient glow.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_kat_holu",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "Warm brass light enhances daylight and matches dark bronze frames.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_003",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L0_010.left"
+  },
+  {
+   "id": "dec_L0_004",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L0_kat_holu.corner1"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_010 wall: mirror: f_L0_010 has no wall behind it; wall_art: f_L0_010 has no wall behind it"
+ ]
+}

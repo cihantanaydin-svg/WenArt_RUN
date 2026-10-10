@@ -1,0 +1,239 @@
+{
+ "room_id": "r_L0_guvenlik_holu",
+ "label": "Güvenlik Holü",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L0_006.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_006",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    3.796,
+    8.0
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_006.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_006",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    3.796,
+    8.6
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_006.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L0_006",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "f_L0_007.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "tray",
+    "candle"
+   ],
+   "host_id": "f_L0_007",
+   "host_type": "shoe_cabinet",
+   "note": "centre part",
+   "center": [
+    4.421,
+    7.831
+   ],
+   "max_size": [
+    0.74,
+    0.26,
+    1.6
+   ]
+  },
+  {
+   "id": "f_L0_009.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L0_009",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L0_guvenlik_holu",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 guvenlik holu"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_006.wall",
+     "type": "mirror",
+     "colour": "cream",
+     "reason": "Reflects light and enhances the airy, modern feel of the hall."
+    },
+    {
+     "slot": "f_L0_006.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Adds organic warmth and complements the natural wood furniture."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_guvenlik_holu",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light adds a touch of luxury and matches the dark bronze frames."
+    },
+    {
+     "slot": "f_L0_007.centre",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Cream vase holds a small plant and harmonizes with the neutral palette."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.645
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_006.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in modern natural style."
+    },
+    {
+     "slot": "f_L0_006.left",
+     "type": "plant_small",
+     "colour": "mustard",
+     "reason": "Adds warmth and life with a pop of mustard against greige walls."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_guvenlik_holu",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light complements natural wood and enhances daylight ambiance."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.001
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_006.wall",
+   "type": "mirror",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Reflects light and enhances the airy, modern feel of the hall.",
+    "Reflects light and enhances space in modern natural style."
+   ]
+  },
+  {
+   "slot": "f_L0_006.left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds organic warmth and complements the natural wood furniture.",
+    "Adds warmth and life with a pop of mustard against greige walls."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_guvenlik_holu",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm brass light adds a touch of luxury and matches the dark bronze frames.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_007.centre",
+   "type": "vase",
+   "colour": "cream",
+   "reason": "Cream vase holds a small plant and harmonizes with the neutral palette.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_guvenlik_holu",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "Warm brass light complements natural wood and enhances daylight ambiance.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_005",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_006.wall"
+  },
+  {
+   "id": "dec_L0_006",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_006.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant"
+ ]
+}

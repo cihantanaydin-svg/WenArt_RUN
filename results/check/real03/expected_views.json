@@ -1,0 +1,4016 @@
+{
+ "schema_version": "0.1",
+ "project": "real03",
+ "variant": "base",
+ "render_dir": "../renders",
+ "views": {
+  "cam_r_L0_guvenlik_holu_1": {
+   "camera": "cam_r_L0_guvenlik_holu_1",
+   "view_kind": "interior",
+   "room_id": "r_L0_guvenlik_holu",
+   "room_type": "hall",
+   "room_label": "Güvenlik Holü",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 12,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "bookshelf",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_guvenlik_holu",
+     "room_ids": [
+      "r_L0_guvenlik_holu"
+     ],
+     "own_room": true,
+     "pixels": 577800,
+     "area_frac": 0.278646,
+     "box_px": [
+      0,
+      0,
+      535,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      279,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1653,
+     "in_frame": 0.1653,
+     "unoccluded": 1.0,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Slim bookshelf for decorative items and light storage against wall."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 10,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "shoe_cabinet",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_guvenlik_holu",
+     "room_ids": [
+      "r_L0_guvenlik_holu"
+     ],
+     "own_room": true,
+     "pixels": 279650,
+     "area_frac": 0.134862,
+     "box_px": [
+      676,
+      775,
+      1704,
+      1080
+     ],
+     "box_1000": [
+      352,
+      717,
+      888,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2328,
+     "in_frame": 0.2355,
+     "unoccluded": 0.9886,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Compact shoe cabinet for storage, placed against wall for convenience."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 9,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "console_table",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_guvenlik_holu",
+     "room_ids": [
+      "r_L0_guvenlik_holu"
+     ],
+     "own_room": true,
+     "pixels": 75801,
+     "area_frac": 0.036555,
+     "box_px": [
+      1526,
+      659,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      794,
+      610,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0005,
+     "in_frame": 0.0006,
+     "unoccluded": 0.7674,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern console table against wall for entryway functionality."
+      }
+     ],
+     "host_decor": [
+      "plant_small"
+     ],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.0667,
+      "area_frac": 0.04765,
+      "centre_px": [
+       1734.2,
+       957.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 75801
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "shoe_cabinet",
+      "visible_share": 0.3571,
+      "area_frac": 0.13642,
+      "centre_px": [
+       1191.8,
+       917.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 279650
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 0.2325,
+      "area_frac": 0.27846,
+      "centre_px": [
+       289.9,
+       540.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 577800
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_guvenlik_holu_2": {
+   "camera": "cam_r_L0_guvenlik_holu_2",
+   "view_kind": "interior",
+   "room_id": "r_L0_guvenlik_holu",
+   "room_type": "hall",
+   "room_label": "Güvenlik Holü",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 9,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "console_table",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_guvenlik_holu",
+     "room_ids": [
+      "r_L0_guvenlik_holu"
+     ],
+     "own_room": true,
+     "pixels": 312547,
+     "area_frac": 0.150727,
+     "box_px": [
+      535,
+      550,
+      1847,
+      1080
+     ],
+     "box_1000": [
+      278,
+      509,
+      962,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1647,
+     "in_frame": 0.1754,
+     "unoccluded": 0.939,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Modern console table against wall for entryway functionality."
+      }
+     ],
+     "host_decor": [
+      "plant_small"
+     ],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 18,
+     "wenart_id": "dec_L0_005",
+     "kind": "decor",
+     "type": "mirror",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_guvenlik_holu",
+     "room_ids": [
+      "r_L0_guvenlik_holu"
+     ],
+     "own_room": true,
+     "pixels": 164101,
+     "area_frac": 0.079138,
+     "box_px": [
+      976,
+      0,
+      1270,
+      591
+     ],
+     "box_1000": [
+      508,
+      0,
+      662,
+      548
+     ],
+     "touches_border": true,
+     "visibility": 0.4139,
+     "in_frame": 0.4405,
+     "unoccluded": 0.9396,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Reflects light and enhances the airy, modern feel of the hall."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Reflects light and enhances space in modern natural style."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 10,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "shoe_cabinet",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_guvenlik_holu",
+     "room_ids": [
+      "r_L0_guvenlik_holu"
+     ],
+     "own_room": true,
+     "pixels": 149391,
+     "area_frac": 0.072044,
+     "box_px": [
+      0,
+      771,
+      668,
+      1080
+     ],
+     "box_1000": [
+      0,
+      713,
+      348,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0122,
+     "in_frame": 0.0124,
+     "unoccluded": 0.9824,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Compact shoe cabinet for storage, placed against wall for convenience."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.3296,
+      "area_frac": 0.16054,
+      "centre_px": [
+       1181.0,
+       888.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 312547
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "shoe_cabinet",
+      "visible_share": 0.175,
+      "area_frac": 0.07333,
+      "centre_px": [
+       328.8,
+       929.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 149391
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kat_holu_1": {
+   "camera": "cam_r_L0_kat_holu_1",
+   "view_kind": "interior",
+   "room_id": "r_L0_kat_holu",
+   "room_type": "hall",
+   "room_label": "Kat Holü",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 13,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "console_table",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_holu",
+     "room_ids": [
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 192331,
+     "area_frac": 0.092752,
+     "box_px": [
+      1186,
+      487,
+      1759,
+      1080
+     ],
+     "box_1000": [
+      617,
+      450,
+      917,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.6409,
+     "in_frame": 0.8678,
+     "unoccluded": 0.7385,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Replaces the unknown piece with a modern console table matching the style and footprint."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Fits the modern natural style with light oak finish and matches the existing footprint."
+      }
+     ],
+     "host_decor": [
+      "vase"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 191217,
+     "area_frac": 0.092215,
+     "box_px": [
+      0,
+      65,
+      292,
+      757
+     ],
+     "box_1000": [
+      0,
+      60,
+      153,
+      701
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/16:1,INSERT:7C9C9/12/16:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 164455,
+     "area_frac": 0.079309,
+     "box_px": [
+      292,
+      96,
+      576,
+      718
+     ],
+     "box_1000": [
+      152,
+      88,
+      300,
+      665
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/17:1,INSERT:7C9C9/12/17:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7662,
+      "area_frac": 0.09211,
+      "centre_px": [
+       140.8,
+       419.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 191217
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8934,
+      "area_frac": 0.0772,
+      "centre_px": [
+       436.1,
+       411.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 164455
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.8765,
+      "area_frac": 0.12559,
+      "centre_px": [
+       1474.5,
+       830.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 192331
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kat_holu_2": {
+   "camera": "cam_r_L0_kat_holu_2",
+   "view_kind": "interior",
+   "room_id": "r_L0_kat_holu",
+   "room_type": "hall",
+   "room_label": "Kat Holü",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 262651,
+     "area_frac": 0.126664,
+     "box_px": [
+      0,
+      0,
+      326,
+      882
+     ],
+     "box_1000": [
+      0,
+      0,
+      170,
+      817
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/17:1,INSERT:7C9C9/12/17:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 13,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "console_table",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_holu",
+     "room_ids": [
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 73594,
+     "area_frac": 0.035491,
+     "box_px": [
+      1354,
+      453,
+      1559,
+      1011
+     ],
+     "box_1000": [
+      705,
+      419,
+      812,
+      937
+     ],
+     "touches_border": false,
+     "visibility": 0.7835,
+     "in_frame": 1.0,
+     "unoccluded": 0.7835,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Replaces the unknown piece with a modern console table matching the style and footprint."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Fits the modern natural style with light oak finish and matches the existing footprint."
+      }
+     ],
+     "host_decor": [
+      "vase"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 17,
+     "wenart_id": "dec_L0_004",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_holu",
+     "room_ids": [
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 3612,
+     "area_frac": 0.001742,
+     "box_px": [
+      1488,
+      315,
+      1553,
+      468
+     ],
+     "box_1000": [
+      775,
+      291,
+      809,
+      434
+     ],
+     "touches_border": false,
+     "visibility": 0.3388,
+     "in_frame": 1.0,
+     "unoccluded": 0.3388,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large indoor plant in rattan pot brings lush greenery and warmth to the corner."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Large indoor plant enhances the modern natural style with organic texture."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6817,
+      "area_frac": 0.12096,
+      "centre_px": [
+       154.5,
+       440.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 262651
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.8264,
+      "area_frac": 0.04529,
+      "centre_px": [
+       1455.6,
+       768.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 73594
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kat_holu_3": {
+   "camera": "cam_r_L0_kat_holu_3",
+   "view_kind": "interior",
+   "room_id": "r_L0_kat_holu",
+   "room_type": "hall",
+   "room_label": "Kat Holü",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 195898,
+     "area_frac": 0.094472,
+     "box_px": [
+      0,
+      30,
+      277,
+      807
+     ],
+     "box_1000": [
+      0,
+      27,
+      145,
+      748
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/16:1,INSERT:7C9C9/12/16:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 141007,
+     "area_frac": 0.068001,
+     "box_px": [
+      277,
+      88,
+      523,
+      731
+     ],
+     "box_1000": [
+      144,
+      81,
+      273,
+      677
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/17:1,INSERT:7C9C9/12/17:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 13,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "console_table",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_holu",
+     "room_ids": [
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 29462,
+     "area_frac": 0.014208,
+     "box_px": [
+      1231,
+      420,
+      1393,
+      758
+     ],
+     "box_1000": [
+      641,
+      388,
+      726,
+      702
+     ],
+     "touches_border": false,
+     "visibility": 0.7065,
+     "in_frame": 1.0,
+     "unoccluded": 0.7065,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Replaces the unknown piece with a modern console table matching the style and footprint."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Fits the modern natural style with light oak finish and matches the existing footprint."
+      }
+     ],
+     "host_decor": [
+      "vase"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 17,
+     "wenart_id": "dec_L0_004",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_holu",
+     "room_ids": [
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 2862,
+     "area_frac": 0.00138,
+     "box_px": [
+      1440,
+      318,
+      1499,
+      456
+     ],
+     "box_1000": [
+      750,
+      294,
+      781,
+      423
+     ],
+     "touches_border": false,
+     "visibility": 0.337,
+     "in_frame": 1.0,
+     "unoccluded": 0.337,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large indoor plant in rattan pot brings lush greenery and warmth to the corner."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Large indoor plant enhances the modern natural style with organic texture."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6399,
+      "area_frac": 0.09003,
+      "centre_px": [
+       131.7,
+       427.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 195898
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8934,
+      "area_frac": 0.06797,
+      "centre_px": [
+       402.8,
+       412.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 141007
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.93,
+      "area_frac": 0.02011,
+      "centre_px": [
+       1314.7,
+       617.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 29462
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kat_merdiveni_1": {
+   "camera": "cam_r_L0_kat_merdiveni_1",
+   "view_kind": "interior",
+   "room_id": "r_L0_kat_merdiveni",
+   "room_type": "other",
+   "room_label": "Kat Merdiveni",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 6,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_island",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 429778,
+     "area_frac": 0.207262,
+     "box_px": [
+      743,
+      444,
+      1837,
+      1016
+     ],
+     "box_1000": [
+      386,
+      411,
+      957,
+      941
+     ],
+     "touches_border": false,
+     "visibility": 0.926,
+     "in_frame": 1.0,
+     "unoccluded": 0.926,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_island",
+       "front": "none",
+       "reason": "The object is a long, free-standing counter, matching the size and shape of a kitchen island."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "inferred",
+       "confidence": 0.55,
+       "rule": "furniture.infer",
+       "text": "kitchen_island: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_counter, sideboard, tv_unit, wardrobe)",
+       "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 22,
+     "wenart_id": "dec_L0_013",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 24177,
+     "area_frac": 0.011659,
+     "box_px": [
+      1463,
+      232,
+      1687,
+      494
+     ],
+     "box_1000": [
+      761,
+      214,
+      879,
+      458
+     ],
+     "touches_border": false,
+     "visibility": 0.1831,
+     "in_frame": 1.0,
+     "unoccluded": 0.1831,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Adds lush greenery and fits the natural modern style."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 23,
+     "wenart_id": "dec_L0_014",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 10708,
+     "area_frac": 0.005164,
+     "box_px": [
+      959,
+      264,
+      1111,
+      459
+     ],
+     "box_1000": [
+      499,
+      244,
+      579,
+      425
+     ],
+     "touches_border": false,
+     "visibility": 0.1386,
+     "in_frame": 1.0,
+     "unoccluded": 0.1386,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second large plant balances the space and reinforces the lush, natural theme."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Balances the space with another large plant for visual harmony."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 1.0,
+      "area_frac": 0.22381,
+      "centre_px": [
+       1284.8,
+       739.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 429778
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kat_merdiveni_2": {
+   "camera": "cam_r_L0_kat_merdiveni_2",
+   "view_kind": "interior",
+   "room_id": "r_L0_kat_merdiveni",
+   "room_type": "other",
+   "room_label": "Kat Merdiveni",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 6,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_island",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 685680,
+     "area_frac": 0.330671,
+     "box_px": [
+      364,
+      493,
+      1774,
+      1004
+     ],
+     "box_1000": [
+      189,
+      456,
+      924,
+      930
+     ],
+     "touches_border": false,
+     "visibility": 0.9184,
+     "in_frame": 1.0,
+     "unoccluded": 0.9184,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_island",
+       "front": "none",
+       "reason": "The object is a long, free-standing counter, matching the size and shape of a kitchen island."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "inferred",
+       "confidence": 0.55,
+       "rule": "furniture.infer",
+       "text": "kitchen_island: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_counter, sideboard, tv_unit, wardrobe)",
+       "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 22,
+     "wenart_id": "dec_L0_013",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 21826,
+     "area_frac": 0.010526,
+     "box_px": [
+      1217,
+      238,
+      1414,
+      493
+     ],
+     "box_1000": [
+      633,
+      220,
+      737,
+      457
+     ],
+     "touches_border": false,
+     "visibility": 0.1636,
+     "in_frame": 1.0,
+     "unoccluded": 0.1636,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Adds lush greenery and fits the natural modern style."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 23,
+     "wenart_id": "dec_L0_014",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 20064,
+     "area_frac": 0.009676,
+     "box_px": [
+      632,
+      242,
+      828,
+      493
+     ],
+     "box_1000": [
+      329,
+      224,
+      432,
+      457
+     ],
+     "touches_border": false,
+     "visibility": 0.1646,
+     "in_frame": 1.0,
+     "unoccluded": 0.1646,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second large plant balances the space and reinforces the lush, natural theme."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Balances the space with another large plant for visual harmony."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 1.0,
+      "area_frac": 0.36006,
+      "centre_px": [
+       1069.1,
+       755.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 685680
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kat_merdiveni_3": {
+   "camera": "cam_r_L0_kat_merdiveni_3",
+   "view_kind": "interior",
+   "room_id": "r_L0_kat_merdiveni",
+   "room_type": "other",
+   "room_label": "Kat Merdiveni",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 6,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "kitchen_island",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 320049,
+     "area_frac": 0.154345,
+     "box_px": [
+      90,
+      435,
+      1058,
+      898
+     ],
+     "box_1000": [
+      46,
+      402,
+      552,
+      832
+     ],
+     "touches_border": false,
+     "visibility": 0.9346,
+     "in_frame": 1.0,
+     "unoccluded": 0.9346,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_island",
+       "front": "none",
+       "reason": "The object is a long, free-standing counter, matching the size and shape of a kitchen island."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "inferred",
+       "confidence": 0.55,
+       "rule": "furniture.infer",
+       "text": "kitchen_island: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_counter, sideboard, tv_unit, wardrobe)",
+       "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 23,
+     "wenart_id": "dec_L0_014",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 18897,
+     "area_frac": 0.009113,
+     "box_px": [
+      220,
+      253,
+      421,
+      474
+     ],
+     "box_1000": [
+      114,
+      234,
+      220,
+      439
+     ],
+     "touches_border": false,
+     "visibility": 0.1826,
+     "in_frame": 1.0,
+     "unoccluded": 0.1826,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second large plant balances the space and reinforces the lush, natural theme."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Balances the space with another large plant for visual harmony."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 22,
+     "wenart_id": "dec_L0_013",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_kat_merdiveni",
+     "room_ids": [
+      "r_L0_kat_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 10030,
+     "area_frac": 0.004837,
+     "box_px": [
+      753,
+      272,
+      886,
+      444
+     ],
+     "box_1000": [
+      392,
+      251,
+      462,
+      412
+     ],
+     "touches_border": false,
+     "visibility": 0.1594,
+     "in_frame": 1.0,
+     "unoccluded": 0.1594,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Adds lush greenery and fits the natural modern style."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 1.0,
+      "area_frac": 0.16515,
+      "centre_px": [
+       577.9,
+       671.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 320049
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ruzgarlik_1": {
+   "camera": "cam_r_L0_ruzgarlik_1",
+   "view_kind": "interior",
+   "room_id": "r_L0_ruzgarlik",
+   "room_type": "other",
+   "room_label": "Rüzgarlık",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 7,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "desk",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_ruzgarlik",
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 561728,
+     "area_frac": 0.270895,
+     "box_px": [
+      753,
+      141,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      392,
+      130,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0107,
+     "in_frame": 0.0107,
+     "unoccluded": 1.0,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Against the back wall for workspace, with clear access."
+      }
+     ],
+     "host_decor": [
+      "table_lamp"
+     ],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 8,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "bookshelf",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_ruzgarlik",
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 266933,
+     "area_frac": 0.128729,
+     "box_px": [
+      206,
+      169,
+      627,
+      892
+     ],
+     "box_1000": [
+      107,
+      156,
+      327,
+      826
+     ],
+     "touches_border": false,
+     "visibility": 0.9995,
+     "in_frame": 1.0,
+     "unoccluded": 0.9995,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Against the back wall for storage, matching the desk."
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 195355,
+     "area_frac": 0.094211,
+     "box_px": [
+      1007,
+      14,
+      1321,
+      766
+     ],
+     "box_1000": [
+      524,
+      12,
+      689,
+      710
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/11/17:1,INSERT:7C9C9/11/17:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 1,
+     "wenart_id": "d_L0_001",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 146295,
+     "area_frac": 0.070551,
+     "box_px": [
+      777,
+      66,
+      1007,
+      763
+     ],
+     "box_1000": [
+      404,
+      61,
+      525,
+      707
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/11/16:1,INSERT:7C9C9/11/16:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8499,
+      "area_frac": 0.06821,
+      "centre_px": [
+       895.2,
+       416.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 146295
+     },
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7194,
+      "area_frac": 0.10742,
+      "centre_px": [
+       1166.7,
+       403.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 195355
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.4416,
+      "area_frac": 0.23632,
+      "centre_px": [
+       1365.5,
+       804.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 561728
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 1.0,
+      "area_frac": 0.1288,
+      "centre_px": [
+       416.3,
+       530.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 266933
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ruzgarlik_2": {
+   "camera": "cam_r_L0_ruzgarlik_2",
+   "view_kind": "interior",
+   "room_id": "r_L0_ruzgarlik",
+   "room_type": "other",
+   "room_label": "Rüzgarlık",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 299604,
+     "area_frac": 0.144485,
+     "box_px": [
+      0,
+      0,
+      428,
+      783
+     ],
+     "box_1000": [
+      0,
+      0,
+      223,
+      725
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/17:1,INSERT:7C9C9/12/17:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 8,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "bookshelf",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_ruzgarlik",
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 295803,
+     "area_frac": 0.142652,
+     "box_px": [
+      1164,
+      164,
+      1602,
+      910
+     ],
+     "box_1000": [
+      606,
+      151,
+      835,
+      843
+     ],
+     "touches_border": false,
+     "visibility": 1.0,
+     "in_frame": 1.0,
+     "unoccluded": 1.0,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Against the back wall for storage, matching the desk."
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 7,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "desk",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_ruzgarlik",
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 266983,
+     "area_frac": 0.128753,
+     "box_px": [
+      0,
+      618,
+      960,
+      1080
+     ],
+     "box_1000": [
+      0,
+      572,
+      500,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0012,
+     "in_frame": 0.0012,
+     "unoccluded": 0.9737,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Against the back wall for workspace, with clear access."
+      }
+     ],
+     "host_decor": [
+      "table_lamp"
+     ],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 188255,
+     "area_frac": 0.090787,
+     "box_px": [
+      428,
+      12,
+      692,
+      804
+     ],
+     "box_1000": [
+      222,
+      11,
+      361,
+      745
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/16:1,INSERT:7C9C9/12/16:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 1,
+     "wenart_id": "d_L0_001",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 5271,
+     "area_frac": 0.002542,
+     "box_px": [
+      1915,
+      0,
+      1920,
+      1058
+     ],
+     "box_1000": [
+      997,
+      0,
+      1000,
+      980
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/11/16:1,INSERT:7C9C9/11/16:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 5271
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8901,
+      "area_frac": 0.09185,
+      "centre_px": [
+       559.2,
+       424.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 188255
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6021,
+      "area_frac": 0.18289,
+      "centre_px": [
+       197.2,
+       379.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 299604
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.1055,
+      "area_frac": 0.1322,
+      "centre_px": [
+       472.2,
+       850.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 266983
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 1.0,
+      "area_frac": 0.14263,
+      "centre_px": [
+       1381.1,
+       536.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 295803
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ruzgarlik_3": {
+   "camera": "cam_r_L0_ruzgarlik_3",
+   "view_kind": "interior",
+   "room_id": "r_L0_ruzgarlik",
+   "room_type": "other",
+   "room_label": "Rüzgarlık",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ruzgarlik",
+      "r_L0_kat_holu"
+     ],
+     "own_room": true,
+     "pixels": 408232,
+     "area_frac": 0.196871,
+     "box_px": [
+      1542,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      803,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "INSERT:7C9C9/12/17:1,INSERT:7C9C9/12/17:0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 7,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "desk",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_ruzgarlik",
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 164545,
+     "area_frac": 0.079352,
+     "box_px": [
+      340,
+      245,
+      1095,
+      1013
+     ],
+     "box_1000": [
+      177,
+      226,
+      571,
+      938
+     ],
+     "touches_border": false,
+     "visibility": 0.3958,
+     "in_frame": 1.0,
+     "unoccluded": 0.3958,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Against the back wall for workspace, with clear access."
+      }
+     ],
+     "host_decor": [
+      "table_lamp"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 16,
+     "wenart_id": "dec_L0_002",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_ruzgarlik",
+     "room_ids": [
+      "r_L0_ruzgarlik"
+     ],
+     "own_room": true,
+     "pixels": 16733,
+     "area_frac": 0.00807,
+     "box_px": [
+      229,
+      559,
+      427,
+      898
+     ],
+     "box_1000": [
+      119,
+      517,
+      223,
+      832
+     ],
+     "touches_border": false,
+     "visibility": 0.1596,
+     "in_frame": 1.0,
+     "unoccluded": 0.1596,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large indoor plant in rattan pot adds greenery and warmth."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Large indoor plant adds greenery and warmth matching the natural style."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.4742,
+      "area_frac": 0.17441,
+      "centre_px": [
+       1752.5,
+       539.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 408232
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.9878,
+      "area_frac": 0.20045,
+      "centre_px": [
+       717.2,
+       739.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 164545
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yangin_merdiveni_1": {
+   "camera": "cam_r_L0_yangin_merdiveni_1",
+   "view_kind": "interior",
+   "room_id": "r_L0_yangin_merdiveni",
+   "room_type": "other",
+   "room_label": "Yangın Merdiveni",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 5,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 424659,
+     "area_frac": 0.204793,
+     "box_px": [
+      743,
+      444,
+      1838,
+      1045
+     ],
+     "box_1000": [
+      386,
+      411,
+      958,
+      968
+     ],
+     "touches_border": false,
+     "visibility": 0.915,
+     "in_frame": 1.0,
+     "unoccluded": 0.915,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "The object's footprint and size match a kitchen counter, and it is drawn along a wall."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "inferred",
+       "confidence": 0.55,
+       "rule": "furniture.infer",
+       "text": "kitchen_counter: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_island, sideboard, tv_unit, wardrobe)",
+       "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 341317,
+     "area_frac": 0.164601,
+     "box_px": [
+      18,
+      529,
+      1048,
+      1080
+     ],
+     "box_1000": [
+      9,
+      489,
+      546,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3592,
+     "in_frame": 0.4317,
+     "unoccluded": 0.832,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds a small dining table for light meals or coffee."
+      }
+     ],
+     "host_decor": [
+      "plant_small"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 21,
+     "wenart_id": "dec_L0_011",
+     "kind": "decor",
+     "type": "pendant_light",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 44333,
+     "area_frac": 0.02138,
+     "box_px": [
+      385,
+      0,
+      697,
+      183
+     ],
+     "box_1000": [
+      200,
+      0,
+      364,
+      170
+     ],
+     "touches_border": true,
+     "visibility": 0.1627,
+     "in_frame": 0.2984,
+     "unoccluded": 0.5452,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Warm brass pendant light complements dark bronze frames and enhances daylight ambiance."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Warm brass light enhances the natural, modern feel and complements dark bronze frames."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 19,
+     "wenart_id": "dec_L0_009",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 24243,
+     "area_frac": 0.011691,
+     "box_px": [
+      1462,
+      238,
+      1682,
+      495
+     ],
+     "box_1000": [
+      761,
+      220,
+      877,
+      459
+     ],
+     "touches_border": false,
+     "visibility": 0.1836,
+     "in_frame": 1.0,
+     "unoccluded": 0.1836,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large plant in corner adds greenery and anchors the space with natural wood pot."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Adds lush greenery and warmth with a large plant in a natural wood pot."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 20,
+     "wenart_id": "dec_L0_010",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 14868,
+     "area_frac": 0.00717,
+     "box_px": [
+      963,
+      262,
+      1109,
+      458
+     ],
+     "box_1000": [
+      501,
+      242,
+      578,
+      425
+     ],
+     "touches_border": false,
+     "visibility": 0.1924,
+     "in_frame": 1.0,
+     "unoccluded": 0.1924,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second large plant balances the room and enhances the natural, modern aesthetic."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Balances the space with another large plant, enhancing the natural, modern aesthetic."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 13449,
+     "area_frac": 0.006486,
+     "box_px": [
+      820,
+      529,
+      1036,
+      998
+     ],
+     "box_1000": [
+      427,
+      489,
+      540,
+      925
+     ],
+     "touches_border": false,
+     "visibility": 0.0961,
+     "in_frame": 1.0,
+     "unoccluded": 0.0961,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds a small chair for casual seating near the counter."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.9,
+      "area_frac": 0.22381,
+      "centre_px": [
+       1284.8,
+       739.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 424659
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.579,
+      "area_frac": 0.0675,
+      "centre_px": [
+       880.2,
+       765.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 13449
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.5586,
+      "area_frac": 0.19783,
+      "centre_px": [
+       532.4,
+       855.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 341317
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yangin_merdiveni_2": {
+   "camera": "cam_r_L0_yangin_merdiveni_2",
+   "view_kind": "interior",
+   "room_id": "r_L0_yangin_merdiveni",
+   "room_type": "other",
+   "room_label": "Yangın Merdiveni",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 5,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 170147,
+     "area_frac": 0.082054,
+     "box_px": [
+      896,
+      422,
+      1641,
+      778
+     ],
+     "box_1000": [
+      466,
+      390,
+      855,
+      721
+     ],
+     "touches_border": false,
+     "visibility": 0.8312,
+     "in_frame": 1.0,
+     "unoccluded": 0.8312,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "The object's footprint and size match a kitchen counter, and it is drawn along a wall."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "inferred",
+       "confidence": 0.55,
+       "rule": "furniture.infer",
+       "text": "kitchen_counter: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_island, sideboard, tv_unit, wardrobe)",
+       "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 98527,
+     "area_frac": 0.047515,
+     "box_px": [
+      601,
+      452,
+      1167,
+      1001
+     ],
+     "box_1000": [
+      313,
+      418,
+      608,
+      927
+     ],
+     "touches_border": false,
+     "visibility": 0.4571,
+     "in_frame": 1.0,
+     "unoccluded": 0.4571,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds a small dining table for light meals or coffee."
+      }
+     ],
+     "host_decor": [
+      "plant_small"
+     ],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 21,
+     "wenart_id": "dec_L0_011",
+     "kind": "decor",
+     "type": "pendant_light",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 13773,
+     "area_frac": 0.006642,
+     "box_px": [
+      808,
+      0,
+      969,
+      253
+     ],
+     "box_1000": [
+      420,
+      0,
+      505,
+      235
+     ],
+     "touches_border": true,
+     "visibility": 0.1878,
+     "in_frame": 0.7755,
+     "unoccluded": 0.2421,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Warm brass pendant light complements dark bronze frames and enhances daylight ambiance."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Warm brass light enhances the natural, modern feel and complements dark bronze frames."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 19,
+     "wenart_id": "dec_L0_009",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 12515,
+     "area_frac": 0.006035,
+     "box_px": [
+      1428,
+      267,
+      1587,
+      449
+     ],
+     "box_1000": [
+      743,
+      247,
+      827,
+      416
+     ],
+     "touches_border": false,
+     "visibility": 0.1863,
+     "in_frame": 1.0,
+     "unoccluded": 0.1863,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large plant in corner adds greenery and anchors the space with natural wood pot."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Adds lush greenery and warmth with a large plant in a natural wood pot."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 20,
+     "wenart_id": "dec_L0_010",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 9028,
+     "area_frac": 0.004354,
+     "box_px": [
+      1039,
+      280,
+      1155,
+      429
+     ],
+     "box_1000": [
+      541,
+      259,
+      602,
+      398
+     ],
+     "touches_border": false,
+     "visibility": 0.1929,
+     "in_frame": 1.0,
+     "unoccluded": 0.1929,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second large plant balances the room and enhances the natural, modern aesthetic."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Balances the space with another large plant, enhancing the natural, modern aesthetic."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 5018,
+     "area_frac": 0.00242,
+     "box_px": [
+      948,
+      472,
+      1117,
+      759
+     ],
+     "box_1000": [
+      493,
+      437,
+      582,
+      703
+     ],
+     "touches_border": false,
+     "visibility": 0.0898,
+     "in_frame": 1.0,
+     "unoccluded": 0.0898,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds a small chair for casual seating near the counter."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.8405,
+      "area_frac": 0.09872,
+      "centre_px": [
+       1265.8,
+       596.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 170147
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6014,
+      "area_frac": 0.02694,
+      "centre_px": [
+       1032.2,
+       614.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 5018
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.9621,
+      "area_frac": 0.10395,
+      "centre_px": [
+       885.3,
+       762.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 98527
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yangin_merdiveni_3": {
+   "camera": "cam_r_L0_yangin_merdiveni_3",
+   "view_kind": "interior",
+   "room_id": "r_L0_yangin_merdiveni",
+   "room_type": "other",
+   "room_label": "Yangın Merdiveni",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 15,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 397294,
+     "area_frac": 0.191596,
+     "box_px": [
+      0,
+      621,
+      1472,
+      1080
+     ],
+     "box_1000": [
+      0,
+      575,
+      767,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.092,
+     "in_frame": 0.092,
+     "unoccluded": 1.0,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds a small dining table for light meals or coffee."
+      }
+     ],
+     "host_decor": [
+      "plant_small"
+     ],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 5,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 325890,
+     "area_frac": 0.157161,
+     "box_px": [
+      495,
+      467,
+      1595,
+      877
+     ],
+     "box_1000": [
+      257,
+      432,
+      831,
+      813
+     ],
+     "touches_border": false,
+     "visibility": 0.727,
+     "in_frame": 1.0,
+     "unoccluded": 0.727,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "The object's footprint and size match a kitchen counter, and it is drawn along a wall."
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "inferred",
+       "confidence": 0.55,
+       "rule": "furniture.infer",
+       "text": "kitchen_counter: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_island, sideboard, tv_unit, wardrobe)",
+       "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 21,
+     "wenart_id": "dec_L0_011",
+     "kind": "decor",
+     "type": "pendant_light",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 27560,
+     "area_frac": 0.013291,
+     "box_px": [
+      541,
+      0,
+      963,
+      102
+     ],
+     "box_1000": [
+      281,
+      0,
+      502,
+      95
+     ],
+     "touches_border": true,
+     "visibility": 0.0426,
+     "in_frame": 0.0931,
+     "unoccluded": 0.4574,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Warm brass pendant light complements dark bronze frames and enhances daylight ambiance."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Warm brass light enhances the natural, modern feel and complements dark bronze frames."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 20,
+     "wenart_id": "dec_L0_010",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 18561,
+     "area_frac": 0.008951,
+     "box_px": [
+      680,
+      252,
+      843,
+      467
+     ],
+     "box_1000": [
+      354,
+      233,
+      440,
+      433
+     ],
+     "touches_border": false,
+     "visibility": 0.213,
+     "in_frame": 1.0,
+     "unoccluded": 0.213,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second large plant balances the room and enhances the natural, modern aesthetic."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Balances the space with another large plant, enhancing the natural, modern aesthetic."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 19,
+     "wenart_id": "dec_L0_009",
+     "kind": "decor",
+     "type": "plant_large",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 15167,
+     "area_frac": 0.007314,
+     "box_px": [
+      1184,
+      257,
+      1356,
+      467
+     ],
+     "box_1000": [
+      616,
+      237,
+      707,
+      433
+     ],
+     "touches_border": false,
+     "visibility": 0.1605,
+     "in_frame": 1.0,
+     "unoccluded": 0.1605,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Large plant in corner adds greenery and anchors the space with natural wood pot."
+      },
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.9,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Adds lush greenery and warmth with a large plant in a natural wood pot."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_yangin_merdiveni",
+     "room_ids": [
+      "r_L0_yangin_merdiveni"
+     ],
+     "own_room": true,
+     "pixels": 12932,
+     "area_frac": 0.006236,
+     "box_px": [
+      744,
+      562,
+      980,
+      769
+     ],
+     "box_1000": [
+      387,
+      520,
+      511,
+      713
+     ],
+     "touches_border": false,
+     "visibility": 0.0695,
+     "in_frame": 0.8831,
+     "unoccluded": 0.0787,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds a small chair for casual seating near the counter."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.8176,
+      "area_frac": 0.21617,
+      "centre_px": [
+       1045.1,
+       668.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 325890
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4819,
+      "area_frac": 0.07927,
+      "centre_px": [
+       832.0,
+       661.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12932
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.3279,
+      "area_frac": 0.18099,
+      "centre_px": [
+       732.0,
+       922.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 397294
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  }
+ },
+ "drawn_check": {
+  "kind": "drawn_check",
+  "reference": "source building.json",
+  "mode": "complete",
+  "tolerance_m": 0.05,
+  "tolerance_deg": 1.0,
+  "pieces": [
+   {
+    "id": "f_L0_001",
+    "room_id": "r_L0_yangin_merdiveni",
+    "type": "kitchen_counter",
+    "drawn_type": "kitchen_counter",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "unverified",
+    "size": [
+     2.6,
+     0.55
+    ],
+    "drawn_size": [
+     2.6,
+     0.55
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_002",
+    "room_id": "r_L0_kat_merdiveni",
+    "type": "kitchen_island",
+    "drawn_type": "kitchen_island",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "unverified",
+    "size": [
+     2.6,
+     0.55
+    ],
+    "drawn_size": [
+     2.6,
+     0.55
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_003",
+    "room_id": "r_L0_kat_holu",
+    "type": "unknown",
+    "drawn_type": "unknown",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "unverified",
+    "size": [
+     0.901,
+     0.341
+    ],
+    "drawn_size": [
+     0.901,
+     0.341
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   }
+  ],
+  "checked": 3,
+  "ok": 3,
+  "failed": [],
+  "modified": [],
+  "proposals": [],
+  "violations": [],
+  "notes": []
+ },
+ "elevation_check": {
+  "kind": "elevation_check",
+  "variant": "base",
+  "source": "sheets.json exterior.openings_seen",
+  "north": 0.0,
+  "north_source": "assumed (+Y is north: no north arrow)",
+  "facades": [],
+  "roof": {
+   "built": null,
+   "drawn": null,
+   "drawn_source": {},
+   "result": "not_checked",
+   "notes": [
+    "no roof object in the scene manifest (the build made a flat roof, or no scene)"
+   ],
+   "deltas": {}
+  },
+  "summary": {
+   "facades": 0,
+   "ok": 0,
+   "mismatch": 0,
+   "not_checked": 0,
+   "roof": "not_checked"
+  },
+  "warnings": []
+ },
+ "warnings": []
+}

@@ -1,0 +1,203 @@
+{
+ "schema_version": "0.1",
+ "project": "real03",
+ "views": {
+  "cam_r_L0_guvenlik_holu_1": {
+   "plan": "cam_r_L0_guvenlik_holu_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    500,
+    982
+   ],
+   "scale": 6.77966,
+   "bytes": 59147
+  },
+  "cam_r_L0_guvenlik_holu_2": {
+   "plan": "cam_r_L0_guvenlik_holu_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    500,
+    982
+   ],
+   "scale": 6.77966,
+   "bytes": 54947
+  },
+  "cam_r_L0_kat_holu_1": {
+   "plan": "cam_r_L0_kat_holu_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    392,
+    982
+   ],
+   "scale": 1.0,
+   "bytes": 40334
+  },
+  "cam_r_L0_kat_holu_2": {
+   "plan": "cam_r_L0_kat_holu_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    392,
+    982
+   ],
+   "scale": 1.0,
+   "bytes": 40569
+  },
+  "cam_r_L0_kat_holu_3": {
+   "plan": "cam_r_L0_kat_holu_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    392,
+    982
+   ],
+   "scale": 1.0,
+   "bytes": 42026
+  },
+  "cam_r_L0_kat_merdiveni_1": {
+   "plan": "cam_r_L0_kat_merdiveni_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1031,
+    801
+   ],
+   "scale": 3.82775,
+   "bytes": 54998
+  },
+  "cam_r_L0_kat_merdiveni_2": {
+   "plan": "cam_r_L0_kat_merdiveni_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1031,
+    801
+   ],
+   "scale": 3.82775,
+   "bytes": 54530
+  },
+  "cam_r_L0_kat_merdiveni_3": {
+   "plan": "cam_r_L0_kat_merdiveni_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1031,
+    801
+   ],
+   "scale": 3.82775,
+   "bytes": 54975
+  },
+  "cam_r_L0_ruzgarlik_1": {
+   "plan": "cam_r_L0_ruzgarlik_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    704,
+    1166
+   ],
+   "scale": 5.7971,
+   "bytes": 77612
+  },
+  "cam_r_L0_ruzgarlik_2": {
+   "plan": "cam_r_L0_ruzgarlik_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    704,
+    1166
+   ],
+   "scale": 5.7971,
+   "bytes": 79409
+  },
+  "cam_r_L0_ruzgarlik_3": {
+   "plan": "cam_r_L0_ruzgarlik_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    704,
+    1166
+   ],
+   "scale": 5.7971,
+   "bytes": 75253
+  },
+  "cam_r_L0_yangin_merdiveni_1": {
+   "plan": "cam_r_L0_yangin_merdiveni_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    500,
+    801
+   ],
+   "scale": 3.82775,
+   "bytes": 67189
+  },
+  "cam_r_L0_yangin_merdiveni_2": {
+   "plan": "cam_r_L0_yangin_merdiveni_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    500,
+    801
+   ],
+   "scale": 3.82775,
+   "bytes": 67338
+  },
+  "cam_r_L0_yangin_merdiveni_3": {
+   "plan": "cam_r_L0_yangin_merdiveni_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    500,
+    801
+   ],
+   "scale": 3.82775,
+   "bytes": 66466
+  }
+ },
+ "warnings": []
+}

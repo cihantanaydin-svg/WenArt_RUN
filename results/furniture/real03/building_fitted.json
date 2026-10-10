@@ -1,0 +1,2194 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "real03",
+  "source_folder": "projects/real03",
+  "created_utc": "2026-10-10T10:52:18Z",
+  "pipeline_commit": "87831c156",
+  "brief": {
+   "style": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
+   "style_photos": [
+    "living_reference.jpg"
+   ]
+  },
+  "unit_system": "metric"
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_tekkat_dwg",
+   "file": "tekkat.dwg",
+   "format": "dwg",
+   "converter": "libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 3029 fixes",
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": null,
+     "classifier": "generic_labels",
+     "scale": {
+      "metres_per_unit": 0.01,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS"
+      }
+     },
+     "transform_to_building": [
+      0.01,
+      0.0,
+      -73.802,
+      0.0,
+      0.01,
+      -14.764
+     ],
+     "confidence": 0.6,
+     "evidence": [
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "D BLOK_ZK$0$MYD - TEXT",
+       "entity": "INSERT:7C9C9/26/attrib1",
+       "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+       "text": "KAT HOLÜ"
+      },
+      {
+       "file": "tekkat.dwg",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "D BLOK_ZK$0$MYD - TEXT",
+       "entity": "INSERT:7C9C9/57/attrib1",
+       "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+       "text": "GÜVENLİK HOLÜ"
+      }
+     ],
+     "debug_image": "debug/tekkat_dwg_p1.png"
+    }
+   ],
+   "conversion": {
+    "libredwg_version": "0.14 d9468ae",
+    "acadver": "AC1027",
+    "release": "R2013",
+    "entity_counts": {
+     "INSERT": 2
+    },
+    "audit": {
+     "errors": 0,
+     "fixes": 3029,
+     "messages": []
+    }
+   },
+   "unit_system": "metric",
+   "source_kind": "dxf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/26/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "KAT HOLÜ"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/57/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "GÜVENLİK HOLÜ"
+    }
+   ],
+   "label_source": "assumed"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    10.0,
+    0.125
+   ],
+   "end": [
+    13.1591,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/13",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'RÜZGARLIK'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    9.8991,
+    0.4201
+   ],
+   "end": [
+    10.25,
+    0.4201
+   ],
+   "thickness": 0.26,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/13",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'RÜZGARLIK'); thickness 0.260 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    9.8991,
+    3.325
+   ],
+   "end": [
+    13.1591,
+    3.325
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25,INSERT:7C9C9/13",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (inner wall between two room outlines: 'KAT HOLÜ', 'RÜZGARLIK'); thickness 0.150 m = the gap between the outlines; the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    9.8991,
+    5.375
+   ],
+   "end": [
+    9.95,
+    5.375
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    5.975
+   ],
+   "end": [
+    10.2,
+    5.975
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    13.15,
+    5.975
+   ],
+   "end": [
+    26.2,
+    5.975
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    7.625
+   ],
+   "end": [
+    3.3491,
+    7.625
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    3.3491,
+    7.575
+   ],
+   "end": [
+    6.2091,
+    7.575
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/59,INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (inner wall between two room outlines: 'GÜVENLİK HOLÜ', 'KAT HOLÜ'); thickness 0.150 m = the gap between the outlines; the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    6.2091,
+    7.625
+   ],
+   "end": [
+    10.7491,
+    7.625
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/59,INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_010",
+   "level_id": "L0",
+   "start": [
+    10.7491,
+    7.7
+   ],
+   "end": [
+    10.9991,
+    7.7
+   ],
+   "thickness": 0.4,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.400 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_011",
+   "level_id": "L0",
+   "start": [
+    15.2091,
+    7.7
+   ],
+   "end": [
+    15.4591,
+    7.7
+   ],
+   "thickness": 0.4,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.400 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_012",
+   "level_id": "L0",
+   "start": [
+    15.4591,
+    7.625
+   ],
+   "end": [
+    21.35,
+    7.625
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_013",
+   "level_id": "L0",
+   "start": [
+    22.85,
+    7.625
+   ],
+   "end": [
+    26.2,
+    7.625
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_014",
+   "level_id": "L0",
+   "start": [
+    10.9991,
+    7.775
+   ],
+   "end": [
+    15.2091,
+    7.775
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_015",
+   "level_id": "L0",
+   "start": [
+    19.9991,
+    8.975
+   ],
+   "end": [
+    21.3491,
+    8.975
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/60,INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_016",
+   "level_id": "L0",
+   "start": [
+    3.5991,
+    9.025
+   ],
+   "end": [
+    6.2091,
+    9.025
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/58,INSERT:7C9C9/59",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (inner wall between two room outlines: 'YANGIN MERDİVENİ', 'GÜVENLİK HOLÜ'); thickness 0.150 m = the gap between the outlines; the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_017",
+   "level_id": "L0",
+   "start": [
+    21.3491,
+    9.025
+   ],
+   "end": [
+    22.6091,
+    9.025
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/60,INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (inner wall between two room outlines: 'KAT MERDİVENİ', 'KAT HOLÜ'); thickness 0.150 m = the gap between the outlines; the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_018",
+   "level_id": "L0",
+   "start": [
+    3.5991,
+    14.675
+   ],
+   "end": [
+    6.2091,
+    14.675
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/58",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'YANGIN MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_019",
+   "level_id": "L0",
+   "start": [
+    19.9991,
+    14.675
+   ],
+   "end": [
+    22.6091,
+    14.675
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/60",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_020",
+   "level_id": "L0",
+   "start": [
+    13.275,
+    0.0
+   ],
+   "end": [
+    13.275,
+    5.85
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25,INSERT:7C9C9/13",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'RÜZGARLIK'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_021",
+   "level_id": "L0",
+   "start": [
+    10.125,
+    0.2402
+   ],
+   "end": [
+    10.125,
+    0.2902
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/13",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'RÜZGARLIK'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_022",
+   "level_id": "L0",
+   "start": [
+    9.775,
+    0.3
+   ],
+   "end": [
+    9.775,
+    5.5
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25,INSERT:7C9C9/13",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'RÜZGARLIK'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_023",
+   "level_id": "L0",
+   "start": [
+    10.075,
+    5.25
+   ],
+   "end": [
+    10.075,
+    5.85
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_024",
+   "level_id": "L0",
+   "start": [
+    0.125,
+    6.0902
+   ],
+   "end": [
+    0.125,
+    7.5002
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_025",
+   "level_id": "L0",
+   "start": [
+    26.075,
+    6.0902
+   ],
+   "end": [
+    26.075,
+    7.5002
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_026",
+   "level_id": "L0",
+   "start": [
+    22.725,
+    7.5
+   ],
+   "end": [
+    22.725,
+    14.8
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/60,INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_027",
+   "level_id": "L0",
+   "start": [
+    3.475,
+    7.65
+   ],
+   "end": [
+    3.475,
+    14.8
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/58,INSERT:7C9C9/59",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'YANGIN MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_028",
+   "level_id": "L0",
+   "start": [
+    6.325,
+    7.75
+   ],
+   "end": [
+    6.325,
+    14.8
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/58,INSERT:7C9C9/59",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'YANGIN MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_029",
+   "level_id": "L0",
+   "start": [
+    21.225,
+    7.75
+   ],
+   "end": [
+    21.225,
+    8.85
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/25",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT HOLÜ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  },
+  {
+   "id": "w_L0_030",
+   "level_id": "L0",
+   "start": [
+    19.875,
+    8.85
+   ],
+   "end": [
+    19.875,
+    14.8
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.6,
+     "layer": "D BLOK_ZK$0$MYD - ALAN-NET",
+     "entity": "INSERT:7C9C9/60",
+     "rule": "room_outlines",
+     "note": "inferred from the labelled room outlines (outer wall along a room outline: 'KAT MERDİVENİ'); thickness 0.250 m (assumed); the drawn walls do not close"
+    }
+   ],
+   "inferred": true
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    12.0991,
+    0.125
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "INSERT:7C9C9/11/16:1,INSERT:7C9C9/11/16:0"
+    }
+   ],
+   "assumed": [
+    "height"
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    11.1991,
+    0.125
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "INSERT:7C9C9/11/17:1,INSERT:7C9C9/11/17:0"
+    }
+   ],
+   "assumed": [
+    "height"
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    12.0991,
+    3.325
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_ruzgarlik",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "INSERT:7C9C9/12/16:1,INSERT:7C9C9/12/16:0"
+    }
+   ],
+   "assumed": [
+    "height"
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    11.1991,
+    3.325
+   ],
+   "width": 0.9,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_ruzgarlik",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "INSERT:7C9C9/12/17:1,INSERT:7C9C9/12/17:0"
+    }
+   ],
+   "assumed": [
+    "height"
+   ],
+   "operation": "swing",
+   "operation_source": "geometry"
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_ruzgarlik",
+   "level_id": "L0",
+   "label": "Rüzgarlık",
+   "label_raw": "RÜZGARLIK",
+   "room_type": "other",
+   "polygon": [
+    [
+     9.9,
+     0.5501
+    ],
+    [
+     10.25,
+     0.5501
+    ],
+    [
+     10.25,
+     0.25
+    ],
+    [
+     13.15,
+     0.25
+    ],
+    [
+     13.15,
+     3.25
+    ],
+    [
+     9.9,
+     3.25
+    ]
+   ],
+   "area_computed": 9.645,
+   "area_label": 9.64,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/16/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "RÜZGARLIK"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT-M2",
+     "entity": "INSERT:7C9C9/16/attrib2",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "9.64 m2"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_003,w_L0_020,w_L0_021,w_L0_022"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_kat_holu",
+   "level_id": "L0",
+   "label": "Kat Holü",
+   "label_raw": "KAT HOLÜ",
+   "room_type": "hall",
+   "polygon": [
+    [
+     0.25,
+     6.1
+    ],
+    [
+     10.2,
+     6.1
+    ],
+    [
+     10.2,
+     5.25
+    ],
+    [
+     9.9,
+     5.25
+    ],
+    [
+     9.9,
+     3.4
+    ],
+    [
+     13.15,
+     3.4
+    ],
+    [
+     13.15,
+     6.1
+    ],
+    [
+     25.95,
+     6.1
+    ],
+    [
+     25.95,
+     7.5
+    ],
+    [
+     22.6,
+     7.5
+    ],
+    [
+     22.6,
+     8.95
+    ],
+    [
+     21.3491,
+     8.95
+    ],
+    [
+     21.3491,
+     8.85
+    ],
+    [
+     21.35,
+     8.85
+    ],
+    [
+     21.35,
+     7.5
+    ],
+    [
+     15.2091,
+     7.5
+    ],
+    [
+     15.2091,
+     7.65
+    ],
+    [
+     10.9991,
+     7.65
+    ],
+    [
+     10.9991,
+     7.5
+    ],
+    [
+     0.25,
+     7.5
+    ]
+   ],
+   "area_computed": 46.944,
+   "area_label": 46.94,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/26/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "KAT HOLÜ"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT-M2",
+     "entity": "INSERT:7C9C9/26/attrib2",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "46.94 m2"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_005,w_L0_006,w_L0_007,w_L0_008,w_L0_009,w_L0_010,w_L0_011,w_L0_012,w_L0_013,w_L0_014,w_L0_015,w_L0_017,w_L0_020,w_L0_022,w_L0_023,w_L0_024,w_L0_025,w_L0_026,w_L0_029"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_guvenlik_holu",
+   "level_id": "L0",
+   "label": "Güvenlik Holü",
+   "label_raw": "GÜVENLİK HOLÜ",
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.6,
+     7.65
+    ],
+    [
+     6.2091,
+     7.65
+    ],
+    [
+     6.2091,
+     7.75
+    ],
+    [
+     6.2,
+     7.75
+    ],
+    [
+     6.2,
+     8.95
+    ],
+    [
+     3.6,
+     8.95
+    ]
+   ],
+   "area_computed": 3.381,
+   "area_label": 3.38,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/57/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "GÜVENLİK HOLÜ"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT-M2",
+     "entity": "INSERT:7C9C9/57/attrib2",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "3.38 m2"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_008,w_L0_009,w_L0_016,w_L0_027,w_L0_028"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_yangin_merdiveni",
+   "level_id": "L0",
+   "label": "Yangın Merdiveni",
+   "label_raw": "YANGIN MERDİVENİ",
+   "room_type": "other",
+   "polygon": [
+    [
+     3.6,
+     9.1
+    ],
+    [
+     6.2,
+     9.1
+    ],
+    [
+     6.2,
+     14.55
+    ],
+    [
+     3.6,
+     14.55
+    ]
+   ],
+   "area_computed": 14.17,
+   "area_label": 14.17,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/56/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "YANGIN MERDİVENİ"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT-M2",
+     "entity": "INSERT:7C9C9/56/attrib2",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "14.17 m2"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_016,w_L0_018,w_L0_027,w_L0_028"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_kat_merdiveni",
+   "level_id": "L0",
+   "label": "Kat Merdiveni",
+   "label_raw": "KAT MERDİVENİ",
+   "room_type": "other",
+   "polygon": [
+    [
+     20.0,
+     9.1
+    ],
+    [
+     22.6,
+     9.1
+    ],
+    [
+     22.6,
+     14.55
+    ],
+    [
+     20.0,
+     14.55
+    ]
+   ],
+   "area_computed": 14.17,
+   "area_label": 14.17,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT",
+     "entity": "INSERT:7C9C9/61/attrib1",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "KAT MERDİVENİ"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "D BLOK_ZK$0$MYD - TEXT-M2",
+     "entity": "INSERT:7C9C9/61/attrib2",
+     "block": "D BLOK_ZK/D BLOK_ZK$0$TAG_MAHAL_01",
+     "text": "14.17 m2"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_015,w_L0_017,w_L0_019,w_L0_026,w_L0_030"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_yangin_merdiveni",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.8991,
+     10.5577
+    ],
+    "size": [
+     2.6,
+     0.55
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.6,
+     0.55,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "ai",
+     "confidence": 0.8,
+     "entity": "recognition:sym_L0_001",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture."
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "ai",
+     "confidence": 0.9,
+     "entity": "recognition:sym_L0_001",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "kitchen_counter",
+     "front": "left",
+     "reason": "The object's footprint and size match a kitchen counter, and it is drawn along a wall."
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.55,
+     "rule": "furniture.infer",
+     "text": "kitchen_counter: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_island, sideboard, tv_unit, wardrobe)",
+     "entity": "INSERT:7C9C9/27,INSERT:7C9C9/28,INSERT:7C9C9/29,INSERT:7C9C9/30,INSERT:7C9C9/31,INSERT:7C9C9/32,INSERT:7C9C9/33,INSERT:7C9C9/34,INSERT:7C9C9/35,INSERT:7C9C9/36"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object's footprint (2.60 x 0.55 m) doesn't match standard furniture types, and it's located in a fire escape, suggesting it's not furniture."
+    },
+    {
+     "type": "kitchen_counter",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "The object's footprint and size match a kitchen counter, and it is drawn along a wall."
+    }
+   ],
+   "build": true,
+   "inferred": true,
+   "inferred_reason": "kitchen_counter: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_island, sideboard, tv_unit, wardrobe)"
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_kat_merdiveni",
+   "type": "kitchen_island",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     21.2991,
+     10.5577
+    ],
+    "size": [
+     2.6,
+     0.55
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_island",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.6,
+     0.55,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_island is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "ai",
+     "confidence": 0.8,
+     "entity": "recognition:sym_L0_002",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture."
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "ai",
+     "confidence": 0.8,
+     "entity": "recognition:sym_L0_002",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "kitchen_island",
+     "front": "none",
+     "reason": "The object is a long, free-standing counter, matching the size and shape of a kitchen island."
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "inferred",
+     "confidence": 0.55,
+     "rule": "furniture.infer",
+     "text": "kitchen_island: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_counter, sideboard, tv_unit, wardrobe)",
+     "entity": "INSERT:7C9C9/37,INSERT:7C9C9/38,INSERT:7C9C9/39,INSERT:7C9C9/40,INSERT:7C9C9/41,INSERT:7C9C9/42,INSERT:7C9C9/43,INSERT:7C9C9/44,INSERT:7C9C9/45,INSERT:7C9C9/46"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object's footprint (2.60 x 0.55 m) is too long and narrow for common furniture types, and it's in a stairwell, making it likely not furniture."
+    },
+    {
+     "type": "kitchen_island",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object is a long, free-standing counter, matching the size and shape of a kitchen island."
+    }
+   ],
+   "build": true,
+   "inferred": true,
+   "inferred_reason": "kitchen_island: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_counter, sideboard, tv_unit, wardrobe)"
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_kat_holu",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     11.7103,
+     4.9351
+    ],
+    "size": [
+     0.9008,
+     0.3408
+    ],
+    "rotation_deg": 166.866
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.9008,
+     0.3408,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "tekkat.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:7C9C9/48/0,INSERT:7C9C9/48/1,INSERT:7C9C9/48/2,INSERT:7C9C9/48/3,INSERT:7C9C9/48/4,INSERT:7C9C9/48/5"
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "ai",
+     "confidence": 0.85,
+     "entity": "recognition:sym_L0_003",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object is a circle with crosshairs, resembling a target or fixture, not matching any standard furniture footprint."
+    },
+    {
+     "file": "tekkat.dwg",
+     "method": "ai",
+     "confidence": 0.9,
+     "entity": "recognition:sym_L0_003",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "console_table",
+     "front": "right",
+     "reason": "The object's footprint matches the size and shape of a console table, and its orientation suggests the front is to the right."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.85,
+     "front": "none",
+     "reason": "The object is a circle with crosshairs, resembling a target or fixture, not matching any standard furniture footprint."
+    },
+    {
+     "type": "console_table",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object's footprint matches the size and shape of a console table, and its orientation suggests the front is to the right."
+    }
+   ],
+   "build": true
+  }
+ ],
+ "conflicts": [
+  {
+   "id": "c_001",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_001"
+   ],
+   "description": "f_L0_001: sym_L0_001: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) kitchen_counter",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_002",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_002"
+   ],
+   "description": "f_L0_002: sym_L0_002: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) kitchen_island",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_003",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_003"
+   ],
+   "description": "f_L0_003: sym_L0_003: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) console_table",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  }
+ ],
+ "unverified": [
+  "w_L0_001",
+  "w_L0_002",
+  "w_L0_003",
+  "w_L0_004",
+  "w_L0_005",
+  "w_L0_006",
+  "w_L0_007",
+  "w_L0_008",
+  "w_L0_009",
+  "w_L0_010",
+  "w_L0_011",
+  "w_L0_012",
+  "w_L0_013",
+  "w_L0_014",
+  "w_L0_015",
+  "w_L0_016",
+  "w_L0_017",
+  "w_L0_018",
+  "w_L0_019",
+  "w_L0_020",
+  "w_L0_021",
+  "w_L0_022",
+  "w_L0_023",
+  "w_L0_024",
+  "w_L0_025",
+  "w_L0_026",
+  "w_L0_027",
+  "w_L0_028",
+  "w_L0_029",
+  "w_L0_030",
+  "f_L0_001",
+  "f_L0_002",
+  "f_L0_003"
+ ],
+ "warnings": [
+  "level title missing: assumed L0 Ground floor",
+  "tekkat.dwg: 30 entities on layers that are off or frozen (or invisible) were not read",
+  "tekkat.dwg: entity types not read: DIMENSION in a block x204",
+  "tekkat.dwg: the drawn walls do not close (no building walls): walls inferred from room outlines: 30 (108.3 m; outer thickness 0.25 m, assumed); evidence method inferred, status unverified",
+  "tekkat.dwg: room 'YANGIN MERDİVENİ' (walls inferred from its outline) has no door in the documents; none invented (the agent may add one)",
+  "tekkat.dwg: room 'KAT MERDİVENİ' (walls inferred from its outline) has no door in the documents; none invented (the agent may add one)",
+  "tekkat.dwg: room 'GÜVENLİK HOLÜ' (walls inferred from its outline) has no door in the documents; none invented (the agent may add one)",
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+  "f_L0_001: inferred kitchen_counter: kitchen_counter: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_island, sideboard, tv_unit, wardrobe)",
+  "f_L0_002: inferred kitchen_island: kitchen_island: named by an AI pass and the only named type that fits the size (2.60 x 0.55 m), the other room and the position (others fitting: kitchen_counter, sideboard, tv_unit, wardrobe)"
+ ],
+ "site": {
+  "boundary_walls": [],
+  "areas": [],
+  "decor": [
+   {
+    "id": "sd_L0_001",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     4.3019,
+     -2.9881
+    ],
+    "size": [
+     3.255,
+     0.9999
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/0/0,INSERT:7C9C9/24/0/2"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_002",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     4.3091,
+     -1.9863
+    ],
+    "size": [
+     0.4172,
+     0.8575
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/0/3"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_003",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -7.9189,
+     2.2258
+    ],
+    "size": [
+     3.255,
+     0.9999
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/1/0,INSERT:7C9C9/24/1/1"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_004",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     33.2533,
+     2.2258
+    ],
+    "size": [
+     0.9999,
+     3.255
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/1/0,INSERT:7C9C9/24/1/2"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_005",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -6.917,
+     2.2331
+    ],
+    "size": [
+     0.8575,
+     0.4172
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/1/4"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_006",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     32.2514,
+     2.2331
+    ],
+    "size": [
+     0.8575,
+     0.4172
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/1/3"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_007",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     20.9738,
+     3.8688
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/55/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_008",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     5.2188,
+     4.055
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/47/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_009",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     26.9061,
+     4.18
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/54/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_010",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -2.0418,
+     5.3381
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/49/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_011",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -2.206,
+     8.5852
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/50/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_012",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     7.8025,
+     8.9432
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/51/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_013",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     18.3501,
+     9.0374
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/52/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_014",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     25.6202,
+     9.2109
+    ],
+    "size": [
+     0.4908,
+     0.4908
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/53/0"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_015",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     4.3091,
+     16.1209
+    ],
+    "size": [
+     0.4172,
+     0.8575
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/0/4"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_016",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     4.3019,
+     17.1228
+    ],
+    "size": [
+     0.9999,
+     3.255
+    ],
+    "evidence": [
+     {
+      "file": "tekkat.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "INSERT:7C9C9/24/0/0,INSERT:7C9C9/24/0/1"
+     }
+    ]
+   }
+  ],
+  "openings": []
+ }
+}

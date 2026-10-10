@@ -1,0 +1,1280 @@
+{
+ "project": "real03",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L0_ruzgarlik",
+   "label": "Rüzgarlık",
+   "room_type": "other",
+   "slots": [
+    {
+     "id": "f_L0_004.back_left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "plant_small",
+      "book_set",
+      "vase",
+      "books"
+     ],
+     "host_id": "f_L0_004",
+     "host_type": "desk",
+     "note": "back left part",
+     "center": [
+      10.126,
+      1.33
+     ],
+     "max_size": [
+      0.37,
+      0.32,
+      1.85
+     ]
+    },
+    {
+     "id": "f_L0_004.back_right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "plant_small",
+      "book_set",
+      "vase",
+      "books"
+     ],
+     "host_id": "f_L0_004",
+     "host_type": "desk",
+     "note": "back right part",
+     "center": [
+      10.126,
+      2.27
+     ],
+     "max_size": [
+      0.37,
+      0.32,
+      1.85
+     ]
+    },
+    {
+     "id": "f_L0_004.wall",
+     "kind": "wall",
+     "types": [
+      "wall_art",
+      "clock"
+     ],
+     "host_id": "f_L0_004",
+     "host_type": "desk",
+     "note": ""
+    },
+    {
+     "id": "f_L0_005.shelf",
+     "kind": "shelf",
+     "types": [
+      "book_set"
+     ],
+     "host_id": "f_L0_005",
+     "host_type": "bookshelf",
+     "note": ""
+    },
+    {
+     "id": "r_L0_ruzgarlik.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 10.15, 0.80",
+     "center": [
+      10.15,
+      0.8
+     ]
+    },
+    {
+     "id": "r_L0_ruzgarlik.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 10.50, 0.50",
+     "center": [
+      10.5,
+      0.5
+     ]
+    },
+    {
+     "id": "ceiling:centre_r_L0_ruzgarlik",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 ruzgarlik"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_004.back_left",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm metallic glow complements natural wood and greige walls."
+      },
+      {
+       "slot": "r_L0_ruzgarlik.corner1",
+       "type": "plant",
+       "colour": "natural wood",
+       "reason": "Large indoor plant in rattan pot adds greenery and warmth."
+      },
+      {
+       "slot": "r_L0_ruzgarlik.corner2",
+       "type": "plant",
+       "colour": "natural wood",
+       "reason": "Second plant balances the space and enhances natural aesthetic."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_ruzgarlik",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Modern pendant with warm brass finish adds focal point and light."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.63
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "r_L0_ruzgarlik.corner1",
+       "type": "plant",
+       "colour": "natural wood",
+       "reason": "Large indoor plant adds greenery and warmth matching the natural style."
+      },
+      {
+       "slot": "r_L0_ruzgarlik.corner2",
+       "type": "plant",
+       "colour": "natural wood",
+       "reason": "Second plant balances the space and enhances the natural, lush feel."
+      },
+      {
+       "slot": "f_L0_004.back_left",
+       "type": "table_lamp",
+       "colour": "brass",
+       "reason": "Warm brass lamp complements dark bronze frames and adds soft lighting."
+      },
+      {
+       "slot": "f_L0_004.wall",
+       "type": "wall_art",
+       "colour": "cream",
+       "reason": "Cream-toned art harmonizes with greige walls and maintains a calm, modern aesthetic."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.659
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_004.back_left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "colour_agreed": true,
+     "reasons": [
+      "Warm metallic glow complements natural wood and greige walls.",
+      "Warm brass lamp complements dark bronze frames and adds soft lighting."
+     ]
+    },
+    {
+     "slot": "r_L0_ruzgarlik.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Large indoor plant in rattan pot adds greenery and warmth.",
+      "Large indoor plant adds greenery and warmth matching the natural style."
+     ]
+    },
+    {
+     "slot": "r_L0_ruzgarlik.corner2",
+     "type": "plant",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Second plant balances the space and enhances natural aesthetic.",
+      "Second plant balances the space and enhances the natural, lush feel."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "ceiling:centre_r_L0_ruzgarlik",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Modern pendant with warm brass finish adds focal point and light.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L0_004.wall",
+     "type": "wall_art",
+     "colour": "cream",
+     "reason": "Cream-toned art harmonizes with greige walls and maintains a calm, modern aesthetic.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [
+    {
+     "slot": "r_L0_ruzgarlik.corner2",
+     "type": "plant",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Second plant balances the space and enhances natural aesthetic.",
+      "Second plant balances the space and enhances the natural, lush feel."
+     ],
+     "why": "the corner is no longer free next to the other plant"
+    }
+   ],
+   "items": [
+    {
+     "id": "dec_L0_001",
+     "type": "table_lamp",
+     "method": "ai",
+     "slot": "f_L0_004.back_left"
+    },
+    {
+     "id": "dec_L0_002",
+     "type": "plant",
+     "method": "ai",
+     "slot": "r_L0_ruzgarlik.corner1"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L0_kat_holu",
+   "label": "Kat Holü",
+   "room_type": "hall",
+   "slots": [
+    {
+     "id": "f_L0_010.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L0_010",
+     "host_type": "console_table",
+     "note": "left part",
+     "center": [
+      12.002,
+      5.272
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.8
+     ]
+    },
+    {
+     "id": "f_L0_010.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L0_010",
+     "host_type": "console_table",
+     "note": "right part",
+     "center": [
+      11.418,
+      5.408
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.8
+     ]
+    },
+    {
+     "id": "r_L0_kat_holu.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 0.50, 6.35",
+     "center": [
+      0.5,
+      6.35
+     ]
+    },
+    {
+     "id": "r_L0_kat_holu.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 10.15, 5.00",
+     "center": [
+      10.15,
+      5.0
+     ]
+    },
+    {
+     "id": "ceiling:centre_r_L0_kat_holu",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 kat holu"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_010.left",
+       "type": "vase",
+       "colour": "cream",
+       "reason": "Adds natural elegance with a neutral tone matching the warm greige walls."
+      },
+      {
+       "slot": "r_L0_kat_holu.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Large indoor plant in rattan pot brings lush greenery and warmth to the corner."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_kat_holu",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm brass pendant light enhances modern natural style with soft ambient glow."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.084
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L0_010.left",
+       "type": "vase",
+       "colour": "cream",
+       "reason": "Adds natural warmth and complements the greige walls and rattan pots."
+      },
+      {
+       "slot": "r_L0_kat_holu.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Large indoor plant enhances the modern natural style with organic texture."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_kat_holu",
+       "type": "ceiling_light",
+       "colour": "brass",
+       "reason": "Warm brass light enhances daylight and matches dark bronze frames."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.008
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_010.left",
+     "type": "vase",
+     "colour": "cream",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds natural elegance with a neutral tone matching the warm greige walls.",
+      "Adds natural warmth and complements the greige walls and rattan pots."
+     ]
+    },
+    {
+     "slot": "r_L0_kat_holu.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Large indoor plant in rattan pot brings lush greenery and warmth to the corner.",
+      "Large indoor plant enhances the modern natural style with organic texture."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "ceiling:centre_r_L0_kat_holu",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant light enhances modern natural style with soft ambient glow.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L0_kat_holu",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light enhances daylight and matches dark bronze frames.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_003",
+     "type": "vase",
+     "method": "ai",
+     "slot": "f_L0_010.left"
+    },
+    {
+     "id": "dec_L0_004",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L0_kat_holu.corner1"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "f_L0_010 wall: mirror: f_L0_010 has no wall behind it; wall_art: f_L0_010 has no wall behind it"
+   ]
+  },
+  {
+   "room_id": "r_L0_guvenlik_holu",
+   "label": "Güvenlik Holü",
+   "room_type": "hall",
+   "slots": [
+    {
+     "id": "f_L0_006.left",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L0_006",
+     "host_type": "console_table",
+     "note": "left part",
+     "center": [
+      3.796,
+      8.0
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.8
+     ]
+    },
+    {
+     "id": "f_L0_006.right",
+     "kind": "top",
+     "types": [
+      "table_lamp",
+      "vase",
+      "bowl",
+      "plant_small",
+      "books",
+      "candle",
+      "tray"
+     ],
+     "host_id": "f_L0_006",
+     "host_type": "console_table",
+     "note": "right part",
+     "center": [
+      3.796,
+      8.6
+     ],
+     "max_size": [
+      0.54,
+      0.29,
+      1.8
+     ]
+    },
+    {
+     "id": "f_L0_006.wall",
+     "kind": "wall",
+     "types": [
+      "mirror",
+      "wall_art"
+     ],
+     "host_id": "f_L0_006",
+     "host_type": "console_table",
+     "note": ""
+    },
+    {
+     "id": "f_L0_007.centre",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "tray",
+      "candle"
+     ],
+     "host_id": "f_L0_007",
+     "host_type": "shoe_cabinet",
+     "note": "centre part",
+     "center": [
+      4.421,
+      7.831
+     ],
+     "max_size": [
+      0.74,
+      0.26,
+      1.6
+     ]
+    },
+    {
+     "id": "f_L0_009.shelf",
+     "kind": "shelf",
+     "types": [
+      "book_set"
+     ],
+     "host_id": "f_L0_009",
+     "host_type": "bookshelf",
+     "note": ""
+    },
+    {
+     "id": "ceiling:centre_r_L0_guvenlik_holu",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 guvenlik holu"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_006.wall",
+       "type": "mirror",
+       "colour": "cream",
+       "reason": "Reflects light and enhances the airy, modern feel of the hall."
+      },
+      {
+       "slot": "f_L0_006.left",
+       "type": "plant_small",
+       "colour": "natural wood",
+       "reason": "Adds organic warmth and complements the natural wood furniture."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_guvenlik_holu",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm brass light adds a touch of luxury and matches the dark bronze frames."
+      },
+      {
+       "slot": "f_L0_007.centre",
+       "type": "vase",
+       "colour": "cream",
+       "reason": "Cream vase holds a small plant and harmonizes with the neutral palette."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.645
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "f_L0_006.wall",
+       "type": "mirror",
+       "colour": "natural wood",
+       "reason": "Reflects light and enhances space in modern natural style."
+      },
+      {
+       "slot": "f_L0_006.left",
+       "type": "plant_small",
+       "colour": "mustard",
+       "reason": "Adds warmth and life with a pop of mustard against greige walls."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_guvenlik_holu",
+       "type": "ceiling_light",
+       "colour": "brass",
+       "reason": "Warm brass light complements natural wood and enhances daylight ambiance."
+      }
+     ],
+     "error": null,
+     "latency_s": 2.001
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_006.wall",
+     "type": "mirror",
+     "colour": "cream",
+     "colour_agreed": false,
+     "reasons": [
+      "Reflects light and enhances the airy, modern feel of the hall.",
+      "Reflects light and enhances space in modern natural style."
+     ]
+    },
+    {
+     "slot": "f_L0_006.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "colour_agreed": false,
+     "reasons": [
+      "Adds organic warmth and complements the natural wood furniture.",
+      "Adds warmth and life with a pop of mustard against greige walls."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "ceiling:centre_r_L0_guvenlik_holu",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light adds a touch of luxury and matches the dark bronze frames.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "f_L0_007.centre",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Cream vase holds a small plant and harmonizes with the neutral palette.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L0_guvenlik_holu",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm brass light complements natural wood and enhances daylight ambiance.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_005",
+     "type": "mirror",
+     "method": "ai",
+     "slot": "f_L0_006.wall"
+    },
+    {
+     "id": "dec_L0_006",
+     "type": "plant_small",
+     "method": "ai",
+     "slot": "f_L0_006.left"
+    }
+   ],
+   "fallback": null,
+   "notes": [
+    "no free corner for a floor plant"
+   ]
+  },
+  {
+   "room_id": "r_L0_yangin_merdiveni",
+   "label": "Yangın Merdiveni",
+   "room_type": "other",
+   "slots": [
+    {
+     "id": "f_L0_011.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L0_011",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L0_011.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L0_011",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L0_013.centre",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "candle"
+     ],
+     "host_id": "f_L0_013",
+     "host_type": "table_dining",
+     "note": "centre part",
+     "center": [
+      5.3,
+      12.2
+     ],
+     "max_size": [
+      0.7,
+      0.5,
+      1.85
+     ]
+    },
+    {
+     "id": "f_L0_014.shelf",
+     "kind": "shelf",
+     "types": [
+      "book_set"
+     ],
+     "host_id": "f_L0_014",
+     "host_type": "bookshelf",
+     "note": ""
+    },
+    {
+     "id": "r_L0_yangin_merdiveni.rug1",
+     "kind": "rug",
+     "types": [
+      "rug"
+     ],
+     "host_id": "f_L0_013",
+     "host_type": null,
+     "note": "f_L0_013"
+    },
+    {
+     "id": "r_L0_yangin_merdiveni.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 3.85, 9.35",
+     "center": [
+      3.85,
+      9.35
+     ]
+    },
+    {
+     "id": "r_L0_yangin_merdiveni.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 5.95, 9.35",
+     "center": [
+      5.95,
+      9.35
+     ]
+    },
+    {
+     "id": "ceiling:over_f_L0_013",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light"
+     ],
+     "host_id": "f_L0_013",
+     "host_type": null,
+     "note": "over f L0 013"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_011.cushions",
+       "type": "cushion",
+       "colour": "mustard",
+       "reason": "Adds warmth and style to the armchair, matching the greige walls and natural palette."
+      },
+      {
+       "slot": "f_L0_013.centre",
+       "type": "plant_small",
+       "colour": "natural wood",
+       "reason": "Small plant on dining table brings life without clutter, in natural wood pot."
+      },
+      {
+       "slot": "r_L0_yangin_merdiveni.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Large plant in corner adds greenery and anchors the space with natural wood pot."
+      },
+      {
+       "slot": "r_L0_yangin_merdiveni.corner2",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Second large plant balances the room and enhances the natural, modern aesthetic."
+      },
+      {
+       "slot": "ceiling:over_f_L0_013",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm brass pendant light complements dark bronze frames and enhances daylight ambiance."
+      }
+     ],
+     "error": null,
+     "latency_s": 3.538
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "r_L0_yangin_merdiveni.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Adds lush greenery and warmth with a large plant in a natural wood pot."
+      },
+      {
+       "slot": "r_L0_yangin_merdiveni.corner2",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Balances the space with another large plant, enhancing the natural, modern aesthetic."
+      },
+      {
+       "slot": "f_L0_011.cushions",
+       "type": "cushion",
+       "colour": "mustard",
+       "reason": "Adds a warm pop of colour that complements the greige walls and natural wood."
+      },
+      {
+       "slot": "f_L0_013.centre",
+       "type": "plant_small",
+       "colour": "natural wood",
+       "reason": "Small plant on dining table brings life without overwhelming the space."
+      },
+      {
+       "slot": "ceiling:over_f_L0_013",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm brass light enhances the natural, modern feel and complements dark bronze frames."
+      }
+     ],
+     "error": null,
+     "latency_s": 3.522
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_011.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds warmth and style to the armchair, matching the greige walls and natural palette.",
+      "Adds a warm pop of colour that complements the greige walls and natural wood."
+     ]
+    },
+    {
+     "slot": "f_L0_013.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Small plant on dining table brings life without clutter, in natural wood pot.",
+      "Small plant on dining table brings life without overwhelming the space."
+     ]
+    },
+    {
+     "slot": "r_L0_yangin_merdiveni.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Large plant in corner adds greenery and anchors the space with natural wood pot.",
+      "Adds lush greenery and warmth with a large plant in a natural wood pot."
+     ]
+    },
+    {
+     "slot": "r_L0_yangin_merdiveni.corner2",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Second large plant balances the room and enhances the natural, modern aesthetic.",
+      "Balances the space with another large plant, enhancing the natural, modern aesthetic."
+     ]
+    },
+    {
+     "slot": "ceiling:over_f_L0_013",
+     "type": "pendant_light",
+     "colour": "brass",
+     "colour_agreed": true,
+     "reasons": [
+      "Warm brass pendant light complements dark bronze frames and enhances daylight ambiance.",
+      "Warm brass light enhances the natural, modern feel and complements dark bronze frames."
+     ]
+    }
+   ],
+   "not_agreed": [],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_007",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L0_011.cushions"
+    },
+    {
+     "id": "dec_L0_008",
+     "type": "plant_small",
+     "method": "ai",
+     "slot": "f_L0_013.centre"
+    },
+    {
+     "id": "dec_L0_009",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L0_yangin_merdiveni.corner1"
+    },
+    {
+     "id": "dec_L0_010",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L0_yangin_merdiveni.corner2"
+    },
+    {
+     "id": "dec_L0_011",
+     "type": "pendant_light",
+     "method": "ai",
+     "slot": "ceiling:over_f_L0_013"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  },
+  {
+   "room_id": "r_L0_kat_merdiveni",
+   "label": "Kat Merdiveni",
+   "room_type": "other",
+   "slots": [
+    {
+     "id": "f_L0_015.cushions",
+     "kind": "soft",
+     "types": [
+      "cushion"
+     ],
+     "host_id": "f_L0_015",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L0_015.throw",
+     "kind": "soft",
+     "types": [
+      "throw"
+     ],
+     "host_id": "f_L0_015",
+     "host_type": "armchair",
+     "note": ""
+    },
+    {
+     "id": "f_L0_017.centre",
+     "kind": "top",
+     "types": [
+      "vase",
+      "bowl",
+      "plant_small",
+      "candle"
+     ],
+     "host_id": "f_L0_017",
+     "host_type": "table_dining",
+     "note": "centre part",
+     "center": [
+      21.9,
+      11.7
+     ],
+     "max_size": [
+      0.7,
+      0.5,
+      1.85
+     ]
+    },
+    {
+     "id": "r_L0_kat_merdiveni.rug1",
+     "kind": "rug",
+     "types": [
+      "rug"
+     ],
+     "host_id": "f_L0_017",
+     "host_type": null,
+     "note": "f_L0_017"
+    },
+    {
+     "id": "r_L0_kat_merdiveni.corner1",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 20.25, 9.35",
+     "center": [
+      20.25,
+      9.35
+     ]
+    },
+    {
+     "id": "r_L0_kat_merdiveni.corner2",
+     "kind": "floor",
+     "types": [
+      "plant",
+      "plant_large",
+      "basket",
+      "sculpture"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "corner at 22.35, 9.35",
+     "center": [
+      22.35,
+      9.35
+     ]
+    },
+    {
+     "id": "ceiling:over_f_L0_017",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light"
+     ],
+     "host_id": "f_L0_017",
+     "host_type": null,
+     "note": "over f L0 017"
+    },
+    {
+     "id": "ceiling:centre_r_L0_kat_merdiveni",
+     "kind": "ceiling",
+     "types": [
+      "pendant_light",
+      "ceiling_light"
+     ],
+     "host_id": null,
+     "host_type": null,
+     "note": "centre r L0 kat merdiveni"
+    }
+   ],
+   "passes": {
+    "1": {
+     "items": [
+      {
+       "slot": "f_L0_015.cushions",
+       "type": "cushion",
+       "colour": "mustard",
+       "reason": "Adds warmth and style to the armchair, matching the room’s natural and modern aesthetic."
+      },
+      {
+       "slot": "r_L0_kat_merdiveni.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture."
+      },
+      {
+       "slot": "r_L0_kat_merdiveni.corner2",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Second large plant balances the space and reinforces the lush, natural theme."
+      },
+      {
+       "slot": "ceiling:over_f_L0_017",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm brass pendant light adds modern elegance and enhances the ambient daylight."
+      },
+      {
+       "slot": "r_L0_kat_merdiveni.rug1",
+       "type": "rug",
+       "colour": "cream",
+       "reason": "Cream rug softens the floor and ties in with the neutral palette while adding texture."
+      }
+     ],
+     "error": null,
+     "latency_s": 3.55
+    },
+    "2": {
+     "items": [
+      {
+       "slot": "r_L0_kat_merdiveni.corner1",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Adds lush greenery and fits the natural modern style."
+      },
+      {
+       "slot": "r_L0_kat_merdiveni.corner2",
+       "type": "plant_large",
+       "colour": "natural wood",
+       "reason": "Balances the space with another large plant for visual harmony."
+      },
+      {
+       "slot": "f_L0_015.cushions",
+       "type": "cushion",
+       "colour": "mustard",
+       "reason": "Adds warmth and color contrast to the neutral sofa."
+      },
+      {
+       "slot": "ceiling:centre_r_L0_kat_merdiveni",
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm metallic glow complements the natural wood and greige walls."
+      },
+      {
+       "slot": "f_L0_017.centre",
+       "type": "plant_small",
+       "colour": "natural wood",
+       "reason": "Small plant adds life without overwhelming the dining table."
+      }
+     ],
+     "error": null,
+     "latency_s": 3.28
+    }
+   },
+   "agreed": [
+    {
+     "slot": "f_L0_015.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "colour_agreed": true,
+     "reasons": [
+      "Adds warmth and style to the armchair, matching the room’s natural and modern aesthetic.",
+      "Adds warmth and color contrast to the neutral sofa."
+     ]
+    },
+    {
+     "slot": "r_L0_kat_merdiveni.corner1",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Large indoor plant in rattan pot enhances greenery and complements the natural wood furniture.",
+      "Adds lush greenery and fits the natural modern style."
+     ]
+    },
+    {
+     "slot": "r_L0_kat_merdiveni.corner2",
+     "type": "plant_large",
+     "colour": "natural wood",
+     "colour_agreed": true,
+     "reasons": [
+      "Second large plant balances the space and reinforces the lush, natural theme.",
+      "Balances the space with another large plant for visual harmony."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "ceiling:over_f_L0_017",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant light adds modern elegance and enhances the ambient daylight.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "r_L0_kat_merdiveni.rug1",
+     "type": "rug",
+     "colour": "cream",
+     "reason": "Cream rug softens the floor and ties in with the neutral palette while adding texture.",
+     "passes": [
+      1
+     ]
+    },
+    {
+     "slot": "ceiling:centre_r_L0_kat_merdiveni",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements the natural wood and greige walls.",
+     "passes": [
+      2
+     ]
+    },
+    {
+     "slot": "f_L0_017.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant adds life without overwhelming the dining table.",
+     "passes": [
+      2
+     ]
+    }
+   ],
+   "rejected": [],
+   "refused": [],
+   "items": [
+    {
+     "id": "dec_L0_012",
+     "type": "cushion",
+     "method": "ai",
+     "slot": "f_L0_015.cushions"
+    },
+    {
+     "id": "dec_L0_013",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L0_kat_merdiveni.corner1"
+    },
+    {
+     "id": "dec_L0_014",
+     "type": "plant_large",
+     "method": "ai",
+     "slot": "r_L0_kat_merdiveni.corner2"
+    }
+   ],
+   "fallback": null,
+   "notes": []
+  }
+ ],
+ "items_ai": 14,
+ "items_rule": 0,
+ "rooms_ai": 5,
+ "rooms_fallback": 0
+}

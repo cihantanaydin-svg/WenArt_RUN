@@ -1,0 +1,261 @@
+{
+ "room_id": "r_L0_ruzgarlik",
+ "label": "Rüzgarlık",
+ "room_type": "other",
+ "slots": [
+  {
+   "id": "f_L0_004.back_left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": "desk",
+   "note": "back left part",
+   "center": [
+    10.126,
+    1.33
+   ],
+   "max_size": [
+    0.37,
+    0.32,
+    1.85
+   ]
+  },
+  {
+   "id": "f_L0_004.back_right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": "desk",
+   "note": "back right part",
+   "center": [
+    10.126,
+    2.27
+   ],
+   "max_size": [
+    0.37,
+    0.32,
+    1.85
+   ]
+  },
+  {
+   "id": "f_L0_004.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art",
+    "clock"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": "desk",
+   "note": ""
+  },
+  {
+   "id": "f_L0_005.shelf",
+   "kind": "shelf",
+   "types": [
+    "book_set"
+   ],
+   "host_id": "f_L0_005",
+   "host_type": "bookshelf",
+   "note": ""
+  },
+  {
+   "id": "r_L0_ruzgarlik.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 10.15, 0.80",
+   "center": [
+    10.15,
+    0.8
+   ]
+  },
+  {
+   "id": "r_L0_ruzgarlik.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 10.50, 0.50",
+   "center": [
+    10.5,
+    0.5
+   ]
+  },
+  {
+   "id": "ceiling:centre_r_L0_ruzgarlik",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 ruzgarlik"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_004.back_left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements natural wood and greige walls."
+    },
+    {
+     "slot": "r_L0_ruzgarlik.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Large indoor plant in rattan pot adds greenery and warmth."
+    },
+    {
+     "slot": "r_L0_ruzgarlik.corner2",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Second plant balances the space and enhances natural aesthetic."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_ruzgarlik",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Modern pendant with warm brass finish adds focal point and light."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.63
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "r_L0_ruzgarlik.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Large indoor plant adds greenery and warmth matching the natural style."
+    },
+    {
+     "slot": "r_L0_ruzgarlik.corner2",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Second plant balances the space and enhances the natural, lush feel."
+    },
+    {
+     "slot": "f_L0_004.back_left",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm brass lamp complements dark bronze frames and adds soft lighting."
+    },
+    {
+     "slot": "f_L0_004.wall",
+     "type": "wall_art",
+     "colour": "cream",
+     "reason": "Cream-toned art harmonizes with greige walls and maintains a calm, modern aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.659
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_004.back_left",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm metallic glow complements natural wood and greige walls.",
+    "Warm brass lamp complements dark bronze frames and adds soft lighting."
+   ]
+  },
+  {
+   "slot": "r_L0_ruzgarlik.corner1",
+   "type": "plant",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Large indoor plant in rattan pot adds greenery and warmth.",
+    "Large indoor plant adds greenery and warmth matching the natural style."
+   ]
+  },
+  {
+   "slot": "r_L0_ruzgarlik.corner2",
+   "type": "plant",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Second plant balances the space and enhances natural aesthetic.",
+    "Second plant balances the space and enhances the natural, lush feel."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_ruzgarlik",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Modern pendant with warm brass finish adds focal point and light.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_004.wall",
+   "type": "wall_art",
+   "colour": "cream",
+   "reason": "Cream-toned art harmonizes with greige walls and maintains a calm, modern aesthetic.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [
+  {
+   "slot": "r_L0_ruzgarlik.corner2",
+   "type": "plant",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Second plant balances the space and enhances natural aesthetic.",
+    "Second plant balances the space and enhances the natural, lush feel."
+   ],
+   "why": "the corner is no longer free next to the other plant"
+  }
+ ],
+ "items": [
+  {
+   "id": "dec_L0_001",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L0_004.back_left"
+  },
+  {
+   "id": "dec_L0_002",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L0_ruzgarlik.corner1"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

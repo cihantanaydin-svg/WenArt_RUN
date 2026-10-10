@@ -1,0 +1,5056 @@
+{
+ "schema_version": "0.1",
+ "project": "real03",
+ "variant": "base",
+ "advisory": true,
+ "advisory_reason": "single pass: no two-model agreement; fa_missing None misses <= 0.05 (single pass); fa_extra None misses <= 0.1 (single pass); removal_flagged None misses >= 0.8 (single pass); removal_confirmed None misses >= 0.6 (single pass); insertion None misses >= 0.6 (single pass)",
+ "single_pass": true,
+ "model_keys": [
+  "agent"
+ ],
+ "models": {
+  "agent": {
+   "id": "Qwen/Qwen3.8-27B-FP8",
+   "slug": "qwen3.8-27b-fp8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "licence": "Apache-2.0",
+   "served": "Qwen/Qwen3.8-27B-FP8",
+   "incomplete": false
+  }
+ },
+ "detector": {
+  "status": "not_run",
+  "advisory": false,
+  "reason": null,
+  "thresholds": {
+   "t_det": 0.08,
+   "t_strong": 0.11,
+   "match_iou": 0.3,
+   "cover_frac": 0.5,
+   "confirm_iou": 0.3
+  },
+  "calibration": {
+   "file": "detector_calibration.json",
+   "model_revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+   "detect_version": "m7.1",
+   "positives": 29,
+   "negatives": 260,
+   "insertion_confirmed": 0.7931,
+   "false_confirmed": 0.0269,
+   "insertion_flagged": 0.7931,
+   "false_flagged": 0.0808
+  },
+  "model": null,
+  "views": [],
+  "not_computed": []
+ },
+ "views": {
+  "cam_r_L0_guvenlik_holu_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_009": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       0,
+       279,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_007": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "shoe_cabinet",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       352,
+       717,
+       888,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "shoe_cabinet",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_006": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       794,
+       610,
+       1000,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 3
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "dresser",
+     "box_1000": [
+      750,
+      500,
+      931,
+      750
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_guvenlik_holu_1.png"
+    ],
+    "image_sha256": [
+     "7e3af525690fcb5ea9bd5cb857b2de98187292cacbf06ab15dd16c34b5eb1a7d"
+    ]
+   },
+   "room_id": "r_L0_guvenlik_holu",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.0667,
+      "area_frac": 0.04765,
+      "centre_px": [
+       1734.2,
+       957.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 75801
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "shoe_cabinet",
+      "visible_share": 0.3571,
+      "area_frac": 0.13642,
+      "centre_px": [
+       1191.8,
+       917.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 279650
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 0.2325,
+      "area_frac": 0.27846,
+      "centre_px": [
+       289.9,
+       540.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 577800
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_guvenlik_holu_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_006": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       278,
+       509,
+       962,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_005": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "decor",
+      "type": "mirror",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       508,
+       0,
+       662,
+       548
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "mirror",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "shoe_cabinet",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       713,
+       348,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "shoe_cabinet",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "dresser",
+     "box_1000": [
+      800,
+      600,
+      981,
+      850
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_guvenlik_holu_2.png"
+    ],
+    "image_sha256": [
+     "d6d33d1b2e7a68d3ab65aea4b778cece12451c256045e9e71b36c339951fcc96"
+    ]
+   },
+   "room_id": "r_L0_guvenlik_holu",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.3296,
+      "area_frac": 0.16054,
+      "centre_px": [
+       1181.0,
+       888.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 312547
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "shoe_cabinet",
+      "visible_share": 0.175,
+      "area_frac": 0.07333,
+      "centre_px": [
+       328.8,
+       929.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 149391
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_kat_holu_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_010": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       617,
+       450,
+       917,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "d_L0_003": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       60,
+       153,
+       701
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_004": {
+      "label": "E3",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       152,
+       88,
+       300,
+       665
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_holu_1.png"
+    ],
+    "image_sha256": [
+     "24de8e45ff3fb89d039dd509309935ce96c72e478fc50285cd3db851dc376ffb"
+    ]
+   },
+   "removal:d_L0_004": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_010": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       617,
+       450,
+       917,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "d_L0_003": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       60,
+       153,
+       701
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_004": {
+      "label": "E3",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       152,
+       88,
+       300,
+       665
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 2
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "agent": 3
+      },
+      "sides": {
+       "agent": "more"
+      },
+      "result": "unverified"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../controls/hide_d_L0_004/cam_r_L0_kat_holu_1.png"
+    ],
+    "control": {
+     "target": "d_L0_004",
+     "testable": true,
+     "label": "E3",
+     "statuses": {
+      "agent": "present"
+     },
+     "computed": true,
+     "flagged": false,
+     "confirmed": false,
+     "result": "unverified"
+    },
+    "image_sha256": [
+     "e19895898ac4386287e2283f501cba8330e7a6fd5cd7bb9d124106fbe86163be"
+    ]
+   },
+   "insertion:d_L0_004": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_003": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       60,
+       155,
+       701
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_010": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       617,
+       450,
+       917,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "d_L0_002": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       179,
+       195,
+       263,
+       509
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_001": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       154,
+       192,
+       180,
+       510
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       3
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_holu_1.png"
+    ],
+    "control": {
+     "target": "d_L0_004",
+     "testable": true,
+     "box_px": [
+      292,
+      96,
+      576,
+      718
+     ],
+     "computed": true,
+     "flagged": false,
+     "confirmed": false
+    },
+    "image_sha256": [
+     "24de8e45ff3fb89d039dd509309935ce96c72e478fc50285cd3db851dc376ffb"
+    ]
+   },
+   "room_id": "r_L0_kat_holu",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7662,
+      "area_frac": 0.09211,
+      "centre_px": [
+       140.8,
+       419.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 191217
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8934,
+      "area_frac": 0.0772,
+      "centre_px": [
+       436.1,
+       411.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 164455
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.8765,
+      "area_frac": 0.12559,
+      "centre_px": [
+       1474.5,
+       830.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 192331
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_kat_holu_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       170,
+       817
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_010": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       705,
+       419,
+       812,
+       937
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "agent": 1
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_holu_2.png"
+    ],
+    "image_sha256": [
+     "ebfaefd8dec83a2707f9ba92193ccd80e3685c1801050a5eba537ca97a3095de"
+    ]
+   },
+   "removal:f_L0_010": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       170,
+       817
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_010": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       705,
+       419,
+       812,
+       937
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "agent": 1
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../controls/hide_f_L0_010/cam_r_L0_kat_holu_2.png"
+    ],
+    "control": {
+     "target": "f_L0_010",
+     "testable": true,
+     "label": "E2",
+     "statuses": {
+      "agent": "absent"
+     },
+     "computed": true,
+     "flagged": true,
+     "confirmed": false,
+     "result": "unverified"
+    },
+    "image_sha256": [
+     "b06b1ff642b61be9453223adade92a502b9a5187336f418c9c800533379363cc"
+    ]
+   },
+   "insertion:f_L0_010": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       170,
+       817
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [
+     {
+      "class": "furniture",
+      "categories": {
+       "agent": "console_table"
+      },
+      "boxes_1000": {
+       "agent": [
+        703.0,
+        478.0,
+        812.0,
+        937.0
+       ]
+      },
+      "box_px": [
+       1349.8,
+       516.2,
+       1559.0,
+       1012.0
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "agent"
+      ],
+      "info": true,
+      "unreliable": false
+     },
+     {
+      "class": "decor",
+      "categories": {
+       "agent": "vase"
+      },
+      "boxes_1000": {
+       "agent": [
+        742.0,
+        415.0,
+        784.0,
+        528.0
+       ]
+      },
+      "box_px": [
+       1424.6,
+       448.2,
+       1505.3,
+       570.2
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "agent"
+      ],
+      "info": true,
+      "unreliable": false
+     }
+    ],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "agent": 1
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_holu_2.png"
+    ],
+    "control": {
+     "target": "f_L0_010",
+     "testable": true,
+     "box_px": [
+      1354,
+      453,
+      1559,
+      1011
+     ],
+     "computed": true,
+     "flagged": true,
+     "confirmed": false
+    },
+    "image_sha256": [
+     "ebfaefd8dec83a2707f9ba92193ccd80e3685c1801050a5eba537ca97a3095de"
+    ]
+   },
+   "room_id": "r_L0_kat_holu",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6817,
+      "area_frac": 0.12096,
+      "centre_px": [
+       154.5,
+       440.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 262651
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.8264,
+      "area_frac": 0.04529,
+      "centre_px": [
+       1455.6,
+       768.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 73594
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_kat_holu_3": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_003": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       27,
+       145,
+       748
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_004": {
+      "label": "E3",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       144,
+       81,
+       273,
+       677
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_010": {
+      "label": "E4",
+      "role": "required",
+      "kind": "furniture",
+      "type": "console_table",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       641,
+       388,
+       726,
+       702
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "dresser",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_holu_3.png"
+    ],
+    "image_sha256": [
+     "775dad58f6ad9eb3052c6522b90db168388f51cf4dcc441ef7dc5981938d6da1"
+    ]
+   },
+   "room_id": "r_L0_kat_holu",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6399,
+      "area_frac": 0.09003,
+      "centre_px": [
+       131.7,
+       427.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 195898
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8934,
+      "area_frac": 0.06797,
+      "centre_px": [
+       402.8,
+       412.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 141007
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "console_table",
+      "visible_share": 0.93,
+      "area_frac": 0.02011,
+      "centre_px": [
+       1314.7,
+       617.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 29462
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_kat_merdiveni_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_002": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       386,
+       411,
+       957,
+       941
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_013": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       761,
+       214,
+       879,
+       458
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_014": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       499,
+       244,
+       579,
+       425
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "armchair",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_merdiveni_1.png"
+    ],
+    "image_sha256": [
+     "b7fb98f2459de683915624eb3a239cf0802662175754e9ae8f6eb149757169ce"
+    ]
+   },
+   "room_id": "r_L0_kat_merdiveni",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 1.0,
+      "area_frac": 0.22381,
+      "centre_px": [
+       1284.8,
+       739.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 429778
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_kat_merdiveni_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_002": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       189,
+       456,
+       924,
+       930
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "other_furniture",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_013": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       633,
+       220,
+       737,
+       457
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_014": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       329,
+       224,
+       432,
+       457
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "armchair",
+     "box_1000": [
+      0,
+      750,
+      181,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_merdiveni_2.png"
+    ],
+    "image_sha256": [
+     "312445ed87ad50c4e28176cf376c4391fbecc976dad7be7febe41373a21bc459"
+    ]
+   },
+   "room_id": "r_L0_kat_merdiveni",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 1.0,
+      "area_frac": 0.36006,
+      "centre_px": [
+       1069.1,
+       755.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 685680
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_kat_merdiveni_3": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_002": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       46,
+       402,
+       552,
+       832
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "console_table",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_014": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       114,
+       234,
+       220,
+       439
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_013": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       392,
+       251,
+       462,
+       412
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "armchair",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_kat_merdiveni_3.png"
+    ],
+    "image_sha256": [
+     "6610cbae0cc5b6bb354a5c852c0641bacd2850eeee7876695ba67258a196137f"
+    ]
+   },
+   "room_id": "r_L0_kat_merdiveni",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 1.0,
+      "area_frac": 0.16515,
+      "centre_px": [
+       577.9,
+       671.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 320049
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_ruzgarlik_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_004": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       392,
+       130,
+       1000,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_005": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       107,
+       156,
+       327,
+       826
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_002": {
+      "label": "E4",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       524,
+       12,
+       689,
+       710
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_001": {
+      "label": "E5",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       404,
+       61,
+       525,
+       707
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 2
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       2,
+       2
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "armchair",
+     "box_1000": [
+      200,
+      750,
+      381,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_ruzgarlik_1.png"
+    ],
+    "image_sha256": [
+     "4919ea1a882582d136800d2a028676dcc7a3e411901d8b31899c8781bbce5f7f"
+    ]
+   },
+   "removal:d_L0_002": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_004": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       392,
+       130,
+       1000,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_005": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       107,
+       156,
+       327,
+       826
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_002": {
+      "label": "E4",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       524,
+       12,
+       689,
+       710
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent"
+     },
+     "d_L0_001": {
+      "label": "E5",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       404,
+       61,
+       525,
+       707
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 2
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       2,
+       2
+      ],
+      "passes": {
+       "agent": 1
+      },
+      "sides": {
+       "agent": "fewer"
+      },
+      "result": "unverified"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "armchair",
+     "box_1000": [
+      200,
+      750,
+      381,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../controls/hide_d_L0_002/cam_r_L0_ruzgarlik_1.png"
+    ],
+    "control": {
+     "target": "d_L0_002",
+     "testable": true,
+     "label": "E4",
+     "statuses": {
+      "agent": "absent"
+     },
+     "computed": true,
+     "flagged": true,
+     "confirmed": false,
+     "result": "unverified"
+    },
+    "image_sha256": [
+     "5e744378e11a7b1999408483ccc7aa6702f12462723ab4abe28db40c66f089fd"
+    ]
+   },
+   "insertion:d_L0_002": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       392,
+       130,
+       1000,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_005": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       107,
+       156,
+       327,
+       826
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_001": {
+      "label": "E3",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       404,
+       61,
+       543,
+       707
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [
+     {
+      "class": "door",
+      "categories": {
+       "agent": "door"
+      },
+      "boxes_1000": {
+       "agent": [
+        535.0,
+        30.0,
+        680.0,
+        700.0
+       ]
+      },
+      "box_px": [
+       1027.2,
+       32.4,
+       1305.6,
+       756.0
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "agent"
+      ],
+      "info": true,
+      "unreliable": false
+     }
+    ],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       1
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "more"
+      },
+      "result": "unverified"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "armchair",
+     "box_1000": [
+      200,
+      750,
+      381,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_ruzgarlik_1.png"
+    ],
+    "control": {
+     "target": "d_L0_002",
+     "testable": true,
+     "box_px": [
+      1007,
+      14,
+      1321,
+      766
+     ],
+     "computed": true,
+     "flagged": true,
+     "confirmed": false
+    },
+    "image_sha256": [
+     "4919ea1a882582d136800d2a028676dcc7a3e411901d8b31899c8781bbce5f7f"
+    ]
+   },
+   "room_id": "r_L0_ruzgarlik",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8499,
+      "area_frac": 0.06821,
+      "centre_px": [
+       895.2,
+       416.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 146295
+     },
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7194,
+      "area_frac": 0.10742,
+      "centre_px": [
+       1166.7,
+       403.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 195355
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.4416,
+      "area_frac": 0.23632,
+      "centre_px": [
+       1365.5,
+       804.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 561728
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 1.0,
+      "area_frac": 0.1288,
+      "centre_px": [
+       416.3,
+       530.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 266933
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_ruzgarlik_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       223,
+       725
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_005": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       606,
+       151,
+       835,
+       843
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_004": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       572,
+       500,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_003": {
+      "label": "E4",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       222,
+       11,
+       361,
+       745
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_001": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       997,
+       0,
+       1000,
+       980
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 2
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       3
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E5",
+     "type": "armchair",
+     "box_1000": [
+      500,
+      750,
+      681,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_ruzgarlik_2.png"
+    ],
+    "image_sha256": [
+     "675a1e566f3e86fd9b644ab1e2c9f4c268807512d4306e70af110d3db6ad98fe"
+    ]
+   },
+   "removal:f_L0_005": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       223,
+       725
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_005": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       606,
+       151,
+       835,
+       843
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent"
+     },
+     "f_L0_004": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       572,
+       500,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_003": {
+      "label": "E4",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       222,
+       11,
+       361,
+       745
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_001": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       997,
+       0,
+       1000,
+       980
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       3
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E5",
+     "type": "armchair",
+     "box_1000": [
+      500,
+      750,
+      681,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../controls/hide_f_L0_005/cam_r_L0_ruzgarlik_2.png"
+    ],
+    "control": {
+     "target": "f_L0_005",
+     "testable": true,
+     "label": "E2",
+     "statuses": {
+      "agent": "absent"
+     },
+     "computed": true,
+     "flagged": true,
+     "confirmed": false,
+     "result": "unverified"
+    },
+    "image_sha256": [
+     "7066e2939ec16d107b95c071310bbdddb42dea01508026dc963bad9e941347b7"
+    ]
+   },
+   "insertion:f_L0_005": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       223,
+       725
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_004": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       572,
+       500,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_003": {
+      "label": "E4",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       222,
+       11,
+       361,
+       745
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L0_001": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       997,
+       0,
+       1000,
+       980
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent"
+     }
+    },
+    "extras": [
+     {
+      "class": "furniture",
+      "categories": {
+       "agent": "bookshelf"
+      },
+      "boxes_1000": {
+       "agent": [
+        600.0,
+        150.0,
+        840.0,
+        840.0
+       ]
+      },
+      "box_px": [
+       1152.0,
+       162.0,
+       1612.8,
+       907.2
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "agent"
+      ],
+      "info": true,
+      "unreliable": false
+     },
+     {
+      "class": "decor",
+      "categories": {
+       "agent": "books"
+      },
+      "boxes_1000": {
+       "agent": [
+        610.0,
+        180.0,
+        820.0,
+        800.0
+       ]
+      },
+      "box_px": [
+       1171.2,
+       194.4,
+       1574.4,
+       864.0
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "agent"
+      ],
+      "info": true,
+      "unreliable": false
+     }
+    ],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       3
+      ],
+      "passes": {
+       "agent": 2
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "armchair",
+     "box_1000": [
+      500,
+      750,
+      681,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_ruzgarlik_2.png"
+    ],
+    "control": {
+     "target": "f_L0_005",
+     "testable": true,
+     "box_px": [
+      1164,
+      164,
+      1602,
+      910
+     ],
+     "computed": true,
+     "flagged": true,
+     "confirmed": false
+    },
+    "image_sha256": [
+     "675a1e566f3e86fd9b644ab1e2c9f4c268807512d4306e70af110d3db6ad98fe"
+    ]
+   },
+   "room_id": "r_L0_ruzgarlik",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 5271
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8901,
+      "area_frac": 0.09185,
+      "centre_px": [
+       559.2,
+       424.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 188255
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6021,
+      "area_frac": 0.18289,
+      "centre_px": [
+       197.2,
+       379.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 299604
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.1055,
+      "area_frac": 0.1322,
+      "centre_px": [
+       472.2,
+       850.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 266983
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 1.0,
+      "area_frac": 0.14263,
+      "centre_px": [
+       1381.1,
+       536.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 295803
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_ruzgarlik_3": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       803,
+       0,
+       1000,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_004": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       177,
+       226,
+       571,
+       938
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_002": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       119,
+       517,
+       223,
+       832
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "potted_plant",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "agent": 1
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "armchair",
+     "box_1000": [
+      350,
+      750,
+      531,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_ruzgarlik_3.png"
+    ],
+    "image_sha256": [
+     "621dad38d4b0ee81bbc3bdc254208cf6f13623bb4d9077ca2aea584adac0fb65"
+    ]
+   },
+   "swap:f_L0_004": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L0_004": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       803,
+       0,
+       1000,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_004": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "armchair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       177,
+       226,
+       571,
+       938
+      ],
+      "passes": {
+       "agent": {
+        "status": "different",
+        "seen_as": "desk",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "different",
+      "swapped_from": "desk"
+     },
+     "dec_L0_002": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       119,
+       517,
+       223,
+       832
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "potted_plant",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "agent": 1
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "armchair",
+     "box_1000": [
+      350,
+      750,
+      531,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_ruzgarlik_3.png"
+    ],
+    "control": {
+     "target": "f_L0_004",
+     "testable": true,
+     "label": "E2",
+     "statuses": {
+      "agent": "different"
+     },
+     "computed": true,
+     "flagged": true,
+     "confirmed": false,
+     "result": "unverified"
+    },
+    "image_sha256": [
+     "621dad38d4b0ee81bbc3bdc254208cf6f13623bb4d9077ca2aea584adac0fb65"
+    ]
+   },
+   "room_id": "r_L0_ruzgarlik",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.4742,
+      "area_frac": 0.17441,
+      "centre_px": [
+       1752.5,
+       539.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 408232
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.9878,
+      "area_frac": 0.20045,
+      "centre_px": [
+       717.2,
+       739.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 164545
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_yangin_merdiveni_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_001": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       386,
+       411,
+       958,
+       968
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "sideboard",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_013": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "table_dining",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       9,
+       489,
+       546,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "dec_L0_011": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "decor",
+      "type": "pendant_light",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       200,
+       0,
+       364,
+       170
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "pendant_light",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_009": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       761,
+       220,
+       877,
+       459
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_010": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       501,
+       242,
+       578,
+       425
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_012": {
+      "label": "E7",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       427,
+       489,
+       540,
+       925
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E6",
+     "type": "armchair",
+     "box_1000": [
+      50,
+      350,
+      231,
+      600
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_yangin_merdiveni_1.png"
+    ],
+    "image_sha256": [
+     "bdb98a8954ae69f4df1cf8f6e9c219936ff424c7a539c818deb1fa15c8e622c4"
+    ]
+   },
+   "room_id": "r_L0_yangin_merdiveni",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.9,
+      "area_frac": 0.22381,
+      "centre_px": [
+       1284.8,
+       739.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 424659
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.579,
+      "area_frac": 0.0675,
+      "centre_px": [
+       880.2,
+       765.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 13449
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.5586,
+      "area_frac": 0.19783,
+      "centre_px": [
+       532.4,
+       855.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 341317
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_yangin_merdiveni_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_001": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       466,
+       390,
+       855,
+       721
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "sideboard",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_013": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "table_dining",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       313,
+       418,
+       608,
+       927
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "dec_L0_011": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "pendant_light",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       420,
+       0,
+       505,
+       235
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "pendant_light",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_009": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       743,
+       247,
+       827,
+       416
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_010": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       541,
+       259,
+       602,
+       398
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_012": {
+      "label": "E7",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       493,
+       437,
+       582,
+       703
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "armchair",
+     "box_1000": [
+      300,
+      750,
+      481,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_yangin_merdiveni_2.png"
+    ],
+    "image_sha256": [
+     "8dadb5e556f0248efc3598ec697f5ba4b0dfd47b3f7b431b4af15248b9c67812"
+    ]
+   },
+   "removal:f_L0_013": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_001": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       466,
+       390,
+       855,
+       721
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "other_furniture",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_013": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "table_dining",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       313,
+       418,
+       608,
+       927
+      ],
+      "passes": {
+       "agent": {
+        "status": "absent",
+        "seen_as": "nothing",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "absent",
+      "completes_room": true
+     },
+     "dec_L0_011": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "pendant_light",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       420,
+       0,
+       505,
+       235
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "pendant_light",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_009": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       743,
+       247,
+       827,
+       416
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_010": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       541,
+       259,
+       602,
+       398
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_012": {
+      "label": "E7",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       493,
+       437,
+       582,
+       703
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "armchair",
+     "box_1000": [
+      300,
+      750,
+      481,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../controls/hide_f_L0_013/cam_r_L0_yangin_merdiveni_2.png"
+    ],
+    "control": {
+     "target": "f_L0_013",
+     "testable": true,
+     "label": "E3",
+     "statuses": {
+      "agent": "absent"
+     },
+     "computed": true,
+     "flagged": true,
+     "confirmed": false,
+     "result": "unverified"
+    },
+    "image_sha256": [
+     "1fec668bf69d031b5585be5044dd4e2815a1934bd4491b20b83053ad62fe3370"
+    ]
+   },
+   "insertion:f_L0_013": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_001": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       466,
+       390,
+       855,
+       721
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_012": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       493,
+       437,
+       590,
+       703
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "dec_L0_011": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "decor",
+      "type": "pendant_light",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       420,
+       0,
+       505,
+       235
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "pendant_light",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_009": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       743,
+       247,
+       827,
+       416
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_010": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       541,
+       259,
+       602,
+       398
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [
+     {
+      "class": "decor",
+      "categories": {
+       "agent": "plant_small"
+      },
+      "boxes_1000": {
+       "agent": [
+        438.0,
+        416.0,
+        490.0,
+        532.0
+       ]
+      },
+      "box_px": [
+       841.0,
+       449.3,
+       940.8,
+       574.6
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "agent"
+      ],
+      "info": true,
+      "unreliable": false
+     }
+    ],
+    "extras_dropped": {
+     "agent": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E6",
+     "type": "armchair",
+     "box_1000": [
+      300,
+      750,
+      481,
+      1000
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_yangin_merdiveni_2.png"
+    ],
+    "control": {
+     "target": "f_L0_013",
+     "testable": true,
+     "box_px": [
+      601,
+      452,
+      1167,
+      1001
+     ],
+     "computed": true,
+     "flagged": false,
+     "confirmed": false
+    },
+    "image_sha256": [
+     "8dadb5e556f0248efc3598ec697f5ba4b0dfd47b3f7b431b4af15248b9c67812"
+    ]
+   },
+   "room_id": "r_L0_yangin_merdiveni",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.8405,
+      "area_frac": 0.09872,
+      "centre_px": [
+       1265.8,
+       596.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 170147
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6014,
+      "area_frac": 0.02694,
+      "centre_px": [
+       1032.2,
+       614.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 5018
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.9621,
+      "area_frac": 0.10395,
+      "centre_px": [
+       885.3,
+       762.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 98527
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  },
+  "cam_r_L0_yangin_merdiveni_3": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L0_013": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "table_dining",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       575,
+       767,
+       1000
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     },
+     "f_L0_001": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": true,
+      "source": "from_documents",
+      "box_1000": [
+       257,
+       432,
+       831,
+       813
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "sideboard",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_011": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "decor",
+      "type": "pendant_light",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       281,
+       0,
+       502,
+       95
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "pendant_light",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_010": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       354,
+       233,
+       440,
+       433
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L0_009": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant_large",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       616,
+       237,
+       707,
+       433
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "plant_large",
+        "confidence": 0.9,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L0_012": {
+      "label": "E7",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       387,
+       520,
+       511,
+       713
+      ],
+      "passes": {
+       "agent": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present",
+      "completes_room": true
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "agent": 1
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "agent": 0
+      },
+      "sides": {
+       "agent": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "armchair",
+     "box_1000": [
+      0,
+      500,
+      181,
+      750
+     ],
+     "passes": {
+      "agent": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L0_yangin_merdiveni_3.png"
+    ],
+    "image_sha256": [
+     "8448da27e7dc94a826463c0271bac899546b64e1ea3039a061a8aaf783868226"
+    ]
+   },
+   "room_id": "r_L0_yangin_merdiveni",
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 15,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.8176,
+      "area_frac": 0.21617,
+      "centre_px": [
+       1045.1,
+       668.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 325890
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4819,
+      "area_frac": 0.07927,
+      "centre_px": [
+       832.0,
+       661.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12932
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.3279,
+      "area_frac": 0.18099,
+      "centre_px": [
+       732.0,
+       922.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 397294
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "added_by_polish": false,
+   "needs_review": false,
+   "needs_review_reasons": [],
+   "view_kind": "interior"
+  }
+ },
+ "drawn_check": {
+  "kind": "drawn_check",
+  "reference": "source building.json",
+  "mode": "complete",
+  "tolerance_m": 0.05,
+  "tolerance_deg": 1.0,
+  "pieces": [
+   {
+    "id": "f_L0_001",
+    "room_id": "r_L0_yangin_merdiveni",
+    "type": "kitchen_counter",
+    "drawn_type": "kitchen_counter",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "unverified",
+    "size": [
+     2.6,
+     0.55
+    ],
+    "drawn_size": [
+     2.6,
+     0.55
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_002",
+    "room_id": "r_L0_kat_merdiveni",
+    "type": "kitchen_island",
+    "drawn_type": "kitchen_island",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "unverified",
+    "size": [
+     2.6,
+     0.55
+    ],
+    "drawn_size": [
+     2.6,
+     0.55
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   },
+   {
+    "id": "f_L0_003",
+    "room_id": "r_L0_kat_holu",
+    "type": "unknown",
+    "drawn_type": "unknown",
+    "modified_by_ai": false,
+    "type_proposal": false,
+    "status": "unverified",
+    "size": [
+     0.901,
+     0.341
+    ],
+    "drawn_size": [
+     0.901,
+     0.341
+    ],
+    "reference": "source building.json",
+    "anchor_kind": "centre",
+    "anchor_distance_m": 0.0,
+    "front_turn_deg": null,
+    "same_wall": null,
+    "checked": true,
+    "ok": true,
+    "notes": []
+   }
+  ],
+  "checked": 3,
+  "ok": 3,
+  "failed": [],
+  "modified": [],
+  "proposals": [],
+  "violations": [],
+  "notes": []
+ },
+ "elevation_check": {
+  "kind": "elevation_check",
+  "variant": "base",
+  "source": "sheets.json exterior.openings_seen",
+  "north": 0.0,
+  "north_source": "assumed (+Y is north: no north arrow)",
+  "facades": [],
+  "roof": {
+   "built": null,
+   "drawn": null,
+   "drawn_source": {},
+   "result": "not_checked",
+   "notes": [
+    "no roof object in the scene manifest (the build made a flat roof, or no scene)"
+   ],
+   "deltas": {}
+  },
+  "summary": {
+   "facades": 0,
+   "ok": 0,
+   "mismatch": 0,
+   "not_checked": 0,
+   "roof": "not_checked"
+  },
+  "warnings": []
+ },
+ "warnings": []
+}

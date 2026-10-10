@@ -1,0 +1,106 @@
+{
+ "schema_version": "0.1",
+ "kind": "style_photo_passes",
+ "calls": [
+  {
+   "file": "projects/real03/style_photos/living_reference.jpg",
+   "sha256": "ab46cb78da7e99c2556e5eae9a67dee95e3446462dd3f80e02ecf82b0a06d14d",
+   "model_key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "living_reference.jpg",
+    "sha256": "ab46cb78da7e99c2556e5eae9a67dee95e3446462dd3f80e02ecf82b0a06d14d",
+    "passes": [
+     {
+      "model_key": "glm",
+      "model": "zai-org/GLM-4.6V-Flash",
+      "pass": 2,
+      "data": {
+       "floor": "wood_oak_light",
+       "walls": "plaster_cream",
+       "light": "warm daylight",
+       "family": "modern"
+      },
+      "error": null,
+      "raw_text": "{\n    \"floor\": \"wood_oak_light\",\n    \"walls\": \"plaster_cream\",\n    \"light\": \"warm daylight\",\n    \"family\": \"modern\"\n}",
+      "latency_s": 0.608
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "glm": "wood_oak_light"
+     },
+     "walls": {
+      "glm": "plaster_cream"
+     },
+     "light": {
+      "glm": "warm daylight"
+     },
+     "family": {
+      "glm": "modern"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 0.608
+  },
+  {
+   "file": "projects/real03/style_photos/living_reference.jpg",
+   "sha256": "ab46cb78da7e99c2556e5eae9a67dee95e3446462dd3f80e02ecf82b0a06d14d",
+   "model_key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "living_reference.jpg",
+    "sha256": "ab46cb78da7e99c2556e5eae9a67dee95e3446462dd3f80e02ecf82b0a06d14d",
+    "passes": [
+     {
+      "model_key": "qwen",
+      "model": "Qwen/Qwen3-VL-8B-Instruct",
+      "pass": 1,
+      "data": {
+       "floor": "wood_oak_light",
+       "walls": "plaster_cream",
+       "light": "warm daylight",
+       "family": "modern"
+      },
+      "error": null,
+      "raw_text": "{\n  \"floor\": \"wood_oak_light\",\n  \"walls\": \"plaster_cream\",\n  \"light\": \"warm daylight\",\n  \"family\": \"modern\"\n}",
+      "latency_s": 0.502
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "qwen": "wood_oak_light"
+     },
+     "walls": {
+      "qwen": "plaster_cream"
+     },
+     "light": {
+      "qwen": "warm daylight"
+     },
+     "family": {
+      "qwen": "modern"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 0.502
+  }
+ ]
+}
