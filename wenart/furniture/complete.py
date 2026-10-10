@@ -377,6 +377,28 @@ class RoomCompletion:
     def latency_s(self) -> float:
         return round(float((self.choice or {}).get("latency_s") or 0.0), 3)
 
+    @property
+    def missing(self) -> list[str]:
+        """What the program found missing: the partner types the drawn groups lack and the required groups no
+        drawn piece holds (the Milestone 10 record's ``missing``)."""
+        out: list[str] = []
+        for g in (self.program or {}).get("groups", []):
+            if g.get("drawn"):
+                out += list(g.get("missing") or [])
+            elif g.get("required"):
+                out.append(g["group"])
+        return out
+
+    def drawn_layout(self) -> dict:
+        """``{"pieces": {id: [placer checks it fails as drawn]}}``: what the drawn layout already breaks (walkways
+        are G11's), so the added pieces are not blamed for it."""
+        ctx = self.context
+        floor = [d for d in self.drawn if d.kind not in ("mounted", "outline") and d.piece is not None]
+        if ctx is None or not floor:
+            return {"pieces": {}}
+        checks = placer.check_all([d.piece for d in floor], ctx, walkways=False)
+        return {"pieces": {d.id: placer.failed_checks(c) for d, c in zip(floor, checks) if placer.failed_checks(c)}}
+
     def to_dict(self) -> dict:
         from wenart.furniture import layout as L
 
@@ -397,6 +419,7 @@ class RoomCompletion:
             "refused": self.refused, "dropped": self.dropped,
             "wall_cabinets": [{"id": f["id"], "run": f["rule"]["run"], "size": f["footprint"]["size"],
                                "excluded": f["rule"]["excluded"]} for f in self.wall_cabinets],
+            "missing": self.missing, "drawn_layout": self.drawn_layout(),
             "latency_s": self.latency_s, "solve_s": round(self.solve_s, 3),
         }
 

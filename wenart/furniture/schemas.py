@@ -202,8 +202,9 @@ CLEARANCE_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "desk", 
 CLEARANCE_DEPTH_M: dict[str, float] = {"armchair": 0.45}
 # Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair; a
 # bench or ottoman at the foot of a bed, §2.3 "bench (bed foot)", code review #21); Milestone 11: a coffee table,
-# pouf or side table in front of an armchair.
-CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",),
+# pouf or side table in front of an armchair. Milestone 12: a plain chair is the desk's chair where the room holds no
+# office chair (the work group's alt_type).
+CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair", "chair"),
                                                 "bed_double": ("bench", "ottoman"),
                                                 "bed_single": ("bench", "ottoman"),
                                                 "armchair": ("table_coffee", "ottoman", "side_table")}
