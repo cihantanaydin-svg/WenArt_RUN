@@ -267,8 +267,10 @@ def shown_pieces(room: dict, building: dict) -> list[dict]:
     """The furniture a camera of ``room`` can show: the room's pieces after layout and decor, without
     decor (``kind: decor``) and without ``build: false`` pieces (drawn symbols both recognition passes
     called ``not_furniture``: kept in the building as obstacles, never built, docs/milestone7.md §3.3)."""
+    from wenart.blender.shell import piece_built     # M12: unknown / no-model pieces are not built either
+
     return [f for f in building.get("furniture") or []
-            if f.get("room_id") == room["id"] and f.get("kind") != "decor" and f.get("build", True) is not False]
+            if f.get("room_id") == room["id"] and f.get("kind") != "decor" and piece_built(f)]
 
 
 def room_view_count(room: dict, building: Optional[dict] = None) -> int:

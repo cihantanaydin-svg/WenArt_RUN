@@ -552,8 +552,10 @@ def camera_problems(building: dict, cam: dict) -> list[dict]:
     if not G.point_in_polygon((x, y), poly):
         out.append(_v("V1", "critical", name, f"{name} stands outside its room {rid}", room_id=rid, position=[x, y]))
     floor = float(level["elevation"]) if level else 0.0
+    from wenart.blender.shell import piece_built     # M12: unknown / no-model pieces are not built either
+
     for f in building.get("furniture") or []:
-        if f.get("room_id") != rid or f.get("build", True) is False or f.get("kind") == "decor":
+        if f.get("room_id") != rid or not piece_built(f) or f.get("kind") == "decor":
             continue
         fp = f["footprint"]
         rect = G.rotated_rectangle(fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))

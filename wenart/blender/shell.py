@@ -232,6 +232,13 @@ def opening_vertical(opening: dict, level: dict, levels_above: bool) -> tuple[fl
     return bottom, top, assumed
 
 
+def piece_built(piece: dict) -> bool:
+    """Milestone 12 (lead note of 10 Oct 2026): a furniture piece is in the scene unless ``build: false``, its type is
+    ``unknown`` (no untyped piece is built, CLAUDE.md) or its fitted asset says ``method: none`` (no model fitted)."""
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    return piece.get("build", True) is not False and piece.get("type") != "unknown" and asset.get("method") != "none"
+
+
 def room_floor_z(room: dict, level: dict) -> float:
     """Milestone 12 (docs/milestone12.md §3.2, track L): a room's finished floor: its level's elevation + its
     ``floor_offset_m`` (0 when not marked)."""
@@ -1512,7 +1519,7 @@ def splashback_plan(building: dict, level: dict) -> list[dict]:
     for piece in building.get("furniture") or []:
         room = rooms.get(piece.get("room_id"))
         if room is None or slot_room_type(room.get("room_type")) not in KITCHEN_TYPES \
-                or piece.get("type") not in SPLASHBACK["types"] or piece.get("build", True) is False \
+                or piece.get("type") not in SPLASHBACK["types"] or not piece_built(piece) \
                 or len(room.get("polygon") or []) < 3:
             continue
         back = kitchen_counter_back(piece, room)

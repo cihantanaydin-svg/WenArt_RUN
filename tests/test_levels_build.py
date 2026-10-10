@@ -136,6 +136,24 @@ def test_room_floors_thresholds_wall_bases_and_inner_steps():
     assert living_cams[0]["position"][2] == pytest.approx(hall_cams[0]["position"][2] - 0.3)
 
 
+def test_unknown_and_unfitted_pieces_are_not_built():
+    """Lead note of 10 Oct 2026: a piece of type unknown or with asset.method none is treated like build: false
+    (cameras, the camera search's obstacles, the unverified list)."""
+    from wenart.blender import camsearch as CS
+    base = {"id": "f1", "room_id": "r_living", "type": "sofa", "footprint": {"center": [3, 4], "size": [2, 1],
+                                                                             "rotation_deg": 0}, "status": "unverified"}
+    assert SH.piece_built(base)
+    assert not SH.piece_built(dict(base, type="unknown"))
+    assert not SH.piece_built(dict(base, asset={"method": "none"}))
+    assert not SH.piece_built(dict(base, build=False))
+    assert SH.piece_built(dict(base, asset={"method": "library"})) and SH.piece_built(dict(base, asset=None))
+    b = F.building()
+    b["furniture"] = [base, dict(base, id="f2", type="unknown"), dict(base, id="f3", asset={"method": "none"})]
+    room = next(r for r in b["rooms"] if r["id"] == "r_living")
+    assert [f["id"] for f in CS.shown_pieces(room, b)] == ["f1"]
+    assert [u["id"] for u in BB.unverified_items(b) if u["kind"] == "furniture"] == ["f1"]
+
+
 def test_x3_reads_site_entrances_and_every_rise():
     from wenart.blender import exterior_checks as XC
     b = _whole()

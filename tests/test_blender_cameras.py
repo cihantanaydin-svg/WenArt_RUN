@@ -237,7 +237,9 @@ def test_synthetic_search_cameras_are_inside_the_room_and_outside_every_proxy(na
             assert G.point_in_polygon(plan["position"][:2], room["polygon"]), plan["name"]
             if plan["warning"]:
                 continue
-            for piece in [f for f in building["furniture"] if f.get("room_id") == room["id"]]:
+            # Milestone 12 (lead note): unknown and unfitted pieces are not built, so not obstacles
+            from wenart.blender.shell import piece_built
+            for piece in [f for f in building["furniture"] if f.get("room_id") == room["id"] and piece_built(f)]:
                 assert _distance_to_piece(plan, piece) >= cameras.CAMERA_OBSTACLE_CLEARANCE - 1e-6, plan["name"]
 
 
