@@ -355,3 +355,39 @@ def test_a_partial_rebuild_keeps_the_other_tasks(tmp_path, items):
     rebuilt = BO.read_json(tmp_path / BO.ITEMS_NAME)["items"]
     assert [i["id"] for i in rebuilt] == [i["id"] for i in its]
     assert [i for i in rebuilt if i["task"] == "T4"] == [i for i in its if i["task"] == "T4"]
+
+
+def test_run_model_writes_the_server_facts_and_every_variant(tmp_path, items, monkeypatch):
+    """``run_model`` on a server someone else started (``--url``), the model client scripted: ``<name>.json`` and
+    ``<name>-<variant>.json`` per variant, ``started``; no T5 run: the summary picks nobody (T5 calls < 80 %)."""
+    its, folder = items
+    sub = []
+    for t in ("T1", "T2", "T3", "T4"):
+        it = dict(_first(items, t))
+        it["images"] = [r if r.startswith("repo:") else f"repo:{(folder / r).relative_to(ROOT)}" for r in it["images"]]
+        sub.append(it)
+    BO.write_json(tmp_path / "items" / BO.ITEMS_NAME, {"version": 1, "items": sub})
+    answers = {"t1": {"type": "chair", "why": "x"}, "t2": {"errors": []}, "t3": {"best": 1, "why": "x"},
+               "t4": {"floating_or_sunk_decor": False, "wrong_object": False, "notes": "x"}}
+    made = []
+
+    def fake_client(url, key, check_yaml=None, *, variant=None, **kw):
+        model = M.MockModel(critic=[lambda body: answers[M.MockModel.schema_name(body)]] * 4)
+        model.critic_thinking = variant == "on"
+        made.append((url, key, variant))
+        return model
+
+    monkeypatch.setattr(M, "from_check_yaml", fake_client)
+    monkeypatch.setenv("WENART_JOB_DIR", str(tmp_path / "job"))
+    facts = BO.run_model("bakeoff.fp8", tmp_path / "out", url="http://127.0.0.1:9/v1",
+                         items_path=tmp_path / "items" / BO.ITEMS_NAME, workers=2, tasks=("T1", "T2", "T3", "T4"))
+    assert [v for _u, _k, v in made] == ["off", "on"] and facts["server"]["external"]
+    for v in ("off", "on"):
+        rec = BO.read_json(tmp_path / "out" / f"fp8-{v}.json")
+        assert rec["variant"] == v and set(rec["results"]) == {i["id"] for i in sub}
+        assert rec["metrics"]["combined"] is not None and rec["cycles"]
+    assert BO.started(tmp_path / "out", "fp8")
+    assert not (tmp_path / "out" / "render-fp8").exists()
+    data = BO.summary(tmp_path / "out")
+    assert len(data["rows"]) == 2 and data["decision"]["pick"] is None
+    assert set(data["decision"]["not_eligible"]) == {"fp8 off", "fp8 on"}

@@ -117,7 +117,7 @@ section `wenart/report/agent.py: metrics_lines`. Baselines committed: `results/c
 | `tests/test_agent_loop_m12.py` | 12 | plan-first sessions, checked plans, coverage ranking, parallel sessions, time cap, decor sync, level edits, op fallbacks, critic families |
 | `tests/test_agent_metrics.py` | 3 | metrics, compare table |
 | `tests/test_agent_scene_inputs.py` | 3 | built rule (unknown, library gap), scene checks folder, manifest summary findings |
-| `tests/test_bakeoff_m12.py` | 15 | models = contract ids and revisions, variants, dotted downloads, task set, planted-problem checks, scoring, decision rule, scripted runs (T1-T5), time cap, summary, crop, job script, partial rebuild |
+| `tests/test_bakeoff_m12.py` | 16 | models = contract ids and revisions, variants, dotted downloads, task set, planted-problem checks, scoring, decision rule, scripted runs (T1-T5), time cap, summary, crop, job script, partial rebuild, `run_model` files |
 | `tests/test_run_agent_m12.py` | 5 | agent session for layout + decor, fallback, round-0 estimate, workers, 2-GPU serving |
 | changed: `tests/test_agent_loop.py`, `test_agent_tools.py`, `test_run_agent.py`, `test_run_copy.py` (+1) | | M12 semantics, one agent session, audit mark in `ATTRIBUTION.md` |
 | GPU: `tests/gpu/test_agent.py` | +1 | every bake-off task answers on the served model (run by P1 against `bakeoff.fp8`) |
