@@ -671,3 +671,20 @@ def test_one_day_raise_of_the_daily_cap(monkeypatch):
     monkeypatch.setattr(gpu_run, "utc_now", lambda: dt.datetime(2026, 10, 10, 1, 0, tzinfo=dt.timezone.utc))
     with pytest.raises(RuntimeError, match=r"\$30.00/day"):
         gpu_run.check_limits(2.6, 115, 26.0)
+
+
+def test_drive_upload_secret_check(monkeypatch):
+    """User request of 10 Oct 2026: --drive-upload passes the RunPod secret rclone_conf only when it exists."""
+    calls = []
+
+    def fake_api(method, path, body=None, **kw):
+        calls.append((method, path))
+        return {"secrets": [{"name": "rclone_conf", "id": "x", "createdAt": "t"}]} if "rclone_conf" in path \
+            else {"secrets": []}
+
+    monkeypatch.setattr(gpu_run, "api", fake_api)
+    assert gpu_run.secret_exists("rclone_conf") is True
+    assert gpu_run.secret_exists("other") is False
+    assert calls[0] == ("GET", "/v2/account/secrets?name=rclone_conf")
+    text = (Path(__file__).resolve().parents[1] / "scripts" / "gpu_run.py").read_text()
+    assert 'RCLONE_CONF="{{ RUNPOD_SECRET_" + DRIVE_SECRET + " }}"' in text and '"RCLONE_")' in text

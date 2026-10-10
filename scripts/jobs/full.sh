@@ -26,6 +26,7 @@
 #   AB_PHASE            all (default) | render | judge
 #   RUN_FORCE           stages whose fingerprint is ignored, comma separated (e.g. photos,layout)
 #   RUN_POLISH=off      Milestone 11 (pod G2): no gate and polish for any project of this run (WENART_POLISH)
+#   DRIVE_UPLOAD=1      set by gpu_run.py --drive-upload: the 3D files of RUN_PROJECTS to Google Drive (RCLONE_CONF)
 #   RENDER_SAMPLES      Cycles samples (default 128)
 #   CHECK_MODELS        check.yaml model keys (default "qwen glm"; recognition, layout and --no-orchestrator checks)
 #   NO_ORCHESTRATOR=1   Milestone 11: the M10 chain (`pod --no-orchestrator`); default: the AI orchestrator
@@ -283,4 +284,10 @@ export HF_HUB_OFFLINE=1       # every model is in HF_HOME now; nothing is fetche
 rc=0
 "$PY" -m wenart.run pod "${POD_ARGS[@]}" || rc=$?
 log "orchestrator exit $rc"
+# User request of 10 Oct 2026: the 3D files of the public projects to Google Drive (gpu_run.py --drive-upload passes
+# the RunPod secret rclone_conf); a failure is a warning only. Private projects never leave the volume this way.
+if [ "${DRIVE_UPLOAD:-0}" = "1" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; then
+  read -r -a DRIVE_LIST <<< "${RUN_PROJECTS//,/ }"
+  bash scripts/drive_upload.sh "$WENART_OUTPUTS" "${DRIVE_LIST[@]}" || log "warning: drive upload failed"
+fi
 exit "$rc"

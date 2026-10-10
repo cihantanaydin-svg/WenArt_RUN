@@ -87,6 +87,9 @@ UA = "wenart-gpu-run/0.2 (+https://github.com/cihantanaydin-svg/WenArt_RUN)"  # 
 JOB_RE = re.compile(r"^scripts/jobs/[A-Za-z0-9_.-]+\.sh$")
 
 
+DRIVE_SECRET = "rclone_conf"     # the RunPod secret with the user's rclone.conf (Google Drive remote)
+
+
 # ----------------------------------------------------------------------------- API
 class ApiError(RuntimeError):
     pass
@@ -199,6 +202,12 @@ def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | N
             continue
         return {"name": name, "id": g["id"], "price": price, "availability": avail, "memory": g["memory"]}
     raise RuntimeError("no allowed GPU available now:\n  " + "\n  ".join(reasons))
+
+
+def secret_exists(name: str) -> bool:
+    """True when the RunPod secret ``name`` exists (``GET /v2/account/secrets?name=``; values are never returned)."""
+    r = api("GET", f"/v2/account/secrets?name={name}") or {}
+    return any(s.get("name") == name for s in r.get("secrets") or [])
 
 
 def check_limits(price: float, minutes: int, spent_today: float) -> None:
@@ -759,9 +768,16 @@ def cmd_run(a: argparse.Namespace) -> int:
         "HF_TOKEN": "{{ RUNPOD_SECRET_hf_token }}", "HF_HOME": "/workspace/hf",
         "WENART_IMAGE": IMAGE, "WENART_EXPECT_VOLUME": "1" if volume else "0",
     }
+    if getattr(a, "drive_upload", False):
+        # User request of 10 Oct 2026: the pod uploads the 3D files to Google Drive with the user's rclone config,
+        # the RunPod secret rclone_conf (never read or printed here; scripts/drive_upload.sh).
+        if not secret_exists(DRIVE_SECRET):
+            raise RuntimeError(f"--drive-upload: the RunPod secret {DRIVE_SECRET!r} does not exist "
+                               "(docs/setup.md step 6)")
+        env.update(RCLONE_CONF="{{ RUNPOD_SECRET_" + DRIVE_SECRET + " }}", DRIVE_UPLOAD="1")
     for extra in a.env or []:  # job knobs such as RENDER_SAMPLES=128; reserved names stay ours
         key, _, value = extra.partition("=")
-        if not key or key in env or key.startswith(("RUNPOD_", "HF_")):
+        if not key or key in env or key.startswith(("RUNPOD_", "HF_", "RCLONE_")):
             raise RuntimeError(f"--env {extra!r}: empty, reserved or already set")
         env[key] = value
     name = f"{POD_PREFIX}{job_id}"
@@ -1035,6 +1051,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--keep", action="store_true", help="do not terminate the stopped pod")
     r.add_argument("--allow-dirty", action="store_true")
     r.add_argument("--dry-run", action="store_true")
+    r.add_argument("--drive-upload", action="store_true",
+                   help="pass the RunPod secret rclone_conf: the job uploads the 3D files to Google Drive")
     r.add_argument("--over-5-ok", action="store_true",
                    help="the user OK'd a pod whose worst case is over $5 (CLAUDE.md: ask before any action over $5)")
     r.add_argument("--repo-url", default="https://github.com/cihantanaydin-svg/WenArt_RUN.git")

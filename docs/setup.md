@@ -94,3 +94,24 @@ Checklist (Claude fills this in):
 | Cloud environment: Custom network list | yes, all domains reachable except `cdn-lfs.huggingface.co` (proxy answers 502; not needed, models download on the pod) |
 | Cloud environment: RunPod key as API credential or variable | yes, as environment variable `RUNPOD_API_KEY` |
 | Read-only API checks pass | yes, all 5 checks returned HTTP 200 |
+
+## Step 6 – Google Drive upload of the 3D files (optional, 10 Oct 2026)
+
+The pod uploads the `.blend` and `.glb` of each project to your Google Drive with rclone (MIT licence) when the
+runner gets `--drive-upload`. You create the rclone config once on your Mac; the session never sees it.
+
+1. Install rclone: `brew install rclone`.
+2. `rclone config` → `n` (new remote) → name `gdrive` → storage `drive` (Google Drive) → leave client id and secret
+   empty → scope **`drive.file`** (rclone can see only the files it creates) → leave the rest at the defaults →
+   "Use web browser to automatically authenticate" `y` → log in with your Google account in the browser → `q`.
+3. Check it: `rclone lsd gdrive:` (no error).
+4. Copy the whole file `~/.config/rclone/rclone.conf` (`cat ~/.config/rclone/rclone.conf | pbcopy`).
+5. RunPod console → Settings → Secrets → **Create Secret**: name `rclone_conf`, value = the pasted file. Never paste it
+   into the chat.
+
+What happens then: `scripts/gpu_run.py run ... --drive-upload` checks that the secret exists (name only), the pod gets
+it as `RCLONE_CONF`, `scripts/drive_upload.sh` installs rclone v1.75.2 (SHA256-checked) on the container disk, writes
+the config to `/opt/wenart` (mode 600, never to `/workspace`, deleted at the end) and copies
+`outputs/<p>/export/*.blend|*.glb` to `gdrive:WenArt/<p>/<UTC date_time>/`. Files already on the volume:
+`scripts/jobs/drive_upload.sh` with `--env DRIVE_PROJECTS='real02 real01 synthetic-01'`. To stop it: delete the
+secret, or revoke rclone's access in your Google account (Security → Third-party access).
