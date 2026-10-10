@@ -84,7 +84,7 @@ Design: `docs/milestone12.md` §1.2, §1.4, §2, §4.2–§4.6, §4.9 (D8–D12,
 
 ### 8. Smaller changes
 
-`schemas.ALLOWED_TYPES["balcony"]`; `schemas.CLEARANCE_EXEMPT["desk"]` takes a chair (the work group's alt type);
+`schemas.ALLOWED_TYPES["balcony"]` (new row) and `["other"]` + `office_chair` (the work group's chair at its desk);
 `placer.check_all(..., walkways=True)`; `tests/gpu/test_furnish.py` and `test_m10_completion.py` read the solver
 flow (checked offline on real02 outputs with a fake chooser: 8 passed, 1 skipped).
 
@@ -162,5 +162,8 @@ real03's misread boxes (giant diagonal unknowns over whole rooms) — the agent'
 - **Track B**: the size table's crib orientation (a crib drawn 1.36 × 0.7 reads as turned).
 - **Track R**: split / type the giant unknown boxes (real03), toilets read 1.145 × 0.356 m (U1 at ingest; the agent
   can use `fix_fixture` meanwhile), sanitary ware through walls.
+- **Lead / vision check** (`tests/test_vision_check_prompts.py::test_decoy_type_first_allowed_absent_then_fallback`):
+  balcony now has allowed types (`table_dining`, `chair`, `bench`), so `decoy_type("balcony", {"armchair"}, …)` is
+  `table_dining`, not the fallback `desk`; the assertion should use a room type without a row (e.g. `"shaft"`).
 - **Schema** (lead): `furniture.group` carries `anchor_id` too (allowed, not listed); `adjusted_by_ai.fix_fixture`
   and `adjusted_by_ai.not_furniture` are new keys of the existing object.

@@ -163,7 +163,8 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
     "hall": ("dresser", "chair", "bookshelf", "console_table", "shoe_cabinet", "bench"),
     "dining": ("table_dining", "chair", "dresser", "bookshelf",      # Milestone 7 (§6.5)
                "display_cabinet", "sideboard", "bench"),
-    "other": ("armchair", "chair", "table_dining", "bookshelf", "desk"),
+    "other": ("armchair", "chair", "table_dining", "bookshelf", "desk",
+              "office_chair"),                  # Milestone 12: the work group's chair at its desk (§4.2 "work")
     # Milestone 12 (docs/milestone12.md §4.2 "balcony": a small table and two chairs; real02's terraces).
     "balcony": ("table_dining", "chair", "bench"),
 }
@@ -202,9 +203,8 @@ CLEARANCE_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "desk", 
 CLEARANCE_DEPTH_M: dict[str, float] = {"armchair": 0.45}
 # Milestone 10: pieces of these types may stand in the front clearance of the key type (the desk's own chair; a
 # bench or ottoman at the foot of a bed, §2.3 "bench (bed foot)", code review #21); Milestone 11: a coffee table,
-# pouf or side table in front of an armchair. Milestone 12: a plain chair is the desk's chair where the room holds no
-# office chair (the work group's alt_type).
-CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair", "chair"),
+# pouf or side table in front of an armchair.
+CLEARANCE_EXEMPT: dict[str, tuple[str, ...]] = {"desk": ("office_chair",),
                                                 "bed_double": ("bench", "ottoman"),
                                                 "bed_single": ("bench", "ottoman"),
                                                 "armchair": ("table_coffee", "ottoman", "side_table")}
