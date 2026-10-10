@@ -1212,3 +1212,11 @@ A track that needs a change in another track's file writes it into its report; t
   @4275532ffd9a9496ff36b7a2dc4a9db1048da438).
 - Runner (lead): `scripts/gpu_run.py run --gpu-count 2` (the pod gets `WENART_GPU_COUNT`); `--over-5-ok` for P1 and
   every 2-GPU pod (user OK of 10 Oct 2026).
+
+## 14. Build log and lead decisions (step 2)
+
+| Date | Item | Decision |
+|---|---|---|
+| 10 Oct | Track B merged (`6865c6a`) | audit package, size table with heights and products, 18 NC/SA removals in the catalogue, generated credit fixed, growth lists (Poly Haven 88 CC0 / 501 MB, ABO 232 / 7.8 GB, GSO 36 / 239 MB, Infinigen plan); pod P2 started on an RTX 5090 (no RTX PRO 6000 in stock in EU-RO-1) |
+| 10 Oct | Track S merged (`27468ee`) | decor in the host frame and on the built mesh (`blender/rest.py`), procedural textiles (`blender/textiles.py`), parametric shower / washer / fridge, scene checks S1–S6, fit on usable models with the style chain; schema: `host_frame` keys, `decor_dropped`, `asset.method: none` |
+| 10 Oct | Fixtures without an audited model (track S question) | **kitchen and bath fixtures** (toilet, washbasin, bathtub, shower, kitchen sink, stove, fridge, washing machine) fall back to the parametric model with a `library_gap` record when no audited model fits; otherwise drawn fixed equipment would vanish, which CLAUDE.md forbids. Sofas, beds and tables never fall back to parametric (§4.8 stays) |
