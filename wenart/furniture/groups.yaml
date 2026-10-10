@@ -52,7 +52,7 @@ rules:
   tv_distance: {min: 1.50, rec_factor: [1.2, 1.6], screen_diagonal: 1.40, source: [viewing], flagged: true, what: "sofa front to the TV unit front (rec 1.2-1.6 x the screen diagonal, 55 inch assumed)"}
   tv_axis: {max_offset: 0.30, max_angle: 10.0, source: [ours], what: "TV unit centre off the sofa axis, TV front off the line to the sofa"}
   armchair_facing: {max_angle: 30.0, max_distance: 2.50, source: [ours], what: "an armchair faces the coffee table or the sofa"}
-  nightstand_gap: {max: 0.10, source: [ours], what: "nightstand to the bed side"}
+  nightstand_gap: {max: 0.30, rec: 0.05, source: [ours], what: "nightstand to the bed side and to the headboard line (further away it no longer reads as the bed's)"}
   storage_front: {min: 0.80, source: [ours], flagged: true, what: "free in front of wardrobes and other door-fronted storage"}
   desk_back: {min: 0.80, source: [ours], flagged: true, what: "free behind the desk front (the chair zone)"}
   window_band: {depth: 0.30, sill_margin: 0.05, source: [ours], what: "nothing taller than the sill + 0.05 m within 0.30 m in front of a window"}

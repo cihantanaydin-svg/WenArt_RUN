@@ -39,6 +39,18 @@ How (per room; pieces with ``build: false`` are not built and are skipped; decor
 - R4 (finishes) is the build's business (track C): listed, not measured here.
 
 Score = 100 − (30 per critical, 10 per major, 3 per minor), floored at 0.
+
+Milestone 12 (docs/milestone12.md §4.6; owner: track G): the group checks of ``group_checks`` replace the counting
+of F5 and run here, so the critic, the edit validator and the tests share one function: G1–G4, G5 (the side and
+foot clearances; the headboard stays F3), G6–G10, G11 (the walkways: 0.60 m between doors and to every use zone,
+0.80 m from the entrance door, instead of F6's 0.9 m walkway), G12 (the window bands, instead of F7's window part,
+a TV unit counted with its TV) and G13 (0.80 m in front of wardrobes and other door-fronted storage). F6 keeps the
+front clearances the group checks do not cover (sofas, armchairs, cribs); F7 keeps the door approach strips; G14 is
+F1 (F1 reads the zone a piece stands in, ``group_checks.allowed_types_at``). F5 stays in ``CHECKS`` as replaced.
+F2 no longer takes a size "either way" for a piece with a front: a footprint whose width and depth are swapped
+against the type (a bed turned 90°: real02 ``f_L0_007`` after a resize) is a major F2 finding; frontless and
+square types and cribs (a long side as front) still fit either way; kitchen counters, islands, wall cabinets and
+stairs are built by code at any length and are not size-checked.
 """
 from __future__ import annotations
 
@@ -51,6 +63,7 @@ from shapely.geometry import LineString, Point, Polygon
 
 
 from wenart import geometry as G
+from wenart.furniture import group_checks as GC
 from wenart.furniture import placer, schemas
 
 SEVERITIES = ("critical", "major", "minor")
@@ -67,12 +80,12 @@ CHECKS: dict[str, dict] = {
     "F4": {"severity": "major", "what": "the front faces its group (sofa -> TV unit / coffee table, chairs -> table, "
                                         "armchairs -> coffee table / sofa) and never a wall closer than 0.3 m",
            "measured": True},
-    "F5": {"severity": "minor", "what": "groups complete: dining table + chairs (none: major), bed + nightstands, "
-                                        "sofa + coffee table, desk + chair", "measured": True},
-    "F6": {"severity": "major", "what": "front clearances (0.6 m; armchairs 0.45 m) and the 0.9 m walkways",
+    "F5": {"severity": "minor", "what": "replaced by the group checks G1-G13 (Milestone 12: arrangements, not counts)",
+           "measured": False},
+    "F6": {"severity": "major", "what": "front clearances of seats and cribs (0.6 m; armchairs 0.45 m); the walkways "
+                                        "are G11", "measured": True},
+    "F7": {"severity": "critical", "what": "no door approach blocked (critical); the window bands are G12",
            "measured": True},
-    "F7": {"severity": "critical", "what": "no door approach blocked (critical); nothing taller than the sill in a "
-                                           "window band (major)", "measured": True},
     "F8": {"severity": "major", "what": "no floating piece: a free-standing piece touches a wall or belongs to a "
                                         "group", "measured": True},
     "F9": {"severity": "major", "what": "nothing odd: overlapping pieces, a piece through the room outline, an "
@@ -83,6 +96,11 @@ CHECKS: dict[str, dict] = {
     "R4": {"severity": "minor", "what": "finishes fit the room (tiles in wet rooms, a splashback in kitchens): "
                                         "measured by the build (track C), not here", "measured": False},
 }
+# Milestone 12: F6's front clearances that no group check covers (beds: G5, desks: G7, storage: G13).
+F6_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "crib")
+# Milestone 12: the group checks that run here (G14 is F1); each violation keeps its own severity.
+GROUP_CHECKS: tuple[str, ...] = tuple(f"G{i}" for i in range(1, 14))
+CHECKS.update({g: {"severity": "major", "what": GC.WHAT[g], "measured": True} for g in GROUP_CHECKS})
 
 AREA_MIN_M2 = 0.01               # intersections below this are touching (drawn pieces meet at their edges)
 OVERLAP_MIN_M2 = 0.05            # F9: two pieces overlap
@@ -209,9 +227,12 @@ def allowed_in(building: dict, room: dict) -> set:
 def _f1(r: _Room) -> list[dict]:
     if not any(t in schemas.ALLOWED_TYPES for t in room_types(r.building, r.room)):
         return []
+    zoned = bool(r.room.get("zones"))
     allowed = allowed_in(r.building, r.room)
     out = []
     for f in r.built:
+        if zoned and f["id"] in r.pieces:     # Milestone 12: the zone a piece stands in (G14)
+            allowed = GC.allowed_types_at(r.building, r.room, r.pieces[f["id"]].center)
         if f["type"] not in allowed:
             # A drawn piece says what the room holds (its row may be narrow, e.g. a sofa in an "other" room): minor,
             # unless it is fixed equipment in the wrong room (a kitchen counter read in a bedroom wardrobe, U12).
@@ -222,15 +243,55 @@ def _f1(r: _Room) -> list[dict]:
     return out
 
 
+PARAMETRIC_TYPES = ("kitchen_counter", "kitchen_island", "wall_cabinet", "stair")    # built by code at any length
+# Types whose footprint fits either way: no front, square, or (a crib) a long side as its front.
+EITHER_WAY_TYPES = tuple(schemas.FRONTLESS_TYPES) + ("crib", "chair", "armchair", "bar_stool", "office_chair",
+                                                     "washing_machine", "shower")
+
+
+def oriented_fit(ftype: str, size) -> dict:
+    """How a footprint ``size = (width along the front, depth)`` fits its type's ranges (size table):
+    ``{"fits": with the +15 % tolerance in this orientation, "turned": the swapped footprint fits the ranges exactly
+    while this one does not and its proportions are the other way round (a bed turned 90°)}``."""
+    from wenart.recognition import symbols
+
+    table = symbols.normalise_table(_size_table())
+    if ftype not in table:
+        return {"fits": True, "turned": False}
+    (w0, w1), (d0, d1) = table[ftype]
+    w, d = float(size[0]), float(size[1])
+    tol = symbols.SIZE_TOLERANCE
+
+    def inside(v, lo, hi, t=0.0):
+        return lo / (1.0 + t) - 1e-9 <= v <= hi * (1.0 + t) + 1e-9
+
+    fits = inside(w, w0, w1, tol) and inside(d, d0, d1, tol)
+    strict, swapped = inside(w, w0, w1) and inside(d, d0, d1), inside(d, w0, w1) and inside(w, d0, d1)
+    reversed_ = (w - d) * ((w0 + w1) / 2.0 - (d0 + d1) / 2.0) < -1e-9
+    return {"fits": fits, "turned": (not strict) and swapped and reversed_}
+
+
 def _f2(r: _Room) -> list[dict]:
     out = []
     for f in r.built:
-        if f["type"] in ("unknown", "stair") or f["type"] in schemas.MOUNTED_TYPES:
+        if f["type"] in ("unknown",) or f["type"] in PARAMETRIC_TYPES or f["type"] in schemas.MOUNTED_TYPES:
             continue
         size = [round(float(v), 3) for v in f["footprint"]["size"]]
-        if f["type"] in _size_table() and not _fits(f["type"], size):
+        if f["type"] not in _size_table():
+            continue
+        if not _fits(f["type"], size):
             out.append(_violation("F2", f["id"], r.id, f"{f['type']} {size[0]:.2f} x {size[1]:.2f} m is outside the "
                                   f"type's product sizes", {"size": size, "type": f["type"]}))
+            continue
+        if f.get("front_deg") is None or f["type"] in EITHER_WAY_TYPES or f["id"] not in r.pieces:
+            continue
+        p = r.pieces[f["id"]]
+        fit = oriented_fit(f["type"], p.size)
+        if fit["turned"] or not fit["fits"]:
+            out.append(_violation("F2", f["id"], r.id, f"{f['type']} {p.size[0]:.2f} m wide x {p.size[1]:.2f} m deep "
+                                  f"(seen from its front) is turned 90° against the type's product sizes",
+                                  {"size": [round(p.size[0], 3), round(p.size[1], 3)], "type": f["type"],
+                                   "turned": True, "front_deg": f.get("front_deg")}))
     return out
 
 
@@ -375,43 +436,18 @@ def _f3_f4(r: _Room) -> list[dict]:
 
 
 # --------------------------------------------------------------------------
-# F5: groups
+# F5 -> the group checks (Milestone 12)
 # --------------------------------------------------------------------------
 
-def _count_near(r: _Room, pid: str, types, reach: float) -> int:
-    return len(_targets(r, pid, types, reach))
-
-
 def _f5(r: _Room) -> list[dict]:
+    """The group checks G1–G13 of the room (``group_checks``), F5's place: arrangements, not counts. The headboard
+    part of G5 is left to F3 (one finding per fault)."""
+    view = GC.RoomView(r.building, r.room)
     out = []
-    allowed = set(schemas.allowed_types(r.type, r.room.get("room_subtype"))) if r.type in schemas.ALLOWED_TYPES \
-        else set()
-    for f in r.built:
-        pid, ftype = f["id"], f["type"]
-        if pid not in r.pieces or f.get("status") == "unverified":
+    for v in GC.check_view(view, only=GROUP_CHECKS):
+        if v["check"] == "G5" and (v.get("metrics") or {}).get("part") == "headboard":
             continue
-        if ftype == "table_dining":
-            want = schemas.count_by_length(max(float(v) for v in f["footprint"]["size"]),
-                                           schemas.CHAIRS_BY_TABLE_LENGTH)
-            n = _count_near(r, pid, SEAT_TYPES, CHAIR_REACH_M)
-            if n == 0:
-                out.append(_violation("F5", pid, r.id, "dining table without chairs", {"chairs": 0, "expected": want},
-                                      severity="major"))
-            elif n < want:
-                out.append(_violation("F5", pid, r.id, f"dining table with {n} of {want} chairs",
-                                      {"chairs": n, "expected": want}))
-        elif ftype in schemas.NIGHTSTANDS_PER_BED:
-            want = schemas.NIGHTSTANDS_PER_BED[ftype]
-            n = _count_near(r, pid, ("nightstand",), NIGHTSTAND_REACH_M)
-            if n < want:
-                out.append(_violation("F5", pid, r.id, f"{ftype} with {n} of {want} nightstands",
-                                      {"nightstands": n, "expected": want}))
-        elif ftype in ("sofa", "sofa_corner") and "table_coffee" in allowed:
-            if not _count_near(r, pid, ("table_coffee",), COFFEE_REACH_M):
-                out.append(_violation("F5", pid, r.id, f"{ftype} without a coffee table", {"coffee_tables": 0}))
-        elif ftype == "desk":
-            if not _count_near(r, pid, ("chair", "office_chair"), DESK_CHAIR_REACH_M):
-                out.append(_violation("F5", pid, r.id, "desk without a chair", {"chairs": 0}))
+        out.append(v)
     return out
 
 
@@ -429,7 +465,7 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
     room_area = r.polygon.buffer(0.01, join_style="mitre")
     for pid, p, poly in zip(ids, pieces, polys):
         item = r.item(pid)
-        if p.type in schemas.CLEARANCE_TYPES:
+        if p.type in F6_TYPES:
             zone = p.front_zone()
             exempt = set(schemas.CLEARANCE_EXEMPT.get(p.type, ())) | set(EXTRA_EXEMPT.get(p.type, ()))
             outside = zone.difference(room_area).area
@@ -446,13 +482,6 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
             if poly.intersection(door.zone).area > AREA_MIN_M2:
                 out.append(_violation("F7", pid, r.id, f"{p.type} blocks door {door.id}",
                                       {"door": door.id, "area_m2": round(poly.intersection(door.zone).area, 3)}))
-        if p.type not in schemas.UNDER_WINDOW_TYPES:
-            for win in r.ctx.windows:
-                if p.height() > win.sill + 1e-9 and poly.intersection(win.band).area > AREA_MIN_M2:
-                    out.append(_violation("F7", pid, r.id, f"{p.type} ({p.height():.2f} m) stands in front of "
-                                          f"window {win.id} (sill {win.sill:.2f} m)",
-                                          {"window": win.id, "height_m": p.height(), "sill_m": win.sill},
-                                          severity="major"))
     for door in r.ctx.doors:
         if door.swing is None or door.swing.is_empty:
             continue
@@ -472,15 +501,7 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
             else:
                 out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)}",
                                       {"pieces": hits}))
-    if pieces and r.ctx.baseline_pairs:
-        blamed, failures = placer.walkway_blame(pieces, r.ctx)
-        for pair in failures:
-            names = sorted(ids[i] for i in blamed)
-            out.append(_violation("F6", names[0] if names else r.id, r.id,
-                                  f"no 0.9 m walkway from {pair[1]} to {pair[3]}"
-                                  + (f" (blocked by {', '.join(names)})" if names else ""),
-                                  {"from": pair[1], "to": pair[3], "blocked_by": names}))
-    return out
+    return out                     # Milestone 12: the walkways are G11 (group_checks), the window bands G12
 
 
 # --------------------------------------------------------------------------

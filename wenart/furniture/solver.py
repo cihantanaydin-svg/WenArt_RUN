@@ -1463,8 +1463,8 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
         if entry.get("note", "").startswith(("unverified", "no completion")):
             continue
         if template["layout"] == "anchored":
-            if entry.get("drawn") and not template["partners"]:
-                continue                               # a drawn wardrobe: nothing to add
+            if entry.get("drawn") and (not template["partners"] or not entry.get("missing")):
+                continue                               # a drawn wardrobe, a drawn table with its chairs: nothing to add
             levels.append((entry, anchored_candidates(space, entry, len(levels), info), entry["required"]))
         elif template["layout"] == "run":
             if entry.get("drawn"):

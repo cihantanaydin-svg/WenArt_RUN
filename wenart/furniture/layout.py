@@ -1,48 +1,35 @@
-"""AI layout for rooms the documents leave empty (docs/milestone4.md section 3).
+"""The layout stage: rooms the documents leave empty are furnished in functional groups, rooms with drawn furniture
+are completed (docs/milestone12.md §4.3-§4.5; Milestone 4 §3 and Milestone 10 §2 before; owner: track G).
 
-Flow per room with ``has_documented_furniture: false`` and a furnishable
-room type: two text-only calls to the vLLM server (pass 1 and pass 2 with a
-different block order and seed, temperature 0, the layout schema as the
-structured-output grammar), each answer validated against the schema and
-checked and repaired by ``placer.py``. The proposal with the fewest dropped
-pieces wins (ties: pass 1). A piece that the other pass also proposed (same
-type, centre within 0.5 m) gets confidence 0.9, the rest 0.6. Added pieces
-are ``source: added_by_ai``, ``status: verified`` with evidence
-``{method: ai, model, pass, text: <reason>}`` and the six placer checks, all
-true. A room whose answers are unusable stays empty and the report says so.
-Milestone 7 (docs/milestone7.md §0, §6.5): ``dining`` rooms are furnished
-like the others (anchor: the dining table); a ``prayer`` room is never
-furnished by AI: it is listed as skipped with the reason, never asked.
-A pass whose last attempt could not reach the server (``VLMError``, or the
-model lookup failed) is a transport error, not an answer: the CLI then exits
-3 and writes no furnished building, so a dead server never yields a
-"furnished" building with empty rooms (docs/milestone6.md §2.6).
+What, per empty room (``has_documented_furniture: false``, a furnishable room type): the room's program
+(``program.room_program``: groups with options) -> the group solver's top 3 candidates (``solver.solve_room``) ->
+the vision model picks one (``choose_candidate``: a multimodal request with one top-down image per candidate, its
+groups, options, scores and score terms; temperature 0, strict JSON ``{candidate, reason}``; it chooses only among
+the candidates, never coordinates) -> the chosen candidate's pieces are added (``apply_choice``: ``added_by_ai``,
+``method: rule``, ``group`` membership, evidence of the solver and of the choice). A failed, unreachable or invalid
+answer takes candidate 1 (the solver's best), logged. A candidate with hard failures is never applied; a room with
+no usable candidate stays empty and the report says why. Prayer rooms, stairs and shafts are never furnished. The
+completion of rooms with drawn furniture (``complete.complete_building``) uses the same chooser.
 
-The request goes through ``wenart.recognition.vlm_client`` (``post_json``,
-``parse_answer``, ``served_models``); the only difference to the recognition
-tasks is that the user message is text only, which the OpenAI chat format
-allows as a plain string.
+Why: Milestone 11 asked a text-only model for single pieces with raw coordinates and repaired them one by one
+(§1.2); now code places whole groups and the model only chooses.
 
-CLI: ``python -m wenart.furniture.layout outputs/<p>/building.json --style
-outputs/<p>/style.json --server http://127.0.0.1:8001/v1 --model
-Qwen/Qwen3-VL-8B-Instruct --out outputs/<p>/building_furnished.json --debug
-outputs/<p>/layout_debug/`` writes the furnished building, ``layout.json``
-and ``layout_report.md`` next to it and one PNG + JSON per room in the debug
-folder.
+Partners (Milestone 10, kept): an empty room whose ``same_as`` / twin partner is empty too takes the partner's
+layout (``complete.copy_empty_layout``: copied, mirrored for twins) instead of being solved and asked. A partner
+that does not map, or a copy that would lose a piece here (a check fails), is not used: the room is solved itself.
 
-Milestone 10 (docs/milestone10.md §1.6a, §2): the same run, with the same
-client, also completes the rooms with drawn furniture
-(``wenart.furniture.complete``; ``LayoutClient.complete`` asks with the
-room's own schema). The brief keys ``furnished_rooms``,
-``furnished_rooms_keep``, ``furnished_rooms_keep_size`` and
-``render.twin_rooms`` come from ``wenart.brief.load_brief`` of
-``--project-dir`` (default: the building's ``project.source_folder``). An
-empty room whose partner (``same_as``, or ``twin_of`` with ``twin_rooms:
-one``) is an empty room too takes the partner's layout (copied, mirrored for
-twins) instead of being asked. The CLI also writes ``completion.json`` and
-``completion_report.md`` and runs ``locked.check(source, final, mode)``: a
-violation writes no furnished building and exits 1 (the reports list it); a
-transport error in either part still exits 3 with no output.
+The request goes through ``wenart.recognition.vlm_client`` (``build_request`` with several labelled images,
+``post_json``, ``parse_answer``, ``served_models``). ``LayoutClient.down`` is set by the first transport error:
+later rooms are not asked again (candidate 1, logged), so a dead server costs one retry series, not one per room.
+
+CLI (unchanged arguments; ``--passes`` is accepted and ignored): ``python -m wenart.furniture.layout
+outputs/<p>/building_fitted.json --style outputs/<p>/style.json --server http://127.0.0.1:8001/v1 --model <id>
+--out outputs/<p>/building_furnished.json --debug outputs/<p>/layout_debug/ --project-dir <project>`` writes the
+furnished building, ``layout.json``, ``layout_report.md``, ``completion.json`` and ``completion_report.md`` next to
+it and per room ``<room>.json`` (program, candidates with their scores, terms and checks, the choice), ``<room>.png``
+(the candidates side by side) and ``<room>_c<k>.png`` (the images the model saw) in the debug folder. It runs
+``locked.check(source, final, mode)``: a violation writes no furnished building and exits 1; a building with
+``status`` other than ``ok`` exits 2. ``--no-orchestrator`` runs of ``wenart.run`` call it the same way.
 """
 from __future__ import annotations
 
@@ -50,32 +37,32 @@ import argparse
 import json
 import re
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
 from wenart import building as B
-from wenart import geometry as G
 from wenart.furniture import placer, prompts, schemas
 from wenart.recognition import vlm_client
 
 DEFAULT_SERVER = "http://127.0.0.1:8001/v1"
 DEFAULT_MODEL = "Qwen/Qwen3-VL-8B-Instruct"
 DEFAULT_MAX_TOKENS = 2048
-AGREE_DISTANCE_M = 0.5
-CONFIDENCE_AGREED = 0.9
-CONFIDENCE_SINGLE = 0.6
-EVIDENCE_FILE = "building.json"   # what the model saw: the room, doors and windows of the building JSON
+CANDIDATES = 3
+CHOICE_CONFIDENCE = 0.8
+EVIDENCE_FILE = "building.json"   # what the solver and the model saw: the room, doors, windows and drawn pieces
+IMAGE_MAX_SIDE = 900
 
 
 # --------------------------------------------------------------------------
-# Client (text-only chat completion with structured output)
+# Client
 # --------------------------------------------------------------------------
 
 @dataclass
 class Proposal:
-    """One model pass for one room."""
+    """One model call for one room (a candidate choice; ``propose``: the Milestone 4 text question)."""
     pass_no: int
     data: Optional[dict]            # schema-valid answer or None
     raw_text: str = ""
@@ -83,12 +70,12 @@ class Proposal:
     error: Optional[str] = None
     prompt: str = ""
     model: str = ""
-    rejected_types: list = field(default_factory=list)   # proposed types the room type does not allow
+    rejected_types: list = field(default_factory=list)
     transport_error: bool = False   # the last attempt raised VLMError (or the model lookup failed)
 
     def to_dict(self) -> dict:
         return {"pass": self.pass_no, "model": self.model, "latency_s": round(self.latency_s, 3),
-                "error": self.error, "pieces_proposed": len(self.data["pieces"]) if self.data else 0}
+                "error": self.error, "transport_error": self.transport_error}
 
 
 def build_text_request(model: str, prompt: str, schema: dict, *, seed: int = 0, temperature: float = 0.0,
@@ -109,7 +96,8 @@ def build_text_request(model: str, prompt: str, schema: dict, *, seed: int = 0, 
 
 
 class LayoutClient:
-    """Asks the vLLM server for a layout. ``propose(prompt, pass_no)`` -> Proposal."""
+    """Asks the vLLM server. ``choose(prompt, images, labels, schema)`` -> Proposal (Milestone 12);
+    ``propose(prompt, pass_no)`` -> Proposal (the Milestone 4 text question, kept for the fake-server tests)."""
 
     def __init__(self, base_url: str = DEFAULT_SERVER, model: Optional[str] = None, *,
                  timeout_s: float = 600.0, retries: int = 3, max_tokens: int = DEFAULT_MAX_TOKENS) -> None:
@@ -118,6 +106,7 @@ class LayoutClient:
         self.timeout_s = timeout_s
         self.retries = max(1, retries)
         self.max_tokens = max_tokens
+        self.down: Optional[str] = None             # the first transport error: later rooms are not asked
 
     @property
     def model(self) -> str:
@@ -129,27 +118,40 @@ class LayoutClient:
         return self._model
 
     def propose(self, prompt: str, pass_no: int) -> Proposal:
-        """An empty room's layout (the Milestone 4 schema)."""
-        return self._ask(prompt, pass_no, schemas.grammar_schema(), schemas.validation_errors, prompts.SYSTEM_PROMPT)
+        """An empty room's layout (the Milestone 4 schema; not used by the stage any more)."""
+        def body(model):
+            return build_text_request(model, prompt, schemas.grammar_schema(), seed=pass_no,
+                                      max_tokens=self.max_tokens, system_prompt=prompts.SYSTEM_PROMPT)
+        return self._ask(body, prompt, pass_no, schemas.validation_errors)
 
-    def complete(self, prompt: str, schema: dict, pass_no: int) -> Proposal:
-        """Milestone 10: the completion of a room with drawn furniture (the room's own strict schema)."""
+    def choose(self, prompt: str, images: list, labels: list, schema: dict) -> Proposal:
+        """The candidate choice: the top-down images (labelled), the prompt, the strict ``schema``."""
         import jsonschema
 
+        if self.down:
+            return Proposal(1, None, error=f"not asked: the server failed before ({self.down})", prompt=prompt,
+                            model=self._model or "?", transport_error=True)
+        urls = [vlm_client.encode_image(p, IMAGE_MAX_SIDE)[0] for p in images]
+
+        def body(model):
+            return vlm_client.build_request(model, prompt, None, schema, max_tokens=self.max_tokens, seed=0,
+                                            temperature=0.0, system_prompt=prompts.CHOICE_SYSTEM_PROMPT,
+                                            images=urls, labels=labels)
+
         def errors(data) -> list[str]:
-            validator = jsonschema.Draft202012Validator(schema)
-            return [f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
-                    for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))]
+            return [e.message for e in jsonschema.Draft202012Validator(schema).iter_errors(data)]
 
-        return self._ask(prompt, pass_no, schema, errors, prompts.COMPLETION_SYSTEM_PROMPT)
+        out = self._ask(body, prompt, 1, errors)
+        if out.transport_error:
+            self.down = out.error or "transport error"
+        return out
 
-    def _ask(self, prompt: str, pass_no: int, schema: dict, validation_errors, system_prompt: str) -> Proposal:
+    def _ask(self, make_body, prompt: str, pass_no: int, validation_errors) -> Proposal:
         try:
             model = self.model
         except vlm_client.VLMError as exc:
             return Proposal(pass_no, None, error=str(exc), prompt=prompt, model="?", transport_error=True)
-        body = build_text_request(model, prompt, schema, seed=pass_no, max_tokens=self.max_tokens,
-                                  system_prompt=system_prompt)
+        body = make_body(model)
         url = self.base_url + "/chat/completions"
         t0 = time.monotonic()
         raw_text, error, parsed = "", None, None
@@ -183,7 +185,7 @@ class LayoutClient:
 
 
 # --------------------------------------------------------------------------
-# Per room
+# Rooms
 # --------------------------------------------------------------------------
 
 @dataclass
@@ -191,38 +193,42 @@ class RoomLayout:
     room_id: str
     label: str
     room_type: str
-    proposals: list[Proposal] = field(default_factory=list)
-    placements: dict = field(default_factory=dict)       # pass_no -> PlacementResult
-    chosen_pass: Optional[int] = None
-    pieces: list[dict] = field(default_factory=list)     # building furniture dicts
+    program: Optional[dict] = None
+    candidates: list = field(default_factory=list)       # solver candidates (dicts)
+    choice: Optional[dict] = None                        # choose_candidate's record
+    chosen: Optional[int] = None                         # rank of the applied candidate
+    pieces: list = field(default_factory=list)           # building furniture dicts
     skipped: Optional[str] = None                        # why the room got nothing
     context: Optional[placer.RoomContext] = None
     copied_from: Optional[dict] = None                   # Milestone 10: the partner whose layout this room took
-    copy_dropped: list = field(default_factory=list)     # Milestone 10: copies that failed a check here
+    copy_dropped: list = field(default_factory=list)
+    solve_s: float = 0.0
 
     @property
     def latency_s(self) -> float:
-        return sum(p.latency_s for p in self.proposals)
+        return float((self.choice or {}).get("latency_s") or 0.0)
 
     def to_dict(self) -> dict:
-        passes = []
-        for p in self.proposals:
-            entry = p.to_dict()
-            placement = self.placements.get(p.pass_no)
-            if placement is not None:
-                entry.update({"pieces_placed": len(placement.pieces), "pieces_dropped": len(placement.dropped),
-                              "iterations": placement.iterations, "repair_steps": len(placement.log),
-                              "anchor_first": placement.anchor_first})
-            entry["rejected_types"] = list(p.rejected_types)
-            passes.append(entry)
-        out = {"room_id": self.room_id, "label": self.label, "room_type": self.room_type, "passes": passes,
-               "chosen_pass": self.chosen_pass, "latency_s": round(self.latency_s, 3), "skipped": self.skipped,
-               "pieces": [{"id": f["id"], "type": f["type"], "confidence": f["evidence"][0]["confidence"],
-                           "checks": f["checks"]} for f in self.pieces]}
+        out = {"room_id": self.room_id, "label": self.label, "room_type": self.room_type,
+               "program": [{k: g.get(k) for k in ("group_id", "group", "options", "drawn", "required")}
+                           for g in (self.program or {}).get("groups", [])],
+               "candidates": [candidate_summary(c) for c in self.candidates], "chosen": self.chosen,
+               "choice": {k: v for k, v in (self.choice or {}).items() if k not in ("prompt", "raw_text", "images")},
+               "latency_s": round(self.latency_s, 3), "solve_s": round(self.solve_s, 3), "skipped": self.skipped,
+               "pieces": [{"id": f["id"], "type": f["type"], "group": (f.get("group") or {}).get("group")}
+                          for f in self.pieces]}
         if self.copied_from is not None:
             out["copied_from"] = self.copied_from
             out["copy_dropped"] = list(self.copy_dropped)
         return out
+
+
+def candidate_summary(c: dict) -> dict:
+    return {"rank": c["rank"], "score": c["score"], "terms": c.get("terms", {}), "options": c.get("options", {}),
+            "pieces": [p["type"] for p in c.get("pieces", [])], "not_placed": c.get("not_placed", []),
+            "hard_failures": c.get("hard_failures", []),
+            "group_violations": [f"{v['check']} {v['severity']} {v['target']}: {v['message']}"
+                                 for v in c.get("group_violations", [])], "nodes": c.get("nodes")}
 
 
 def style_text_of(style: Optional[dict], building: dict) -> str:
@@ -257,88 +263,201 @@ def _next_furniture_number(building: dict, level_id: str) -> int:
     return max(numbers, default=0) + 1
 
 
-def _agrees(piece: placer.Piece, other: Optional[dict]) -> bool:
-    if not other:
-        return False
-    c = piece.proposed["center"]
-    for item in other.get("pieces", []):
-        if item["type"] == piece.type and G.distance(c, item["center"]) <= AGREE_DISTANCE_M:
-            return True
-    return False
+# --------------------------------------------------------------------------
+# Images of the candidates
+# --------------------------------------------------------------------------
+
+GROUP_COLOURS = {"seating": "#4e79a7", "dining": "#f28e2b", "sleeping_double": "#59a14f", "sleeping_single": "#59a14f",
+                 "storage": "#b07aa1", "work": "#76b7b2", "living_storage": "#9c755f", "kitchen_run": "#e15759",
+                 "island": "#ff9da7", "bathroom_set": "#4e79a7", "wc_set": "#4e79a7", "entrance": "#9c755f",
+                 "balcony": "#f28e2b"}
 
 
-def furniture_dict(piece: placer.Piece, checks: dict, room: dict, piece_id: str, model: str, pass_no: int,
-                   confidence: float, agreed: bool) -> dict:
-    rotation = round(piece.rotation_deg, 2)
-    return {
-        "id": piece_id, "level_id": room["level_id"], "room_id": room["id"], "type": piece.type, "type_raw": None,
-        "source": "added_by_ai",
-        "footprint": {"center": [round(piece.center[0], 3), round(piece.center[1], 3)],
-                      "size": [piece.size[0], piece.size[1]], "rotation_deg": rotation},
-        "front_deg": G.front_direction_deg(rotation), "height": schemas.HEIGHTS.get(piece.type), "asset": None,
-        "status": "verified",
-        "evidence": [B.evidence(EVIDENCE_FILE, "ai", confidence, model=model, pass_=pass_no,
-                                text=piece.reason or f"{piece.type} proposed by the layout model")],
-        "checks": dict(checks),
-        "layout": {"against_wall": piece.against_wall, "proposed": dict(piece.proposed),
-                   "repairs": [r["step"] for r in piece.repairs], "agreed_by_other_pass": agreed},
-    }
+def _draw_room(ax, building: dict, room: dict, cand: Optional[dict], title: str) -> None:
+    from matplotlib.patches import Polygon as MplPolygon
 
-
-def propose_layouts(room: dict, building: dict, style_text: str, client, passes: int = 2) -> RoomLayout:
-    """Ask ``client`` ``passes`` times, place every answer, keep the best (see module docstring)."""
-    result = RoomLayout(room["id"], room["label"], room.get("room_type", "other"))
     ctx = placer.room_context(building, room)
-    result.context = ctx
-    doors, windows = placer.room_openings(building, room)
-    for pass_no in range(1, passes + 1):
-        prompt = prompts.layout_prompt(room, doors, windows, style_text, pass_no)
-        proposal = client.propose(prompt, pass_no)
-        proposal.pass_no = pass_no
-        result.proposals.append(proposal)
-        if proposal.data is not None:
-            # AI proposes, checks decide: a type the room type does not allow (a toilet in a
-            # bedroom; Milestone 10: a crib outside a child's room) is removed before placement
-            # and listed in the proposal record.
-            allowed = (schemas.layout_types(result.room_type, room.get("room_subtype"))
-                       if result.room_type in schemas.ALLOWED_TYPES else None)
-            pieces = proposal.data["pieces"]
-            if allowed is not None:
-                proposal.rejected_types = [p["type"] for p in pieces if p["type"] not in allowed]
-                pieces = [p for p in pieces if p["type"] in allowed]
-            result.placements[pass_no] = placer.place(pieces, ctx)
-    usable = [(len(result.placements[p].dropped), p) for p in sorted(result.placements)
-              if result.placements[p].pieces]
+    ax.set_aspect("equal")
+    ax.add_patch(MplPolygon(list(ctx.polygon.exterior.coords), closed=True, fill=False, lw=2, color="black"))
+    for door in ctx.doors:
+        for part in placer.polygon_parts(door.zone) + placer.polygon_parts(door.swing):
+            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:orange", alpha=0.2))
+    for win in ctx.windows:
+        for part in placer.polygon_parts(win.band):
+            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:cyan", alpha=0.45))
+    items = [(f, "#9a9a9a") for f in building.get("furniture") or [] if f.get("room_id") == room["id"]
+             and f.get("source") == "from_documents" and f.get("build") is not False]
+    items += [(f, GROUP_COLOURS.get((f.get("group") or {}).get("group"), "#4e79a7")) for f in (cand or {}).get("pieces", [])]
+    for f, colour in items:
+        try:
+            p = placer.drawn_piece(f)
+        except (KeyError, TypeError, ValueError):
+            continue
+        poly = p.polygon()
+        ax.add_patch(MplPolygon(list(poly.exterior.coords), closed=True, color=colour, alpha=0.55))
+        if f.get("front_deg") is not None:
+            fz = p.front_zone(0.08)
+            ax.add_patch(MplPolygon(list(fz.exterior.coords), closed=True, color="tab:red", alpha=0.9))
+        ax.text(poly.centroid.x, poly.centroid.y, f["type"].replace("_", "\n"), ha="center", va="center", fontsize=6)
+    minx, miny, maxx, maxy = ctx.polygon.bounds
+    ax.set_xlim(minx - 0.3, maxx + 0.3)
+    ax.set_ylim(miny - 0.3, maxy + 0.3)
+    ax.set_title(title, fontsize=8)
+
+
+def candidate_png(building: dict, room: dict, cand: dict, path: Path) -> Path:
+    """One candidate as a top-down image (what the vision model sees)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    _draw_room(ax, building, room, cand, f"Candidate {cand['rank']}")
+    fig.tight_layout()
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+    return path
+
+
+def draw_candidates_png(building: dict, room: dict, cands: list, path: Path, chosen: Optional[int] = None) -> None:
+    """The candidates side by side (debug), the chosen one marked."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    n = max(1, len(cands))
+    fig, axes = plt.subplots(1, n, figsize=(5.5 * n, 5.5), squeeze=False)
+    for ax, c in zip(axes[0], cands or [None]):
+        if c is None:
+            _draw_room(ax, building, room, None, f"{room.get('label')} ({room['id']}): no candidate")
+            continue
+        mark = " (chosen)" if c["rank"] == chosen else ""
+        _draw_room(ax, building, room, c, f"#{c['rank']}{mark} score {c['score']:.1f}, hard {len(c['hard_failures'])}"
+                                          f"\n{', '.join(f'{k}: {v}' for k, v in c.get('options', {}).items())}")
+    fig.tight_layout()
+    fig.savefig(path, dpi=80)
+    plt.close(fig)
+
+
+# --------------------------------------------------------------------------
+# The choice
+# --------------------------------------------------------------------------
+
+def choose_candidate(client, room: dict, building: dict, cands: list[dict], style_text: str,
+                     image_dir: Optional[Path] = None, purpose: str = "furnish") -> dict:
+    """``{"index", "rank", "by": "vlm" | "default", "reason", "model", "error", "transport_error", "latency_s",
+    "prompt", "raw_text", "images"}``: which of ``cands`` (usable, best first) to apply. One candidate, a client
+    without ``choose`` or a failed / invalid answer: the first (the solver's best)."""
+    out = {"index": 0, "rank": cands[0]["rank"], "by": "default", "reason": "the solver's best candidate",
+           "model": None, "error": None, "transport_error": False, "latency_s": 0.0}
+    if len(cands) < 2:
+        out["reason"] = "the only candidate"
+        return out
+    if not hasattr(client, "choose"):
+        out["reason"] = "no vision model: the solver's best candidate"
+        return out
+    with tempfile.TemporaryDirectory() as tmp:
+        folder = Path(image_dir) if image_dir is not None else Path(tmp)
+        try:
+            images = [candidate_png(building, room, c, folder / f"{room['id']}_c{c['rank']}.png") for c in cands]
+        except Exception as exc:  # noqa: BLE001 - no image, no question: the solver's best
+            out.update(error=f"images not drawn ({type(exc).__name__}: {exc})")
+            return out
+        prompt = prompts.choice_prompt(room, cands, style_text, purpose)
+        schema = prompts.choice_schema(len(cands))
+        labels = [f"Candidate {c['rank']}:" for c in cands]
+        answer = client.choose(prompt, images, labels, schema)
+        out.update(model=answer.model, error=answer.error, transport_error=bool(answer.transport_error),
+                   latency_s=round(answer.latency_s, 3), prompt=prompt, raw_text=answer.raw_text,
+                   images=[str(p.name) for p in images])
+    data = answer.data
+    pick = data.get("candidate") if isinstance(data, dict) else None
+    ranks = [c["rank"] for c in cands]
+    if pick in ranks:
+        out.update(index=ranks.index(pick), rank=pick, by="vlm", reason=str(data.get("reason") or ""))
+    else:
+        out["reason"] = f"no valid answer ({answer.error or 'candidate ' + repr(pick)}): the solver's best candidate"
+    return out
+
+
+def apply_choice(out: dict, room: dict, cand: dict, choice: dict, completes: bool = False) -> list[dict]:
+    """Add the chosen candidate's pieces to ``out`` (changed in place; ``solver.apply_candidate`` gives fresh ids)
+    with the evidence of the choice; returns the added pieces."""
+    from wenart.furniture import solver as SV
+
+    before = {f["id"] for f in out["furniture"]}
+    new = SV.apply_candidate(out, room["id"], cand)
+    added = [f for f in new["furniture"] if f["id"] not in before]
+    if choice.get("by") == "vlm":
+        ev = {"file": EVIDENCE_FILE, "method": "ai", "confidence": CHOICE_CONFIDENCE, "model": choice.get("model"),
+              "text": f"candidate {choice['rank']} of {len(choice.get('images') or [])} chosen by the vision model: "
+                      f"{choice.get('reason')}"}
+    else:
+        ev = {"file": EVIDENCE_FILE, "method": "derived", "confidence": 0.9,
+              "text": f"candidate {choice['rank']}: {choice.get('reason')}"}
+    for f in added:
+        f["evidence"] = list(f.get("evidence") or []) + [ev]
+        f["checks"] = {name: True for name in placer.CHECKS}
+        f["layout"] = dict(f.get("layout") or {}, candidate=cand["rank"], score=cand["score"])
+        if completes:
+            f["completes_room"] = True
+    out["furniture"] = new["furniture"]
+    if "decor" in new:
+        out["decor"] = new["decor"]
+    return added
+
+
+def layout_room(room: dict, building: dict, style_text: str, client, image_dir: Optional[Path] = None,
+                purpose: str = "furnish") -> RoomLayout:
+    """Program -> solver -> choice -> pieces for one room; ``building`` (the building being written) is changed in
+    place."""
+    from wenart.furniture import program as PR
+    from wenart.furniture import solver as SV
+
+    rec = RoomLayout(room["id"], room.get("label", room["id"]), room.get("room_type", "other"))
+    rec.context = placer.room_context(building, room)
+    rec.program = PR.room_program(building, room["id"])
+    if not rec.program["groups"]:
+        rec.skipped = f"no groups for this room ({rec.program['reason']})"
+        return rec
+    t0 = time.perf_counter()
+    rec.candidates = SV.solve_room(building, room["id"], rec.program, k=CANDIDATES)
+    rec.solve_s = time.perf_counter() - t0
+    usable = [c for c in rec.candidates if not c["hard_failures"] and c["pieces"]]
     if not usable:
-        reasons = [f"pass {p.pass_no}: {p.error}" if p.error else f"pass {p.pass_no}: no usable piece" for p in result.proposals]
-        result.skipped = "model answered nothing usable (" + "; ".join(reasons) + ")"
-        return result
-    result.chosen_pass = min(usable)[1]
-    chosen = result.placements[result.chosen_pass]
-    others = [p.data for p in result.proposals if p.pass_no != result.chosen_pass and p.data is not None]
-    model = next(p.model for p in result.proposals if p.pass_no == result.chosen_pass)
-    number = _next_furniture_number(building, room["level_id"])
-    for piece, checks in zip(chosen.pieces, chosen.checks):
-        agreed = any(_agrees(piece, other) for other in others)
-        confidence = CONFIDENCE_AGREED if agreed else CONFIDENCE_SINGLE
-        result.pieces.append(furniture_dict(piece, checks, room, B.element_id("furniture", room["level_id"], number),
-                                            model, result.chosen_pass, confidence, agreed))
-        number += 1
-    return result
+        best = rec.candidates[0] if rec.candidates else None
+        if best is None:
+            rec.skipped = ("nothing missing: the drawn groups are complete" if purpose == "complete"
+                           else "no group fits the room")
+        elif not best["hard_failures"]:
+            rec.skipped = "nothing fits: " + "; ".join(f"{x['group']}: {x['reason']}" for x in best["not_placed"]) \
+                if best["not_placed"] else "nothing missing: the drawn groups are complete"
+        else:
+            why = "; ".join(f"#{c['rank']}: " + ", ".join(c["hard_failures"][:2]) for c in rec.candidates)
+            rec.skipped = f"no candidate passes the checks ({why})"
+        return rec
+    rec.choice = choose_candidate(client, room, building, usable, style_text, image_dir, purpose)
+    cand = usable[rec.choice["index"]]
+    rec.chosen = cand["rank"]
+    rec.pieces = apply_choice(building, room, cand, rec.choice, completes=(purpose == "complete"))
+    return rec
 
 
 # --------------------------------------------------------------------------
 # Whole building
 # --------------------------------------------------------------------------
 
-def furnish_building(building: dict, style_text: str, client, passes: int = 2,
+def furnish_building(building: dict, style_text: str, client, passes: Optional[int] = None,
                      debug_dir: Optional[Path] = None,
                      partners: Optional[dict] = None) -> tuple[dict, list[RoomLayout]]:
-    """Add AI furniture to every empty room (new dict; the input is not changed).
+    """Furnish every empty room (new dict; the input is not changed). ``passes`` is accepted for the Milestone 10
+    callers and not used.
 
     ``partners`` (Milestone 10): room id -> ``(partner room id, "same_as" | "twin")``; an empty room whose
-    partner is an empty room too takes the partner's layout (``complete.copy_empty_layout``) instead of
-    being asked; a partner that does not map is reported and the room is asked itself."""
+    partner is an empty room too takes the partner's layout (``complete.copy_empty_layout``) instead of being
+    solved; a partner that does not map is reported and the room is solved itself."""
     out = json.loads(json.dumps(building))
     layouts: list[RoomLayout] = []
     brief = (out.get("project") or {}).get("brief") or {}
@@ -351,6 +470,7 @@ def furnish_building(building: dict, style_text: str, client, passes: int = 2,
     ids = {r["id"] for r in empties}
     copies = {rid: p for rid, p in (partners or {}).items() if rid in ids and p[0] in ids and rid != p[0]}
     done: dict[str, RoomLayout] = {}
+    image_dir = Path(debug_dir) if debug_dir is not None else None
     for room in empties:
         if mode != "ai":
             done[room["id"]] = RoomLayout(room["id"], room["label"], room.get("room_type", "other"),
@@ -358,23 +478,21 @@ def furnish_building(building: dict, style_text: str, client, passes: int = 2,
             continue
         if room["id"] in copies:
             continue
-        done[room["id"]] = layout = propose_layouts(room, out, style_text, client, passes)
-        out["furniture"].extend(layout.pieces)
+        done[room["id"]] = layout_room(room, out, style_text, client, image_dir)
     pending = [r for r in empties if r["id"] in copies and r["id"] not in done]
     while pending:
         ready = [r for r in pending if copies[r["id"]][0] in done]
-        room = ready[0] if ready else pending[0]               # no partner ready: a cycle, ask the first
+        room = ready[0] if ready else pending[0]               # no partner ready: a cycle, solve the first
         pending.remove(room)
         if ready:
-            done[room["id"]] = _copy_layout(room, copies[room["id"]], done, out, style_text, client, passes)
+            done[room["id"]] = _copy_layout(room, copies[room["id"]], done, out, style_text, client, image_dir)
         else:
-            done[room["id"]] = layout = propose_layouts(room, out, style_text, client, passes)
-            out["furniture"].extend(layout.pieces)
+            done[room["id"]] = layout_room(room, out, style_text, client, image_dir)
     for room in empties:
         layout = done[room["id"]]
         layouts.append(layout)
         if debug_dir is not None and mode == "ai":
-            write_room_debug(room, layout, Path(debug_dir))
+            write_room_debug(room, layout, out, Path(debug_dir))
     out["warnings"] = list(out.get("warnings", []))
     for layout in layouts:
         if layout.skipped:
@@ -383,8 +501,8 @@ def furnish_building(building: dict, style_text: str, client, passes: int = 2,
 
 
 def _copy_layout(room: dict, partner: tuple[str, str], done: dict, out: dict, style_text: str, client,
-                 passes: int) -> RoomLayout:
-    """The partner's layout mapped into ``room`` (Milestone 10), else the room is asked itself."""
+                 image_dir: Optional[Path]) -> RoomLayout:
+    """The partner's layout mapped into ``room`` (Milestone 10), else the room is solved itself."""
     from wenart.furniture import complete as C   # lazy: complete imports this module
 
     pid, kind = partner
@@ -396,15 +514,19 @@ def _copy_layout(room: dict, partner: tuple[str, str], done: dict, out: dict, st
         record.skipped = f"partner {pid} ({kind}) got no AI furniture: {source.skipped or 'nothing placed'}"
         record.copied_from = {"room": pid, "kind": kind}
         return record
+    count = len(out["furniture"])
     added, dropped, info = C.copy_empty_layout(room, rooms[pid], kind, source.pieces, out, out)
-    if added is None:
-        layout = propose_layouts(room, out, style_text, client, passes)
-        out["furniture"].extend(layout.pieces)
-        layout.copied_from = dict(info, used=False)
+    if added is None or dropped:
+        # A partner that does not map, or a copy that would lose pieces (a table without its chairs): the room is
+        # solved itself; a whole group matters more than the same look in both rooms.
+        del out["furniture"][count:]
+        layout = layout_room(room, out, style_text, client, image_dir)
+        why = info.get("reason") or f"{len(dropped)} of {len(source.pieces)} copied pieces fail a check here (" + \
+            "; ".join(f"{x['type']}: {x['reason']}" for x in dropped) + ")"
+        layout.copied_from = dict(info, used=False, reason=why)
+        layout.copy_dropped = list(dropped)
         return layout
     record.pieces, record.copy_dropped, record.copied_from = added, dropped, info
-    if not added:
-        record.skipped = f"every piece copied from {pid} fails a check here"
     return record
 
 
@@ -412,125 +534,57 @@ def layout_summary(layouts: list[RoomLayout], building: dict, server: str, model
     return {"project": building["project"]["id"], "server": server, "model": model,
             "rooms": [l.to_dict() for l in layouts],
             "pieces_added": sum(len(l.pieces) for l in layouts),
-            "latency_s": round(sum(l.latency_s for l in layouts), 3)}
+            "latency_s": round(sum(l.latency_s for l in layouts), 3),
+            "solve_s": round(sum(l.solve_s for l in layouts), 3)}
 
 
 def layout_report(layouts: list[RoomLayout], building: dict) -> str:
     lines = [f"# AI layout: {building['project']['id']}", "",
-             "Rooms without documented furniture. Every added piece is `added_by_ai`, `verified` by the placer "
-             "checks (inside room, no overlap, clearance, doors free, windows free, wall contact), "
-             f"confidence {CONFIDENCE_AGREED} when both passes proposed it (same type, centre within "
-             f"{AGREE_DISTANCE_M} m), else {CONFIDENCE_SINGLE}.", "",
-             "| Room | Type | Pass 1 (proposed/placed/dropped, s) | Pass 2 | Chosen | Added | Result |",
-             "|---|---|---|---|---|---|---|"]
+             "Rooms without documented furniture, furnished in functional groups (docs/milestone12.md §4.3-§4.5): "
+             "the room's program, the group solver's top candidates (every one checked: inside the room, no overlap, "
+             "doors, windows, walkways, use zones, group checks G1-G14), the vision model's choice (else the "
+             "solver's best). Every added piece is `added_by_ai`, `method: rule`, with its group.", "",
+             "| Room | Type | Groups (options) | Candidates (score, hard) | Chosen | By | Added | Solve s | Result |",
+             "|---|---|---|---|---|---|---|---|---|"]
     for l in layouts:
-        cells = []
-        for pass_no in (1, 2):
-            prop = next((p for p in l.proposals if p.pass_no == pass_no), None)
-            if prop is None:
-                cells.append("-")
-            elif prop.data is None:
-                cells.append(f"error: {prop.error}"[:60] + f" ({prop.latency_s:.1f} s)")
-            else:
-                pl = l.placements.get(pass_no)
-                cells.append(f"{len(prop.data['pieces'])}/{len(pl.pieces)}/{len(pl.dropped)} ({prop.latency_s:.1f} s)")
-        added = ", ".join(f"{f['type']} ({f['evidence'][0]['confidence']})" for f in l.pieces) or "-"
-        result = l.skipped and f"room stays empty: {l.skipped}" or "ok"
+        groups = ", ".join(f"{g['group']}{'*' if g.get('drawn') else ''} ({'/'.join(g['options'])})"
+                           for g in (l.program or {}).get("groups", [])) or "-"
+        cands = ", ".join(f"#{c['rank']} {c['score']:.1f} {len(c['hard_failures'])}" for c in l.candidates) or "-"
+        added = ", ".join(f["type"] for f in l.pieces) or "-"
+        by = (l.choice or {}).get("by", "-")
+        result = f"room stays empty: {l.skipped}" if l.skipped else "ok"
         if l.copied_from and l.copied_from.get("used", True) and not l.skipped:
             result = f"copied from {l.copied_from['room']} ({l.copied_from['kind']})" + (
                 f", {len(l.copy_dropped)} copies dropped" if l.copy_dropped else "")
-        lines.append(f"| {l.label} ({l.room_id}) | {l.room_type} | {cells[0]} | {cells[1]} | "
-                     f"{l.chosen_pass or '-'} | {added} | {result} |")
-    repairs = [(l, entry) for l in layouts if l.chosen_pass for entry in l.placements[l.chosen_pass].log]
-    lines += ["", f"Repair steps of the chosen proposals: {len(repairs)}", ""]
-    if repairs:
-        lines += ["| Room | Step | Piece | Before | After | Failed checks |", "|---|---|---|---|---|---|"]
-        for l, e in repairs:
-            lines.append(f"| {l.room_id} | {e['step']} | {e['type']} #{e['piece']} | {e['before']['center']} | "
-                         f"{e['after']['center']} | {', '.join(e['failed']) or '-'} |")
-    dropped = [(l, d) for l in layouts if l.chosen_pass for d in l.placements[l.chosen_pass].dropped]
-    if dropped:
-        lines += ["", "Dropped pieces (chosen proposals):", ""]
-        for l, d in dropped:
-            lines.append(f"- {l.room_id}: {d['type']} at {d['proposed']['center']}: {d['reason']} ({', '.join(d['failed'])})")
+        lines.append(f"| {l.label} ({l.room_id}) | {l.room_type} | {groups} | {cands} | {l.chosen or '-'} | {by} | "
+                     f"{added} | {l.solve_s:.2f} | {result} |")
+    choices = [(l, l.choice) for l in layouts if l.choice and l.choice.get("by") == "vlm"]
+    if choices:
+        lines += ["", "Choices of the vision model:", ""]
+        lines += [f"- {l.room_id}: candidate {c['rank']}: {c.get('reason')}" for l, c in choices]
+    fallbacks = [(l, l.choice) for l in layouts if l.choice and l.choice.get("by") != "vlm" and l.choice.get("error")]
+    if fallbacks:
+        lines += ["", "Rooms that took the solver's best candidate because the choice failed:", ""]
+        lines += [f"- {l.room_id}: {c.get('error')}" for l, c in fallbacks]
     return "\n".join(lines) + "\n"
 
 
-# --------------------------------------------------------------------------
-# Debug output (PNG + JSON per room)
-# --------------------------------------------------------------------------
-
-def write_room_debug(room: dict, layout: RoomLayout, debug_dir: Path) -> None:
+def write_room_debug(room: dict, layout: RoomLayout, building: dict, debug_dir: Path) -> None:
     debug_dir.mkdir(parents=True, exist_ok=True)
-    record = {"room": room["id"], "passes": [], "chosen_pass": layout.chosen_pass, "skipped": layout.skipped}
-    for p in layout.proposals:
-        entry = p.to_dict()
-        entry.update({"prompt": p.prompt, "raw_text": p.raw_text, "data": p.data})
-        placement = layout.placements.get(p.pass_no)
-        if placement is not None:
-            entry["placement"] = placement.to_dict()
-        record["passes"].append(entry)
+    record = layout.to_dict()
+    record["program_full"] = layout.program
+    record["candidates_full"] = [{k: v for k, v in c.items()} for c in layout.candidates]
+    if layout.choice:
+        record["choice_full"] = {k: v for k, v in layout.choice.items()}
     (debug_dir / f"{room['id']}.json").write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8")
     try:
-        draw_room_png(room, layout, debug_dir / f"{room['id']}.png")
+        source = {k: v for k, v in building.items()}
+        source["furniture"] = [f for f in building["furniture"] if f.get("source") == "from_documents"]
+        draw_candidates_png(source, room, layout.candidates, debug_dir / f"{room['id']}.png", layout.chosen)
     except ImportError as exc:   # matplotlib missing: the JSON is the record, the PNG is a convenience
         print(f"layout: debug PNG for {room['id']} skipped ({exc})", file=sys.stderr)
     except Exception as exc:     # noqa: BLE001 - real03: an odd geometry must not fail the stage over a picture
         print(f"layout: debug PNG for {room['id']} not drawn ({type(exc).__name__}: {exc})", file=sys.stderr)
-
-
-def draw_room_png(room: dict, layout: RoomLayout, path: Path) -> None:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Polygon as MplPolygon
-
-    ctx = layout.context or placer.room_context({"walls": [], "openings": []}, room)
-    passes = sorted(layout.placements) or [None]
-    fig, axes = plt.subplots(1, len(passes), figsize=(6 * len(passes), 6), squeeze=False)
-    for ax, pass_no in zip(axes[0], passes):
-        ax.set_aspect("equal")
-        ax.add_patch(MplPolygon(list(ctx.polygon.exterior.coords), closed=True, fill=False, lw=2, color="black"))
-        for door in ctx.doors:
-            for part in placer.polygon_parts(door.zone):
-                ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:orange", alpha=0.25))
-            for part in placer.polygon_parts(door.swing):
-                ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:orange", alpha=0.15))
-            ax.plot(*door.approach_point, "o", color="tab:orange", ms=4)
-        for win in ctx.windows:
-            for part in placer.polygon_parts(win.band):
-                ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:blue", alpha=0.25))
-        if pass_no is None:
-            ax.set_title(f"{room['label']} ({room['id']}): no proposal")
-            continue
-        placement = layout.placements[pass_no]
-        for piece in placement.pieces:
-            prop = placer.Piece(piece.type, tuple(piece.proposed["center"]), piece.proposed["rotation_deg"],
-                                tuple(piece.proposed["size"]), piece.against_wall)
-            ax.add_patch(MplPolygon(list(prop.polygon().exterior.coords), closed=True, fill=False, ls="--",
-                                    color="grey", lw=1))
-            ax.add_patch(MplPolygon(list(piece.polygon().exterior.coords), closed=True, color="tab:green", alpha=0.5))
-            fz = piece.front_zone(0.15)
-            ax.add_patch(MplPolygon(list(fz.exterior.coords), closed=True, color="tab:green", alpha=0.9))
-            if piece.repairs:
-                ax.annotate("", xy=piece.center, xytext=tuple(piece.proposed["center"]),
-                            arrowprops={"arrowstyle": "->", "color": "tab:red"})
-            ax.text(piece.center[0], piece.center[1], piece.type, ha="center", va="center", fontsize=7)
-        for d in placement.dropped:
-            prop = placer.Piece(d["type"], tuple(d["proposed"]["center"]), d["proposed"]["rotation_deg"],
-                                tuple(d["proposed"]["size"]), False)
-            ax.add_patch(MplPolygon(list(prop.polygon().exterior.coords), closed=True, fill=False, ls=":", color="tab:red"))
-            ax.text(d["proposed"]["center"][0], d["proposed"]["center"][1], f"x {d['type']}", color="tab:red",
-                    ha="center", va="center", fontsize=7)
-        chosen = " (chosen)" if pass_no == layout.chosen_pass else ""
-        ax.set_title(f"{room['label']} pass {pass_no}{chosen}: {len(placement.pieces)} placed, "
-                     f"{len(placement.dropped)} dropped, {placement.iterations} steps", fontsize=9)
-        minx, miny, maxx, maxy = ctx.polygon.bounds
-        ax.set_xlim(minx - 0.5, maxx + 0.5)
-        ax.set_ylim(miny - 0.5, maxy + 0.5)
-    fig.tight_layout()
-    fig.savefig(path, dpi=100)
-    plt.close(fig)
 
 
 # --------------------------------------------------------------------------
@@ -538,15 +592,15 @@ def draw_room_png(room: dict, layout: RoomLayout, path: Path) -> None:
 # --------------------------------------------------------------------------
 
 def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
-    parser = argparse.ArgumentParser(description="AI furniture layout for rooms without documented furniture and "
-                                                 "the completion of rooms with drawn furniture (Milestone 10)")
+    parser = argparse.ArgumentParser(description="Furniture layout of empty rooms and the completion of rooms with "
+                                                 "drawn furniture, in functional groups (Milestone 12)")
     parser.add_argument("building", help="building.json (or building_fitted.json)")
     parser.add_argument("--style", help="style.json from python -m wenart.style")
     parser.add_argument("--server", default=DEFAULT_SERVER, help=f"vLLM server base URL (default {DEFAULT_SERVER})")
     parser.add_argument("--model", default=None, help=f"model id (default: first served, e.g. {DEFAULT_MODEL})")
     parser.add_argument("--out", required=True, help="furnished building JSON")
-    parser.add_argument("--debug", help="folder for one PNG + JSON per room")
-    parser.add_argument("--passes", type=int, default=2)
+    parser.add_argument("--debug", help="folder for the program, candidates and images per room")
+    parser.add_argument("--passes", type=int, default=2, help="accepted for older callers; not used (Milestone 12)")
     parser.add_argument("--timeout", type=float, default=600.0, help="seconds per model call")
     parser.add_argument("--project-dir", help="project folder with brief.yaml (default: the building's "
                                               "project.source_folder)")
@@ -572,29 +626,23 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     print(f"layout: {len(rooms)} empty room(s), {len(C.furnished_rooms(building))} furnished room(s) "
           f"(furnished_rooms: {settings.mode}) in {building['project']['id']}, style '{style_text}'")
     debug = Path(args.debug) if args.debug else None
-    furnished, layouts = furnish_building(building, style_text, client, args.passes, debug, partners=partners)
+    furnished, layouts = furnish_building(building, style_text, client, debug_dir=debug, partners=partners)
     profile = style[0] if isinstance(style, list) and style else style
     family = profile.get("family") if isinstance(profile, dict) else None
-    completed, records = C.complete_building(furnished, style_text, client, settings, args.passes, debug, family,
-                                             profile if isinstance(profile, dict) else None)
-    failed = [(l.room_id, p.pass_no, p.error) for l in layouts for p in l.proposals if p.transport_error]
-    failed += [(r.room_id, k, e) for r in records for k, e in r.transport_errors]
-    if failed:
-        # The server was not reachable: no answer is not "nothing to add" (the job must not reuse an
-        # empty layout), so no furnished building is written and the exit code says why.
-        for room_id, pass_no, error in failed:
-            print(f"layout: {room_id} pass {pass_no}: server not reachable ({error})", file=sys.stderr)
-        print(f"layout: {len(failed)} call(s) could not reach {args.server}: no output written (exit 3)",
+    completed, records = C.complete_building(furnished, style_text, client, settings, debug_dir=debug, family=family,
+                                             style=profile if isinstance(profile, dict) else None)
+    down = getattr(client, "down", None)
+    if down:
+        print(f"layout: the vision model could not be reached ({down}): every room took the solver's best candidate",
               file=sys.stderr)
-        return 3
     keep_rooms = [r.room_id for r in records if r.state == "kept"]
     violations = LK.check(building, completed, "keep" if settings.mode == "keep" else "complete", keep_rooms)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    # The model as the proposals recorded it (asking the client could raise when the server is down).
-    model = next((p.model for l in layouts for p in l.proposals if p.model and p.model != "?"), None)
-    model = model or next((p["model"] for r in records for p in r.passes if p.get("model") not in (None, "?")),
-                          args.model or "?")
+    model = next((l.choice.get("model") for l in layouts if l.choice and l.choice.get("model") not in (None, "?")),
+                 None)
+    model = model or next((r.choice.get("model") for r in records if r.choice and r.choice.get("model")
+                           not in (None, "?")), args.model or "?")
     completion = C.summary(records, completed, settings, args.server, str(model), violations)
     (out.parent / "completion.json").write_text(json.dumps(completion, ensure_ascii=False, indent=1), encoding="utf-8")
     (out.parent / "completion_report.md").write_text(C.report(records, completed, settings, violations),
@@ -607,21 +655,22 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
         return 1
     B.save(completed, out)
     summary = layout_summary(layouts, completed, args.server, str(model))
+    summary["vision_model_down"] = down
     summary["completion"] = {k: completion[k] for k in ("rooms_completed", "rooms_copied", "changes_applied",
                                                          "pieces_added", "wall_cabinets", "latency_s")}
     (out.parent / "layout.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     (out.parent / "layout_report.md").write_text(layout_report(layouts, completed), encoding="utf-8")
     for l in layouts:
-        state = f"{len(l.pieces)} added, pass {l.chosen_pass}" if l.chosen_pass else f"empty ({l.skipped})"
+        state = f"{len(l.pieces)} added, candidate {l.chosen} ({(l.choice or {}).get('by')})" if l.chosen \
+            else f"empty ({l.skipped})"
         if l.copied_from and l.copied_from.get("used", True) and l.pieces:
             state = f"{len(l.pieces)} copied from {l.copied_from['room']}"
-        print(f"layout: {l.room_id} [{l.room_type}] {state}, {l.latency_s:.1f} s")
+        print(f"layout: {l.room_id} [{l.room_type}] {state}, solve {l.solve_s:.1f} s, choice {l.latency_s:.1f} s")
     for r in records:
-        changed = sum(c["status"] == "applied" for c in r.changes)
-        print(f"layout: {r.room_id} [{r.room.get('room_type')}] {r.state}: {changed} changed, {len(r.added)} added, "
+        print(f"layout: {r.room_id} [{r.room.get('room_type')}] {r.state}: {len(r.added)} added, "
               f"{len(r.wall_cabinets)} wall cabinet(s), {r.latency_s:.1f} s" + (f" ({r.reason})" if r.reason else ""))
-    print(f"layout: {summary['pieces_added']} pieces added to empty rooms, {completion['pieces_added']} added and "
-          f"{completion['changes_applied']} changed in furnished rooms, locked check passed -> {out}")
+    print(f"layout: {summary['pieces_added']} pieces added to empty rooms, {completion['pieces_added']} added to "
+          f"furnished rooms, locked check passed -> {out}")
     return 0
 
 
