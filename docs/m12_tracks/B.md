@@ -154,7 +154,7 @@ gaps, answers, `catalogue/` copies).
 | `tests/test_audit_keywords.py` | 51 | languages, compounds, verdicts, flags and their exceptions, longest match, retype suggestion |
 | `tests/test_audit_checks.py` | 20 | licence, size rule (rescale / remove / side / front turn), pivot, up, title, title size, crude, mesh and texture records, duplicates and colour variants, mesh measurements on cubes (flip, seam, drawer, zero area, non-manifold) |
 | `tests/test_audit_decide.py` | 19 | decisions and flags; U3 and B2 on the committed catalogue (fail on the old one); writer idempotence, front turn and retype keep `catalog.validate` |
-| `tests/test_audit_render.py` | 9 | person 1.75 m, bar 0.45 m, grid, layout, cameras, round robin, resume by `job_sha`, Blender processes, sheet header, texture grid |
+| `tests/test_audit_render.py` | 10 | person 1.75 m, bar 0.45 m, grid, layout, cameras, round robin, resume by `job_sha` (a failure tried once more), Blender processes, a model that stops Blender recorded and the rest rendered, sheet header, texture grid |
 | `tests/test_audit_ask.py` | 6 | strict schemas, the question's facts, request hash, dotted model keys, fake-client ask with reuse and staleness |
 | `tests/test_library_growth.py` | 7 | contact sheet, gap table, groups.yaml shapes (track G's too) and the merge, Poly Haven list from canned API answers, the committed list, GSO / ABO / Infinigen helpers, the ingest gate |
 | `tests/test_audit_cli.py` | 3 | licences step, the dry audit end to end on a small catalogue, `python -m wenart.assets` dispatch |
