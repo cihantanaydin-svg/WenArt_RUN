@@ -8,7 +8,9 @@ and wrong categories.
 
 Session: cloud (`CLAUDE_CODE_REMOTE=true`), branch `opus_branch_06`, 10 Oct 2026. Step 0 is CPU only (no pod).
 
-Status: **Step 0 (diagnosis) done, 10 Oct 2026; Step 1 (design, §2–§12) written 10 Oct 2026, waiting for the user's OK.**
+Status: **approved by the user on 10 Oct 2026 (D1–D24 yes, D3a 0.15 m yes, D16 bake-off with Qwen3.8-Flash-Next on 2
+GPUs and 2-GPU full runs if it wins yes, GPU plan OK incl. `--over-5-ok` for P1 and 2-GPU pods, `CLAUDE.md` wording
+1–5 OK and applied)**; build in progress (step 2, contracts §13).
 
 User answers to the step-0 questions (10 Oct 2026): (1) misread fixed equipment: the AI may set a real product size
 and move it up to 0.5 m, logged with evidence – **yes**; (2) real03 exterior: **ground floor only** (no inferred upper
@@ -1104,7 +1106,7 @@ Commit, push and `docs/progress.md` after each step; no pod running at the end o
 | The audit's vision check is as lenient as the M8–M10 judges | it sees the title, the scale reference and the dimensions; code checks decide size, licence, mesh and duplicates; a wrong object needs both the vision answer and the title check to stay |
 | Budget | per-pod estimates above; ask before $200; the 2-GPU premium only if the bake-off shows ≥ 10 points |
 
-## 11. `CLAUDE.md` wording (proposed; applied only after your OK)
+## 11. `CLAUDE.md` wording (approved 10 Oct 2026, applied)
 
 1. Furniture rules, fixed equipment (your answer 1):
    > Fixed equipment drawn in the documents (…) is treated like walls: same type, position, orientation and footprint

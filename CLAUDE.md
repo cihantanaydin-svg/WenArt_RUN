@@ -32,6 +32,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 
 ## GPU limits (hard rules)
 - Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $30 per day (raised from $10 to $30 on 4 Oct 2026; $40 on 9 Oct 2026 only, user OK, `DAY_LIMITS` in `scripts/gpu_run.py`), max 2 hours per pod run, one pod at a time. Project total: $200 (raised from $100 on 10 Oct 2026, user OK).
+  A pod may have 2 GPUs when the price per GPU-hour stays within the limit; its worst case counts as one action
+  (user OK of 10 Oct 2026, Milestone 12).
 - Ask the user before: going over any limit, creating or deleting a Network Volume,
   deleting any data, or any single action costing more than $5.
 - Every pod must shut itself down when its job ends or at the max runtime
@@ -46,7 +48,9 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 ## Furniture rules
 - Fixed equipment drawn in the documents (stairs, kitchen counter runs, kitchen island and appliances, sanitary
   ware) is treated like walls: same type, position, orientation and footprint as drawn. Style changes only the
-  look. The AI may fix only a clear drawing error (e.g. a front that faces the wall), logged as `adjusted_by_ai`.
+  look. The AI may fix only a clear drawing or reading error, logged as `adjusted_by_ai` with the reason and the
+  plan crop: a front that faces the wall, a misread size (then the size of a real product of that type), a piece
+  through a wall or in a door swing (a move of at most 0.5 m) (user OK of 10 Oct 2026, Milestone 12).
 - Drawn furniture is kept by default. The AI may correct its orientation, snap it to a wall, change its size to a
   real product size, change its type within the room type's types, and fix clear drawing errors (a rug outline
   read as a piece, a cushion read as a sofa, a table footprint that includes its chairs). Every change keeps
@@ -59,15 +63,25 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   misses (`added_by_ai`, `completes_room: true`); never a second anchor piece. Small decor if the brief allows it
   (default: yes).
 - Rooms with no furniture in the documents: the AI furnishes them in the project style (default).
+- Rooms are furnished in functional groups (seating, dining, sleeping, work, kitchen run, bathroom set …) placed by
+  the deterministic solver; the AI chooses the program and between solver candidates, never coordinates. No
+  untyped piece is built: it is typed, recorded as not furniture, or listed for review.
 - Every placement or edit passes the code checks before it is accepted: inside the room, no collisions, real
   clearances and walkways, door swings free, windows free, backs to walls where the type needs it, fronts facing
   their group.
 - Every piece is labelled `from_documents` (with evidence), `added_by_ai` or `adjusted_by_ai` (with the reason).
 
+## Library rules (user OK of 10 Oct 2026, Milestone 12)
+- Only audited library models (`keep`) are used. Non-commercial, share-alike and no-derivatives licences are not
+  used. Nothing is deleted from the volume without the user's OK. When no audited model fits, the run writes a
+  `library gap` finding instead of using a wrong piece.
+
 ## Evidence and inference rules (user OK of 9 Oct 2026, Milestone 11)
 - Source geometry (DWG/DXF entities, vector PDF paths) is the anchor for walls, openings, room outlines and
   levels. The AI may override it only for a clear error (e.g. a 5 cm gap in an outer wall, a duplicated wall, a
   door off its wall); it logs the reason and the evidence, and the item is marked `corrected_by_ai`.
+- Level marks (KOT texts, blocks and attributes) are source data for floor levels, door thresholds and the ground,
+  with the same trust order as geometry; steps, ramps, plinth and terrain are inferred from them where not drawn.
 - Trust order when sources disagree: vector geometry > OCR text and dimensions > AI vision. Conflicts: prefer
   DWG > vector PDF > scan > photo, and list every conflict in the report.
 - Where the documents are silent, unclear or illogical, the AI infers, completes and corrects: furniture type,
