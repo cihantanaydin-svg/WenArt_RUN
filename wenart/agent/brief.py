@@ -143,15 +143,9 @@ def allowed_fallback(building: dict, piece: dict) -> dict:
     from wenart.furniture import schemas
     room = next((r for r in building.get("rooms") or [] if r.get("id") == piece.get("room_id")), {})
     ftype = str(piece.get("type") or "unknown")
-    out: dict = {}
     if not built(piece):
-        why = "not built: it is in no render"
-        for t in PIECE_TOOLS:
-            out[t] = _no(why)
-        if ftype == "unknown":
-            out["retype_piece"] = _yes()
-            out["mark_not_furniture"] = _yes()
-        return out
+        # in no render; an untyped one is listed for review by the reading stage (track R), never the agent's work
+        return {t: _no("not built: it is in no render") for t in PIECE_TOOLS}
     if piece.get("source") == "added_by_ai":
         return {t: (_no("an AI piece is never 'not furniture': remove it") if t == "mark_not_furniture"
                     else _no("fix_fixture is for drawn fixed equipment") if t == "fix_fixture" else _yes())
@@ -365,7 +359,7 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
         ok: list = []
         whys: list = []
         if piece is not None:
-            if not built(piece) and not (piece.get("type") == "unknown" and check in ("F1", "F9", "G14")):
+            if not built(piece):
                 not_yours.append(dict(base, why="not built: it is in no render; leave it"))
                 continue
             for t in tools:
@@ -377,6 +371,11 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
                         whys.append(f"{t}: {a['why']}")
                 elif t in GROUP_TOOLS:
                     if group_of.get(target) or (t == "complete_group" and room_tools_ok.get("complete_group")):
+                        ok.append(t)
+                elif t == "relayout_room":
+                    # a re-layout moves the AI pieces: it fixes an AI piece, or a group around a drawn anchor
+                    if room_tools_ok.get(t, True) and (piece.get("source") == "added_by_ai" or check.startswith("G")
+                                                       or check == "F5"):
                         ok.append(t)
                 elif t in ROOM_TOOLS:
                     if room_tools_ok.get(t, True):
@@ -424,14 +423,27 @@ def _call(notes: list, what: str, fn: Callable, default):
     return default if out is None else out
 
 
+def compact_allowed(allowed: dict) -> dict:
+    """``{tool: true | "why not"}`` for the piece tools (what the brief shows)."""
+    return {t: True if (allowed.get(t) or {}).get("allowed") else str((allowed.get(t) or {}).get("why") or "no")
+            for t in PIECE_TOOLS if t in allowed}
+
+
+def is_allowed(piece_line: dict, tool: str) -> bool:
+    """Whether a brief piece line allows ``tool``."""
+    return (piece_line.get("allowed") or {}).get(tool) is True
+
+
 def _piece_line(p: dict, allowed: dict, group: Optional[dict]) -> dict:
     fp = p.get("footprint") or {}
     front, inferred = front_of(p)
     out = {"id": p.get("id"), "type": p.get("type"), "source": p.get("source"),
            "size": [_f(s, 2) for s in (fp.get("size") or [])[:2]], "height": _f(p.get("height"), 2),
            "center": [_f(c, 2) for c in (fp.get("center") or [])[:2]], "rotation_deg": _f(fp.get("rotation_deg"), 1),
-           "front_deg": _f(front, 1), "lock": lock_text(allowed),
-           "allowed": {t: v for t, v in allowed.items() if t in PIECE_TOOLS}}
+           "front_deg": _f(front, 1), "lock": lock_text(allowed), "allowed": compact_allowed(allowed)}
+    move_left = (allowed.get("move_piece") or {}).get("move_left_m")
+    if move_left is not None:
+        out["move_left_m"] = move_left
     if inferred:
         out["front_inferred"] = True
     if group:

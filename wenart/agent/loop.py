@@ -192,11 +192,10 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
             why = f"{target} is not built"
         elif tool in BR.PIECE_TOOLS:
             p = pieces.get(target)
-            a = ((p or {}).get("allowed") or {}).get(tool) or {}
             if p is None:
                 why = f"{tool} needs a built piece of the room as target, not {target!r}"
-            elif not a.get("allowed"):
-                why = f"{target} does not allow {tool}: {a.get('why') or 'locked'}"
+            elif not BR.is_allowed(p, tool):
+                why = f"{target} does not allow {tool}: {(p.get('allowed') or {}).get(tool) or 'locked'}"
         elif tool in BR.GROUP_TOOLS:
             if target not in groups and not (pieces.get(target) or {}).get("group") and target not in spans \
                     and groups:

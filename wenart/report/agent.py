@@ -187,12 +187,44 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
             seconds += float(rec["seconds"])
     calls = log.get("calls") or []
     tokens = sum(int(c.get("prompt_tokens") or 0) + int(c.get("completion_tokens") or 0) for c in calls)
+    # Milestone 12 (§5.5 D20): orchestrator/metrics.json of the run (computed when missing)
+    metrics = _read(orch / "metrics.json")
+    if metrics is None:
+        try:
+            from wenart.agent import metrics as MX
+            metrics = MX.compute(log, _read(orch / "memory.json"))
+        except Exception:  # noqa: BLE001 - the report is written without the metrics
+            metrics = None
+    gaps = [dict(e.get("args") or {}, seq=e.get("seq")) for e in overrides.get("edits") or []
+            if e.get("tool") == "report_library_gap" and (e.get("result") or {}).get("accepted")]
     return {"model": log.get("model"), "revision": log.get("revision"), "stop": log.get("stop"),
             "rounds": [rounds[k] for k in sorted(rounds)], "findings_by_check": dict(sorted(by_check.items())),
             "edits": edits, "rejected": rejected, "rolled_back": rolled_back,
             "inferred": inferred_items(building, overrides), "before_after": before_after,
             "minutes": round(seconds / 60.0, 1), "calls": len(calls), "tokens": tokens,
-            "comparison": compare_rows(project_out, final_dir, private)}
+            "comparison": compare_rows(project_out, final_dir, private), "metrics": metrics,
+            "library_gaps": gaps}
+
+
+def metrics_lines(m: Optional[dict]) -> list[str]:
+    """Milestone 12 (§5.5): the agent metrics of the run as a short table."""
+    if not m:
+        return []
+    e, r, f, t, mem = m["edits"], m["rooms"], m["findings"], m["time"], m["memory"]
+    share = e.get("accepted_share")
+    top = sorted((e.get("rejected_by_reason") or {}).items(), key=lambda kv: (-kv[1], kv[0]))[:5]
+    rows = [["edits accepted / rejected", f"{e['accepted']} / {e['rejected']}"
+             + (f" ({share * 100:.0f} % accepted)" if share is not None else "")],
+            ["rejected by reason", ", ".join(f"{k} {v}" for k, v in top) or "-"],
+            ["rooms checked by code / vision / planner", f"{r['code']} / {r['vision']} / {r['planner']}"],
+            ["rooms with fixable critical or major findings visited",
+             f"{len(set(r.get('planner_rooms') or []) & set(r.get('fixable_rooms') or []))} of {r['fixable']}"],
+            ["critical before -> after", f"{f['before_totals']['critical']} -> {f['after_totals']['critical']}"],
+            ["major before -> after", f"{f['before_totals']['major']} -> {f['after_totals']['major']}"],
+            ["agent minutes; first accepted edit after", f"{t['agent_minutes']}; {t['first_accepted_edit_s']} s"],
+            ["repeats refused by the memory; dry runs; plans (valid)",
+             f"{mem['repeats_refused']}; {mem['dry_runs']}; {mem['plans']} ({mem['plans_valid']})"]]
+    return ["", "### Agent metrics", ""] + C.table(["metric", "value"], rows)
 
 
 def _img(link: Optional[str]) -> str:
@@ -209,6 +241,11 @@ def agent_lines(manifest: dict) -> list[str]:
              f"accepted, {len(a['rejected'])} rejected, {a['calls']} model calls ({a['tokens']} tokens), "
              f"{a['minutes']} min. Stop: {stop.get('reason') or '-'}. Every edit was checked by code before it was "
              "accepted; the full log is `orchestrator/log.md` on the volume."]
+    lines += metrics_lines(a.get("metrics"))
+    if a.get("library_gaps"):
+        lines += ["", "Library gaps reported by the agent: " + ", ".join(
+            f"{g.get('type')} {g.get('style') or ''} ({g.get('reason') or '-'})".replace("  ", " ")
+            for g in a["library_gaps"]) + "."]
     lines += ["", "### Rounds", ""]
     lines += C.table(["round", "critical", "major", "minor", "dropped (vision)", "accepted", "rejected", "re-run from",
                       "views"],

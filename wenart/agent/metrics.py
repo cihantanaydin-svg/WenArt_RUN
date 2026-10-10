@@ -51,7 +51,12 @@ def reason_of(failed: list) -> str:
     ``score``, ``drawn_lock`` ...)."""
     if not failed:
         return "rejected"
-    return str(failed[0]).split(":", 1)[0].strip() or "rejected"
+    head, _, rest = str(failed[0]).partition(":")
+    head = head.strip()
+    if rest and (head.startswith(("f_", "r_", "d_", "o_", "w_")) or " " in head):
+        # "f_L0_043: no_overlap" (a placer check of a piece): the check, not the piece
+        head = rest.strip().split(":", 1)[0].split(" ", 1)[0].strip()
+    return head or "rejected"
 
 
 def _session_rooms(events: list[dict]) -> dict:
@@ -79,16 +84,15 @@ def _by_check(findings: list[dict]) -> dict:
     return {k: out[k] for k in sorted(out)}
 
 
-def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int] = None) -> dict:
-    """The metrics of the latest run in ``log`` (module docstring); ``since_seq`` overrides the run's first event
-    (an M11 log with several runs)."""
+def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int] = None,
+            since_call: Optional[int] = None) -> dict:
+    """The metrics of the latest run in ``log`` (module docstring); ``since_seq`` / ``since_call`` override the
+    run's first event and first model call (an M11 log with several runs: real03 run 3 = seq 184, calls[138:])."""
     first = int(since_seq if since_seq is not None else log.get("run_first_seq") or 1)
     events = [e for e in log.get("events") or [] if int(e.get("seq") or 0) >= first]
-    calls = list(log.get("calls") or [])[int(log.get("run_first_call") or 0):] if since_seq is None else \
-        list(log.get("calls") or [])
-    if since_seq is not None:
-        rounds_seen = {f"r{int(e.get('round') or 0)}" for e in events}
-        calls = [c for c in calls if str(c.get("call_id") or "").split("-")[0] in rounds_seen]
+    first_call = since_call if since_call is not None else (log.get("run_first_call") or 0 if since_seq is None
+                                                            else 0)
+    calls = list(log.get("calls") or [])[int(first_call):]
     edits = [e for e in events if e.get("kind") in ("edit", "rejected_edit")]
     accepted = [e for e in edits if e["kind"] == "edit"]
     rejected = [e for e in edits if e["kind"] == "rejected_edit"]
@@ -102,7 +106,8 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
         row["accepted" if e["kind"] == "edit" else "rejected"] += 1
     rounds = [e for e in events if e.get("kind") == "round"]
     findings = [e for e in events if e.get("kind") == "finding" and not e.get("dropped")]
-    round_ids = sorted({int(e.get("round") or 0) for e in findings})
+    # the critic's rounds: the round events (M12; a round without findings counts as "after"), else the findings'
+    round_ids = sorted({int(e.get("round") or 0) for e in (rounds or findings)})
     before = [e for e in findings if round_ids and int(e.get("round") or 0) == round_ids[0]]
     after = [e for e in findings if round_ids and int(e.get("round") or 0) == round_ids[-1]]
     piece_rooms = {e.get("target"): e.get("room_id") for e in findings if e.get("room_id")}
@@ -137,6 +142,13 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
         row["seconds"] = round(row["seconds"] + float(c.get("seconds") or 0.0), 2)
     t_events = [_t(e.get("t")) for e in events if _t(e.get("t")) is not None]
     t0 = min(t_events) if t_events else None
+    # agent minutes: the rounds' own seconds (M12), else the first event to the loop's stop (an M11 log); the final
+    # chain between the loop and the final round is not agent time
+    if rounds:
+        agent_minutes = round(sum(float(e.get("seconds") or 0.0) for e in rounds) / 60.0, 2)
+    else:
+        t_stop = next((_t(e.get("t")) for e in events if e.get("kind") == "stop"), None)
+        agent_minutes = round((t_stop - t0) / 60.0, 2) if t_stop is not None and t0 is not None else None
     first_ok = next((_t(e.get("t")) for e in events if e.get("kind") == "edit"), None)
     memory_refused = sum(1 for e in rejected if reason_of((e.get("validation") or {}).get("failed_checks") or [])
                          == "memory")
@@ -161,7 +173,7 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
         "per_room": {k: {"calls": v["calls"], "minutes": round(v["seconds"] / 60.0, 2)}
                      for k, v in sorted(per_room.items())},
         "tokens": {k: tokens[k] for k in sorted(tokens)},
-        "time": {"agent_minutes": round((max(t_events) - t0) / 60.0, 2) if t_events else None,
+        "time": {"agent_minutes": agent_minutes,
                  "first_accepted_edit_s": round(first_ok - t0, 1) if first_ok is not None and t0 is not None
                  else None},
         "memory": {"repeats_refused": max(memory_refused, int((memory or {}).get("refused_repeats") or 0)
