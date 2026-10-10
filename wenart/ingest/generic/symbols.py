@@ -80,6 +80,7 @@ CONTAIN_KEEP_SIDE_M = 0.3
 DETAIL_M = 0.20
 LINE_DETAIL_M = 0.05           # a cluster whose minimum rectangle is thinner than this is a drawn line, not furniture
 MAX_SIDE_M = 4.5
+OVERSIZE_SPLIT_MAX_SEGS = 4000     # an oversized cluster with more segments is not split (time bound)
 CONTOUR_MIN_M = 0.20
 CONTOUR_OVERLAP = 0.15
 ATTACH_M = 0.02
@@ -1770,10 +1771,25 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             if ks is not None:
                 pieces.extend(kitchen_items(ks, walls, ctx, raster_page, table, wall_polys, notes))
                 continue
-            pieces.append(_unknown(cl, fp, ctx, raster_page, f"cluster larger than {MAX_SIDE_M} m on a side",
-                                   {"oversize": True}))
-            notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
-                         f"{MAX_SIDE_M} m: unknown, unverified, not asked")
+            # real03 (10 Oct 2026): a living room whose sofa, table, chairs and kitchen blocks touch is one cluster
+            # larger than 4.5 m. It is split like a composite (named blocks by instance, the rest by contours); the
+            # parts that fit within 4.5 m go on as pieces, and what is still larger is recorded but not built.
+            subs = split_composite(cl, table) if len(cl.segs) <= OVERSIZE_SPLIT_MAX_SEGS else []
+            small_subs = [(sub, n) for sub, n in subs if max(sub.size(ctx.theta)) <= MAX_SIDE_M]
+            if len(subs) > 1 and small_subs:
+                parts_all.extend(small_subs)
+                rest = [sub for sub, _ in subs if max(sub.size(ctx.theta)) > MAX_SIDE_M]
+                notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
+                             f"{MAX_SIDE_M} m split into {len(small_subs)} parts"
+                             + (f" ({len(rest)} still larger: not built)" if rest else ""))
+            else:
+                rest = [cl]
+                notes.append(f"cluster {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) larger than "
+                             f"{MAX_SIDE_M} m: unknown, unverified, not asked, not built")
+            for big in rest:
+                bfp = footprint([p for s in big.segs for p in s.pts], ctx.theta)
+                pieces.append(_unknown(big, bfp, ctx, raster_page, f"cluster larger than {MAX_SIDE_M} m on a side: "
+                                       "a group of drawn pieces, not built", {"oversize": True, "build": False}))
             continue
         if oversize:
             stair = None

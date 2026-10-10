@@ -263,7 +263,8 @@ FRONT_FIELD = (
 ROOM_WORDS: dict[str, str] = {
     "living": "a living room", "dining": "a dining room", "bedroom": "a bedroom", "kitchen": "a kitchen",
     "bathroom": "a bathroom", "wc": "a toilet (WC)", "hall": "a hall or corridor", "balcony": "a balcony",
-    "storage": "a storage room", "prayer": "a prayer room",
+    "storage": "a storage room", "prayer": "a prayer room", "stair": "a stair room",
+    "shaft": "a shaft",
 }
 
 

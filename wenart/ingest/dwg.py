@@ -10,7 +10,8 @@ with cmake/ninja as a static binary; there is no 0.14.1 release):
   audit is clean. So ``--as`` is never passed, and a converted file whose model space holds no entity is a
   ``ConversionError`` (the pipeline then stops that project with ``needs_review``), never an empty plan.
 - ``dwg2dxf --version`` prints only the program name, so the version comes from the ``VERSION`` file the setup
-  scripts write next to the binaries (``"0.14 d9468ae"``); it goes into the converter string and the pipeline
+  scripts write next to the binaries (``"0.14 d9468ae p1"``: the pinned commit plus the block-index patch of
+  10 Oct 2026, see ``patch_libredwg`` in the setup scripts); it goes into the converter string and the pipeline
   fingerprint (``libredwg_version``).
 - Every result is read back with ``ezdxf.recover`` (tolerant reader + audit). Audit *errors* are reported with
   the converter string; the pipeline marks that file's elements ``unverified``. Fixes are only counted.

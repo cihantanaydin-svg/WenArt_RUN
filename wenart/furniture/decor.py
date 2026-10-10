@@ -113,7 +113,7 @@ BOOK_SIZE = (0.3, 0.22)
 PLANT_SIZE = (0.4, 0.4)
 PLANT_HEIGHT_M = 1.0
 PLANT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom")
-NO_DECOR_ROOM_TYPES: tuple[str, ...] = ("prayer",)   # Milestone 7: no decor at all in these rooms
+NO_DECOR_ROOM_TYPES: tuple[str, ...] = ("prayer", "stair", "shaft")   # Milestone 7: no decor at all in these rooms
 CORNER_INSET_M = 0.25             # plant centre from each wall of the corner
 HOST_TYPES: dict[str, str] = {    # host type -> decor type
     "sofa": "cushion", "bed_double": "cushion", "bed_single": "cushion",

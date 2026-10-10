@@ -147,7 +147,7 @@ NO_SKIRTING_TYPES = WET_WALL_ROOM_TYPES | {"balcony"}
 SPLASHBACK = {"height": 0.60, "thickness": 0.008, "gap": 0.002, "counter_top": 0.90, "wall_reach": 0.20,
               "types": ("kitchen_counter", "sink_kitchen", "stove", "hob", "dishwasher", "oven")}
 # Milestone 7 room types that take another type's material slots (docs/milestone7.md §6.4).
-ROOM_SLOT_TYPES = {"dining": "living", "prayer": "living"}
+ROOM_SLOT_TYPES = {"dining": "living", "prayer": "living", "stair": "hall", "shaft": "hall"}
 SKIRTING_H = 0.08
 SKIRTING_T = 0.012
 SKIRTING_MIN_SPAN = 0.02

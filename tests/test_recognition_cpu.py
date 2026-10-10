@@ -1019,7 +1019,7 @@ def test_pod_setup_builds_libredwg_0_14_from_git_static():
     container disk, three programs + VERSION installed into /workspace/tools/libredwg/bin."""
     text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
     for pin in ("LIBREDWG_GIT=https://github.com/LibreDWG/libredwg.git", "LIBREDWG_TAG=0.14",
-                "LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0", 'LIBREDWG_VERSION_STRING="0.14 d9468ae"',
+                "LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0", 'LIBREDWG_VERSION_STRING="0.14 d9468ae p1"',
                 "LIBREDWG_BIN=$TOOLS/libredwg/bin", "LIBREDWG_SRC=$FAST/build/libredwg",
                 "submodule update --init --depth 1 jsmn", "-G Ninja -DCMAKE_BUILD_TYPE=Release -DDISABLE_WERROR=ON",
                 "-DENABLE_LTO=OFF -DBUILD_SHARED_LIBS=OFF", 'ninja -C "$LIBREDWG_SRC/build" dwg2dxf dwgread dxf2dwg',
@@ -1053,7 +1053,7 @@ for t in dwg2dxf dwgread dxf2dwg; do printf '#!/usr/bin/env bash\\nexit 0\\n' > 
         "set -Eeuo pipefail", f'export PATH="{bin_dir}:$PATH"', f'export FAKE_HEAD="{fake_head}"',
         'log() { echo "log: $*"; }', f'LOGS="{tmp_path}/logs"', 'mkdir -p "$LOGS"',
         "LIBREDWG_GIT=https://github.com/LibreDWG/libredwg.git", "LIBREDWG_TAG=0.14",
-        "LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0", 'LIBREDWG_VERSION_STRING="0.14 d9468ae"',
+        "LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0", 'LIBREDWG_VERSION_STRING="0.14 d9468ae p1"',
         f'LIBREDWG_BIN="{tmp_path}/tools/libredwg/bin"', f'LIBREDWG_SRC="{tmp_path}/fast/build/libredwg"',
         functions, body,
     ])

@@ -40,7 +40,7 @@ FURNITURE_TOOLS = {"move_piece": "move", "rotate_piece": "rotate", "resize_piece
                    "add_group": "add_group", "remove_piece": "remove", "relayout_room": "relayout_room",
                    "set_room_type": "set_room_type"}
 CAMERA_TOOLS = {"set_camera": "set", "add_camera": "add", "remove_camera": "remove"}
-OTHER_TOOLS = ("set_material", "set_exterior", "correct_geometry", "rerun_stage")
+OTHER_TOOLS = ("set_material", "set_exterior", "set_lighting", "correct_geometry", "rerun_stage")
 META_KEYS = ("reason",)          # tool arguments that are not override data
 
 
@@ -103,6 +103,7 @@ class Overrides:
         materials: dict = {}
         geometry: list = []
         reruns: dict = {}
+        lighting: dict = {}
         rnd = 0
         for e in self.accepted():
             rnd = max(rnd, int(e.get("round") or 0))
@@ -114,13 +115,16 @@ class Overrides:
                 exterior = merge_dict(exterior, args)
             elif e["tool"] == "set_material":
                 materials[str(args.get("slot"))] = args.get("look_id")
+            elif e["tool"] == "set_lighting":
+                lighting[str(args.get("room_id"))] = {"factor": float(args.get("factor")), "reason": reason,
+                                                      "seq": e["seq"]}
             elif e["tool"] == "correct_geometry":
                 geometry.append(dict(args, reason=reason, seq=e["seq"], applied=False,
                                      metrics=(e.get("result") or {}).get("metrics")))
             elif e["tool"] == "rerun_stage":
                 reruns = merge_dict(reruns, {str(args.get("stage")): dict(args.get("settings") or {})})
         return {"cameras": cameras, "exterior": exterior, "materials": materials, "geometry": geometry,
-                "reruns": reruns, "round": rnd}
+                "reruns": reruns, "lighting": lighting, "round": rnd}
 
 
 def edit_of(entry: dict) -> dict:

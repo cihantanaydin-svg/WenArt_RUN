@@ -48,6 +48,8 @@ ROOM_TYPE_TEXT: dict[str, str] = {
     "hall": "hall or corridor (Turkish: HOL, ANTRE, KORİDOR)",
     "dining": "dining room (Turkish: YEMEK ODASI)",
     "prayer": "prayer room (Indian plans: POOJA, PUJA, MANDIR)",
+    "stair": "stair room or stair core (Turkish: MERDİVEN, YANGIN MERDİVENİ = fire stair); never furnished",
+    "shaft": "shaft or lift (Turkish: ŞAFT, HAVA BACASI, ASANSÖR); never furnished",
     "other": "room of unspecified use",
 }
 
@@ -74,6 +76,8 @@ ROOM_GUIDE: dict[str, str] = {
               "front towards the table), optionally a sideboard or a bookshelf against a wall; "
               "keep the walkway around the table free.",
     "prayer": "nothing: a prayer room is never furnished by AI (this text is never sent).",
+    "stair": "nothing: a stair room holds only its stair (this text is never sent).",
+    "shaft": "nothing: a shaft is never furnished (this text is never sent).",
     "other": "a small table with chairs or a desk and a bookshelf; keep it sparse.",
 }
 

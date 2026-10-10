@@ -89,6 +89,8 @@ def changed_views(cameras: list[dict], accepted: list[dict], room_of: Callable[[
             exterior = True
         elif tool == "set_material":
             everything = True
+        elif tool == "set_lighting" and args.get("room_id"):
+            rooms.add(args["room_id"])
     for c in cameras:
         name = c.get("name")
         kind = c.get("kind") or ("exterior" if not c.get("room_id") else "interior")

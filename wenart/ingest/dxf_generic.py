@@ -62,8 +62,10 @@ import ezdxf
 from ezdxf import colors as dxf_colors
 from ezdxf import path as dxf_path
 from ezdxf import recover
+from ezdxf import xclip as dxf_xclip
 from ezdxf.math import Vec3, bulge_to_arc
 from ezdxf.tools.text import MTextContext, MTextParser, TokenType
+from shapely.geometry import LineString, Point, Polygon
 
 from wenart import building as B
 from wenart.ingest.dxf_extract import _linear_dimension_span
@@ -72,6 +74,9 @@ from wenart.ingest.generic.model import DimensionPrim, GenericPage, Stroke, Text
 # $INSUNITS codes the adapter accepts (metres per drawing unit); every other code is treated as unitless.
 INSUNITS_M = {1: 0.0254, 2: 0.3048, 4: 0.001, 5: 0.01, 6: 1.0}
 WALL_HINT_RE = re.compile(r"WALL|DUVAR|A-WALL|MUR|PARED", re.IGNORECASE)
+# Reinforced-concrete walls of Turkish drawings (real03, 10 Oct 2026): layer "... - BA" (betonarme) with its hatch
+# "... - B-H", or "PERDE" (shear wall); only as the last word of the layer name, since "BA" is short.
+CONCRETE_HINT_RE = re.compile(r"(?:^|[\s_\-|$])(?:BA|B-H|BETONARME|PERDE)$", re.IGNORECASE)
 FLATTEN_M = 0.005                  # chord error of flattened curves (metres)
 FLATTEN_REL = 0.0025               # ... relative to the entity size when the units are unknown
 CIRCLE_FIT_TOL = 0.01              # a curve is an arc when a circle fits within 1 % of its radius
@@ -81,6 +86,7 @@ CHAR_WIDTH = 0.8                   # text box estimate: width per character, x c
 DESCENT = 0.25                     # text box estimate: depth below the baseline, x cap height
 MTEXT_LINE_SPACING = 5.0 / 3.0     # AutoCAD's MTEXT baseline distance at line spacing factor 1.0
 MAX_BLOCK_DEPTH = 16
+CLIP_KEEP_SHARE = 0.2               # a closed outline crossing an XCLIP boundary is kept (cut) with >= 20 % inside
 ROUND = 6                          # decimals of page coordinates (DWG and DXF runs give the same numbers)
 BOX_TOL = 1e-3                     # sheets.json region boxes are rounded to 3 decimals (sheets.model.round_box)
 BLACK = (0.0, 0.0, 0.0)
@@ -100,8 +106,9 @@ def units_to_m(insunits) -> Optional[float]:
 
 
 def is_wall_hint_layer(name: Optional[str]) -> bool:
-    """Layer names that say "wall" (``WALL``, ``A-WALL``, ``DUVAR``, ``MUR``, ``PARED``, any case, anywhere)."""
-    return bool(name) and WALL_HINT_RE.search(name) is not None
+    """Layer names that say "wall" (``WALL``, ``A-WALL``, ``DUVAR``, ``MUR``, ``PARED``, any case, anywhere), or
+    concrete wall (``... - BA``, ``... - B-H``, ``BETONARME``, ``PERDE`` as the last word)."""
+    return bool(name) and (WALL_HINT_RE.search(name) is not None or CONCRETE_HINT_RE.search(name) is not None)
 
 
 def read_page(path: str | Path, file_rel: str, region_box=None, units_to_m_override: Optional[float] = None
@@ -340,6 +347,62 @@ def _closed_pts(pts, closed: bool) -> tuple[list, bool]:
 # The model-space walker
 # --------------------------------------------------------------------------
 
+def _xclip_polygon(insert) -> Optional[Polygon]:
+    """The enabled XCLIP boundary of an INSERT in page units (AutoCAD shows only what lies inside it), or None.
+    Found on real03 (10 Oct 2026): a block of three flats is clipped to the one flat that stands there; without the
+    boundary the hidden flats overlapped the neighbouring flat. Inverted clips are not supported (warning-free None:
+    everything is read, as before)."""
+    try:
+        xc = dxf_xclip.XClip(insert)
+        if not (xc.has_clipping_path and xc.is_clipping_enabled) or getattr(xc, "is_inverted_clip", False):
+            return None
+        pts = [(float(v.x), float(v.y)) for v in xc.get_wcs_clipping_path().vertices]
+    except Exception:                                   # a damaged filter dictionary: read the block unclipped
+        return None
+    if len(pts) == 2:
+        (x0, y0), (x1, y1) = pts
+        pts = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+    poly = Polygon(pts)
+    if not poly.is_valid:
+        poly = poly.buffer(0)
+    return poly if poly.geom_type == "Polygon" and poly.area > 0 else None
+
+
+def _clip_stroke(st: Stroke, clip: Polygon) -> list[Stroke]:
+    """``st`` cut to an XCLIP boundary: unchanged inside, dropped outside; a crossing open stroke keeps its pieces
+    inside (``<id>:c<k>`` from the second piece on), a crossing closed one the part of its area inside when that is
+    at least ``CLIP_KEEP_SHARE`` of it (else it is dropped)."""
+    geom = Point(st.pts[0]) if len(st.pts) == 1 or len(set(st.pts)) == 1 else \
+        (Polygon(st.pts) if st.closed and len(st.pts) >= 3 else LineString(st.pts))
+    if geom.geom_type == "Polygon" and not geom.is_valid:
+        geom = LineString(list(st.pts) + [st.pts[0]])
+    if clip.covers(geom):
+        return [st]
+    if not clip.intersects(geom):
+        return []
+    cut = geom.intersection(clip)
+    if geom.geom_type == "Polygon" and cut.area < CLIP_KEEP_SHARE * geom.area:
+        # A closed outline mostly outside belongs to the hidden part (real03: a room of the clipped-away flat next
+        # door reached 0.24 m into the window; its sliver, filled even-odd, cut a hole in the shared wall).
+        return []
+    parts = list(getattr(cut, "geoms", [cut]))
+    out = []
+    for part in parts:
+        if part.is_empty:
+            continue
+        if part.geom_type == "Polygon":
+            pts, closed = [(float(x), float(y)) for x, y in part.exterior.coords[:-1]], True
+        elif part.geom_type == "LineString":
+            pts, closed = [(float(x), float(y)) for x, y in part.coords], False
+        else:
+            continue
+        if len(pts) < 2:
+            continue
+        sid = st.id if not out else f"{st.id}:c{len(out)}"
+        out.append(dataclasses.replace(st, id=sid, pts=pts, closed=closed, arc=None))
+    return out
+
+
 @dataclass
 class _Ref:
     """The block reference an entity was exploded from."""
@@ -347,6 +410,7 @@ class _Ref:
     layer: str                             # effective layer of the INSERT
     rgb: tuple                             # resolved colour of the INSERT (for BYBLOCK)
     depth: int
+    clip: Optional[Polygon] = None         # XCLIP boundary of this INSERT and its parents, page units (None = none)
 
 
 class _Reader:
@@ -365,6 +429,8 @@ class _Reader:
         self.hidden_top: list = []         # top-level entities not read (layer off or frozen, invisible): sheets strays
         self.textsize = float(doc.header.get("$TEXTSIZE", 0.0) or 0.0)
         self._layer_cache: dict[str, tuple] = {}
+        self._clip: Optional[Polygon] = None   # the XCLIP boundary of the block being exploded
+        self.clipped = 0                       # strokes and texts outside an XCLIP boundary (dropped or cut)
 
     # ---- driver ----------------------------------------------------------
 
@@ -379,6 +445,9 @@ class _Reader:
         if self.skipped:
             listed = ", ".join(f"{k} x{v}" for k, v in sorted(self.skipped.items()))
             self.warnings.append(f"{where}: entity types not read: {listed}")
+        if self.clipped:
+            self.warnings.append(f"{where}: {self.clipped} strokes and texts outside the XCLIP boundaries of their "
+                                 "blocks were left out or cut (as AutoCAD shows them)")
 
     def extent_size(self) -> tuple[float, float]:
         pts = [p for st in self.strokes for p in st.pts]
@@ -464,8 +533,15 @@ class _Reader:
             self.skipped[kind] += 1
 
     def _add(self, stroke: Stroke) -> None:
-        if stroke.pts:
+        if not stroke.pts:
+            return
+        if self._clip is None:
             self.strokes.append(stroke)
+            return
+        pieces = _clip_stroke(stroke, self._clip)
+        if pieces != [stroke]:
+            self.clipped += 1
+        self.strokes.extend(pieces)
 
     # ---- blocks ------------------------------------------------------------
 
@@ -476,17 +552,30 @@ class _Reader:
                                  "not read")
             return
         name = insert.dxf.name
+        clip = _xclip_polygon(insert)
+        parent = ref.clip if ref else None
+        if clip is not None and parent is not None:
+            clip = clip.intersection(parent)
+            if clip.geom_type != "Polygon":
+                clip = max(getattr(clip, "geoms", []), key=lambda g: g.area, default=Polygon())
+        elif clip is None:
+            clip = parent
         sub = _Ref(chain=name if ref is None else f"{ref.chain}/{name}", layer=layer,
-                   rgb=self._colour(insert, layer, ref), depth=depth)
+                   rgb=self._colour(insert, layer, ref), depth=depth, clip=clip)
         copies = [insert] if insert.mcount <= 1 else list(insert.multi_insert())
-        for m, one in enumerate(copies):
-            base = eid if len(copies) == 1 else f"{eid}[{m}]"
-            for k, child in enumerate(one.virtual_entities(skipped_entity_callback=self._skipped_child)):
-                self._entity(child, f"{base}/{k}", sub)
-            for j, attrib in enumerate(one.attribs):
-                handle = attrib.dxf.get("handle")
-                aid = f"ATTRIB:{handle}" if handle and len(copies) == 1 else f"{base}/attrib{j}"
-                self._entity(attrib, aid, sub)
+        outer = self._clip
+        self._clip = clip
+        try:
+            for m, one in enumerate(copies):
+                base = eid if len(copies) == 1 else f"{eid}[{m}]"
+                for k, child in enumerate(one.virtual_entities(skipped_entity_callback=self._skipped_child)):
+                    self._entity(child, f"{base}/{k}", sub)
+                for j, attrib in enumerate(one.attribs):
+                    handle = attrib.dxf.get("handle")
+                    aid = f"ATTRIB:{handle}" if handle and len(copies) == 1 else f"{base}/attrib{j}"
+                    self._entity(attrib, aid, sub)
+        finally:
+            self._clip = outer
 
     def _skipped_child(self, entity, reason: str) -> None:
         self.skipped[f"{entity.dxftype()} in a block ({reason})"] += 1
@@ -661,6 +750,9 @@ class _Reader:
         xs = [c[0] for c in corners]
         ys = [c[1] for c in corners]
         box = (_r(min(xs)), _r(min(ys)), _r(max(xs)), _r(max(ys)))
+        if self._clip is not None and not self._clip.contains(Point((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)):
+            self.clipped += 1                    # a text whose centre lies outside the XCLIP boundary is not shown
+            return
         evidence = []
         if self.file_rel is not None:
             evidence.append(B.evidence(self.file_rel, "vector", 1.0, layer=layer, entity=eid, block=chain, text=text))

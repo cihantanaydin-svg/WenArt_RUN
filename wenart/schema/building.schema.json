@@ -372,7 +372,7 @@
         "level_id": {"type": "string"},
         "label": {"type": "string", "description": "Normalised Turkish label, e.g. Salon, Yatak Odası, Mutfak, Banyo, Balkon"},
         "label_raw": {"type": ["string", "null"]},
-        "room_type": {"enum": ["living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "other", "unknown"]},
+        "room_type": {"enum": ["living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "stair", "shaft", "other", "unknown"]},
         "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
         "area_computed": {"type": "number"},
         "area_label": {"type": ["number", "null"], "description": "Area read from the drawing in m², e.g. 24.5 from 'Salon 24,50 m²' (sq ft converted)"},

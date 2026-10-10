@@ -83,6 +83,12 @@ FALLBACK_EXTERIOR_SCHEMA = _obj({
     "site": _obj({"path": {"type": "boolean"}, "fence": {"type": "boolean"}, "trees": {"type": "integer"},
                   "front_court": {"enum": ["auto", "yes", "no"]}}, []),
     "sun": _obj({"azimuth_deg": {"type": "number"}, "elevation_deg": {"type": "number"}}, [])}, [])
+LIGHTING_FACTOR = (0.5, 3.0)      # set_lighting: the room light power times this (real03: a black floor hall)
+LIGHTING_SCHEMA = _obj({"room_id": ID,
+                        "factor": {"type": "number", "minimum": LIGHTING_FACTOR[0], "maximum": LIGHTING_FACTOR[1],
+                                   "description": "room light power x factor (1 = as assumed); a room with a factor "
+                                                  "gets ceiling lights even when it has daylight"}},
+                       ["room_id", "factor"])
 MATERIAL_SCHEMA = _obj({"slot": {"type": "string", "description": "walls, floor, wet_walls, kitchen_walls, facade, "
                                                                   "roof, ground, frames, ..."},
                         "look_id": ID}, ["slot", "look_id"])
@@ -115,13 +121,15 @@ DESCRIPTIONS = {
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
                     "frames ...).",
     "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun.",
+    "set_lighting": "Make a room's ceiling lights stronger or weaker (factor 0.5-3; a dark or windowless room, a long "
+                    "corridor). Long rooms already get one light per 3 m of length.",
     "correct_geometry": "Record a clear geometry error: close a gap <= 0.15 m, merge a duplicate wall within 0.02 m, "
                         "put an opening <= 0.10 m off its wall back on it.",
     "rerun_stage": "Re-run a stage with white-listed settings (e.g. polish enabled false).",
     "finish": "End this round: your verdict and the findings that stay open.",
 }
 STAGE_OF = {"set_camera": "build", "add_camera": "build", "remove_camera": "build", "set_material": "build",
-            "set_exterior": "build", "correct_geometry": "pipeline_final"}
+            "set_exterior": "build", "set_lighting": "build", "correct_geometry": "pipeline_final"}
 
 
 # --------------------------------------------------------------------------
@@ -646,6 +654,18 @@ def t_set_material(ctx: ToolContext, args: dict) -> dict:
                              lambda: ctx.checks().validate_material_override(ctx.style, override), "build")
 
 
+def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
+    def check() -> dict:
+        room = ctx.room(args["room_id"])
+        if room is None:
+            return {"ok": False, "failed": [f"no room {args['room_id']}"], "message": "unknown room"}
+        factor = float(args["factor"])
+        if not LIGHTING_FACTOR[0] <= factor <= LIGHTING_FACTOR[1]:
+            return {"ok": False, "failed": ["factor"], "message": f"factor must lie in {LIGHTING_FACTOR}"}
+        return {"ok": True, "message": f"{room['id']}: room lights x {factor:g} in the next build"}
+    return _validator_result(ctx, "set_lighting", args, check, "build")
+
+
 def t_set_exterior(ctx: ToolContext, args: dict) -> dict:
     override = {k: v for k, v in args.items() if k != "reason"}
     if not override:
@@ -766,6 +786,8 @@ def build_registry() -> Registry:
                       t_set_material, "build"))
     tools.append(Tool("set_exterior", "override", DESCRIPTIONS["set_exterior"], with_reason(ext_schema),
                       t_set_exterior, "build"))
+    tools.append(Tool("set_lighting", "override", DESCRIPTIONS["set_lighting"], with_reason(LIGHTING_SCHEMA),
+                      t_set_lighting, "build"))
     geometry = _obj({"kind": {"enum": list(GF.KINDS)}, "wall_ids": {"type": "array", "items": ID, "maxItems": 2},
                      "opening_id": ID, "evidence": {"type": "string", "minLength": 3}}, ["kind", "evidence"])
     tools.append(Tool("correct_geometry", "record", DESCRIPTIONS["correct_geometry"], with_reason(geometry),

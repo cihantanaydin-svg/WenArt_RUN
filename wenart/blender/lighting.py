@@ -102,6 +102,14 @@ AREA_LIGHT_CEILING_GAP = 0.05
 DIM_ROOM_RATIO = 0.08
 DIM_POWER_FACTOR = 0.5
 POLYLABEL_PRECISION_M = 0.01
+# real03 (10 Oct 2026): a 20 m floor hall under one 150 W light rendered black. A room longer than LONG_ROOM_M and at
+# least LONG_ROOM_ASPECT times as long as wide gets one light per LIGHT_SPACING_M of its length, each up to
+# AREA_LIGHT_MAX_W; a light stays LIGHT_EDGE_M inside the room.
+LONG_ROOM_M = 5.0
+LONG_ROOM_ASPECT = 2.0
+LIGHT_SPACING_M = 3.0
+LIGHT_EDGE_M = 0.2
+LIGHT_ACROSS_SAMPLES = 9
 
 
 # --------------------------------------------------------------------------
@@ -201,6 +209,61 @@ def area_light_plan(polygon, holes=()) -> dict:
     size = min(AREA_LIGHT_MAX_SIZE, max(AREA_LIGHT_MIN_SIZE, min(bx1 - bx0, by1 - by0) * 0.5))
     size = min(size, math.floor(math.sqrt(2.0) * d * 1e4) / 1e4)
     return {"center": [round(x, 4), round(y, 4)], "size": round(size, 4), "boundary_distance": d}
+
+
+def _long_axis(polygon) -> float:
+    """Angle (radians) of the polygon's longest edge: the frame a room's length is measured in (pure)."""
+    best, angle = -1.0, 0.0
+    n = len(polygon)
+    for i in range(n):
+        (ax, ay), (bx, by) = polygon[i], polygon[(i + 1) % n]
+        length = math.hypot(bx - ax, by - ay)
+        if length > best:
+            best, angle = length, math.atan2(by - ay, bx - ax)
+    return angle
+
+
+def area_light_plans(polygon, holes=(), spacing: float = LIGHT_SPACING_M) -> list[dict]:
+    """The ceiling lights of a room (pure): ``area_light_plan`` for an ordinary room; for a long room (longer than
+    ``LONG_ROOM_M`` and ``LONG_ROOM_ASPECT`` x its width, in the frame of its longest edge) one light per
+    ``spacing`` of its length, each at the point across the room furthest from the walls, at least ``LIGHT_EDGE_M``
+    inside (a stretch where no such point exists gets none). Fewer than two lights found -> the single plan."""
+    single = [area_light_plan(polygon, holes=holes)]
+    a = _long_axis(polygon)
+    ca, sa = math.cos(a), math.sin(a)
+    local = [(x * ca + y * sa, -x * sa + y * ca) for x, y in polygon]
+    u0, u1 = min(p[0] for p in local), max(p[0] for p in local)
+    v0, v1 = min(p[1] for p in local), max(p[1] for p in local)
+    length, width = u1 - u0, v1 - v0
+    if length <= LONG_ROOM_M or width <= 0 or length < LONG_ROOM_ASPECT * width:
+        return single
+    n = max(2, math.ceil(length / spacing))
+    plans = []
+    for i in range(n):
+        u = u0 + (i + 0.5) * length / n
+        best = None
+        for j in range(LIGHT_ACROSS_SAMPLES):
+            v = v0 + (j + 0.5) * width / LIGHT_ACROSS_SAMPLES
+            x, y = u * ca - v * sa, u * sa + v * ca
+            d = _signed_distance(x, y, polygon, holes)
+            if best is None or d > best[2]:
+                best = (x, y, d)
+        if best is None or best[2] < LIGHT_EDGE_M:
+            continue
+        d = math.floor(best[2] * 1e4) / 1e4
+        size = min(AREA_LIGHT_MAX_SIZE, max(AREA_LIGHT_MIN_SIZE, min(width, length / n) * 0.5))
+        size = min(size, math.floor(math.sqrt(2.0) * d * 1e4) / 1e4)
+        plans.append({"center": [round(best[0], 4), round(best[1], 4)], "size": round(size, 4), "boundary_distance": d})
+    return plans if len(plans) >= 2 else single
+
+
+def light_power(area: float, n_lights: int, dim: bool, factor: float = 1.0) -> tuple[float, float]:
+    """``(power per light, w_per_m2)`` (pure): ``AREA_LIGHT_W_PER_M2`` x area (half in a dim room), at most
+    ``AREA_LIGHT_MAX_W`` per light, times the agent's ``factor``, at least ``AREA_LIGHT_MIN_W`` per light."""
+    per_m2 = AREA_LIGHT_W_PER_M2 * (DIM_POWER_FACTOR if dim else 1.0)
+    n = max(1, int(n_lights))
+    total = min(AREA_LIGHT_MAX_W * n, per_m2 * float(area)) * float(factor)
+    return max(AREA_LIGHT_MIN_W, total / n), per_m2
 
 
 def window_floor_ratio(windows: list[dict], level: dict, levels_above: bool, floor_area: float) -> float:
@@ -321,6 +384,9 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
 
     portals = build_portals(building, levels, collection, manifest_objects)
 
+    from wenart.blender.overrides import lighting_of
+
+    agent_lights = lighting_of(building)   # the agent's set_lighting (real03 follow-up)
     area_lights = []
     for level in levels:
         floor_z = float(level["elevation"])
@@ -339,47 +405,19 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             area = G.polygon_area(polygon)
             ratio = window_floor_ratio(windows, level, levels_above, area) if windows else None
             why = fill_light_reason(windows, ratio)
-            if why is None:
+            agent = agent_lights.get(room["id"])
+            if why is None and agent is None:
                 continue
+            if why is None:
+                why = f"agent: {agent.get('reason') or 'room lights'}"
             dim = bool(windows)
-            plan = area_light_plan(polygon, holes=voids)
-            size = plan["size"]
-            per_m2 = AREA_LIGHT_W_PER_M2 * (DIM_POWER_FACTOR if dim else 1.0)
-            power = min(AREA_LIGHT_MAX_W, max(AREA_LIGHT_MIN_W, per_m2 * area))
-            light = bpy.data.lights.new(f"light_{room['id']}", "AREA")
-            light.shape = "SQUARE"
-            light.size = size
-            light.energy = power
-            try:
-                light.use_temperature = True
-                light.temperature = temperature
-            except AttributeError:
-                light.color = _blackbody_rgb(temperature)
-            lob = bpy.data.objects.new(f"light_{room['id']}", light)
-            # The room's own ceiling at the light (review #28: a sloped ceiling of one room never carries over to
-            # the next room of the level).
-            room_ceil = ceil_z if ceiling_at is None else light_ceiling(ceiling_at, level, plan["center"], size, ceil_z)
-            lob.location = (plan["center"][0], plan["center"][1], room_ceil - AREA_LIGHT_CEILING_GAP)
-            lob.visible_camera = False      # lighting mood only: no lamp in the picture
-            collection.objects.link(lob)
-            common.set_props(lob, wenart_id=f"light_{room['id']}", kind="light", status="assumed")
-            lob["wenart_room"] = room["id"]
-            kind = "dim_room_light" if dim else "windowless_room_light"
-            manifest_objects.append({
-                "name": lob.name, "wenart_id": lob.name, "kind": "light", "status": "assumed",
-                "level_id": level["id"], "element_id": room["id"], "parent": room["id"], "evidence": [],
-                "material": None, "textured": False, "pass_index": None,
-                "center": [plan["center"][0], plan["center"][1], round(room_ceil - AREA_LIGHT_CEILING_GAP, 4)],
-                "size": size,
-                "assumed": {"power_w": power, "w_per_m2": per_m2, "size_m": size,
-                            "boundary_distance_m": plan["boundary_distance"], "window_floor_ratio":
-                                None if ratio is None else round(ratio, 4), "visible_camera": False, "reason": why},
-            })
-            assumed.append({"object": lob.name, "field": "area_light", "value": power,
-                            "reason": f"{room['id']}: {why}; soft ceiling light added (lighting mood, invisible "
-                                      f"to the camera)",
-                            "parent": room["id"], "kind": kind})
-            area_lights.append(lob)
+            plans = area_light_plans(polygon, holes=voids)
+            power, per_m2 = light_power(area, len(plans), dim, agent["factor"] if agent else 1.0)
+            for k, plan in enumerate(plans):
+                name = f"light_{room['id']}" if k == 0 else f"light_{room['id']}_{k + 1}"
+                area_lights.append(_room_light(bpy, common, collection, manifest_objects, assumed, room, level, plan,
+                                               name, power, per_m2, why, dim, ratio, temperature, ceiling_at, ceil_z,
+                                               len(plans), agent))
     sun_info = {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength, "temperature_k": temperature}
     if north_deg is not None:
         sun_info.update(azimuth_building_deg=round(in_building, 3), north_deg=north_deg, north_source=north_source)
@@ -387,6 +425,49 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
         sun_info["source"] = lighting["sun_source"]
     return {"world": world, "world_exterior": world_exterior, "sun": sun_info,
             "area_lights": [o.name for o in area_lights], "portals": [o.name for o in portals]}
+
+
+
+def _room_light(bpy, common, collection, manifest_objects: list, assumed: list, room: dict, level: dict, plan: dict,
+                name: str, power: float, per_m2: float, why: str, dim: bool, ratio, temperature: float, ceiling_at,
+                ceil_z: float, count: int, agent):
+    """One square ceiling light of a room (``build_lighting``)."""
+    size = plan["size"]
+    light = bpy.data.lights.new(name, "AREA")
+    light.shape = "SQUARE"
+    light.size = size
+    light.energy = power
+    try:
+        light.use_temperature = True
+        light.temperature = temperature
+    except AttributeError:
+        light.color = _blackbody_rgb(temperature)
+    lob = bpy.data.objects.new(name, light)
+    # The room's own ceiling at the light (review #28: a sloped ceiling of one room never carries over to
+    # the next room of the level).
+    room_ceil = ceil_z if ceiling_at is None else light_ceiling(ceiling_at, level, plan["center"], size, ceil_z)
+    lob.location = (plan["center"][0], plan["center"][1], room_ceil - AREA_LIGHT_CEILING_GAP)
+    lob.visible_camera = False      # lighting mood only: no lamp in the picture
+    collection.objects.link(lob)
+    common.set_props(lob, wenart_id=name, kind="light", status="assumed")
+    lob["wenart_room"] = room["id"]
+    kind = "dim_room_light" if dim else "windowless_room_light"
+    manifest_objects.append({
+        "name": lob.name, "wenart_id": lob.name, "kind": "light", "status": "assumed",
+        "level_id": level["id"], "element_id": room["id"], "parent": room["id"], "evidence": [],
+        "material": None, "textured": False, "pass_index": None,
+        "center": [plan["center"][0], plan["center"][1], round(room_ceil - AREA_LIGHT_CEILING_GAP, 4)],
+        "size": size,
+        "assumed": {"power_w": power, "w_per_m2": per_m2, "size_m": size,
+                    "boundary_distance_m": plan["boundary_distance"], "window_floor_ratio":
+                        None if ratio is None else round(ratio, 4), "visible_camera": False, "reason": why,
+                    "lights_in_room": count, "agent_factor": agent["factor"] if agent else None},
+    })
+    assumed.append({"object": lob.name, "field": "area_light", "value": power,
+                    "reason": f"{room['id']}: {why}; soft ceiling light added (lighting mood, invisible "
+                              f"to the camera)",
+                    "parent": room["id"], "kind": kind})
+    return lob
 
 
 def build_portals(building: dict, levels: list[dict], collection, manifest_objects: list) -> list:

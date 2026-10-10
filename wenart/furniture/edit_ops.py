@@ -65,7 +65,7 @@ SNAP_MAX_M = 0.3                 # §5: a drawn piece may move (snap to a wall) 
 LAYOUT_OPS = ("relayout_room", "set_room_type")
 META_KEYS = ("reason", "round", "log_seq", "model")
 ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer",
-              "other", "unknown")
+              "stair", "shaft", "other", "unknown")
 EVIDENCE_FILE = "building.json"
 
 _META: dict[str, Any] = {
@@ -398,6 +398,9 @@ def _change_type(b: dict, args: dict) -> list[str]:
     rtype, sub = room.get("room_type"), room.get("room_subtype")
     if _drawn(item) and old == "unknown":
         allowed = set(schemas.allowed_types(rtype, sub)) | set(PL.ALWAYS_ALLOWED) - {"unknown"}
+    elif _fixed(item) and schemas.misplaced_fixed(old, rtype):
+        # real03: fixed equipment in a room that never holds it is a reading error (CLAUDE.md: a clear error).
+        allowed = (set(schemas.allowed_types(rtype, sub)) | set(PL.ALWAYS_ALLOWED)) - {"unknown", old}
     elif _fixed(item):
         raise EditRejected("drawn_lock", f"{item['id']}: drawn fixed equipment keeps its type ({old})")
     elif _drawn(item):
@@ -523,7 +526,8 @@ def _remove(b: dict, args: dict) -> list[str]:
         b["furniture"] = [f for f in b["furniture"] if f["id"] != item["id"]]
         b["decor"] = [d for d in b.get("decor") or [] if d.get("host_id") != item["id"]]
         return [item["id"]]
-    if _fixed(item):
+    room = _room(b, item.get("room_id")) if item.get("room_id") else {}
+    if _fixed(item) and not schemas.misplaced_fixed(item["type"], room.get("room_type")):
         raise EditRejected("drawn_lock", f"{item['id']}: drawn fixed equipment ({item['type']}) is never removed")
     if not str(args.get("reason") or "").strip():
         raise EditRejected("reason", f"{item['id']}: a drawn piece is removed only with a reason")

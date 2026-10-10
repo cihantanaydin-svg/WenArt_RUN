@@ -214,6 +214,7 @@ def wall_primitives(page: GenericPage, units_to_m: float) -> list[WallPrim]:
                               confidence=RASTER_CONFIDENCE, mask=mask_m))
     used: set[str] = set()
     prims.extend(_dxf_hatches(page, s, used))
+    prims.extend(_ring_walls(page, s, used))
     prims.extend(_hatch_groups(page, s, used))
     prims.extend(_dark_fills(page, s, used))
     prims.extend(_outline_walls(page, s, used))
@@ -243,6 +244,52 @@ def _dxf_hatches(page: GenericPage, s: float, used: set) -> list[WallPrim]:
         used.update(st.id for st in strokes)
         out.append(WallPrim(kind="dxf_hatch", entity=base, stroke_ids=[st.id for st in strokes], method="vector",
                             confidence=DXF_HATCH_CONFIDENCE, polygons=polys))
+    return out
+
+
+def _ring_group(stroke_id: str) -> str:
+    """The block instance a DXF stroke was drawn in: ``INSERT:4B/3/7`` -> ``INSERT:4B/3``; a model-space entity is
+    its own group."""
+    return stroke_id.rsplit("/", 1)[0] if "/" in stroke_id else stroke_id
+
+
+def _ring_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
+    """Walls drawn as closed outlines on a wall layer (real03, 10 Oct 2026): per block instance, one outline around
+    the whole unit and one outline per room inside it, so the wall material is what lies between them. The closed
+    wall-layer outlines of one block instance are filled even-odd as one primitive when some outline holds another
+    and the filled area is a band of wall thickness (area / half its boundary length within ``OUTLINE_WIDTH_M``)."""
+    if not page.wall_hint_layers:
+        return []
+    hint = {name.upper() for name in page.wall_hint_layers}
+    groups: dict[str, list[tuple[Stroke, Polygon]]] = {}
+    for st in page.strokes:
+        if (st.id in used or not st.closed or st.fill is not None or st.arc is not None or len(st.pts) < 3
+                or not st.layer or st.layer.upper() not in hint):
+            continue
+        poly = Polygon(_scale_pts(st.pts, s))
+        if not poly.is_valid or poly.area <= 0:
+            continue
+        groups.setdefault(_ring_group(st.id), []).append((st, poly))
+    out = []
+    for key, members in groups.items():
+        if len(members) < 2:
+            continue
+        polys = [p for _, p in members]
+        if not any(a is not b and a.contains(b) for a in polys for b in polys):
+            continue
+        filled = polys[0]
+        for p in polys[1:]:
+            filled = filled.symmetric_difference(p)
+        boundary = sum(p.length for p in polys)
+        mean_width = filled.area / (boundary / 2.0) if boundary > 0 else 0.0
+        if not OUTLINE_WIDTH_M[0] <= mean_width <= OUTLINE_WIDTH_M[1]:
+            continue
+        used.update(st.id for st, _ in members)
+        out.append(WallPrim(kind="ring", entity=f"ring:{key}", stroke_ids=[st.id for st, _ in members],
+                            method="vector", confidence=OUTLINE_CONFIDENCE,
+                            polygons=[list(p.exterior.coords)[:-1] for p in polys], layer=members[0][0].layer,
+                            note=(f"walls drawn as closed outlines on layer '{members[0][0].layer}': {len(polys)} "
+                                  f"outlines of one block filled even-odd (mean wall {mean_width:.2f} m)")))
     return out
 
 
@@ -935,7 +982,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim])
     # The other primitives closed in too few rooms: only those drawn on the chosen layer (or a wall-layer hatch) stay;
     # the rest (furniture outlines, the column squares the outline rule took) go back to the ordinary strokes.
     layer_of = {st.id: _layer_key(st) for st in page.strokes}
-    kept = [p for p in prims if p.kind == "dxf_hatch" or
+    kept = [p for p in prims if p.kind in ("dxf_hatch", "ring") or
             (p.stroke_ids and all(layer_of.get(i) == win["layer"] for i in p.stroke_ids))]
     if len(kept) < len(prims):
         choice["released"] = len(prims) - len(kept)

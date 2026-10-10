@@ -38,6 +38,10 @@ from wenart import building as B
 from wenart.ingest.model import OpeningItem, WallItem
 
 CLOSE_M = 0.002
+# Gaps narrower than 2 x this between wall rectangles are closed when the faces are made (real03, 10 Oct 2026: walls
+# cut from the wall raster at 10 mm pixels left 1 cm slits at corners, so a bedroom and its hall became one face; a
+# real opening is never narrower than 5 cm).
+SLIT_CLOSE_M = 0.015
 HULL_SHARE = 0.99
 SEPARATOR_MAX_M = 2.4
 END_TO_END_ALIGN_M = 0.20
@@ -116,7 +120,7 @@ def bridged_union(walls: list, openings: list = (), separators: list = ()):
     if not polys:
         return Polygon()
     u = unary_union(polys)
-    return u.buffer(CLOSE_M, join_style=2).buffer(-CLOSE_M, join_style=2)
+    return u.buffer(SLIT_CLOSE_M, join_style=2).buffer(-SLIT_CLOSE_M, join_style=2)
 
 
 def _parts(geom) -> list[Polygon]:
@@ -144,6 +148,11 @@ def outer_loop_problem(walls: list, openings: list = ()) -> Optional[str]:
     parts = _parts(bridged_union(walls, openings))
     if not parts:
         return "no building walls"
+    # A free-standing piece inside another part's filled outline (real03: a 0.75 m wall stub inside a flat) does not
+    # open the outer loop; split_plot keeps it as a building wall.
+    filled = [Polygon(p.exterior) for p in parts]
+    parts = [p for k, p in enumerate(parts)
+             if not any(j != k and filled[j].contains(p.representative_point()) for j in range(len(parts)))]
     if len(parts) > 1:
         return f"building walls form {len(parts)} separate parts"
     if not parts[0].interiors:
@@ -266,6 +275,15 @@ def split_plot(walls: list[WallItem], openings: list[OpeningItem], label_blocks:
             continue
         if not outline.is_empty and outline.contains(Point(b.anchor)):
             continue                                     # inside the outline but in no face: rooms report it
+        if getattr(b, "room_type", None) == "balcony":
+            # An open balcony (railing, no walls) outside the outer walls is not a gap in them (real03, 10 Oct
+            # 2026: the corner flats' balconies stand in the hull of the building): recorded in site, not built.
+            extent = _free_extent(b.anchor, all_walls_geom, plot_hulls)
+            site["areas"].append(_area(b, None, level_id, extent=extent,
+                                       note="open balcony outside the outer walls (no walls drawn around it)"))
+            warnings.append(f"balcony '{b.name}' at ({b.anchor[0]:.2f}, {b.anchor[1]:.2f}) m lies outside the outer "
+                            f"walls: an open balcony, recorded in site, not a room")
+            continue
         if hull is not None and hull.contains(Point(b.anchor)):
             warnings.append(REVIEW_PREFIX + f"outer walls do not close: room label '{b.name}' at ({b.anchor[0]:.2f}, "
                                             f"{b.anchor[1]:.2f}) m lies inside the walls' hull but in no closed face")

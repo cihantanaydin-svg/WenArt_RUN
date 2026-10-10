@@ -168,7 +168,7 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
 FURNISHABLE_ROOM_TYPES: tuple[str, ...] = tuple(ALLOWED_TYPES)
 # Room types the AI never furnishes even when the documents leave them empty (docs/milestone7.md §0:
 # a pooja / prayer room is never furnished by AI and gets no decor).
-NOT_FURNISHED_ROOM_TYPES: tuple[str, ...] = ("prayer",)
+NOT_FURNISHED_ROOM_TYPES: tuple[str, ...] = ("prayer", "stair", "shaft")   # real03: stair rooms and shafts stay empty
 
 # Room type -> the piece its type calls for (GPU test: a bedroom gets a bed, a living room a sofa).
 ANCHOR_TYPES: dict[str, tuple[str, ...]] = {
@@ -219,6 +219,24 @@ UNDER_WINDOW_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "sofa", "tabl
 WALL_SNAP_MAX_M = 1.2
 FIXED_TYPES: tuple[str, ...] = ("stair", "kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
                                 "washing_machine", "toilet", "washbasin", "shower", "bathtub")
+# Milestone 11 follow-up (real03, 10 Oct 2026): drawn fixed equipment in a room that can never hold it is a reading
+# error (stair flights typed as a kitchen counter in a stair room), the "clear drawing error" CLAUDE.md lets the AI
+# fix: the agent may retype it or leave it out (never move it). Room type -> the fixed types it never holds.
+KITCHEN_FIXED_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge")
+SANITARY_FIXED_TYPES: tuple[str, ...] = ("toilet", "washbasin", "shower", "bathtub")
+NEVER_FIXED_IN_ROOM: dict[str, tuple[str, ...]] = {
+    "stair": KITCHEN_FIXED_TYPES + SANITARY_FIXED_TYPES + ("washing_machine",),
+    "shaft": KITCHEN_FIXED_TYPES + SANITARY_FIXED_TYPES + ("washing_machine",),
+    "balcony": KITCHEN_FIXED_TYPES + SANITARY_FIXED_TYPES,
+    "bedroom": KITCHEN_FIXED_TYPES,
+}
+
+
+def misplaced_fixed(ftype: Optional[str], room_type: Optional[str]) -> bool:
+    """True when drawn fixed equipment of ``ftype`` stands in a room of ``room_type`` that never holds it."""
+    return ftype in NEVER_FIXED_IN_ROOM.get(room_type or "", ())
+
+
 # Drawn pieces of these types keep their type and size (no room type lists a type to change them into).
 UNCHANGEABLE_TYPES: tuple[str, ...] = FIXED_TYPES + DOCUMENTED_ONLY_TYPES + RULE_ONLY_TYPES
 # Hung on the wall above the floor (``furniture.mount_bottom_m``): not a floor obstacle for the placer.

@@ -828,3 +828,32 @@ What the run shows (to fix):
 | 2 | desk, bookshelf, dining table, chairs in the stair rooms and the entrance lobby | "YANGIN / KAT MERDİVENİ" and "RÜZGARLIK" are typed `other`, so the layout furnished them | label rules: `... MERDİVEN...` → stair room, `RÜZGARLIK` / `HOL` → hall (no furnishing beyond a console) |
 | 3 | the 47 m² floor hall nearly black (critical R5, not fixed) | no window, the assumed ceiling light is too weak for a long corridor, and the agent has no lighting tool | a `set_lighting` tool (room light strength / extra lights) and the dark-room rule scaling with room length |
 | 4 | no exterior view | — (the core alone; not investigated) | check after #1–#3 |
+
+### 19.8 real03 – the whole ground floor (10 Oct 2026, follow-up of §19.7)
+
+The user saw only the core rendered ("only the outside areas recognized, no living space"). §19.7 was wrong about the
+cause: the flats **are** in `tekkat.dwg`. What hid them, and the fixes (CPU, before the pod):
+
+| # | What hid or broke the flats | Fix |
+|---|---|---|
+| 1 | LibreDWG 0.14 `dwg2dxf` left 13 blocks out of the DXF (the four flat plans, their texts, the stair, column and axis blocks): `dxf_blocks_write` passes its BLOCK_HEADER loop index to `dxf_block_write`, which advances it past the attributes of every INSERT it writes, so the next block headers were skipped. `dwgread` showed the entities (`num_owned: 59` for `xref_1+1_B_PLAN`) | a one-line patch (`int j = i;`) applied after the pinned checkout in `scripts/pod_setup_recognition.sh` and `scripts/cloud-setup.sh`; version string `0.14 d9468ae p1` (the pod rebuilds once). `dxf2dwg` is untouched (the synthetic DWG hashes stay) |
+| 2 | Every flat is a clipped block reference (XCLIP): the A2 block holds three flats and shows one; unclipped, two hidden flats overlapped the A3 flat | `dxf_generic` reads the XCLIP boundary (`ezdxf.xclip`, nested boundaries intersected): strokes and texts outside are left out, crossing ones cut; a closed outline less than 20 % inside belongs to the hidden part (its sliver cut a hole in the shared wall) |
+| 3 | The flat walls are closed outlines on the wall layer: one around the flat, one per room; no hatch, no face pairs | new wall primitive `ring` (`walls._ring_walls`): the closed wall-layer outlines of one block instance filled even-odd, when one holds another and the band is 0.05–0.60 m on average |
+| 4 | The core walls are reinforced concrete: layer `MYD - BA` and hatch `MYD - B-H` | `BA`, `B-H`, `BETONARME`, `PERDE` as the last word of a layer name are wall layers |
+| 5 | 1 cm slits at wall corners (walls cut from the 10 mm raster) joined a bedroom and its hall | faces are made with a 15 mm gap closing (`topology.SLIT_CLOSE_M`); a free-standing wall stub inside the building no longer opens the outer loop (`rooms.drop_inner_pieces`) |
+| 6 | Open balconies (railing only) outside the outer walls but in the hull of the building stopped the project (`needs_review`) | a balcony label outside the walls is an open balcony: recorded in site, not a review reason |
+| 7 | Texts of the services layer `____MEK_MEKANİK ÇALIŞMA` ("SUBSTATİON", "Hava Bacası") named the floor hall and a living room | texts on services layers (`MEKANİK`, `ELEKTRİK`, `TESİSAT`, `HVAC`, ...) are no room labels |
+| 8 | Room types: `YAŞAMA` was `other`, the stair rooms and shafts were furnished | `yaşama`/`oturma` → living, `rüzgarlık` → hall, `ODA-01` → bedroom; new room types `stair` (`MERDİVEN`) and `shaft` (`ŞAFT`, `BACA`, `ASANSÖR`), never furnished, no decor, hall materials |
+| 9 | An open hall + living room is one face; the first label named it | the label with the largest printed net area names the face |
+| 10 | Living rooms whose sofa, table and kitchen blocks touch were one 5–13 m "unknown" cluster (a grey box, the kitchens lost) | an oversized cluster is split like a composite (named blocks by instance: sinks, hobs, fridges); what stays larger than 4.5 m is recorded and not built |
+
+The three fixes of §19.7: (1) drawn fixed equipment in a room that never holds it (`schemas.misplaced_fixed`: kitchen or
+sanitary pieces in a stair room, a shaft or on a balcony, kitchen pieces in a bedroom) is a clear reading error: the
+agent may change its type or remove it with a reason, never move it (`edit_ops`, `locked`, prompt rule 2); (2) the
+label rules of row 8; (3) a room longer than 5 m and twice as long as wide gets one ceiling light per 3 m
+(`lighting.area_light_plans`, each up to 150 W), and the agent's new `set_lighting` tool (room light power x 0.5–3,
+a room with a factor gets lights even with daylight; `agent_overrides.lighting`).
+
+Ingest of `tekkat.dwg` before → after (CPU): 30 inferred walls, 5 rooms (core only) → 158 walls (vector, `ring` and
+concrete), 55 faces: 8 flats (4 × 1+1 B, 2 × 1+1 A1, 1+1 A2, 2+1 A3) with their living rooms, bedrooms, baths and
+halls, the floor hall, the wind lobby and the two stair rooms; status `ok`.

@@ -44,9 +44,23 @@ def overrides_of(building: dict) -> Optional[dict]:
     ov = building.get("agent_overrides") if isinstance(building, dict) else None
     if not isinstance(ov, dict):
         return None
-    if not (ov.get("cameras") or ov.get("exterior") or ov.get("materials")):
+    if not (ov.get("cameras") or ov.get("exterior") or ov.get("materials") or ov.get("lighting")):
         return None
     return ov
+
+
+def lighting_of(building: dict) -> dict:
+    """``{room_id: {"factor", "reason"}}`` of the agent's ``set_lighting`` (real03 follow-up), {} without one."""
+    ov = overrides_of(building) or {}
+    out = {}
+    for rid, entry in (ov.get("lighting") or {}).items():
+        try:
+            factor = float((entry or {}).get("factor"))
+        except (TypeError, ValueError):
+            continue
+        if 0.5 <= factor <= 3.0:
+            out[str(rid)] = {"factor": factor, "reason": (entry or {}).get("reason")}
+    return out
 
 
 def exterior_of(building: dict) -> dict:

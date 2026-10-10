@@ -19,7 +19,7 @@ python3 -m pip install -q --user \
 LIBREDWG_GIT=https://github.com/LibreDWG/libredwg.git
 LIBREDWG_TAG=0.14
 LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0
-LIBREDWG_VERSION_STRING="0.14 d9468ae"
+LIBREDWG_VERSION_STRING="0.14 d9468ae p1"
 LIBREDWG_HOME="$HOME/.cache/wenart/libredwg"
 LIBREDWG_BIN="$LIBREDWG_HOME/bin"
 LIBREDWG_SRC="$LIBREDWG_HOME/src"
@@ -33,12 +33,40 @@ libredwg_usable() {
   "$LIBREDWG_BIN/dwg2dxf" --help >/dev/null 2>&1 || return 1
 }
 
+# patch_libredwg: one fix on top of the pinned commit (found on real03, 10 Oct 2026). dxf_blocks_write passes its
+# BLOCK_HEADER loop index to dxf_block_write, which advances it past the attributes of every INSERT it writes, so
+# the blocks after a block with attributed INSERTs were left out of the DXF (real03: the four flats, the stairs,
+# the columns). The fix gives dxf_block_write a copy of the index. Only dwg2dxf changes (dxf2dwg does not).
+patch_libredwg() {
+  git -C "$LIBREDWG_SRC" apply --whitespace=nowarn - <<'LIBREDWG_PATCH'
+diff --git a/src/out_dxf.c b/src/out_dxf.c
+index 8de1989..ea5e780 100644
+--- a/src/out_dxf.c
++++ b/src/out_dxf.c
+@@ -3903,7 +3903,12 @@ dxf_blocks_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)
+           if (dat->version < R_11 && obj == mspace)
+             ;
+           else
+-            error |= dxf_block_write (dat, obj, mspace, pspace, &i);
++            {
++              // dxf_block_write may advance its index past INSERT attribs:
++              // give it a copy so the BLOCK_HEADER scan skips no block.
++              int j = i;
++              error |= dxf_block_write (dat, obj, mspace, pspace, &j);
++            }
+         }
+     }
+ 
+LIBREDWG_PATCH
+}
+
 build_libredwg() {
   rm -rf "$LIBREDWG_SRC"
   mkdir -p "$LIBREDWG_HOME"
   git clone --quiet --depth 1 --branch "$LIBREDWG_TAG" "$LIBREDWG_GIT" "$LIBREDWG_SRC" || return 1
   [ "$(git -C "$LIBREDWG_SRC" rev-parse HEAD)" = "$LIBREDWG_COMMIT" ] || { echo "LibreDWG: unexpected commit"; return 1; }
   git -C "$LIBREDWG_SRC" submodule update --init --depth 1 jsmn >/dev/null 2>&1 || return 1
+  patch_libredwg || return 1
   cmake -S "$LIBREDWG_SRC" -B "$LIBREDWG_SRC/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DDISABLE_WERROR=ON \
     -DENABLE_LTO=OFF -DBUILD_SHARED_LIBS=OFF >/dev/null || return 1
   ninja -C "$LIBREDWG_SRC/build" dwg2dxf dwgread dxf2dwg >/dev/null || return 1

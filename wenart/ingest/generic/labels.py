@@ -297,12 +297,25 @@ def page_unit_system(texts: list[TextRun]) -> str:
     return units.majority_system(singles, sizes)
 
 
+# Texts on building-services layers name ducts, shafts and equipment, not rooms (real03, 10 Oct 2026: layer
+# "____MEK_MEKANİK ÇALIŞMA" wrote "SUBSTATİON" into the floor hall and "Hava Bacası" into a living room). "MEKAN"
+# alone (Turkish "space") is a room layer, so the services words are matched in full.
+SERVICES_LAYER_RE = re.compile(r"MEKAN[İI]K|MECHANICAL|ELEKTR[İI]K|ELECTRICAL|TES[İI]SAT|PLUMBING|HVAC|SIHH[İI]",
+                               re.IGNORECASE)
+
+
+def _services_text(run: TextRun) -> bool:
+    layers = {str(e.get("layer") or "") for e in (run.evidence or []) if isinstance(e, dict)}
+    return any(SERVICES_LAYER_RE.search(name.upper()) for name in layers if name)
+
+
 def merge_label_blocks(texts_m: list[TextRun], file_rel: Optional[str] = None,
                        page: Optional[int] = None) -> list[LabelBlock]:
     """Text runs of one page -> room/site label blocks (§2.7.2), in reading order (top to bottom, left to right).
 
     ``file_rel``/``page`` build the evidence of runs that carry none (vector runs: confidence 1.0).
     """
+    texts_m = [t for t in texts_m if not _services_text(t)]
     system = page_unit_system(texts_m)
     lines = [_classify(t, system) for t in texts_m if t.text and t.text.strip()]
     candidates = [ln for ln in lines if ln.kind != "skip"]

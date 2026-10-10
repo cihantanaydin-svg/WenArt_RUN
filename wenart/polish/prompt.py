@@ -67,6 +67,8 @@ ROOM_WORDS: dict[str, str] = {
     "storage": "storage room",
     "dining": "dining room",          # Milestone 7 (docs/milestone7.md §6.5)
     "prayer": "prayer room",
+    "stair": "stair hall",
+    "shaft": "shaft",
     "other": "room",
     "unknown": "room",
 }

@@ -114,11 +114,23 @@ def loose_wall_ends(walls: list[WallItem], polys: list[Polygon], exterior) -> li
     return loose
 
 
+def drop_inner_pieces(union):
+    """The wall union without free-standing pieces that lie inside another part's filled outline (real03, 10 Oct
+    2026: a 0.75 m stub inside a flat made the level "not closed"); one part left -> that Polygon."""
+    if union.is_empty or union.geom_type != "MultiPolygon":
+        return union
+    parts = list(union.geoms)
+    filled = [Polygon(p.exterior) for p in parts]
+    keep = [p for k, p in enumerate(parts)
+            if not any(j != k and filled[j].contains(p.representative_point()) for j in range(len(parts)))]
+    return keep[0] if len(keep) == 1 else unary_union(keep)
+
+
 def closure_problem(walls: list[WallItem], union=None) -> Optional[str]:
     """Why the outer walls do not form one closed loop, or None when they do."""
     if not walls:
         return "no walls"
-    union = wall_union(walls) if union is None else union
+    union = drop_inner_pieces(wall_union(walls) if union is None else union)
     if union.geom_type != "Polygon":
         parts = getattr(union, "geoms", [])
         return f"outer walls do not form one closed loop ({union.geom_type}, {len(parts)} parts)"
@@ -232,12 +244,15 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         result.closed = False
         result.warnings.append(f"{level_id}: no walls")
         return result
+    if union is not None:
+        union = drop_inner_pieces(union)
     if union is None:
         union = wall_union(walls)
         strips = _separator_strips(separators)
         if strips:
             union = unary_union([union] + strips).buffer(CLOSE_M, join_style="mitre").buffer(-CLOSE_M,
                                                                                             join_style="mitre")
+        union = drop_inner_pieces(union)
         problem = closure_problem(walls, union)
     elif union.geom_type != "Polygon":
         parts = len(getattr(union, "geoms", []))
@@ -246,6 +261,7 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         problem = "walls form no enclosed room"
     else:
         problem = None
+    union = drop_inner_pieces(union)
     if problem is not None:
         result.closed = False
         result.warnings.append(f"{level_id}: {problem}")
@@ -319,6 +335,15 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
                 result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label")
             status = "unverified"
         elif getattr(labels[indices[0]], "block", None) is not None:
+            if len(indices) > 1:
+                # Several names in one face (an entrance hall open to the living room, real03): the name of the
+                # largest printed net area names the face; without printed areas the first one stays.
+                def printed(k: int) -> float:
+                    blk = getattr(labels[k], "block", None)
+                    return blk.area_m2 if blk is not None and blk.area_m2 is not None else -1.0
+                best = max(indices, key=printed)
+                if printed(best) > 0:
+                    indices = [best] + [k for k in indices if k != best]
             first = labels[indices[0]]
             block = first.block
             label, _, _ = B.normalise_room_label(block.name, turkish=first.turkish)
@@ -342,8 +367,8 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             if len(indices) > 1:
                 status = "unverified"
                 extra = [labels[k].text for k in indices[1:]]
-                result.warnings.append(f"{level_id}: room '{label}' has more labels: {', '.join(extra)}; first label "
-                                       f"kept")
+                result.warnings.append(f"{level_id}: room '{label}' has more labels: {', '.join(extra)}; the label "
+                                       f"with the largest printed area (else the first) kept")
         else:
             first = labels[indices[0]]
             label, room_type, area_label = B.normalise_room_label(first.text)

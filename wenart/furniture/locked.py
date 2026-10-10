@@ -202,7 +202,7 @@ def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> 
 AGENT_SNAP_M = 0.3               # Milestone 11 (§5): a drawn piece adjusted by the agent moves at most this far
 
 
-def _agent_problems(src: dict, fin: dict, keep: bool) -> list[str]:
+def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] = None) -> list[str]:
     """Milestone 11 (docs/milestone11.md §5, CLAUDE.md furniture rules): a drawn piece the agent changed
     (``adjusted_by_ai`` with its reason, ``wenart.furniture.edit_ops``). Fixed equipment and pieces that never change:
     only the orientation (type, centre and size as drawn). Kept rooms (``keep``): only the orientation, an unknown
@@ -233,13 +233,16 @@ def _agent_problems(src: dict, fin: dict, keep: bool) -> list[str]:
     fixed = src["type"] in schemas.FIXED_TYPES or (src.get("build") is False and src["type"] != "unknown")
     if src["type"] in schemas.UNCHANGEABLE_TYPES and not fixed and src["type"] != fin["type"] and not keep:
         out.append(f"{pid}: {src['type']} changed its type (no room type lists a type to change it into)")
+    # real03: fixed equipment in a room that never holds it (schemas.misplaced_fixed) may be retyped or left out
+    # by the agent (a reading error), never moved or resized.
+    misplaced = src["type"] in schemas.FIXED_TYPES and schemas.misplaced_fixed(src["type"], room_type)
     if fixed or keep:
-        if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown"):
+        if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown") and not misplaced:
             out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} changed its type")
         if moved > 1e-3 or not same_box:
             out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} moved or resized (only the "
                        f"orientation may change)")
-        if fixed and fin.get("build") is False and src.get("build") is not False:
+        if fixed and fin.get("build") is False and src.get("build") is not False and not misplaced:
             out.append(f"{pid}: fixed equipment removed")
     elif moved > (schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M) + 1e-6:
         limit = schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M
@@ -288,7 +291,8 @@ def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[st
         if fin.get("adjusted_by_ai") is not None:
             # Milestone 11: the agent's validated edit (edit_ops) is checked by the M11 rules, not the M10 anchor.
             kept = mode == "keep" or src.get("room_id") in keep
-            out.extend(_agent_problems(src, fin, kept))
+            room = next((r for r in final.get("rooms", []) if r.get("id") == src.get("room_id")), None)
+            out.extend(_agent_problems(src, fin, kept, (room or {}).get("room_type")))
             if kept:
                 free = {"footprint", "front_deg", "build", "type", "evidence", "height"}
                 bad = [k for k in frozen if k not in free and _dump(src.get(k)) != _dump(fin.get(k))]
