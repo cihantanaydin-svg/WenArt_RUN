@@ -106,7 +106,9 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "
             "wenart/geometry.py", "wenart/schema/**",
             # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
             "wenart/blender/looks.py", "wenart/furniture/locked.py", "wenart/furniture/placer.py",
-            "wenart/furniture/schemas.py", "wenart/synthetic/**")
+            "wenart/furniture/schemas.py", "wenart/synthetic/**",
+            # Milestone 12 (track S, D23): fit and refit read the real sizes from one table.
+            "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml")
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",

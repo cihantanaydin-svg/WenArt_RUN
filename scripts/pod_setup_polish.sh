@@ -100,7 +100,8 @@ if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" 
 if has_phase check; then NEED_CHECK=1; fi
 
 # vlm_entries: "<id>@<revision> ..." of CHECK_MODELS (+ AGENT_MODELS, Milestone 11) from check.yaml (the single
-# source, §1.6; a key named twice is downloaded once).
+# source, §1.6; a key named twice is downloaded once). Milestone 12: dotted keys name nested entries
+# ("bakeoff.fp8" = models.bakeoff.fp8, as wenart.run.servers.model_entry reads them).
 vlm_entries() {
   "$PY" - "$REPO_DIR/wenart/vision_check/check.yaml" "${CHECK_KEYS[@]}" "${AGENT_KEYS[@]}" <<'PY'
 import sys
@@ -109,8 +110,17 @@ import yaml
 
 with open(sys.argv[1], encoding="utf-8") as fh:
     models = yaml.safe_load(fh)["models"]
+
+
+def entry(key):
+    node = models
+    for part in key.split("."):
+        node = node[part]
+    return node
+
+
 keys = list(dict.fromkeys(sys.argv[2:]))
-print(" ".join(f"{models[k]['id']}@{models[k]['revision']}" for k in keys))
+print(" ".join(f"{entry(k)['id']}@{entry(k)['revision']}" for k in keys))
 PY
 }
 

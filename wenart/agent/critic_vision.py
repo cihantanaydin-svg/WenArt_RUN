@@ -37,6 +37,7 @@ from typing import Optional
 
 from wenart.agent import critic_code as CC
 from wenart.agent import prompts as P
+from wenart.agent import topdown as TD
 from wenart.agent.model import MAX_IMAGES, user_message
 
 
@@ -70,7 +71,7 @@ def room_ids(building: dict, room_id: str, views: list[str]) -> set:
     if room is None:
         return ids
     ids |= {f.get("id") for f in building.get("furniture") or [] if f.get("room_id") == room_id
-            and f.get("build", True) is not False}
+            and TD.is_built(f)}
     try:
         doors, windows = placer.room_openings(building, room)
         ids |= {o.get("id") for o in doors + windows}
@@ -139,7 +140,7 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
     except Exception:  # noqa: BLE001
         doors, windows = [], []
     pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id
-              and f.get("build", True) is not False]
+              and TD.is_built(f)]
     room_code = [f for f in code.get("findings") or [] if f.get("room_id") == room_id]
     views = [v for v, _ in previews]
     if looks:

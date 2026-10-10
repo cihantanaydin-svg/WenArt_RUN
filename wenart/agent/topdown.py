@@ -52,9 +52,27 @@ def room_pieces(building: dict, room_id: str) -> list[dict]:
     return [f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("room_id") == room_id]
 
 
+NOT_BUILT_ASSET_METHODS = ("none",)      # = decor.NOT_BUILT_ASSET_METHODS (track S): a library gap left unbuilt
+
+
+def is_built(piece: Optional[dict]) -> bool:
+    """A piece the scene builds: ``wenart.furniture.decor.piece_is_built`` (track S) when it exists, else the same
+    rule: ``build`` not false, a type other than ``unknown`` (never a grey box) and not a library gap the fit left
+    unbuilt (``asset.method == "none"``)."""
+    try:
+        from wenart.furniture.decor import piece_is_built
+    except ImportError:
+        piece_is_built = None
+    if piece_is_built is not None:
+        return bool(piece_is_built(piece))
+    if not piece or piece.get("build", True) is False or piece.get("type") == "unknown":
+        return False
+    return (piece.get("asset") or {}).get("method") not in NOT_BUILT_ASSET_METHODS
+
+
 def built_pieces(building: dict, room_id: str) -> list[dict]:
-    """The pieces of the room that are built (``build`` is not false): the only ones drawn or shown (B5)."""
-    return [f for f in room_pieces(building, room_id) if f.get("build", True) is not False]
+    """The pieces of the room that are built (``is_built``): the only ones drawn or shown (B5)."""
+    return [f for f in room_pieces(building, room_id) if is_built(f)]
 
 
 def draw_candidate(building: dict, room_id: str, candidate: dict, path, apply_fn=None, dpi: int = 90) -> Path:

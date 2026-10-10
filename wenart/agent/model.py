@@ -381,9 +381,25 @@ class MockModel(AgentModel):
         return [r for r in self.requests if self.schema_name(r) == "plan"]
 
 
-def from_check_yaml(base_url: str, key: str = "agent", check_yaml: Optional[Path] = None, **kwargs) -> AgentModel:
-    """The client of ``check.yaml models.<key>`` (id, revision) at ``base_url``."""
+def variant_kwargs(entry: dict, variant: Optional[str]) -> dict:
+    """The client options of one bake-off variant (``check.yaml models.bakeoff.<name>.variants.<variant>``):
+    ``critic_thinking`` (also the planner's thinking: a variant is measured as one setting) and ``template`` (the
+    model's own chat-template keys). ``KeyError`` for a variant the entry does not have."""
+    if not variant:
+        return {}
+    v = (entry.get("variants") or {})[variant]
+    thinking = bool(v.get("critic_thinking"))
+    return {"critic_thinking": thinking, "planner_thinking": thinking, "extra_template": dict(v.get("template") or {})}
+
+
+def from_check_yaml(base_url: str, key: str = "agent", check_yaml: Optional[Path] = None, *,
+                    variant: Optional[str] = None, **kwargs) -> AgentModel:
+    """The client of ``check.yaml models.<key>`` (id, revision) at ``base_url``; M12: a dotted key names a nested
+    entry (``bakeoff.fp8``) and ``variant`` one of its bake-off variants (``variant_kwargs``)."""
     from wenart.run import servers as SV
     models = SV.check_models(check_yaml) if check_yaml else SV.check_models()
-    m = models[key]
-    return AgentModel(base_url, str(m["id"]), str(m.get("revision") or ""), **kwargs)
+    m = SV.model_entry(models, key)
+    if not m or not m.get("id"):
+        raise KeyError(f"no model '{key}' in check.yaml")
+    opts = dict(variant_kwargs(m, variant), **kwargs)
+    return AgentModel(base_url, str(m["id"]), str(m.get("revision") or ""), **opts)

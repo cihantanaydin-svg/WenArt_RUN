@@ -142,6 +142,23 @@ def prune_images(messages: list, keep: int = MAX_IMAGES) -> None:
 # Plans (§5.4 "plan first")
 # --------------------------------------------------------------------------
 
+def offered_tools(registry, brief: dict) -> list[str]:
+    """The tools offered to one room session (``tools.PLANNER_TOOLS`` cut to what the session can use): the reads,
+    the room edits (or the building edits for the building session), the tools its fixable findings name, the
+    control tools; only those of ``registry``. Also the bake-off's T5 (``bakeoff``)."""
+    named = {t for f in (brief.get("findings") or {}).get("fixable") or [] for t in f.get("tools") or []}
+    if brief["room"]["id"] == BUILDING:
+        pool = TL.PLANNER_READS + TL.PLANNER_BUILDING + tuple(sorted(named)) + TL.PLANNER_CONTROL
+    else:
+        extra = tuple(t for t in sorted(named) if t not in TL.PLANNER_ROOM_EDITS)
+        pool = TL.PLANNER_READS + TL.PLANNER_ROOM_EDITS + extra + TL.PLANNER_CONTROL
+    out: list[str] = []
+    for t in pool:
+        if t in registry.tools and t not in out:
+            out.append(t)
+    return out
+
+
 def default_checklist(brief: dict, wanted=("critical", "major")) -> list[dict]:
     """One step per fixable finding of the wanted severities: its first tool on its target (the room for a finding
     without a piece target)."""
@@ -284,7 +301,7 @@ class AgentLoop:
         self.level_checks = level_checks
         self.sync = sync
         self.groups_fn = groups_fn
-        self.scene_dir = Path(scene_dir) if scene_dir is not None else self.project_out / CC.SCENE_CHECKS_DIR
+        self.scene_dir = Path(scene_dir) if scene_dir is not None else None     # None: CC.scene_checks_dir per round
         self.log = log or LG.AgentLog(self.project_out, project or self.project_out.name,
                                       getattr(model, "model", ""), getattr(model, "revision", ""), clock=clock)
         if hasattr(model, "on_call") and model.on_call is None:
@@ -342,7 +359,8 @@ class AgentLoop:
             kwargs["groups_fn"] = self.groups_fn
         if self.level_checks is not None:
             kwargs["levels_fn"] = self.level_checks
-        return CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir, **kwargs)
+        return CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
+                      **kwargs)
 
     def critique_keys(self, ctx: TL.ToolContext, building: dict) -> list[tuple[str, str]]:
         """``[(kind, id)]`` (M12: only where an image adds something): rooms with at least one preview of their own
@@ -494,18 +512,8 @@ class AgentLoop:
         return sessions, {"fixable_rooms": [s["room_id"] for s in sessions], "unfixable_open": unfixable}
 
     def session_tools(self, brief: dict) -> list[str]:
-        """The tools offered to one session (``tools.PLANNER_TOOLS`` cut to what the session can use)."""
-        named = {t for f in (brief.get("findings") or {}).get("fixable") or [] for t in f.get("tools") or []}
-        if brief["room"]["id"] == BUILDING:
-            pool = TL.PLANNER_READS + TL.PLANNER_BUILDING + tuple(sorted(named)) + TL.PLANNER_CONTROL
-        else:
-            extra = tuple(t for t in sorted(named) if t not in TL.PLANNER_ROOM_EDITS)
-            pool = TL.PLANNER_READS + TL.PLANNER_ROOM_EDITS + extra + TL.PLANNER_CONTROL
-        out: list[str] = []
-        for t in pool:
-            if t in self.registry.tools and t not in out:
-                out.append(t)
-        return out
+        """The tools offered to one session (``offered_tools``)."""
+        return offered_tools(self.registry, brief)
 
     # ----- planner -------------------------------------------------------------------------------
 

@@ -30,9 +30,58 @@ from typing import Callable, Optional
 
 from wenart.agent.prompts import CHECKLIST, SEVERITIES
 
-SCENE_CHECKS_GLOB = "scene_*.json"          # track S: outputs/<p>/build/checks/scene_<level>.json
-SCENE_CHECKS_DIR = Path("build") / "checks"
+SCENE_CHECKS_GLOB = "scene_*.json"          # track S: <build --out>/checks/scene_<level>.json
+# The build stage writes the scene to outputs/<p>/scene (``--out``), so its checks land in scene/checks; the
+# contract (§13.3) names build/checks: both are read, the first one with scene checks wins.
+SCENE_CHECKS_DIRS = (Path("scene") / "checks", Path("build") / "checks")
+SCENE_CHECKS_DIR = SCENE_CHECKS_DIRS[0]
 LIBRARY_GAP_CHECK = "LG"
+REST_CHECK = "S5"
+
+
+def scene_checks_dir(project_out) -> Path:
+    """The folder of the build's scene checks (``SCENE_CHECKS_DIRS``, the first with a ``scene_*.json``)."""
+    for rel in SCENE_CHECKS_DIRS:
+        folder = Path(project_out) / rel
+        if folder.is_dir() and any(folder.glob(SCENE_CHECKS_GLOB)):
+            return folder
+    return Path(project_out) / SCENE_CHECKS_DIR
+
+
+def manifest_summary(scene_manifest: Optional[dict]) -> dict:
+    """What the build's furniture summary says about the scene checks (track S): ``scene_checks`` (counts per
+    level), ``scene_checks_failed``, ``dressed_beds`` and ``decor_not_rested`` (counts; {} without a manifest)."""
+    furn = (scene_manifest or {}).get("furniture") or {}
+    if not isinstance(furn, dict) or not furn:
+        return {}
+    return {"scene_checks": furn.get("scene_checks") or {},
+            "scene_checks_failed": bool(furn.get("scene_checks_failed")),
+            "dressed_beds": len(furn.get("dressed_beds") or []),
+            "decor_not_rested": len(furn.get("decor_not_rested") or [])}
+
+
+def manifest_violations(scene_manifest: Optional[dict], scene: list[dict]) -> list[dict]:
+    """Findings from the build's furniture summary: one minor ``S5`` per decor item the build did not make because
+    it did not rest on its host (``decor_not_rested``: the room misses it; target its host), and one critical
+    ``S5`` when the build says a built item failed S5 (``scene_checks_failed``) but no S5 violation was read."""
+    furn = (scene_manifest or {}).get("furniture") or {}
+    if not isinstance(furn, dict):
+        return []
+    out = []
+    for rec in furn.get("decor_not_rested") or []:
+        if not isinstance(rec, dict):
+            continue
+        out.append({"check": REST_CHECK, "severity": "minor", "target": rec.get("host_id") or rec.get("id"),
+                    "room_id": rec.get("room_id"),
+                    "message": f"decor {rec.get('type')} {rec.get('id')} on {rec.get('host_id')} did not rest "
+                               f"({rec.get('reason')}); it is not built",
+                    "metrics": {k: rec.get(k) for k in ("id", "type", "support", "attempts")
+                                if rec.get(k) is not None}})
+    if furn.get("scene_checks_failed") and not any(v.get("check") == REST_CHECK for v in scene):
+        out.append({"check": REST_CHECK, "severity": "critical", "target": None, "room_id": None,
+                    "message": "the build says a built decor item failed the rest check S5 (no scene check file read)",
+                    "metrics": {}})
+    return out
 
 
 def _default(name: str) -> Callable:
@@ -164,10 +213,20 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
     family("views", "check_views", views_fn, views)
     family("groups", "groups", groups_fn, groups)
     family("levels", "levels", levels_fn, levels)
+    scene_read: list = []
+
+    def scene(fn):
+        got = list(fn() or [])
+        scene_read.extend(got)
+        return got
+
     if scene_fn is not None or scene_dir is not None:
-        family("scene", None, scene_fn or (lambda: scene_violations(scene_dir)), lambda fn: list(fn() or []))
+        family("scene", None, scene_fn or (lambda: scene_violations(scene_dir)), scene)
+    if (scene_manifest or {}).get("furniture"):
+        family("scene_manifest", None, lambda: manifest_violations(scene_manifest, scene_read), lambda fn: fn())
     family("library", None, lambda: library_gaps(building), lambda fn: fn())
-    return {"findings": _unique(findings), "checks": checks, "scores": scores, "mean": mean}
+    return {"findings": _unique(findings), "checks": checks, "scores": scores, "mean": mean,
+            "scene_summary": manifest_summary(scene_manifest)}
 
 
 def measured(code: dict) -> set:

@@ -68,9 +68,9 @@ CHECK_TOOLS: dict[str, tuple[str, ...]] = {
     "G1": ("move_group", "set_front", "relayout_room"),
     "G2": ("move_group", "complete_group", "relayout_room"),
     "G3": ("set_front", "move_group", "relayout_room"),
-    "G4": ("complete_group", "move_group", "relayout_room"),
+    "G4": ("complete_group", "move_piece", "move_group", "relayout_room"),     # missing or misplaced nightstand
     "G5": ("move_group", "set_front", "relayout_room"),
-    "G6": ("complete_group", "relayout_room"),
+    "G6": ("complete_group", "set_front", "move_piece", "relayout_room"),     # missing, turned or misplaced chairs
     "G7": ("complete_group", "move_group", "relayout_room"),
     "G8": ("relayout_room", "fix_fixture"),
     "G9": ("place_group", "complete_group", "retype_piece"),
@@ -115,7 +115,10 @@ def _f(v, n=3):
 
 
 def built(piece: dict) -> bool:
-    return piece.get("build", True) is not False
+    """Built in the scene (``topdown.is_built``: track S's ``decor.piece_is_built``; ``unknown`` and library gaps
+    are not built)."""
+    from wenart.agent import topdown as TD
+    return TD.is_built(piece)
 
 
 def front_of(piece: dict) -> tuple[float, bool]:
