@@ -55,8 +55,9 @@ AXIS_DIRS = ((1.0, 0.0, 0.0), (-1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, -1.0, 0.0
              (0.0, 0.0, -1.0))
 MAX_SAMPLES = 300                 # sample points of an item for the penetration test
 LEAN_DEG = 12.0                   # cushions lean 10-15 degrees on the back (§4.7)
-BACK_PROBE_SHARES = (0.15, 0.5, 0.85)   # horizontal back rays at these shares of the item's height
-SEAT_PROBE_SHARE = 0.30           # the seat is probed this share of the host depth behind its front edge
+BACK_PROBE_SHARES = (0.03, 0.15, 0.5, 0.85, 1.0)   # horizontal back rays at these shares of the item's height
+ARM_PROBE_SHARES = (0.1, 0.5)     # side rays at these shares of the item's height (an arm lower than its middle)
+SEAT_PROBE_SHARES = (0.30, 0.45, 0.60, 0.75)   # the seat is probed at these shares of the host depth from its front
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
@@ -333,6 +334,7 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
     hc, (hw, hd), rot = host_fp["center"], (float(host_fp["size"][0]), float(host_fp["size"][1])), \
         float(host_fp["rotation_deg"])
     lx, _ly = to_local(hc, rot, float(item_center[0]), float(item_center[1]))
+    lx = max(-hw / 2.0 + w / 2.0, min(hw / 2.0 - w / 2.0, lx)) if hw > w else 0.0   # on the host, never beside it
     if attempt:
         lx = lx - math.copysign(min(abs(lx), 0.10 * attempt), lx)
     rot_item = rot + float(turn_deg)
@@ -340,12 +342,17 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
     back_dir = direction_world(rot, 0.0, 1.0)
     side_dir = direction_world(rot, 1.0, 0.0)
     # 1. the seat in front of the item (the front part of a sofa or the head part of a bed is seat or mattress)
-    seat_y = -hd / 2.0 + SEAT_PROBE_SHARE * hd
-    probe = [to_world(hc, rot, lx + k * w / 4.0, seat_y) for k in (-1, 0, 1)]
-    zs = [z for z in _down_hits(caster, probe, top) if z is not None]
-    if not zs:
+    seat = None
+    for share in SEAT_PROBE_SHARES:               # from the front towards the back: an L sofa's inner corner is empty
+        seat_y = -hd / 2.0 + share * hd
+        probe = [to_world(hc, rot, lx + k * w / 4.0, seat_y) for k in (0, -1, 1)]
+        hits = _down_hits(caster, probe, top)
+        zs = [z for z in hits if z is not None]
+        if zs:
+            seat = hits[0] if hits[0] is not None else sorted(zs)[len(zs) // 2]   # at the item's own x (no arm top)
+            break
+    if seat is None:
         return None
-    seat = sorted(zs)[len(zs) // 2]
     how = []
     cy_local = None
     for _pass in range(2):
@@ -364,17 +371,21 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
         else:
             cy_local = hd / 2.0 - back_face_offset(t, h * 0.5, lean_deg)[0]
             what = "no backrest hit: against the footprint's back edge (the wall)"
-        # the seat under the item's spot (soft: median of the grid)
-        foot = (w, max(t, 0.05))
+        # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top)
+        foot = (min(w * 0.5, 0.2), max(t, 0.05))
         sup = support_height(caster, to_world(hc, rot, lx, cy_local - t * 0.25), foot, rot_item, True, top)
         if sup["z"] is not None:
             seat = sup["z"]
         how = [what]
-    # 2. arms: rays to both sides at the item's mid height
-    mid_z = seat + h * 0.5 * math.cos(math.radians(lean_deg))
+    # 2. arms: rays to both sides at two heights of the item (the nearest hit counts)
     cxw, cyw = to_world(hc, rot, lx, cy_local)
-    right = _horizontal(caster, (cxw, cyw, mid_z), (side_dir[0], side_dir[1], 0.0), hw)
-    left = _horizontal(caster, (cxw, cyw, mid_z), (-side_dir[0], -side_dir[1], 0.0), hw)
+    right = left = None
+    for f in ARM_PROBE_SHARES:
+        z = seat + max(0.02, h * f * math.cos(math.radians(lean_deg)))
+        r_hit = _horizontal(caster, (cxw, cyw, z), (side_dir[0], side_dir[1], 0.0), hw)
+        l_hit = _horizontal(caster, (cxw, cyw, z), (-side_dir[0], -side_dir[1], 0.0), hw)
+        right = r_hit if right is None or (r_hit is not None and r_hit < right) else right
+        left = l_hit if left is None or (l_hit is not None and l_hit < left) else left
     room_r = (right if right is not None else hw / 2.0 - lx) - ARM_GAP_M
     room_l = (left if left is not None else hw / 2.0 + lx) - ARM_GAP_M
     if room_r < w / 2.0 and room_l > w / 2.0:
@@ -488,6 +499,11 @@ def measure_rest(item_verts, item_faces, host_caster, footprint: dict, soft: boo
     lo_z = float(item.lo[2]) - 1.0
     top = host_top(host_caster) + TOP_ABOVE_M
     gaps, with_under, supported = [], 0, 0
+    lowest = min(item_verts, key=lambda v: (float(v[2]), float(v[0]), float(v[1])))
+    below_lowest = [h[1][2] for h in host_caster.hits((float(lowest[0]), float(lowest[1]), top), (0.0, 0.0, -1.0))
+                    if h[1][2] <= float(lowest[2]) + limit + 0.02]
+    if below_lowest:                              # the touching point of a rounded or leaning item
+        gaps.append(float(lowest[2]) - max(below_lowest))
     for x, y in grid_points(footprint["center"], footprint["size"], float(footprint.get("rotation_deg") or 0.0)):
         under = item.ray((x, y, lo_z), (0.0, 0.0, 1.0))
         if under is None:
@@ -582,6 +598,8 @@ def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support
     soft_item = item.get("type") in SOFT_DECOR
     soft_host = host.get("type") in SOFT_HOST_TYPES and support in SOFT_SUPPORTS
     rot = float(item.get("rotation_deg") if item.get("rotation_deg") is not None else host_fp["rotation_deg"])
+    if support in ("back", "headboard"):
+        rot = host_fp["rotation_deg"]                    # a cushion faces the seat's front (B3 left turned items)
     center = item.get("center") or host_fp["center"]
     last = {"reason": "no support under the item", "measured": None}
     for attempt in range(attempts):
