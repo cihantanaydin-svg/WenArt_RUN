@@ -48,6 +48,15 @@ drawn with its chairs (a named table block, or an unknown composite) is split in
 chair part facing it (``split_table_chairs``); a kitchen cluster whose counter run is a closed outline along the
 walls is split into counter legs, a peninsula (``kitchen_island``), the named hob and sink blocks and the rest
 (``kitchen_split``). Only pieces that were never asked are split, so the AI candidates stay as they were.
+
+Milestone 12 (docs/milestone12.md §4.1 D7, track R; section "Milestone 12" at the end of this file): layer words
+and symbol shapes (room-number circle, door swing, north arrow) mark pieces that are not furniture
+(``whole_symbol``; ``reading.read_furniture`` moves them to ``building["symbols"]``); the Turkish/English block
+words of M12 (``BLOCK_KEYWORDS_M12``) type pieces after the answers only, so earlier questions keep their keys and
+hashes; an untyped cluster is re-read (``reread``: symbol strokes out, counter runs, one part per block instance and
+stroke group, each typed on its own); its unknown parts that fit a type are asked under content keys
+(``extra_candidate``, ``extra_key``); a named block with a stray axis line keeps the named footprint
+(``trim_stray_lines``).
 """
 from __future__ import annotations
 
@@ -2582,7 +2591,7 @@ def table_chair_items(split: dict, ctx: _Ctx, raster: bool, table: dict, named: 
     for chair in split["chairs"]:
         fp, front = chair_footprint(chair, tpoly, ctx.theta)
         out.append(_rule_item(chair.segs, fp, "chair", front, ctx, raster, table,
-                              f"chair of the drawn table + chairs group, facing the table (M11 split)"))
+                              "chair of the drawn table + chairs group, facing the table (M11 split)"))
     return out
 
 

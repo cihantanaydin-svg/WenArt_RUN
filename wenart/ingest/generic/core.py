@@ -38,6 +38,13 @@ questions, key and ``input_sha256`` must match) or the dict ``recognition.answer
 where the crops are written (``<rec_dir>/crops``); without it the input hashes are computed from the canonical crop
 description alone (no files). ``no_ai`` only changes the report: unanswered candidates stay ``unknown`` /
 ``unverified`` either way, and nothing is pending.
+
+Milestone 12 (docs/milestone12.md §4.1, track R): the never-asked unknown pieces that fit a type and the unknown
+parts of re-read clusters are asked as extra questions (content keys ``sym_<level>_x<hash>``, appended after the
+core's candidates, so the keys and hashes of earlier rounds do not move); a candidate still unknown after its
+answers is re-read (``_reread_unknowns``) and replaced by its parts; a block name only the M12 words read types its
+candidate after the answers (``_m12_named``); the symbols found are passed in ``ex.report["symbols"]`` to
+``reading.read_furniture``.
 """
 from __future__ import annotations
 

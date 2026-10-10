@@ -16,23 +16,29 @@ What, in order (each step deterministic, every change logged in the piece's evid
    floor lamp is a symbol, and the disagreement is a ``type_disagreement`` conflict. A column or decor
    (``details["not_furniture"]``) stays as a not-built piece (``inferred_as``; a column is still an obstacle). The
    symbols the re-read found inside clusters (``ex.report["symbols"]``) are added. A level mark still among the
-   pieces (track L's ``apply_levels`` moves them first) is moved too, as ``level_mark``.
-2. **Context typing** (before any inference): an unknown box drawn with a door swing beside the counter run is a
-   fridge; a 0.5-0.75 m deep strip along a wall holding a sink or hob is a counter; two small squares at a bed's
-   head are nightstands; a square in front of a sofa is a coffee table; a long low strip at a wall facing a sofa
-   is a TV unit; chairs around a table face it.
-3. **Inference** (``wenart.furniture.infer``: size, room and position) for what is still unknown.
+   pieces (track L's ``apply_levels`` moves them first) is moved too, as ``level_mark``. A type the core's re-read
+   set against the AI passes is a ``type_disagreement`` conflict. Copies of one block drawing in other inserts of
+   the block (``copy_keys``) share their type or their symbol.
+2. **Context typing** (before any inference): an L outline with seat-deep arms in a living room is a corner sofa;
+   an unknown box drawn with a door swing beside the counter run (or closing it, proud of it) is a fridge; a
+   0.5-0.75 m deep strip along a wall holding a sink or hob is a counter; two small squares at a bed's head are
+   nightstands; small pieces at a dining table are chairs facing it; a bowl with a drain in a bathroom is a
+   washbasin and the counter under it its vanity; two equal seats across a coffee table are armchairs; a table in
+   front of a sofa is a coffee table; a long low strip at a wall facing a sofa is a TV unit. A fixed piece drawn
+   inside another of its type is drawn twice (not built).
+3. **Inference** (``wenart.furniture.infer``: size, room and position) for what is still unknown; a piece whose
+   AI question still waits for its answers is left to them.
 4. **Misread fixed equipment** (user OK 1 of 10 Oct 2026): a fixed piece whose drawn size is more than 30 % outside
    its type's real range gets the nearest real product size (``sizes.product_size``), its back kept on its wall; a
-   fixed piece through a wall or in a door swing moves up to 0.5 m along its wall to the nearest free spot.
-   ``drawn_type``, ``drawn_footprint``, ``drawn_front_deg``, ``drawn_height`` are kept, ``adjusted_by_ai`` holds the
-   reason and the evidence.
+   fixed piece through a wall or in a door swing moves up to 0.5 m to the nearest free spot. ``drawn_type``,
+   ``drawn_footprint``, ``drawn_front_deg``, ``drawn_height`` are kept; ``adjusted_by_ai`` holds the reason, the
+   changed fields and the plan crop; the piece's evidence gets the rule's entry.
 5. **Fronts**: a drawn piece of a type with a front and none drawn gets one from the wall its back stands on or
    from its group (a chair faces its table, a nightstand the way its bed faces, a TV unit its sofa), ``inferred``.
 6. **Open kitchens**: a room that is not a kitchen but holds kitchen fixtures gets a kitchen zone
    (``rooms[].zones``, contract §13.3) around them; the room-type rules apply per zone (track G).
 7. **Never a box**: a piece still untyped is not built and listed in ``building["needs_review"]`` with its crop
-   and reason.
+   and reason (a piece whose question waits is not built and not listed: the pipeline lists the open questions).
 """
 from __future__ import annotations
 
