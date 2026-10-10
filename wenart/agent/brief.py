@@ -39,8 +39,9 @@ DOOR_CLEAR_M = 0.10                 # beside a door frame
 BUILT_HEIGHT_DEFAULT = 0.8
 
 # The M12 tool names (§5.3); ``*_TOOLS`` say on what a tool acts.
-PIECE_TOOLS = ("move_piece", "set_front", "resize_piece", "retype_piece", "mark_not_furniture", "fix_fixture",
-               "remove_piece", "swap_model")
+# rotate_piece turns a piece (track G's ``rotate``); set_front gives a drawn piece without a front one along a side.
+PIECE_TOOLS = ("move_piece", "rotate_piece", "set_front", "resize_piece", "retype_piece", "mark_not_furniture",
+               "fix_fixture", "remove_piece", "swap_model")
 GROUP_TOOLS = ("move_group", "complete_group")
 ROOM_TOOLS = ("relayout_room", "place_group", "set_room_type", "set_lighting", "report_library_gap")
 LEVEL_TOOLS = ("set_mark_kind", "set_room_floor", "set_ground_point", "set_entrance", "set_terrain")
@@ -54,8 +55,8 @@ TOOL_OF_OP = {"move": "move_piece", "rotate": "rotate_piece", "resize": "resize_
 CHECK_TOOLS: dict[str, tuple[str, ...]] = {
     "F1": ("retype_piece", "mark_not_furniture", "remove_piece", "set_room_type"),
     "F2": ("resize_piece", "fix_fixture", "retype_piece"),
-    "F3": ("move_piece", "move_group", "set_front", "relayout_room"),
-    "F4": ("set_front", "move_group", "relayout_room"),
+    "F3": ("move_piece", "move_group", "rotate_piece", "set_front", "relayout_room"),
+    "F4": ("rotate_piece", "set_front", "move_group", "relayout_room"),
     "F5": ("complete_group", "place_group", "relayout_room"),
     "F6": ("move_piece", "move_group", "remove_piece", "relayout_room"),
     "F7": ("move_piece", "move_group", "fix_fixture", "mark_not_furniture", "remove_piece", "relayout_room"),
@@ -65,12 +66,12 @@ CHECK_TOOLS: dict[str, tuple[str, ...]] = {
     "R3": ("move_piece", "move_group", "fix_fixture", "relayout_room"),
     "R4": ("set_material",),
     "R5": ("set_lighting",),
-    "G1": ("move_group", "set_front", "relayout_room"),
+    "G1": ("move_group", "rotate_piece", "set_front", "relayout_room"),
     "G2": ("move_group", "complete_group", "relayout_room"),
-    "G3": ("set_front", "move_group", "relayout_room"),
+    "G3": ("rotate_piece", "set_front", "move_group", "relayout_room"),
     "G4": ("complete_group", "move_piece", "move_group", "relayout_room"),     # missing or misplaced nightstand
-    "G5": ("move_group", "set_front", "relayout_room"),
-    "G6": ("complete_group", "set_front", "move_piece", "relayout_room"),     # missing, turned or misplaced chairs
+    "G5": ("move_group", "rotate_piece", "set_front", "relayout_room"),
+    "G6": ("complete_group", "rotate_piece", "set_front", "move_piece", "relayout_room"),     # chairs
     "G7": ("complete_group", "move_group", "relayout_room"),
     "G8": ("relayout_room", "fix_fixture"),
     "G9": ("place_group", "complete_group", "retype_piece"),
@@ -81,7 +82,7 @@ CHECK_TOOLS: dict[str, tuple[str, ...]] = {
     "G14": ("retype_piece", "mark_not_furniture", "remove_piece", "set_room_type"),
     "S1": ("swap_model",),
     "S2": ("move_piece", "move_group", "swap_model"),
-    "S3": ("swap_model", "set_front"),
+    "S3": ("swap_model", "rotate_piece", "set_front"),
     "S4": ("swap_model", "resize_piece"),
     "S6": ("retype_piece", "swap_model", "report_library_gap"),
     "LG": ("report_library_gap", "swap_model", "retype_piece"),
@@ -157,6 +158,7 @@ def allowed_fallback(building: dict, piece: dict) -> dict:
         why = "drawn fixed equipment: type, place and footprint are locked"
         out = {t: _no(why) for t in PIECE_TOOLS}
         out["set_front"] = _yes()          # only a front into the wall (validated)
+        out["rotate_piece"] = _yes()       # the same: a clear front error only
         out["fix_fixture"] = _yes(0.5)     # U1: a misread size or a piece through a wall / in a door swing
         out["swap_model"] = _yes()
         if schemas.misplaced_fixed(ftype, room.get("room_type")):
@@ -170,7 +172,7 @@ def allowed_fallback(building: dict, piece: dict) -> dict:
     out = {t: _yes() for t in PIECE_TOOLS}
     out["move_piece"] = _yes(left) if left > 0 else _no(f"drawn piece already moved {moved:.2f} m (limit 0.3 m; "
                                                         f"a wall snap may go to {schemas.WALL_SNAP_MAX_M} m)")
-    out["remove_piece"] = _no("a drawn piece is removed only as not furniture: use mark_not_furniture with evidence")
+    out["remove_piece"] = _no(DRAWN_REMOVE_HINT)
     out["fix_fixture"] = _no("fix_fixture is for drawn fixed equipment")
     return out
 
@@ -202,8 +204,21 @@ def allowed_of(building: dict, piece: dict, allowed_fn: Optional[Callable] = Non
         except Exception:  # noqa: BLE001 - a broken validator answer falls back to the M11 rules
             got = {}
     if got:
-        return got, "edit_ops"
+        return a_rules(piece, got), "edit_ops"
     return allowed_fallback(building, piece), "fallback"
+
+
+DRAWN_REMOVE_HINT = "a drawn piece is removed only as not furniture: use mark_not_furniture with evidence"
+
+
+def a_rules(piece: dict, allowed: dict) -> dict:
+    """Track G's answer with the agent's stricter rule on top (CLAUDE.md: a drawn piece is removed only when it is
+    clearly not furniture, logged with the plan crop as evidence): ``remove_piece`` of a drawn piece points to
+    ``mark_not_furniture`` instead."""
+    out = dict(allowed)
+    if piece.get("source") == "from_documents" and (out.get("remove_piece") or {}).get("allowed"):
+        out["remove_piece"] = _no(DRAWN_REMOVE_HINT)
+    return out
 
 
 def lock_text(allowed: dict) -> str:
@@ -250,6 +265,55 @@ def _minus(free: list, lo: float, hi: float) -> list:
             out.append((a, lo))
         if hi < b:
             out.append((hi, b))
+    return out
+
+
+def wall_spans(building: dict, room_id: str, spans_fn: Optional[Callable] = None) -> list[dict]:
+    """The room's free wall spans for the brief: track G's ``edit_ops.free_spans`` (its ``span_id`` is what
+    ``move_group`` takes), each with the direction into the room and the window parts where only pieces below the
+    sill fit; ``free_wall_spans`` when track G's function is missing or fails."""
+    from shapely.geometry import LineString
+    from wenart.furniture import placer
+    fn = spans_fn
+    if fn is None:
+        try:
+            from wenart.furniture import edit_ops
+            fn = edit_ops.free_spans
+        except ImportError:
+            fn = None
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
+    if fn is None or room is None:
+        return free_wall_spans(building, room_id)
+    try:
+        raw = fn(building, room_id) or []
+        ctx = placer.room_context(building, room)
+    except Exception:  # noqa: BLE001 - the brief's own spans then
+        return free_wall_spans(building, room_id)
+    out = []
+    for s in raw:
+        try:
+            a, b = ctx.segments[int(s["edge"])]
+        except (KeyError, IndexError, TypeError, ValueError):
+            continue
+        length = math.dist(a, b)
+        if length <= 0:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        line = LineString([a, b])
+        lo, hi = float(s.get("start") or 0.0), float(s.get("end") or length)
+        notes = []
+        for w in ctx.windows:
+            if line.distance(_pt(w.inner_point)) > 0.2:
+                continue
+            t = (w.inner_point[0] - a[0]) * ux + (w.inner_point[1] - a[1]) * uy
+            w0, w1 = max(lo, t - w.width / 2), min(hi, t + w.width / 2)
+            if w1 - w0 > 0.05:
+                notes.append(f"{w0 - lo:.2f}-{w1 - lo:.2f} m along it only below the sill {_f(w.sill, 2)} m "
+                             f"(window {w.id})")
+        out.append({"id": s.get("span_id"), "wall_id": s.get("wall_id"), "start": s.get("from"), "end": s.get("to"),
+                    "length_m": _f(s.get("length"), 2),
+                    "into_room_deg": _f(math.degrees(math.atan2(ux, -uy)) % 360.0, 1),
+                    "fits": "; ".join(notes) or "any piece"})
     return out
 
 
@@ -463,7 +527,7 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
                image_of: Optional[Callable] = None, allowed_fn: Optional[Callable] = None,
                program_fn: Optional[Callable] = None, members_fn: Optional[Callable] = None,
                group_checks_fn: Optional[Callable] = None, solver_fn: Optional[Callable] = None,
-               k: int = 3) -> dict:
+               spans_fn: Optional[Callable] = None, k: int = 3) -> dict:
     """The brief of ``room_id`` (module docstring). ``findings``: the round's findings of this room (code and kept
     vision); ``memory``: ``memory.Memory``; ``image_of(rank, candidate) -> image id``; the ``*_fn`` arguments
     replace the other tracks' functions (tests)."""
@@ -552,7 +616,7 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
         "groups": groups_out,
         "room_checks": [f"{v.get('check')} {v.get('severity')}: {v.get('message')}" for v in g_viol
                         if v.get("target") in (room_id, None)],
-        "free_wall_spans": free_wall_spans(building, room_id),
+        "free_wall_spans": wall_spans(building, room_id, spans_fn),
         "findings": {"fixable": fixable, "not_yours": not_yours},
         "memory": memory.summary(room_id) if memory is not None else {},
         "candidates": candidates,

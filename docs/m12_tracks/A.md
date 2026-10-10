@@ -14,10 +14,10 @@ setup, audit-removed models marked in `ATTRIBUTION.md`, the `levels` tool and th
 | What | Where | Notes |
 |---|---|---|
 | The brief | `brief.py: room_brief(building, room_id, *, findings, memory, image_of, allowed_fn, program_fn, members_fn, group_checks_fn, solver_fn, k=3)` | room, conventions, built pieces (type, source, size, front never null with `front_inferred`, lock state, `move_left_m`, group), `not_built`, program, groups with missing partners and their G-checks, room checks, free wall spans, findings split into `fixable` (with the tools allowed for the target) and `not_yours` (with the reason), memory summary, solver top-3 candidates with images, notes when another track's function failed |
-| Lock state | `allowed_of`, `allowed_fallback`, `normalise_allowed`, `compact_allowed`, `is_allowed` | track G's `edit_ops.allowed_edits` when it answers, else the CLAUDE.md rules (fixed equipment: `set_front`, `fix_fixture` 0.5 m, `swap_model`; drawn: move <= 0.3 m, wall snap <= 1.2 m, no remove, `mark_not_furniture`; AI pieces free; unbuilt: nothing) |
+| Lock state | `allowed_of`, `a_rules`, `allowed_fallback`, `normalise_allowed`, `compact_allowed`, `is_allowed` | track G's `edit_ops.allowed_edits(building, piece_id)` (per tool `{allowed, why, move_left_m}`) with the agent's stricter rule on top (`a_rules`: a drawn piece is removed only as not furniture -> `mark_not_furniture`); the CLAUDE.md fallback when G does not answer (fixed equipment: `rotate_piece` / `set_front`, `fix_fixture` 0.5 m, `swap_model`; drawn: move <= 0.3 m, wall snap <= 1.2 m, no remove; AI pieces free; unbuilt: nothing) |
 | Built or not | `built` -> `topdown.is_built` | track S's `decor.piece_is_built` when present, else the same rule: `build` not false, not `unknown`, not a library gap (`asset.method == "none"`) |
 | Fixable vs not yours | `classify`, `CHECK_TOOLS`, `NOT_YOURS_REASON` | relayout only for an AI piece or a G/F5 check; G4 and G6 also offer `move_piece` / `set_front` (a nightstand at the foot, a chair turned away) |
-| Free wall spans | `free_wall_spans` | doors +-0.1 m kept clear, pieces within 0.15 m occupy, window parts "only below the sill", ids `room:s{i}.{k}` |
+| Free wall spans | `wall_spans` (track G's `edit_ops.free_spans`: its `span_id` is what `move_group` takes), `free_wall_spans` (fallback) | each span with `into_room_deg` and the window parts where only pieces below the sill fit |
 | Ranking weight | `fixable_weight`, `findings_of_room` | critical 9, major 3 x max(1, area) |
 
 Unbuilt pieces are never drawn (`topdown.built_pieces`) and never in the vision critic's id list
@@ -27,7 +27,7 @@ Unbuilt pieces are never drawn (`topdown.built_pieces`) and never in the vision 
 
 | What | Where |
 |---|---|
-| Group and room tools: `move_group`, `complete_group`, `place_group`, `relayout_room` (`candidate` 1-3), `set_front`, `retype_piece`, `mark_not_furniture`, `fix_fixture` | `overrides.FURNITURE_TOOLS`, `GROUP_OPS`, `tools.furniture_handler`, `resolve_edit` (`OP_FALLBACK` while track G's ops are stubs: set_front -> rotate, retype_piece -> change_type, mark_not_furniture -> remove) |
+| Group and room tools: `move_group` (to a span of `free_spans`), `complete_group`, `place_group`, `relayout_room` (`candidate`, `choices`), `rotate_piece` (turn), `set_front` (a front for a piece without one), `retype_piece`, `mark_not_furniture`, `fix_fixture` | `overrides.FURNITURE_TOOLS`, `GROUP_OPS`, `tools.furniture_handler`, track G's `edit_ops.apply_edit` / `dry_run`; `resolve_edit` (`OP_FALLBACK`) only for a validator without G's ops |
 | Level tools: `set_mark_kind`, `set_room_floor`, `set_ground_point`, `set_entrance`, `set_terrain` | `overrides.LEVEL_TOOLS`, `tools.level_handler` (track L's `levels.edits.apply_level_edit`, `LEVEL_EDIT_SCHEMAS`), replayed by `overrides.apply(level_edit=...)` |
 | `levels` read tool | `tools.t_levels`: levels, marks with kind and use (`LEVEL_MARK_FIELDS`, AI labels), room floors with source and evidence, thresholds, ground (points, surface, source, terrain override, light wells), terrain, entrances (`ENTRANCE_FIELDS`), plinth, `level_inference`, level conflicts, L-findings with their numbers (`levels.checks.check_levels`) |
 | `dry_run` (free: no try, no memory, logged as `dry_run`) | `tools.dry_run_handler` |
@@ -49,7 +49,8 @@ Unbuilt pieces are never drawn (`topdown.built_pieces`) and never in the vision 
   round (`ROUND_CAP_S` 900), `CallBudget`.
 - Vision only where useful: `critic_vision.critique_room(..., looks=True)`: up to 3 previews + plan crop for the
   look checks (`ROOM_LOOK_CHECKS`), code findings given as context, duplicates by family (`RELATED`).
-- Code critic: `critic_code.run` adds group (G), level (L), scene (S) families, `LG` library gaps and, from the
+- Code critic: `critic_code.run` adds group (G; only what plausibility, which runs G1-G13 now, did not report:
+  G14 and G5's headboard part stays F3's), level (L), scene (S) families, `LG` library gaps and, from the
   build manifest's furniture summary, `decor_not_rested` (minor S5 on the host) and `scene_checks_failed`
   (critical S5 when no S5 file was read); `scene_summary` in its output. Scene checks are read from
   `outputs/<p>/scene/checks/scene_<level>.json` (where the build writes them) or `build/checks` (the contract's
@@ -82,6 +83,9 @@ section `wenart/report/agent.py: metrics_lines`. Baselines committed: `results/c
   `wenart/blender/**`, `canonical.py`, `views.py`, `style/**`, `catalog.py`, `sizes.py`, the catalogues) added to
   sheets / pipeline / pipeline_final, layout, decor and decor_ask (track L's level inference runs in the pipeline
   and imports the site and shell helpers); `GATE_CODE` + `wenart/levels/**`; `AGENT_CODE` + `wenart/levels/**`.
+  After the merge of G: `GROUPS_CODE` (`groups.py`, `groups.yaml`, `group_checks.py`, `program.py`, `solver.py`)
+  in sheets / pipeline / pipeline_final, fit / refit, layout, decor, decor_ask; fit and refit also reach
+  plausibility, the inference, the ingest, the sheets and the levels (through the groups).
   The plan of real01 before its answers counts 17 views (25 before): its rooms with only `unknown` pieces now count
   as unfurnished (`camsearch.shown_pieces` uses track S's built rule), `tests/test_run_plan.py` updated.
 - `copy.audit_removed`: `ATTRIBUTION.md` marks a model the library audit removed, with its reasons (it stays
@@ -122,17 +126,17 @@ section `wenart/report/agent.py: metrics_lines`. Baselines committed: `results/c
 
 | File | Tests | What |
 |---|---|---|
-| `tests/test_agent_brief.py` | 7 | brief contents, lock states, fixable / not yours, spans, candidates, unbuilt pieces |
+| `tests/test_agent_brief.py` | 8 | brief contents, lock states (fallback and track G's answer with the drawn-removal rule), fixable / not yours, spans (G's ids), candidates, unbuilt pieces |
 | `tests/test_agent_memory.py` | 5 | memory file, edit keys, refusal of a repeated rejected edit |
 | `tests/test_agent_loop_m12.py` | 12 | plan-first sessions, checked plans, coverage ranking, parallel sessions, time cap, decor sync, level edits, op fallbacks, critic families |
 | `tests/test_agent_metrics.py` | 3 | metrics, compare table |
-| `tests/test_agent_scene_inputs.py` | 4 | built rule (unknown, library gap), scene checks folder, manifest summary findings, the `levels` tool on track L's inference and the level tools' schemas |
+| `tests/test_agent_scene_inputs.py` | 5 | built rule (unknown, library gap), scene checks folder, manifest summary findings, the `levels` tool on track L's inference and the level tools' schemas, group findings reported once |
 | `tests/test_bakeoff_m12.py` | 16 | models = contract ids and revisions, variants, dotted downloads, task set, planted-problem checks, scoring, decision rule, scripted runs (T1-T5), time cap, summary, crop, job script, partial rebuild, `run_model` files |
 | `tests/test_run_agent_m12.py` | 5 | agent session for layout + decor, fallback, round-0 estimate, workers, 2-GPU serving |
 | changed: `tests/test_agent_loop.py`, `test_agent_tools.py`, `test_run_agent.py`, `test_run_copy.py` (+1) | | M12 semantics, one agent session, audit mark in `ATTRIBUTION.md` |
 | GPU: `tests/gpu/test_agent.py` | +1 | every bake-off task answers on the served model (run by P1 against `bakeoff.fp8`) |
 
-Last run (10 Oct 2026, after the merge of B, S, L): `pytest -m "not gpu"` on the 31 agent, bake-off, run, copy, stage, job and contract test files: 401 passed, 11 skipped. GPU tests: run by P1.
+Last run (10 Oct 2026, after the merges of B, S, L and G): `pytest -m "not gpu"` on the 40 agent, bake-off, run, copy, stage, job, vision-check and contract test files: 654 passed, 12 skipped (+1 group-findings test added after it: 5 passed in its file). GPU tests: run by P1.
 
 ## 4. The bake-off task set
 
@@ -145,7 +149,8 @@ Last run (10 Oct 2026, after the merge of B, S, L): `pytest -m "not gpu"` on the
 | T5 | 20 briefs | the brief's lock state and the checked plan | the planted T2 rooms with >= 1 plant; findings G1/G4/G5/G6/F7 |
 
 Rebuild: `python -m wenart.agent.bakeoff build [--tasks T5]` (a partial rebuild keeps the other tasks' items).
-After track G is merged, rebuilding T5 gives briefs with groups, program and candidates (now notes only).
+T5 was rebuilt after the merge of track G (`--tasks T5`): its briefs carry G's groups, program, solver
+candidates, lock states and spans; T1-T4 did not change (P1 started on the earlier T5).
 
 ## 5. P1: the exact command
 
@@ -163,8 +168,8 @@ most. Disk: 408 GB of models + 2 vLLM venvs. Results: `$RESULTS/bakeoff_m12/` (c
 ## 6. What is left
 
 - Run P1 (lead) and record the pick; then set `check.yaml models.agent` (and its variant's thinking) to the pick.
-- After the merge: rebuild T5 (`--tasks T5`) so the briefs carry track G's groups, program and candidates; the
-  room tools `relayout_room` / `place_group` / `complete_group` / `move_group` only work once track G's ops exist.
+- P1 started before track G was merged: its T5 used briefs without G's groups and with `set_front` for turning;
+  a T5-only re-run on the new briefs (`bakeoff run --tasks T5`) is cheap if the pick is close on T5.
 - The orchestrated run's GPU tests (`tests/gpu/test_run_*`) were not touched; the next full run (P5+) checks the
   agent with the new brief end to end.
 
@@ -172,9 +177,8 @@ most. Disk: 408 GB of models + 2 vLLM venvs. Results: `$RESULTS/bakeoff_m12/` (c
 
 | Track | File | Request |
 |---|---|---|
-| G | `wenart/furniture/edit_ops.py` | ops (and `EDIT_SCHEMAS`) for `set_front`, `retype_piece`, `mark_not_furniture`, `move_group`, `complete_group`, `place_group`, `relayout_room` (argument `candidate`: int 1-3, the solver's rank); `allowed_edits(building, piece)` keyed by tool or op name, values `{allowed, why, move_left_m}` |
 | G | `wenart/furniture/layout.py` | it already sends `enable_thinking: false`; if P1 picks Muse Glimmer (no thinking switch), also send the model's template keys (`check.yaml models.<key>.variants.<v>.template`, e.g. `reasoning_strength: low`) |
-| G | `group_checks`, `solver` | violations in the M11 format; `solve_room(building, room_id, k)` candidates with `rank`, `score`, `group_violations`; `apply_candidate(building, room_id, candidate)` |
+| G | `wenart/furniture/edit_ops.py` | `allowed_edits` allows `remove_piece` for a drawn non-fixed piece ("with a reason"); CLAUDE.md removes a drawn piece only as clearly not furniture with the plan crop: the brief shows it as not allowed and points to `mark_not_furniture` (`brief.a_rules`); please consider the same rule in the validator |
 | S | `wenart/furniture/decor_ai.py` | the same as layout.py if P1 picks Muse Glimmer (`enable_thinking: false` is sent already) |
 | L | `wenart/levels/edits.py`, `checks.py` | none: `LEVEL_EDIT_SCHEMAS`, `apply_level_edit(building, edit)` and `check_levels(building, scene_manifest, render_manifest)` are used as merged |
 | lead | `docs/milestone12.md` §13.3 | scene checks live in `outputs/<p>/scene/checks/` (the build's `--out`); the agent reads both |

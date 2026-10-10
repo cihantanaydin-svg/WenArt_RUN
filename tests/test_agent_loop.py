@@ -48,6 +48,9 @@ def make(tmp_path, chat, critic_rounds, **kw):
     out = project(tmp_path)
     model = M.MockModel(chat=chat, critic=kw.pop("critic", []))
     clock = kw.pop("clock", Clock())
+    # One session at a time: the scripted answers are taken in order (the parallel sessions of M12 have their own
+    # tests; with track G's real solver in the brief, parallel sessions finish in any order).
+    kw.setdefault("workers", 1)
     loop = LP.AgentLoop(out, model, rerun=kw.pop("rerun", Rerun()), clock=clock, code_critic=ScriptedCritic(critic_rounds),
                         vision=kw.pop("vision", False), apply_edit=FakeEdits(), validators=fake_validators(), out=lambda s: None,
                         **kw)

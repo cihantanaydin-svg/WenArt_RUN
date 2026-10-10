@@ -200,9 +200,19 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
         return out
 
     def groups(fn):
+        # Track G: plausibility already reports G1-G13 (F5's place) and leaves G5's headboard part to F3; the group
+        # family adds only what plausibility did not report (G14, rooms it skipped): one finding per fault.
+        seen = {(f["check"], f["target"]) for f in findings}
         out = []
         for rid, items in ((fn(building) or {}).get("rooms") or {}).items():
-            out += [dict(v, room_id=v.get("room_id") or rid) for v in items or []]
+            for v in items or []:
+                target = None if v.get("target") is None else str(v.get("target"))
+                if (str(v.get("check")), target) in seen:
+                    continue
+                if v.get("check") == "G5" and (v.get("metrics") or {}).get("part") == "headboard" \
+                        and ("F3", target) in seen:
+                    continue
+                out.append(dict(v, room_id=v.get("room_id") or rid))
         return out
 
     def levels(fn):

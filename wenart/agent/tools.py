@@ -36,7 +36,8 @@ Milestone 12 (docs/milestone12.md §5.2–§5.4, D17–D19):
 Every accepted building edit is followed by ``decor.sync_to_hosts`` (track S: the decor follows its host, B3) and
 its result carries the room's group checks after the edit (with their numbers). An edit identical to one rejected
 earlier in the same room (``memory.Memory``, any round) is refused before any validator call (``failed_checks``
-``memory: ...``). While track G's new ops are stubs, ``set_front`` / ``retype_piece`` / ``mark_not_furniture`` are
+``memory: ...``). Track G's ops validate every edit; with a validator that lacks them (an older one, a test fake),
+``set_front`` / ``retype_piece`` / ``mark_not_furniture`` are
 validated as their M11 ops (``overrides.resolve_edit``). The planner is offered ``PLANNER_TOOLS`` (the M12 set);
 the M11 tools stay callable for replay and old scripts. The context is shared by the parallel room sessions of one
 round: building changes, tries, overrides and the log are guarded by ``ctx.lock``; the images a read tool returns
@@ -186,7 +187,8 @@ DESCRIPTIONS = {
                           "evidence.",
     "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
                    "a door swing).",
-    "set_front": "Set the direction a piece's front faces (degrees counter-clockwise from +x).",
+    "set_front": "Give a drawn piece without a front (front_inferred) the direction its front faces (degrees "
+                 "counter-clockwise from +x, along a side of its footprint); to turn a piece use rotate_piece.",
     "set_mark_kind": "Correct the kind of a level mark (with the reason).",
     "set_room_floor": "Set a room's floor level from a mark or a drawn step line.",
     "set_ground_point": "Add or correct a ground point (x, y, z) with its evidence.",
@@ -199,11 +201,11 @@ DESCRIPTIONS = {
 STAGE_OF = {"set_camera": "build", "add_camera": "build", "remove_camera": "build", "set_material": "build",
             "set_exterior": "build", "set_lighting": "build", "correct_geometry": "pipeline_final"}
 # The tools offered to the M12 planner (§5.3): the M11 piece tools that the group tools replace (add_piece,
-# add_group, change_type, rotate_piece) and the M11 reads that the brief replaces (room, plausibility) stay callable
-# for replay but are not offered.
+# add_group, change_type) and the M11 reads that the brief replaces (room, plausibility) stay callable for replay but
+# are not offered. rotate_piece turns a piece (track G: set_front only gives a front to a piece without one).
 PLANNER_READS = ("room_brief", "room_topdown", "plan_crop", "view", "levels", "catalog")
-PLANNER_ROOM_EDITS = ("relayout_room", "place_group", "complete_group", "move_group", "move_piece", "set_front",
-                      "resize_piece", "retype_piece", "mark_not_furniture", "fix_fixture", "remove_piece",
+PLANNER_ROOM_EDITS = ("relayout_room", "place_group", "complete_group", "move_group", "move_piece", "rotate_piece",
+                      "set_front", "resize_piece", "retype_piece", "mark_not_furniture", "fix_fixture", "remove_piece",
                       "swap_model", "set_room_type", "set_lighting", "report_library_gap")
 PLANNER_BUILDING = ("building_summary", "exterior_summary", "set_exterior", "set_material", "set_camera",
                     "add_camera", "remove_camera", "correct_geometry", "rerun_stage", *OV.LEVEL_TOOLS)
