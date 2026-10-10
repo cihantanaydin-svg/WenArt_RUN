@@ -344,6 +344,31 @@ def tv_geometry(sofa: placer.Piece, tv: placer.Piece) -> dict:
             "in_front": ly < seat_front}
 
 
+SIGHT_HEIGHT_M = 0.60           # G1: a piece taller than this between the sofa and its TV blocks the view
+SIGHT_FREE_TYPES = ("table_coffee", "ottoman", "side_table")
+
+
+def sight_blockers(r: RoomView, sid: str, tid: str, geo: dict) -> list[str]:
+    """Pieces taller than ``SIGHT_HEIGHT_M`` in the corridor between the sofa's seat front and the TV front (the
+    TV's width, at most the seat's)."""
+    sofa, tv = r.pieces[sid], r.pieces[tid]
+    x0, x1, yf = -sofa.size[0] / 2.0, sofa.size[0] / 2.0, -sofa.size[1] / 2.0
+    if sofa.shape == "L":
+        x0, x1, yf = schemas.l_seat_front(sofa.size, sofa.chaise_side, sofa.chaise_depth, sofa.seat_depth,
+                                          sofa.chaise_width)
+    half = min(tv.size[0], x1 - x0) / 2.0
+    cx = (x0 + x1) / 2.0
+    corridor = placer._local_box(sofa.center, sofa.rotation_deg, cx - half, cx + half, yf - geo["distance_m"], yf)
+    out = []
+    for pid, poly in sorted(r.polys.items()):
+        item = r.by_id[pid]
+        if pid in (sid, tid) or item["type"] in SIGHT_FREE_TYPES or item["type"] == "unknown":
+            continue
+        if effective_height(item) > SIGHT_HEIGHT_M and poly.intersection(corridor).area > 0.02:
+            out.append(pid)
+    return out
+
+
 def _g1_g3(r: RoomView) -> list[dict]:
     out = []
     tv_rule, axis = GR.rule("tv_distance"), GR.rule("tv_axis")
@@ -371,6 +396,12 @@ def _g1_g3(r: RoomView) -> list[dict]:
                 bad.append(f"{geo['angle_deg']:.0f}° off the line to the sofa, needs ≤ {axis['max_angle']:.0f}°")
             if geo["in_front"] and geo["distance_m"] < tv_rule["min"] - 1e-9:
                 bad.append(f"{geo['distance_m']:.2f} m from the sofa front, needs ≥ {tv_rule['min']:.2f} m")
+            if geo["in_front"] and not bad:
+                blockers = sight_blockers(r, sid, tid, geo)
+                if blockers:
+                    bad.append(f"the view from the sofa is blocked by {', '.join(blockers)} (taller than "
+                               f"{SIGHT_HEIGHT_M:.2f} m)")
+                    geo = dict(geo, blocked_by=blockers)
             if bad:
                 out.append(_violation("G1", "major", tid, r.id, f"TV unit {tid} " + "; ".join(bad),
                                       dict(geo, sofa=sid, **r.assumed(sid))))

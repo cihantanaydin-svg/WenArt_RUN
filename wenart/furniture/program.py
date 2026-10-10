@@ -212,15 +212,19 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         if same is None and name in ("sleeping_double", "sleeping_single"):
             same = next((r for r in rows if r["group"] in ("sleeping_double", "sleeping_single") and not r["drawn"]),
                         None)
-        options = (same or {}).get("options") or list(GR.load_groups()[name]["options"])
-        if GR.load_groups()[name]["layout"] == "anchored":
+        template = GR.load_groups()[name]
+        options = (same or {}).get("options") or list(template["options"])
+        if template["layout"] == "anchored":
             options = _option_of_anchor(name, anchor["type"], options)
-        unsure = anchor.get("status") == "unverified"
+        unsure = anchor.get("status") == "unverified" and template["layout"] == "anchored"
+        kinds = {rtype} | {ZONE_ROOM_TYPE.get(z.get("kind") or "") for z in zones}
+        foreign = not (set(template["room_types"]) & kinds)
+        note = ("unverified anchor: nothing added" if unsure else
+                f"no completion: a {name} group does not belong in a {rtype} room" if foreign else "")
         drawn_members = [m for m in g["member_ids"] if (drawn.get(m) or {}).get("source") == "from_documents"]
         entry = _entry(room_id, name, True, options, zone_id=(same or {}).get("zone_id"),
                        area=(same or {}).get("area", area), anchor_id=anchor["id"], drawn=True,
-                       members=drawn_members, missing=[] if unsure else g.get("missing", []),
-                       note="unverified anchor: nothing added" if unsure else "")
+                       members=drawn_members, missing=[] if (unsure or foreign) else g.get("missing", []), note=note)
         if same is not None:
             rows.remove(same)
         if any(r["group_id"] == entry["group_id"] for r in rows):

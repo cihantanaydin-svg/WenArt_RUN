@@ -164,6 +164,8 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
     "dining": ("table_dining", "chair", "dresser", "bookshelf",      # Milestone 7 (§6.5)
                "display_cabinet", "sideboard", "bench"),
     "other": ("armchair", "chair", "table_dining", "bookshelf", "desk"),
+    # Milestone 12 (docs/milestone12.md §4.2 "balcony": a small table and two chairs; real02's terraces).
+    "balcony": ("table_dining", "chair", "bench"),
 }
 FURNISHABLE_ROOM_TYPES: tuple[str, ...] = tuple(ALLOWED_TYPES)
 # Room types the AI never furnishes even when the documents leave them empty (docs/milestone7.md §0:

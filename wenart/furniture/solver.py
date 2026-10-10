@@ -163,8 +163,9 @@ class Cand:
 
 
 def _reached(zone) -> bool:
-    """A use zone a person walks into (a side clearance beside a toilet or washbasin is not one)."""
-    return not str(zone[0]).startswith("side_")
+    """A use zone a person walks into (a side clearance beside a toilet or washbasin, a sofa's view of its TV and a
+    drawn table's pull-out room are kept free, not walked into)."""
+    return not str(zone[0]).startswith(("side_", "sight", "pullout_drawn"))
 
 
 # --------------------------------------------------------------------------
@@ -663,8 +664,13 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
         sizes = [tuple(s) for s in spec["sizes"]]
         if place == "facing_wall":
             for s in _tv_spots(space, anchor, sizes):
-                if _fits(space, s, placed_fps):
+                dist = GC.tv_geometry(anchor.piece(), s.piece())["distance_m"]
+                half = min(s.size[0], seat_w) / 2.0
+                sight = ("sight", anchor.center, anchor.rotation, (seat_x - half, seat_x + half, seat_front - dist,
+                                                                    seat_front))
+                if _fits(space, s, placed_fps) and space.zones_free([sight]):
                     found = [s]
+                    zones.append(sight)
                     break
         elif place == "front":
             rule = GR.rule(spec["gap"]) if isinstance(spec.get("gap"), str) else {"min": float(spec.get("gap", 0.3))}
@@ -711,10 +717,14 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
                     if len(found) >= want:
                         break
                     sx = 1.0 if side == "right" else -1.0
-                    s = _local_spot(anchor, ftype, (sx * (w / 2.0 + gap + size[0] / 2.0), d / 2.0 - size[1] / 2.0),
-                                    0.0, size, role, True)
-                    if _fits(space, s, with_found(found)):
-                        found.append(s)
+                    # Back on the anchor's back line; a drawn headboard flush on the wall line leaves no 2 cm gap, so
+                    # the nightstand may step up to 5 cm forward (G4 allows 0.10 m).
+                    for step in (0.0, 0.025, 0.05):
+                        s = _local_spot(anchor, ftype, (sx * (w / 2.0 + gap + size[0] / 2.0),
+                                                        d / 2.0 - size[1] / 2.0 - step), 0.0, size, role, True)
+                        if _fits(space, s, with_found(found)) and space.exact_ok(s, s.piece().polygon()):
+                            found.append(s)
+                            break
                 if len(found) >= want:
                     break
         elif place == "foot":
@@ -772,7 +782,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
                 return None
         if spec["required"] and not found and place != "around":
             return None
-        if place != "around":
+        if place not in ("around", "pair"):
             found = found[:want]
         if not spec["required"]:
             optional_placed += len(found)
@@ -1417,10 +1427,8 @@ class Walk:
                 sub = free[zfp[1]:zfp[2], zfp[3]:zfp[4]] if zfp[0] == "r" else free.ravel()[zfp[1]]
                 if not sub.any():
                     continue
-                if self.base_cover is not None and not self.base_cover.hit(zfp):
-                    continue                     # out of reach already in the room with its fixed pieces
                 if not cover.hit(zfp):
-                    zones_ok = False
+                    zones_ok = False             # a new piece's use zone no walkway reaches (G11)
                     break
         return {"pairs": pairs, "zones_ok": zones_ok, "cover": cover}
 
@@ -1452,9 +1460,11 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
     levels = []
     for entry in prog["groups"]:
         template = GR.load_groups()[entry["group"]]
-        if entry.get("note", "").startswith("unverified"):
+        if entry.get("note", "").startswith(("unverified", "no completion")):
             continue
         if template["layout"] == "anchored":
+            if entry.get("drawn") and not template["partners"]:
+                continue                               # a drawn wardrobe: nothing to add
             levels.append((entry, anchored_candidates(space, entry, len(levels), info), entry["required"]))
         elif template["layout"] == "run":
             if entry.get("drawn"):
@@ -1523,8 +1533,38 @@ def _info(space: Space, building: dict, room_id: str, prog: dict, budget: dict) 
             "kitchen_points": _kitchen_targets(space), "previous": previous}
 
 
+def fixed_zones(space: Space) -> list:
+    """The use zones of the fixed (drawn) built pieces that are free with the fixed pieces alone: no new piece may
+    stand there (a wardrobe in a drawn bed's side clearance), and the walkways must keep reaching them."""
+    out = []
+    chairs = [(f, p) for f, p in zip(space.fixed_items, space.fixed_pieces) if f.get("type") in GC.SEAT_TYPES
+              and f.get("build") is not False]
+    for f, p in zip(space.fixed_items, space.fixed_pieces):
+        if f.get("build") is False or f.get("type") == "unknown":
+            continue
+        spot = Spot(f["type"], p.center, p.rotation_deg, p.size, "fixed", False, p.shape, p.chaise_side,
+                    existing_id=f["id"])
+        zones = _one_side(space, spot, spot.zones())
+        if zones is None:
+            zones = [z for z in spot.zones() if z[0] not in ("left", "right")]
+        out += [z for z in zones if not space.zone_layer.hit(space.zone_fp(z))]
+        if f["type"] == "table_dining":
+            # A drawn table keeps the pull-out room behind its drawn chairs (they stand in it, so it is not tested).
+            poly = p.polygon()
+            sides = {GC._side_of(p, c.center) for _cf, c in chairs if c.polygon().distance(poly) <= 0.6}
+            out += [(f"pullout_drawn_{s}",) + z[1:] for s, z in _pullout_zones(spot, sides).items()]
+    return out
+
+
 def _search(space: Space, levels: list, walk: Walk, budget: dict) -> list[Node]:
-    root = Node((), space.fixed_mask.copy(), np.zeros_like(space.fixed_mask), 0.0, ())
+    res = np.zeros_like(space.fixed_mask)
+    reach = []
+    for z in fixed_zones(space):
+        zfp = space.zone_fp(z)
+        paint(res, zfp)
+        if _reached(z) and (walk.base_cover is None or walk.base_cover.hit(zfp)):
+            reach.append(zfp)                    # a drawn piece's zone the walkways reach now must stay reached
+    root = Node((), space.fixed_mask.copy(), res, 0.0, (), [], reach)
     beam = [root]
     for _entry, cands, required in levels:
         bonus = REQUIRED_BONUS if required else OPTIONAL_BONUS
