@@ -53,6 +53,85 @@ models:
     size_gb: 37.5
     env:
       VLLM_USE_DEEP_GEMM: '0'
+  # Milestone 12 pod P1, the agent model bake-off (docs/milestone12.md §5.1, ids and revisions §13.3; checked by
+  # tests/test_bakeoff_m12.py). Served by wenart/run/servers.py with the dotted key bakeoff.<name>. Flags: from each
+  # model card's raw README (huggingface.co/<id>/raw/main/README.md, read 10 Oct 2026), the vLLM recipe
+  # (github.com/vllm-project/recipes models/<org>/<repo>.yaml) where the card names none, and checked against the vLLM
+  # v0.30.0 source (vllm/tool_parsers, vllm/reasoning, vllm/engine/arg_utils.py, vllm/config/{attention,kernel}.py,
+  # model registry). `gpus: 2` = tensor parallel 2 (a 2-GPU pod); `variants` = the bake-off configurations
+  # (critic thinking off / on; Muse Glimmer's template has no thinking switch, only reasoning_strength, default high).
+  # The memory shares leave room for a Cycles render next to the server (measured on P1).
+  bakeoff:
+    fp8:                        # the M11 agent (control)
+      id: Qwen/Qwen3.8-27B-FP8
+      revision: 017b9c7af6b5689d5dd426a76e0bc077eb5ca20a
+      licence: Apache-2.0
+      slug: qwen3.8-27b-fp8
+      gpus: 1
+      max_seqs: 8
+      server_flags: '--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3 --max-model-len 32768 --max-num-seqs 8'
+      gpu_memory_utilization: 0.55
+      limit_mm: 4
+      prequantized: fp8
+      size_gb: 30.9
+      variants:
+        'off': {critic_thinking: false}
+        'on': {critic_thinking: true}
+    bf16:                       # the same model without the FP8 loss (card: same serving as the FP8 repo)
+      id: Qwen/Qwen3.8-27B
+      revision: 1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0
+      licence: Apache-2.0
+      slug: qwen3.8-27b
+      gpus: 1
+      max_seqs: 8
+      server_flags: '--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3 --max-model-len 32768 --max-num-seqs 8'
+      gpu_memory_utilization: 0.72
+      limit_mm: 4
+      size_gb: 55.6
+      variants:
+        'off': {critic_thinking: false}
+        'on': {critic_thinking: true}
+    muse:                       # another family; the card names no vLLM flags: parsers muse_glimmer of vLLM 0.30.0
+      id: meta-models/Muse-Glimmer-30B
+      revision: a4e59da52a7bc87ae7251dd5545c0dd437c44b68
+      licence: Apache-2.0
+      slug: muse-glimmer-30b
+      gpus: 1
+      max_seqs: 8
+      server_flags: '--enable-auto-tool-choice --tool-call-parser muse_glimmer --reasoning-parser muse_glimmer --max-model-len 32768 --max-num-seqs 8'
+      gpu_memory_utilization: 0.75
+      limit_mm: 4
+      size_gb: 59.6
+      variants:
+        'low': {template: {reasoning_strength: low}}
+        'high': {critic_thinking: true, template: {reasoning_strength: high}}
+    flash_next:                 # 2 GPUs (TP2); licence qwen-community-1.0 (flag, user OK 10 Oct 2026); card: commit d4d703c+ (in 0.30.0)
+      id: nvidia/Qwen3.8-Flash-Next-NVFP4
+      revision: fc694b54fb0174e0913e6adf86691ef85a4ead47
+      licence: qwen-community-1.0
+      slug: qwen3.8-flash-next-nvfp4
+      gpus: 2
+      max_seqs: 8
+      server_flags: '--quantization modelopt --trust-remote-code --reasoning-parser qwen3 --enable-auto-tool-choice --tool-call-parser qwen3_coder --kv-cache-dtype fp8 --attention-config.indexer_kv_dtype fp8 --moe-backend marlin --no-enable-flashinfer-autotune --max-model-len 32768 --max-num-seqs 8'
+      gpu_memory_utilization: 0.85
+      limit_mm: 4
+      size_gb: 132.7
+      variants:
+        'off': {critic_thinking: false}
+        'on': {critic_thinking: true}
+    step_flash:                 # the fallback of flash_next (Apache-2.0); card + recipe flags, TP2 instead of TP4
+      id: stepfun-ai/Step-3.7-Flash-NVFP4
+      revision: 4275532ffd9a9496ff36b7a2dc4a9db1048da438
+      licence: Apache-2.0
+      slug: step-3.7-flash-nvfp4
+      gpus: 2
+      max_seqs: 8
+      server_flags: '--enable-expert-parallel --disable-cascade-attn --trust-remote-code --quantization modelopt --kv-cache-dtype fp8 --reasoning-parser step3p5 --enable-auto-tool-choice --tool-call-parser step3p5 --async-scheduling --max-model-len 32768 --max-num-seqs 8'
+      gpu_memory_utilization: 0.85
+      limit_mm: 4
+      size_gb: 129.2
+      variants:
+        'off': {critic_thinking: false}
 
 # Expected elements per view (§5.1).
 roles:

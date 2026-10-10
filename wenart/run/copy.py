@@ -388,9 +388,21 @@ def _notice() -> str:
 SOURCE_NAMES = {"abo": "Amazon Berkeley Objects", "objaverse": "Objaverse 1.0", "generated": "generated models"}
 
 
+def audit_removed(entry: dict) -> str:
+    """The reasons of a model the Milestone 12 library audit removed (catalogue ``audit.status == "removed"``,
+    docs/m12_tracks/B.md) as one text; "" for every other entry. Removed models stay credited: older thumbnails
+    and renders still show them."""
+    audit = entry.get("audit") if isinstance(entry, dict) else None
+    if not isinstance(audit, dict) or audit.get("status") != "removed":
+        return ""
+    reasons = [str(r) for r in audit.get("reasons") or [] if str(r).strip()]
+    return "; ".join(reasons) or "no reason recorded"
+
+
 def attribution_text(title: str, credits: list[dict]) -> str:
     """The ``ATTRIBUTION.md`` text: the credit line of every library model (with its licence flag when it has one,
-    docs/milestone8.md §2) and the notices of the sources present (Objaverse when nothing says the source)."""
+    docs/milestone8.md §2; M12: with the library audit's removal and its reasons) and the notices of the sources
+    present (Objaverse when nothing says the source)."""
     order = [s for s in ("abo", "objaverse", "generated")]
     sources = sorted({c.get("source") or "objaverse" for c in credits}, key=lambda s: order.index(s)
                      if s in order else len(order))
@@ -400,6 +412,8 @@ def attribution_text(title: str, credits: list[dict]) -> str:
     for c in credits:
         pieces = ", ".join(f"{pid} ({ptype})" for pid, ptype in c.get("pieces") or [])
         flag = f" [licence flag: {c['licence_flag']}]" if c.get("licence_flag") else ""
+        if c.get("removed"):
+            flag += f" [removed by the M12 library audit: {c['removed']}]"
         lines.append(f"- {c['credit']}{flag}" + (f" (used for {pieces})" if pieces else ""))
     lines.append("")
     for text in _notices(sources):
@@ -464,7 +478,7 @@ def library_attribution(library_dir: Path, catalog: Optional[Path] = None) -> Op
     if not entries:
         return None
     credits = [{"credit": _credit(dict(e, asset_id=e.get("id"))), "pieces": [], "source": _source_of(e),
-                "licence_flag": e.get("licence_flag")}
+                "licence_flag": e.get("licence_flag"), "removed": audit_removed(e)}
                for e in sorted(entries, key=lambda e: str(e.get("id") or e.get("uid") or ""))]
     target = library_dir / ATTRIBUTION
     library_dir.mkdir(parents=True, exist_ok=True)

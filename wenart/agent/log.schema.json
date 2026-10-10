@@ -35,7 +35,7 @@
         "seq": {"type": "integer", "minimum": 1},
         "round": {"type": "integer", "minimum": 0},
         "t": {"type": "string"},
-        "kind": {"enum": ["check", "finding", "edit", "rejected_edit", "rerun", "render", "stop"]},
+        "kind": {"enum": ["check", "finding", "edit", "rejected_edit", "rerun", "render", "stop", "plan", "dry_run", "round"]},
         "model": {"type": ["string", "null"]},
         "revision": {"type": ["string", "null"]},
         "call_id": {"type": ["string", "null"]},
@@ -89,7 +89,7 @@
       "required": ["call_id", "kind", "model", "revision", "seconds", "attempts"],
       "properties": {
         "call_id": {"type": "string"},
-        "kind": {"enum": ["chat", "critic"]},
+        "kind": {"enum": ["chat", "critic", "plan", "task"]},
         "model": {"type": "string"},
         "revision": {"type": "string"},
         "seconds": {"type": ["number", "null"]},

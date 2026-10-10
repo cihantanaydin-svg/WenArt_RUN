@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import copy
 import json
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -34,6 +35,7 @@ from wenart.recognition import vlm_client as VC
 MAX_IMAGES = 4                   # --limit-mm-per-prompt '{"image":4}' of the agent server (§11)
 DEFAULT_MAX_TOKENS = 4096
 CRITIC_MAX_TOKENS = 2048
+THINKING_MAX_TOKENS = 8192       # a structured answer with thinking on: room for the reasoning before the JSON
 DEFAULT_TIMEOUT_S = 600.0
 DEFAULT_RETRIES = 2
 IMAGE_MAX_SIDE = 1280            # a 960x540 preview is sent as it is; a 1920x1080 render is scaled down
@@ -128,10 +130,18 @@ def tool_spec(name: str, description: str, parameters: dict) -> dict:
                                              "strict": True}}
 
 
+def template_kwargs(thinking: bool, extra: Optional[dict] = None) -> dict:
+    """``chat_template_kwargs``: ``enable_thinking`` (Qwen3.x templates) plus the model's own keys from check.yaml
+    (e.g. Muse Glimmer's ``reasoning_strength``, read from its chat template); a template ignores unknown keys."""
+    out = {"enable_thinking": bool(thinking)}
+    out.update(dict(extra or {}))
+    return out
+
+
 def chat_body(model: str, messages: list, tools: Optional[list], *, max_tokens: int = DEFAULT_MAX_TOKENS,
-              thinking: bool = False, seed: int = 0) -> dict:
+              thinking: bool = False, seed: int = 0, extra_template: Optional[dict] = None) -> dict:
     body = {"model": model, "messages": messages, "temperature": 0.0, "seed": seed, "max_tokens": max_tokens,
-            "chat_template_kwargs": {"enable_thinking": bool(thinking)}}
+            "chat_template_kwargs": template_kwargs(thinking, extra_template)}
     if tools:
         body["tools"] = tools
         body["tool_choice"] = "auto"
@@ -139,11 +149,12 @@ def chat_body(model: str, messages: list, tools: Optional[list], *, max_tokens: 
 
 
 def critic_body(model: str, messages: list, schema: dict, *, name: str = "findings",
-                max_tokens: int = CRITIC_MAX_TOKENS, seed: int = 0) -> dict:
+                max_tokens: int = CRITIC_MAX_TOKENS, seed: int = 0, thinking: bool = False,
+                extra_template: Optional[dict] = None) -> dict:
     return {"model": model, "messages": messages, "temperature": 0.0, "seed": seed, "max_tokens": max_tokens,
             "response_format": {"type": "json_schema",
                                 "json_schema": {"name": name, "schema": VC.grammar_of(schema), "strict": True}},
-            "chat_template_kwargs": {"enable_thinking": False}}
+            "chat_template_kwargs": template_kwargs(thinking, extra_template)}
 
 
 def parse_tool_calls(raw_calls: Any) -> list:
@@ -175,7 +186,9 @@ class AgentModel:
     def __init__(self, base_url: str, model: str, revision: str = "", *, timeout_s: float = DEFAULT_TIMEOUT_S,
                  retries: int = DEFAULT_RETRIES, max_tokens: int = DEFAULT_MAX_TOKENS, planner_thinking: bool = False,
                  post: Optional[Callable[[str, dict, float], dict]] = None, clock: Callable[[], float] = time.monotonic,
-                 sleep: Callable[[float], None] = time.sleep, on_call: Optional[Callable[[dict], None]] = None):
+                 sleep: Callable[[float], None] = time.sleep, on_call: Optional[Callable[[dict], None]] = None,
+                 critic_thinking: bool = False, extra_template: Optional[dict] = None,
+                 thinking_max_tokens: int = 0):
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.revision = revision
@@ -183,6 +196,11 @@ class AgentModel:
         self.retries = int(retries)
         self.max_tokens = int(max_tokens)
         self.planner_thinking = bool(planner_thinking)
+        # Milestone 12 (bake-off, docs/milestone12.md §5.1): the critic with thinking on, and the model's own chat
+        # template keys from check.yaml.
+        self.critic_thinking = bool(critic_thinking)
+        self.extra_template = dict(extra_template or {})
+        self.thinking_max_tokens = int(thinking_max_tokens or THINKING_MAX_TOKENS)
         self._post = post or VC.post_json
         self.clock = clock
         self.sleep = sleep
@@ -235,7 +253,7 @@ class AgentModel:
         """The planner's call: tools offered, ``tool_choice: auto`` (thinking as ``planner_thinking``)."""
         images = self._check_images(messages)
         body = chat_body(self.model, messages, tools, max_tokens=max_tokens or self.max_tokens,
-                         thinking=self.planner_thinking)
+                         thinking=self.planner_thinking, extra_template=self.extra_template)
         try:
             resp, attempts, seconds = self._send(body)
             msg, finish, usage = self._message(resp)
@@ -252,9 +270,19 @@ class AgentModel:
         return reply
 
     def critic(self, messages: list, schema: dict, *, call_id: str, name: str = "findings") -> CriticReply:
-        """The critic's call: a JSON-schema answer, validated here; one more try when it does not validate."""
+        """The critic's call: a JSON-schema answer, validated here; one more try when it does not validate. Thinking
+        as ``critic_thinking`` (off in M11; the M12 bake-off measures both)."""
+        return self.structured(messages, schema, call_id=call_id, name=name, kind="critic",
+                               thinking=self.critic_thinking)
+
+    def structured(self, messages: list, schema: dict, *, call_id: str, name: str = "answer", kind: str = "critic",
+                   thinking: bool = False, max_tokens: Optional[int] = None) -> CriticReply:
+        """A JSON-schema answer (the critic, the M12 room plan, the bake-off tasks): validated here, one more try
+        when it does not validate; ``kind`` names the call in the log (critic | plan | task)."""
         images = self._check_images(messages)
-        body = critic_body(self.model, messages, schema, name=name)
+        limit = max_tokens or (self.thinking_max_tokens if thinking else CRITIC_MAX_TOKENS)
+        body = critic_body(self.model, messages, schema, name=name, max_tokens=limit, thinking=thinking,
+                           extra_template=self.extra_template)
         attempts_total, seconds_total, usage = 0, 0.0, {}
         errors: list = []
         raw = ""
@@ -264,7 +292,7 @@ class AgentModel:
                 resp, attempts, seconds = self._send(body)
                 msg, _finish, usage = self._message(resp)
             except ModelError as exc:
-                self._log({"call_id": call_id, "kind": "critic", "images": images, "error": str(exc),
+                self._log({"call_id": call_id, "kind": kind, "images": images, "error": str(exc),
                            "seconds": None, "attempts": attempts_total + self.retries + 1, "prompt_tokens": None,
                            "completion_tokens": None})
                 raise
@@ -279,7 +307,7 @@ class AgentModel:
             if not errors:
                 break
             data = None
-        self._log({"call_id": call_id, "kind": "critic", "images": images, "error": "; ".join(errors[:3]) or None,
+        self._log({"call_id": call_id, "kind": kind, "images": images, "error": "; ".join(errors[:3]) or None,
                    "seconds": round(seconds_total, 3), "attempts": attempts_total,
                    "prompt_tokens": usage.get("prompt_tokens"), "completion_tokens": usage.get("completion_tokens")})
         return CriticReply(call_id=call_id, data=data, errors=errors, raw=raw, usage=usage,
@@ -289,39 +317,53 @@ class AgentModel:
 class MockModel(AgentModel):
     """Scripted answers for the CPU tests (§10). ``chat``: a list of planner answers, each ``{"tool_calls":
     [{"name", "arguments": dict | str}], "content": str}`` or a callable ``(body) -> answer``; ``critic``: a list
-    of critic answers (the JSON data; ``{"__raw__": "text"}`` for a raw text answer) or callables. An exhausted
-    script answers with no tool call (planner) or ``{"findings": []}`` (critic). Every request body is kept in
-    ``requests`` (images included)."""
+    of critic answers (the JSON data; ``{"__raw__": "text"}`` for a raw text answer) or callables; ``plan`` (M12): the
+    room plans (JSON-schema calls named ``plan``), the same way. An exhausted script answers with no tool call
+    (planner), ``{"findings": []}`` (critic) or an empty, invalid plan (the loop then uses the brief's default
+    checklist). Every request body is kept in ``requests`` (images included). Thread-safe (parallel sessions)."""
 
-    def __init__(self, chat: Sequence = (), critic: Sequence = (), *, model: str = "mock/agent",
+    def __init__(self, chat: Sequence = (), critic: Sequence = (), *, plan: Sequence = (), model: str = "mock/agent",
                  revision: str = "mock-rev", on_call: Optional[Callable[[dict], None]] = None):
         super().__init__("http://mock/v1", model, revision, on_call=on_call, clock=self._tick, sleep=lambda s: None)
         self.chat_script = list(chat)
         self.critic_script = list(critic)
+        self.plan_script = list(plan)
         self.requests: list[dict] = []
         self._t = 0.0
         self._n = 0
+        self._lock = threading.RLock()
 
     def _tick(self) -> float:
-        self._t += 0.5
-        return self._t
+        with self._lock:
+            self._t += 0.5
+            return self._t
+
+    @staticmethod
+    def schema_name(body: dict) -> Optional[str]:
+        return ((body.get("response_format") or {}).get("json_schema") or {}).get("name")
 
     def post(self, body: dict) -> dict:
-        self.requests.append(copy.deepcopy(body))
-        self._n += 1
-        usage = {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120}
+        with self._lock:
+            self.requests.append(copy.deepcopy(body))
+            self._n += 1
+            n = self._n
+            usage = {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120}
+            if "response_format" in body:
+                if self.schema_name(body) == "plan":
+                    item = self.plan_script.pop(0) if self.plan_script else {"__raw__": "{}"}
+                else:
+                    item = self.critic_script.pop(0) if self.critic_script else {"findings": []}
+            else:
+                item = self.chat_script.pop(0) if self.chat_script else {"content": "done"}
+        item = item(body) if callable(item) else item
         if "response_format" in body:
-            item = self.critic_script.pop(0) if self.critic_script else {"findings": []}
-            item = item(body) if callable(item) else item
             text = item["__raw__"] if isinstance(item, dict) and "__raw__" in item else json.dumps(item)
             return {"choices": [{"message": {"role": "assistant", "content": text}, "finish_reason": "stop"}],
                     "usage": usage}
-        item = self.chat_script.pop(0) if self.chat_script else {"content": "done"}
-        item = item(body) if callable(item) else item
         calls = []
         for i, tc in enumerate(item.get("tool_calls") or []):
             args = tc.get("arguments", {})
-            calls.append({"id": tc.get("id") or f"call_{self._n}_{i}", "type": "function",
+            calls.append({"id": tc.get("id") or f"call_{n}_{i}", "type": "function",
                           "function": {"name": tc["name"],
                                        "arguments": args if isinstance(args, str) else json.dumps(args)}})
         msg = {"role": "assistant", "content": item.get("content") or ""}
@@ -333,12 +375,31 @@ class MockModel(AgentModel):
         return [r for r in self.requests if "response_format" not in r]
 
     def critic_requests(self) -> list:
-        return [r for r in self.requests if "response_format" in r]
+        return [r for r in self.requests if "response_format" in r and self.schema_name(r) != "plan"]
+
+    def plan_requests(self) -> list:
+        return [r for r in self.requests if self.schema_name(r) == "plan"]
 
 
-def from_check_yaml(base_url: str, key: str = "agent", check_yaml: Optional[Path] = None, **kwargs) -> AgentModel:
-    """The client of ``check.yaml models.<key>`` (id, revision) at ``base_url``."""
+def variant_kwargs(entry: dict, variant: Optional[str]) -> dict:
+    """The client options of one bake-off variant (``check.yaml models.bakeoff.<name>.variants.<variant>``):
+    ``critic_thinking`` (also the planner's thinking: a variant is measured as one setting) and ``template`` (the
+    model's own chat-template keys). ``KeyError`` for a variant the entry does not have."""
+    if not variant:
+        return {}
+    v = (entry.get("variants") or {})[variant]
+    thinking = bool(v.get("critic_thinking"))
+    return {"critic_thinking": thinking, "planner_thinking": thinking, "extra_template": dict(v.get("template") or {})}
+
+
+def from_check_yaml(base_url: str, key: str = "agent", check_yaml: Optional[Path] = None, *,
+                    variant: Optional[str] = None, **kwargs) -> AgentModel:
+    """The client of ``check.yaml models.<key>`` (id, revision) at ``base_url``; M12: a dotted key names a nested
+    entry (``bakeoff.fp8``) and ``variant`` one of its bake-off variants (``variant_kwargs``)."""
     from wenart.run import servers as SV
     models = SV.check_models(check_yaml) if check_yaml else SV.check_models()
-    m = models[key]
-    return AgentModel(base_url, str(m["id"]), str(m.get("revision") or ""), **kwargs)
+    m = SV.model_entry(models, key)
+    if not m or not m.get("id"):
+        raise KeyError(f"no model '{key}' in check.yaml")
+    opts = dict(variant_kwargs(m, variant), **kwargs)
+    return AgentModel(base_url, str(m["id"]), str(m.get("revision") or ""), **opts)

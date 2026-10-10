@@ -278,11 +278,16 @@ def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[di
     return entry
 
 
+def _table(entry) -> bool:
+    """A nested table of models (M12: ``check.yaml models.bakeoff``), not a model: every value is a dict."""
+    return isinstance(entry, dict) and bool(entry) and all(isinstance(v, dict) for v in entry.values())
+
+
 def gpu_plan(name: Optional[str], models: dict) -> dict:
     """``{"name", "speed", "speed_of", "memory_mib", "seqs": {key: n}}`` of the GPU the plan is made for."""
     speed = gpu_speed(name)
     mem = gpu_memory_mib(name)
-    seqs = {k: SV.server_seqs(mem, SV.max_seqs_of(models, k)) for k in models}
+    seqs = {k: SV.server_seqs(mem, SV.max_seqs_of(models, k)) for k in models if not _table(models[k])}
     return {"name": name, "speed": speed["speed"], "speed_of": speed["matched"], "memory_mib": mem, "seqs": seqs}
 
 
