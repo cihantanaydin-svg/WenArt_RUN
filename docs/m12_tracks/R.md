@@ -1,8 +1,8 @@
 # Milestone 12 – track R (furniture reading): as built
 
 Design: `docs/milestone12.md` §4.1 (D7), contracts §13 (`read_furniture(build, works) -> None`, unchanged).
-Cloud session, CPU only, 10 Oct 2026. Branch: `worktree-agent-afb1a61e1c58afb82` (merged with `opus_branch_06` at
-`9635c95`). No pods, nothing downloaded.
+Cloud session, CPU only, 10 Oct 2026. Branch: `worktree-agent-afb1a61e1c58afb82` (merged with `opus_branch_06` up to
+`41cecf9`). No pods, nothing downloaded.
 
 ## 1. What was built
 
@@ -91,6 +91,12 @@ pipeline runs): `tests/test_outline_walls.py::test_real03_furniture_is_read_comp
 |---|---|---|
 | `tests/test_reading_symbols.py` | 18 | layer words (folded, whole-word short keys, furniture words win, xref names); a furniture-named block on a services layer; the M12 block words (KOMODİN, ÇAMAŞIR, EVYE, Dishwasher, BERJER, ORTA SEHPA, GARDİROP, REFRIGERATOR) and that the main pass does not use them (`extended=False`); room-number circle (number inside, not a name, not too large); door swing with its leaf, the swing split from a fridge box; quadrant shower, chair back and a named block are no doors, a jamb hinge is; north arrow; layer symbols, column, decor, door layer, mixed with furniture; object groups (a sink block is one object, a flat block's own strokes clustered, page-wide containers); copy keys; extra keys and `expand_ids`; the toilet axis line trimmed; an oversized cluster chained by trace lines re-read into sofa and table with an `other` symbol; a room-number tag among the furniture; the re-read's unknown part asked under its content key; a counter outline along two walls re-read as two legs with its sink (drain); a column inside a re-read cluster stays a not-built obstacle, decor strokes there are symbols |
 | `tests/test_reading_building.py` | 20 | symbols moved with crop, conflict when the AI typed one, a column kept not built; copies; nightstands; dining chairs facing the table; a table with seats around it is a dining set; coffee table and TV unit facing the sofa; armchair pair; counter holding a sink and the fridge closing the run; vanity under a washbasin; misread toilet → product size, back on the wall, `drawn_*`, `adjusted_by_ai` with crop; washbasin through a wall moved back; toilet in the door swing moved out; a piece beside the door frame left alone; fronts from the wall (wardrobe, bed in a corner, crib after track B); kitchen zone in a living room, none in a kitchen; never a box (`needs_review` with crop, evidence unchanged); a waiting piece left to its answers; a stove drawn twice; unbuilt pieces say why, an oversized cluster is listed; the report section |
+
+Test runs after the merge (CPU, `-m "not gpu"`): 29 ingest / recognition / pipeline files 766 passed, 6 skipped,
+4 xfailed, 1 failed (`test_recognition_answers.py::test_pipeline_exit_4_then_answers_then_no_ai`, fixed afterwards:
+context typing now waits for pending answers; the file and the pipeline-level files rerun: 37 + 196 passed); slow
+real-data files (`test_outline_walls.py`, `test_real02_pipeline.py`) 15 passed, 1 failed (the lead branch's own
+`test_alternative_basement_rooms_twins_and_same_as`, §6).
 
 ## 4. Real data, before / after
 
