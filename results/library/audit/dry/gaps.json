@@ -1,0 +1,5046 @@
+{
+ "kind": "library_audit_gaps",
+ "groups": "builtin",
+ "rows": [
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "scandinavian",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "modern minimal",
+   "count": 5,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "minimal",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "modern",
+   "count": 8,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "classic",
+   "count": 8,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "scandinavian",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "japandi",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "modern minimal",
+   "count": 15,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "minimal",
+   "count": 7,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "modern",
+   "count": 18,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "industrial",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "mediterranean",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "classic",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "anchor",
+   "type": "sofa_corner",
+   "family": "rustic",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "scandinavian",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "japandi",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "modern minimal",
+   "count": 10,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "minimal",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "modern",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "industrial",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "mediterranean",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "classic",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "armchair",
+   "family": "rustic",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "scandinavian",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "japandi",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "modern minimal",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "minimal",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "modern",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "industrial",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "classic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "table_coffee",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "scandinavian",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "japandi",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "modern minimal",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "minimal",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "modern",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "industrial",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "mediterranean",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "classic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "side_table",
+   "family": "rustic",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "scandinavian",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "modern minimal",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "minimal",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "modern",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "classic",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "floor_lamp",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "scandinavian",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "japandi",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "modern",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "industrial",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "mediterranean",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "classic",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "rug",
+   "family": "rustic",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "scandinavian",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "japandi",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "modern",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "industrial",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "mediterranean",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "classic",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "cushion",
+   "family": "rustic",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "modern",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "seating",
+   "role": "partner",
+   "type": "throw",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "scandinavian",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "japandi",
+   "count": 13,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "modern minimal",
+   "count": 12,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "minimal",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "modern",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "industrial",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "classic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "living",
+   "group": "media",
+   "role": "anchor",
+   "type": "tv_unit",
+   "family": "rustic",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "scandinavian",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "japandi",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "classic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "rustic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "scandinavian",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "japandi",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "modern minimal",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "minimal",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "industrial",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "scandinavian",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "japandi",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "modern minimal",
+   "count": 17,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "minimal",
+   "count": 17,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "industrial",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "modern",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "plant_large",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "scandinavian",
+   "count": 17,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "japandi",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "modern minimal",
+   "count": 18,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "minimal",
+   "count": 18,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "modern",
+   "count": 19,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "industrial",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "mediterranean",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "classic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "decor",
+   "role": "partner",
+   "type": "vase",
+   "family": "rustic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "scandinavian",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "japandi",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "modern minimal",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "minimal",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "modern",
+   "count": 10,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "industrial",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "classic",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "living",
+   "group": "light",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "scandinavian",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "japandi",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "modern minimal",
+   "count": 13,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "minimal",
+   "count": 9,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "modern",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "industrial",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "classic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_double",
+   "family": "rustic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "scandinavian",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "japandi",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "modern minimal",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "minimal",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "modern",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "industrial",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bed_single",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "scandinavian",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "japandi",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "modern minimal",
+   "count": 18,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "modern",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "rustic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "scandinavian",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "japandi",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "modern",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "scandinavian",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "japandi",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "modern",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "industrial",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "mediterranean",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "classic",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "cushion",
+   "family": "rustic",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "scandinavian",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "japandi",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "modern",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "industrial",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "mediterranean",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "classic",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "rug",
+   "family": "rustic",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "scandinavian",
+   "count": 9,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "japandi",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "modern minimal",
+   "count": 12,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "minimal",
+   "count": 12,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "modern",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "industrial",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "classic",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "anchor",
+   "type": "wardrobe",
+   "family": "rustic",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "scandinavian",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "japandi",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "modern minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "minimal",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "industrial",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "mediterranean",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "classic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "storage",
+   "role": "partner",
+   "type": "dresser",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "scandinavian",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "japandi",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "modern minimal",
+   "count": 17,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "minimal",
+   "count": 17,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "industrial",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "wall_art",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "scandinavian",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "japandi",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "modern minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "minimal",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "modern",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "mediterranean",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "classic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "decor",
+   "role": "partner",
+   "type": "mirror",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "modern minimal",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "modern",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bedroom",
+   "group": "light",
+   "role": "partner",
+   "type": "ceiling_light",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "scandinavian",
+   "count": 8,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "japandi",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "modern minimal",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "minimal",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "modern",
+   "count": 7,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "industrial",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "classic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "bunk_bed",
+   "family": "rustic",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "scandinavian",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "modern",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "classic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "anchor",
+   "type": "crib",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "scandinavian",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "japandi",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "modern minimal",
+   "count": 18,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "modern",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "child",
+   "group": "sleeping",
+   "role": "partner",
+   "type": "nightstand",
+   "family": "rustic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "scandinavian",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "japandi",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "modern minimal",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "minimal",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "modern",
+   "count": 10,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "industrial",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "classic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "child",
+   "group": "storage",
+   "role": "partner",
+   "type": "wardrobe",
+   "family": "rustic",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "scandinavian",
+   "count": 12,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "japandi",
+   "count": 7,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "modern minimal",
+   "count": 13,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "minimal",
+   "count": 13,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "modern",
+   "count": 14,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "industrial",
+   "count": 4,
+   "target": 5,
+   "gap": 1
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "anchor",
+   "type": "table_dining",
+   "family": "rustic",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "scandinavian",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "japandi",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "modern minimal",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "minimal",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "modern",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "industrial",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "classic",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "chair",
+   "family": "rustic",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "scandinavian",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "japandi",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "modern minimal",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "minimal",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "modern",
+   "count": 10,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "industrial",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "classic",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "dining",
+   "group": "dining",
+   "role": "partner",
+   "type": "pendant_light",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "scandinavian",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "japandi",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "modern minimal",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "minimal",
+   "count": 7,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "industrial",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "sideboard",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "modern minimal",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "minimal",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "modern",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "dining",
+   "group": "storage",
+   "role": "partner",
+   "type": "display_cabinet",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "modern minimal",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "modern",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "fridge",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "scandinavian",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "japandi",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "modern minimal",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "minimal",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "modern",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "industrial",
+   "count": 2,
+   "target": 5,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "classic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "stove",
+   "family": "rustic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "scandinavian",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "modern minimal",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "minimal",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "modern",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "anchor",
+   "type": "sink_kitchen",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "scandinavian",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "modern minimal",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "minimal",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "modern",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "kitchen run",
+   "role": "partner",
+   "type": "tall_cabinet",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "scandinavian",
+   "count": 2,
+   "target": 3,
+   "gap": 1
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "modern minimal",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "minimal",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "modern",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "industrial",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "kitchen",
+   "group": "counter",
+   "role": "partner",
+   "type": "bar_stool",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "modern",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "kitchen",
+   "group": "decor",
+   "role": "partner",
+   "type": "bowl",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "modern minimal",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "minimal",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "modern",
+   "count": 6,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "toilet",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "modern minimal",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "minimal",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "modern",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "washbasin",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "modern",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "bathtub",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "japandi",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "minimal",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "modern",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "industrial",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "anchor",
+   "type": "shower",
+   "family": "rustic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "scandinavian",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "japandi",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "modern minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "minimal",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "modern",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "industrial",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "washing_machine",
+   "family": "rustic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "scandinavian",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "japandi",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "modern minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "minimal",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "modern",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "mediterranean",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "classic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "bathroom",
+   "group": "bathroom set",
+   "role": "partner",
+   "type": "mirror",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "scandinavian",
+   "count": 7,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "japandi",
+   "count": 7,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "modern minimal",
+   "count": 12,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "minimal",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "modern",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "industrial",
+   "count": 5,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "classic",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "anchor",
+   "type": "console_table",
+   "family": "rustic",
+   "count": 3,
+   "target": 5,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "scandinavian",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "japandi",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "modern minimal",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "minimal",
+   "count": 12,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "modern",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "industrial",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "classic",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "shoe_cabinet",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "scandinavian",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "japandi",
+   "count": 5,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "modern minimal",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "minimal",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "modern",
+   "count": 10,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "industrial",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 3,
+   "gap": 3
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "bench",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "scandinavian",
+   "count": 11,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "japandi",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "modern minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "minimal",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "modern",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "mediterranean",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "classic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "hall",
+   "group": "entry",
+   "role": "partner",
+   "type": "mirror",
+   "family": "rustic",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "scandinavian",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "japandi",
+   "count": 5,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "modern minimal",
+   "count": 17,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "minimal",
+   "count": 7,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "modern",
+   "count": 12,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "industrial",
+   "count": 10,
+   "target": 5,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "mediterranean",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "classic",
+   "count": 0,
+   "target": 5,
+   "gap": 5
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "anchor",
+   "type": "desk",
+   "family": "rustic",
+   "count": 1,
+   "target": 5,
+   "gap": 4
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "scandinavian",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "japandi",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "modern minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "minimal",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "modern",
+   "count": 20,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "industrial",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "office_chair",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "scandinavian",
+   "count": 8,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "japandi",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "minimal",
+   "count": 14,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "modern",
+   "count": 13,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "classic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "bookshelf",
+   "family": "rustic",
+   "count": 3,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "scandinavian",
+   "count": 9,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "japandi",
+   "count": 6,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "modern minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "minimal",
+   "count": 16,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "modern",
+   "count": 15,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "industrial",
+   "count": 4,
+   "target": 3,
+   "gap": 0
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "mediterranean",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "classic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  },
+  {
+   "room": "work",
+   "group": "work",
+   "role": "partner",
+   "type": "table_lamp",
+   "family": "rustic",
+   "count": 1,
+   "target": 3,
+   "gap": 2
+  }
+ ]
+}

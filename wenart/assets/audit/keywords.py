@@ -435,12 +435,17 @@ def title_check(title: Optional[str], ftype: str, source: str = "") -> dict:
 
 
 def suggested_type(check: dict, kind: str, known_types) -> Optional[str]:
-    """The one type a conflicting title names (of the same kind), or None when it names none or several."""
+    """The one type a conflicting title names (of the same kind: "Armoire ... avec miroir" names a wardrobe and a
+    mirror, a tall cabinet can only become the wardrobe), or None when it names none or several."""
     if check.get("verdict") not in ("conflict", "near"):
         return None
-    cands = [t for t in check.get("named_types") or [] if t in known_types]
+    from wenart.furniture.catalog import DECOR_TYPES
+
+    def same_kind(t: str) -> bool:
+        return t in known_types and (t in DECOR_TYPES) == (kind == "decor")
+    cands = [t for t in check.get("named_types") or [] if same_kind(t)]
     specific = [f for f in check.get("families") or [] if len(FAMILY_TYPES.get(f, ())) == 1]
-    one = {FAMILY_TYPES[f][0] for f in specific if FAMILY_TYPES[f][0] in known_types}
+    one = {FAMILY_TYPES[f][0] for f in specific if same_kind(FAMILY_TYPES[f][0])}
     if len(one) == 1:
         return next(iter(one))
     return cands[0] if len(cands) == 1 else None

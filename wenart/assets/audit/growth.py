@@ -458,14 +458,22 @@ def cmd_list(args) -> int:
         cat = I.read_json(I.LIBRARY_PATH) or {}
         used |= {str(e.get("abo_3dmodel_id")) for s in ("entries", "decor") for e in cat.get(s) or []
                  if e.get("abo_3dmodel_id")}
-        cands = abo_candidates(models, listings, sizes, used)
+        found = abo_candidates(models, listings, sizes, used)
+        cands = [c for c in found if c["pick"]]
+        skipped: dict = {}
+        for c in found:
+            if not c["pick"]:
+                key = f"{c['group']}: {c['type']}" + (f" ({c['family']})" if c["family"] else "")
+                skipped[key] = skipped.get(key, 0) + 1
         doc = list_doc("abo", cands, stamp, {"bucket": base, "metadata": sorted(names.values()),
                                              "sizes": "ListObjectsV2 3dmodels/original/"},
                        [f"{len(models)} models, {len(listings)} listings with a model; {len(used)} already used",
                         "style pass: furniture of our types whose English listing style says rustic / farmhouse, "
                         "industrial or classic / traditional (<= 8 per type and family); decor pass: pillows, rugs, "
                         "wall art (<= 40 per type); headboards (<= 30; no type of ours yet: bed frames)",
-                        "colour variants of one product are picked once"])
+                        "colour variants of one product are picked once",
+                        f"{len(found)} candidates found, {len(cands)} picked (listed below); not picked per group: "
+                        + json.dumps(dict(sorted(skipped.items())))])
         path = out / "candidates_abo.json"
     else:
         meta = json.loads(fetch(f"{HF_API}{GSO_REPO}?blobs=true", cache, "gso_raw.json"))

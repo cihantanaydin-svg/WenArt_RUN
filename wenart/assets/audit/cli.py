@@ -147,8 +147,11 @@ def cmd_code(args) -> int:
     items = _items(args)
     measures = _measures(args)
     checks = C.run_checks(items, cfg, measures)
+    # the passed checks are not kept (they say "ok"), except the title's verdict that decide reads
+    kept = {iid: [c for c in recs if c["status"] not in ("ok", "skip") or c["check"] == "title"]
+            for iid, recs in checks.items()}
     _json(_folder(args) / "code.json", {"kind": "library_audit_code", "mode": "dry" if args.dry else "full",
-                                        "measured": len(measures), "checks": checks})
+                                        "measured": len(measures), "checks": kept})
     print(f"audit code: {len(items)} model(s), {len(measures)} measured -> {_folder(args) / 'code.json'}")
     return EXIT_OK
 
@@ -254,7 +257,7 @@ def cmd_sheets(args) -> int:
     by_type: dict = {}
     for r in doc["items"]:
         by_type.setdefault((r["kind"], r["type"]), []).append(r)
-    px = int((load_config().get("render") or {}).get("tile_px", 256))
+    px = int(getattr(args, "tile_px", None) or (load_config().get("render") or {}).get("tile_px", 256))
     n = 0
     for (kind, t), rows in by_type.items():
         tiles = []
@@ -266,7 +269,8 @@ def cmd_sheets(args) -> int:
                 src = Path(args.out) / items[r["id"]]["thumbnail"]
             tiles.append({"id": r["id"], "status": r["expected"], "reasons": r["reasons"]
                           or [p["why"] for p in r["pending"]], "source": src, "crop": crop})
-        SH.contact_sheet(t, tiles, folder / "contact" / f"{'decor_' if kind == 'decor' else ''}{t}.jpg", px)
+        SH.contact_sheet(t, tiles, folder / "contact" / f"{'decor_' if kind == 'decor' else ''}{t}.jpg", px,
+                         quality=70 if args.dry else 85)
         n += 1
     print(f"audit sheets: {n} contact sheet(s) -> {folder / 'contact'}")
     return EXIT_OK
@@ -396,6 +400,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--generated-utc", default=None)
     s = common(sub.add_parser("sheets", help="contact sheets per type"))
     s.add_argument("--dry", action="store_true")
+    s.add_argument("--tile-px", type=int, default=None, help="tile size (default audit.yaml render.tile_px)")
     s = common(sub.add_parser("gaps", help="gap report"))
     s.add_argument("--dry", action="store_true")
     s = common(sub.add_parser("write", help="audit fields and flags into the catalogues"))
@@ -403,6 +408,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--dry-run", action="store_true")
     s = common(sub.add_parser("dry", help="the CPU dry audit: code + decide + sheets + gaps"))
     s.add_argument("--generated-utc", default=None)
+    s.add_argument("--tile-px", type=int, default=128, help="contact sheet tiles (default 128: small files in git)")
     s.add_argument("--model-key", default=None)
     s.add_argument("--work", default=None)
     s = common(sub.add_parser("status", help="what each step has done"))

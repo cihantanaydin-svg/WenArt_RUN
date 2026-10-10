@@ -72,8 +72,11 @@ def contact_sheet(ftype: str, tiles: list[dict], out: Path, px: int = 256, cols:
         sheet[y0:y0 + px + 2 * border, x0:x0 + cell_w] = rgb
         img = tile_image(t.get("source"), px, bool(t.get("crop")))
         sheet[y0 + border:y0 + border + px, x0 + border:x0 + border + px] = np.asarray(img, dtype=np.uint8)
-        for n, line in enumerate(label_lines(t["id"], t["status"], t.get("reasons") or [])):
-            cv2.putText(sheet, line, (x0 + 4, y0 + px + 2 * border + 15 + 17 * n), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
+        # the label fits its cell: Hershey simplex is about 17 px per char at scale 1
+        scale = 0.42 if px >= 200 else 0.33
+        chars = max(10, int((cell_w - 6) / (17.0 * scale)))
+        for n, line in enumerate(label_lines(t["id"], t["status"], t.get("reasons") or [], chars)):
+            cv2.putText(sheet, line, (x0 + 4, y0 + px + 2 * border + 15 + 17 * n), cv2.FONT_HERSHEY_SIMPLEX, scale,
                         (0, 0, 0), 1, cv2.LINE_8)
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)

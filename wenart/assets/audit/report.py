@@ -69,7 +69,12 @@ def _table(header: list[str], body: list[list]) -> list[str]:
 def reason_group(reason: str) -> str:
     """A short class of a reason for the summary (the reason text names the item's numbers)."""
     r = reason.lower()
-    for key, label in (("licence", "licence not allowed"), ("lies on its side", "lies on its side"),
+    for key, label in (("names no type", "no title evidence (two vision passes)"),
+                       ("generated: our own title", "generated (two vision passes)"),
+                       ("every model needs", "the vision check of every model"),
+                       ("triangles", "few faces (crude unless the vision quality is high)"),
+                       ("retype if", "retype (title and vision)"), ("licence", "licence not allowed"),
+                       ("lies on its side", "lies on its side"),
                        ("proportions", "proportions fit no real piece"), ("known units", "real product off size"),
                        ("title says", "title flag"), ("the title names", "title names another type"),
                        ("duplicate", "duplicate"), ("copy of", "duplicate"), ("same glb", "duplicate"),
