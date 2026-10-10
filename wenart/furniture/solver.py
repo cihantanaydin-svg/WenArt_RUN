@@ -1803,10 +1803,15 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
         raise KeyError(f"no room {room_id!r}")
     if len(room.get("polygon") or []) < 3:
         return []
+    fixed = set(fixed_ids or ())
     prog = program if program is not None else PR.room_program(building, room_id)
+    if program is None and fixed:
+        # Groups whose added pieces are kept (``fixed_ids``, tagged with their group) are present: not placed again.
+        kept_groups = {(f.get("group") or {}).get("group") for f in building.get("furniture") or []
+                       if f.get("id") in fixed and f.get("room_id") == room_id}
+        prog = dict(prog, groups=[g for g in prog["groups"] if g.get("drawn") or g["group"] not in kept_groups])
     if not prog.get("groups"):
         return []
-    fixed = set(fixed_ids or ())
     space = Space(building, room, _fixed_items(building, room_id, fixed))
     budget = {"used": 0, "generate": NODE_BUDGET, "nodes": 0, "expand": NODE_BUDGET, "walks": 0}
     info = _info(space, building, room_id, prog, budget)
