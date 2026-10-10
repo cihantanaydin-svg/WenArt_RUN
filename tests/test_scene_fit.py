@@ -43,11 +43,56 @@ def test_only_usable_models_are_fitted(extra, why):
     assert gap["method"] == "none" and "no usable sofa model" in gap["fallback_reason"]
 
 
-def test_an_audit_fix_applies_its_catalogue_fixes():
-    turned = model("turned", "sofa", 0.9, 2.0, 0.8, audit={"status": "fix", "fixes": {"bbox_m": [2.0, 0.9, 0.8]}})
-    fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([turned]))
+def test_an_audit_fix_is_used_as_the_writer_left_it():
+    """Track B's writer applies a fix to the catalogue fields (``fixes`` = the new values, ``before`` the old): the fit
+    reads the fields and carries the audit record and flags."""
+    fixed = model("fixed", "sofa", 2.0, 0.9, 0.8, real_product=True, has_cushions=True,
+                  audit={"status": "fix", "reasons": ["front turned"], "fixes": {"front_quarter_turns": 1},
+                         "before": {"bbox_m": [0.9, 2.0, 0.8]}, "version": "m12"})
+    fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([fixed]))
     assert fit["method"] == "library" and fit["fit_scale"] == [1.0, 1.0, 1.0] and fit["audit"]["status"] == "fix"
-    assert C.usable({"licence": "CC0", "audit": {"status": "keep"}}) and C.effective({"id": "x"}) == {"id": "x"}
+    assert fit["real_product"] is True and fit["has_cushions"] is True and "front_quarter_turns" not in fit
+    assert C.usable({"licence": "CC0", "audit": {"status": "keep"}}) and C.audit_status(fixed) == "fix"
+    assert C.audit_status({"id": "x"}) is None
+
+
+def test_real_products_first_within_their_size_step():
+    other = model("other", "sofa", 2.0, 0.9, 0.8, quality=[5, 5])
+    real = model("real", "sofa", 2.0 / 1.02, 0.9 / 1.02, 0.8, quality=[3, 3], real_product=True)
+    assert F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([other, real]))["asset_id"] == "abo_real"
+    assert F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([other, dict(real, real_product=False)]))[
+        "asset_id"] == "abo_other"                                                  # without the flag: quality
+
+
+def test_fitted_height_inside_the_real_size_table(monkeypatch):
+    """D23 (one size table, ``wenart.furniture.sizes``): a model whose fitted height is outside the type's real
+    height range (+-15 %) is refused (the diagnosis: bathtubs built 0.89 m high, stoves 0.54 m)."""
+    from wenart.furniture import sizes
+
+    real = sizes.real_range
+
+    def with_heights(ftype):
+        r = real(ftype)
+        return dict(r, height=(0.40, 0.72)) if ftype == "bathtub" and r else r
+
+    monkeypatch.setattr(sizes, "real_range", with_heights)
+    tall = model("tall", "bathtub", 1.7, 0.75, 0.89)
+    ok = model("ok", "bathtub", 1.7, 0.75, 0.58, quality=[2, 2])
+    fit = F.fit_piece(piece("bathtub", 1.7, 0.75), FakeCatalog([tall, ok]))
+    assert fit["asset_id"] == "abo_ok" and [t["height_ok"] for t in fit["candidates"]] == [False, True]
+    alone = F.fit_piece(piece("bathtub", 1.7, 0.75), FakeCatalog([tall]))
+    assert alone["method"] == "parametric" and "outside the real height 0.4-0.72 m" in alone["fallback_reason"]
+    assert F.height_fits(0.82, (0.40, 0.72)) and not F.height_fits(0.84, (0.40, 0.72))
+    assert F.height_fits(9.0, None)
+
+
+def test_decor_models_rest_as_their_type_needs():
+    hanging = decor_model("hanging", "table_lamp", 0.3, 0.3, 0.5, contact="hangs")
+    standing = decor_model("standing", "table_lamp", 0.3, 0.3, 0.5, contact="flat_bottom")
+    it = {"id": "d", "type": "table_lamp", "size": [0.35, 0.35, 0.6], "host_id": "f"}
+    assert F.fit_decor_item(it, FakeCatalog(decor=[hanging])) is None
+    assert F.fit_decor_item(it, FakeCatalog(decor=[hanging, standing]))["asset_id"] == "abo_standing"
+    assert C.contact_fits({"contact": None}, "vase") and C.contact_fits({"contact": "hangs"}, "mirror")
 
 
 def test_style_family_falls_back_along_its_chain():

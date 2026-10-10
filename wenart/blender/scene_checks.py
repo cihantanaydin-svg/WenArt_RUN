@@ -41,10 +41,11 @@ import math
 from pathlib import Path
 from typing import Callable, Optional
 
+from wenart.blender.rest import REST_TOLERANCES
+
 CHECKS: tuple[str, ...] = ("S1", "S2", "S3", "S4", "S5", "S6")
 TOLERANCES: dict[str, float] = {"floor_gap_m": 0.010, "floor_sink_m": 0.005, "overlap_m": 0.010, "front_deg": 10.0,
-                                "size_rel": 0.15, "decor_gap_m": 0.010, "decor_pen_hard_m": 0.010,
-                                "decor_pen_soft_m": 0.030, "decor_support_share": 0.80}
+                                "size_rel": 0.15, **REST_TOLERANCES}
 SEVERITY: dict[str, str] = {"S1": "major", "S2": "major", "S3": "major", "S4": "minor", "S5": "critical",
                             "S6": "major"}
 WALL_HUNG_TYPES: tuple[str, ...] = ("wall_cabinet",)
@@ -164,12 +165,9 @@ def usable_asset(asset: Optional[dict]) -> bool:
 
 
 def _decor_support(item: dict, host: Optional[dict]) -> str:
-    frame = item.get("host_frame") if isinstance(item.get("host_frame"), dict) else {}
-    if frame.get("support"):
-        return str(frame["support"])
-    from wenart.furniture import decor as D
+    from wenart.blender import rest as R             # not wenart.furniture.decor: Blender's Python has no shapely
 
-    return D.support_of(item.get("type"), host.get("type") if host else None)
+    return R.item_support(item, host)
 
 
 def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:

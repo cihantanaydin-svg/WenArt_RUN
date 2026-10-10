@@ -123,8 +123,8 @@ Milestone 12 (docs/milestone12.md §4.1, §4.6-§4.8, §6.4; track S):
   (``decor_rest_height`` is gone).
 - A library bed without bedding (a mattress model) gets the procedural duvet and pillows (``_dress_bed``: object
   ``dress_<id>``, the bed's ``wenart_id`` and pass index; decor on the bed rests on it too).
-- ``summary["objects"]`` = ``{piece or decor id: object or [object, dressing]}``: the scene checks S1-S6 of
-  ``build.py`` (``scene_checks.run_scene_checks``) read them.
+- ``summary["objects"]`` = ``{piece or decor id: object}`` (a dressed bed's bedding as ``<id>#dressing``): the
+  scene checks S1-S6 of ``build.py`` (``scene_checks.run_scene_checks``) read them.
 """
 from __future__ import annotations
 
@@ -808,8 +808,8 @@ def refused_piece(piece: dict) -> str | None:
     asset = piece.get("asset") or {}
     if asset.get("method") == "none":
         gap = piece.get("library_gap") or asset.get("library_gap") or {}
-        return (f"library gap: no audited {piece.get('type')} model ({gap.get('reason') or asset.get('fallback_reason')}); "
-                "not built (docs/milestone12.md §4.8)")
+        why = gap.get("reason") or asset.get("fallback_reason")
+        return f"library gap: no audited {piece.get('type')} model ({why}); not built (docs/milestone12.md §4.8)"
     return None
 
 
@@ -827,13 +827,12 @@ def needs_dressing(piece: dict, entry: dict) -> bool:
 def hosted_support(item: dict, host: dict | None) -> str | None:
     """The support a hosted decor item rests on (its ``host_frame``, else the type rule), or None for an item the
     builder places without rays (no host, or a support of the floor, a wall or the ceiling)."""
-    from wenart.furniture import decor as D
+    from wenart.blender import rest as R             # not wenart.furniture.decor: Blender's Python has no shapely
 
     if host is None:
         return None
-    frame = item.get("host_frame") if isinstance(item.get("host_frame"), dict) else {}
-    support = frame.get("support") or D.support_of(item.get("type"), host.get("type"))
-    return support if support in ("seat", "mattress", "back", "headboard", "top", "shelf") else None
+    support = R.item_support(item, host)
+    return support if support in R.RAY_SUPPORTS else None
 
 
 def create_furniture(building: dict, level: dict, collection, library, style: dict, assets_dir: str | None,
@@ -847,8 +846,8 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     ``not_built``, no grey box; ``--proxies`` still builds the Milestone 3 boxes for debugging); a piece stands on its
     room's floor (``piece_floor_z``); a bed model without bedding is dressed (``needs_dressing``); hosted decor rests
     on the built host mesh (``rest.plan_decor`` / ``plan_throw``: placed, checked S5, placed once more, else not
-    built: ``decor_not_rested``); ``summary["objects"]`` = ``{piece or decor id: object, or [object, dressing]}`` for
-    the scene checks (``build.py``)."""
+    built: ``decor_not_rested``); ``summary["objects"]`` = ``{piece or decor id: object}`` (bedding:
+    ``<id>#dressing``) for the scene checks (``build.py``)."""
     floor_z = float(level["elevation"])
     mats = _Materials(library, style, assumed)
     mats.lamps_on = lamps_on(style)                   # Milestone 10: the interior evening mood lights the lamps
@@ -911,7 +910,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             dress = _dress_bed(piece, entry, ob, piece_floor_z(building, level, piece), collection, mats, assumed,
                                warnings)
             if dress is not None:
-                summary["objects"][piece["id"]] = [ob, dress]
+                summary["objects"][f"{piece['id']}#dressing"] = dress     # S5 rests on it; S2 skips it
                 summary["dressed_beds"].append(piece["id"])
 
     for host_id in unknown_decor_hosts(building):

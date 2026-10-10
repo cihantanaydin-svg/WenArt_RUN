@@ -126,7 +126,9 @@ Milestone 12 (docs/milestone12.md §4.7, §6.4; track S):
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from typing import Optional, Sequence
+
+import numpy as np
 
 from wenart import geometry as G
 from wenart.blender import geom2d
@@ -2080,14 +2082,13 @@ def _plant_large(w: float, d: float, h: float, species: str | None = None) -> li
 def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
     """The parametric fallback of a Milestone 10 decor type (``decor_parts``)."""
     r = min(w, d) / 2.0
-    from wenart.blender import textiles as T     # Milestone 12 (§6.4): our procedural textiles
-
+    # Milestone 12 (§6.4): our procedural textiles (the mesh makers at the end of this module)
     if dtype == "curtain":                    # an open pair of pleated panels under a rod (one per window)
-        return T.curtain_parts(w, d, h)
+        return curtain_parts(w, d, h)
     if dtype == "blind":                      # a roller blind (default) or a slatted blind (item ``blind_kind``)
-        return T.blind_parts(w, d, h, kind=str((item or {}).get("blind_kind") or "roller"))
+        return blind_parts(w, d, h, kind=str((item or {}).get("blind_kind") or "roller"))
     if dtype == "throw":                      # without a host: a flat cloth with its folds (on a host: textiles.drape)
-        return [T.flat_cloth(w, d, min(h, T.CLOTH_THICKNESS_M * 2.0))]
+        return [flat_cloth(w, d, min(h, CLOTH_THICKNESS_M * 2.0))]
     if dtype == "books":                      # a stack of three books lying flat
         keys = ("dark", "painted", "terracotta")
         parts, z = [], 0.0
@@ -2215,12 +2216,10 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = No
     plant's species)."""
     if dtype in _NEW_DECOR:
         return _new_decor_parts(dtype, w, d, h, item)
-    if dtype == "cushion":                         # Milestone 12: a filled cushion (textiles), not a box
-        from wenart.blender import textiles as T
-
+    if dtype == "cushion":                         # Milestone 12: a filled cushion, not a box
         if d > h:                                  # lying (an ottoman's, a bench's): thickness = the height
-            return [T.lying_cushion_mesh(w, d, h, key="fabric", role="body")]
-        return [T.cushion_mesh(w, d, h, key="fabric", role="body")]
+            return [lying_cushion_mesh(w, d, h, key="fabric", role="body")]
+        return [cushion_mesh(w, d, h, key="fabric", role="body")]
     if dtype == "book_set":
         parts = []
         n = max(2, min(6, int(w / 0.04)))
@@ -2360,3 +2359,203 @@ def local_bbox_of_world_points(points: Sequence[Sequence[float]], center: Sequen
     local = [(*G.rotate_point((p[0], p[1]), -rotation_deg, (center[0], center[1])), p[2]) for p in points]
     xs, ys, zs = [p[0] for p in local], [p[1] for p in local], [p[2] for p in local]
     return min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)
+
+
+# --------------------------------------------------------------------------
+# Milestone 12 (docs/milestone12.md §4.7, §6.4; track S): textile meshes (cushions, cloth, curtains, blinds);
+# ``wenart.blender.textiles`` drapes the cloth on a built host with them
+# --------------------------------------------------------------------------
+
+CUSHION_GRID = (10, 10)
+SEAM_M = 0.006                    # the half thickness left at a cushion's seam
+EDGE_DRAW = 0.035                 # a cushion's edges are drawn in by this share of the side between the corners
+CLOTH_OFFSET_M = 0.005            # the shrinkwrap offset (§4.7: 5 mm)
+CLOTH_THICKNESS_M = 0.008
+FOLD_AMPLITUDE_M = 0.006          # modelled wrinkles (never into the host: added above the offset)
+CLOTH_STEP_M = 0.05               # cloth grid pitch
+PLEAT_PITCH_M = 0.12
+PLEAT_DEPTH_M = 0.035
+CURTAIN_LAYER_M = 0.003
+SLAT_M = 0.025
+SLAT_GAP_M = 0.022
+SLAT_TILT_DEG = 20.0
+BLIND_KINDS = ("roller", "slats")
+
+
+def _cloth_part(verts, faces, key: str, role: str, smooth: bool = True) -> Part:
+    return {"verts": [tuple(float(c) for c in v) for v in verts], "faces": [list(f) for f in faces], "key": key,
+            "role": role, "smooth": smooth}
+
+
+def cushion_mesh(w: float, t: float, h: float, grid: tuple[int, int] = CUSHION_GRID, key: str = "colour_fabric",
+                 role: str = "cushion") -> Part:
+    """A filled cushion in the box ``w x t x h`` (item frame: width X, thickness Y, height Z from 0): two faces
+    bulging to ``t / 2`` in the middle (``(1 - u^4)(1 - v^4)`` profile), meeting at a ``SEAM_M`` seam; the seam
+    ring is shared, so the mesh is closed; the edges are drawn in by ``EDGE_DRAW`` between the corners."""
+    nu, nv = grid
+    w, t, h = float(w), float(t), float(h)
+    verts: list[tuple[float, float, float]] = []
+    index: dict[tuple[int, int, int], int] = {}
+
+    def vid(i: int, j: int, side: int) -> int:
+        boundary = i in (0, nu) or j in (0, nv)
+        key_ = (i, j, 0 if boundary else side)
+        if key_ in index:
+            return index[key_]
+        u = -1.0 + 2.0 * i / nu
+        v = -1.0 + 2.0 * j / nv
+        draw_x = 1.0 - EDGE_DRAW * math.sin(math.pi * (v + 1.0) / 2.0)   # sides drawn in between the corners
+        draw_z = 1.0 - EDGE_DRAW * math.sin(math.pi * (u + 1.0) / 2.0)
+        x = u * w / 2.0 * draw_x
+        z = h / 2.0 + v * h / 2.0 * draw_z
+        half = max(SEAM_M, t / 2.0 * (1.0 - u ** 4) * (1.0 - v ** 4)) if not boundary else min(SEAM_M, t / 2.0)
+        y = 0.0 if boundary else side * half
+        index[key_] = len(verts)
+        verts.append((x, y, z))
+        return index[key_]
+
+    faces = []
+    for i in range(nu):
+        for j in range(nv):
+            # back face (+Y) outward = +Y; front face (-Y) outward = -Y
+            faces.append([vid(i, j, 1), vid(i, j + 1, 1), vid(i + 1, j + 1, 1), vid(i + 1, j, 1)])
+            faces.append([vid(i, j, -1), vid(i + 1, j, -1), vid(i + 1, j + 1, -1), vid(i, j + 1, -1)])
+    zmin = min(v[2] for v in verts)
+    verts = [(x, y, z - zmin) for x, y, z in verts]
+    return _cloth_part(verts, faces, key, role)
+
+
+def lying_cushion_mesh(w: float, d: float, t: float, key: str = "colour_fabric", role: str = "cushion") -> Part:
+    """A cushion lying flat in the box ``w x d x t`` (thickness along Z from 0): ``cushion_mesh`` turned so its
+    faces look up and down."""
+    part = cushion_mesh(w, t, d, key=key, role=role)
+    part["verts"] = [(x, z - d / 2.0, y + t / 2.0) for x, y, z in part["verts"]]
+    # (x, y, z) -> (x, z, y) mirrors the winding: reverse the faces to keep them outward
+    part["faces"] = [list(reversed(f)) for f in part["faces"]]
+    zmin = min(v[2] for v in part["verts"])
+    part["verts"] = [(x, y, z - zmin) for x, y, z in part["verts"]]
+    return part
+
+
+def flat_cloth(w: float, d: float, t: float, key: str = "colour_fabric", role: str = "throw") -> Part:
+    """A cloth lying on a flat top (no host to drape over): its modelled folds on a plane, ``t`` at most high."""
+    nu = max(2, int(round(w / CLOTH_STEP_M)))
+    nv = max(2, int(round(d / CLOTH_STEP_M)))
+    grid = np.zeros((nu + 1, nv + 1, 3))
+    for i in range(nu + 1):
+        for j in range(nv + 1):
+            x, y = -w / 2.0 + w * i / nu, -d / 2.0 + d * j / nv
+            grid[i, j] = (x, y, min(t, CLOTH_THICKNESS_M + fold(x + w / 2.0, y + d / 2.0, w, d) * 0.5))
+    part = cloth_solid(grid, CLOTH_THICKNESS_M, key=key, role=role, along=(0.0, 0.0, 1.0))
+    zmin = min(v[2] for v in part["verts"])
+    part["verts"] = [(x, y, z - zmin) for x, y, z in part["verts"]]
+    return part
+
+
+def fold(x: float, y: float, w: float, d: float) -> float:
+    """Modelled wrinkles (>= 0, at most ``FOLD_AMPLITUDE_M``): smooth fixed sines over the cloth's own frame."""
+    a = math.sin(7.3 * x / max(w, 1e-6) + 0.7) * math.sin(5.1 * y / max(d, 1e-6) + 1.9)
+    b = math.sin(13.0 * (x + 0.6 * y) / max(w + d, 1e-6) + 2.3)
+    return FOLD_AMPLITUDE_M * (0.5 + 0.3 * a + 0.2 * b)
+
+
+def _vertex_normals(grid: np.ndarray) -> np.ndarray:
+    """Unit vertex normals of a grid surface, turned so that they point up on average (the cloth's outside)."""
+    gu = np.gradient(grid, axis=0)
+    gv = np.gradient(grid, axis=1)
+    n = np.cross(gu, gv)
+    ln = np.linalg.norm(n, axis=2, keepdims=True)
+    n = n / np.where(ln < 1e-12, 1.0, ln)
+    return -n if n.reshape(-1, 3).mean(axis=0)[2] < 0 else n
+
+
+def cloth_solid(grid: np.ndarray, thickness: float = CLOTH_THICKNESS_M, key: str = "colour_fabric",
+                role: str = "throw", along: Optional[Sequence[float]] = None) -> Part:
+    """The draped sheet as a thin closed solid: the top layer = the grid, the bottom layer ``thickness`` below it
+    along the vertex normals (or along the fixed direction ``along``: a flat cloth, a curtain panel, so the solid
+    stays inside its box), joined at the rim; outward normals."""
+    nu, nv = grid.shape[0] - 1, grid.shape[1] - 1
+    normals = _vertex_normals(grid) if along is None else np.broadcast_to(np.asarray(along, dtype=np.float64),
+                                                                           grid.shape)
+    top = grid
+    bottom = grid - normals * thickness
+    verts = [tuple(p) for p in top.reshape(-1, 3)] + [tuple(p) for p in bottom.reshape(-1, 3)]
+    n = (nu + 1) * (nv + 1)
+
+    def t(i, j):
+        return i * (nv + 1) + j
+
+    faces = []
+    for i in range(nu):
+        for j in range(nv):
+            faces.append([t(i, j), t(i + 1, j), t(i + 1, j + 1), t(i, j + 1)])
+            faces.append([n + t(i, j), n + t(i, j + 1), n + t(i + 1, j + 1), n + t(i + 1, j)])
+    rim = [(i, 0) for i in range(nu)] + [(nu, j) for j in range(nv)] + [(i, nv) for i in range(nu, 0, -1)] + \
+          [(0, j) for j in range(nv, 0, -1)]
+    for k in range(len(rim)):
+        a, b = rim[k], rim[(k + 1) % len(rim)]
+        faces.append([t(*a), n + t(*a), n + t(*b), t(*b)])
+    return _cloth_part(verts, faces, key, role)
+
+
+def _pleated_panel(x0: float, x1: float, h: float, depth: float, key: str) -> Part:
+    """A pleated curtain panel from x0 to x1 (item frame), hanging from h down to 0: a sine of ``PLEAT_PITCH_M`` in
+    Y (depth ``PLEAT_DEPTH_M``, a little deeper at the hem), two layers ``CURTAIN_LAYER_M`` apart, closed."""
+    width = x1 - x0
+    nu = max(4, int(round(width / (PLEAT_PITCH_M / 4.0))))
+    nv = 6
+    grid = np.zeros((nu + 1, nv + 1, 3))
+    amp = min(PLEAT_DEPTH_M, depth / 2.0 - CURTAIN_LAYER_M)
+    for i in range(nu + 1):
+        x = x0 + width * i / nu
+        for j in range(nv + 1):
+            z = h * j / nv
+            flare = 1.0 + 0.25 * (1.0 - j / nv)
+            grid[i, j] = (x, amp * flare * math.sin(2.0 * math.pi * (x - x0) / PLEAT_PITCH_M) * 0.5, z)
+    part = cloth_solid(grid, CURTAIN_LAYER_M, key=key, role="panel", along=(0.0, 1.0, 0.0))
+    part["smooth"] = True
+    return part
+
+
+def curtain_parts(w: float, d: float, h: float, key: str = "colour_fabric") -> list[Part]:
+    """An open pair of pleated panels under a rod (item frame: width X along the wall, the curtain's front -Y, from
+    the floor gap up to the rod at ``h``): each panel covers ``CURTAIN_PANEL_SHARE`` of the rod."""
+    parts = [_cylinder_x(-w / 2.0, 0.0, h - 0.02, 0.012, 0.012, w, "steel", "rod", n=12)]
+    pw = w * CURTAIN_PANEL_SHARE
+    parts.append(_pleated_panel(-w / 2.0, -w / 2.0 + pw, h - 0.05, d, key))
+    parts.append(_pleated_panel(w / 2.0 - pw, w / 2.0, h - 0.05, d, key))
+    return parts
+
+
+def blind_parts(w: float, d: float, h: float, kind: str = "roller", key: str = "colour_fabric") -> list[Part]:
+    """A roller blind (a tube at the top, the fabric panel down to a bottom bar) or a slatted blind (``SLAT_M``
+    slats every ``SLAT_M + SLAT_GAP_M`` tilted ``SLAT_TILT_DEG``, a head rail, two ladder tapes) in the box
+    ``w x d x h`` (bottom at 0)."""
+    if kind not in BLIND_KINDS:
+        kind = "roller"
+    if kind == "roller":
+        tube = min(0.03, d / 2.0, h / 4.0)
+        bar = min(0.02, h / 8.0)
+        return [_cylinder_x(-w / 2.0, 0.0, h - tube, tube, tube, w, key, "roller", n=16),
+                _box(0.0, -tube * 0.4, bar, w - 0.02, 0.004, h - tube - bar, key, "panel"),
+                _box(0.0, -tube * 0.4, 0.0, w - 0.02, min(0.012, d), bar, "dark", "bar")]
+    head = min(0.04, h / 6.0)
+    parts = [_box(0.0, 0.0, h - head, w, min(d, 0.04), head, "painted", "rail")]
+    pitch = SLAT_M + SLAT_GAP_M
+    n = max(1, int((h - head) / pitch))
+    a = math.radians(SLAT_TILT_DEG)
+    sw = min(d * 0.9, SLAT_M * 1.6)
+    for k in range(n):
+        zc = h - head - (k + 0.5) * pitch
+        if zc - SLAT_M < 0:
+            break
+        verts = []
+        for dy, dz in ((-sw / 2.0, 0.0), (sw / 2.0, 0.0)):
+            y, z = dy * math.cos(a), zc + dy * math.sin(a)
+            verts += [(-w / 2.0 + 0.01, y, z - 0.0007), (w / 2.0 - 0.01, y, z - 0.0007),
+                      (w / 2.0 - 0.01, y, z + 0.0007), (-w / 2.0 + 0.01, y, z + 0.0007)]
+        faces = [[0, 1, 2, 3], [4, 7, 6, 5], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0]]
+        parts.append(_cloth_part(verts, faces, key, "slat", smooth=False))
+    for sx in (-w / 3.0, w / 3.0):
+        parts.append(_box(sx, 0.0, 0.0, 0.012, 0.002, h - head, "dark", "tape"))
+    return parts

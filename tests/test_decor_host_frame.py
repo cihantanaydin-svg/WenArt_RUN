@@ -152,9 +152,12 @@ def test_throw_takes_the_resized_bed_width_and_tops_never_overhang():
 
 def test_no_decor_cushions_on_models_with_their_own():
     sofa = piece("s", "sofa", (0, 0), (2.0, 0.9), asset={"method": "library", "has_cushions": True})
-    bed = piece("b", "bed_double", (5, 0), (1.6, 2.0), asset={"method": "library", "has_bedding": True})
+    bed = piece("b", "bed_double", (5, 0), (1.6, 2.0), asset={"method": "library", "has_bedding": True,
+                                                                    "has_pillows": True})
     bare = piece("c", "bed_double", (9, 0), (1.6, 2.0), asset={"method": "library", "has_mattress": True})
     assert not D.takes_cushions(sofa) and not D.takes_cushions(bed) and D.takes_cushions(bare)
+    duvet_only = dict(bed, asset={"method": "library", "has_bedding": True, "has_pillows": False})
+    assert D.takes_cushions(duvet_only)                     # a duvet but no pillows: decor cushions are no duplicate
     assert DA._cushions(sofa) == [] and DA._cushions(bed) == [] and len(DA._cushions(bare)) == 2
     building = {"rooms": [], "furniture": [sofa, bed, bare]}
     items, row = D.rule_decor_room(building, {"id": "r1", "label": "x", "level_id": "L0", "room_type": "other",

@@ -245,12 +245,14 @@ def size_error(scales) -> float:
 
 def rank_key(entry: dict, width: float, depth: float) -> tuple:
     """The fit v2 order of a candidate on a ``width x depth`` footprint (lower first, docs/milestone8.md §1):
-    generated last, then known units before normalised ones, the real-size step, quality (higher first),
-    aspect error, source order and the id."""
+    generated last, then known units before normalised ones, the real-size step, Milestone 12: an audited real
+    product (``real_product: true``, track B) before the others of its step, quality (higher first), aspect error,
+    source order and the id."""
     scales, _ = scale_for(entry, width, depth)
     known = units_known(entry)
     bucket = int(size_error(scales) / SIZE_BUCKET + 1e-9) if known else 0
-    return (1 if entry.get("source") == GENERATED else 0, 0 if known else 1, bucket, -quality_of(entry),
+    real = 0 if entry.get("real_product") is True else 1
+    return (1 if entry.get("source") == GENERATED else 0, 0 if known else 1, bucket, real, -quality_of(entry),
             round(C.aspect_error(entry, width, depth), 6), source_rank(entry), entry["id"])
 
 
@@ -539,18 +541,22 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     if design and design.get("wood"):
         ordered = sorted(ordered, key=lambda e: 0 if "wood" in (looks.get(e["id"], {}).get("recolour") or {}) else 1)
     tried = []
+    heights = real_height_range(ftype)
     for rank, entry in enumerate(ordered, start=1):
         scales, non_uniform = scale_for(entry, width, depth)
         err = round(C.aspect_error(entry, width, depth), 4)
         mean_scale = round(sum(scales) / 3.0, 4)
-        accepted = non_uniform <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1]
+        height = round(float(entry["bbox_m"][2]) * scales[2], 4)
+        height_ok = height_fits(height, heights)
+        accepted = (non_uniform <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1]
+                    and height_ok)
         known = units_known(entry)
         size_err = round(size_error(scales), 4)
         tried.append({"id": entry["id"], "aspect_error": err, "scale": scales, "non_uniform": non_uniform,
                       "mean_scale": mean_scale, "accepted": accepted, "rank": rank, "source": entry.get("source"),
                       "units_known": known, "size_error": size_err,
                       "size_bucket": rank_key(entry, width, depth)[2] if known else None,
-                      "quality": quality_of(entry)})
+                      "quality": quality_of(entry), "height_m": height, "height_ok": height_ok})
         if accepted:
             asset = {
                 "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"],
@@ -590,7 +596,32 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     reason = (f"no {ftype} candidate within {round((cap - 1) * 100)} % non-uniform scale and "
               f"{uniform_range[0]}..{uniform_range[1]} mean scale (closest: {best['id']} at "
               f"{round((best['non_uniform'] - 1) * 100, 1)} % non-uniform, mean scale {best['mean_scale']})")
+    too_tall = [t["id"] for t in tried if not t["height_ok"]]
+    if too_tall and heights:
+        reason += (f"; {len(too_tall)} fitted outside the real height {heights[0]:g}-{heights[1]:g} m "
+                   f"(+-{round(HEIGHT_TOLERANCE * 100)} %, wenart.furniture.sizes)")
     return parametric_fit(piece, reason, tried, excluded=excluded, style_family=style_family)
+
+
+HEIGHT_TOLERANCE = 0.15          # = sizes.fits' tolerance: a fitted height this far outside the real range refuses
+
+
+def real_height_range(ftype: str) -> Optional[tuple[float, float]]:
+    """The type's real height range of the one size table (``wenart.furniture.sizes.real_range``, D23); None when the
+    table has no height for it."""
+    from wenart.furniture import sizes as SZ
+
+    rng = SZ.real_range(ftype)
+    h = (rng or {}).get("height")
+    return (float(h[0]), float(h[1])) if h else None
+
+
+def height_fits(height: float, heights: Optional[tuple[float, float]], tol: float = HEIGHT_TOLERANCE) -> bool:
+    """Milestone 12 (§4.8, §6.3): the fitted model's height inside the type's real range (+- ``tol``); always true
+    without a range (a bathtub fitted 0.89 m high, a stove 0.54 m: refused, the next model is tried)."""
+    if not heights:
+        return True
+    return heights[0] / (1.0 + tol) - 1e-9 <= float(height) <= heights[1] * (1.0 + tol) + 1e-9
 
 
 # Milestone 12 (docs/milestone12.md §4.8 D14): the style family fallback chain (each step also takes ``neutral``
@@ -631,7 +662,7 @@ def split_usable(candidates: list[dict]) -> tuple[list[dict], list[dict]]:
     usable, refused = [], []
     for e in candidates:
         if C.usable(e):
-            usable.append(C.effective(e))
+            usable.append(e)                       # an audit fix is in the fields already
         else:
             refused.append({"id": e["id"], "reason": C.unusable_reason(e)})
     return usable, refused
@@ -753,7 +784,7 @@ def decor_entries(catalog, dtype: str) -> list[dict]:
     for e in found:
         if e.get("id") and not e.get("parametric") and (e.get("gltf") or e.get("glb")) and e.get("bbox_m") \
                 and C.usable(e):                                  # Milestone 12: audited, no NC/SA/ND licence
-            out.setdefault(str(e["id"]), C.effective(e))
+            out.setdefault(str(e["id"]), e)
     return [out[k] for k in sorted(out)]
 
 
@@ -837,7 +868,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None) -> O
     dtype = item.get("type", "")
     if dtype not in DECOR_LIBRARY_TYPES or not item.get("size") or len(item["size"]) < 2:
         return None
-    styled = [e for e in decor_entries(catalog, dtype) if decor_styles_match(e, style_family)]
+    styled = [e for e in decor_entries(catalog, dtype) if decor_styles_match(e, style_family)
+              and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
     if not fits:
         return None

@@ -914,17 +914,11 @@ if __name__ == "__main__":
 # --------------------------------------------------------------------------
 
 # Where an item rests (``decor[].host_frame.support``): on a seat, a mattress, against a seat back or a headboard,
-# on a top, a shelf board, the floor, a wall or the ceiling.
-SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard", "top", "shelf", "floor", "wall", "ceiling")
-SEAT_BACK_HOSTS: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise")
-BED_HOSTS: tuple[str, ...] = ("bed_single", "bed_double", "bunk_bed", "crib")
-LYING_SEAT_HOSTS: tuple[str, ...] = ("ottoman", "bench")
-SHELF_HOSTS: tuple[str, ...] = ("bookshelf",)
-TOP_HOST_TYPES: tuple[str, ...] = ("table_coffee", "table_dining", "side_table", "nightstand", "dresser", "tv_unit",
-                                   "desk", "sideboard", "console_table", "shoe_cabinet", "display_cabinet",
-                                   "bookshelf", "kitchen_counter", "kitchen_island", "tall_cabinet", "wardrobe")
-WALL_SUPPORT_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind")
-CEILING_SUPPORT_TYPES: tuple[str, ...] = ("pendant_light", "ceiling_light")
+# on a top, a shelf board, the floor, a wall or the ceiling. The rules live in ``wenart.blender.rest`` (pure numpy:
+# the scene builder and the scene checks read them inside Blender, whose Python has no shapely) and are the same here.
+from wenart.blender.rest import (BED_HOSTS, CEILING_SUPPORT_TYPES, LYING_SEAT_HOSTS, SEAT_BACK_HOSTS,  # noqa: E402
+                                 SHELF_HOSTS, SUPPORTS, TOP_HOST_TYPES, WALL_SUPPORT_TYPES, support_fits, support_of)
+
 LEAN_DEG = 12.0                   # a cushion leans 10-15 degrees on its back (§4.7)
 DEFAULT_SHELF = 1                 # books on the second board from the bottom (the Milestone 4 rest height)
 WALL_FOLLOW_GAP_M = 0.35          # wall art follows its piece while the piece's back stays this close to the wall
@@ -940,50 +934,17 @@ def piece_is_built(piece: Optional[dict]) -> bool:
     return (piece.get("asset") or {}).get("method") not in NOT_BUILT_ASSET_METHODS
 
 
-def support_of(dtype: Optional[str], host_type: Optional[str]) -> str:
-    """The support of a decor type on a host type (None: no host) (§4.7); a floor plant or a rug beside its piece
-    stands on the floor, a picture hangs on the wall, a light from the ceiling, whatever piece it belongs to."""
-    if host_type is None or dtype in WALL_SUPPORT_TYPES + CEILING_SUPPORT_TYPES + ("plant", "plant_large", "rug"):
-        if dtype in WALL_SUPPORT_TYPES:
-            return "wall"
-        if dtype in CEILING_SUPPORT_TYPES:
-            return "ceiling"
-        return "floor"
-    if dtype == "cushion":
-        if host_type in SEAT_BACK_HOSTS:
-            return "back"
-        if host_type in BED_HOSTS:
-            return "headboard"
-        return "seat"
-    if dtype == "throw":
-        return "mattress" if host_type in BED_HOSTS else "seat"
-    if dtype == "book_set" and host_type in SHELF_HOSTS:
-        return "shelf"
-    return "top"
-
-
-def support_fits(support: str, host_type: Optional[str]) -> bool:
-    """Whether a host of ``host_type`` has the support (a retyped host may lose it: a cushion's sofa back on a table)."""
-    if support in ("floor", "wall", "ceiling"):
-        return True
-    if host_type is None:
-        return False
-    return {"back": host_type in SEAT_BACK_HOSTS,
-            "headboard": host_type in BED_HOSTS, "mattress": host_type in BED_HOSTS,
-            "seat": host_type in SEAT_BACK_HOSTS + LYING_SEAT_HOSTS,
-            "shelf": host_type in SHELF_HOSTS,
-            "top": host_type in TOP_HOST_TYPES}.get(support, False)
-
-
 def takes_cushions(host: dict) -> bool:
     """A seat or bed takes decor cushions unless its model already has them (the audit's ``has_cushions`` on a
-    seat, ``has_pillows`` / ``has_bedding`` on a bed: §4.7, no duplicates)."""
-    from wenart.furniture import catalog as C
+    seat, ``has_pillows`` / ``has_cushions`` on a bed: §4.7, no duplicates)."""
+    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
 
-    asset = host.get("asset") if isinstance(host.get("asset"), dict) else None
-    if host.get("type") in BED_HOSTS:
-        return not C.has_own_bedding(asset)
-    return not C.has_own_cushions(asset)
+    def flag(name: str) -> bool:                   # = catalog.model_flag (track B's audit flags; absent: False)
+        return asset.get(name) is True
+
+    if host.get("type") in BED_HOSTS:          # its own pillows or scatter cushions (a duvet alone takes cushions)
+        return not (flag("has_pillows") or flag("has_cushions"))
+    return not flag("has_cushions")
 
 
 def _frame_ref(item: dict, pieces: dict) -> tuple[Optional[dict], Optional[str]]:

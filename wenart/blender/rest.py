@@ -22,7 +22,7 @@ measure how it rests:
 - ``measure_rest`` (check S5): gap (item underside to the support surface below, over a 3 x 3 grid), penetration
   (depth of the item's sample points inside the host, ray parity in three directions; depth = the shortest of six
   axis rays to the host surface) and the share of the footprint over the support; ``rest_ok`` applies the
-  tolerances of ``scene_checks.TOLERANCES``.
+  tolerances of ``REST_TOLERANCES`` (= ``scene_checks.TOLERANCES``).
 
 Why: Milestone 11 put cushions and throws at a fixed height per host type (``PROXY_HEIGHTS``: a library bed
 0.55 m, a sofa seat 0.45 m) and at an x/y from the drawn footprint: they floated above low mattresses, sank into
@@ -61,7 +61,71 @@ SEAT_PROBE_SHARES = (0.30, 0.45, 0.60, 0.75)   # the seat is probed at these sha
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
+# Check S5's tolerances (§4.7; ``scene_checks.TOLERANCES`` takes them from here): gap, penetration on hard and soft
+# hosts, the share of the footprint over the support.
+REST_TOLERANCES: dict[str, float] = {"decor_gap_m": 0.010, "decor_pen_hard_m": 0.010, "decor_pen_soft_m": 0.030,
+                                     "decor_support_share": 0.80}
 TOP_BAND_M = 0.12                 # a cloth point whose host hit is this far below the top hangs over the edge
+
+
+# --------------------------------------------------------------------------
+# Supports (the host frame's ``support``; ``wenart.furniture.decor`` re-exports them: Blender's Python has no shapely,
+# so the scene builder and the scene checks take them from here)
+# --------------------------------------------------------------------------
+
+SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard", "top", "shelf", "floor", "wall", "ceiling")
+SEAT_BACK_HOSTS: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise")
+BED_HOSTS: tuple[str, ...] = ("bed_single", "bed_double", "bunk_bed", "crib")
+LYING_SEAT_HOSTS: tuple[str, ...] = ("ottoman", "bench")
+SHELF_HOSTS: tuple[str, ...] = ("bookshelf",)
+TOP_HOST_TYPES: tuple[str, ...] = ("table_coffee", "table_dining", "side_table", "nightstand", "dresser", "tv_unit",
+                                   "desk", "sideboard", "console_table", "shoe_cabinet", "display_cabinet",
+                                   "bookshelf", "kitchen_counter", "kitchen_island", "tall_cabinet", "wardrobe")
+WALL_SUPPORT_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind")
+CEILING_SUPPORT_TYPES: tuple[str, ...] = ("pendant_light", "ceiling_light")
+FLOOR_SUPPORT_TYPES: tuple[str, ...] = ("plant", "plant_large", "rug")
+RAY_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard", "top", "shelf")
+
+
+def support_of(dtype: Optional[str], host_type: Optional[str]) -> str:
+    """The support of a decor type on a host type (None: no host) (§4.7); a floor plant or a rug beside its piece
+    stands on the floor, a picture hangs on the wall, a light from the ceiling, whatever piece it belongs to."""
+    if host_type is None or dtype in WALL_SUPPORT_TYPES + CEILING_SUPPORT_TYPES + FLOOR_SUPPORT_TYPES:
+        if dtype in WALL_SUPPORT_TYPES:
+            return "wall"
+        if dtype in CEILING_SUPPORT_TYPES:
+            return "ceiling"
+        return "floor"
+    if dtype == "cushion":
+        if host_type in SEAT_BACK_HOSTS:
+            return "back"
+        if host_type in BED_HOSTS:
+            return "headboard"
+        return "seat"
+    if dtype == "throw":
+        return "mattress" if host_type in BED_HOSTS else "seat"
+    if dtype == "book_set" and host_type in SHELF_HOSTS:
+        return "shelf"
+    return "top"
+
+
+def support_fits(support: str, host_type: Optional[str]) -> bool:
+    """Whether a host of ``host_type`` has the support (a retyped host may lose it: a cushion's sofa back on a table)."""
+    if support in ("floor", "wall", "ceiling"):
+        return True
+    if host_type is None:
+        return False
+    return {"back": host_type in SEAT_BACK_HOSTS,
+            "headboard": host_type in BED_HOSTS, "mattress": host_type in BED_HOSTS,
+            "seat": host_type in SEAT_BACK_HOSTS + LYING_SEAT_HOSTS,
+            "shelf": host_type in SHELF_HOSTS,
+            "top": host_type in TOP_HOST_TYPES}.get(support, False)
+
+
+def item_support(item: dict, host: Optional[dict]) -> str:
+    """An item's support: its ``host_frame.support`` when set, else the type rule (``support_of``)."""
+    frame = item.get("host_frame") if isinstance(item.get("host_frame"), dict) else {}
+    return str(frame.get("support") or support_of(item.get("type"), host.get("type") if host else None))
 
 
 # --------------------------------------------------------------------------
@@ -492,9 +556,7 @@ def measure_rest(item_verts, item_faces, host_caster, footprint: dict, soft: boo
     ``pen_limit`` + 0.02 m above the underside); ``gap_m`` = the smallest underside - support (the touching point;
     negative = sunk), ``support_share`` = the share of grid points with an underside that have the host below,
     ``penetration_m`` = the deepest item sample point inside the host (ray parity) or the sunk depth."""
-    from wenart.blender import scene_checks as SC
-
-    limit = SC.TOLERANCES["decor_pen_soft_m" if soft else "decor_pen_hard_m"] if pen_limit is None else pen_limit
+    limit = REST_TOLERANCES["decor_pen_soft_m" if soft else "decor_pen_hard_m"] if pen_limit is None else pen_limit
     item = MeshCaster(item_verts, item_faces)
     lo_z = float(item.lo[2]) - 1.0
     top = host_top(host_caster) + TOP_ABOVE_M
@@ -526,10 +588,9 @@ def measure_rest(item_verts, item_faces, host_caster, footprint: dict, soft: boo
 
 
 def rest_ok(m: dict) -> tuple[bool, list[str]]:
-    """Whether an S5 measurement passes the tolerances (``scene_checks.TOLERANCES``) and why not."""
-    from wenart.blender import scene_checks as SC
-
-    tol = SC.TOLERANCES
+    """Whether an S5 measurement passes the tolerances (``REST_TOLERANCES`` = ``scene_checks.TOLERANCES``) and why
+    not."""
+    tol = REST_TOLERANCES
     why = []
     if m.get("gap_m") is None:
         why.append("no host surface under the item")

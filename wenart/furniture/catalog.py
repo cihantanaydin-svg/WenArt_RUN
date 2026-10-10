@@ -615,14 +615,14 @@ def unusable_reason(entry: dict) -> Optional[str]:
     return None
 
 
-def effective(entry: dict) -> dict:
-    """The entry as the fit uses it: an audit ``fix`` applies its ``fixes`` (catalogue fields such as
-    ``front_axis``, ``unit_scale``, ``bbox_m``, ``has_bedding``; never an edit of the GLB, §6.1)."""
+def audit_status(entry: dict) -> str | None:
+    """``keep`` / ``fix`` / ``removed`` of an entry's audit (track B: ``audit = {status, reasons, fixes, version,
+    checked_utc}``), None before the audit has run. A ``fix`` is already applied to the catalogue fields by the audit
+    writer (``wenart.assets.audit.write``: ``fixes`` holds the new values, ``before`` the old ones): the fit reads the
+    fields as they are."""
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
-    fixes = audit.get("fixes") if isinstance(audit.get("fixes"), dict) else {}
-    if str(audit.get("status") or "").lower() != "fix" or not fixes:
-        return entry
-    return dict(entry, **fixes)
+    status = audit.get("status")
+    return str(status) if status else None
 
 
 def by_design_parametric(piece: dict) -> bool:
@@ -652,3 +652,19 @@ def has_own_cushions(asset: Optional[dict]) -> bool:
     """A seat model with loose cushions of its own (the audit's ``has_cushions``): decor cushions would duplicate
     them (§4.7)."""
     return bool(model_flag(asset, "has_cushions"))
+
+
+# The audit's decor ``contact`` (flat_bottom | hangs | leans | drapes, track B) each decor type needs: a model that
+# rests otherwise is not taken (a hanging lamp is no table lamp). Types not listed take any contact.
+DECOR_CONTACTS: dict[str, tuple[str, ...]] = {
+    **{t: ("flat_bottom",) for t in ("vase", "bowl", "plant_small", "table_lamp", "books", "candle", "tray",
+                                     "sculpture", "basket", "plant", "plant_large")},
+    **{t: ("hangs",) for t in ("wall_art", "mirror", "clock", "pendant_light", "ceiling_light")},
+    "cushion": ("leans", "flat_bottom"), "rug": ("flat_bottom", "drapes"),
+}
+
+
+def contact_fits(entry: dict, decor_type: str) -> bool:
+    """A decor model's audited ``contact`` suits its decor type (``DECOR_CONTACTS``); True before the audit."""
+    contact = entry.get("contact")
+    return contact is None or decor_type not in DECOR_CONTACTS or contact in DECOR_CONTACTS[decor_type]
