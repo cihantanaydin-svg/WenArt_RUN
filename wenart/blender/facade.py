@@ -166,8 +166,16 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
         cuts = [dict(it, bottom=it["bottom"], top=it["top"]) for lv in order
                 for it in opening_items(building, lv, outlines.get(lv["id"]) or ground_outline, True)]
         cuts += [{"polygon": w["polygon"]} for w in wells or []]
-        boxes += _plinth(ground_outline, cuts, gz)     # one ground height per edge: its lower end
-        assumed.append({"field": "plinth", "value": DIMENSIONS["plinth_height"], "reason": out_looks["plinth"]["reason"]})
+        plinth = plinth_rule(building)
+        boxes += _plinth(ground_outline, cuts, gz, plinth)     # one ground height per edge: its lower end
+        if plinth is None:
+            assumed.append({"field": "plinth", "value": DIMENSIONS["plinth_height"],
+                            "reason": out_looks["plinth"]["reason"]})
+        else:
+            assumed.append({"field": "plinth", "value": {"top_z": plinth["top_z"], "min_height": plinth["min"]},
+                            "reason": f"plinth: a raised base from the ground up to {plinth['top_z']:+.2f} m "
+                                      f"({plinth['source']}), at least {plinth['min']:.2f} m high; "
+                                      + out_looks["plinth"]["reason"]})
     ground_top = max(terrain["z"].values()) if terrain else 0.0
     lowest_above = next((lv for lv in order if float(lv["elevation"]) + float(lv["ceiling_height"]) > ground_top + 0.5),
                         None)
@@ -190,7 +198,7 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
         top = next((lv for lv in order if lv["id"] == roof_model["over_level_id"]), None)
         outline = outlines.get(top["id"]) if top else None
         if outline and len(outline) >= 3 and roof_model.get("eaves_z") is not None:
-            z = float(roof_model["eaves_z"])
+            z = float(roof_model["eaves_z"]) + float(roof_model.get("parapet") or 0.0)   # M12: on a flat_cut parapet
             boxes += _band_boxes(outline, z, z + DIMENSIONS["coping_height"], DIMENSIONS["coping_proud"], [], "coping",
                                  top["id"])
             assumed.append({"field": "coping", "value": DIMENSIONS["coping_height"], "reason": out_looks["band"]["reason"]})
@@ -207,28 +215,59 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
     return {"boxes": boxes, "looks": out_looks, "rules": rules, "assumed": assumed}
 
 
-def _plinth(ground_outline, cuts, gz) -> list[dict]:
+PLINTH_BASE_DEPTH = 0.10        # Milestone 12: the raised base reaches this far in under the outer wall face
+
+
+def plinth_rule(building: dict) -> Optional[dict]:
+    """Milestone 12 (docs/milestone12.md §3.3-§3.4, track L): the plinth the pipeline wrote (``site.plinth``:
+    ``top_z`` from the ``SB.`` mark or the ground floor, ``min_height``), as ``{"top_z", "min", "source"}``; None
+    without one (the Milestone 11 band of ``plinth_height`` stays)."""
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    p = site.get("plinth")
+    if not isinstance(p, dict) or p.get("top_z") is None:
+        return None
+    floors = sorted(float(f) for f in p.get("floors") or [p["top_z"]])
+    return {"top_z": float(p["top_z"]), "min": float(p.get("min_height") or 0.15), "floors": floors,
+            "source": "SB. mark" if p.get("source") == "mark" else "the ground floor"}
+
+
+def plinth_top(rule: dict, ground: float, flush: float = 0.05) -> float:
+    """The plinth top over ground ``ground``: the lowest floor at or above it (a basement opened by a sloped site
+    takes its own floor), at least ``rule["min"]`` above the ground."""
+    top = min([f for f in rule.get("floors") or [] if f >= ground - flush] or [float(rule["top_z"])])
+    return max(top, ground + float(rule["min"]))
+
+
+def _plinth(ground_outline, cuts, gz, rule: Optional[dict] = None) -> list[dict]:
+    """The plinth boxes along the ground outline. Without ``rule`` (Milestone 11): a band ``plinth_height`` above
+    the ground, ``proud`` in front of the face. With it (Milestone 12): a raised base from the ground up to
+    ``rule["top_z"]`` (the floor; at least ``rule["min"]`` above the ground), ``proud`` in front of the face and
+    reaching ``PLINTH_BASE_DEPTH`` in under the wall, so no gap shows between the ground and a floor above it."""
     out = []
     pts = geom2d.ccw(ground_outline)
     n = len(pts)
     for i in range(n):
         p, q = pts[i], pts[(i + 1) % n]
         z = min(gz(*p), gz(*q))
-        z0, z1 = z - DIMENSIONS["plinth_below"], z + DIMENSIONS["plinth_height"]
+        if rule is None:
+            z0, z1 = z - DIMENSIONS["plinth_below"], z + DIMENSIONS["plinth_height"]
+        else:
+            z0, z1 = z - DIMENSIONS["plinth_below"], plinth_top(rule, z)
         length = G.distance(p, q)
         if length < DIMENSIONS["min_span"]:
             continue
         ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
         nx, ny = uy, -ux
         proud = DIMENSIONS["proud"]
+        inner = PLINTH_BASE_DEPTH if rule is not None else 0.0
         for a, b in _spans(length, _edge_cuts(p, q, cuts, z0, z1), DIMENSIONS["min_span"]):
             a2 = a - proud if a <= 1e-9 else a
             b2 = b + proud if b >= length - 1e-9 else b
             mid = (a2 + b2) / 2.0
+            off = (proud - inner) / 2.0                 # the box centre off the face line (out positive)
             out.append({"kind": "plinth", "level_id": None,
-                        "center": [p[0] + ux * mid + nx * proud / 2.0, p[1] + uy * mid + ny * proud / 2.0,
-                                   (z0 + z1) / 2.0],
-                        "size": [b2 - a2, proud, z1 - z0], "rotation_deg": math.degrees(math.atan2(uy, ux))})
+                        "center": [p[0] + ux * mid + nx * off, p[1] + uy * mid + ny * off, (z0 + z1) / 2.0],
+                        "size": [b2 - a2, proud + inner, z1 - z0], "rotation_deg": math.degrees(math.atan2(uy, ux))})
     return out
 
 

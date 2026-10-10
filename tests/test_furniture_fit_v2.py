@@ -176,13 +176,15 @@ def test_caps_and_style_filter_still_apply():
     assert fit["asset_id"] == "abo_ok" and [x["id"] for x in fit["excluded"]] == ["abo_classic"]
     assert ids(fit) == ["abo_ok"]
     fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([model("stretched", "sofa", 1.4, 0.9, 0.8)]))
-    assert fit["method"] == "parametric" and "15 % non-uniform" in fit["fallback_reason"]
+    assert fit["method"] == "none" and "10 % non-uniform" in fit["fallback_reason"]      # Milestone 12: a gap
     assert fit["candidates"][0]["rank"] == 1 and fit["candidates"][0]["accepted"] is False
 
 
 def test_fit_building_keeps_every_frozen_key_and_the_report_lists_the_ranking():
-    cat = FakeCatalog([model("exact", "sofa", 2.0, 0.9, 0.8, quality=4.0, licence_flag="non_commercial",
+    # Milestone 12 (CLAUDE.md library rules): the non-commercial twin of the sofa is never taken
+    cat = FakeCatalog([model("exact_nc", "sofa", 2.0, 0.9, 0.8, quality=5.0, licence_flag="non_commercial",
                              licence="CC-BY-NC-4.0", source="objaverse"),
+                       model("exact", "sofa", 2.0, 0.9, 0.8, quality=4.0, source="objaverse"),
                        model("frame", "bed_double", 1.6, 2.0, 1.0, has_mattress=False, bed_frame=True,
                              deck_height_m=0.3)])
     building = {"project": {"id": "t"}, "furniture": [piece("sofa", 2.0, 0.9),
@@ -197,7 +199,9 @@ def test_fit_building_keeps_every_frozen_key_and_the_report_lists_the_ranking():
     report = F.fit_report(fitted)
     assert "## Ranking (fit v2)" in report and F.RANKING_RULE in report
     assert "- f_L0_001 (sofa): objaverse_exact (objaverse), rank 1 of 1 tried: real size" in report
-    assert "## Bed frames with bedding" in report and "objaverse_exact: CC-BY-NC-4.0 (non_commercial)" in report
+    assert "## Bed frames with bedding" in report and "CC-BY-NC-4.0 (non_commercial)" not in report.split(
+        "## Models not taken")[0]
+    assert "objaverse_exact_nc: licence CC-BY-NC-4.0 (non_commercial): not used" in report
     assert "## Attribution (CC BY 4.0)" in report and '"Model exact" by someone' in report
     json.dumps(fitted)   # plain JSON
 
@@ -232,7 +236,7 @@ def test_bed_frames_with_a_deck_are_taken_and_carry_their_bedding():
 def test_beds_without_a_mattress_or_a_deck_are_still_refused(extra):
     bare = model("bare", "bed_double", 1.6, 2.0, 1.0, has_mattress=False, **extra)
     fit = F.fit_piece(piece("bed_double", 1.6, 2.0), FakeCatalog([bare]))
-    assert fit["method"] == "parametric" and fit["fallback_reason"] == "no bed_double model with a mattress"
+    assert fit["method"] == "none" and fit["fallback_reason"] == "no bed_double model with a mattress"
     assert fit["excluded"] == [{"id": "abo_bare", "reason": "bed model without a mattress"}]
 
 
@@ -310,9 +314,16 @@ def test_cushions_plants_and_books():
     flat = decor_model("flat", "cushion", 0.45, 0.45, 0.15)   # a pillow lying flat: 3 x squashed in depth
     stand = decor_model("stand", "cushion", 0.45, 0.15, 0.45)
     cat = FakeCatalog(decor=[flat, stand])
-    a = F.fit_decor_item(item("cushion", (0.45, 0.15), host="f_sofa"), cat)
-    assert a["asset_id"] == "abo_stand" and a["target"] == "size" and a["pick"]["not_fitting"] == ["abo_flat"]
-    assert F.fit_decor_item(item("cushion", (0.45, 0.15), host="f_sofa"), FakeCatalog(decor=[flat])) is None
+    # Milestone 12 (B7): a standing cushion (width, thickness, height) keeps the model's proportions (uniform scale)
+    a = F.fit_decor_item(item("cushion", (0.45, 0.15, 0.45), host="f_sofa"), cat)
+    assert a["asset_id"] == "abo_stand" and a["target"] == "within" and a["pick"]["not_fitting"] == ["abo_flat"]
+    assert a["fit_scale"] == [1.0, 1.0, 1.0] and a["bbox_m"] == [0.45, 0.15, 0.45]
+    assert F.fit_decor_item(item("cushion", (0.45, 0.15, 0.45), host="f_sofa"), FakeCatalog(decor=[flat])) is None
+    # never a pillow stretched to a tower (Milestone 11: 0.5 x 0.3 x 0.60 m): proportions off by > 10 % are refused
+    low = decor_model("low", "cushion", 0.5, 0.15, 0.3)
+    assert F.fit_decor_item(item("cushion", (0.5, 0.15, 0.5), host="f_bed"), FakeCatalog(decor=[low])) is None
+    # a lying cushion (2 values: ottoman, bench) is the procedural one
+    assert F.fit_decor_item(item("cushion", (0.4, 0.4), host="f_ottoman"), cat) is None
     assert F.fit_decor_item(item("book_set", (0.3, 0.22), host="f_desk"), cat) is None
     # without decor_candidates (an M7 catalogue object) the decor list is scanned for kind/decor_type
     plant = decor_model("palm", "plant", 0.5, 0.5, 1.2)

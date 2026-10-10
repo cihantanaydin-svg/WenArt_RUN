@@ -111,8 +111,9 @@ def test_fit_piece_takes_the_model_that_shows_the_design():
     assert asset["asset_id"] == "b_rec" and asset["recolour"]["fabric"]["colour"] == "light grey"
     assert asset["material_slots"][0]["name"] == "Fabric" and asset["recolourable_fabric"] is True
     assert {"id": "a_plain", "reason": asset["excluded"][0]["reason"]} in asset["excluded"]
+    # Milestone 12 (D14: never a parametric sofa): a design no model can show is dropped before a library gap
     none = fit.fit_piece(_piece(), _catalog(plain), design={"fabric_colour": "light grey"})
-    assert none["method"] == "parametric" and "can show the design" in none["fallback_reason"]
+    assert none["asset_id"] == "a_plain" and none["design_not_shown"] == {"fabric_colour": "light grey"}
     tags = fit.fit_piece(_piece("table_coffee", (1.0, 0.6)),
                          _catalog(_model("g1", "table_coffee", (1.0, 0.6, 0.45), material_tags=["glass"]),
                                   _model("w1", "table_coffee", (1.0, 0.6, 0.45), quality=[5, 5],
@@ -294,9 +295,9 @@ def test_an_l_sofa_takes_only_models_with_its_chaise_side():
     assert reasons["c_none"] == "chaise side unknown" and "no mirroring" in reasons["c_right"]
     assert fit.fit_piece(dict(piece, chaise_side="right"), cat)["asset_id"] == "c_right"
     assert fit.fit_piece(dict(piece, chaise_side=None), cat)["asset_id"] == "c_right"     # the builder's default
-    # no model with that side: the parametric L (it builds the drawn side); a library model is never mirrored
+    # no model with that side: Milestone 12 (D14, never a parametric sofa) a library gap; a model is never mirrored
     p = fit.fit_piece(piece, _catalog(right, unknown))
-    assert p["method"] == "parametric" and "chaise on the left" in p["fallback_reason"]
+    assert p["method"] == "none" and "chaise on the left" in p["fallback_reason"] and p["library_gap"]
     assert {x["id"]: x["reason"] for x in p["excluded"]}["c_none"] == "chaise side unknown"
     assert {x["id"] for x in p["excluded"]} == {"c_right", "c_none"}
     # a corner sofa piece without the L shape is not filtered by side

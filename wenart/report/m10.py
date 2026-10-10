@@ -324,10 +324,13 @@ def building_block(b: Optional[dict], private: bool = False) -> Optional[dict]:
                     "parking": built("parking"), "boundary_walls": built("boundary_walls"),
                     "areas": len(site.get("areas") or []), "areas_not_built": sum(
                         1 for a in site.get("areas") or [] if isinstance(a, dict) and a.get("build") is False),
-                    "decor": built("decor"), "ground": [{"side": g.get("side"), "z": g.get("z")}
+                    # B9 (Milestone 12): the ground level is a {value, method} record; the number is printed
+                    "decor": built("decor"), "ground": [{"side": g.get("side"), "z": _num(g.get("z")),
+                                                         "state": _rec_state(g.get("z"))[1]}
                                                         for g in ground.get("levels") or [] if isinstance(g, dict)],
                     "terrain": ground.get("terrain"), "light_wells": len(ground.get("light_wells") or []),
-                    "north_deg": n_val, "north_state": n_state}
+                    "north_deg": n_val, "north_state": n_state,
+                    "levels": level_summary(b)}
     variants = [{"id": v.get("id"), "label": v.get("label"), "base": bool(v.get("base")),
                  "levels": list(v.get("levels") or []), "rooms_changed": len(v.get("rooms_changed") or []),
                  "exterior_changed": bool(v.get("exterior_changed"))}
@@ -419,11 +422,83 @@ def building_lines(block: dict, fmt: Fmt = metres) -> list[str]:
                  f"{site['boundary_walls']} boundary wall(s), {site['decor']} decor item(s) built",
                  f"{site['areas']} labelled area(s), {site['areas_not_built']} recorded only (label, not built)"]
         if site["ground"]:
-            parts.append("drawn ground levels: " + ", ".join(f"{g['side']} {fmt(g['z'])}" for g in site["ground"]))
+            parts.append("ground levels: " + ", ".join(f"{g['side']} {fmt(g['z'])} ({g.get('state') or 'unknown'})"
+                                                       for g in site["ground"]))
         parts.append(f"terrain {site['terrain'] or '-'}, {site['light_wells']} light well(s)")
         if site["north_deg"] is not None:
             parts.append(f"north {site['north_deg']:g} deg ({site['north_state']})")
         lines += C.bullets(parts)
+        lines += level_lines(site.get("levels"), fmt)
+    return lines
+
+
+def level_summary(b: dict) -> Optional[dict]:
+    """Milestone 12 (docs/milestone12.md §3, track L): the level marks, datum, ground, entrances, plinth, room floors
+    and what was inferred (``level_inference``), for the report; None for a building without them."""
+    marks = [m for m in b.get("level_marks") or [] if isinstance(m, dict)]
+    rec = b.get("level_inference") if isinstance(b.get("level_inference"), dict) else None
+    if not marks and rec is None:
+        return None
+    site = b.get("site") if isinstance(b.get("site"), dict) else {}
+    kinds: dict[str, int] = {}
+    for m in marks:
+        kinds[m.get("kind") or "unknown"] = kinds.get(m.get("kind") or "unknown", 0) + 1
+    datum = (b.get("project") or {}).get("datum")
+    rooms = [{"room_id": r["id"], "offset": r.get("floor_offset_m"), "source": r.get("floor_source")}
+             for r in b.get("rooms") or [] if isinstance(r, dict) and r.get("floor_offset_m")]
+    ents = [{"door_id": e.get("door_id"), "threshold_z": e.get("threshold_z"), "ground_z": e.get("ground_z"),
+             "rise": e.get("rise"), "solution": e.get("solution"), "main": bool(e.get("main")),
+             "risers": (e.get("steps") or {}).get("count"), "riser": (e.get("steps") or {}).get("riser"),
+             "ramp": (e.get("ramp") or {}).get("ratio"), "into_air": bool(e.get("into_air")),
+             "below_ground": bool(e.get("below_ground"))}
+            for e in site.get("entrances") or [] if isinstance(e, dict)]
+    plinth = site.get("plinth") if isinstance(site.get("plinth"), dict) else None
+    return {"marks": len(marks), "kinds": kinds, "datum": _num(datum), "datum_state": _rec_state(datum)[1]
+            if datum is not None else None,
+            "symbols": sum(1 for s in b.get("symbols") or [] if isinstance(s, dict) and s.get("kind") == "level_mark"),
+            "ground_source": (rec or {}).get("ground_source"), "terrain": ((site.get("ground") or {}).get("terrain")),
+            "entrances": ents, "plinth": None if plinth is None else {"top_z": plinth.get("top_z"),
+                                                                      "source": plinth.get("source")},
+            "rooms": rooms, "inferred": [dict(i) for i in (rec or {}).get("inferred") or []],
+            "warnings": list((rec or {}).get("warnings") or []), "flagged": (rec or {}).get("flagged")}
+
+
+def level_lines(block: Optional[dict], fmt: Fmt = metres) -> list[str]:
+    """The report lines of ``level_summary`` (Milestone 12)."""
+    if not block:
+        return []
+    lines = ["", "Levels and ground (Milestone 12):", ""]
+    kinds = ", ".join(f"{k} {v}" for k, v in sorted(block["kinds"].items())) or "none"
+    parts = [f"{block['marks']} level mark(s) read ({kinds}); {block['symbols']} mark symbol(s) taken out of the "
+             f"furniture"]
+    if block["datum"] is not None:
+        parts.append(f"datum ±0.00 = {block['datum']:.2f} m ({block['datum_state']})")
+    parts.append(f"ground from: {block['ground_source'] or '-'}; terrain {block['terrain'] or '-'}")
+    if block["plinth"]:
+        parts.append(f"plinth top {fmt(block['plinth']['top_z'])} ({block['plinth']['source']})")
+    if block["rooms"]:
+        parts.append("room floors off their level: " + ", ".join(f"{r['room_id']} {r['offset']:+.2f} m ({r['source']})"
+                                                                for r in block["rooms"]))
+    lines += C.bullets(parts)
+    if block["entrances"]:
+        lines += ["", "| Door | Threshold | Ground | Rise | Solution | Main |", "|---|---|---|---|---|---|"]
+        for e in block["entrances"]:
+            sol = e["solution"]
+            if e["risers"]:
+                sol += f" ({e['risers']} x {e['riser']:.3f} m)"
+            if e["ramp"]:
+                sol += f", ramp {e['ramp']}"
+            if e["into_air"]:
+                sol += " - door into the air (L2)"
+            if e["below_ground"]:
+                sol += " - below the ground (L3)"
+            lines.append(f"| {e['door_id']} | {fmt(e['threshold_z'])} | {fmt(e['ground_z'])} | {fmt(e['rise'])} | "
+                         f"{sol} | {'yes' if e['main'] else ''} |")
+    if block["inferred"]:
+        lines += ["", "Inferred (listed, CLAUDE.md evidence rules):", ""]
+        lines += C.bullets([f"{i.get('item')}: {i.get('reason')}" for i in block["inferred"]])
+    if block.get("flagged"):
+        lines += ["", f"Flagged: {block['flagged']}."]
     return lines
 
 

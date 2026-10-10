@@ -417,6 +417,12 @@ def site_of(region, warnings: list) -> Optional[dict]:
                         f"found): its plot, areas and trees are not used; labels listed")
         out["note"] = "not registered: no positions"
         return out
+    # Milestone 12 (docs/milestone12.md §3.1, track L): the site plan's level marks (spot heights, KOT), placed in
+    # building metres; the pipeline's level step reads them (wenart.ingest.generic.levels).
+    from wenart.levels import marks as LM
+    out["marks"] = [{"text": t.text, "point": list(_apply(tf, t.point)), "entity": t.id,
+                     "evidence": [_ev(region, t.id, "level_mark", t.text)]}
+                    for t in region.texts if LM.parse_mark(t.text) is not None]
     if closed:
         area, e, pts = max(closed, key=lambda c: c[0])
         out["plot"] = [list(_apply(tf, p)) for p in pts]

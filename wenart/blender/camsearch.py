@@ -267,8 +267,10 @@ def shown_pieces(room: dict, building: dict) -> list[dict]:
     """The furniture a camera of ``room`` can show: the room's pieces after layout and decor, without
     decor (``kind: decor``) and without ``build: false`` pieces (drawn symbols both recognition passes
     called ``not_furniture``: kept in the building as obstacles, never built, docs/milestone7.md §3.3)."""
+    from wenart.blender.shell import piece_built     # M12: unknown / no-model pieces are not built either
+
     return [f for f in building.get("furniture") or []
-            if f.get("room_id") == room["id"] and f.get("kind") != "decor" and f.get("build", True) is not False]
+            if f.get("room_id") == room["id"] and f.get("kind") != "decor" and piece_built(f)]
 
 
 def room_view_count(room: dict, building: Optional[dict] = None) -> int:
@@ -569,12 +571,13 @@ class RoomModel:
     def __init__(self, room: dict, building: dict, level: Optional[dict] = None):
         self.room = room
         self.level = level or next(lv for lv in building["levels"] if lv["id"] == room["level_id"])
-        self.floor_z = float(self.level["elevation"])
-        self.ceil_z = self.floor_z + float(self.level["ceiling_height"])
+        # Milestone 12 (track L): the room's own floor (floor_offset_m); the ceiling stays the level's.
+        self.floor_z = float(self.level["elevation"]) + float(room.get("floor_offset_m") or 0.0)
+        self.ceil_z = float(self.level["elevation"]) + float(self.level["ceiling_height"])
         # Milestone 10: a room under the roof has a sloped ceiling, the lowest of these planes (z = a x + b y
         # + c; roof.ceiling_planes, set on the level by the builder).
         self.ceiling_planes = [tuple(float(v) for v in p) for p in self.level.get("ceiling_planes") or []]
-        levels_above = any(float(lv["elevation"]) > self.floor_z for lv in building["levels"])
+        levels_above = any(float(lv["elevation"]) > float(self.level["elevation"]) for lv in building["levels"])
         self.polygon = room_polygon(room)
         self.pieces = shown_pieces(room, building)
         self.openings = cameras.room_openings(room, self.polygon, building)

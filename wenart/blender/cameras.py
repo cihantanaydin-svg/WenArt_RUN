@@ -133,7 +133,8 @@ def plan_cameras(building: dict, level_id: str, policy: str = "m5", lens_mm: flo
     for room in building["rooms"]:
         if room["level_id"] != level_id:
             continue
-        plans.extend(plan_room_cameras(room, building, floor_z))
+        # Milestone 12 (track L): the camera stands on the room's own floor (floor_offset_m)
+        plans.extend(plan_room_cameras(room, building, floor_z + float(room.get("floor_offset_m") or 0.0)))
     return plans
 
 
@@ -200,8 +201,10 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
     # Decor items (kind decor, when a stage lists them among the furniture)
     # are ignored: they sit on their hosts and never block a camera. Pieces
     # with build: false are not in the scene (Milestone 7).
+    from wenart.blender.shell import piece_built     # M12: unknown / no-model pieces are not built either
+
     furniture = [f for f in building["furniture"] if f.get("room_id") == room["id"] and f.get("kind") != "decor"
-                 and f.get("build", True) is not False]
+                 and piece_built(f)]
     # Obstacles are the fitted boxes (library bbox x fit scale, parametric
     # box, proxy box), never smaller than the drawn footprint (milestone 4 §2).
     # Wall-hung pieces (mount_bottom_m, Milestone 10) are no floor obstacles.

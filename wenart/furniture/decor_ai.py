@@ -58,6 +58,12 @@ Milestone 10 (docs/milestone10.md §4.6, §1.6b row 18; track F), question versi
 - Partners: second twins (``render.twin_rooms: one``) and ``same_as`` rooms are not asked (``room_questions``);
   ``apply`` copies their partner's decor (``decor.copy_partner_decor``, ``mirrored_from``; a room whose partner
   takes a copy itself copies that copy), each room's record with its own copy notes.
+
+Milestone 12 (docs/milestone12.md §4.7 D13, B7; track S): every item gets its ``host_frame`` (``decor.attach_host_frames``)
+so it follows its host after the agent's edits (``decor.sync_to_hosts``); the planned x/y of a cushion or a pillow is
+only a start, the scene builder finds the real back, headboard and mattress on the built mesh (``wenart.blender.rest``).
+Throws are our own procedural cloth (``wenart.blender.textiles``: draped on the host, never a library object squashed
+to 5 cm); a seat or bed whose model has its own cushions or bedding gets no cushion slot (``decor.takes_cushions``).
 """
 from __future__ import annotations
 
@@ -377,7 +383,10 @@ def _fits_min(dtype: str, w: float, d: float, h: float) -> bool:
 
 def _cushions(host: dict) -> list[dict]:
     """Cushion positions on a sofa back or a bed head (``decor.host_decor``), one on an armchair's back;
-    Milestone 10: the corner sofa, chaise, ottoman and bench (``soft_items_m10``)."""
+    Milestone 10: the corner sofa, chaise, ottoman and bench (``soft_items_m10``). Milestone 12: none on a seat or a
+    bed whose model already has its own cushions or bedding (``decor.takes_cushions``)."""
+    if not D.takes_cushions(host):
+        return []
     if host["type"] in ("sofa_corner", "chaise", "ottoman", "bench"):
         return soft_items_m10(host)
     if host["type"] == "armchair":
@@ -882,6 +891,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         records.append(rec)
     if partner_notes and records:
         records[-1].notes += partner_notes
+    D.attach_host_frames(out)                     # Milestone 12 (§4.7): every item in its host's frame
     return out, records
 
 
