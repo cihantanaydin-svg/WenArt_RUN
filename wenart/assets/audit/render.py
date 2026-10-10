@@ -178,15 +178,27 @@ def view_paths(work: Path, iid: str) -> list[Path]:
     return [Path(work) / "views" / f"{iid}_{i}.png" for i in range(len(VIEWS))]
 
 
-def measure_done(work: Path, iid: str, sha: str) -> bool:
+MAX_ATTEMPTS = 2          # a model that failed twice (or crashed Blender) is not tried again
+
+
+def read_measure(work: Path, iid: str) -> Optional[dict]:
     p = measure_path(work, iid)
     if not p.is_file():
-        return False
+        return None
     try:
-        rec = json.loads(p.read_text(encoding="utf-8"))
+        return json.loads(p.read_text(encoding="utf-8"))
     except ValueError:
+        return None
+
+
+def measure_done(work: Path, iid: str, sha: str) -> bool:
+    """Current: the same ``job_sha`` and either rendered (views on disk) or failed ``MAX_ATTEMPTS`` times."""
+    rec = read_measure(work, iid)
+    if not rec or rec.get("job_sha") != sha:
         return False
-    return rec.get("job_sha") == sha and (not rec.get("ok") or all(v.is_file() for v in view_paths(work, iid)))
+    if rec.get("ok"):
+        return all(v.is_file() for v in view_paths(work, iid))
+    return int(rec.get("attempts", 1)) >= MAX_ATTEMPTS
 
 
 def render_jobs(items: list[dict], assets: Path, work: Path, settings: dict, deadline: Optional[float] = None
@@ -207,7 +219,10 @@ def render_jobs(items: list[dict], assets: Path, work: Path, settings: dict, dea
             continue
         box = it.get("bbox_m") or [1.0, 1.0, 1.0]
         layout = reference_layout(box, settings)
+        prev = read_measure(work, it["id"]) or {}
+        attempt = int(prev.get("attempts", 1)) + 1 if prev.get("job_sha") == sha and not prev.get("ok") else 1
         jobs.append({"id": it["id"], "type": it["type"], "kind": it["kind"], "file": str(path), "job_sha": sha,
+                     "attempt": attempt,
                      "unit_scale": float(it.get("unit_scale", 1.0)), "origin_offset": it.get("origin_offset")
                      or [0.0, 0.0, 0.0], "rot_deg": reorient_deg(it), "layout": layout,
                      "cameras": camera_specs(layout, settings),
@@ -228,30 +243,63 @@ def blender_command(blender: str, jobs_path: Path) -> list[str]:
             str(jobs_path)]
 
 
+def _undone(work: Path, jobs: list) -> list:
+    """The jobs without a measurement of their ``job_sha`` (a worker that died left them)."""
+    out = []
+    for j in jobs:
+        rec = read_measure(work, j["id"])
+        if not rec or rec.get("job_sha") != j["job_sha"]:
+            out.append(j)
+    return out
+
+
 def run_render(doc: dict, blender: str, work: Path, workers: int = 1, log: Callable = print,
-               popen: Callable = subprocess.Popen) -> int:
-    """Run the jobs of ``doc`` in ``workers`` Blender processes; exit 0 all done, 3 deadline, 1 Blender failed."""
+               popen: Callable = subprocess.Popen, rounds: int = 3) -> int:
+    """Run the jobs of ``doc`` in ``workers`` Blender processes; exit 0 all done, 3 deadline, 1 Blender failed.
+
+    A worker that dies (a GLB that crashes Blender) leaves the rest of its chunk undone: the first undone job of a
+    dead worker's chunk is recorded as failed ("Blender stopped on this model") and the undone jobs are dealt again,
+    at most ``rounds`` times."""
     work = Path(work)
     (work / "jobs").mkdir(parents=True, exist_ok=True)
-    chunks = deal(doc["jobs"], workers)
-    if not chunks:
+    jobs = list(doc["jobs"])
+    if not jobs:
         log("audit render: nothing to render")
         return EXIT_OK
-    procs = []
-    for n, chunk in enumerate(chunks):
-        jp = work / "jobs" / f"jobs_{n}.json"
-        jp.write_text(json.dumps(dict(doc, jobs=chunk, worker=n), indent=1), encoding="utf-8")
-        lp = work / "jobs" / f"blender_{n}.log"
-        fh = open(lp, "w", encoding="utf-8")
-        procs.append((popen(blender_command(blender, jp), stdout=fh, stderr=subprocess.STDOUT), fh, n))
-        log(f"audit render: worker {n}: {len(chunk)} job(s), log {lp}")
-    codes = []
-    for proc, fh, n in procs:
-        codes.append(proc.wait())
-        fh.close()
-    log(f"audit render: worker exit codes {codes}")
-    if any(c == EXIT_DEADLINE for c in codes):
-        return EXIT_DEADLINE
+    codes: list = []
+    for rnd in range(max(1, int(rounds))):
+        chunks = deal(jobs, workers)
+        procs = []
+        for n, chunk in enumerate(chunks):
+            tag = f"{n}" if rnd == 0 else f"{n}_r{rnd}"
+            jp = work / "jobs" / f"jobs_{tag}.json"
+            jp.write_text(json.dumps(dict(doc, jobs=chunk, worker=tag), indent=1), encoding="utf-8")
+            lp = work / "jobs" / f"blender_{tag}.log"
+            fh = open(lp, "w", encoding="utf-8")
+            procs.append((popen(blender_command(blender, jp), stdout=fh, stderr=subprocess.STDOUT), fh, chunk))
+            log(f"audit render: round {rnd + 1}, worker {tag}: {len(chunk)} job(s), log {lp}")
+        codes = []
+        for proc, fh, chunk in procs:
+            code = proc.wait()
+            fh.close()
+            codes.append(code)
+            if code not in (0, EXIT_DEADLINE):
+                left = _undone(work, chunk)
+                if left:                                   # the model the worker died on
+                    bad = left[0]
+                    rec = {"id": bad["id"], "job_sha": bad["job_sha"], "ok": False,
+                           "error": f"Blender stopped on this model (exit {code})",
+                           "attempts": max(MAX_ATTEMPTS, int(bad.get("attempt", 1)))}
+                    measure_path(work, bad["id"]).parent.mkdir(parents=True, exist_ok=True)
+                    measure_path(work, bad["id"]).write_text(json.dumps(rec, indent=1), encoding="utf-8")
+        log(f"audit render: round {rnd + 1}: worker exit codes {codes}")
+        if any(c == EXIT_DEADLINE for c in codes):
+            return EXIT_DEADLINE
+        jobs = _undone(work, jobs)
+        if not jobs:
+            break
+    if jobs:
+        return EXIT_NOTHING
     return EXIT_OK if all(c == 0 for c in codes) else EXIT_NOTHING
 
 

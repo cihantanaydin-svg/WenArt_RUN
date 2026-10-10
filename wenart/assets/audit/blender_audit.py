@@ -306,7 +306,8 @@ def main(jobs_path):
             left.append(job["id"])
             continue
         t0 = time.time()
-        rec = {"id": job["id"], "job_sha": job["job_sha"], "ok": False, "device": dev}
+        rec = {"id": job["id"], "job_sha": job["job_sha"], "ok": False, "device": dev,
+               "attempts": int(job.get("attempt", 1))}
         try:
             rec.update(one(job, scene, cam, keep))
         except Exception as exc:  # noqa: BLE001 - one broken model must not stop the others

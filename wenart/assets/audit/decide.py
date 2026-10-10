@@ -175,7 +175,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
             notes.append(f"the vision check sees the front on the {side} of view 0: front turned")
         elif has_front(item["type"]) and side == "unclear":
             notes.append("the vision check cannot tell the front")
-        if answer.get("size_plausible") is False and _status(checks, "size") == "ok":
+        if answer.get("size_plausible") is False and _status(checks, "size") in (None, "ok"):
             notes.append("the vision check finds the size odd next to the scale reference (code: size ok)")
 
     flags = answer_flags(item, answer)

@@ -34,8 +34,12 @@
 #   lib  = the library's height and footprint ranges (wenart/assets/objaverse.yaml types, furniture_sizes,
 #          decor_sizes; product ranges of the ABO listings read on 4 and 8 Oct 2026)
 #   abo  = Milestone 12 review (10 Oct 2026): the 77 ABO products of the library catalogue whose titles give their
-#          size in cm (wenart/assets/audit/checks.py `title_size`, tests/test_library_sizes.py); 69 fit their
-#          type's ranges and heights as they were; the changes below cover the real products that did not
+#          size in cm (wenart/assets/audit/checks.py `title_size`, tests/test_library_sizes.py); 72 fit their
+#          type's ranges and heights as they were; of the other 5, two chests of drawers and a bathroom column are
+#          real products of their type (ranges widened below), a wardrobe is filed as a tall cabinet ("Armoire":
+#          the audit retypes it) and a desk's box (0.94 m deep) is not its title's 0.60 m (a listing variant).
+#          Then every ABO product (units known) against the table: two more real products outside it (a task floor
+#          lamp, a counter stool) widened the rows below; the rest fit
 #
 # Milestone 12 changes (every one with its source; tests/test_library_sizes.py checks them):
 #   crib      width/depth swapped to [1.15, 1.50] x [0.60, 0.85]: the front of a crib is a long side (layout

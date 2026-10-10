@@ -124,6 +124,20 @@ def groups_from_yaml(path: Path = GROUPS_YAML) -> Optional[dict]:
     return out or None
 
 
+def merge_groups(primary: Optional[dict], extra: dict) -> dict:
+    """``primary`` (groups.yaml) with the rows of ``extra`` (the built-in table) whose type the room does not hold
+    yet: track G's templates name the furniture, the built-in rows add the decor and the lights."""
+    if not primary:
+        return dict(extra)
+    out = {room: list(rows) for room, rows in primary.items()}
+    for room, rows in extra.items():
+        have = {t for _g, _r, types in out.get(room, []) for t in types}
+        for row in rows:
+            if not set(row[2]) & have:
+                out.setdefault(room, []).append(row)
+    return out
+
+
 def kept_count(items: list[dict], statuses: dict, ftype: str, family: str, keep=("keep", "fix")) -> int:
     n = 0
     for it in items:

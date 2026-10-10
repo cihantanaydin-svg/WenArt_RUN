@@ -2,6 +2,7 @@
 reference, the cameras, the jobs and resume, the worker split, the sheet with its printed header, the texture grid.
 Blender itself runs on the pod (``tests/gpu/test_library.py``)."""
 import json
+from pathlib import Path
 
 import numpy as np
 from PIL import Image
@@ -68,26 +69,57 @@ def test_jobs_skip_missing_files_and_current_measurements(tmp_path):
     assert [j["id"] for j in doc["jobs"]] == ["a"] and doc["missing"][0]["id"] == "b"
     job = doc["jobs"][0]
     assert len(job["cameras"]) == 4 and len(job["views"]) == 4 and job["rot_deg"] == 0.0
+    assert job["attempt"] == 1
     R.measure_path(work, "a").parent.mkdir(parents=True)
-    R.measure_path(work, "a").write_text(json.dumps({"id": "a", "job_sha": job["job_sha"], "ok": False}))
+    R.measure_path(work, "a").write_text(json.dumps({"id": "a", "job_sha": job["job_sha"], "ok": False,
+                                                     "attempts": 1}))
+    again = R.render_jobs(items, assets, work, S)["jobs"]
+    assert [(j["id"], j["attempt"]) for j in again] == [("a", 2)]          # a failure is tried once more
+    R.measure_path(work, "a").write_text(json.dumps({"id": "a", "job_sha": job["job_sha"], "ok": False,
+                                                     "attempts": 2}))
     assert R.render_jobs(items, assets, work, S)["skipped"] == ["a"]           # resume: current, not again
     items[0]["unit_scale"] = 0.5
     assert [j["id"] for j in R.render_jobs(items, assets, work, S)["jobs"]] == ["a"]   # changed scale: again
 
 
-def test_run_render_starts_one_process_per_chunk(tmp_path):
-    started = []
-
+def fake_blender(tmp_path, started, crash_on=None):
+    """A Popen stand-in: it 'renders' its chunk (writes the measurements) and dies on ``crash_on``."""
     class P:
         def __init__(self, cmd, stdout=None, stderr=None):
             started.append(cmd)
+            doc = json.loads(Path(cmd[-1]).read_text())
+            self.code = 0
+            for job in doc["jobs"]:
+                if job["id"] == crash_on:
+                    self.code = -11
+                    break
+                R.measure_path(tmp_path, job["id"]).parent.mkdir(parents=True, exist_ok=True)
+                R.measure_path(tmp_path, job["id"]).write_text(json.dumps({"id": job["id"], "job_sha": job["job_sha"],
+                                                                           "ok": True}))
 
         def wait(self):
-            return 0
-    doc = {"jobs": [{"id": str(i)} for i in range(5)], "settings": {}, "work": str(tmp_path)}
+            return self.code
+    return P
+
+
+def test_run_render_starts_one_process_per_chunk(tmp_path):
+    started = []
+    doc = {"jobs": [{"id": str(i), "job_sha": "s"} for i in range(5)], "settings": {}, "work": str(tmp_path)}
+    P = fake_blender(tmp_path, started)
     assert R.run_render(doc, "blender", tmp_path, workers=2, log=lambda *a: None, popen=P) == 0
     assert len(started) == 2 and started[0][-1].endswith("jobs_0.json")
-    assert json.loads((tmp_path / "jobs" / "jobs_1.json").read_text())["jobs"] == [{"id": "1"}, {"id": "3"}]
+    assert [j["id"] for j in json.loads((tmp_path / "jobs" / "jobs_1.json").read_text())["jobs"]] == ["1", "3"]
+
+
+def test_a_model_that_crashes_blender_is_recorded_and_the_rest_rendered(tmp_path):
+    started = []
+    doc = {"jobs": [{"id": str(i), "job_sha": "s"} for i in range(5)], "settings": {}, "work": str(tmp_path)}
+    P = fake_blender(tmp_path, started, crash_on="2")
+    assert R.run_render(doc, "blender", tmp_path, workers=2, log=lambda *a: None, popen=P) == 0   # recorded
+    rec = json.loads(R.measure_path(tmp_path, "2").read_text())
+    assert rec["ok"] is False and "Blender stopped" in rec["error"] and rec["attempts"] >= R.MAX_ATTEMPTS
+    assert json.loads(R.measure_path(tmp_path, "4").read_text())["ok"] is True     # dealt again in round 2
+    assert len(started) == 3
 
 
 def test_sheet_has_four_views_and_a_printed_header(tmp_path):

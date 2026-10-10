@@ -324,8 +324,9 @@ def cmd_gaps(args) -> int:
         statuses = {r["id"]: r["status"] for r in doc["items"]}
         keep = ("keep", "fix")
     groups = G.groups_from_yaml()
-    rows = G.gap_table(items, statuses, groups, load_config(), keep)
-    note = ("Group needs from " + ("wenart/furniture/groups.yaml" if groups else
+    rows = G.gap_table(items, statuses, G.merge_groups(groups, G.BUILTIN_GROUPS), load_config(), keep)
+    note = ("Group needs from " + ("wenart/furniture/groups.yaml (track G) plus the decor and light rows of the "
+                                   "built-in table" if groups else
                                    "the built-in table (wenart/assets/audit/gaps.py; groups.yaml not found)") + ".")
     if args.dry:
         note += (" Dry audit: models expected to stay (`keep?`, `fix?`); generated models waiting for two vision "

@@ -51,6 +51,20 @@ def test_groups_yaml_is_read_leniently(tmp_path):
     assert g == {"living": [("seating", "anchor", ("sofa",)), ("seating", "partner", ("table_coffee",)),
                             ("seating", "partner", ("armchair",))]}
     assert G.groups_from_yaml(tmp_path / "missing.yaml") is None
+    # track G's shape (wenart/furniture/groups.yaml): anchor types, partners with their roles
+    p.write_text("version: 1\nrules: {walkway: {min: 0.6}}\ngroups:\n  seating:\n    room_types: [living]\n"
+                 "    anchor: {types: [sofa, sofa_corner], place: wall}\n"
+                 "    partners:\n      - {role: tv, type: tv_unit, required: true}\n"
+                 "      - {role: coffee, type: table_coffee, required: false}\n", encoding="utf-8")
+    assert G.groups_from_yaml(p) == {"living": [("seating", "anchor", ("sofa",)),
+                                                ("seating", "anchor", ("sofa_corner",)),
+                                                ("seating", "partner", ("tv_unit",)),
+                                                ("seating", "partner", ("table_coffee",))]}
+    merged = G.merge_groups(G.groups_from_yaml(p), G.BUILTIN_GROUPS)
+    assert merged["living"][:4] == G.groups_from_yaml(p)["living"]          # groups.yaml first
+    assert ("decor", "partner", ("wall_art",)) in merged["living"]           # the built-in decor rows added
+    assert ("media", "anchor", ("tv_unit",)) not in merged["living"]         # tv_unit already named by groups.yaml
+    assert G.merge_groups(None, G.BUILTIN_GROUPS) == G.BUILTIN_GROUPS
     for room, members in G.BUILTIN_GROUPS.items():
         for _g, role, types in members:
             assert role in ("anchor", "partner")

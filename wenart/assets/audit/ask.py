@@ -205,15 +205,17 @@ class Model:
 
 def model_of(key: str, model_id: Optional[str] = None, slug: Optional[str] = None,
              check_yaml: Optional[Path] = None) -> Model:
-    """A check.yaml model key (any key: the agent model, a bake-off model) or an explicit id and slug."""
+    """A check.yaml model key (any key: the agent model; a dotted key names a nested entry, as the bake-off's
+    ``bakeoff.fp8`` that ``wenart.run.servers`` serves) or an explicit id and slug."""
     if model_id:
         return Model(key or "custom", model_id, slug or model_id.split("/")[-1].lower())
     from wenart.recognition import answers as A
-    models = A.load_models(check_yaml)
-    if key not in models:
-        raise KeyError(f"model key {key!r} is not in check.yaml models ({', '.join(models)})")
-    m = models[key]
-    return Model(key, str(m["id"]), str(m["slug"]))
+    node = A.load_models(check_yaml)
+    for part in str(key).split("."):
+        node = node.get(part) if isinstance(node, dict) else None
+    if not isinstance(node, dict) or not node.get("id"):
+        raise KeyError(f"model key {key!r} is not in check.yaml models")
+    return Model(key, str(node["id"]), str(node.get("slug") or str(node["id"]).split("/")[-1].lower()))
 
 
 def spec_for(second: bool):

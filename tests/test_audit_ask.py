@@ -54,6 +54,15 @@ def test_model_keys():
         A.model_of("no_such_key")
 
 
+def test_dotted_model_keys_name_nested_entries(tmp_path):
+    y = tmp_path / "check.yaml"
+    y.write_text("models:\n  agent: {id: org/A, slug: a}\n  bakeoff:\n    fp8: {id: org/B-FP8, slug: b-fp8}\n",
+                 encoding="utf-8")
+    assert A.model_of("bakeoff.fp8", check_yaml=y) == A.Model("bakeoff.fp8", "org/B-FP8", "b-fp8")
+    with pytest.raises(KeyError):
+        A.model_of("bakeoff", check_yaml=y)
+
+
 def test_ask_with_a_fake_client_stores_and_reuses(tmp_path):
     audit = tmp_path / "audit"
     sheet = audit / "sheets" / "bed_double" / "abo_x.jpg"
