@@ -161,7 +161,11 @@ REPO_ROOT = _repo_root()
 # fingerprint through brief_args too), the style package (vocabulary + track C's finishes and colours).
 FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry.py", "wenart/canonical.py",
                     "wenart/furniture/catalog.json", "wenart/__init__.py", "wenart/views.py", "wenart/brief.py",
-                    "wenart/defaults.yaml")
+                    "wenart/defaults.yaml",
+                    # Milestone 12 (track L): the terrain surface of site.ground (wenart.levels.terrain); track S: the
+                    # catalogue rule and the size table the furniture build imports (lead note of 10 Oct 2026)
+                    "wenart/levels/__init__.py", "wenart/levels/terrain.py", "wenart/furniture/__init__.py",
+                    "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
@@ -1160,8 +1164,10 @@ def unverified_items(building: dict) -> list[dict]:
     for room in building.get("rooms") or []:
         if room.get("status") == "unverified":
             out.append({"id": room["id"], "kind": "room", "level_id": room.get("level_id")})
+    from wenart.blender.shell import piece_built     # M12: unknown / no-model pieces are not built either
+
     for piece in building.get("furniture") or []:
-        if piece.get("status") == "unverified" and piece.get("build", True) is not False:
+        if piece.get("status") == "unverified" and piece_built(piece):
             out.append({"id": piece["id"], "kind": "furniture", "level_id": piece.get("level_id")})
     return out
 
@@ -1195,6 +1201,7 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
     ceiling; the layout and fit stages decide sizes."""
     from wenart import geometry as G
     from wenart.blender import geom2d
+    from wenart.blender import shell as SH
     from wenart.blender.parametric import piece_bbox
 
     planes = level.get("ceiling_planes")
@@ -1202,7 +1209,7 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
         return []
     out = []
     for piece in building.get("furniture") or []:
-        if piece.get("level_id") != level["id"] or piece.get("build", True) is False or piece.get("type") == "stair":
+        if piece.get("level_id") != level["id"] or not SH.piece_built(piece) or piece.get("type") == "stair":
             continue
         fp = piece["footprint"]
         # a wall-hung piece (mount_bottom_m, §1.6b row 15) hangs that high above the floor

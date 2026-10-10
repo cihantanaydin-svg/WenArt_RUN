@@ -29,6 +29,14 @@ How (pure Python, tested on the CPU; ``build_site`` makes the Blender objects):
   crown sized from the drawn crown (height assumed); cars and other site decor are listed, not built.
 - ``build_site``: object kinds ``terrain``, ``light_well``, ``site_wall``, ``site_area``, ``site_decor``
   (§1.6b row 11); the looks come from ``exterior.resolve_looks`` (an area's own drawn material first).
+
+Milestone 12 (docs/milestone12.md §3.3-§3.4, track L): the terrain surface ``site.ground.surface`` of kind
+``planar`` or ``tin`` (ground marks, ``wenart.levels.terrain``) is the ground where the pipeline wrote one
+(``terrain_model`` kind ``planar`` / ``tin``, ``ground_z`` evaluates it, flat beyond the points; the basement doors'
+side changes do not apply to it, a warning); the entrances come from ``site.entrances`` when the pipeline wrote them
+(``wenart.levels.model``: threshold, ground, steps with their riser, tread and intermediate landings, the landing,
+a ramp along the facade, handrails and cheek walls: ``entrance_steps``, ``entrance_meshes``); a light well record
+of ``source: assumed`` in the building JSON (the pipeline's copy of the build's own rule) is not a drawn one.
 """
 from __future__ import annotations
 
@@ -38,6 +46,7 @@ from typing import Optional, Sequence
 from wenart import geometry as G
 from wenart.blender import geom2d
 from wenart.blender.shell import outward_side
+from wenart.levels import terrain as LT
 
 GRID_M = 1.0                    # ground grid where the terrain is not flat
 GRID_MAX_CELLS = 80              # per side: a large ground gets a coarser grid
@@ -139,6 +148,22 @@ def terrain_model(building: dict, outline: Sequence[Sequence[float]], default_z:
     ys = [float(p[1]) for p in outline] or [0.0]
     rect = [min(xs), min(ys), max(xs), max(ys)]
     assumed, warnings, sides = [], [], []
+    surface = ground.get("surface") if isinstance(ground.get("surface"), dict) else None
+    if surface and surface.get("kind") in ("planar", "tin") and len(surface.get("points") or []) >= 3:
+        # Milestone 12: the terrain surface from ground marks (wenart.levels.terrain).
+        for axis in sorted(overrides or {}):
+            warnings.append(f"{', '.join((overrides[axis].get('opening_ids') or []))}: below the drawn terrain "
+                            f"surface on the {axis} side; the surface is kept")
+        mid = ((rect[0] + rect[2]) / 2.0, (rect[1] + rect[3]) / 2.0)
+        probe = {"+x": (rect[2] + 0.5, mid[1]), "-x": (rect[0] - 0.5, mid[1]), "+y": (mid[0], rect[3] + 0.5),
+                 "-y": (mid[0], rect[1] - 0.5)}
+        zs = {k: LT.surface_z(surface, *p) for k, p in probe.items()}
+        if surface.get("inferred"):
+            assumed.append({"field": "terrain", "value": surface["kind"],
+                            "reason": surface.get("reason") or "terrain surface inferred"})
+        return {"kind": surface["kind"], "z": zs, "rect": rect, "sides": sides, "assumed": assumed,
+                "warnings": warnings, "north_deg": north, "north_source": north_src, "changes": [],
+                "surface": surface}
     by_axis: dict[str, list[float]] = {}
     flat_z = None
     for entry in ground.get("levels") or []:
@@ -245,6 +270,8 @@ def ground_z(model: dict, x: float, y: float) -> float:
     z = model["z"]
     if model["kind"] == "flat":
         return float(z["+x"])
+    if model["kind"] in ("planar", "tin") and model.get("surface"):
+        return LT.surface_z(model["surface"], x, y)
     x0, y0, x1, y1 = model["rect"]
     dx = -1 if x < x0 else (1 if x > x1 else 0)
     dy = -1 if y < y0 else (1 if y > y1 else 0)
@@ -378,8 +405,9 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
     from wenart.blender.shell import opening_centre_on_wall, opening_vertical
 
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    # Milestone 12: the pipeline's copy of this rule (``source: assumed``, inferred) is no drawn light well.
     drawn = {w.get("opening_id"): w for w in ((site.get("ground") or {}).get("light_wells") or [])
-             if isinstance(w, dict) and w.get("opening_id")}
+             if isinstance(w, dict) and w.get("opening_id") and w.get("source", "drawn") == "drawn"}
     wells, warnings = [], []
     ids = {lv["id"] for lv in levels}
     walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") in ids}
@@ -652,7 +680,14 @@ def entrances(building: dict, levels: Sequence[dict], terrain: dict, outline: Se
     """The entrance doors (pure): outside doors whose bottom lies from ``LIGHT_WELL_CLEARANCE`` under to
     ``entrance_max_rise`` over the ground outside (a door higher up opens onto a balcony or a terrace). Each:
     ``{"opening_id", "level_id", "centre", "outward", "axis", "width", "bottom", "ground_z", "rise", "half_t"}``;
-    ``rise`` > ``LIGHT_WELL_CLEARANCE`` needs steps."""
+    ``rise`` > ``LIGHT_WELL_CLEARANCE`` needs steps.
+
+    Milestone 12: when the pipeline wrote ``site.entrances`` (``wenart.levels.model``), those are the entrances (every
+    rise; a door into the air or below the ground is left out, the level checks L2 / L3 report it), each with its
+    ``record``."""
+    records = record_entrances(building, levels)
+    if records is not None:
+        return records
     out = []
     for rec in outer_openings(building, levels, outline, outlines, kinds=("door",)):
         cx, cy = rec["centre"]
@@ -664,6 +699,30 @@ def entrances(building: dict, levels: Sequence[dict], terrain: dict, outline: Se
         out.append({"opening_id": rec["opening"]["id"], "level_id": rec["level"]["id"], "centre": (cx, cy),
                     "outward": (ox, oy), "axis": rec["axis"], "width": float(rec["opening"]["width"]),
                     "bottom": rec["bottom"], "ground_z": gz, "rise": max(0.0, rise), "half_t": rec["half_t"]})
+    return out
+
+
+def record_entrances(building: dict, levels: Sequence[dict]) -> Optional[list[dict]]:
+    """The entrances of ``site.entrances`` (Milestone 12) in the format of ``entrances``, or None when the building
+    has none written (the M10/M11 rule applies then). Doors into the air and below the ground are left out."""
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    recs = site.get("entrances")
+    if not isinstance(recs, list):
+        return None
+    ids = {lv["id"] for lv in levels}
+    out = []
+    for r in recs:
+        if not isinstance(r, dict) or r.get("level_id") not in ids or r.get("into_air") or r.get("below_ground"):
+            continue
+        if not r.get("centre") or not r.get("outward"):
+            continue
+        outward = (float(r["outward"][0]), float(r["outward"][1]))
+        out.append({"opening_id": r["door_id"], "level_id": r["level_id"],
+                    "centre": (float(r["centre"][0]), float(r["centre"][1])), "outward": outward,
+                    "axis": nearest_axis(outward), "width": float(r.get("width") or 0.9),
+                    "bottom": float(r["threshold_z"]), "ground_z": float(r["ground_z"]),
+                    "rise": max(0.0, float(r.get("rise") or 0.0)), "half_t": float(r.get("half_t") or 0.1),
+                    "record": r})
     return out
 
 
@@ -726,6 +785,8 @@ def entrance_steps(e: dict) -> dict:
     at grade."""
     face = (e["centre"][0] + e["outward"][0] * e["half_t"], e["centre"][1] + e["outward"][1] * e["half_t"])
     half_w = e["width"] / 2.0 + INFERRED["landing_side"]
+    if e.get("record") is not None:
+        return record_steps(e, face)
     if e["rise"] <= LIGHT_WELL_CLEARANCE:
         return {"opening_id": e["opening_id"], "blocks": [], "end": 0.0, "count": 0, "rise": 0.0, "face": face}
     n = max(1, int(math.ceil(e["rise"] / INFERRED["step_rise"] - 1e-9)))
@@ -737,6 +798,137 @@ def entrance_steps(e: dict) -> dict:
                        "z_top": e["bottom"] - i * r})
     return {"opening_id": e["opening_id"], "blocks": blocks, "end": INFERRED["landing"] + (n - 1) * INFERRED["step_run"],
             "count": n - 1, "rise": round(r, 4), "face": face}
+
+
+HANDRAIL = {"height": 0.90, "inset": 0.05, "rail": 0.05, "post": 0.05}      # our assumption (flagged in the report)
+CHEEK = {"thickness": 0.15, "above": 0.10}
+
+
+def record_steps(e: dict, face) -> dict:
+    """The landing, flights, intermediate landings, ramp, handrails and cheek walls of a ``site.entrances`` record
+    (Milestone 12, pure): ``{"opening_id", "blocks": [{"polygon", "z_top"}], "end", "count", "rise", "face",
+    "risers", "intermediate_landings", "ramp": {"polygon", "z_start", "z_end", "s"} | None, "rails": [(p0, p1)],
+    "posts": [(p0, p1)], "cheeks": [{"polygon", "z_top"}], "solution"}``. The flight runs straight out from the
+    landing (riser and tread of the record, an intermediate landing between flights); a ramp runs along the facade
+    from the landing's side, down to the ground; handrails 0.90 m above the walking line on both sides."""
+    rec = e["record"]
+    o = e["outward"]
+    u = (-o[1], o[0])
+    st = rec.get("steps") or None
+    landing = rec.get("landing") or None
+    ramp = rec.get("ramp") or None
+    out = {"opening_id": e["opening_id"], "blocks": [], "end": 0.0, "count": 0, "rise": 0.0, "face": face,
+           "risers": 0, "intermediate_landings": 0, "ramp": None, "rails": [], "posts": [], "cheeks": [],
+           "solution": rec.get("solution") or "none"}
+    if rec.get("solution") in (None, "none") or (st is None and ramp is None):
+        return out
+    top = float((landing or {}).get("z", e["bottom"]))
+    ground = float(e["ground_z"])
+    depth = float((landing or {}).get("depth", INFERRED["landing"]))
+    width = float((landing or {}).get("width", e["width"] + 2 * INFERRED["landing_side"]))
+    half_w = width / 2.0
+
+    def at(s: float, d: float, z: float) -> tuple[float, float, float]:
+        return (face[0] + u[0] * s + o[0] * d, face[1] + u[1] * s + o[1] * d, z)
+
+    def side_cheeks(d0: float, d1: float, z_top: float) -> None:
+        if st and st.get("cheek_walls"):
+            for s0, s1 in ((half_w, half_w + CHEEK["thickness"]), (-half_w - CHEEK["thickness"], -half_w)):
+                poly = geom2d.ccw([at(s, d, 0.0)[:2] for s, d in ((s0, d0), (s1, d0), (s1, d1), (s0, d1))])
+                out["cheeks"].append({"polygon": poly, "z_top": z_top + CHEEK["above"]})
+
+    out["blocks"].append({"polygon": _rect_along(face, o, 0.0, depth, half_w), "z_top": top})
+    side_cheeks(0.0, depth, top)
+    d, z = depth, top
+    if st:
+        n = int(st["count"])
+        r = (top - ground) / n if n > 0 and top > ground else float(st["riser"])   # exact (the record rounds it)
+        t = float(st["tread"])
+        flights = [int(k) for k in st.get("flights") or [n]]
+        done = 0
+        for fi, k in enumerate(flights):
+            for j in range(k):
+                z -= r
+                done += 1
+                if done >= n:
+                    break
+                run = depth if j == k - 1 else t       # the last riser of a flight (not the last one): a landing
+                out["blocks"].append({"polygon": _rect_along(face, o, d, d + run, half_w), "z_top": z})
+                side_cheeks(d, d + run, z)
+                d += run
+        out.update(end=d, count=n - 1, rise=round(r, 4), risers=n, intermediate_landings=len(flights) - 1)
+        if st.get("handrails"):
+            for s in (half_w - HANDRAIL["inset"], -half_w + HANDRAIL["inset"]):
+                h = HANDRAIL["height"]
+                a, b, c = at(s, 0.0, top + h), at(s, depth, top + h), at(s, d, ground + r + h)
+                out["rails"] += [(a, b), (b, c)]
+                out["posts"] += [((p[0], p[1], p[2] - h), p) for p in (a, b, c)]
+    if ramp:
+        length, rw = float(ramp["length"]), float(ramp["width"])
+        s0, s1 = half_w, half_w + length
+        d0, d1 = max(0.0, depth - rw), depth
+        poly = [at(s, dd, 0.0)[:2] for s, dd in ((s0, d0), (s1, d0), (s1, d1), (s0, d1))]
+        out["ramp"] = {"polygon": poly, "z_start": top, "z_end": ground, "s": [s0, s1], "d": [d0, d1],
+                       "length": length, "slope": ramp.get("slope")}
+        if ramp.get("handrails"):
+            h = HANDRAIL["height"]
+            for dd in (d1 - HANDRAIL["inset"], d0 + HANDRAIL["inset"]):
+                a, b = at(s0, dd, top + h), at(s1, dd, ground + h)
+                out["rails"].append((a, b))
+                out["posts"] += [((p[0], p[1], p[2] - h), p) for p in (a, b)]
+    return out
+
+
+def bar(p0: Sequence[float], p1: Sequence[float], w: float, h: float) -> tuple[list, list]:
+    """A square bar ``w`` wide and ``h`` high from ``p0`` to ``p1`` (3D, may slope): 8 vertices, 6 faces."""
+    dx, dy, dz = p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]
+    hl = math.hypot(dx, dy)
+    if hl <= 1e-9:                                    # a vertical post: a box w x w
+        return geom2d.box(((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0, (p0[2] + p1[2]) / 2.0),
+                          (w, w, abs(dz) + h), 0.0)
+    nx, ny = -dy / hl, dx / hl
+    verts = []
+    for p in (p0, p1):
+        for sw, sh in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+            verts.append((p[0] + nx * sw * w / 2.0, p[1] + ny * sw * w / 2.0, p[2] + sh * h / 2.0))
+    faces = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+    return verts, faces
+
+
+def ramp_solid(ramp: dict, z_bottom: float) -> tuple[list, list]:
+    """The ramp's solid: its polygon from ``z_bottom`` up to a top sloping from ``z_start`` (at the landing) to
+    ``z_end`` (at the far end)."""
+    poly = ramp["polygon"]                            # (s0, d0), (s1, d0), (s1, d1), (s0, d1)
+    zt = [ramp["z_start"], ramp["z_end"], ramp["z_end"], ramp["z_start"]]
+    verts = [(p[0], p[1], z_bottom) for p in poly] + [(p[0], p[1], z) for p, z in zip(poly, zt)]
+    faces = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+    if G.polygon_signed_area(poly) < 0:
+        faces = [list(reversed(f)) for f in faces]
+    return verts, faces
+
+
+def entrance_meshes(st: dict, terrain: dict) -> list[dict]:
+    """The Blender meshes of one entrance (pure): ``[{"name", "kind", "verts", "faces"}]``: ``steps_<door>``
+    (kind ``site_steps``: landing, flights and cheek walls, each block from 0.1 m under the ground), ``ramp_<door>``
+    (``site_ramp``) and ``handrail_<door>`` (``site_handrail``: rails and posts)."""
+    out = []
+    parts = []
+    for blk in list(st["blocks"]) + list(st.get("cheeks") or []):
+        z0 = min(ground_z(terrain, *p) for p in blk["polygon"]) - 0.1
+        parts.append(geom2d.prism(blk["polygon"], z0, blk["z_top"]))
+    if parts:
+        v, f = geom2d.merge(parts)
+        out.append({"name": f"steps_{st['opening_id']}", "kind": "site_steps", "verts": v, "faces": f})
+    if st.get("ramp"):
+        z0 = min(ground_z(terrain, *p) for p in st["ramp"]["polygon"]) - 0.1
+        v, f = ramp_solid(st["ramp"], z0)
+        out.append({"name": f"ramp_{st['opening_id']}", "kind": "site_ramp", "verts": v, "faces": f})
+    rails = [bar(a, b, HANDRAIL["rail"], HANDRAIL["rail"]) for a, b in st.get("rails") or []]
+    rails += [bar(a, b, HANDRAIL["post"], HANDRAIL["post"]) for a, b in st.get("posts") or []]
+    if rails:
+        v, f = geom2d.merge(rails)
+        out.append({"name": f"handrail_{st['opening_id']}", "kind": "site_handrail", "verts": v, "faces": f})
+    return out
 
 
 def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[dict]:
@@ -1187,19 +1379,20 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     inferred = plan.get("inferred")
     if inferred:                                     # Milestone 11 E11: steps and the boundary (inferred)
         step_mat = make_material(looks.get("steps") or looks["paving"]) if inferred["steps"] else None
+        rail_mat = make_material(looks.get("railing") or {"material": "painted_metal_white", "colour": None}) \
+            if any(st.get("rails") for st in inferred["steps"]) else None
         for st in inferred["steps"]:
-            parts = []
-            for blk in st["blocks"]:
-                z0 = min(ground_z(terrain, *p) for p in blk["polygon"]) - 0.1
-                parts.append(geom2d.prism(blk["polygon"], z0, blk["z_top"]))
-            v, f = geom2d.merge(parts)
-            wid = f"steps_{st['opening_id']}"
-            ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_steps",
-                                        status="assumed", materials=[step_mat])
-            entry(ob.name, wid, "site_steps", step_mat, "assumed",
-                  {"parent": st["opening_id"], "inferred": True,
-                   "assumed": {"steps": st["count"], "rise_m": st["rise"], "reason": "entrance above the ground: a "
-                                                                                     "landing and steps (inferred)"}})
+            # Milestone 12: landing, flights, cheek walls, a ramp and handrails (entrance_meshes); one object each.
+            for mesh in entrance_meshes(st, terrain):
+                wid = mesh["name"]
+                mat = rail_mat if mesh["kind"] == "site_handrail" else step_mat
+                ob = common.new_mesh_object(wid, mesh["verts"], mesh["faces"], collection=collection, wenart_id=wid,
+                                            kind=mesh["kind"], status="assumed", materials=[mat])
+                entry(ob.name, wid, mesh["kind"], mat, "assumed",
+                      {"parent": st["opening_id"], "inferred": True, "entrance": st["opening_id"],
+                       "assumed": {"steps": st["count"], "risers": st.get("risers"), "rise_m": st["rise"],
+                                   "solution": st.get("solution"), "reason": "entrance above the ground: a landing "
+                                                                             "and steps (inferred)"}})
         kinds = sorted({seg["kind"] for seg in inferred["boundary"]})
         for kind in kinds:
             segs = [seg for seg in inferred["boundary"] if seg["kind"] == kind]
@@ -1218,7 +1411,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         summary["inferred"] = {
             "plot": [[round(x, 3), round(y, 3)] for x, y in inferred["plot"]], "plot_inferred": inferred["plot_inferred"],
             "main_facade": inferred["main"], "entrances": [e["opening_id"] for e in inferred["entrances"]],
-            "steps": [{"opening_id": s["opening_id"], "count": s["count"], "rise": s["rise"]} for s in inferred["steps"]],
+            "steps": [{"opening_id": s["opening_id"], "count": s["count"], "rise": s["rise"],
+                       "solution": s.get("solution"), "risers": s.get("risers"),
+                       "intermediate_landings": s.get("intermediate_landings"), "ramp": bool(s.get("ramp")),
+                       "handrails": bool(s.get("rails"))} for s in inferred["steps"]],
             "paths": [{"opening_ids": p["opening_ids"], "length": p["length"], "width": p["width"]}
                       for p in inferred["paths"]],
             "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]]}

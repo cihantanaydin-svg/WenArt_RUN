@@ -31,7 +31,7 @@ import numpy as np
 import pytest
 
 from wenart import geometry as G
-from wenart.blender import cameras, camsearch as C, cli, geom2d, schemas
+from wenart.blender import cameras, camsearch as C, cli, geom2d, schemas, shell as SH
 from wenart.blender.parametric import obstacle_rect
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -509,7 +509,9 @@ def test_rooms_without_furniture_get_one_view_or_none_below_2_5_m2():
     plans = cameras.plan_cameras(shown, "L0", policy="search")
     assert len(plans) == 1 and plans[0]["visible_furniture"] == []
     assert all("sym" not in p["visible_furniture"] for p in cameras.plan_cameras(shown, "L0"))
-    shown["furniture"][0]["build"] = True
+    shown["furniture"][0]["build"] = True                 # Milestone 12 (lead note): an unknown piece is not built
+    assert C.shown_pieces(shown["rooms"][0], shown) == []
+    shown["furniture"][0]["type"] = "side_table"
     assert len(C.shown_pieces(shown["rooms"][0], shown)) == 1 and C.room_view_count(shown["rooms"][0], shown) == 3
 
 
@@ -1211,8 +1213,9 @@ def test_synthetic_search_cameras_are_free_and_unblocked(searched):
     for p in plans:
         room = rooms[p["room_id"]]
         poly = C.room_polygon(room)
+        # Milestone 12 (lead note): only built pieces are obstacles (not unknown, not asset method none)
         obstacles = [obstacle_rect(f) for f in building["furniture"]
-                     if f.get("room_id") == room["id"] and f.get("kind") != "decor"]
+                     if f.get("room_id") == room["id"] and f.get("kind") != "decor" and SH.piece_built(f)]
         if not p["warning"]:
             assert geom2d.point_is_free(p["position"][:2], poly, obstacles, 0.3, 0.2), p["name"]
         assert G.point_in_polygon(p["position"][:2], poly), p["name"]
@@ -1257,8 +1260,9 @@ def test_plan_count_of_the_committed_buildings_follows_the_area_rule():
     final = {name: _final(name) for name in ("synthetic-01", "synthetic-03")}
     assert sum(C.room_view_count(r, final["synthetic-01"]) for r in final["synthetic-01"]["rooms"]) == 29
     assert sum(C.room_view_count(r, final["synthetic-03"]) for r in final["synthetic-03"]["rooms"]) == 44
+    # Milestone 12 (lead note): r_L0_kiler's only piece is unknown, so it is not built and shows nothing either.
     assert [r["id"] for r in final["synthetic-03"]["rooms"] if not C.shown_pieces(r, final["synthetic-03"])] == \
-        ["r_L-1_kiler", "r_L-1_kiler_2", "r_L1_balkon"]
+        ["r_L-1_kiler", "r_L-1_kiler_2", "r_L0_kiler", "r_L1_balkon"]
     assert all(C.rooms_without_view(b) == [] for b in final.values())
 
 

@@ -66,6 +66,8 @@ DEFAULTS = {
     "knee_wall": 1.00,           # an attic without eaves height and knee wall
     "parapet": 1.00,             # a roof terrace without a drawn parapet
     "flat_thickness": 0.30,      # a flat roof slab
+    "flat_cut_parapet": 0.30,    # Milestone 12: the parapet of a flat_cut roof (a single drawn ground floor)
+    "parapet_thickness": 0.20,
 }
 CEILING_GAP = 0.001              # attic ceilings stay this far under the roof underside (no coplanar faces)
 CONVEX_TOL = 0.01                # drawn planes: a plane more than this above another at its own corners -> not convex
@@ -735,7 +737,15 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
              "thickness": thickness, "eaves_z": eaves, "ridge_z": ridge, "convex": convex,
              "covering": roof.get("covering"), "covering_colour": roof.get("covering_colour"),
              "covering_source": roof.get("covering_source"), "assumed": assumed, "warnings": warnings,
-             "notes": notes, "derived_check": check, "profile": roof.get("profile")}
+             "notes": notes, "derived_check": check, "profile": roof.get("profile"),
+             "kind": roof.get("kind"), "parapet": 0.0}
+    if roof.get("kind") == "flat_cut":
+        # Milestone 12 (docs/milestone12.md §3.4, U2): a single drawn ground floor ends with a flat roof slab and a
+        # low parapet on its outer walls (inferred, "upper floors not drawn").
+        ph = _value(roof.get("parapet_height"))
+        model["parapet"] = DEFAULTS["flat_cut_parapet"] if ph is None else max(0.0, ph)
+        assumed.append({"field": "flat_cut", "value": model["parapet"],
+                        "reason": roof.get("note") or "upper floors not drawn: a flat roof slab with a parapet"})
     model["knee_wall_check"] = knee_wall_check(model, roof, building)
     if model["knee_wall_check"] and abs(model["knee_wall_check"]["difference"]) > 0.05:
         warnings.append(f"knee wall {model['knee_wall_check']['drawn']:.2f} m drawn, "
@@ -1010,7 +1020,32 @@ def roof_solid(model: dict) -> tuple[list, list, list[int]]:
     # Terrace openings reach over the eaves (§1.6b row 13): only the edges of what is left get a fascia.
     for p, q in geom2d.region_boundary(outer, holes):
         faces += [(f, SLOT_FASCIA) for f in geom2d.segment_side_faces(p, q, top, bottom)]
+    for verts, idx in parapet_ring(model):           # Milestone 12: flat_cut
+        faces += [([verts[i] for i in f], SLOT_FASCIA) for f in idx]
     return _mesh(faces)
+
+
+def parapet_ring(model: dict) -> list[tuple[list, list]]:
+    """The parapet of a ``flat_cut`` roof (Milestone 12, pure): one box per outline edge, ``parapet_thickness``
+    inside the outline, from the roof top up by ``model["parapet"]``; [] for any other roof."""
+    h = float(model.get("parapet") or 0.0)
+    if model.get("kind") != "flat_cut" or h <= 0 or not model.get("equations"):
+        return []
+    t = DEFAULTS["parapet_thickness"]
+    pts = geom2d.ccw(model["outline"])
+    out = []
+    for i in range(len(pts)):
+        p, q = pts[i], pts[(i + 1) % len(pts)]
+        length = G.distance(p, q)
+        if length < 1e-6:
+            continue
+        ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+        nx, ny = -uy, ux                                     # counter-clockwise: left of the edge is inside
+        mid = G.segment_midpoint(p, q)
+        z0 = min(geom2d.plane_z(e, *mid) for e in model["equations"])
+        out.append(geom2d.box((mid[0] + nx * t / 2.0, mid[1] + ny * t / 2.0, z0 + h / 2.0), (length, t, h),
+                              math.degrees(math.atan2(uy, ux))))
+    return out
 
 
 def ceiling_faces(polygon, holes, planes: Sequence[Plane]) -> tuple[list, list]:

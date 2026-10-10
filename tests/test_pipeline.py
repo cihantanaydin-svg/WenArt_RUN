@@ -209,8 +209,13 @@ def test_one_drawing_per_page_keeps_the_m2_m9_building(built, name):
     building, out = built[name]
     assert (out / "sheets.json").is_file()
     assert B.validation_errors(building) == []
-    for key in ("variants", "slabs", "roof", "facade", "levels_left_out"):
+    # Milestone 12 (docs/milestone12.md §3.4, U2, track L): a single drawn ground floor ends with an inferred slab and
+    # a flat_cut roof (its site and exterior are built); the other M10 blocks stay absent.
+    single = name in ("synthetic-02", "synthetic-05")
+    for key in ("variants", "facade", "levels_left_out") + (() if single else ("slabs", "roof")):
         assert key not in building
+    if single:
+        assert building["roof"]["kind"] == "flat_cut" and [s["id"] for s in building["slabs"]] == ["sl_L0"]
     assert all("region_id" not in p for d in building["documents"] for p in d["pages"])
     assert all("kind" not in lv and "variant" not in lv for lv in building["levels"])
     assert all("room_subtype" not in r and "twin_of" not in r for r in building["rooms"])
