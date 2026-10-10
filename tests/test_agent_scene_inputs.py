@@ -1,4 +1,5 @@
-"""Milestone 12 track A: what the agent reads from track S (docs/milestone12.md §13.3; lead notes of 10 Oct 2026).
+"""Milestone 12 track A: what the agent reads from tracks S and L (docs/milestone12.md §13.3; lead notes of 10 Oct
+2026).
 
 - a piece is built only when ``topdown.is_built`` says so (track S's ``decor.piece_is_built``: ``build`` not false,
   not ``unknown``, not a library gap the fit left unbuilt), and the brief, the top-down and the vision critic's id
@@ -6,7 +7,9 @@
 - the scene checks are read from the folder the build writes (``outputs/<p>/scene/checks``) or the contract's
   ``build/checks``;
 - the build manifest's furniture summary gives findings: a decor item that did not rest (minor S5 on its host),
-  and a failed build whose S5 file is missing (critical); ``scene_summary`` reports the counts.
+  and a failed build whose S5 file is missing (critical); ``scene_summary`` reports the counts;
+- the ``levels`` tool shows track L's data (marks with kind and use, room floors, thresholds, ground, entrances,
+  ``level_inference``, L-findings) and the level tools take track L's schemas (``LEVEL_EDIT_SCHEMAS``).
 """
 from __future__ import annotations
 
@@ -14,7 +17,9 @@ import json
 
 from wenart.agent import brief as BR
 from wenart.agent import critic_code as CC
+from wenart.agent import tools as TL
 from wenart.agent import topdown as TD
+from tests import _levels_fixture as LF
 
 
 def piece(pid, ptype="sofa", **kw):
@@ -74,3 +79,25 @@ def test_the_manifest_summary_gives_findings(tmp_path):
     crit = [f for f in out["findings"] if f["check"] == "S5" and f["severity"] == "critical"]
     assert [f["target"] for f in crit] == ["dec_9"]
     assert CC.run(building, None, None, **_quiet())["scene_summary"] == {}
+
+
+def test_the_levels_tool_shows_track_l_data(tmp_path):
+    from wenart.levels import checks, edits, model
+    b = LF.building()
+    b["level_marks"] = [LF.mark("lm_001", -0.30, kind="unknown", point=(3.0, 4.0)),
+                        LF.mark("lm_002", -0.45, kind="ground_finished", point=(8.0, -3.0))]
+    b = model.infer_levels(b)
+    ctx = TL.ToolContext(project_out=tmp_path, building=b, level_checks=checks.check_levels)
+    out = TL.t_levels(ctx, {})
+    assert {m["id"] for m in out["marks"]} == {"lm_001", "lm_002"}
+    assert all("kind" in m and "used_for" in m for m in out["marks"])
+    assert out["level_inference"] == {k: (v[:20] if isinstance(v, list) else v)
+                                      for k, v in b["level_inference"].items()}
+    assert out["ground"]["points"] or out["ground"]["surface"] is not None or out["terrain"] is not None
+    assert isinstance(out["findings"], list) and all("error" not in f for f in out["findings"])
+    json.dumps(out)
+    reg = TL.build_registry()
+    for op in edits.LEVEL_EDIT_OPS:
+        params = reg.tools[op].parameters
+        assert params["required"] == edits.LEVEL_EDIT_SCHEMAS[op]["required"]
+        assert set(params["properties"]) == set(edits.LEVEL_EDIT_SCHEMAS[op]["properties"])

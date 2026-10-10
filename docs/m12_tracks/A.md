@@ -1,7 +1,11 @@
 # Milestone 12, track A: agent in the pod, run orchestration, model bake-off
 
 Branch `worktree-agent-a012278d51ea14891` (not pushed). Scope: docs/milestone12.md §5 (D16–D20) and the A rows of
-§13. CPU only: no pod was started, no model was downloaded.
+§13. CPU only: no pod was started, no model was downloaded. `opus_branch_06` (tracks B, S, L) is merged in
+(no conflict); the lead notes of 10 Oct 2026 for track A are done: decor sync after every accepted edit and in
+`agent apply`, scene checks and the build manifest's summary in the critic, `furniture[].library_gap` as `LG`,
+unknown / unfitted pieces not built (`decor.piece_is_built`), `FIT_CODE` with the size table, dotted keys in the
+setup, audit-removed models marked in `ATTRIBUTION.md`, the `levels` tool and the level tools on track L's code.
 
 ## 1. As built
 
@@ -25,6 +29,7 @@ Unbuilt pieces are never drawn (`topdown.built_pieces`) and never in the vision 
 |---|---|
 | Group and room tools: `move_group`, `complete_group`, `place_group`, `relayout_room` (`candidate` 1-3), `set_front`, `retype_piece`, `mark_not_furniture`, `fix_fixture` | `overrides.FURNITURE_TOOLS`, `GROUP_OPS`, `tools.furniture_handler`, `resolve_edit` (`OP_FALLBACK` while track G's ops are stubs: set_front -> rotate, retype_piece -> change_type, mark_not_furniture -> remove) |
 | Level tools: `set_mark_kind`, `set_room_floor`, `set_ground_point`, `set_entrance`, `set_terrain` | `overrides.LEVEL_TOOLS`, `tools.level_handler` (track L's `levels.edits.apply_level_edit`, `LEVEL_EDIT_SCHEMAS`), replayed by `overrides.apply(level_edit=...)` |
+| `levels` read tool | `tools.t_levels`: levels, marks with kind and use (`LEVEL_MARK_FIELDS`, AI labels), room floors with source and evidence, thresholds, ground (points, surface, source, terrain override, light wells), terrain, entrances (`ENTRANCE_FIELDS`), plinth, `level_inference`, level conflicts, L-findings with their numbers (`levels.checks.check_levels`) |
 | `dry_run` (free: no try, no memory, logged as `dry_run`) | `tools.dry_run_handler` |
 | `report_library_gap` | `tools.t_report_library_gap` -> `agent_overrides.library_gaps` |
 | Failed checks with numbers on every edit | `tools._building_edit` -> `room_checks_now` |
@@ -72,8 +77,13 @@ section `wenart/report/agent.py: metrics_lines`. Baselines committed: `results/c
 - `servers.model_entry` (dotted keys `bakeoff.<name>`), `gpu_count()` (`WENART_GPU_COUNT`), `serve_command(...,
   tensor_parallel)`, `VLMServer.devices` (`CUDA_VISIBLE_DEVICES`), a 2-GPU model refused with `ServerError("config")`
   on a 1-GPU pod; `plan._table` skips the nested bake-off table.
-- `stages.FIT_CODE` + `wenart/furniture/sizes.py`, `wenart/recognition/size_table.yaml` (track S: fit and refit
-  read the size table); `AGENT_CODE` + `wenart/levels/**`.
+- Stage code lists after the merge of B, S, L (the import closures, `tests/test_run_stages.py`): `FIT_CODE` +
+  `wenart/furniture/sizes.py`, `wenart/recognition/size_table.yaml`; `LEVELS_CODE` (`wenart/levels/**`,
+  `wenart/blender/**`, `canonical.py`, `views.py`, `style/**`, `catalog.py`, `sizes.py`, the catalogues) added to
+  sheets / pipeline / pipeline_final, layout, decor and decor_ask (track L's level inference runs in the pipeline
+  and imports the site and shell helpers); `GATE_CODE` + `wenart/levels/**`; `AGENT_CODE` + `wenart/levels/**`.
+  The plan of real01 before its answers counts 17 views (25 before): its rooms with only `unknown` pieces now count
+  as unfurnished (`camsearch.shown_pieces` uses track S's built rule), `tests/test_run_plan.py` updated.
 - `copy.audit_removed`: `ATTRIBUTION.md` marks a model the library audit removed, with its reasons (it stays
   credited: older thumbnails show it).
 - `scripts/pod_setup_polish.sh: vlm_entries` downloads dotted `AGENT_MODELS` keys (`bakeoff.fp8`), for P1 and for
@@ -116,13 +126,13 @@ section `wenart/report/agent.py: metrics_lines`. Baselines committed: `results/c
 | `tests/test_agent_memory.py` | 5 | memory file, edit keys, refusal of a repeated rejected edit |
 | `tests/test_agent_loop_m12.py` | 12 | plan-first sessions, checked plans, coverage ranking, parallel sessions, time cap, decor sync, level edits, op fallbacks, critic families |
 | `tests/test_agent_metrics.py` | 3 | metrics, compare table |
-| `tests/test_agent_scene_inputs.py` | 3 | built rule (unknown, library gap), scene checks folder, manifest summary findings |
+| `tests/test_agent_scene_inputs.py` | 4 | built rule (unknown, library gap), scene checks folder, manifest summary findings, the `levels` tool on track L's inference and the level tools' schemas |
 | `tests/test_bakeoff_m12.py` | 16 | models = contract ids and revisions, variants, dotted downloads, task set, planted-problem checks, scoring, decision rule, scripted runs (T1-T5), time cap, summary, crop, job script, partial rebuild, `run_model` files |
 | `tests/test_run_agent_m12.py` | 5 | agent session for layout + decor, fallback, round-0 estimate, workers, 2-GPU serving |
 | changed: `tests/test_agent_loop.py`, `test_agent_tools.py`, `test_run_agent.py`, `test_run_copy.py` (+1) | | M12 semantics, one agent session, audit mark in `ATTRIBUTION.md` |
 | GPU: `tests/gpu/test_agent.py` | +1 | every bake-off task answers on the served model (run by P1 against `bakeoff.fp8`) |
 
-Counts of the last run are in the hand-back message.
+Last run (10 Oct 2026, after the merge of B, S, L): `pytest -m "not gpu"` on the 31 agent, bake-off, run, copy, stage, job and contract test files: 401 passed, 11 skipped. GPU tests: run by P1.
 
 ## 4. The bake-off task set
 
@@ -163,9 +173,10 @@ most. Disk: 408 GB of models + 2 vLLM venvs. Results: `$RESULTS/bakeoff_m12/` (c
 | Track | File | Request |
 |---|---|---|
 | G | `wenart/furniture/edit_ops.py` | ops (and `EDIT_SCHEMAS`) for `set_front`, `retype_piece`, `mark_not_furniture`, `move_group`, `complete_group`, `place_group`, `relayout_room` (argument `candidate`: int 1-3, the solver's rank); `allowed_edits(building, piece)` keyed by tool or op name, values `{allowed, why, move_left_m}` |
-| G | `wenart/furniture/layout.py` | when it talks to the agent model, send `chat_template_kwargs: {"enable_thinking": false}` (Qwen3.8 thinks by default; the layout expects plain JSON) |
+| G | `wenart/furniture/layout.py` | it already sends `enable_thinking: false`; if P1 picks Muse Glimmer (no thinking switch), also send the model's template keys (`check.yaml models.<key>.variants.<v>.template`, e.g. `reasoning_strength: low`) |
 | G | `group_checks`, `solver` | violations in the M11 format; `solve_room(building, room_id, k)` candidates with `rank`, `score`, `group_violations`; `apply_candidate(building, room_id, candidate)` |
-| S | `wenart/furniture/decor_ai.py` | the same `enable_thinking: false` for the decor questions on the agent server |
-| L | `wenart/levels/edits.py` | `LEVEL_EDIT_SCHEMAS` per level tool and `apply_level_edit(building, tool, args)` (used by `tools.level_handler` and `overrides.apply`) |
+| S | `wenart/furniture/decor_ai.py` | the same as layout.py if P1 picks Muse Glimmer (`enable_thinking: false` is sent already) |
+| L | `wenart/levels/edits.py`, `checks.py` | none: `LEVEL_EDIT_SCHEMAS`, `apply_level_edit(building, edit)` and `check_levels(building, scene_manifest, render_manifest)` are used as merged |
 | lead | `docs/milestone12.md` §13.3 | scene checks live in `outputs/<p>/scene/checks/` (the build's `--out`); the agent reads both |
+| S / L (owner of `wenart/blender/build.py`, `render.py`) | exterior camera plans / render manifest | L7 needs `visible_objects` on the exterior cameras (at least the entrance objects `steps_<door>` / `ramp_<door>` in view); track A writes no render manifest. Until then L7 checks only that an exterior view sees the entrance door (`visible_openings`) |
 | lead | `tests/test_run_agent.py` expectations | one agent server session per run now serves layout, decor questions and the agent (`servers.starts == ["agent"]`); Qwen only as fallback |

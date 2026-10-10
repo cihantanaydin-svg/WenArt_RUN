@@ -189,7 +189,7 @@ def test_level_edits_go_through_track_l_and_rerun_the_build(tmp_path):
     ctx = TL.ToolContext.load(out, round=1, model_id="m", apply_edit=Edits(), validators=fake_validators(),
                               level_edit=level_edit, sync=lambda b: b, overrides=OV.Overrides(out))
     reg = TL.build_registry()
-    res = reg.call(ctx, "set_room_floor", {"room_id": "r1", "offset_m": 0.15, "evidence": "KOT +0.15",
+    res = reg.call(ctx, "set_room_floor", {"room_id": "r1", "offset_m": 0.15, "evidence": {"mark_id": "lm_1"},
                                            "reason": "the mark inside the room"})
     assert res["accepted"] and res["rerun_from"] == "build" and seen[0]["op"] == "set_room_floor"
     assert ctx.room("r1")["floor_offset_m"] == 0.15 and TL.label_for("set_room_floor", ctx, {}) == "corrected_by_ai"

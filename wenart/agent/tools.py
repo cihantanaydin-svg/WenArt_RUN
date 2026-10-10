@@ -672,28 +672,47 @@ def t_room_brief(ctx: ToolContext, args: dict) -> dict:
     return ctx.brief(args["room_id"])
 
 
+# What the ``levels`` tool shows of a level mark and of an entrance (track L's fields, schema ``level_marks[]``,
+# ``site.entrances[]``; docs/m12_tracks/L.md): its kind and its use, the AI labels.
+LEVEL_MARK_FIELDS = ("id", "value", "relative", "absolute", "z", "kind", "point", "level_id", "room_id", "side",
+                     "used_for", "status", "placement", "door_id", "corrected_by_ai", "inferred", "adjusted_by_ai",
+                     "note")
+ENTRANCE_FIELDS = ("door_id", "level_id", "room_id", "side", "main", "drawn", "solution", "rise", "into_air",
+                   "below_ground", "terrain_lowered", "ground_source", "reason", "adjusted_by_ai")
+
+
 def t_levels(ctx: ToolContext, args: dict) -> dict:
     """Milestone 12 (§3.6): the building's level data and the L-findings (``levels.checks.check_levels``)."""
     b = ctx.building
     site = b.get("site") or {}
     try:
         findings = [{"check": v.get("check"), "severity": v.get("severity"), "target": v.get("target"),
-                     "message": v.get("message")} for v in ctx.level_check_fn()(b, ctx.scene, None) or []]
+                     "message": v.get("message"), "metrics": v.get("metrics") or {}}
+                    for v in ctx.level_check_fn()(b, ctx.scene, None) or []]
     except Exception as exc:  # noqa: BLE001 - the level data is still shown
         findings = [{"error": f"{type(exc).__name__}: {exc}"}]
-    marks = [{k: m.get(k) for k in ("id", "value", "relative", "kind", "point", "level_id", "room_id", "used_for")}
-             for m in b.get("level_marks") or []]
+    marks = [{k: m.get(k) for k in LEVEL_MARK_FIELDS if m.get(k) is not None} for m in b.get("level_marks") or []]
+    ground = site.get("ground") or {}
+    inference = b.get("level_inference") or {}
     return {"datum": (b.get("project") or {}).get("datum"),
             "levels": [{"id": lv.get("id"), "elevation": lv.get("elevation"),
-                        "elevation_source": lv.get("elevation_source")} for lv in b.get("levels") or []],
+                        "elevation_source": lv.get("elevation_source"), "ceiling_height": lv.get("ceiling_height")}
+                       for lv in b.get("levels") or []],
             "marks": marks[:80], "marks_total": len(marks),
-            "room_floors": [{"room_id": r.get("id"), "floor_offset_m": r.get("floor_offset_m")}
-                            for r in b.get("rooms") or [] if r.get("floor_offset_m") not in (None, 0, 0.0)],
+            "room_floors": [{"room_id": r.get("id"), "floor_offset_m": r.get("floor_offset_m"),
+                             "floor_source": r.get("floor_source"), "floor_evidence": r.get("floor_evidence")}
+                            for r in b.get("rooms") or [] if r.get("floor_offset_m") not in (None, 0, 0.0)
+                            or r.get("floor_source")],
             "thresholds": [{"opening_id": o.get("id"), "threshold_z": o.get("threshold_z")}
                            for o in b.get("openings") or [] if o.get("threshold_z") is not None],
-            "ground_points": list((site.get("ground") or {}).get("points") or [])[:60],
-            "terrain": site.get("terrain") or (site.get("ground") or {}).get("surface"),
-            "entrances": list(site.get("entrances") or []), "plinth": site.get("plinth"),
+            "ground": {"points": list(ground.get("points") or [])[:60], "surface": ground.get("surface"),
+                       "source": ground.get("source"), "terrain_override": ground.get("terrain_override"),
+                       "light_wells": list(ground.get("light_wells") or [])[:10]},
+            "terrain": site.get("terrain") or ground.get("surface"),
+            "entrances": [{k: e.get(k) for k in ENTRANCE_FIELDS if e.get(k) is not None}
+                          for e in site.get("entrances") or [] if isinstance(e, dict)],
+            "plinth": site.get("plinth"),
+            "level_inference": {k: (v[:20] if isinstance(v, list) else v) for k, v in inference.items()},
             "conflicts": [c for c in b.get("conflicts") or [] if "level" in json.dumps(c).lower()][:20],
             "findings": findings}
 

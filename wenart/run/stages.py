@@ -109,6 +109,11 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "
             "wenart/furniture/schemas.py", "wenart/synthetic/**",
             # Milestone 12 (track S, D23): fit and refit read the real sizes from one table.
             "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml")
+# Milestone 12 (track L): the level inference (wenart.levels.model) runs in the pipeline and reaches the site,
+# shell and geometry helpers of wenart.blender (function-level imports), and through them the catalogue and the
+# size table: every stage whose closure reaches wenart.levels lists all of it.
+LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/style/**",
+               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json")
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
@@ -116,7 +121,8 @@ PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", 
                  "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML,
                  # Milestone 11 (track B): the pipeline infers untyped pieces (infer.py) with the placer and the
                  # plausibility rules.
-                 "wenart/furniture/infer.py", "wenart/furniture/placer.py", "wenart/furniture/plausibility.py")
+                 "wenart/furniture/infer.py", "wenart/furniture/placer.py", "wenart/furniture/plausibility.py") \
+    + LEVELS_CODE
 # Milestone 10 (docs/milestone10.md §3.1): the sheet analysis reads the documents and the brief (failed_levels).
 SHEETS_CODE = PIPELINE_CODE
 # wenart/furniture/decor.py: its DECOR_TYPES are the vision check's decor categories (Milestone 8: rug, wall_art).
@@ -132,7 +138,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # Milestone 10 (track H): the exterior scope of the expected views reads the roof and the site.
              "wenart/vision_check/exterior.py", "wenart/blender/roof.py", "wenart/blender/site.py",
              "wenart/blender/looks.py",                  # track F: shell's looks
-             "wenart/blender/overrides.py")              # real03: lighting reads the agent's set_lighting
+             "wenart/blender/overrides.py",              # real03: lighting reads the agent's set_lighting
+             "wenart/levels/**")                         # M12: the site reads the terrain (track L)
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
@@ -144,7 +151,8 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/decor_ai.py", "wena
               "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**",
               "wenart/views.py",                         # M10: render.twin_rooms through views.brief_value
               "wenart/ingest/**", "wenart/sheets/**",    # M10: complete.py's size-table check (as the layout's)
-              "wenart/furniture/infer.py", "wenart/furniture/plausibility.py")   # M11: reached through the ingest
+              "wenart/furniture/infer.py", "wenart/furniture/plausibility.py") \
+    + LEVELS_CODE                                # M11: infer/plausibility; M12: the levels through the ingest
 DECOR_ANSWERS = "decor_ai_answers.json"
 
 
@@ -189,7 +197,7 @@ STAGE_LIST = (
            # answers module reaches the sheet questions, so the sheets and ingest packages are in the closure).
            "wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**",
            # Milestone 11 (track B): the ingest closure now reaches the inference and plausibility rules.
-           "wenart/furniture/infer.py", "wenart/furniture/plausibility.py"),
+           "wenart/furniture/infer.py", "wenart/furniture/plausibility.py") + LEVELS_CODE,
           ("building_furnished.json", "layout.json", "completion.json", "completion_report.md"), heavy=True),
     # Milestone 9 (docs/milestone9.md §4): the AI decor's two passes per room, asked in the layout's Qwen session
     # (answers stored by key in decor_ai_answers.json); a failure is a warning: the decor stage then falls back to
