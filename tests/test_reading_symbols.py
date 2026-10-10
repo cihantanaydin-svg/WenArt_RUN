@@ -263,6 +263,21 @@ def test_the_unknown_parts_of_a_re_read_that_fit_a_type_are_asked_under_content_
     assert not [p for p in pieces if p.type == "unknown"]               # asked, not left as boxes
 
 
+def test_a_column_inside_a_re_read_cluster_stays_a_not_built_obstacle():
+    """real02: concrete columns on the 'A-BA' layer touch a sofa; the re-read keeps them as columns (obstacles for the
+    layout), not as symbols; decor strokes inside the cluster are symbols of kind ``other``."""
+    walls = _room()
+    sofa = _rect(1.0, 1.0, 3.2, 1.9)
+    column = _on("A-BA", _rect(3.2, 1.0, 3.6, 1.4))[0]
+    vase = _on("Deko_Aksesuar", _rect(1.5, 1.2, 1.75, 1.45))[0]
+    got = SY.reread(SY.Cluster(_segs([sofa, column, vase])), _ctx(), TABLE, walls, [],
+                    [TP.wall_polygon(w) for w in walls], [], [], why="test")
+    cols = [it for it in got["items"] if it.details.get("not_furniture")]
+    assert len(cols) == 1 and cols[0].details["not_furniture"]["as"] == "column" and cols[0].type == "unknown"
+    assert [s["kind"] for s in got["symbols"]] == ["other"] and "Deko_Aksesuar" in got["symbols"][0]["reason"]
+    assert sorted(tuple(sorted(round(v, 2) for v in it.size)) for it in got["items"]) == [(0.4, 0.4), (0.9, 2.2)]
+
+
 def c_ids(cand):
     return SY.expand_ids(cand["item"].evidence.get("entity"))
 

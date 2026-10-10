@@ -517,8 +517,8 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
         out = []
         for it in got["items"]:
             it.details["reread_of"] = cand["key"]
-            if it.type != "unknown":
-                out.append(it)
+            if it.type != "unknown" or it.details.get("not_furniture"):
+                out.append(it)              # typed, or a column the reading step keeps as a not-built obstacle
                 continue
             sub = SY.Cluster([sg for sid in SY.expand_ids(it.evidence.get("entity")) for sg in part.segs
                               if sg.stroke.id == sid])

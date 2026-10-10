@@ -3396,6 +3396,7 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
     keep, removed = split_symbol_strokes(cl.segs)
     jambs = opening_jambs(openings)
     symbols: list[dict] = []
+    columns: list[FurnitureItem] = []
     dropped = 0
     for kind in sorted(removed):
         for g in sorted(clusters_of(removed[kind], CLUSTER_M), key=lambda c: c.stroke_ids()[0]):
@@ -3403,18 +3404,26 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
                 dropped += 1
                 continue
             k = kind
-            if kind == "door":
-                k = "door_arc" if any(s.curve and s.stroke.arc for s in g.segs) else "other"
-            elif kind in NOT_FURNITURE_AS:
-                k = "other"
             layers = sorted({re.split(r"[$|]", s.stroke.layer or "")[-1] for s in g.segs})
             why_k = (f"drawn on the {', '.join(repr(x) for x in layers[:3])} layer(s) inside a furniture cluster: "
                      f"{kind}, not furniture")
+            if kind == "structure":
+                # A column stands in the room: a not-built piece (an obstacle for the layout), not a symbol.
+                gfp = footprint([p for s in g.segs for p in s.pts], ctx.theta)
+                columns.append(_unknown(g, gfp, ctx, raster, why_k, {
+                    "not_furniture": {"as": NOT_FURNITURE_AS[kind], "reason": why_k, "by": "layer"},
+                    "reread": why or "cluster"}))
+                continue
+            if kind == "door":
+                k = "door_arc" if any(s.curve and s.stroke.arc for s in g.segs) else "other"
+            elif kind in NOT_FURNITURE_AS:
+                k = "other"                 # decor strokes inside a piece's cluster (accessories, tile hatches)
             sign = room_number_sign(g.segs, texts)
             if sign:
                 k, why_k = "room_number", sign
             symbols.append(symbol_record(g.segs, k, why_k, ctx, raster))
     items, leg_polys, leg_fronts, used = _counter_runs(keep, ctx, walls, openings, raster, notes, containers)
+    items.extend(columns)
     rest = [s for s in keep if id(s) not in used]
     later: list[tuple[Cluster, Optional[str]]] = []
     for part in object_groups(rest, table, ctx.theta, containers):
