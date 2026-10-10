@@ -1896,7 +1896,8 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             continue
         shape = l_details(lsh) if lsh else (round_shape(part.segs) if n == 1 else {})
         block_item = None if info.get("no_name") else _block_item(part, fp, ctx, raster_page, table, lsh,
-                                                                   wall_polys, [o for o in infos if o is not info])
+                                                                   wall_polys, [o for o in infos if o is not info],
+                                                                   extended=False)
         if block_item is not None:
             block_item.details.update(shape)
             if info.get("note"):
@@ -1991,8 +1992,8 @@ def _m12_pass(pieces: list[FurnitureItem], cands: list[dict], segs: list[Seg], t
         if item.type == "stair" or item.details.get("build") is False:
             continue
         found = whole_symbol(strokes_of(item), texts, jambs)
-        if found is None:
-            continue
+        if found is None or (found["by"] == "layer" and item.type_method in ("rule", "block_name")):
+            continue           # a rule or a block name typed it: its layer name says less (real02: "DEKOAKRILIK01")
         item.details["not_furniture" if "as" in found else "symbol"] = dict(found)
         marked += 1
     if marked:
@@ -2134,12 +2135,13 @@ def _counter_item(leg: dict, walls: list, ctx: _Ctx, raster: bool) -> FurnitureI
                                                   abs(leg["front_f"][1]) > 0 else y1 - y0, 4)}})
 
 
-def block_type(names: list[str], size, table: dict, shape: Optional[str] = None) -> Optional[str]:
+def block_type(names: list[str], size, table: dict, shape: Optional[str] = None, extended: bool = True
+               ) -> Optional[str]:
     """Furniture type from DXF block names (innermost first) by the keyword tables (``keyword_type``), resolved by
     the size table for the generic words BED / YATAK, TABLE / MASA and KOLTUK (armchair, sofa; an L-shaped outline:
     the corner sofa); None when no keyword matches."""
     for name in names:
-        ftype = keyword_type(name)
+        ftype = keyword_type(name, extended)
         if ftype is None:
             continue
         if ftype == "bed":
@@ -2220,7 +2222,7 @@ def _unique_front(fronts: list[dict]) -> Optional[dict]:
 
 def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
                 lsh: Optional[dict] = None, wall_polys: Optional[list] = None,
-                others: Optional[list] = None) -> Optional[FurnitureItem]:
+                others: Optional[list] = None, extended: bool = True) -> Optional[FurnitureItem]:
     """A piece typed by its block name. Its front: the L outline's open corner for a corner sofa; else the unique
     deterministic front of ``front_candidates`` (§2.8: the only side near a wall is the back, a bed's pillows, a
     chair facing a table), else, for a type whose back is its long side, the corner rule (``corner_back_front``);
@@ -2231,7 +2233,7 @@ def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
     if chain is None:
         return None
     names = list(reversed(chain.split("/")))
-    ftype = block_type(names, (fp[1], fp[2]), table, "L" if lsh else None)
+    ftype = block_type(names, (fp[1], fp[2]), table, "L" if lsh else None, extended)
     if ftype is None:
         return None
     trim_note = None
@@ -2400,8 +2402,8 @@ def _pick_named(items: list[dict], table: dict, notes: list) -> list[dict]:
     that fits the named type takes the name, the others are asked; none fits -> each keeps the name (unverified)."""
     chain = _block_chain(items[0]["part"])
     names = list(reversed(chain.split("/"))) if chain else []
-    named = [it for it in items if names and block_type(names, it["size"], table) is not None and
-             fits(table, block_type(names, it["size"], table), it["size"])]
+    named = [it for it in items if names and block_type(names, it["size"], table, extended=False) is not None and
+             fits(table, block_type(names, it["size"], table, extended=False), it["size"])]
     if not named:
         return items
     keep = max(named, key=lambda it: it["size"][0] * it["size"][1])
@@ -2421,7 +2423,7 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
     if chain is None:
         return [info]
     names = list(reversed(chain.split("/")))
-    ftype = block_type(names, info["size"], table)
+    ftype = block_type(names, info["size"], table, extended=False)
     if ftype is None or ftype in ("stair",) or fits(table, ftype, info["size"]):
         return [info]
     if ftype in TABLE_TYPES:
@@ -2448,8 +2450,8 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
     for sub in subs:
         fp = footprint([q for s in sub.segs for q in s.pts], theta)
         parts.append({"part": sub, "n": 1, "fp": fp, "size": (fp[1], fp[2]), "poly": Polygon(fp[4])})
-    named = [pt for pt in parts if block_type(names, pt["size"], table) is not None and
-             fits(table, block_type(names, pt["size"], table), pt["size"])]
+    named = [pt for pt in parts if block_type(names, pt["size"], table, extended=False) is not None and
+             fits(table, block_type(names, pt["size"], table, extended=False), pt["size"])]
     if not named:
         return [info]
     keep = max(named, key=lambda pt: pt["fp"][1] * pt["fp"][2])
@@ -2614,12 +2616,13 @@ def _outline_polygons(segs: list[Seg], to_f) -> list[tuple[Polygon, list[Seg]]]:
     return out
 
 
-def counter_legs(poly: Polygon, faces: list[dict], cover: float = COUNTER_COVER
+def counter_legs(poly: Polygon, faces: list[dict], cover: float = COUNTER_COVER, short_corner: bool = False
                  ) -> Optional[tuple[list[dict], list[tuple]]]:
     """A counter outline (aligned frame) as legs along wall faces and free blocks (a peninsula or island):
     ``([{"rect": (x0, y0, x1, y1), "front_f", "depth", "length"}], [(x0, y0, x1, y1)])``, or None when it is no
-    counter run (no leg, or the legs and blocks cover < ``cover``, default ``COUNTER_COVER``, of it). A leg is the outline within 0.75 m
-    of a wall face it lies on, 0.45-0.75 m deep and filling its box; a corner goes to the longer leg."""
+    counter run (no leg, or the legs and blocks cover < ``cover`` of it). A leg is the outline within 0.75 m of a wall
+    face it lies on, 0.45-0.75 m deep and filling its box; a corner goes to the longer leg. Milestone 12 re-read
+    (``short_corner``): where the longer leg stops short of the corner, the other leg keeps its full-depth part."""
     from shapely.geometry import box as sbox
 
     legs = []
@@ -2665,7 +2668,7 @@ def counter_legs(poly: Polygon, faces: list[dict], cover: float = COUNTER_COVER
         if r.area < 0.9 * (x1 - x0) * (y1 - y0):
             # Milestone 12 (real03): a longer leg that stops short of the corner leaves an L; the leg is its part of
             # full depth (``_full_depth``), the corner piece goes with it only where the leg reaches.
-            full = _full_depth(r, bool(lg["front_f"][0]))
+            full = _full_depth(r, bool(lg["front_f"][0])) if short_corner else None
             if full is None:
                 continue
             x0, y0, x1, y1 = full
@@ -3134,13 +3137,13 @@ def whole_symbol(segs: list[Seg], texts=None, jambs: Optional[list] = None) -> O
         return None
     why = room_number_sign(segs, texts)
     if why:
-        return {"kind": "room_number", "reason": why}
+        return {"kind": "room_number", "reason": why, "by": "shape"}
     why = north_arrow_sign(segs, texts)
     if why:
-        return {"kind": "north_arrow", "reason": why}
+        return {"kind": "north_arrow", "reason": why, "by": "shape"}
     swing = door_swing(segs, jambs)
     if swing is not None and not swing[1]:
-        return {"kind": "door_arc", "reason": swing[2]}
+        return {"kind": "door_arc", "reason": swing[2], "by": "shape"}
     kinds = [stroke_kind(s.stroke) for s in segs]
     if "furniture" in kinds:
         return None
@@ -3151,10 +3154,10 @@ def whole_symbol(segs: list[Seg], texts=None, jambs: Optional[list] = None) -> O
     layers = sorted({re.split(r"[$|]", s.stroke.layer or "")[-1] for s, k in zip(segs, kinds) if k == kind})
     reason = f"drawn on the {', '.join(repr(x) for x in layers[:3])} layer(s): {kind}, not furniture"
     if kind in NOT_FURNITURE_AS:
-        return {"as": NOT_FURNITURE_AS[kind], "reason": reason}
+        return {"as": NOT_FURNITURE_AS[kind], "reason": reason, "by": "layer"}
     if kind == "door":
         kind = "door_arc" if any(s.curve and s.stroke.arc for s in segs) else "other"
-    return {"kind": kind, "reason": reason}
+    return {"kind": kind, "reason": reason, "by": "layer"}
 
 
 def expand_ids(entity: Optional[str]) -> list[str]:
@@ -3335,7 +3338,8 @@ def _counter_runs(keep: list[Seg], ctx: "_Ctx", walls: list, openings: list, ras
         segs = [loose[i] for i in members]
         if poly.area < 0.3 or any(id(s) in used for s in segs) or len({s.stroke.id for s in segs}) > 4:
             continue
-        found = counter_legs(Polygon([to_f(p) for p in poly.exterior.coords]).buffer(0), faces, REREAD_COUNTER_COVER)
+        found = counter_legs(Polygon([to_f(p) for p in poly.exterior.coords]).buffer(0), faces, REREAD_COUNTER_COVER,
+                             short_corner=True)
         if found is None or not (len(found[0]) >= 2 or _kitchen_near(poly, keep)):
             continue
         for lg in found[0]:

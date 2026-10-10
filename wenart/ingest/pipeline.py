@@ -98,6 +98,8 @@ RASTER_COUNT_TOL = 1            # door / window / labelled-room counts may diffe
 GENERIC_PDF_DPI = 150           # debug image of generic pages (docs/milestone7.md §2.9)
 EXIT_OK, EXIT_REVIEW, EXIT_QUESTIONS = 0, 1, 4
 RECOGNITION_DIR = "recognition"
+SYMBOL_COLOUR = (150, 60, 200)      # Milestone 12 debug images: symbols moved out of the furniture (purple, dashed)
+LEVEL_MARK_COLOUR = (230, 120, 0)   # ... and the level marks (orange)
 
 
 @dataclass
@@ -179,6 +181,8 @@ class ProjectBuild:
         self.sheets: Optional[dict] = None
         self.reference_region: Optional[str] = None
         self.frame_shift: tuple[float, float] = (0.0, 0.0)
+        # Milestone 12 (track R): the counts of the reading step (``generic.reading.read_furniture``) for the report.
+        self.reading: dict = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -1117,13 +1121,41 @@ def _generic_debug_items(work: PageWork, building: dict) -> list[DI.DebugItem]:
         if sep.line:
             items.append(DI.DebugItem(page(list(sep.line)), "derived", 1.0, label=sep.element_id or "sep",
                                       colour=DI.SEPARATOR_COLOUR, dashed=True, closed=False, width=3))
+    # Milestone 12 (track R): the pieces as the reading step left them (type, footprint, not built); the symbols it
+    # moved out of the furniture and the level marks (track L) are drawn in their own colours.
+    pieces = {f["id"]: f for f in building.get("furniture") or []}
     for piece in ex.furniture:
-        corners = G.rotated_rectangle(piece.center, piece.size, piece.rotation_deg)
-        method = piece.type_method or "none"
+        bp = pieces.get(piece.element_id)
+        if piece.element_id and bp is None:
+            continue                                    # moved to the symbols, drawn below
+        fp = bp["footprint"] if bp else {"center": piece.center, "size": piece.size, "rotation_deg": piece.rotation_deg}
+        corners = G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"])
+        method = (bp or {}).get("type_method") or piece.type_method or "none"
+        ftype = bp["type"] if bp else piece.type
+        not_built = bp is not None and bp.get("build") is False
         items.append(DI.DebugItem(page(corners), "vector", piece.evidence.get("confidence", 0.9),
-                                  label=f"{piece.element_id or '?'} {piece.type}", status=piece.status,
+                                  label=f"{piece.element_id or '?'} {ftype}" + (" (not built)" if not_built else ""),
+                                  status=bp["status"] if bp else piece.status,
                                   colour=DI.TYPE_METHOD_COLOURS.get(method, DI.TYPE_METHOD_COLOURS["none"]),
-                                  striped=method == "none"))
+                                  striped=method == "none" or ftype == "unknown", dashed=not_built))
+    page_ids = {p.element_id for p in ex.furniture if p.element_id}
+    for sym in building.get("symbols") or []:
+        fp = sym.get("footprint")
+        if sym.get("level_id") != level_id or not fp or (sym.get("former_piece_id") and
+                                                           sym["former_piece_id"] not in page_ids):
+            continue
+        corners = G.rotated_rectangle(fp["center"], fp["size"], fp.get("rotation_deg") or 0.0)
+        items.append(DI.DebugItem(page(corners), "derived", 1.0, label=f"{sym['id']} {sym['kind']}",
+                                  colour=SYMBOL_COLOUR, dashed=True, width=1))
+    for mark in building.get("level_marks") or []:
+        pt = mark.get("point")
+        if mark.get("level_id") not in (None, level_id) or not pt:
+            continue
+        p = G.apply_affine(to_page, pt)
+        size = 0.15 / float(ex.transform_to_building[0] or 1.0)
+        box = [p[0] - size, p[1] - size, p[0] + size, p[1] + size]
+        items.append(DI.DebugItem(G.box_corners(box), "derived", 1.0, label=f"{mark['id']} {mark.get('raw', '')}",
+                                  colour=LEVEL_MARK_COLOUR, width=2))
     site = building.get("site") or {}
     for w in site.get("boundary_walls", []):
         if w.get("level_id") != level_id:
@@ -1447,6 +1479,7 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str],
         lines.append(f"| {f['id']} | {f['level_id']} | {f['room_id'] or '-'} | {f['type']} | {f['type_raw'] or '-'} | {f['source']} | "
                      f"{fp['size'][0]:.2f} x {fp['size'][1]:.2f} | {fp['rotation_deg']:.0f} | {f['status']} | {f['evidence'][0]['file']} |")
     lines += _inferred_section(b)
+    lines += _reading_section(b, build)
     if build is not None and getattr(build, "sheets", None) is not None:
         lines += _m10_sections(b)
     if build is not None and build.generic:
@@ -2008,6 +2041,53 @@ def _inferred_section(b: dict) -> list[str]:
         front = f"{f['front_deg']:g}" if f.get("front_deg") is not None else "-"
         lines.append(f"| {f['id']} | {f.get('room_id') or '-'} | {f['type']} | {front} | "
                      f"{'no' if f.get('build') is False else 'yes'} | {_cell(f.get('inferred_reason') or '')} |")
+    return lines
+
+
+def _reading_section(b: dict, build: Optional[ProjectBuild] = None) -> list[str]:
+    """Milestone 12 (track R, docs/milestone12.md §4.1): what the reading step did: the symbols moved out of the
+    furniture (by kind, each with its reason and crop), the pieces left for a person (needs review), the misread fixed
+    equipment it adjusted, the open-kitchen zones and the counts of its context rules."""
+    symbols = b.get("symbols") or []
+    review = b.get("needs_review") or []
+    adjusted = [f for f in b["furniture"] if (f.get("adjusted_by_ai") or {}).get("rule") == "reading.fixed_equipment"]
+    zones = [(r["id"], z) for r in b["rooms"] for z in r.get("zones") or []]
+    stats = getattr(build, "reading", None) or {}
+    if not (symbols or review or adjusted or zones or stats):
+        return []
+    lines = ["", "## Reading (Milestone 12)", ""]
+    if stats:
+        context = ", ".join(f"{k} {v}" for k, v in sorted((stats.get("context") or {}).items())) or "none"
+        lines.append(f"Context rules: {context}; inferred by size and room: {stats.get('inferred', 0)}; fronts "
+                     f"inferred: {stats.get('fronts', 0)}.")
+    by_kind: dict[str, int] = {}
+    for s in symbols:
+        by_kind[s["kind"]] = by_kind.get(s["kind"], 0) + 1
+    lines += ["", f"Symbols (not furniture, never built): {len(symbols)}"
+              + (f" ({', '.join(f'{k} {n}' for k, n in sorted(by_kind.items()))})" if symbols else "") + "."]
+    if symbols:
+        lines += ["", "| Symbol | Kind | Level | Room | Was piece | Reason | Crop |", "|---|---|---|---|---|---|---|"]
+        for s in symbols:
+            lines.append(f"| {s['id']} | {s['kind']} | {s.get('level_id') or '-'} | {s.get('room_id') or '-'} | "
+                         f"{s.get('former_piece_id') or '-'} | {_cell(s.get('reason') or '')} | "
+                         f"{s.get('crop') or '-'} |")
+    lines += ["", f"Needs review (untyped drawn pieces, not built): {len(review)}."]
+    if review:
+        lines += ["", "| Piece | Room | Reason | Crop |", "|---|---|---|---|"]
+        for n in review:
+            lines.append(f"| {n['id']} | {n.get('room_id') or '-'} | {_cell(n['reason'])} | {n.get('crop') or '-'} |")
+    if adjusted:
+        lines += ["", "Misread fixed equipment adjusted (CLAUDE.md, user OK of 10 Oct 2026):", "",
+                  "| Piece | Type | Drawn size | Size | Reason |", "|---|---|---|---|---|"]
+        for f in adjusted:
+            d = f.get("drawn_footprint") or f["footprint"]
+            lines.append(f"| {f['id']} | {f['type']} | {d['size'][0]:.2f} x {d['size'][1]:.2f} | "
+                         f"{f['footprint']['size'][0]:.2f} x {f['footprint']['size'][1]:.2f} | "
+                         f"{_cell(f['adjusted_by_ai']['reason'])} |")
+    if zones:
+        lines += ["", "Open-kitchen zones:", "", "| Room | Zone | Pieces |", "|---|---|---|"]
+        for rid, z in zones:
+            lines.append(f"| {rid} | {z['zone_id']} ({z['kind']}) | {', '.join(z.get('piece_ids') or [])} |")
     return lines
 
 

@@ -431,6 +431,22 @@ def _room_fields(cand: dict, rows: list[dict]) -> None:
     cand["_ids"] = _expand_ids(cand["item"].evidence.get("entity"))
 
 
+def _m12_named(part, ctx, raster: bool, table: dict, wall_polys: list):
+    """The piece a candidate's block name gives by the Milestone 12 words alone (``symbols.BLOCK_KEYWORDS_M12``), when
+    its footprint fits that type; None otherwise (no name, or a name the earlier words already read)."""
+    chain = SY._block_chain(part)
+    if chain is None:
+        return None
+    names = list(reversed(chain.split("/")))
+    fp = SY.footprint([p for s in part.segs for p in s.pts], ctx.theta)
+    if SY.block_type(names, (fp[1], fp[2]), table, extended=False) is not None:
+        return None
+    item = SY._block_item(part, fp, ctx, raster, table, None, wall_polys, [])
+    if item is None or not SY.fits(table, item.type, (fp[1], fp[2])):
+        return None
+    return item
+
+
 def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict], symbols: list[dict], walls: list,
                      openings: list, texts_m: list, rows: list[dict], level_id: str, file_rel: str,
                      page_no: Optional[int], s: float, no_ai: bool, raster: bool,
@@ -442,6 +458,8 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
     Returns ``({candidate key: replacement items}, unknown pieces that fit no type)``; the replacement's unknown parts
     that fit a type are added to ``extras`` (asked under content keys), its symbols to ``symbols``."""
     pending = set(ex.report.get("pending") or [])
+    # A round with answers for this page waits for none of its questions (one without answers was not in that round).
+    waiting = not no_ai and not ex.report.get("answers_applied")
     table, _src = SY.load_size_table()
     ctx = SY._Ctx(file_rel, page_no, s, SY._dominant(walls), level_id)
     wall_polys = [TP.wall_polygon(w) for w in walls]
@@ -452,10 +470,21 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
     for cand in cands:
         item, part = cand["item"], cand.get("_part")
         if part is None or item.details.get("build") is False or item.details.get("symbol") or \
-                item.details.get("not_furniture") or cand["key"] in pending:
+                item.details.get("not_furniture"):
             continue
-        if not no_ai and not item.type_candidates:
-            continue                                # never answered: it waits for its answers
+        if waiting and (cand["key"] in pending or not item.type_candidates):
+            continue                                # a round without answers: it waits for them
+        named = _m12_named(part, ctx, raster, table, wall_polys)
+        if named is not None:
+            # A block name only the Milestone 12 words read (the candidate was asked before they existed): the name
+            # outranks the AI passes; the question stays as it was.
+            named.details["reread_of"] = cand["key"]
+            if item.type not in ("unknown", named.type):
+                named.details["ai_overridden"] = {"type": item.type, "type_candidates": list(item.type_candidates),
+                                                  "reason": f"the block name says {named.type}"}
+            replaced[cand["key"]] = [named]
+            ex.notes.append(f"{cand['key']}: typed {named.type} by its block name {named.type_raw} (M12 words)")
+            continue
         if item.type not in ("unknown",) + SY.TABLE_TYPES:
             # Context before AI (§4.1): chairs drawn around a rectangle are a dining set, whatever the passes said
             # (real03: two passes called the drawn 0.9 x 1.4 m table with its chairs a sofa).

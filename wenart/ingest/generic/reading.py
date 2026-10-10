@@ -77,6 +77,7 @@ HEAD_TYPES = ("bed_double", "bed_single", "bunk_bed", "toilet", "crib")   # the 
 CHAIR_SIDE_M = (0.30, 0.65)        # a chair (or its half-round back drawn alone) ...
 CHAIR_REACH_M = 0.40               # ... this close to a dining table faces it
 CHAIR_DEPTH_M = 0.45               # a chair drawn shallower (its back alone) reaches this deep towards the table
+ARMCHAIR_REACH_M = 0.60            # two equal seats this close to a coffee table, on opposite sides, are armchairs
 VANITY_SHARE = 0.3                 # an unknown counter under >= 30 % of a washbasin is its vanity
 DUPLICATE_SHARE = 0.6              # a fixed piece this much inside a block-named one of its type is drawn twice
 L_SEAT_MIN_M = 0.65                # the arms of an L corner sofa are seat-deep (a counter's legs are 0.6 m)
@@ -171,10 +172,15 @@ def _items(build, works: dict) -> dict:
 
 
 def _pending(build, works: dict) -> set[str]:
-    """Pieces whose AI question still waits for its answers: nothing is decided for them before."""
+    """Pieces whose AI question still waits for its answers: nothing is decided for them before. A page that got
+    answers in this round waits for none of its questions (a question without answers there was not asked in that
+    round: the pipeline lists it as unanswered, nothing waits for it)."""
     out = set()
     for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
-        pending = set((w.extraction.report or {}).get("pending") or [])
+        report = w.extraction.report or {}
+        if report.get("answers_applied"):
+            continue
+        pending = set(report.get("pending") or [])
         for f in getattr(w.extraction, "furniture", []) or []:
             if f.details.get("candidate_key") in pending and getattr(f, "element_id", None):
                 out.add(f.element_id)
@@ -262,6 +268,22 @@ def move_symbols(build, items: dict, works: dict) -> dict:
                                  "evidence": list(sym["evidence"])})
             counts[sym["kind"]] = counts.get(sym["kind"], 0) + 1
     return counts
+
+
+def log_overrides(build, items: dict) -> int:
+    """The core's re-read typed a piece against the AI passes (a block name the M12 words read, a table with chairs
+    drawn around it): a ``type_disagreement`` conflict, resolved for the drawing (CLAUDE.md trust order)."""
+    n = 0
+    for f in build.building["furniture"]:
+        item = items.get(f["id"])
+        over = (item.details.get("ai_overridden") if item is not None else None) or {}
+        if not over:
+            continue
+        build.conflict("type_disagreement", [f["id"]],
+                       f"{f['id']}: the AI passes typed it {over['type']}; {over['reason']}",
+                       f"typed {f['type']} (trust order: vector geometry and block names > AI)")
+        n += 1
+    return n
 
 
 def _is_mark(f: dict, det: dict, LM) -> bool:
@@ -495,6 +517,28 @@ def context_types(build, items: dict) -> dict:
                     f.setdefault("evidence", []).append(_ev(f, CONTEXT_RULE, reason))
                     build.warn(f"{f['id']}: {reason}")
                     bump("vanity")
+        # Armchairs: two seat-sized pieces of one size on opposite sides of a coffee table face it.
+        coffee = [f for f in pieces if f["type"] == "table_coffee" and f.get("build") is not False]
+        for t in coffee:
+            tp = rect(t)
+            near = [f for f in _unknowns(pieces) if sizes.fits("armchair", tuple(f["footprint"]["size"]))
+                    and rect(f).distance(tp) <= ARMCHAIR_REACH_M]
+            for f in near:
+                c, fc = tp.centroid, rect(f).centroid
+                mate = next((g for g in near if g is not f and _same_size(f, g) and
+                             ((g["footprint"]["center"][0] - c.x) * (fc.x - c.x) +
+                              (g["footprint"]["center"][1] - c.y) * (fc.y - c.y)) < 0), None)
+                if mate is None or f["type"] != "unknown":
+                    continue
+                for g in (f, mate):
+                    if g["type"] != "unknown":
+                        continue
+                    gc = rect(g).centroid
+                    deg = math.degrees(math.atan2(c.y - gc.y, c.x - gc.x))
+                    _set_type(build, g, "armchair", f"one of two {g['footprint']['size'][0]:.2f} x "
+                              f"{g['footprint']['size'][1]:.2f} m seats on opposite sides of the coffee table "
+                              f"{t['id']}, facing it", snap_front(g, deg))
+                    bump("armchair")
         # Coffee table and TV unit: in front of a sofa (or in the open corner of an L sofa).
         seats = [f for f in built if f["type"] in SEAT_TYPES and f.get("front_deg") is not None]
         for f in _unknowns(pieces):
@@ -531,6 +575,11 @@ def context_types(build, items: dict) -> dict:
                     bump("tv_unit")
                     break
     return counts
+
+
+def _same_size(f: dict, g: dict) -> bool:
+    a, b_ = sorted(f["footprint"]["size"]), sorted(g["footprint"]["size"])
+    return all(abs(x - y) <= 0.05 for x, y in zip(a, b_))
 
 
 def _l_body(seat: dict) -> Polygon:
@@ -662,8 +711,10 @@ def oriented_share(ftype: str, size) -> float:
 
 
 def swing_polys(b: dict, room: dict) -> list[Polygon]:
-    """The swings of the doors that open into ``room``: a half disc of the door's width around the opening's centre
-    on the room side of the wall (as the placer draws it)."""
+    """The swings of the doors that open into ``room``: on the room side of the wall, the two quarter discs a leaf
+    of the door's width sweeps hinged at either jamb (the hinge side is not read), within the opening's width. A
+    piece beside the door frame is not in the swing (a half disc around the centre would reach half a leaf past
+    each jamb: real02's washbasins beside their bathroom doors)."""
     walls = {w["id"]: w for w in b.get("walls") or []}
     room_poly = Polygon(room["polygon"])
     room_poly = room_poly if room_poly.is_valid else room_poly.buffer(0)
@@ -686,11 +737,10 @@ def swing_polys(b: dict, room: dict) -> list[Polygon]:
             inner = (cx + nx * half_t, cy + ny * half_t)
             if not room_poly.buffer(0.01).contains(Point(inner[0] + nx * 0.05, inner[1] + ny * 0.05)):
                 continue
-            far = 2.0 * width
-            half = Polygon([(inner[0] - ux * far, inner[1] - uy * far), (inner[0] + ux * far, inner[1] + uy * far),
-                            (inner[0] + ux * far + nx * far, inner[1] + uy * far + ny * far),
-                            (inner[0] - ux * far + nx * far, inner[1] - uy * far + ny * far)])
-            out.append(Point(inner).buffer(width, 32).intersection(half))
+            ja = (inner[0] - ux * width / 2, inner[1] - uy * width / 2)
+            jb = (inner[0] + ux * width / 2, inner[1] + uy * width / 2)
+            strip = Polygon([ja, jb, (jb[0] + nx * width, jb[1] + ny * width), (ja[0] + nx * width, ja[1] + ny * width)])
+            out.append(unary_union([Point(ja).buffer(width, 32), Point(jb).buffer(width, 32)]).intersection(strip))
             break
     return out
 
@@ -1001,11 +1051,11 @@ def never_a_box(build, items: dict) -> int:
         if f["type"] != "unknown" or f.get("inferred_as") in EXPLAINED_AS or f["id"] in listed:
             continue
         det = items[f["id"]].details if f["id"] in items else {}
+        if f.get("build") is False and not det.get("oversize"):
+            continue        # already not built for a reason (both AI passes: not furniture; a detail of a counter leg)
         if f.get("build") is not False:
             f["build"] = False
-            f["not_built_reason"] = "untyped (CLAUDE.md: no untyped piece is built)"
-            f.setdefault("evidence", []).append(_ev(f, "reading.never_a_box", f["not_built_reason"], 0.9,
-                                                    method="derived"))
+            f["not_built_reason"] = "untyped (CLAUDE.md: no untyped piece is built)"   # the reason, not a source
         cands = sorted({c.get("type") for c in f.get("type_candidates") or [] if c.get("type")})
         size = " x ".join(f"{v:.2f}" for v in f["footprint"]["size"])
         reason = (f"drawn piece {size} m in {f.get('room_id') or 'no room'} has no type"
@@ -1035,6 +1085,7 @@ def read_furniture(build, works: dict) -> None:
     items = _items(build, works)
     pending = _pending(build, works)
     symbols = move_symbols(build, items, works)
+    log_overrides(build, items)
     copied = copies(build, items)
     context = context_types(build, items)
     fronts = infer_fronts(build)
