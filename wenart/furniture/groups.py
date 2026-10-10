@@ -1,6 +1,27 @@
-"""Functional furniture groups (docs/milestone11.md §6, contract §17.2): dining set, bed set, living set,
-desk set, kitchen run. ``place_group`` places a whole group as one unit (anchor piece + members with their relative
-offsets and facing) and checks it with the placer. Pure; owner: track B.
+"""Functional furniture groups: the Milestone 12 group data (docs/milestone12.md §4.2, contract §13.2) and the
+Milestone 11 ``place_group`` (docs/milestone11.md §6, kept for the agent's ``add_group``). Pure; owner: track G.
+
+Milestone 12 (contract, frozen 10 Oct 2026):
+
+- ``load_groups() -> {name: template}``: ``groups.yaml`` (next to this file) read and validated (``validate_config``:
+  a JSON schema of the file, then the cross references: every type is a furniture type of ``schemas.SIZE_OPTIONS``,
+  every rule and source named exists, every option names an anchor type or members of its group). ``config()``
+  gives the whole file (``rules``, ``weights``, ``use_zones``, ``sources``, ``groups``); ``rule(name)`` one rule;
+  ``use_zone(ftype)`` the use zone of a type with its rule names resolved to metres.
+- ``group_members(building, room_id) -> [{"group_id", "group", "anchor_id", "member_ids", "missing", "roles"}]``:
+  the groups of one room. Pieces that carry ``group`` (the solver writes ``{group_id, group, role, anchor_id}``) are
+  grouped by it; the other built pieces are matched by the templates (``match_groups``): every anchor-type piece
+  opens a group, partners join the anchor they belong to (a TV unit the sofa it faces best, nightstands, chairs,
+  benches and office chairs the nearest anchor within the role's reach), the sanitary ware of a bath is one set,
+  the kitchen pieces of a room one run. ``missing``: the partner types the template expects and the room lacks
+  (a TV unit and a coffee table for a sofa where the room may hold them, a nightstand per bed side, chairs by the
+  table length, a desk chair, a sink / hob / fridge in a kitchen, a toilet and a washbasin in a bath).
+
+Why: the five hard-coded Milestone 11 templates were used by no stage (§1.2); the layout, the completion, the checks
+and the agent's tools now share one description of what belongs together.
+
+Milestone 11 (kept): dining set, bed set, living set, desk set, kitchen run. ``place_group`` places a whole group as
+one unit (anchor piece + members with their relative offsets and facing) and checks it with the placer.
 
 What: ``place_group(building, room_id, group, anchor=None) -> {"ok", "pieces", "failed", "reason"}``. ``pieces``
 are new furniture dicts (``source: added_by_ai``, ``method: rule``, ids after the level's last one); the building is
@@ -26,6 +47,8 @@ from __future__ import annotations
 import dataclasses
 import math
 import re
+from functools import lru_cache
+from pathlib import Path
 from typing import Optional
 
 from wenart import geometry as G
@@ -391,13 +414,429 @@ def _finish(room: dict, group: str, a: placer.Piece, members: list[placer.Piece]
     return _result(True, pieces, failed, reason)
 
 
-# Milestone 12 contract (docs/milestone12.md §4.2, §13.2; owner: track G). Stubs by the lead.
+# --------------------------------------------------------------------------
+# Milestone 12: groups.yaml (docs/milestone12.md §4.2, §13.2)
+# --------------------------------------------------------------------------
+
+GROUPS_YAML = Path(__file__).with_name("groups.yaml")
+LAYOUTS = ("anchored", "set", "run")
+ANCHOR_PLACES = ("wall", "free")
+PARTNER_PLACES = ("facing_wall", "front", "flank", "beside_head", "foot", "around", "chair", "stools", "pair")
+ALIGNS = ("centre", "corner", "any")
+ZONE_KINDS = ("living", "dining", "sleeping", "work", "kitchen", "bath", "hall", "balcony")
+RUN_SHAPES = ("I", "L", "galley", "U")
+
+_NUM = {"type": "number"}
+_SIZE = {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 2, "maxItems": 2}
+_SIZES = {"type": "array", "items": _SIZE, "minItems": 1}
+_SIZE_ROW = {"type": "object", "properties": {"max_area": _NUM}, "additionalProperties": _SIZES}
+_PARTNER = {"type": "object", "additionalProperties": False, "required": ["role", "type", "required", "place", "sizes"],
+            "properties": {"role": {"type": "string"}, "type": {"type": "string"}, "alt_type": {"type": "string"},
+                           "required": {"type": "boolean"}, "max": {"type": "integer", "minimum": 1},
+                           "place": {"enum": list(PARTNER_PLACES) + ["wall"]}, "of": {"type": "string"},
+                           "gap": {"anyOf": [_NUM, {"type": "string"}]}, "facing": {"enum": ["anchor", "same", "of"]},
+                           "align": {"enum": list(ALIGNS)}, "option": {"type": "string"},
+                           "option_any": {"type": "array", "items": {"type": "string"}}, "sizes": _SIZES}}
+_GROUP = {
+    "type": "object", "additionalProperties": False,
+    "required": ["what", "layout", "zone", "room_types", "priority", "options", "partners"],
+    "properties": {
+        "what": {"type": "string"}, "layout": {"enum": list(LAYOUTS)}, "zone": {"enum": list(ZONE_KINDS)},
+        "room_types": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "priority": {"type": "integer"},
+        "anchor": {"type": "object", "additionalProperties": False, "required": ["types", "place", "sizes"],
+                   "properties": {"types": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+                                  "place": {"enum": list(ANCHOR_PLACES)}, "align": {"enum": list(ALIGNS)},
+                                  "sizes": {"type": "array", "items": _SIZE_ROW, "minItems": 1}}},
+        "options": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object"}},
+        "partners": {"type": "array", "items": _PARTNER},
+        "members": {"type": "array", "items": _PARTNER},
+        "run": {"type": "object", "required": ["depth", "max_leg", "step", "order", "modules"]},
+    },
+}
+CONFIG_SCHEMA = {
+    "type": "object", "additionalProperties": False,
+    "required": ["version", "sources", "rules", "weights", "use_zones", "groups"],
+    "properties": {
+        "version": {"const": 1},
+        "sources": {"type": "object", "additionalProperties": {"type": "string"}},
+        "rules": {"type": "object", "additionalProperties": {
+            "type": "object", "required": ["source"],
+            "properties": {"min": _NUM, "rec": _NUM, "max": _NUM, "source": {"type": "array", "items": {"type": "string"}},
+                           "flagged": {"type": "boolean"}, "what": {"type": "string"}}}},
+        "weights": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+        "use_zones": {"type": "object", "additionalProperties": {"type": "object"}},
+        "groups": {"type": "object", "minProperties": 1, "additionalProperties": _GROUP},
+    },
+}
+
+
+class GroupsError(ValueError):
+    """``groups.yaml`` does not follow its schema or names something that does not exist."""
+
+
+def validate_config(data: dict) -> list[str]:
+    """Every problem of a parsed ``groups.yaml`` as a readable line (empty = valid)."""
+    import jsonschema
+
+    problems = [f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
+                for e in sorted(jsonschema.Draft202012Validator(CONFIG_SCHEMA).iter_errors(data),
+                                key=lambda e: list(e.absolute_path))]
+    if problems:
+        return problems
+    types = set(schemas.SIZE_OPTIONS)
+    rules = data["rules"]
+    for name, r in rules.items():
+        problems += [f"rules/{name}: unknown source {s!r}" for s in r["source"] if s not in data["sources"]]
+    for ftype, spec in data["use_zones"].items():
+        if ftype not in types:
+            problems.append(f"use_zones/{ftype}: not a furniture type")
+        for key, value in spec.items():
+            if isinstance(value, str) and value not in rules:
+                problems.append(f"use_zones/{ftype}/{key}: unknown rule {value!r}")
+    for gname, g in data["groups"].items():
+        where = f"groups/{gname}"
+        pieces = list(g.get("partners") or []) + list(g.get("members") or [])
+        anchor_types = (g.get("anchor") or {}).get("types", [])
+        for t in anchor_types + [p["type"] for p in pieces] + [p["alt_type"] for p in pieces if p.get("alt_type")]:
+            if t not in types:
+                problems.append(f"{where}: {t!r} is not a furniture type")
+        for row in (g.get("anchor") or {}).get("sizes", []):
+            problems += [f"{where}/anchor/sizes: {k!r} is not an anchor type" for k in row
+                         if k != "max_area" and k not in anchor_types]
+        for p in pieces:
+            gap = p.get("gap")
+            if isinstance(gap, str) and gap not in rules:
+                problems.append(f"{where}/{p['role']}: unknown rule {gap!r}")
+        if g["layout"] in ("anchored", "run") and not g.get("anchor"):
+            problems.append(f"{where}: an {g['layout']} group needs an anchor")
+        if g["layout"] == "set" and not g.get("members"):
+            problems.append(f"{where}: a set group needs members")
+        if g["layout"] == "run":
+            run = g.get("run") or {}
+            for key, mod in (run.get("modules") or {}).items():
+                if mod.get("type") not in types:
+                    problems.append(f"{where}/run/{key}: {mod.get('type')!r} is not a furniture type")
+                if mod.get("landing") not in rules:
+                    problems.append(f"{where}/run/{key}: unknown landing rule {mod.get('landing')!r}")
+            if sorted(run.get("order") or []) != sorted(run.get("modules") or {}):
+                problems.append(f"{where}/run: order must name every module")
+        roles = {p["role"] for p in pieces}
+        for oname, opt in g["options"].items():
+            if g["layout"] == "anchored" and opt.get("anchor") not in anchor_types:
+                problems.append(f"{where}/options/{oname}: anchor {opt.get('anchor')!r} is not an anchor type")
+            for t in opt.get("counts", {}):
+                if t not in {p["type"] for p in pieces}:
+                    problems.append(f"{where}/options/{oname}: {t!r} is no partner type")
+            for role in opt.get("members", []):
+                if role not in roles:
+                    problems.append(f"{where}/options/{oname}: unknown member role {role!r}")
+            if g["layout"] == "run" and opt.get("shape") not in RUN_SHAPES:
+                problems.append(f"{where}/options/{oname}: shape must be one of {RUN_SHAPES}")
+    return problems
+
+
+@lru_cache(maxsize=4)
+def _load(path: str) -> dict:
+    import yaml
+
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    problems = validate_config(data)
+    if problems:
+        raise GroupsError(f"{path}: " + "; ".join(problems[:8]))
+    return data
+
+
+def config() -> dict:
+    """The whole validated ``groups.yaml`` (cached; do not change the returned dict)."""
+    return _load(str(GROUPS_YAML))
+
+
 def load_groups() -> dict:
     """``groups.yaml`` parsed and validated: ``{group name: template}``."""
-    return {}
+    return config()["groups"]
+
+
+def rule(name: str) -> dict:
+    """One rule of ``groups.yaml`` (``{min, rec, ..., source, flagged}``); KeyError when unknown."""
+    return config()["rules"][name]
+
+
+def rule_min(name_or_value) -> float:
+    """A rule's minimum (a number is returned as it is)."""
+    if isinstance(name_or_value, (int, float)):
+        return float(name_or_value)
+    r = rule(name_or_value)
+    return float(r.get("min", r.get("rec", 0.0)))
+
+
+def rule_rec(name_or_value) -> float:
+    """A rule's recommended value (its minimum when it has none)."""
+    if isinstance(name_or_value, (int, float)):
+        return float(name_or_value)
+    r = rule(name_or_value)
+    return float(r.get("rec", r.get("min", 0.0)))
+
+
+def weights() -> dict:
+    return dict(config()["weights"])
+
+
+def use_zone(ftype: str) -> dict:
+    """The use zone of a type with rule names resolved: ``{"front": m, "front_rec": m, "sides": m, "foot": m,
+    "head_skip": m, "sides_needed": n, "side_half": m, "chairs": m, "back": m}`` (only the keys the type has)."""
+    spec = config()["use_zones"].get(ftype) or {}
+    out: dict = {}
+    for key, value in spec.items():
+        if key in ("head_skip", "sides_needed"):
+            out[key] = value
+        else:
+            out[key] = rule_min(value)
+            out[key + "_rec"] = rule_rec(value)
+            if isinstance(value, str):
+                out[key + "_rule"] = value
+    return out
+
+
+def sizes_for(template: dict, ftype: str, area: float) -> list[tuple[float, float]]:
+    """The anchor sizes of ``ftype`` for a room (zone) of ``area`` m²: the first size row whose ``max_area`` is above
+    the area (the last row has none)."""
+    for row in template["anchor"]["sizes"]:
+        if row.get("max_area") is None or area < float(row["max_area"]) - 1e-9:
+            if ftype in row:
+                return [(float(w), float(d)) for w, d in row[ftype]]
+    return [schemas.default_size(ftype)]
+
+
+def group_of_type(ftype: str, room_type: Optional[str]) -> Optional[str]:
+    """The group a piece of ``ftype`` anchors (or, for a set or run, belongs to) in a room of ``room_type``."""
+    if ftype in ("bed_double",):
+        return "sleeping_double"
+    if ftype in ("bed_single", "bunk_bed", "crib"):
+        return "sleeping_single"
+    if ftype in ("sofa", "sofa_corner"):
+        return "seating"
+    if ftype == "table_dining":
+        return "balcony" if room_type == "balcony" else "dining"
+    if ftype == "desk":
+        return "work"
+    if ftype == "wardrobe":
+        return "storage"
+    if ftype in ("sideboard", "bookshelf") and room_type in ("living", "dining"):
+        return "living_storage"
+    if ftype in KITCHEN_RUN_TYPES:
+        return "kitchen_run"
+    if ftype == "kitchen_island":
+        return "island"
+    if ftype in BATH_TYPES:
+        return "wc_set" if room_type == "wc" else "bathroom_set"
+    if ftype in ("shoe_cabinet", "console_table") and room_type == "hall":
+        return "entrance"
+    return None
+
+
+KITCHEN_RUN_TYPES = ("kitchen_counter", "sink_kitchen", "stove", "fridge", "tall_cabinet")
+BATH_TYPES = ("toilet", "washbasin", "shower", "bathtub", "washing_machine")
+# role -> (partner types, reach in metres from the anchor's footprint: a partner farther away belongs to no group).
+PARTNER_REACH: dict[str, tuple[tuple[str, ...], float]] = {
+    "tv": (("tv_unit",), 6.0), "coffee": (("table_coffee", "ottoman"), 2.5), "armchair": (("armchair",), 3.0),
+    "nightstand": (("nightstand",), 1.0), "bench": (("bench",), 1.0), "chair": (("chair", "office_chair"), 1.0),
+    "stool": (("bar_stool",), 1.0),
+}
+ROLES_OF_GROUP: dict[str, tuple[str, ...]] = {
+    "seating": ("tv", "coffee", "armchair"), "sleeping_double": ("nightstand", "bench"),
+    "sleeping_single": ("nightstand", "bench"), "dining": ("chair",), "balcony": ("chair",), "work": ("chair",),
+    "island": ("stool",),
+}
+
+
+def _room_of(building: dict, room_id: str) -> Optional[dict]:
+    return next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
+
+
+def _built_floor(building: dict, room_id: str) -> list[dict]:
+    return [f for f in building.get("furniture") or [] if f.get("room_id") == room_id and f.get("build") is not False
+            and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None
+            and f.get("footprint")]
+
+
+def _expected_missing(group: str, anchor: Optional[dict], members: list[dict], room: dict) -> list[str]:
+    """Partner types the group expects and lacks (see the module docstring)."""
+    allowed = set(schemas.allowed_types(room.get("room_type"), room.get("room_subtype")))
+    have = [m["type"] for m in members]
+    out: list[str] = []
+    if group == "seating":
+        if "tv_unit" in allowed and "tv_unit" not in have:
+            out.append("tv_unit")
+        if "table_coffee" in allowed and not ({"table_coffee", "ottoman"} & set(have)):
+            out.append("table_coffee")
+    elif group in ("sleeping_double", "sleeping_single") and anchor is not None:
+        want = schemas.NIGHTSTANDS_PER_BED.get(anchor["type"], 1)
+        out += ["nightstand"] * max(0, want - have.count("nightstand"))
+    elif group in ("dining",) and anchor is not None and anchor.get("status") != "unverified":
+        want = schemas.count_by_length(max(float(v) for v in anchor["footprint"]["size"]),
+                                       schemas.CHAIRS_BY_TABLE_LENGTH)
+        chairs = sum(1 for t in have if t in ("chair", "bench", "bar_stool"))
+        out += ["chair"] * max(0, want - chairs)
+    elif group == "work":
+        if not any(t in ("office_chair", "chair") for t in have):
+            out.append("office_chair")
+    elif group == "kitchen_run":
+        types = set(have) | ({anchor["type"]} if anchor else set())
+        out += [t for t in ("sink_kitchen", "stove", "fridge") if t not in types]
+    elif group in ("bathroom_set", "wc_set"):
+        types = set(have) | ({anchor["type"]} if anchor else set())
+        need = ["toilet", "washbasin"] + (["shower|bathtub"] if group == "bathroom_set" else [])
+        for t in need:
+            if not any(x in types for x in t.split("|")):
+                out.append(t)
+    return out
+
+
+def match_groups(building: dict, room_id: str) -> list[dict]:
+    """The groups of one room by the templates (pieces without a ``group`` field are matched; see the module
+    docstring). Deterministic: anchors in id order, partners nearest first (ties by id)."""
+    room = _room_of(building, room_id)
+    if room is None:
+        return []
+    rtype = room.get("room_type")
+    items = _built_floor(building, room_id)
+    by_id = {f["id"]: f for f in items}
+    polys = {}
+    for i, f in enumerate(items):
+        try:
+            polys[f["id"]] = placer.drawn_piece(f, i).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+    out: list[dict] = []
+    used: set = set()
+    counts: dict[str, int] = {}
+
+    def gid(group: str) -> str:
+        counts[group] = counts.get(group, 0) + 1
+        return f"{room_id}.{group}" + (f".{counts[group]}" if counts[group] > 1 else "")
+
+    # Sets and runs: one group per room.
+    for group, types in (("kitchen_run", KITCHEN_RUN_TYPES), ("bathroom_set", BATH_TYPES)):
+        members = sorted((f for f in items if f["type"] in types and f["id"] in polys), key=lambda f: f["id"])
+        if group == "kitchen_run" and not any(f["type"] in ("kitchen_counter", "sink_kitchen", "stove")
+                                              for f in members):
+            members = []       # a lone fridge or tall cabinet is no run
+        if group == "bathroom_set" and rtype == "wc":
+            group = "wc_set"
+        if not members:
+            continue
+        anchor = next((f for f in members if f["type"] in ("kitchen_counter", "bathtub", "shower", "toilet")),
+                      members[0])
+        rest = [f for f in members if f is not anchor]
+        out.append({"group_id": gid(group), "group": group, "anchor_id": anchor["id"],
+                    "member_ids": [f["id"] for f in rest], "roles": {f["id"]: "member" for f in rest},
+                    "missing": _expected_missing(group, anchor, rest, room)})
+        used |= {f["id"] for f in members}
+    # Anchored groups: every anchor-type piece opens one.
+    anchors = []
+    for f in sorted(items, key=lambda f: f["id"]):
+        group = group_of_type(f["type"], rtype)
+        if group in (None, "kitchen_run", "bathroom_set", "wc_set", "entrance") or f["id"] not in polys:
+            continue
+        anchors.append((group, f))
+    groups = {f["id"]: {"group_id": gid(group), "group": group, "anchor_id": f["id"], "member_ids": [], "roles": {}}
+              for group, f in anchors}
+    # Partners: per role, every free piece of the role's types joins the best anchor within reach.
+    for role, (types, reach) in PARTNER_REACH.items():
+        cands = [f for f in items if f["type"] in types and f["id"] not in used and f["id"] not in groups
+                 and f["id"] in polys]
+        for f in sorted(cands, key=lambda f: f["id"]):
+            best = None
+            for group, a in anchors:
+                if role not in ROLES_OF_GROUP.get(group, ()):
+                    continue
+                if role == "chair" and group == "work" and f["type"] not in ("office_chair", "chair"):
+                    continue
+                d = polys[a["id"]].distance(polys[f["id"]])
+                if d > reach + 1e-9:
+                    continue
+                cost = d
+                if role == "tv":
+                    cost = _tv_cost(a, f)
+                key = (round(cost, 4), a["id"])
+                if best is None or key < best[0]:
+                    best = (key, a)
+            if best is None:
+                continue
+            g = groups[best[1]["id"]]
+            if role == "tv" and any(by_id[m]["type"] == "tv_unit" for m in g["member_ids"]):
+                continue
+            g["member_ids"].append(f["id"])
+            g["roles"][f["id"]] = role
+            used.add(f["id"])
+    for _group, a in anchors:
+        g = groups[a["id"]]
+        g["missing"] = _expected_missing(g["group"], a, [by_id[m] for m in g["member_ids"]], room)
+        out.append(g)
+    return out
+
+
+def _tv_cost(sofa: dict, tv: dict) -> float:
+    """How badly a TV unit sits opposite a sofa: its offset from the sofa's axis plus the angle error (per 10 deg =
+    0.3 m), so a TV unit belongs to the sofa it faces best."""
+    s = placer.drawn_piece(sofa)
+    t = placer.drawn_piece(tv)
+    a = math.radians(G.front_direction_deg(s.rotation_deg))
+    d = (math.cos(a), math.sin(a))
+    rel = (t.center[0] - s.center[0], t.center[1] - s.center[1])
+    along = rel[0] * d[0] + rel[1] * d[1]
+    lateral = abs(-rel[0] * d[1] + rel[1] * d[0])
+    if along <= 0:
+        return 100.0 + lateral
+    want = G.normalise_angle(G.front_direction_deg(s.rotation_deg) + 180.0)
+    err = G.angle_difference_deg(G.front_direction_deg(t.rotation_deg), want)
+    return lateral + err / 10.0 * 0.3
 
 
 def group_members(building: dict, room_id: str) -> list[dict]:
-    """``[{"group_id", "group", "anchor_id", "member_ids", "missing": [type]}]`` of one room (from the pieces' ``group``
-    fields, else matched by the templates)."""
-    return []
+    """``[{"group_id", "group", "anchor_id", "member_ids", "missing": [type], "roles"}]`` of one room (from the
+    pieces' ``group`` fields, else matched by the templates)."""
+    room = _room_of(building, room_id)
+    if room is None:
+        return []
+    items = _built_floor(building, room_id)
+    tagged: dict[str, dict] = {}
+    for f in items:
+        g = f.get("group")
+        if not isinstance(g, dict) or not g.get("group_id"):
+            continue
+        entry = tagged.setdefault(g["group_id"], {"group_id": g["group_id"], "group": g.get("group"),
+                                                 "anchor_id": g.get("anchor_id"), "member_ids": [], "roles": {}})
+        if g.get("role") == "anchor":
+            entry["anchor_id"] = f["id"]
+        else:
+            entry["member_ids"].append(f["id"])
+            entry["roles"][f["id"]] = g.get("role") or "partner"
+    if not tagged:
+        return match_groups(building, room_id)
+    # Tagged groups first; the untagged pieces are matched around them (a drawn anchor's added partners carry its id).
+    matched = match_groups(building, room_id)
+    by_id = {f["id"]: f for f in items}
+    out = []
+    claimed: set = set()
+    for gid_, entry in sorted(tagged.items()):
+        anchor = by_id.get(entry["anchor_id"]) if entry.get("anchor_id") else None
+        same = next((m for m in matched if anchor is not None and m["anchor_id"] == anchor["id"]), None)
+        if same is not None:      # the drawn anchor's own matched partners join the tagged ones
+            for mid in same["member_ids"]:
+                if mid not in entry["member_ids"] and mid not in claimed:
+                    entry["member_ids"].append(mid)
+                    entry["roles"][mid] = same["roles"].get(mid, "partner")
+        entry["member_ids"] = sorted(set(entry["member_ids"]))
+        entry["missing"] = _expected_missing(entry["group"] or "", anchor,
+                                             [by_id[m] for m in entry["member_ids"] if m in by_id], _room_of(
+                                                 building, room_id))
+        claimed |= set(entry["member_ids"]) | ({entry["anchor_id"]} if entry.get("anchor_id") else set())
+        out.append(entry)
+    for m in matched:
+        if m["anchor_id"] in claimed:
+            continue
+        m = dict(m, member_ids=[x for x in m["member_ids"] if x not in claimed])
+        out.append(m)
+    return out
