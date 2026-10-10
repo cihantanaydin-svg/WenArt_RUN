@@ -290,6 +290,12 @@ def test_a_piece_whose_question_waits_for_its_answers_is_left_to_them():
     RD.read_furniture(build, _works(report={"pending": ["sym_L0_003"], "answers_applied": 3},
                                     u={"candidate_key": "sym_L0_003"}))
     assert _piece(build.building, "u")["inferred_as"] == "detail"
+    # Context typing waits too: a square beside a bed's head stays as asked while its question is open.
+    bed = M.fp("bed", "bed_double", (2.5, 3.0), (1.6, 2.0), front=270.0)
+    square = M.fp("n", "unknown", (1.45, 3.75), (0.45, 0.40), front=None)
+    build = _build([bed, square])
+    RD.read_furniture(build, _works(report={"pending": ["sym_L0_004"]}, n={"candidate_key": "sym_L0_004"}))
+    assert _piece(build.building, "n")["type"] == "unknown" and _piece(build.building, "n")["front_deg"] is None
 
 
 def test_a_stove_drawn_inside_a_named_stove_block_is_drawn_twice():

@@ -52,6 +52,9 @@ Cloud session, CPU only, 10 Oct 2026. Branch: `worktree-agent-afb1a61e1c58afb82`
   obstacle for the layout, decor is the decor stage's business. Only symbols leave the furniture. Inside a re-read
   cluster a column is a not-built piece too, but decor strokes there (accessories, tile hatches drawn over a piece)
   are `other` symbols: track G's solver treats every drawn piece, built or not, as an obstacle.
+- **A piece whose AI question waits for its answers is left to them**: no context typing, copy, front or size
+  inference before the answers come (`tests/test_recognition_answers.py`: in an exit-4 round every asked piece is
+  still `unknown`); it is not built and not listed for review.
 - **Context typing is an inference** (CLAUDE.md: type from size, room and neighbours): the piece keeps its
   `type_method` and `status` (as M11's size inference does), carries `inferred: true`, `inferred_reason` and an
   evidence entry (`rule: reading.context`), and is listed in the report's inferred section.

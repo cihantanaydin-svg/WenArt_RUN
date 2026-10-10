@@ -306,7 +306,7 @@ def _is_mark(f: dict, det: dict, LM) -> bool:
 # 1b. Copies of one block drawing
 # --------------------------------------------------------------------------
 
-def copies(build, items: dict) -> int:
+def copies(build, items: dict, pending=()) -> int:
     """Pieces drawn by the same entities of the same block definition in different inserts of it (``copy_keys``:
     real03's four 1+1 B flats are one block inserted four times) are the same piece: an untyped copy takes the type
     its typed copies agree on, and a copy of symbols becomes a symbol too. Returns the number of pieces changed."""
@@ -325,7 +325,7 @@ def copies(build, items: dict) -> int:
         typed = [by_id[i] for i in ids if i in by_id and by_id[i]["type"] != "unknown"
                  and by_id[i].get("build") is not False]
         loose = [by_id[i] for i in ids if i in by_id and by_id[i]["type"] == "unknown"
-                 and by_id[i].get("build") is not False]
+                 and by_id[i].get("build") is not False and i not in pending]
         syms = [sym_of[i] for i in ids if i in sym_of]
         if not loose:
             continue
@@ -374,9 +374,11 @@ def _set_type(build, f: dict, ftype: str, reason: str, front: Optional[float] = 
     build.warn(f"{f['id']}: {old} -> {ftype} by context: {reason}")
 
 
-def _unknowns(pieces: list[dict]) -> list[dict]:
+def _unknowns(pieces: list[dict], pending=()) -> list[dict]:
+    """The pieces a context rule may type: unknown, built, drawn, and not waiting for their AI answers (nothing is
+    decided for those before the answers come)."""
     return [f for f in pieces if f["type"] == "unknown" and f.get("build") is not False
-            and f.get("source", "from_documents") == "from_documents"]
+            and f.get("source", "from_documents") == "from_documents" and f["id"] not in pending]
 
 
 def _facing(seat: dict, other: Polygon) -> Optional[tuple[float, float, float]]:
@@ -396,7 +398,7 @@ def _facing(seat: dict, other: Polygon) -> Optional[tuple[float, float, float]]:
     return along, across, abs(math.degrees(math.atan2(across, along + depth / 2.0)))
 
 
-def context_types(build, items: dict) -> dict:
+def context_types(build, items: dict, pending=()) -> dict:
     """Step 2 (see the module docstring). Returns counts by rule."""
     from wenart.furniture import sizes
 
@@ -416,7 +418,7 @@ def context_types(build, items: dict) -> dict:
         # Corner sofa: an L outline with seat-deep arms (0.65-1.3 m, generic core ``l_shape``) in a living room, not
         # touching the kitchen run (a counter is an L of 0.6 m deep legs).
         kitchen = [f for f in built if f["type"] in KITCHEN_ZONE_TYPES]
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             det = items[f["id"]].details if f["id"] in items else {}
             lo = det.get("l_outline")
             if lo and room.get("room_type") == "living" and sizes.fits("sofa_corner", tuple(f["footprint"]["size"])) \
@@ -433,7 +435,7 @@ def context_types(build, items: dict) -> dict:
         doors = [rect_fp(s["footprint"]) for s in b.get("symbols") or [] if s.get("kind") == "door_arc"
                  and s.get("room_id") == rid and s.get("footprint")]
         legs = [k for k in kitchen if k["type"] == "kitchen_counter"]
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             det = items[f["id"]].details if f["id"] in items else {}
             poly = rect(f)
             if not (kitchen and sizes.fits("fridge", tuple(f["footprint"]["size"]))):
@@ -455,7 +457,7 @@ def context_types(build, items: dict) -> dict:
                 bump("fridge")
         # Counter: a 0.5-0.75 m deep strip along a wall holding a sink or a hob.
         fixtures = [f for f in built if f["type"] in ("sink_kitchen", "stove")]
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             w, d = sorted(f["footprint"]["size"], reverse=True)
             if not (COUNTER_DEPTH_M[0] <= d <= COUNTER_DEPTH_M[1] and w >= 0.9):
                 continue
@@ -470,7 +472,7 @@ def context_types(build, items: dict) -> dict:
                 bump("kitchen_counter")
         # Nightstands: small squares beside a bed's head.
         beds = [f for f in built if f["type"] in ("bed_double", "bed_single") and f.get("front_deg") is not None]
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             w, d = sorted(f["footprint"]["size"], reverse=True)
             if not (NIGHTSTAND_M[0] / 1.15 <= d and w <= NIGHTSTAND_M[1] * 1.15):
                 continue
@@ -483,11 +485,11 @@ def context_types(build, items: dict) -> dict:
                     break
         # Dining table: a table-sized piece with seat-sized pieces drawn around it on two or more of its sides
         # (docs/milestone12.md §4.1: "chairs around a rectangle -> dining table + chairs"; real01 --no-ai).
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             if not sizes.fits("table_dining", tuple(f["footprint"]["size"])):
                 continue
             poly = rect(f)
-            seats = [g for g in _unknowns(pieces) if g is not f and _seat_sized(g)
+            seats = [g for g in _unknowns(pieces, pending) if g is not f and _seat_sized(g)
                      and rect(g).distance(poly) <= CHAIR_REACH_M]
             sides_hit = {_side_of(f, rect(g)) for g in seats}
             if len(seats) >= DINING_SEATS_MIN and len(sides_hit) >= 2:
@@ -498,7 +500,7 @@ def context_types(build, items: dict) -> dict:
         built = [f for f in pieces if f.get("build") is not False]
         # Chairs: small pieces (a seat, or the half-round back drawn alone) around a dining table face it.
         tables = [f for f in built if f["type"] in ("table_dining", "kitchen_island")]
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             w, d = sorted(f["footprint"]["size"], reverse=True)
             if not (CHAIR_SIDE_M[0] <= w <= CHAIR_SIDE_M[1] and d >= 0.12):
                 continue
@@ -522,13 +524,13 @@ def context_types(build, items: dict) -> dict:
             bump("chair")
         # Washbasin: a bowl with its drain in a bathroom or WC; the counter (vanity) it stands on is part of it.
         if room.get("room_type") in ("bathroom", "wc"):
-            for f in _unknowns(pieces):
+            for f in _unknowns(pieces, pending):
                 det = items[f["id"]].details if f["id"] in items else {}
                 if det.get("drain") and sizes.fits("washbasin", tuple(f["footprint"]["size"])):
                     _set_type(build, f, "washbasin", "a bowl with its drain in a bathroom: the washbasin")
                     bump("washbasin")
             basins = [f for f in pieces if f["type"] == "washbasin" and f.get("build") is not False]
-            for f in _unknowns(pieces):
+            for f in _unknowns(pieces, pending):
                 poly = rect(f)
                 host = next((x for x in basins if poly.intersection(rect(x)).area >= VANITY_SHARE *
                              min(poly.area, rect(x).area)), None)
@@ -544,7 +546,7 @@ def context_types(build, items: dict) -> dict:
         coffee = [f for f in pieces if f["type"] == "table_coffee" and f.get("build") is not False]
         for t in coffee:
             tp = rect(t)
-            near = [f for f in _unknowns(pieces) if sizes.fits("armchair", tuple(f["footprint"]["size"]))
+            near = [f for f in _unknowns(pieces, pending) if sizes.fits("armchair", tuple(f["footprint"]["size"]))
                     and rect(f).distance(tp) <= ARMCHAIR_REACH_M]
             for f in near:
                 c, fc = tp.centroid, rect(f).centroid
@@ -564,7 +566,7 @@ def context_types(build, items: dict) -> dict:
                     bump("armchair")
         # Coffee table and TV unit: in front of a sofa (or in the open corner of an L sofa).
         seats = [f for f in built if f["type"] in SEAT_TYPES and f.get("front_deg") is not None]
-        for f in _unknowns(pieces):
+        for f in _unknowns(pieces, pending):
             size = tuple(f["footprint"]["size"])
             poly = rect(f)
             notch = next((s for s in seats if s.get("shape") == "L" and sizes.fits("table_coffee", size) and
@@ -942,7 +944,7 @@ def _nearest_valid(f: dict, room_poly: Polygon, swings: list, others: list) -> O
 # 5. Fronts
 # --------------------------------------------------------------------------
 
-def infer_fronts(build) -> int:
+def infer_fronts(build, pending=()) -> int:
     """Step 5 (see the module docstring). Returns the number of fronts inferred."""
     from wenart.furniture import infer as INF
     from wenart.furniture import schemas
@@ -952,7 +954,7 @@ def infer_fronts(build) -> int:
     n = 0
     for f in b["furniture"]:
         if f.get("front_deg") is not None or f["type"] in schemas.FRONTLESS_TYPES or f.get("build") is False or \
-                f.get("source") != "from_documents":
+                f.get("source") != "from_documents" or f["id"] in pending:
             continue
         room = rooms.get(f.get("room_id"))
         if room is None:
@@ -1141,10 +1143,10 @@ def read_furniture(build, works: dict) -> None:
     pending = _pending(build, works)
     symbols = move_symbols(build, items, works)
     log_overrides(build, items)
-    copied = copies(build, items)
-    context = context_types(build, items)
-    fronts = infer_fronts(build)
-    for k, v in context_types(build, items).items():          # the seats have their fronts now (coffee table, TV)
+    copied = copies(build, items, pending)
+    context = context_types(build, items, pending)
+    fronts = infer_fronts(build, pending)
+    for k, v in context_types(build, items, pending).items():  # the seats have their fronts now (coffee table, TV)
         context[k] = context.get(k, 0) + v
     if copied:
         context["copies"] = copied
@@ -1153,10 +1155,10 @@ def read_furniture(build, works: dict) -> None:
         context["drawn_twice"] = twice
     inferred = infer(build, pending)
     fixed = fix_fixed(build, items)
-    fronts += infer_fronts(build)
-    for k, v in context_types(build, items).items():          # partners of the anchors the inference typed
+    fronts += infer_fronts(build, pending)
+    for k, v in context_types(build, items, pending).items():  # partners of the anchors the inference typed
         context[k] = context.get(k, 0) + v                     # (real01 --no-ai: the beds by their size)
-    fronts += infer_fronts(build)
+    fronts += infer_fronts(build, pending)
     zones = kitchen_zones(build)
     review = never_a_box(build, items, pending)
     _refresh_rooms(b)
