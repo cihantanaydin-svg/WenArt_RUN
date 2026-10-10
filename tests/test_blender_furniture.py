@@ -385,15 +385,10 @@ def test_style_material_keys_follow_the_style():
 def test_decor_rules():
     assert P.decor_size("cushion", [0.45, 0.45]) == (0.45, 0.45, 0.12)
     assert P.decor_size("plant", [0.9, 0.9, 1.5]) == (0.6, 0.6, 0.6)          # capped at 0.6 m
-    assert P.decor_rest_height("sofa", 0.85, "cushion") == pytest.approx(0.45)
-    assert P.decor_rest_height("bed_double", 0.55, "cushion") == pytest.approx(0.55)      # library bed: type height
-    # A parametric bed (its footprint given): on the soft bedding top (Milestone 6), above the type height.
-    top = P.bedding_top(1.6, 2.0, 0.55)
-    assert P.decor_rest_height("bed_double", 0.55, "cushion", (1.6, 2.0)) == pytest.approx(top, abs=1e-4)
-    assert 0.65 < top < 1.0
-    assert P.decor_rest_height("bookshelf", 1.8, "book_set") == pytest.approx(0.7)
-    assert P.decor_rest_height("desk", 0.75, "book_set") == pytest.approx(0.75)
-    assert P.decor_rest_height("sofa", 0.85, "plant") == 0.0
+    # Milestone 12 (docs/milestone12.md §4.7): the type-table rest height is gone (a library bed's decor sat at
+    # 0.55 m whatever its mattress, a sofa's at 0.45 m, a parametric bed's on the pillow top); decor rests on the
+    # built mesh (wenart.blender.rest, tests/test_decor_rest.py)
+    assert not hasattr(P, "decor_rest_height")
     for dtype in P.DECOR_TYPES:
         parts = P.decor_parts(dtype, 0.4, 0.3, 0.2)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
@@ -406,7 +401,10 @@ def test_decor_rules():
     assert [(i["type"], h["id"]) for i, h in F.collect_decor(building, "L1")] == [("book_set", "b"), ("plant", "b")]
     assert F.unknown_decor_hosts(building) == ["nope"]
     assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0, 0.3]}, building["furniture"][0]) == (0.3, "center[2]")
-    assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0]}, building["furniture"][0])[0] == pytest.approx(0.45)
+    # Milestone 12: no type height (0.45 m on a sofa before): the floor unless rays or the item's own height say more
+    assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0]}, building["furniture"][0]) == (0.0, "floor")
+    proxy = {"kind": "furniture_proxy", "size": [2.0, 1.0, 0.85]}                 # --proxies (debugging) only
+    assert F.decor_height_above_floor({"type": "cushion", "center": [0, 0]}, proxy)[0] == 0.85
 
 
 # --------------------------------------------------------------------------
@@ -598,9 +596,9 @@ def test_manifest_validates_and_summarises_the_furniture(scene):
     m = scene["manifest"]
     schemas.validate_scene_manifest(m)
     s = m["furniture"]
-    assert s["pieces"] == len(scene["building"]["furniture"]) and s["proxies"] == 1 and s["decor"] == 5
-    assert s["by_method"] == {"proxy": 1, "library": 2,
-                              "parametric": len(P.PARAMETRIC_TYPES) - len(P.SHELL_TYPES) + 2}
+    # Milestone 12: the unknown piece is refused (no proxy box)
+    assert s["pieces"] == len(scene["building"]["furniture"]) - 1 and s["proxies"] == 0 and s["decor"] == 5
+    assert s["by_method"] == {"library": 2, "parametric": len(P.PARAMETRIC_TYPES) - len(P.SHELL_TYPES) + 2}
     reasons = {f["id"]: f["reason"] for f in s["fallbacks"]}
     assert set(reasons) == {f["id"] for f in scene["building"]["furniture"]
                             if f["type"] != "unknown" and f["id"] not in ("f_lib", "f_lib_rot")}
@@ -706,14 +704,14 @@ def test_rotated_unverified_library_piece_keeps_stripes_on_copied_materials(scen
 
 
 @needs_blender
-def test_unknown_piece_keeps_the_striped_proxy_box(scene):
+def test_unknown_piece_is_not_built_and_listed(scene):
+    """Milestone 12 (docs/milestone12.md §4.1, D7): no grey box for an untyped piece (it was the striped Milestone 3
+    proxy box): not built, listed in ``not_built`` with the reason (``--proxies`` still builds the boxes)."""
     m, objects = scene["manifest"], scene["objects"]
-    e = next(o for o in m["objects"] if o["wenart_id"] == "proxy:f_unknown")
-    ob = objects["proxy_f_unknown"]
-    assert e["kind"] == ob["kind"] == "furniture_proxy" and e["material"] == "proxy_unverified"
-    assert e["pass_index"] == ob["pass_index"] == m["pass_index"]["proxy:f_unknown"]
-    assert "furn_f_unknown" not in objects
-    assert e["size"] == [1.2, 0.6, 0.8] and e["assumed"]["height"] == 0.8
+    assert "proxy_f_unknown" not in objects and "furn_f_unknown" not in objects
+    assert not [o for o in m["objects"] if o["wenart_id"] in ("proxy:f_unknown", "f_unknown")]
+    reasons = {x["id"]: x["reason"] for x in m["furniture"]["not_built"]}
+    assert reasons["f_unknown"].startswith("unknown type: not built")
 
 
 @needs_blender
@@ -752,22 +750,25 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
             assert max(o["size"]) <= P.DECOR_MAX_M + 1e-9
             (x0, x1), (y0, y1), (z0, z1) = ob["bounds"]
             assert x1 - x0 <= P.DECOR_MAX_M * math.sqrt(2) + 1e-6 and z1 - z0 <= P.DECOR_MAX_M + 1e-6
+    # Milestone 12 (docs/milestone12.md §4.7): hosted decor rests on the built mesh (rays), checked by S5
     cushion, plant = by_host[sofa["id"]]
-    assert cushion["type"] == "cushion" and objects[cushion["name"]]["bounds"][2][0] == pytest.approx(0.45, abs=1e-4)
-    assert cushion["assumed"]["rest_height"] == pytest.approx(0.45)
+    assert cushion["type"] == "cushion" and cushion["support"] == "back"
+    assert objects[cushion["name"]]["bounds"][2][0] == pytest.approx(P.sofa_seat_height(0.85), abs=2e-3)  # the seat
+    assert cushion["rest"]["gap_m"] <= 0.010 and cushion["rest"]["penetration_m"] <= 0.030
     assert plant["type"] == "plant" and objects[plant["name"]]["bounds"][2] == pytest.approx([0.0, 0.6], abs=1e-4)
     assert plant["size"] == [0.6, 0.6, 0.6]
     assert [w for w in m["warnings"] if "capped at 0.6" in w and "plant" in w]
     (books,) = by_host[desk["id"]]
-    assert books["type"] == "book_set" and objects[books["name"]]["bounds"][2][0] == pytest.approx(0.75, abs=1e-4)
-    assert books["method"].startswith("parametric")
+    assert books["type"] == "book_set" and objects[books["name"]]["bounds"][2][0] == pytest.approx(0.75, abs=2e-3)
+    assert books["method"].startswith("parametric") and books["rest"]["gap_m"] <= 0.010
     (lib_cushion,) = by_host[bed["id"]]
     assert lib_cushion["method"] == "library" and lib_cushion["asset"]["asset_id"] == "test_cube"
     (x0, x1), (y0, y1), (z0, z1) = objects[lib_cushion["name"]]["bounds"]
-    # On the parametric bed's soft bedding (Milestone 6), not at the type height inside the pillows.
+    # Leaning in front of the parametric bed's own pillows, its bottom on the bedding: never on the pillow top
+    # (Milestone 11 put it there: ``bedding_top``).
     top = P.bedding_top(*bed["footprint"]["size"], 0.55)
-    assert (x1 - x0, y1 - y0) == pytest.approx((0.4, 0.25), abs=1e-3) and z0 == pytest.approx(top, abs=1e-4)
-    assert lib_cushion["assumed"]["rest_height"] == pytest.approx(top, abs=1e-4)
+    assert x1 - x0 == pytest.approx(0.4, abs=1e-3) and z0 < top - 0.05 and lib_cushion["support"] == "headboard"
+    assert lib_cushion["rest"]["gap_m"] <= 0.010 and lib_cushion["rest"]["support_share"] >= 0.8
     assert lib_cushion["fit"]["fit_scale"] == pytest.approx([0.5, 0.5, 0.5])
     assert [w for w in m["warnings"] if "decor host 'f_nope'" in w]
     assert hosts and m["furniture"]["decor"] == 5
