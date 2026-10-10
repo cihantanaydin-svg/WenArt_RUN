@@ -196,10 +196,13 @@ run_step setup env RECOG_SETUP_PARTS="vllm" bash scripts/pod_setup_recognition.s
 load_models
 # The first pair in the foreground (both at once), the rest in the background in the order they are needed; a
 # failed download leaves its .fail marker (the model's step then fails) and the next download still runs.
-( download fp8 || true ) &
-( download muse || true ) &
-wait
-( download bf16 || true; download flash_next || true; download step_flash || true ) &
+# Explicit pids: a bare `wait` also waits for the `exec > >(tee ...)` process substitution in bash >= 5.1 and never
+# returns (pod P1 of 10 Oct 2026 hung here until its watchdog; tests/test_jobs_flow.py runs this flow with fakes).
+( download fp8 || true ) & dl_fp8=$!
+( download muse || true ) & dl_muse=$!
+wait "$dl_fp8" "$dl_muse" || true
+# step_flash (129 GB) is only the fallback of flash_next: downloaded in its phase, when flash_next did not start.
+( download bf16 || true; download flash_next || true ) &
 if [ -n "$RETRY_VLLM" ]; then ( retry_venv || log "vLLM $RETRY_VLLM venv FAILED" ) & fi
 export HF_HUB_OFFLINE=1
 
@@ -207,6 +210,8 @@ PAIR_A_ARGS="--gpu-tests" run_step "phase-a fp8+muse" pair fp8 muse
 run_step "phase-b bf16" bakeoff bf16 0 8001
 run_step "phase-c flash_next" two_gpu flash_next
 if ! "$PY" -m wenart.agent.bakeoff started --out "$OUT" --name flash_next; then
+  ( download step_flash || true ) & dl_step=$!
+  wait "$dl_step" || true
   run_step "phase-c step_flash (fallback)" two_gpu step_flash
 fi
 run_step summary "$PY" -m wenart.agent.bakeoff summary --out "$OUT"
