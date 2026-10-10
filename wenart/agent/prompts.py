@@ -70,9 +70,57 @@ CHECKLIST: dict[str, dict] = {
     "V2": {"what": "the render matches the building JSON", "how": "CV", "scope": "view"},
     "V3": {"what": "no debug markers (stripes) in final images", "how": "C", "scope": "view"},
     "V4": {"what": "the polish changed no geometry", "how": "C", "scope": "view"},
+    # Milestone 12 (docs/milestone12.md §4.6, §3.5, §5.4): group checks G1-G14 and level checks L1-L7 (code, track G
+    # and L), scene checks S1-S6 (Blender, track S), library gaps (track S), and the two looks only an image shows.
+    "G1": {"what": "TV unit opposite the sofa: on its axis, facing it, >= 1.5 m away", "how": "C", "scope": "piece"},
+    "G2": {"what": "coffee table between sofa and TV, >= 0.30 m from the sofa front", "how": "C", "scope": "piece"},
+    "G3": {"what": "armchairs face the coffee table or the sofa, <= 2.5 m from it", "how": "C", "scope": "piece"},
+    "G4": {"what": "one nightstand per free side of the bed head, touching the bed side", "how": "C",
+           "scope": "piece"},
+    "G5": {"what": "bed headboard on a wall; >= 0.60 m free along each free long side and at the foot", "how": "C",
+           "scope": "piece"},
+    "G6": {"what": "dining chairs = seats of the table, evenly spread, facing it, >= 0.81 m pull-out", "how": "C",
+           "scope": "piece"},
+    "G7": {"what": "desk with a chair in front, >= 0.80 m behind the desk front", "how": "C", "scope": "piece"},
+    "G8": {"what": "kitchen order fridge - sink - hob, landings, triangle, aisle >= 0.90 m", "how": "C",
+           "scope": "room"},
+    "G9": {"what": "a sink, a hob and a fridge in every kitchen (zone)", "how": "C", "scope": "room"},
+    "G10": {"what": "bathroom: toilet + washbasin (+ shower or bath), clear zones in front", "how": "C",
+            "scope": "room"},
+    "G11": {"what": "walkways: every door reaches every door and use zone (>= 0.60 m, main path >= 0.80 m)",
+            "how": "C", "scope": "room"},
+    "G12": {"what": "no piece taller than the sill within 0.30 m in front of a window", "how": "C", "scope": "piece"},
+    "G13": {"what": ">= 0.80 m free in front of wardrobes and door-fronted storage", "how": "C", "scope": "piece"},
+    "G14": {"what": "no piece of a type its room (zone) never holds", "how": "C", "scope": "piece"},
+    "L1": {"what": "outside doors: steps, landing or ground in front at the threshold", "how": "C",
+           "scope": "opening"},
+    "L2": {"what": "a door above the ground has steps or a ramp", "how": "C", "scope": "opening"},
+    "L3": {"what": "no floor below the terrain unless it is a basement with light wells", "how": "C",
+           "scope": "building"},
+    "L4": {"what": "built floors and ground match every level mark within 0.02 m", "how": "C", "scope": "building"},
+    "L5": {"what": "steps and ramps within the riser, tread and slope limits", "how": "C", "scope": "building"},
+    "L6": {"what": "terrain slope with a retaining edge; no terrain above a sill without a light well", "how": "C",
+           "scope": "building"},
+    "L7": {"what": "every entrance is seen in an exterior view", "how": "C", "scope": "view"},
+    "S1": {"what": "every floor piece stands on its floor", "how": "C", "scope": "piece"},
+    "S2": {"what": "no piece cuts a wall or another piece", "how": "C", "scope": "piece"},
+    "S3": {"what": "the built front equals the planned front", "how": "C", "scope": "piece"},
+    "S4": {"what": "the built size is a real size of its type", "how": "C", "scope": "piece"},
+    "S5": {"what": "decor rests on its host (no gap, no cut-through)", "how": "C", "scope": "piece"},
+    "S6": {"what": "every built piece is a typed, audited model or a by-design parametric piece", "how": "C",
+           "scope": "piece"},
+    "LG": {"what": "library gap: no audited model of this type and style fitted", "how": "C", "scope": "piece"},
+    "D1": {"what": "decor that looks wrong in the render: a cushion or throw floating, sunk into a back or "
+                   "hanging in the air, pillows on pillows", "how": "V", "scope": "piece"},
+    "D2": {"what": "a wrong object: a model that is not what its type says (a blob as a throw, a street lamp, a "
+                   "table lamp stretched into a floor lamp, a bench as a throw), or a crude low-poly model",
+           "how": "V", "scope": "piece"},
 }
 ROOM_CHECKS = ("R1", "R2", "R3", "R4", "R5", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "V1", "V2", "V3")
 EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3")
+# Milestone 12 (§5.4 "vision only where it adds something"): the room critic is asked only what an image of the
+# render shows (looks, wrong objects, the room type, finishes, the camera), never what code measures.
+ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "V1", "V2")
 CODE_ONLY = tuple(k for k, v in CHECKLIST.items() if v["how"] == "C")
 
 CRITIC_SYSTEM = (
@@ -149,6 +197,107 @@ PLANNER_SYSTEM = (
     "the type its footprint, room and neighbours show, or remove it when it is clearly not furniture (a rug outline, "
     "a label, a detail drawn inside another piece).\n"
     "8. When you are done, call finish with the findings that are still open.")
+
+
+def room_look_prompt(room: dict, pieces: list[dict], views: list[str], image_labels: list[str],
+                     code_findings: list[dict]) -> str:
+    """Milestone 12: the room critic on the renders only (looks, wrong objects); built pieces only (B5); the code
+    findings are given so they are not repeated."""
+    piece_lines = [f"- {p['id']}: {p.get('type')}" for p in pieces]
+    known = [f"- {f['check']} {f['severity']} {f['target']}: {f['message']}" for f in code_findings]
+    return "\n".join([
+        f"Room {room['id']} ({room.get('label')}, type {room.get('room_type')}, "
+        f"{round(float(room.get('area_computed') or 0.0), 1)} m2).",
+        "Images: " + "; ".join(f"image {i + 1} = {label}" for i, label in enumerate(image_labels)) + ".",
+        "", "Ids you may use as target (only pieces that are built and rendered):", f"- {room['id']}: the room itself",
+        *piece_lines, *(f"- {v}: camera view" for v in views),
+        "", "Checklist (only what the images show; positions, distances and sizes are measured by code):",
+        checklist_text(ROOM_LOOK_CHECKS),
+        "", "Problems the code already measured (never repeat them, not even under another checklist id):",
+        *(known or ["- none"]),
+        "", SEVERITY_TEXT,
+        "List what is wrong in the renders. For each finding give evidence_image = the number of the image that shows "
+        "it."])
+
+
+# --------------------------------------------------------------------------
+# Milestone 12: the planner of one room session (docs/milestone12.md §5.2-§5.4)
+# --------------------------------------------------------------------------
+
+PLANNER_SYSTEM_M12 = (
+    "You are the planner of an architectural visualisation pipeline. You fix the problems of ONE room (or of the "
+    "building) by calling tools. You never write code.\n"
+    "You get a room brief: the built pieces with their lock state and the tools each piece allows (with the move "
+    "allowance left), the groups, the free wall spans, the solver's candidate layouts and the findings. Only the "
+    "findings under 'fixable' are your work; each lists the tools that can fix it. Never edit a piece or a finding "
+    "under 'not yours' or 'not_built'. The memory lists edits that were already rejected: never send them again.\n"
+    "Rules (checked by code; a rejected edit tells you which check failed and by how much):\n"
+    "1. Work on groups, not single pieces: relayout_room with a solver candidate, place_group, complete_group, "
+    "move_group (to a free wall span). Use move_piece only for a small fix of one piece.\n"
+    "2. Drawn fixed equipment (stairs, kitchen runs, appliances, sanitary ware) keeps type, place and footprint; only "
+    "set_front for a front into a wall, fix_fixture for a misread size or a piece through a wall or in a door swing "
+    "(at most 0.5 m), retype_piece or mark_not_furniture when it is clearly a reading error.\n"
+    "3. Drawn furniture is kept; a symbol, mark or line read as furniture: mark_not_furniture with the evidence.\n"
+    "4. front_deg is the direction the front faces, degrees counter-clockwise from +x; a piece with its back on a "
+    "free wall span faces that span's into_room_deg.\n"
+    "5. When you are not sure an edit passes, call dry_run first (it is free). One edit per piece at a time: look at "
+    "its result before the next.\n"
+    "6. Every edit needs a short reason. When your checklist is done or nothing more can be fixed, call finish with "
+    "the findings that stay open.")
+
+PLAN_SCHEMA: dict = {
+    "type": "object", "additionalProperties": False, "required": ["room_id", "program", "steps"],
+    "properties": {
+        "room_id": {"type": "string", "minLength": 1, "maxLength": 80},
+        "program": {"type": "object", "additionalProperties": False, "required": ["keep"],
+                    "properties": {"keep": {"type": "boolean"},
+                                   "choices": {"type": "array", "maxItems": 8, "items": {
+                                       "type": "object", "additionalProperties": False,
+                                       "required": ["group_id", "option"],
+                                       "properties": {"group_id": {"type": "string"},
+                                                      "option": {"type": "string"}}}}}},
+        "steps": {"type": "array", "maxItems": 12, "items": {
+            "type": "object", "additionalProperties": False, "required": ["finding_ids", "tool", "target", "why"],
+            "properties": {"finding_ids": {"type": "array", "maxItems": 8, "items": {"type": "string"}},
+                           "tool": {"type": "string", "minLength": 1, "maxLength": 40},
+                           "target": {"type": "string", "minLength": 1, "maxLength": 80},
+                           "why": {"type": "string", "minLength": 3, "maxLength": 300}}}},
+        "skip": {"type": "array", "maxItems": 20, "items": {
+            "type": "object", "additionalProperties": False, "required": ["finding_id", "why"],
+            "properties": {"finding_id": {"type": "string"}, "why": {"type": "string", "maxLength": 300}}}},
+    }}
+
+
+def _brief_text(brief: dict) -> str:
+    return json.dumps(brief, ensure_ascii=False, separators=(",", ":"), default=str)
+
+
+def plan_prompt(round_no: int, brief: dict, tools: list[str], critical_only: bool) -> str:
+    """The first call of a room session: a JSON plan (``PLAN_SCHEMA``) checked against the brief (§5.4)."""
+    what = "critical" if critical_only else "critical and major"
+    return "\n".join([
+        f"Round {round_no}. Make a plan for the {what} fixable findings of {brief['room']['id']}.",
+        "Room brief (JSON):", _brief_text(brief), "",
+        f"Tools you can use: {', '.join(tools)}.",
+        "Answer with a JSON plan: keep the program or name the group options you choose (program.choices), then the "
+        "steps in order: for each step the finding ids it fixes, one tool, its target (a piece id, a group id, a "
+        "free wall span id or the room id) and why. Put the findings you cannot fix under skip with the reason. Use "
+        "only fixable findings, only tools the target allows, and never an edit the memory lists as rejected."])
+
+
+def session_task(round_no: int, brief: dict, checklist: list[dict], problems: list[str], budget: int,
+                 critical_only: bool) -> str:
+    """The tool session after the plan: the brief, the checked plan as a checklist, the plan problems."""
+    lines = [f"Round {round_no}, room {brief['room']['id']}: carry out the checklist with the tools "
+             f"({budget} tool calls at most; dry_run is free).", "Room brief (JSON):", _brief_text(brief), "",
+             "Checklist (your checked plan):"]
+    lines += [f"{i + 1}. {s['tool']} on {s['target']} for {', '.join(s.get('finding_ids') or []) or '-'}: "
+              f"{s.get('why', '')}" for i, s in enumerate(checklist)] or ["- (empty)"]
+    if problems:
+        lines += ["", "Plan steps refused by the check (do not do them):", *[f"- {p}" for p in problems]]
+    lines += ["", ("Only critical findings this time. " if critical_only else "")
+              + "Call finish when the checklist is done."]
+    return "\n".join(lines)
 
 
 def planner_task(round_no: int, findings: list[dict], minor: list[dict], budget: int, critical_only: bool) -> str:

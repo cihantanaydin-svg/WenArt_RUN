@@ -8,12 +8,15 @@ $WENART_OUTPUTS (default /workspace/repo/outputs) for the projects in $COMPLETIO
   ``building_fitted.json``) to ``building_furnished.json`` and, when the run got that far, to
   ``building_final.json``: every drawn piece keeps its anchor (± 5 cm) and front (± 1°), 0 violations;
 - every furnished bedroom and living room that misses an expected type (or its main piece) got at least one
-  added piece (``completes_room``), itself or through its twin / same_as partner;
+  added piece (``completes_room``), itself or through its twin / same_as partner, unless its record says that
+  nothing fits (Milestone 12: the group solver lists why);
 - every change is listed: each ``modified_by_ai`` piece has its entry in ``completion.json`` with the drawn type
   and size and appears in ``completion_report.md``; each type proposal keeps its drawn footprint and status;
   each ``completes_room`` piece is listed too; rule wall cabinets hang at ``mount_bottom_m`` 1.45;
 - 0 placer violations by AI changes or additions: every added piece passes the six checks in its room with the
-  drawn pieces as obstacles; a changed piece fails no check its drawn layout did not already fail.
+  drawn pieces as obstacles; a changed piece fails no check its drawn layout did not already fail. Milestone 12:
+  walkways are the group check G11's (``check_all(walkways=False)``), and no critical or major group check finding is
+  new against the drawn building.
 """
 import json
 import os
@@ -21,6 +24,7 @@ from pathlib import Path
 
 import pytest
 
+from wenart.furniture import group_checks as GC
 from wenart.furniture import locked as LK
 from wenart.furniture import placer as P
 from wenart.furniture import schemas
@@ -47,6 +51,10 @@ def run(request):
     source = _load(project, "building.json") or _load(project, "building_fitted.json")
     assert source is not None, f"{project}: no building.json / building_fitted.json"
     return project, source, furnished, completion
+
+
+def _source_of(run) -> dict:
+    return run[1]
 
 
 def _mode(completion: dict) -> str:
@@ -83,7 +91,7 @@ def test_rooms_missing_an_expected_type_got_an_added_piece(run):
         partner = (r.get("partner") or {}).get("id")
         record = rooms.get(partner, r) if r["state"] != "completed" else r
         misses = bool(record.get("missing")) or bool(record.get("anchor_missing"))
-        if misses and not added.get(rid):
+        if misses and not added.get(rid) and not str(record.get("reason") or "").startswith("nothing fits"):
             problems.append((rid, r["room_type"], record.get("missing"), r["state"], r.get("reason")))
     assert not problems, f"{project}: rooms that miss an expected type and got nothing: {problems}"
 
@@ -137,9 +145,13 @@ def test_no_placer_violation_by_ai_changes_or_additions(run):
         pieces = [P.Piece(f["type"], tuple(f["footprint"]["center"]), float(f["footprint"]["rotation_deg"]),
                           tuple(f["footprint"]["size"]), bool((f.get("layout") or {}).get("against_wall")))
                   for f in added]
-        ctx2 = P.drawn_context(ctx, obstacles) if obstacles else ctx
-        checks = P.obstacle_checks(obstacles + pieces, ctx2)[len(obstacles):]
+        checks = P.check_all(obstacles + pieces, ctx, walkways=False)[len(obstacles):]
         for f, c in zip(added, checks):
             if P.failed_checks(c):
                 problems.append((room["id"], f["id"], f["type"], P.failed_checks(c)))
-    assert not problems, f"{project}: placer violations: {problems}"
+        before = {(v["check"], v["target"], v["message"]) for v in GC.check_room(_source_of(run), room["id"])}
+        for v in GC.check_room(furnished, room["id"]):
+            if v["severity"] in ("critical", "major") and v["check"] != "G14" and \
+                    (v["check"], v["target"], v["message"]) not in before:
+                problems.append((room["id"], v["target"], v["check"], v["message"]))
+    assert not problems, f"{project}: placer or group check violations: {problems}"

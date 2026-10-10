@@ -41,6 +41,13 @@ and the polish; ``extra_flags`` (pod G1: MTP speculative decoding).
 
 How: the process start (``spawn``), the health probe, the clock and the
 sleep are injectable, so the CPU tests drive a fake process.
+
+Milestone 12 (docs/milestone12.md §5.1, §8 P1, contract §13.3): a model key may be dotted
+(``bakeoff.flash_next`` = ``check.yaml models.bakeoff.flash_next``, ``model_entry``); a model with ``gpus: 2`` is
+served with ``--tensor-parallel-size 2`` and needs ``WENART_GPU_COUNT`` >= 2 (the runner's ``--gpu-count 2``; else a
+``config`` error before anything starts); ``devices`` pins a server to GPUs (``CUDA_VISIBLE_DEVICES``: two
+single-GPU models side by side on a 2-GPU pod, one per GPU, each on its own ``port``); the model's
+``gpu_memory_utilization`` and ``limit_mm`` apply per server as before.
 """
 from __future__ import annotations
 
@@ -84,6 +91,24 @@ def check_models(check_yaml: Path = CHECK_YAML) -> dict:
     import yaml
     data = yaml.safe_load(Path(check_yaml).read_text(encoding="utf-8")) or {}
     return dict(data.get("models") or {})
+
+
+def model_entry(models: dict, key: str) -> Optional[dict]:
+    """``models[key]``; a dotted key names a nested entry (``bakeoff.fp8`` -> ``models["bakeoff"]["fp8"]``)."""
+    node = models
+    for part in str(key).split("."):
+        if not isinstance(node, dict) or part not in node:
+            return None
+        node = node[part]
+    return node if isinstance(node, dict) else None
+
+
+def gpu_count() -> int:
+    """GPUs of this pod: ``WENART_GPU_COUNT`` (set by ``scripts/gpu_run.py run --gpu-count``), default 1."""
+    try:
+        return max(1, int(os.environ.get("WENART_GPU_COUNT", "1") or 1))
+    except ValueError:
+        return 1
 
 
 def max_seqs_of(models: dict, key: str) -> Optional[int]:
@@ -134,7 +159,8 @@ def limit_mm_text(images: Optional[int]) -> str:
 
 def serve_command(vllm: str, model: str, revision: str, flags: str, seqs: int, port: int = VLM_PORT,
                   mem_mib: Optional[int] = None, *, gpu_memory_utilization: Optional[float] = None,
-                  limit_mm: Optional[int] = None, prequantized: bool = False, sleep_mode: bool = False) -> list[str]:
+                  limit_mm: Optional[int] = None, prequantized: bool = False, sleep_mode: bool = False,
+                  tensor_parallel: int = 1) -> list[str]:
     """The ``vllm serve`` command line (polish.sh start_server). Milestone 11 (docs/milestone11.md §11), per model
     from check.yaml: ``gpu_memory_utilization`` (the agent model: 0.55, so Blender renders next to it),
     ``limit_mm`` images per prompt (the agent: 4), ``prequantized`` (an official FP8 checkpoint: never
@@ -148,10 +174,11 @@ def serve_command(vllm: str, model: str, revision: str, flags: str, seqs: int, p
             "--gpu-memory-utilization", util]
     own = shlex.split(flags or "")
     size = [] if any(f in own for f in SIZE_FLAGS) else server_args(seqs, mem_mib)
-    if prequantized and "--quantization" in size:
+    if (prequantized or "--quantization" in own) and "--quantization" in size:
         i = size.index("--quantization")
         size = size[:i] + size[i + 2:]
-    return cmd + own + size + (["--enable-sleep-mode"] if sleep_mode else [])
+    tp = ["--tensor-parallel-size", str(int(tensor_parallel))] if int(tensor_parallel) > 1 else []
+    return cmd + tp + own + size + (["--enable-sleep-mode"] if sleep_mode else [])
 
 
 def server_root_url(url: str) -> str:
@@ -268,6 +295,7 @@ class VLMServer:
     model: str = ""
     sleep_mode: bool = False                  # Milestone 11: --enable-sleep-mode (+ VLLM_SERVER_DEV_MODE=1)
     extra_flags: str = ""                     # Milestone 11 (pod G1): e.g. the MTP --speculative-config
+    devices: Optional[str] = None             # Milestone 12: CUDA_VISIBLE_DEVICES of this server ("0", "1", "0,1")
 
     @property
     def url(self) -> str:
@@ -281,23 +309,42 @@ class VLMServer:
     def pid_path(self) -> Optional[Path]:
         return Path(self.job_dir) / "vllm.pid" if self.job_dir else None
 
-    def command(self) -> list[str]:
-        models = check_models(self.check_yaml)
-        if self.key not in models or not models[self.key].get("id"):
+    def entry(self) -> dict:
+        m = model_entry(check_models(self.check_yaml), self.key)
+        if not m or not m.get("id"):
             raise ServerError(self.key, "config", f"no model '{self.key}' in {self.check_yaml}")
-        m = models[self.key]
+        return m
+
+    def gpus(self) -> int:
+        """GPUs this server needs (``check.yaml models.<key>.gpus``, default 1): tensor parallel above 1."""
+        try:
+            return max(1, int(self.entry().get("gpus") or 1))
+        except (TypeError, ValueError):
+            return 1
+
+    def command(self) -> list[str]:
+        m = self.entry()
         self.model = str(m["id"])
+        need = self.gpus()
+        if need > gpu_count():
+            raise ServerError(self.key, "config", f"{self.model} needs {need} GPUs (tensor parallel); this pod has "
+                                                  f"{gpu_count()} (WENART_GPU_COUNT)")
         flags = " ".join(f for f in (str(m.get("server_flags") or ""), self.extra_flags) if f)
         return serve_command(self.vllm, self.model, str(m.get("revision") or ""), flags,
                              self.seqs, self.port, self.mem_mib,
                              gpu_memory_utilization=m.get("gpu_memory_utilization"), limit_mm=m.get("limit_mm"),
-                             prequantized=bool(m.get("prequantized")), sleep_mode=self.sleep_mode)
+                             prequantized=bool(m.get("prequantized")), sleep_mode=self.sleep_mode,
+                             tensor_parallel=need)
 
     def model_env(self) -> dict:
-        """``check.yaml models.<key>.env`` (e.g. ``VLLM_USE_DEEP_GEMM: 0`` of agent_fast) as text values."""
-        m = check_models(self.check_yaml).get(self.key) or {}
+        """``check.yaml models.<key>.env`` (e.g. ``VLLM_USE_DEEP_GEMM: 0`` of agent_fast) as text values, and
+        ``CUDA_VISIBLE_DEVICES`` of ``devices`` (M12: a server pinned to its GPU(s))."""
+        m = model_entry(check_models(self.check_yaml), self.key) or {}
         env = m.get("env") or {}
-        return {str(k): str(v) for k, v in env.items()} if isinstance(env, dict) else {}
+        out = {str(k): str(v) for k, v in env.items()} if isinstance(env, dict) else {}
+        if self.devices:
+            out["CUDA_VISIBLE_DEVICES"] = str(self.devices)
+        return out
 
     def _is_healthy(self) -> bool:
         return (self.health or (lambda: http_health(self.port)))()

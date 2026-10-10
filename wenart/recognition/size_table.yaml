@@ -1,13 +1,27 @@
-# Plausible footprint of every furniture type of the building schema, seen from above (docs/milestone7.md §3.2).
+# Real sizes of every furniture type of the building schema (docs/milestone7.md §3.2) and, from Milestone 12, of the
+# library decor types: ONE table for the reader, the layout checks (F2), the scene checks (S4), the solver, the fit and
+# the library audit (docs/milestone12.md §6.3 D23; owner track B; read through wenart/furniture/sizes.py).
 #
-# width and depth are [min, max] in metres. A footprint (a, b) fits a type when it lies in the ranges in either
-# orientation, with `tolerance` (+15 %) on top: min / 1.15 <= side <= max * 1.15 (the reader applies it, see
-# wenart/recognition/symbols.py `fits` and wenart/ingest/generic/symbols.py `fits`).
+# width and depth are [min, max] in metres, seen from above; width runs along the piece's front (the layout's
+# convention, wenart/furniture/schemas.py SIZE_OPTIONS: a bed's foot end, a sofa's seat side, a crib's long side).
+# A footprint (a, b) fits a type when it lies in the ranges in either orientation, with `tolerance` (+15 %) on top:
+# min / 1.15 <= side <= max * 1.15 (the readers apply it, see wenart/recognition/symbols.py `fits`,
+# wenart/ingest/generic/symbols.py `fits` and wenart/furniture/sizes.py `fits`).
 # `unknown` has no entry on purpose: it is not a type a footprint can fit (the composite split of §2.8 treats a
 # cluster that fits no type as a possible group).
 #
+# Milestone 12 fields (the readers above use width and depth only; they ignore the rest):
+#   height    [min, max] overall height in metres (with headboards, backs, splashbacks); null: no height (stair)
+#   product   [w, d, h] the default real product (width along the front, depth, height)
+#   products  standard real footprints [w, d] (or [w, d, h]) of the type, in the front convention: the nearest one
+#             is the product size of a misread drawn piece (sizes.product_size); the default product comes first
+#   run       true: the width is a run length (counters), product_size keeps the drawn length and snaps the depth
+#   decor     the library decor types (the catalogue's `decor` section, type decor_<name>), same fields; not under
+#             `types` because the readers type drawn furniture only
+#
 # Used by: the generic core (block-name check, composite split, rule types), the two-pass rule (§3.3: both passes
-# must name the type AND the footprint must fit it).
+# must name the type AND the footprint must fit it), F2, S4, the solver's product sizes, the fit's real-size rank and
+# the library audit's size check (wenart/assets/audit/checks.py `size_check`).
 #
 # Sources (checked 3 Oct 2026):
 #   std  = common furniture and sanitary-ware sizes as published in planning handbooks and manufacturer ranges
@@ -15,51 +29,111 @@
 #          80-100, dining tables 75-110 wide, kitchen base units 60 deep); ranges widened to cover the other two
 #          sources; not checked against one specific standard
 #   syn  = the synthetic drawing blocks (wenart/synthetic/blocks.py BLOCKS) and the layout sizes
-#          (wenart/furniture/schemas.py SIZE_OPTIONS): every one of them fits its type here
+#          (wenart/furniture/schemas.py SIZE_OPTIONS): every one of them fits its type here, in the same orientation
 #   r01  = the real01 reference (tests/fixtures/real01_reference.yaml), measured in the PDF
+#   lib  = the library's height and footprint ranges (wenart/assets/objaverse.yaml types, furniture_sizes,
+#          decor_sizes; product ranges of the ABO listings read on 4 and 8 Oct 2026)
+#   abo  = Milestone 12 review (10 Oct 2026): the 77 ABO products of the library catalogue whose titles give their
+#          size in cm (wenart/assets/audit/checks.py `title_size`, tests/test_library_sizes.py); 72 fit their
+#          type's ranges and heights as they were; of the other 5, two chests of drawers and a bathroom column are
+#          real products of their type (ranges widened below), a wardrobe is filed as a tall cabinet ("Armoire":
+#          the audit retypes it) and a desk's box (0.94 m deep) is not its title's 0.60 m (a listing variant).
+#          Then every ABO product (units known) against the table: two more real products outside it (a task floor
+#          lamp, a counter stool) widened the rows below; the rest fit
+#
+# Milestone 12 changes (every one with its source; tests/test_library_sizes.py checks them):
+#   crib      width/depth swapped to [1.15, 1.50] x [0.60, 0.85]: the front of a crib is a long side (layout
+#             SIZE_OPTIONS 1.26 x 0.66 .. 1.46 x 0.76, objaverse.yaml front words); the readers accept either
+#             orientation, so only the orientation of an unfronted crib changes (symbols.oriented_size)
+#   dresser   width min 0.80 -> 0.70, depth min 0.40 -> 0.35: ABO B079X4CP3F "Movian Hulio ... 4 Drawer Chest Of
+#             Drawers, 72 x 75 x 36 cm" (box 0.75 x 0.36 x 0.72 m) and B01557QQSW "Movian ... credenze modello
+#             Minho, 98 x 90 x 38 cm" (box 0.98 x 0.38 x 0.90 m)
+#   tall_cabinet depth min 0.30 -> 0.25: ABO B07RMJPJMX "Movian Argenton - Colonna da bagno, 30 x 27 x 140 cm"
+#             (box 0.30 x 0.27 x 1.40 m)
+#   floor_lamp width and depth [0.25, 0.60] -> [0.20, 0.70]: ABO B07374K536 "Rivet Caden Adjustable Task Floor
+#             Lamp" (box 0.24 x 0.62 x 1.63 m: an arm reaching out)
+#   bar_stool width max 0.50 -> 0.60, depth max 0.50 -> 0.70: the ABO bar stools of the library are 0.38-0.57 x
+#             0.36-0.66 m (bases and footrests), B075YQ478W "Stone & Beam Carson ... Counter Height Kitchen Stool"
+#             0.49 x 0.66 x 1.08 m; the library's own range was already 0.30-0.70 (lib)
+#   heights   new, from lib (objaverse.yaml types), with three real-product changes: bathtub [0.40, 0.80] ->
+#             [0.40, 0.72] (std: built-in tubs with a panel 0.55-0.60 m, freestanding 0.55-0.72 m; the generated
+#             0.80 m tubs of the diagnosis, docs/milestone12.md §1.6, are not real), wardrobe [1.40, 2.60] ->
+#             [1.50, 2.45] (std: free-standing wardrobes 1.8-2.4 m; ABO 1.81-2.26 m), table_dining [0.65, 0.85] ->
+#             [0.65, 0.92] (ABO dining tables 0.66-0.96 m: counter-height tables); new rows for the types without
+#             a library height: kitchen_counter [0.85, 0.95], kitchen_island [0.85, 1.10] (std: base units 0.85-0.90
+#             m plus the worktop; bar-height islands to 1.05 m), stair none (one storey)
+#   products  new: the layout sizes (syn) first, then std product sizes; the default product's height is the
+#             median ABO box height of the type where ABO has real products (abo), else std
 tolerance: 0.15
 types:
-  bed_single:      {width: [0.80, 1.20], depth: [1.80, 2.20], source: "std; syn 0.9-1.2 x 1.9-2.0"}
-  bed_double:      {width: [1.35, 2.00], depth: [1.85, 2.25], source: "std; syn 1.4-1.8 x 2.0; r01 F1/F4 1.78 x 2.03"}
-  sofa:            {width: [1.20, 3.00], depth: [0.70, 1.10], source: "std; syn 1.6-2.6 x 0.9-0.95; r01 F14/F15 1.90 x 0.70"}
-  armchair:        {width: [0.60, 1.10], depth: [0.60, 1.10], source: "std; syn 0.8-1.0 square"}
-  table_dining:    {width: [0.80, 3.00], depth: [0.70, 1.20], source: "std (round 0.9-1.2, 4-12 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73; m11 real02 masa 3.35 x 1.00 (10 seats)"}
-  table_coffee:    {width: [0.60, 1.40], depth: [0.40, 1.20], source: "std; syn 0.8-1.2 x 0.5-0.7; r01 F16 1.13 x 1.12"}
-  desk:            {width: [0.90, 2.00], depth: [0.50, 0.90], source: "std; syn 1.2-1.6 x 0.6-0.8"}
-  chair:           {width: [0.35, 0.65], depth: [0.35, 0.65], source: "std; syn 0.4-0.5 square; r01 F8-F13 0.38 x 0.45"}
-  wardrobe:        {width: [0.80, 3.00], depth: [0.50, 0.70], source: "std (0.6 deep carcass); syn 1.2-2.4 x 0.6"}
-  kitchen_counter: {width: [0.60, 5.00], depth: [0.50, 0.75], source: "std (base units 0.6 deep); syn 1.8-3.0 x 0.6; r01 F18a 2.57 x 0.61, F18b 0.99 x 0.61"}
-  kitchen_island:  {width: [1.00, 2.50], depth: [0.60, 1.20], source: "std; syn 1.2-2.0 x 0.8-1.0"}
-  fridge:          {width: [0.55, 0.95], depth: [0.55, 0.80], source: "std (single 0.6, side-by-side 0.9); syn 0.6-0.9 x 0.65-0.75"}
-  stove:           {width: [0.45, 0.95], depth: [0.50, 0.70], source: "std (0.5/0.6/0.9 ranges); syn 0.5-0.9 x 0.6"}
-  sink_kitchen:    {width: [0.45, 1.20], depth: [0.40, 0.60], source: "std; syn 0.6-1.0 x 0.5-0.6"}
-  washbasin:       {width: [0.40, 0.90], depth: [0.35, 0.60], source: "std; syn 0.5-0.8 x 0.4-0.5"}
-  toilet:          {width: [0.35, 0.50], depth: [0.55, 0.80], source: "std (pan plus cistern); syn 0.36-0.45 x 0.65-0.75"}
-  shower:          {width: [0.70, 1.60], depth: [0.70, 1.20], source: "std (trays 0.7-1.6); syn 0.8-1.2 x 0.8-0.9"}
-  bathtub:         {width: [1.40, 1.90], depth: [0.65, 0.90], source: "std; syn 1.5-1.8 x 0.7-0.8"}
-  tv_unit:         {width: [1.00, 2.40], depth: [0.30, 0.60], source: "std; syn 1.2-2.0 x 0.4-0.45"}
-  bookshelf:       {width: [0.60, 2.00], depth: [0.25, 0.45], source: "std; syn 0.8-1.2 x 0.3-0.4"}
-  nightstand:      {width: [0.35, 0.65], depth: [0.30, 0.55], source: "std; syn 0.4-0.6 x 0.4-0.45; r01 F2/F3/F5/F6 0.49 x 0.45"}
-  dresser:         {width: [0.80, 1.60], depth: [0.40, 0.60], source: "std; syn 1.0-1.4 x 0.45-0.5"}
-  washing_machine: {width: [0.55, 0.70], depth: [0.55, 0.70], source: "std (0.60 x 0.55-0.65 front loaders); syn 0.55-0.7 square"}
-  stair:           {width: [0.70, 3.00], depth: [1.50, 6.00], source: "std (flight 0.8-1.2 wide, 2.5-4.5 m run; dog-leg 1.6-2.6 wide); r01 F19 2.44 x 1.53"}
-  side_table:      {width: [0.30, 0.70], depth: [0.30, 0.70], source: "std (side and corner tables 0.4-0.6); r01 F17 round 0.43 (type open)"}
-  floor_lamp:      {width: [0.25, 0.60], depth: [0.25, 0.60], source: "std (bases and shades 0.3-0.5 from above); r01 F17 round 0.43 (type open)"}
-  potted_plant:    {width: [0.20, 1.00], depth: [0.20, 1.00], source: "std (pots 0.2-0.6, foliage up to 1.0)"}
+  bed_single:      {width: [0.80, 1.20], depth: [1.80, 2.20], height: [0.25, 1.60], product: [0.90, 2.00, 0.90], products: [[0.90, 2.00], [0.90, 1.90], [1.00, 2.00], [1.20, 2.00]], source: "std; syn 0.9-1.2 x 1.9-2.0; height lib; product abo median 0.99 x 1.96 x 0.92"}
+  bed_double:      {width: [1.35, 2.00], depth: [1.85, 2.25], height: [0.25, 1.60], product: [1.60, 2.00, 1.00], products: [[1.60, 2.00], [1.40, 2.00], [1.80, 2.00], [2.00, 2.00]], source: "std; syn 1.4-1.8 x 2.0; r01 F1/F4 1.78 x 2.03; height lib; product abo median 1.62 x 2.07 x 1.10"}
+  sofa:            {width: [1.20, 3.00], depth: [0.70, 1.10], height: [0.55, 1.20], product: [2.00, 0.90, 0.85], products: [[2.00, 0.90], [1.60, 0.90], [2.20, 0.90], [2.60, 0.95]], source: "std; syn 1.6-2.6 x 0.9-0.95; r01 F14/F15 1.90 x 0.70; height lib; product abo median 1.97 x 0.93 x 0.84"}
+  armchair:        {width: [0.60, 1.10], depth: [0.60, 1.10], height: [0.60, 1.30], product: [0.85, 0.85, 0.90], products: [[0.85, 0.85], [0.80, 0.80], [0.90, 0.90], [1.00, 1.00]], source: "std; syn 0.8-1.0 square; height lib; product abo median 0.85 x 0.89 x 0.92"}
+  table_dining:    {width: [0.80, 3.00], depth: [0.70, 1.20], height: [0.65, 0.92], product: [1.60, 0.90, 0.75], products: [[1.60, 0.90], [1.20, 0.80], [1.80, 0.90], [2.00, 1.00]], source: "std (round 0.9-1.2, 4-12 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73; m11 real02 masa 3.35 x 1.00 (10 seats); height lib widened by abo (0.66-0.96 m); product abo median 1.58 x 0.90 x 0.76"}
+  table_coffee:    {width: [0.60, 1.40], depth: [0.40, 1.20], height: [0.25, 0.60], product: [1.10, 0.60, 0.42], products: [[1.10, 0.60], [0.80, 0.50], [1.00, 0.60], [1.20, 0.70], [0.80, 0.80]], source: "std; syn 0.8-1.2 x 0.5-0.7; r01 F16 1.13 x 1.12; height lib; product abo median 1.08 x 0.60 x 0.41"}
+  desk:            {width: [0.90, 2.00], depth: [0.50, 0.90], height: [0.65, 1.20], product: [1.20, 0.60, 0.76], products: [[1.20, 0.60], [1.40, 0.70], [1.60, 0.80], [1.10, 0.56]], source: "std; syn 1.2-1.6 x 0.6-0.8; height lib; product abo median 1.14 x 0.56 x 0.78"}
+  chair:           {width: [0.35, 0.65], depth: [0.35, 0.65], height: [0.70, 1.20], product: [0.48, 0.55, 0.88], products: [[0.45, 0.45], [0.40, 0.40], [0.50, 0.50], [0.48, 0.55]], source: "std; syn 0.4-0.5 square; r01 F8-F13 0.38 x 0.45; height lib; product abo median 0.52 x 0.57 x 0.92"}
+  wardrobe:        {width: [0.80, 3.00], depth: [0.50, 0.70], height: [1.50, 2.45], product: [1.20, 0.60, 2.00], products: [[1.20, 0.60], [1.80, 0.60], [2.40, 0.60], [1.00, 0.60]], source: "std (0.6 deep carcass); syn 1.2-2.4 x 0.6; height std 1.8-2.4 m, abo 1.81-2.26 m; product abo median 1.64 x 0.58 x 1.96"}
+  kitchen_counter: {width: [0.60, 5.00], depth: [0.50, 0.75], height: [0.85, 0.95], product: [2.40, 0.60, 0.90], products: [[2.40, 0.60], [1.80, 0.60], [3.00, 0.60], [2.40, 0.65]], run: true, source: "std (base units 0.6 deep, worktop 0.85-0.95 m high); syn 1.8-3.0 x 0.6; r01 F18a 2.57 x 0.61, F18b 0.99 x 0.61"}
+  kitchen_island:  {width: [1.00, 2.50], depth: [0.60, 1.20], height: [0.85, 1.10], product: [1.60, 0.90, 0.90], products: [[1.60, 0.90], [1.20, 0.80], [2.00, 1.00]], source: "std (bar-height islands to 1.05 m); syn 1.2-2.0 x 0.8-1.0"}
+  fridge:          {width: [0.55, 0.95], depth: [0.55, 0.80], height: [0.80, 2.10], product: [0.60, 0.65, 1.85], products: [[0.60, 0.65], [0.70, 0.70], [0.90, 0.75], [0.60, 0.60]], source: "std (single 0.6, side-by-side 0.9; under-counter 0.82-0.85 m, tall 1.8-2.05 m); syn 0.6-0.9 x 0.65-0.75; height lib"}
+  stove:           {width: [0.45, 0.95], depth: [0.50, 0.70], height: [0.80, 1.20], product: [0.60, 0.60, 0.90], products: [[0.60, 0.60], [0.50, 0.60], [0.90, 0.60]], source: "std (0.5/0.6/0.9 ranges, 0.85-0.95 m high, splashback to 1.1 m); syn 0.5-0.9 x 0.6; height lib"}
+  sink_kitchen:    {width: [0.45, 1.20], depth: [0.40, 0.60], height: [0.80, 1.30], product: [0.80, 0.60, 0.90], products: [[0.80, 0.60], [0.60, 0.50], [0.80, 0.50], [1.00, 0.60]], source: "std (base unit with the sink, tap included); syn 0.6-1.0 x 0.5-0.6; height lib"}
+  washbasin:       {width: [0.40, 0.90], depth: [0.35, 0.60], height: [0.10, 1.20], product: [0.60, 0.45, 0.85], products: [[0.60, 0.45], [0.50, 0.40], [0.80, 0.50], [0.45, 0.35]], source: "std (counter basins 0.1-0.2 m high, pedestals and vanities 0.80-0.90 m); syn 0.5-0.8 x 0.4-0.5; height lib"}
+  toilet:          {width: [0.35, 0.50], depth: [0.55, 0.80], height: [0.35, 1.10], product: [0.38, 0.65, 0.78], products: [[0.38, 0.65], [0.36, 0.55], [0.40, 0.70], [0.45, 0.75]], source: "std (pan plus cistern: close-coupled 0.75-0.85 m high, wall-hung pans 0.36 x 0.54 at 0.40 m); syn 0.36-0.45 x 0.65-0.75; height lib"}
+  shower:          {width: [0.70, 1.60], depth: [0.70, 1.20], height: [1.80, 2.40], product: [0.90, 0.90, 2.00], products: [[0.90, 0.90], [0.80, 0.80], [1.00, 0.80], [1.20, 0.80], [1.20, 0.90]], source: "std (trays 0.7-1.6, glass 1.9-2.0 m); syn 0.8-1.2 x 0.8-0.9; height lib"}
+  bathtub:         {width: [1.40, 1.90], depth: [0.65, 0.90], height: [0.40, 0.72], product: [1.70, 0.75, 0.58], products: [[1.70, 0.75], [1.50, 0.70], [1.60, 0.70], [1.70, 0.70], [1.80, 0.80]], source: "std (built-in with a panel 0.55-0.60 m high, freestanding 0.55-0.72 m); syn 1.5-1.8 x 0.7-0.8"}
+  tv_unit:         {width: [1.00, 2.40], depth: [0.30, 0.60], height: [0.30, 1.00], product: [1.50, 0.42, 0.55], products: [[1.50, 0.42], [1.20, 0.40], [1.60, 0.45], [2.00, 0.45]], source: "std; syn 1.2-2.0 x 0.4-0.45; height lib; product abo median 1.49 x 0.43 x 0.61"}
+  bookshelf:       {width: [0.60, 2.00], depth: [0.25, 0.45], height: [0.70, 2.50], product: [0.90, 0.35, 1.85], products: [[0.90, 0.35], [0.80, 0.30], [1.00, 0.35], [1.20, 0.40]], source: "std; syn 0.8-1.2 x 0.3-0.4; height lib; product abo median 0.87 x 0.38 x 1.88"}
+  nightstand:      {width: [0.35, 0.65], depth: [0.30, 0.55], height: [0.35, 0.80], product: [0.45, 0.40, 0.55], products: [[0.45, 0.40], [0.40, 0.40], [0.50, 0.40], [0.60, 0.45]], source: "std; syn 0.4-0.6 x 0.4-0.45; r01 F2/F3/F5/F6 0.49 x 0.45; height lib; product abo median 0.46 x 0.41 x 0.56"}
+  dresser:         {width: [0.70, 1.60], depth: [0.35, 0.60], height: [0.60, 1.40], product: [1.00, 0.45, 0.90], products: [[1.00, 0.45], [1.20, 0.50], [1.40, 0.50], [0.80, 0.40]], source: "std; syn 1.0-1.4 x 0.45-0.5; abo B079X4CP3F 0.75 x 0.36 x 0.72 and B01557QQSW 0.98 x 0.38 x 0.90 (M12: width and depth min lowered); height lib; product abo median 0.97 x 0.46 x 0.92"}
+  washing_machine: {width: [0.55, 0.70], depth: [0.55, 0.70], height: [0.80, 0.95], product: [0.60, 0.60, 0.85], products: [[0.60, 0.60], [0.60, 0.55], [0.70, 0.70]], source: "std (0.60 x 0.55-0.65 front loaders, 0.85 m); syn 0.55-0.7 square; height lib"}
+  stair:           {width: [0.70, 3.00], depth: [1.50, 6.00], height: null, product: null, source: "std (flight 0.8-1.2 wide, 2.5-4.5 m run; dog-leg 1.6-2.6 wide); r01 F19 2.44 x 1.53; no height (one storey, the building's)"}
+  side_table:      {width: [0.30, 0.70], depth: [0.30, 0.70], height: [0.35, 0.85], product: [0.45, 0.45, 0.55], products: [[0.45, 0.45], [0.40, 0.40], [0.60, 0.60]], source: "std (side and corner tables 0.4-0.6); r01 F17 round 0.43 (type open); height lib; product abo median 0.47 x 0.50 x 0.52"}
+  floor_lamp:      {width: [0.20, 0.70], depth: [0.20, 0.70], height: [1.20, 2.10], product: [0.40, 0.40, 1.60], products: [[0.40, 0.40], [0.30, 0.30], [0.50, 0.50]], source: "std (bases and shades 0.3-0.5 from above); r01 F17 round 0.43 (type open); abo B07374K536 adjustable task lamp 0.24 x 0.62 x 1.63 (M12: ranges widened from 0.25-0.60); height lib; product abo median 0.41 x 0.41 x 1.58"}
+  potted_plant:    {width: [0.20, 1.00], depth: [0.20, 1.00], height: [0.30, 2.20], product: [0.45, 0.45, 1.00], products: [[0.45, 0.45], [0.30, 0.30], [0.60, 0.60]], source: "std (pots 0.2-0.6, foliage up to 1.0); height lib"}
   # Milestone 10 (docs/milestone10.md §1.1, checked 8 Oct 2026): the 14 new types. std as above (planning handbook
   # and manufacturer ranges, widened); no synthetic block and no real01 piece draws them yet; m10 = measured on the
   # real02 drawing (projects/real02/one_building.dwg converted to DXF, centimetres).
-  sofa_corner:     {width: [1.80, 4.00], depth: [1.40, 3.00], source: "std (L-shaped corner sofas 2.0-3.2 x 1.5-2.5, both legs 0.8-1.0 deep; large modular ones to 4 m); m10 real02 basement 4.38 x 1.97; the footprint is the bounding box of the L"}
-  chaise:          {width: [0.55, 0.95], depth: [1.30, 2.00], source: "std (chaise longues 0.6-0.9 x 1.4-1.9)"}
-  ottoman:         {width: [0.35, 1.00], depth: [0.35, 1.00], source: "std (poufs and footstools 0.4-0.9, square or round)"}
-  bench:           {width: [0.80, 2.00], depth: [0.30, 0.55], source: "std (bed-foot, hall and dining benches 0.9-1.8 x 0.35-0.5)"}
-  bar_stool:       {width: [0.30, 0.50], depth: [0.30, 0.50], source: "std (seats 0.3-0.45, bases up to 0.5)"}
-  office_chair:    {width: [0.50, 0.75], depth: [0.50, 0.75], source: "std (five-star bases 0.6-0.7)"}
-  console_table:   {width: [0.70, 1.60], depth: [0.25, 0.45], source: "std (hall consoles 0.8-1.4 x 0.3-0.4)"}
-  crib:            {width: [0.60, 0.85], depth: [1.15, 1.50], source: "std (cot mattresses 0.6 x 1.2 and 0.7 x 1.4, frame + 5-10 cm)"}
-  bunk_bed:        {width: [0.85, 1.20], depth: [1.90, 2.20], source: "std (single-mattress bunks 0.9-1.0 x 2.0, frame and ladder up to 1.1 x 2.1); from above it looks like a single bed"}
-  sideboard:       {width: [1.00, 2.40], depth: [0.35, 0.55], source: "std (sideboards and buffets 1.2-2.2 x 0.4-0.5)"}
-  shoe_cabinet:    {width: [0.50, 1.40], depth: [0.20, 0.40], source: "std (slim shoe cabinets 0.6-1.2 x 0.2-0.35)"}
-  display_cabinet: {width: [0.50, 1.60], depth: [0.30, 0.55], source: "std (glass-front vitrines 0.6-1.4 x 0.35-0.5)"}
-  tall_cabinet:    {width: [0.30, 1.20], depth: [0.30, 0.70], source: "std (kitchen tall units 0.4-0.6 x 0.6, pantry and utility cabinets up to 1.2)"}
-  wall_cabinet:    {width: [0.30, 1.20], depth: [0.25, 0.40], source: "std (kitchen wall units 0.3-1.2 x 0.3-0.37, seen from above)"}
+  sofa_corner:     {width: [1.80, 4.00], depth: [1.40, 3.00], height: [0.55, 1.20], product: [2.60, 1.60, 0.86], products: [[2.60, 1.60], [2.20, 1.50], [3.00, 1.70]], source: "std (L-shaped corner sofas 2.0-3.2 x 1.5-2.5, both legs 0.8-1.0 deep; large modular ones to 4 m); m10 real02 basement 4.38 x 1.97; the footprint is the bounding box of the L; height lib; product abo median 2.44 x 1.83 x 0.86"}
+  chaise:          {width: [0.55, 0.95], depth: [1.30, 2.00], height: [0.55, 1.20], product: [0.75, 1.70, 0.82], products: [[0.75, 1.70], [0.65, 1.60], [0.85, 1.80]], source: "std (chaise longues 0.6-0.9 x 1.4-1.9); height lib; product abo median 0.76 x 1.56 x 0.82"}
+  ottoman:         {width: [0.35, 1.00], depth: [0.35, 1.00], height: [0.25, 0.65], product: [0.60, 0.60, 0.45], products: [[0.60, 0.60], [0.50, 0.50], [0.80, 0.80], [0.80, 0.60]], source: "std (poufs and footstools 0.4-0.9, square or round); height lib"}
+  bench:           {width: [0.80, 2.00], depth: [0.30, 0.55], height: [0.35, 1.00], product: [1.20, 0.40, 0.46], products: [[1.20, 0.40], [1.00, 0.40], [1.40, 0.45]], source: "std (bed-foot, hall and dining benches 0.9-1.8 x 0.35-0.5); height lib; product abo median 1.18 x 0.42 x 0.46"}
+  bar_stool:       {width: [0.30, 0.60], depth: [0.30, 0.70], height: [0.55, 1.25], product: [0.45, 0.50, 1.00], products: [[0.45, 0.50], [0.42, 0.42], [0.38, 0.38], [0.45, 0.45]], source: "std (seats 0.3-0.45, bases up to 0.5); abo bar stools 0.38-0.57 x 0.36-0.66 m, B075YQ478W counter stool 0.49 x 0.66 x 1.08 (M12: width max 0.50 -> 0.60, depth max 0.50 -> 0.70, as the library range lib); height lib; product abo median 0.46 x 0.52 x 1.01"}
+  office_chair:    {width: [0.50, 0.75], depth: [0.50, 0.75], height: [0.70, 1.40], product: [0.65, 0.65, 1.10], products: [[0.65, 0.65], [0.55, 0.55], [0.60, 0.60]], source: "std (five-star bases 0.6-0.7); height lib; product abo median 0.67 x 0.68 x 1.10"}
+  console_table:   {width: [0.70, 1.60], depth: [0.25, 0.45], height: [0.55, 1.10], product: [1.20, 0.35, 0.76], products: [[1.20, 0.35], [0.90, 0.30], [1.40, 0.40]], source: "std (hall consoles 0.8-1.4 x 0.3-0.4); height lib; product abo median 1.22 x 0.40 x 0.76"}
+  crib:            {width: [1.15, 1.50], depth: [0.60, 0.85], height: [0.70, 1.30], product: [1.26, 0.66, 0.90], products: [[1.26, 0.66], [1.36, 0.70], [1.46, 0.76]], source: "std (cot mattresses 0.6 x 1.2 and 0.7 x 1.4, frame + 5-10 cm); M12: width and depth swapped, the front is a long side (syn: layout 1.26 x 0.66 .. 1.46 x 0.76); height lib"}
+  bunk_bed:        {width: [0.85, 1.20], depth: [1.90, 2.20], height: [1.00, 2.10], product: [1.00, 2.05, 1.65], products: [[1.00, 2.05], [0.95, 1.95], [1.10, 2.10]], source: "std (single-mattress bunks 0.9-1.0 x 2.0, frame and ladder up to 1.1 x 2.1); from above it looks like a single bed; the front is the foot end as for a bed (layout 0.95 x 1.95 .. 1.1 x 2.1); height lib"}
+  sideboard:       {width: [1.00, 2.40], depth: [0.35, 0.55], height: [0.60, 1.20], product: [1.60, 0.45, 0.82], products: [[1.60, 0.45], [1.40, 0.42], [1.80, 0.48]], source: "std (sideboards and buffets 1.2-2.2 x 0.4-0.5); height lib; product abo median 1.39 x 0.46 x 0.82"}
+  shoe_cabinet:    {width: [0.50, 1.40], depth: [0.20, 0.40], height: [0.30, 1.80], product: [0.80, 0.30, 1.00], products: [[0.80, 0.30], [0.60, 0.30], [1.00, 0.35]], source: "std (slim shoe cabinets 0.6-1.2 x 0.2-0.35); height lib (abo 1.28-1.79 m tall ones with mirrors)"}
+  display_cabinet: {width: [0.50, 1.60], depth: [0.30, 0.55], height: [1.20, 2.40], product: [0.80, 0.40, 1.90], products: [[0.80, 0.40], [1.00, 0.40], [1.20, 0.42]], source: "std (glass-front vitrines 0.6-1.4 x 0.35-0.5); height lib"}
+  tall_cabinet:    {width: [0.30, 1.20], depth: [0.25, 0.70], height: [1.20, 2.40], product: [0.60, 0.60, 2.10], products: [[0.60, 0.60], [0.40, 0.58], [0.80, 0.60], [0.30, 0.30]], source: "std (kitchen tall units 0.4-0.6 x 0.6, pantry and utility cabinets up to 1.2); abo B07RMJPJMX 0.30 x 0.27 x 1.40 (M12: depth min lowered); height lib"}
+  wall_cabinet:    {width: [0.30, 1.20], depth: [0.25, 0.40], height: [0.30, 1.00], product: [0.60, 0.35, 0.70], products: [[0.60, 0.35], [0.90, 0.35], [1.20, 0.35]], run: true, source: "std (kitchen wall units 0.3-1.2 x 0.3-0.37, seen from above); height lib"}
+# Library decor types (Milestone 12: the audit and S4 measure decor too). Footprints and heights from lib
+# (objaverse.yaml decor_sizes and types: product sizes of rugs, framed art, throw pillows, planters, vases, bowls,
+# lamps, mirrors, curtains, blinds, throws, books, candles, baskets, trays, clocks, sculptures, plants and lights,
+# checked against the ABO boxes of 4 and 8 Oct 2026); the default product is the abo median where ABO has 10 or more
+# real products of the type, else std.
+decor:
+  cushion:       {width: [0.25, 0.90], depth: [0.05, 0.40], height: [0.15, 0.75], product: [0.45, 0.15, 0.45], source: "lib; abo median 0.50 x 0.18 x 0.50 (throw pillows 12 x 20 in to 26 x 26 in)"}
+  plant:         {width: [0.10, 1.00], depth: [0.10, 1.00], height: [0.15, 2.20], product: [0.40, 0.40, 0.80], source: "lib; std"}
+  rug:           {width: [0.60, 4.50], depth: [0.40, 3.60], height: [0.002, 0.08], product: [2.40, 1.60, 0.01], source: "lib; abo median 2.44 x 1.57 x 0.01 (rugs 2 x 3 ft to 9 x 12 ft)"}
+  wall_art:      {width: [0.15, 2.40], depth: [0.003, 0.15], height: [0.15, 1.80], product: [0.50, 0.04, 0.55], source: "lib; abo median 0.51 x 0.04 x 0.53"}
+  vase:          {width: [0.05, 0.45], depth: [0.05, 0.45], height: [0.06, 0.75], product: [0.15, 0.15, 0.25], source: "lib; abo median 0.15 x 0.14 x 0.23"}
+  bowl:          {width: [0.10, 0.60], depth: [0.10, 0.60], height: [0.02, 0.30], product: [0.30, 0.30, 0.10], source: "lib; std (decorative bowls 5 to 20 in)"}
+  plant_small:   {width: [0.06, 0.50], depth: [0.06, 0.50], height: [0.10, 0.75], product: [0.20, 0.20, 0.35], source: "lib; std (small potted plants 4 to 24 in)"}
+  table_lamp:    {width: [0.10, 0.60], depth: [0.10, 0.60], height: [0.20, 0.95], product: [0.25, 0.25, 0.50], source: "lib; abo median 0.25 x 0.25 x 0.50"}
+  mirror:        {width: [0.25, 1.50], depth: [0.004, 0.15], height: [0.25, 1.40], product: [0.60, 0.04, 0.70], source: "lib; abo median 0.57 x 0.04 x 0.68 (wall mirrors only)"}
+  curtain:       {width: [0.30, 3.50], depth: [0.01, 0.50], height: [0.80, 3.20], product: [1.40, 0.10, 2.50], source: "lib; std (panels 0.5-1.5 m wide, 2.0-3.0 m long)"}
+  blind:         {width: [0.30, 3.00], depth: [0.01, 0.35], height: [0.40, 3.00], product: [1.20, 0.05, 1.50], source: "lib; std (blinds 0.4-2.5 m wide)"}
+  throw:         {width: [0.25, 2.00], depth: [0.15, 1.70], height: [0.03, 0.80], product: [0.50, 0.35, 0.08], source: "lib; std (folded throws 0.4-0.6 x 0.3-0.4, draped up to 1.9 m)"}
+  books:         {width: [0.08, 0.60], depth: [0.06, 0.45], height: [0.03, 0.50], product: [0.25, 0.18, 0.15], source: "lib; std (book stacks 5 to 40 cm)"}
+  candle:        {width: [0.03, 0.45], depth: [0.03, 0.45], height: [0.04, 0.80], product: [0.10, 0.10, 0.20], source: "lib; std (candles and holders 4 to 80 cm)"}
+  basket:        {width: [0.15, 0.95], depth: [0.15, 0.95], height: [0.10, 0.80], product: [0.40, 0.40, 0.35], source: "lib; std (baskets 0.15 to 0.9 m)"}
+  tray:          {width: [0.15, 0.85], depth: [0.10, 0.65], height: [0.01, 0.15], product: [0.45, 0.30, 0.05], source: "lib; std (trays 15 to 80 cm)"}
+  clock:         {width: [0.12, 1.35], depth: [0.008, 0.25], height: [0.12, 1.30], product: [0.35, 0.04, 0.35], source: "lib; abo median 0.34 x 0.03 x 0.38 (wall clocks only)"}
+  sculpture:     {width: [0.05, 0.90], depth: [0.05, 0.90], height: [0.08, 1.30], product: [0.20, 0.20, 0.35], source: "lib; std (sculptures and figurines 10 to 120 cm)"}
+  plant_large:   {width: [0.25, 1.30], depth: [0.25, 1.30], height: [0.90, 2.60], product: [0.60, 0.60, 1.50], source: "lib; std (large floor plants 0.9 to 2.6 m)"}
+  pendant_light: {width: [0.08, 1.30], depth: [0.08, 1.30], height: [0.10, 2.20], product: [0.40, 0.35, 0.95], source: "lib; abo median 0.41 x 0.33 x 0.94 (with the drop)"}
+  ceiling_light: {width: [0.12, 1.15], depth: [0.12, 1.15], height: [0.03, 0.60], product: [0.35, 0.35, 0.13], source: "lib; abo median 0.35 x 0.35 x 0.13"}

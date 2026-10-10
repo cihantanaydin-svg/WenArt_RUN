@@ -995,7 +995,7 @@ separate OK with the list.
 
 ### 6.3 D23 – Size table
 
-One real-size table per type (`wenart/furniture/size_table.yaml`, existing ranges reviewed against the ABO products
+One real-size table per type (`wenart/recognition/size_table.yaml` read through `wenart/furniture/sizes.py`; ranges reviewed against the ABO products
 with sizes in their titles) is shared by the audit, the fit, F2/S4 and the solver.
 
 ### 6.4 D24 – Gap report and growth
@@ -1212,3 +1212,15 @@ A track that needs a change in another track's file writes it into its report; t
   @4275532ffd9a9496ff36b7a2dc4a9db1048da438).
 - Runner (lead): `scripts/gpu_run.py run --gpu-count 2` (the pod gets `WENART_GPU_COUNT`); `--over-5-ok` for P1 and
   every 2-GPU pod (user OK of 10 Oct 2026).
+
+## 14. Build log and lead decisions (step 2)
+
+| Date | Item | Decision |
+|---|---|---|
+| 10 Oct | Track B merged (`6865c6a`) | audit package, size table with heights and products, 18 NC/SA removals in the catalogue, generated credit fixed, growth lists (Poly Haven 88 CC0 / 501 MB, ABO 232 / 7.8 GB, GSO 36 / 239 MB, Infinigen plan); pod P2 started on an RTX 5090 (no RTX PRO 6000 in stock in EU-RO-1) |
+| 10 Oct | Track S merged (`27468ee`) | decor in the host frame and on the built mesh (`blender/rest.py`), procedural textiles (`blender/textiles.py`), parametric shower / washer / fridge, scene checks S1–S6, fit on usable models with the style chain; schema: `host_frame` keys, `decor_dropped`, `asset.method: none` |
+| 10 Oct | Fixtures without an audited model (track S question) | **kitchen and bath fixtures** (toilet, washbasin, bathtub, shower, kitchen sink, stove, fridge, washing machine) fall back to the parametric model with a `library_gap` record when no audited model fits; otherwise drawn fixed equipment would vanish, which CLAUDE.md forbids. Sofas, beds and tables never fall back to parametric (§4.8 stays) |
+| 10 Oct | Track L merged | level marks (reader, datum, kinds, symbols), terrain, entrances, plinth, room floors, single-floor slab + `flat_cut` roof + site, L1–L7, level edits; real03: the 2 model-space marks (KOT-BINA +0.00 / KOT-ARAZI 93.20) read, datum 93.20, ground by D3a (the other ≈ 284 marks are in unused blocks), 2 entrances with one 0.15 m step, 6 exterior views planned; real02: datum 43.00, the 20 BDK attributes confirmed unused, courts recorded; synthetic-02/-05 (single ground floors) now get a slab and a `flat_cut` roof (U2); schema documents the new fields |
+| 10 Oct | Pod P2 `rrcsjd6n6xgh6y` (RTX 5090, 38 min, $0.75) | library audit A: all 1,066 models rendered with the scale reference (1.75 m person, 0.45 m seat bar, 0.5 m grid) and measured, 24 texture samples, code checks; GPU tests 2/2; code checks: remove 107 (title flag 30, size 28, title names another type 28, licence 18, duplicates 3), fix 25, review 537 for the vision check (P3); per-model sheets stay on the volume (104 MB), the measurements and checks are in `results/library/audit/p2/` |
+| 10 Oct | Track A merged (`f4a23d8`, 347 tests green), track G merged after it | G: 13 groups / 21 rules with sources, program, beam solver (≤ 2 s per room), G1–G14, layout/completion through the solver, group edit ops, `dry_run`, `allowed_edits`, U1 `fix_fixture`; real02 major G-findings 102 → 62, real03 98 → 68, no hard failure in any best candidate. **After the G merge 4 integration tests are red** (agent brief and plan vs G's real `allowed_edits` and tool list; a vision-check decoy): track A is fixing them; no pod is launched from a red commit |
+| 10 Oct | Pod P1 | two creations failed (no 2 × RTX PRO 6000 instance in EU-RO-1, nothing billed); P1 runs **without the volume** from `f4a23d8` (the bake-off skips only its Cycles-VRAM measurement without the real02 scene) |

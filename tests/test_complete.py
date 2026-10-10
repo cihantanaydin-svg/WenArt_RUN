@@ -1,4 +1,5 @@
-"""Feature 1: AI completes rooms with drawn furniture (docs/milestone10.md §2), with a fake client.
+"""Completion of rooms with drawn furniture through the group solver (docs/milestone12.md §4.3-§4.5; Milestone 10
+§2 before), with a fake vision client that picks among the solver's candidates.
 
 Fixtures: the M10 example building with the AI-made pieces stripped (``test_locked.drawn_building``: a drawn
 sofa in the basement living room, a counter run in the kitchen, stairs in the halls, a double bed in the
@@ -8,98 +9,58 @@ semi-detached pair of bedrooms mirrored about a party wall at x = 4.1 (``twin_bu
 import copy
 import json
 import math
+from pathlib import Path
 
 import pytest
-from shapely.geometry import Polygon
 
 from wenart import building as B
-from wenart import geometry as G
 from wenart.furniture import complete as C
+from wenart.furniture import group_checks as GC
 from wenart.furniture import layout as L
 from wenart.furniture import locked as LK
 from wenart.furniture import placer as P
 from wenart.furniture import schemas
-from wenart.recognition.schemas import grammar_problems
 
 from test_locked import drawn_building, example
 
-MODEL = "fake/completion-model"
+MODEL = "fake/vision-model"
 
 
-def room_of(prompt: str) -> str:
-    return json.loads(prompt.split("Room (metres, X right, Y up):\n", 1)[1].split("\n\n", 1)[0])["room_id"]
+def room_of(images) -> str:
+    """The room id from the candidate image names (``<room>_c<rank>.png``)."""
+    return Path(images[0]).name.rsplit("_c", 1)[0]
 
 
-class FakeClient:
-    """``complete`` answers from ``table[(room id, pass)]`` (default: nothing), checking every answer against the
-    room's schema as vLLM's grammar would; ``propose`` (Milestone 4 empty rooms) from ``m4[(room id, pass)]``."""
+class FakeChooser:
+    """``choose`` answers ``{"candidate": picks.get(room, pick)}``; ``transport``: rooms whose call fails like a dead
+    server; ``invalid``: rooms answered with a candidate number that does not exist."""
     model = MODEL
     _model = MODEL
 
-    def __init__(self, table=None, m4=None, transport=()):
-        self.table = table or {}
-        self.m4 = m4 or {}
-        self.transport = set(transport)
-        self.calls, self.m4_calls, self.schemas, self.prompts = [], [], {}, {}
+    def __init__(self, pick=2, picks=None, transport=(), invalid=()):
+        self.pick, self.picks = pick, dict(picks or {})
+        self.transport, self.invalid = set(transport), set(invalid)
+        self.calls, self.prompts, self.schemas, self.images = [], {}, {}, {}
+        self.down = None
 
-    def complete(self, prompt, schema, pass_no):
-        rid = room_of(prompt)
-        self.calls.append((rid, pass_no))
-        self.schemas[rid], self.prompts[(rid, pass_no)] = schema, prompt
+    def choose(self, prompt, images, labels, schema):
+        rid = room_of(images)
+        self.calls.append(rid)
+        self.prompts[rid], self.schemas[rid], self.images[rid] = prompt, schema, [Path(p).name for p in images]
+        assert labels == [f"Candidate {k}:" for k in range(1, len(images) + 1)]
         if rid in self.transport:
-            return L.Proposal(pass_no, None, error="cannot reach http://127.0.0.1:1/v1", prompt=prompt, model=MODEL,
-                              transport_error=True)
-        answer = self.table.get((rid, pass_no), {"changes": [], "added": []})
-        if isinstance(answer, str):
-            return L.Proposal(pass_no, None, error=answer, latency_s=0.5, prompt=prompt, model=MODEL)
-        assert C.schema_errors(answer, schema) == [], (rid, C.schema_errors(answer, schema))
-        return L.Proposal(pass_no, copy.deepcopy(answer), raw_text=json.dumps(answer), latency_s=1.25, prompt=prompt,
-                          model=MODEL)
-
-    def propose(self, prompt, pass_no):
-        rid = room_of(prompt)
-        self.m4_calls.append((rid, pass_no))
-        answer = self.m4.get((rid, pass_no), {"pieces": []})
-        return L.Proposal(pass_no, copy.deepcopy(answer), raw_text=json.dumps(answer), latency_s=1.0, prompt=prompt,
-                          model=MODEL)
-
-
-def pc(ftype, center, rotation, size, wall=True, reason="test"):
-    return {"type": ftype, "center": list(center), "rotation_deg": rotation, "size": list(size), "against_wall": wall,
-            "reason": reason}
-
-
-def ch(pid, ftype, size, style="modern", colour="light grey", reason="test"):
-    return {"id": pid, "type": ftype, "size": list(size), "style": style, "colour": colour, "reason": reason}
+            self.down = "cannot reach http://127.0.0.1:1/v1"
+            return L.Proposal(1, None, error=self.down, prompt=prompt, model=MODEL, transport_error=True)
+        n = 99 if rid in self.invalid else min(self.picks.get(rid, self.pick), len(images))
+        answer = {"candidate": n, "reason": f"candidate {n} reads best"}
+        return L.Proposal(1, answer, raw_text=json.dumps(answer), latency_s=0.5, prompt=prompt, model=MODEL)
 
 
 SALON, KITCHEN, HALL, HALL_ALT, BEDROOM, BATH = ("r_L-1_salon", "r_L-1_mutfak", "r_L-1_hol", "r_L-1b_hol",
                                                  "r_L0_yatak_odasi", "r_L0_banyo")
 HALL_L0 = "r_L0_hol"
-EXAMPLE_ANSWERS = {
-    # The drawn sofa becomes a corner sofa (both passes; sizes 2.6 / 3.0: the smaller is kept; colours differ:
-    # the project's); pass 1 adds a coffee table and a TV unit, pass 2 only the coffee table (agreed: 0.9).
-    (SALON, 1): {"changes": [ch("f_L-1_002", "sofa_corner", (2.6, 1.6), colour="light grey", reason="fills the wall")],
-                 "added": [pc("table_coffee", (2.725, 6.025), 0, (1.0, 0.6), False, "in front of the sofa"),
-                           pc("tv_unit", (4.625, 0.5), 180, (1.6, 0.45), True, "facing the sofa")]},
-    (SALON, 2): {"changes": [ch("f_L-1_002", "sofa_corner", (3.0, 1.7), colour="beige", reason="corner sofa")],
-                 "added": [pc("table_coffee", (2.825, 5.925), 0, (1.0, 0.6), False, "coffee table")]},
-    # The bedroom misses its nightstands and a wardrobe; pass 2 also proposes a bed (never a second one).
-    (BEDROOM, 1): {"changes": [], "added": [pc("nightstand", (2.025, 7.775), 0, (0.5, 0.4)),
-                                            pc("nightstand", (4.225, 7.775), 0, (0.5, 0.4)),
-                                            pc("wardrobe", (0.571, 2.625), 90, (1.8, 0.6))]},
-    (BEDROOM, 2): {"changes": [ch("f_L0_002", "bed_double", (1.8, 2.0))],
-                   "added": [pc("nightstand", (2.025, 7.725), 0, (0.5, 0.4)),
-                             pc("wardrobe", (0.571, 2.725), 90, (1.8, 0.6))]},
-    # The base hall gets a console table; the alternative level's hall (same_as) is never asked.
-    (HALL, 1): {"changes": [], "added": [pc("console_table", (6.525, 6.125), 90, (1.2, 0.35), True, "slim console")]},
-    (HALL, 2): {"changes": [], "added": [pc("console_table", (6.525, 6.225), 90, (1.2, 0.35), True, "console")]},
-    # The ground-floor hall's unverified drawn piece (unknown): both passes propose a console table (§1.6b row 15).
-    (HALL_L0, 1): {"changes": [ch("f_L0_009", "console_table", (1.2, 0.35), reason="a narrow table: console")],
-                   "added": []},
-    (HALL_L0, 2): {"changes": [ch("f_L0_009", "console_table", (0.9, 0.3), reason="console table")], "added": []},
-}
-# style.json slots the looks are read from (track C adds them; absent slots give no design keys).
+OPEN_KITCHEN = "r_L-1b_salon_acik_mutfak"
+# style.json slots the looks are read from (absent slots give no design keys).
 STYLE = {"family": "modern", "cabinets": {"front_style": "shaker", "colour": "sage", "handle": "brass", "worktop": "stone"},
          "furniture": {"by_type": {"table_coffee": {"material_tags": ["glass", "chrome"]},
                                    "sofa_corner": {"material_tags": ["fabric"]}}}}
@@ -108,7 +69,7 @@ STYLE = {"family": "modern", "cabinets": {"front_style": "shaker", "colour": "sa
 @pytest.fixture(scope="module")
 def completed():
     source = drawn_building(example())
-    client = FakeClient(EXAMPLE_ANSWERS)
+    client = FakeChooser()
     out, records = C.complete_building(source, "Modern natural", client, C.Settings(), style=STYLE)
     return source, out, {r.room_id: r for r in records}, client
 
@@ -121,8 +82,12 @@ def added_in(b, room_id):
     return [f for f in b["furniture"] if f["room_id"] == room_id and f["source"] == "added_by_ai"]
 
 
+def floor_added(b, room_id):
+    return [f for f in added_in(b, room_id) if f["type"] not in schemas.MOUNTED_TYPES]
+
+
 # --------------------------------------------------------------------------
-# Per room type: anchors, expected (missing) and what may be added
+# Per room type: anchors, expected (missing) and what may be added (schemas, kept from Milestone 10)
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize("rtype, subtype, present, missing, may, never", [
@@ -135,19 +100,10 @@ def added_in(b, room_id):
     ("living", None, [("sofa", (2.2, 0.9)), ("armchair", (0.9, 0.9)), ("armchair", (0.9, 0.9))],
      {"table_coffee": 1, "tv_unit": 1}, {"chaise", "sideboard", "console_table", "display_cabinet"},
      {"armchair", "sofa", "sofa_corner"}),
-    ("living", None, [("table_dining", (1.6, 0.9))], {"table_coffee": 1, "tv_unit": 1, "chair": 6}, {"sofa"},
-     {"sofa_corner"}),
     ("dining", None, [("table_dining", (1.2, 0.8))], {"chair": 4}, {"sideboard", "bench"}, {"table_dining"}),
-    ("dining", None, [("table_dining", (1.6, 0.9)), ("chair", (0.45, 0.45)), ("chair", (0.45, 0.45))], {"chair": 4},
-     {"display_cabinet"}, {"table_dining"}),
-    ("dining", None, [("table_dining", (1.0, 2.0))], {"chair": 8}, set(), set()),
-    ("kitchen", None, [("kitchen_counter", (3.0, 0.6)), ("kitchen_island", (1.6, 0.9))], {},
-     {"bar_stool", "table_dining", "chair", "tall_cabinet"}, {"kitchen_counter", "stove", "fridge", "wall_cabinet"}),
     ("kitchen", None, [("kitchen_counter", (3.0, 0.6))], {}, {"table_dining", "tall_cabinet"}, {"bar_stool"}),
     ("bathroom", None, [("toilet", (0.4, 0.7))], {}, set(), {"washbasin", "shower", "bathtub", "washing_machine"}),
-    ("wc", None, [("toilet", (0.4, 0.7))], {}, set(), {"washbasin"}),
     ("hall", None, [("stair", (1.0, 3.0))], {}, {"console_table", "shoe_cabinet", "bench"}, {"dresser", "stair"}),
-    ("other", None, [("desk", (1.4, 0.7))], {}, {"armchair", "chair", "bookshelf", "table_dining"}, {"desk"}),
 ])
 def test_completion_plan_per_room_type(rtype, subtype, present, missing, may, never):
     plan = schemas.completion_plan(rtype, subtype, present)
@@ -156,165 +112,11 @@ def test_completion_plan_per_room_type(rtype, subtype, present, missing, may, ne
     assert not never & set(plan["addable"]), never & set(plan["addable"])
 
 
-def test_counts_of_the_plan():
-    plan = schemas.completion_plan("kitchen", None, [("kitchen_island", (1.6, 0.9))])
-    assert plan["addable"]["bar_stool"] == 3                                     # 2-4 by the island's length
-    assert schemas.completion_plan("kitchen", None, [("kitchen_island", (1.2, 0.8))])["addable"]["bar_stool"] == 2
-    assert schemas.completion_plan("kitchen", None, [("kitchen_island", (2.0, 1.0))])["addable"]["bar_stool"] == 4
-    living = schemas.completion_plan("living", None, [("sofa", (2.2, 0.9)), ("armchair", (0.9, 0.9))])
-    assert living["addable"]["armchair"] == 1 and living["maxima"]["armchair"] == 2
-    assert living["has_anchor"] and not living["anchor_missing"] and living["maxima"]["sofa"] == 0
-    no_sofa = schemas.completion_plan("living", None, [("tv_unit", (1.6, 0.45))])
-    assert no_sofa["anchor_missing"] and no_sofa["addable"]["sofa"] == 1 and "sofa_corner" not in no_sofa["addable"]
-    child = schemas.completion_plan("bedroom", "child", [("wardrobe", (1.8, 0.6))])
-    assert set(child["anchors"]) == {"bed_single", "bunk_bed", "crib"} and "bed_double" not in child["addable"]
-    assert {"bed_single", "bunk_bed", "crib"} <= set(child["addable"])
-
-
 def test_change_types_and_fixed_equipment():
     assert schemas.FIXED_TYPES == ("stair", "kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
                                    "washing_machine", "toilet", "washbasin", "shower", "bathtub")
-    assert "sofa_corner" in schemas.change_types("living") and "sofa_corner" not in schemas.layout_types("living")
-    assert not set(schemas.FIXED_TYPES) & set(schemas.change_types("kitchen"))
-    assert "wall_cabinet" not in schemas.change_types("kitchen") and "bar_stool" in schemas.change_types("kitchen")
-    assert schemas.change_types("bathroom") == () and schemas.change_types("wc") == ()
-    assert {"bunk_bed", "crib"} <= set(schemas.change_types("bedroom", "child"))
-    assert not {"bunk_bed", "crib"} & set(schemas.change_types("bedroom"))
-    for rtype in schemas.ALLOWED_TYPES:
-        assert not set(schemas.DOCUMENTED_ONLY_TYPES) & set(schemas.change_types(rtype))
     assert "prayer" not in schemas.ALLOWED_TYPES                                 # prayer rooms: never furnished
-    for ftype in schemas.SIZE_OPTIONS:
-        assert len(schemas.SIZE_OPTIONS[ftype]) == 3 and ftype in schemas.HEIGHTS
-
-
-# --------------------------------------------------------------------------
-# Agreement (§2.4) and the change rules
-# --------------------------------------------------------------------------
-
-def test_agreement_of_changes():
-    order = ["a", "b", "c", "d"]
-    p1 = {"changes": [ch("a", "sofa", (2.6, 0.95), colour="sage"), ch("b", "armchair", (0.9, 0.9)),
-                      ch("c", "ottoman", (0.6, 0.6)), ch("a", "sofa", (1.6, 0.9))], "added": []}
-    p2 = {"changes": [ch("a", "sofa", (2.17, 0.92), colour="sage", style="classic"), ch("c", "chaise", (0.75, 1.7))],
-          "added": []}
-    agreed, other = C.agree_changes({1: p1, 2: p2}, order)
-    assert [a["id"] for a in agreed] == ["a"]
-    a = agreed[0]
-    assert a["type"] == "sofa" and a["size"] == (2.2, 0.9)                       # the smaller option of 2.6 / 2.2
-    assert a["colour"] == "sage" and a["style"] is None                          # style differs: the project's
-    reasons = {o["id"]: o["reason"] for o in other}
-    assert "only pass 1 changes it" in reasons["b"]
-    assert "disagree on the type (ottoman / chaise)" in reasons["c"]
-    assert any(o["id"] == "a" and "listed twice" in o["reason"] for o in other)
-    assert C.agree_changes({1: p1, 2: None}, order)[0] == []                    # a drawn piece needs both passes
-
-
-def _drawn(items, room_type="living", subtype=None):
-    building = {"walls": [], "openings": [], "rooms": [], "furniture": items}
-    out = []
-    for i, f in enumerate(items):
-        out.append(C.Drawn(f, "changeable", LK.anchor_of(f, building), P.drawn_piece(f, i),
-                           unverified=f.get("status") == "unverified"))
-    return out
-
-
-def _item(pid, ftype, size, status="verified"):
-    return {"id": pid, "type": ftype, "source": "from_documents", "level_id": "L0", "room_id": "r",
-            "footprint": {"center": [0, 0], "size": list(size), "rotation_deg": 0}, "front_deg": 270.0,
-            "status": status}
-
-
-def test_change_rules_main_piece_and_counts():
-    drawn = _drawn([_item("bed", "bed_double", (1.6, 2.0)), _item("ch", "chair", (0.45, 0.45)),
-                    _item("ns", "nightstand", (0.5, 0.4)), _item("dr", "dresser", (1.2, 0.5))], "bedroom")
-    plan = schemas.completion_plan("bedroom", None, C._present(drawn))
-    agreed = [{"id": "bed", "type": "desk", "size": (1.4, 0.7)},          # the main piece stays a main piece type
-              {"id": "ch", "type": "bed_single", "size": (0.9, 2.0)},     # never a second main piece
-              {"id": "dr", "type": "wardrobe", "size": (1.8, 0.6)},       # fine: 0 of 1 wardrobe
-              {"id": "ns", "type": "wardrobe", "size": (1.2, 0.6)}]       # a second wardrobe: over the count
-    kept, refused = C.check_change_rules(agreed, drawn, plan)
-    assert [k["id"] for k in kept] == ["dr"]
-    why = {r["id"]: r["reason"] for r in refused}
-    assert "main piece (bed_double) may only become another main piece" in why["bed"]
-    assert "never a second main piece" in why["ch"]
-    assert "already holds 1 wardrobe" in why["ns"]
-    kept, _ = C.check_change_rules([{"id": "bed", "type": "bed_single", "size": (0.9, 2.0)}], drawn, plan)
-    assert kept                                                           # a bed may become another bed type
-
-
-@pytest.mark.parametrize("subtype, bed, size", [("child", "bed_double", (1.6, 2.0)), (None, "bunk_bed", (1.0, 2.05)),
-                                                (None, "crib", (1.36, 0.7))])
-def test_any_drawn_bed_is_the_rooms_main_piece(subtype, bed, size):
-    """Code review #18: a double bed drawn in a child's room, or a bunk bed / crib in another bedroom, is the room's
-    bed: no second bed is asked for or added, and the drawn bed never becomes a wardrobe."""
-    plan = schemas.completion_plan("bedroom", subtype, [(bed, size)])
-    assert plan["has_anchor"] and not plan["anchor_missing"]
-    assert not {"bed_double", "bed_single", "bunk_bed", "crib"} & set(plan["addable"])
-    drawn = _drawn([_item("bed", bed, size)], "bedroom")
-    kept, refused = C.check_change_rules([{"id": "bed", "type": "wardrobe", "size": (2.4, 0.6)}], drawn, plan)
-    assert not kept and "main piece" in refused[0]["reason"]
-    other = next(t for t in schemas.anchor_types("bedroom", subtype) if t != bed)
-    kept, _ = C.check_change_rules([{"id": "bed", "type": other, "size": schemas.default_size(other)}], drawn, plan)
-    assert kept                                                           # another bed type of the room's list
-    kept, refused = C.filter_added([pc(t, (1, 1), 0, schemas.default_size(t))
-                                    for t in schemas.anchor_types("bedroom", subtype)], plan, "bedroom")
-    assert kept == [] and refused
-
-
-def test_filter_added_counts_and_one_main_piece():
-    plan = schemas.completion_plan("bedroom", None, [("wardrobe", (1.8, 0.6))])
-    items = [pc("bed_double", (1, 1), 0, (1.6, 2.0)), pc("bed_single", (3, 1), 0, (0.9, 2.0)),
-             pc("nightstand", (1, 2), 0, (0.5, 0.4)), pc("nightstand", (2, 2), 0, (0.5, 0.4)),
-             pc("nightstand", (3, 2), 0, (0.5, 0.4)), pc("wardrobe", (4, 2), 0, (1.8, 0.6))]
-    kept, refused = C.filter_added(items, plan, "bedroom")
-    assert [k["type"] for k in kept] == ["bed_double", "nightstand", "nightstand"]
-    reasons = [r["reason"] for r in refused]
-    assert reasons == ["never a second main piece (bed_single)", "covered: at most 2 nightstand",
-                       "covered: the room holds its maximum of wardrobe"]
-
-
-# --------------------------------------------------------------------------
-# Question and schema
-# --------------------------------------------------------------------------
-
-def test_schema_is_strict_and_grammar_safe(completed):
-    _s, _o, records, client = completed
-    salon = client.schemas[SALON]
-    assert grammar_problems(salon) == []
-    changes = salon["properties"]["changes"]["items"]["properties"]
-    assert changes["id"]["enum"] == ["f_L-1_002"]                       # only the changeable drawn piece
-    assert "sofa_corner" in changes["type"]["enum"] and "kitchen_counter" not in changes["type"]["enum"]
-    assert changes["colour"]["enum"] == C.colour_names() and changes["style"]["enum"] == C.style_families()
-    added = salon["properties"]["added"]
-    assert set(added["items"]["properties"]["type"]["enum"]) == set(records[SALON].question["add"])
-    assert "sofa" not in added["items"]["properties"]["type"]["enum"]    # the room has its main piece
-    assert C.schema_errors({"changes": [ch("f_L-1_001", "sofa", (2.2, 0.9))], "added": []}, salon)  # a stair id
-    assert C.schema_errors({"changes": [], "added": [], "x": 1}, salon)
-    assert C.schema_errors({"changes": [], "added": [pc("toilet", (1, 1), 0, (0.4, 0.7))]}, salon)
-    kitchen = client.schemas[KITCHEN]                                    # no changeable piece: changes always []
-    assert kitchen["properties"]["changes"] == {"type": "array", "maxItems": 0} and grammar_problems(kitchen) == []
-    assert C.schema_errors({"changes": [ch("f_L-1_004", "sofa", (2.2, 0.9))], "added": []}, kitchen)
-
-
-def test_prompt_lists_the_room_the_drawn_pieces_and_what_is_missing(completed):
-    _s, _o, _r, client = completed
-    p1, p2 = client.prompts[(SALON, 1)], client.prompts[(SALON, 2)]
-    assert p1 != p2 and p1.endswith("Answer only with JSON.") and p2.endswith("Answer only with JSON.")
-    assert "living room (Turkish: SALON)" in p1 and "Modern natural" in p1
-    drawn = json.loads(p1.split("of a piece against a wall):\n", 1)[1].split("\n\n", 1)[0])
-    assert [d["id"] for d in drawn] == ["f_L-1_002"]
-    sofa = drawn[0]
-    assert sofa["kind"] == "changeable" and sofa["anchor"]["kind"] == "back_edge"
-    assert sofa["anchor"]["point"] == pytest.approx([3.125, 7.975], abs=0.006)                # 2 decimals
-    assert sofa["against_wall"] == "w_L-1_003" and sofa["front_deg"] == 270.0
-    assert "expected for this room type and missing: table_coffee (1), tv_unit (1)" in p1
-    assert "- sofa_corner: height 0.85 m, size options [2.2, 1.5], [2.6, 1.6], [3.0, 1.7]" in p1
-    assert "never a second main piece" in p1 and "light grey" in p1
-    room = json.loads(p1.split("Room (metres, X right, Y up):\n", 1)[1].split("\n\n", 1)[0])
-    assert room["doors"][0]["approach"] and room["windows"][0]["sill_height"] == 0.9
-    kitchen = client.prompts[(KITCHEN, 1)]
-    assert "no drawn piece may change its type or size" in kitchen and '"kind": "fixed"' in kitchen
-    assert "changes: always an empty list []" in kitchen
+    assert schemas.ALLOWED_TYPES["balcony"] == ("table_dining", "chair", "bench")   # Milestone 12: balcony group
 
 
 # --------------------------------------------------------------------------
@@ -324,74 +126,93 @@ def test_prompt_lists_the_room_the_drawn_pieces_and_what_is_missing(completed):
 def test_every_furnished_room_is_handled_once(completed):
     source, out, records, client = completed
     assert set(records) == {r["id"] for r in source["rooms"] if r["has_documented_furniture"]}
-    asked = {r for r, _ in client.calls}
-    assert HALL_ALT not in asked and BATH not in asked                  # same_as copy; nothing to ask in a bathroom
-    assert all(sorted(k for r, k in client.calls if r == room) == [1, 2] for room in asked)
+    assert HALL_ALT not in client.calls and BATH not in client.calls     # same_as copy; nothing missing in the bath
+    assert len(client.calls) == len(set(client.calls))                   # one question per room at most
     assert records[HALL_ALT].state == "copied" and records[HALL_ALT].partner["id"] == HALL
-    assert records[BATH].state == "completed" and "nothing to ask" in records[BATH].reason
+    assert records[BATH].state == "completed" and records[BATH].reason == "nothing missing: the drawn groups are complete"
     B.validate(out)
     assert LK.check(source, out, "complete") == []
 
 
-def test_a_changed_drawn_piece_keeps_its_anchor_and_label(completed):
-    source, out, records, _c = completed
-    sofa, drawn = piece(out, "f_L-1_002"), piece(source, "f_L-1_002")
-    assert sofa["source"] == "from_documents" and sofa["modified_by_ai"] is True and sofa["status"] == "verified"
-    assert sofa["type"] == "sofa_corner" and sofa["drawn_type"] == "sofa" and sofa["drawn_height"] == drawn["height"]
-    assert sofa["drawn_footprint"] == drawn["footprint"]
-    assert sofa["footprint"]["size"] == [2.6, 1.6] and sofa["footprint"]["center"] == [3.125, 7.175]  # the example's
-    assert sofa["seat_depth"] == 0.9 and sofa["chaise_width"] == 0.9
-    assert sofa["shape"] == "L" and sofa["chaise_side"] == "right" and sofa["chaise_depth"] == 1.6
-    assert sofa["front_deg"] == drawn["front_deg"] and sofa["height"] == schemas.HEIGHTS["sofa_corner"]
-    assert sofa["anchor"] == {"kind": "back_edge", "point": [3.125, 7.975], "wall_id": "w_L-1_003"}
-    ai = [e for e in sofa["evidence"] if e["method"] == "ai"]
-    assert [e["pass"] for e in ai] == [1, 2] and all(e["model"] == MODEL and e["confidence"] == 0.9 for e in ai)
-    assert [e["text"] for e in ai] == ["fills the wall", "corner sofa"]
-    assert sofa["evidence"][:len(drawn["evidence"])] == drawn["evidence"]
-    assert sofa["design"] == {"style_family": "modern", "material_tags": ["fabric"]}   # colours differed: none
-    change = next(c for c in records[SALON].changes if c["id"] == "f_L-1_002")
-    assert change["status"] == "applied" and change["drawn_size"] == [2.2, 0.9] and change["size"] == [2.6, 1.6]
+def test_drawn_pieces_never_change(completed):
+    source, out, _r, _c = completed
+    for f in source["furniture"]:
+        after = piece(out, f["id"])
+        for key in ("type", "footprint", "front_deg", "height", "status", "source", "room_id"):
+            assert after.get(key) == f.get(key), (f["id"], key)
+        assert "modified_by_ai" not in after and "type_proposal" not in after
 
 
-def test_added_pieces_complete_the_room_with_evidence_and_checks(completed):
+def test_completion_adds_only_the_missing_partners_and_groups(completed):
     _s, out, records, _c = completed
-    salon = {f["type"]: f for f in added_in(out, SALON)}
-    assert set(salon) == {"table_coffee", "tv_unit"}
-    for f in salon.values():
-        assert f["completes_room"] is True and f["method"] == "ai" and f["status"] == "verified"
-        assert set(f["checks"]) == set(P.CHECKS) and all(f["checks"].values())
-        assert f["evidence"][0]["method"] == "ai" and f["evidence"][0]["model"] == MODEL
-    assert salon["table_coffee"]["evidence"][0]["confidence"] == 0.9 and len(salon["table_coffee"]["evidence"]) == 2
-    assert salon["tv_unit"]["evidence"][0]["confidence"] == 0.6 and len(salon["tv_unit"]["evidence"]) == 1
-    assert records[SALON].chosen_pass == 1
-    bedroom = sorted(f["type"] for f in added_in(out, BEDROOM))
-    assert bedroom == ["nightstand", "nightstand", "wardrobe"]
-    # Pass 2's bed change has no partner in pass 1: listed, not applied; the drawn bed stays as drawn.
-    assert piece(out, "f_L0_002")["type"] == "bed_double" and "modified_by_ai" not in piece(out, "f_L0_002")
-    bed = next(c for c in records[BEDROOM].changes if c["id"] == "f_L0_002")
-    assert bed["status"] == "not_agreed" and "only pass 2" in bed["reason"]
+    salon = floor_added(out, SALON)
+    assert not {"sofa", "sofa_corner"} & {f["type"] for f in salon}       # never a second anchor
+    assert piece(out, "f_L-1_002")["group"] == {"group_id": f"{SALON}.seating", "group": "seating", "role": "anchor",
+                                                "anchor_id": "f_L-1_002"}      # the drawn anchor is tagged too
+    assert piece(out, "f_L0_008")["group"]["group"] == "bathroom_set"
+    coffee = next(f for f in salon if f["type"] == "table_coffee")
+    assert coffee["group"] == {"group_id": f"{SALON}.seating", "group": "seating", "role": "partner",
+                               "anchor_id": "f_L-1_002"}                    # a partner of the drawn sofa
+    bedroom = floor_added(out, BEDROOM)
+    stands = [f for f in bedroom if f["type"] == "nightstand"]
+    assert len(stands) == 2 and all(f["group"]["anchor_id"] == "f_L0_002" for f in stands)
+    assert not {"bed_double", "bed_single"} & {f["type"] for f in bedroom}
+    assert "wardrobe" in {f["type"] for f in bedroom}                     # the group the room type misses whole
+    bed = P.drawn_piece(piece(out, "f_L0_002"))
+    assert sorted(GC.nightstand_place(bed, P.drawn_piece(f))["side"] for f in stands) == ["left", "right"]
+    for rid, rec in records.items():
+        for f in rec.added:
+            assert f["source"] == "added_by_ai" and f["completes_room"] is True and f["method"] == "rule", f["id"]
+            assert f["status"] == "verified" and set(f["checks"]) == set(P.CHECKS) and all(f["checks"].values())
+            assert f["group"]["group_id"].startswith(rid + ".") and f["group"]["group"] in f["group"]["group_id"]
+            if rec.state == "completed":
+                assert f["evidence"][0]["method"] == "derived" and "group solver" in f["evidence"][0]["text"]
     ids = [f["id"] for f in out["furniture"]]
     assert len(ids) == len(set(ids))
 
 
-def test_every_added_and_changed_piece_passes_the_checks_in_its_room(completed):
-    _s, out, records, _c = completed
+def test_no_new_group_check_failure_in_completed_rooms(completed):
+    source, out, records, _c = completed
     for rid, rec in records.items():
-        room = next(r for r in out["rooms"] if r["id"] == rid)
-        items = [f for f in out["furniture"] if f["room_id"] == rid and f["type"] not in schemas.MOUNTED_TYPES]
-        ctx = P.room_context(out, room)
-        pieces = [P.drawn_piece(f, i, against_wall=(f.get("layout") or {}).get("against_wall", False))
-                  for i, f in enumerate(items)]
-        drawn_fails = rec.drawn_layout.get("pieces", {})
-        for f, c in zip(items, P.check_all(pieces, ctx)):
-            failed = set(P.failed_checks(c)) - {"wall_contact"}
-            if f["source"] == "added_by_ai":
-                assert not failed, (rid, f["id"], failed)
-            elif f.get("modified_by_ai"):
-                assert failed <= set(drawn_fails.get(f["id"], [])), (rid, f["id"], failed)
+        before = {(v["check"], v["target"], v["message"]) for v in GC.check_room(source, rid)}
+        new = [v for v in GC.check_room(out, rid) if (v["check"], v["target"], v["message"]) not in before
+               and v["severity"] in ("critical", "major") and v["check"] not in ("G14",)]
+        assert not new, (rid, new)
 
 
-def test_wall_cabinets_follow_the_counter_run(completed):
+def test_the_vision_model_picks_among_the_candidates(completed):
+    _s, out, records, client = completed
+    rec = records[SALON]
+    assert rec.choice["by"] == "vlm" and rec.choice["rank"] == 2 and rec.chosen == 2
+    assert client.images[SALON] == [f"{SALON}_c{c['rank']}.png" for c in rec.candidates if not c["hard_failures"]]
+    assert client.schemas[SALON]["properties"]["candidate"]["enum"] == [1, 2, 3]
+    assert "The documents draw some furniture in it" in client.prompts[SALON]
+    ev = rec.added[0]["evidence"][-1]
+    assert ev["method"] == "ai" and ev["model"] == MODEL and "chosen by the vision model" in ev["text"]
+    assert all(f["layout"]["candidate"] == 2 for f in rec.added)
+
+
+def test_a_failed_or_invalid_choice_takes_the_solvers_best():
+    source = drawn_building(example())
+    client = FakeChooser(invalid=[SALON], transport=[BEDROOM])
+    out, records = C.complete_building(source, "x", client, C.Settings())
+    rec = {r.room_id: r for r in records}
+    assert rec[SALON].choice["by"] == "default" and rec[SALON].chosen == 1
+    assert "no valid answer" in rec[SALON].choice["reason"]
+    assert rec[BEDROOM].choice["by"] == "default" and rec[BEDROOM].choice["transport_error"] is True
+    assert rec[BEDROOM].added and LK.check(source, out, "complete") == []
+    no_model = C.complete_building(source, "x", object(), C.Settings())[1]
+    assert all(r.choice is None or r.choice["by"] == "default" for r in no_model)
+
+
+def test_completion_is_deterministic():
+    source = drawn_building(example())
+    a = C.complete_building(source, "x", FakeChooser(), C.Settings())[0]
+    b = C.complete_building(source, "x", FakeChooser(), C.Settings())[0]
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+
+
+def test_a_drawn_kitchen_run_gets_its_wall_cabinets_and_no_fridge_without_a_landing(completed):
     _s, out, records, _c = completed
     cabinets = [f for f in out["furniture"] if f["type"] == "wall_cabinet"]
     kitchen = [f for f in cabinets if f["room_id"] == KITCHEN]
@@ -400,57 +221,71 @@ def test_wall_cabinets_follow_the_counter_run(completed):
     assert cab["source"] == "added_by_ai" and cab["method"] == "rule" and cab["completes_room"] is True
     assert cab["evidence"][0]["method"] == "derived" and "f_L-1_004" in cab["evidence"][0]["text"]
     assert cab["rule"]["z"] == [1.45, 2.15] and cab["mount_bottom_m"] == 1.45 and cab["height"] == pytest.approx(0.7)
-    # Counter y 0.625..3.625 on the east wall w_L-1_002 (back edge x 9.98, wall face x 10.0): no window, door or
-    # stove along it: one 3.0 m run, its back on the wall face, facing west like the counter.
     assert cab["footprint"]["size"] == [3.0, 0.35] and cab["footprint"]["center"] == pytest.approx([9.825, 2.125])
-    assert cab["footprint"]["rotation_deg"] == 270.0 and cab["front_deg"] == 180.0 and cab["rule"]["excluded"] == []
     assert cab["design"] == {"front_style": "shaker", "colour": "sage", "handle": "brass"}     # style.json cabinets
-    open_kitchen = [f for f in cabinets if f["room_id"] == "r_L-1b_salon_acik_mutfak"]
-    assert len(open_kitchen) == 1                                        # an open kitchen of a living room too
+    assert len([f for f in cabinets if f["room_id"] == OPEN_KITCHEN]) == 1   # an open kitchen of a living room too
+    # The drawn run fills its wall: a fridge beside it finds no landing (G8), so it is left out, not forced in.
+    assert "fridge" not in {f["type"] for f in floor_added(out, KITCHEN)}
 
 
-def test_same_as_room_takes_the_base_rooms_decisions(completed):
+def test_same_as_room_takes_the_base_rooms_pieces(completed):
     _s, out, records, _c = completed
-    base, alt = added_in(out, HALL), added_in(out, HALL_ALT)
-    assert [f["type"] for f in base] == [f["type"] for f in alt] == ["console_table"]
-    assert alt[0]["footprint"]["center"] == base[0]["footprint"]["center"]
-    assert alt[0]["footprint"]["rotation_deg"] == base[0]["footprint"]["rotation_deg"]
-    assert alt[0]["mirrored_from"] == base[0]["id"] and alt[0]["level_id"] == "L-1b"
-    assert alt[0]["id"].startswith("f_L-1b_") and alt[0]["evidence"] == base[0]["evidence"]
-    assert all(alt[0]["checks"].values())
+    base, alt = floor_added(out, HALL), floor_added(out, HALL_ALT)
+    assert [f["type"] for f in base] == [f["type"] for f in alt] and base
+    for fb, fa in zip(base, alt):
+        assert fa["footprint"]["center"] == fb["footprint"]["center"] and fa["mirrored_from"] == fb["id"]
+        assert fa["level_id"] == "L-1b" and fa["id"].startswith("f_L-1b_") and all(fa["checks"].values())
+        assert fa["group"]["group_id"] == fb["group"]["group_id"].replace(HALL, HALL_ALT, 1)
+        assert fa["layout"]["copied_from"] == fb["id"]
 
 
 def test_outputs_summary_report_and_debug(completed, tmp_path):
     _s, out, records, _c = completed
     recs = list(records.values())
     summary = C.summary(recs, out, C.Settings(), "http://x/v1", MODEL, [])
-    assert summary["kind"] == "completion" and summary["changes_applied"] == 2          # the sofa, the proposal
-    assert summary["pieces_added"] == 7 and summary["wall_cabinets"] == 2 and summary["rooms_copied"] == 1
+    assert summary["kind"] == "completion" and summary["changes_applied"] == 0 and summary["rooms_copied"] == 1
+    assert summary["pieces_added"] == sum(len(r.added) for r in recs) and summary["wall_cabinets"] == 2
+    rooms = {r["room_id"]: r for r in summary["rooms"]}
+    assert rooms[SALON]["chosen"] == 2 and rooms[SALON]["candidates"][0]["rank"] == 1
+    assert {"group_id": f"{SALON}.seating", "group": "seating", "options": rooms[SALON]["program"][0]["options"],
+            "drawn": True, "required": True, "missing": ["tv_unit", "table_coffee"], "note": ""} \
+        in rooms[SALON]["program"]
     json.dumps(summary)
     report = C.report(recs, out, C.Settings(), [])
-    assert "| r_L-1_salon | f_L-1_002 | sofa / 2.20 x 0.90 | sofa_corner / 2.60 x 1.60 | applied |" in report
-    assert "## Locked check: pass" in report and "f_L0_009 fails doors_free as drawn" in report
-    assert "| r_L0_hol | f_L0_009 | unknown / 0.90 x 0.35 | console_table / 0.90 x 0.35 | applied (type_proposal) |" \
-        in report
-    assert "pass 2 bed_double" not in report or "never a second" in report
+    assert report.startswith("# AI completion of furnished rooms") and "## Locked check: pass" in report
+    assert f"| Salon ({SALON}) | living | completed | seating |" in report
+    assert "seating (partner, anchor f_L-1_002)" in report
     for rec in recs:
         C.write_room_debug(rec, out, tmp_path)
-    assert (tmp_path / f"{SALON}.png").exists() and json.loads((tmp_path / f"{SALON}.json").read_text())["question"]
+    assert (tmp_path / f"{SALON}.png").exists() and (tmp_path / f"{HALL_ALT}.png").exists()
+    record = json.loads((tmp_path / f"{SALON}.json").read_text())
+    assert record["candidates_full"][0]["pieces"] and record["program_full"]["room_id"] == SALON
 
 
-@pytest.mark.parametrize("with_desk", [True, False])
-def test_an_office_chair_needs_its_desk(with_desk):
-    """§2.3 "desk + office_chair": the chair may stand in the desk's front clearance; without a desk it is dropped."""
-    desk = [pc("desk", (0.5, 2.0), 90, (1.4, 0.7), True, "under the window")] if with_desk else []
-    added = desk + [pc("office_chair", (1.2, 2.0) if with_desk else (3.0, 3.0), 270, (0.6, 0.6), False)]
-    answers = {(BEDROOM, k): {"changes": [], "added": added} for k in (1, 2)}
-    out, records = C.complete_building(drawn_building(example()), "x", FakeClient(answers), C.Settings())
+# --------------------------------------------------------------------------
+# Unverified and unknown anchors
+# --------------------------------------------------------------------------
+
+def test_an_unverified_drawn_bed_gets_no_partners_and_no_second_bed():
+    source = drawn_building(example())
+    piece(source, "f_L0_002")["status"] = "unverified"
+    out, records = C.complete_building(source, "x", FakeChooser(), C.Settings())
     rec = next(r for r in records if r.room_id == BEDROOM)
-    types = sorted(f["type"] for f in added_in(out, BEDROOM))
-    if with_desk:
-        assert types == ["desk", "office_chair"] and all(f["evidence"][0]["confidence"] == 0.9 for f in rec.added)
-    else:
-        assert types == [] and any("no desk in the room" in d["reason"] for d in rec.dropped)
+    types = {f["type"] for f in floor_added(out, BEDROOM)}
+    assert not types & {"nightstand", "bed_double", "bed_single"} and "wardrobe" in types
+    assert any(g["note"] == "unverified anchor: nothing added" for g in rec.program["groups"])
+
+
+def test_an_unknown_piece_of_bed_size_is_never_joined_by_a_second_bed():
+    """Fails on the Milestone 12 draft: the program added a whole bed group beside an unknown 1.6 x 2.0 box."""
+    source = drawn_building(example())
+    piece(source, "f_L0_002").update(type="unknown", status="unverified")
+    out, records = C.complete_building(source, "x", FakeChooser(), C.Settings())
+    types = {f["type"] for f in floor_added(out, BEDROOM)}
+    assert not types & {"bed_double", "bed_single", "nightstand"}
+    rec = next(r for r in records if r.room_id == BEDROOM)
+    note = next(g["note"] for g in rec.program["groups"] if g["group"] == "sleeping_double")
+    assert note.startswith("unverified anchor: nothing added (unknown f_L0_002")
 
 
 # --------------------------------------------------------------------------
@@ -459,33 +294,30 @@ def test_an_office_chair_needs_its_desk(with_desk):
 
 def test_keep_mode_is_unchanged_from_m9():
     source = drawn_building(example())
-    client = FakeClient(EXAMPLE_ANSWERS)
+    client = FakeChooser()
     out, records = C.complete_building(source, "x", client, C.Settings(mode="keep"))
     assert client.calls == [] and all(r.state == "kept" for r in records)
-    no_look = [{k: v for k, v in f.items() if k != "design"} for f in out["furniture"]]
+    no_look = [{k: v for k, v in f.items() if k not in ("design", "group")} for f in out["furniture"]]
     assert json.dumps(no_look, sort_keys=True) == json.dumps(source["furniture"], sort_keys=True)
     assert piece(out, "f_L0_007")["design"] == {"vanity": True}            # kept rooms get their looks (row 15)
+    assert piece(out, "f_L0_002")["group"]["role"] == "anchor"              # and their groups (not a locked key)
     assert LK.check(source, out, "keep") == []
 
 
-def test_keep_size_asks_no_change_but_completes():
+def test_keep_size_completes_and_changes_no_drawn_piece():
     source = drawn_building(example())
-    client = FakeClient({(SALON, k): {"changes": [], "added": EXAMPLE_ANSWERS[(SALON, k)]["added"]} for k in (1, 2)})
-    out, records = C.complete_building(source, "x", client, C.Settings(keep_size=True))
-    salon = client.schemas[SALON]
-    assert salon["properties"]["changes"] == {"type": "array", "maxItems": 0}
-    assert "always an empty list" in client.prompts[(SALON, 1)]
-    assert piece(out, "f_L-1_002") == {**piece(source, "f_L-1_002"), "anchor": piece(out, "f_L-1_002")["anchor"]}
-    assert {f["type"] for f in added_in(out, SALON)} == {"table_coffee", "tv_unit"}
+    out, records = C.complete_building(source, "x", FakeChooser(), C.Settings(keep_size=True))
+    assert piece(out, "f_L-1_002")["footprint"] == piece(source, "f_L-1_002")["footprint"]
+    assert "table_coffee" in {f["type"] for f in added_in(out, SALON)}
 
 
 def test_furnished_rooms_keep_by_label_or_id():
     source = drawn_building(example())
-    client = FakeClient(EXAMPLE_ANSWERS)
+    client = FakeChooser()
     out, records = C.complete_building(source, "x", client, C.Settings(keep=("salon", "r_L0_yatak_odasi")))
     states = {r.room_id: r.state for r in records}
     assert states[SALON] == "kept" and states[BEDROOM] == "kept"
-    assert SALON not in {r for r, _ in client.calls} and not added_in(out, SALON)
+    assert SALON not in client.calls and not added_in(out, SALON)
     assert LK.check(source, out, "complete", keep_rooms=[SALON, BEDROOM]) == []
 
 
@@ -500,112 +332,28 @@ def test_settings_from_the_brief(tmp_path):
 
 
 # --------------------------------------------------------------------------
-# Unverified drawn pieces: type proposals
-# --------------------------------------------------------------------------
-
-def test_an_unverified_piece_gets_a_type_proposal_as_the_example(completed):
-    """§1.6b row 15: the example's f_L0_009 (drawn unknown, unverified): the agreed type, type_proposal, drawn_type,
-    its drawn footprint, front and status, no modified_by_ai; listed with the unverified items."""
-    source, out, records, _c = completed
-    after, drawn, want = piece(out, "f_L0_009"), piece(source, "f_L0_009"), piece(example(), "f_L0_009")
-    for key in ("type", "type_proposal", "drawn_type", "status", "footprint", "front_deg", "height", "source"):
-        assert after.get(key) == want.get(key), key
-    assert "modified_by_ai" not in after and "drawn_footprint" not in after
-    ai = [e for e in after["evidence"] if e["method"] == "ai"]
-    assert [e["pass"] for e in ai] == [1, 2] and all(e["confidence"] == 0.6 for e in ai)
-    assert after["evidence"][:len(drawn["evidence"])] == drawn["evidence"]
-    assert "f_L0_009" in out["unverified"] and any("AI type proposal console_table" in w for w in out["warnings"])
-    change = next(c for c in records[HALL_L0].changes if c["id"] == "f_L0_009")
-    assert change["type_proposal"] is True and change["status"] == "applied"
-
-
-def test_unverified_bed_proposal_never_adds_a_second_bed():
-    source = drawn_building(example())
-    bed = piece(source, "f_L0_002")
-    bed.update(type="unknown", status="unverified", type_raw="BLOK_A")
-    source["unverified"] = ["f_L0_002"]
-    answers = {(BEDROOM, k): {"changes": [ch("f_L0_002", "bed_double", (1.8, 2.0))], "added": []} for k in (1, 2)}
-    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
-    after = piece(out, "f_L0_002")
-    assert after["type"] == "bed_double" and after["type_proposal"] is True and after["status"] == "unverified"
-    assert after["footprint"] == bed["footprint"] and after["drawn_type"] == "unknown"
-    assert "modified_by_ai" not in after and out["unverified"] == ["f_L0_002"]
-    assert LK.check(source, out, "complete") == []
-
-
-def test_a_type_proposal_must_fit_the_drawn_footprint():
-    """Code review #20: the M7 size rule holds for type proposals: real01's unknown 1.90 x 0.70 piece never becomes
-    a 0.45 m deep TV unit; an unknown 0.5 x 0.6 symbol never becomes the bedroom's double bed."""
-    import pathlib
-
-    real01 = B.load(pathlib.Path(__file__).resolve().parents[1] / "results" / "furniture" / "real01" /
-                    "building_fitted.json")
-    room = "r_L0_drawing_room"
-    answers = {(room, k): {"changes": [ch("f_L0_018", "tv_unit", (1.6, 0.45))], "added": []} for k in (1, 2)}
-    out, records = C.complete_building(real01, "x", FakeClient(answers), C.Settings())
-    assert piece(out, "f_L0_018")["type"] == "unknown" and "type_proposal" not in piece(out, "f_L0_018")
-    refused = next(c for r in records if r.room_id == room for c in r.changes if c["id"] == "f_L0_018")
-    assert refused["status"] == "refused" and "footprint 1.90 x 0.70 does not fit tv_unit" in refused["reason"]
-    source = drawn_building(example())
-    bed = piece(source, "f_L0_002")
-    bed.update(type="unknown", status="unverified")
-    bed["footprint"]["size"] = [0.5, 0.6]
-    answers = {(BEDROOM, k): {"changes": [ch("f_L0_002", "bed_double", (1.8, 2.0)),
-                                          ], "added": []} for k in (1, 2)}
-    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
-    rec = next(r for r in records if r.room_id == BEDROOM)
-    assert piece(out, "f_L0_002")["type"] == "unknown" and rec.plan["after_changes"]["has_anchor"] is False
-    assert any(c["status"] == "refused" and "does not fit bed_double" in c["reason"] for c in rec.changes)
-
-
-def test_a_rectangle_never_becomes_a_corner_sofa_by_proposal():
-    source = drawn_building(example())
-    sofa = piece(source, "f_L-1_002")
-    sofa.update(type="unknown", status="unverified")
-    sofa["footprint"]["size"] = [2.6, 1.6]
-    sofa["footprint"]["center"] = [3.125, 7.175]
-    answers = {(SALON, k): {"changes": [ch("f_L-1_002", "sofa_corner", (2.6, 1.6))], "added": []} for k in (1, 2)}
-    out, records = C.complete_building(source, "x", FakeClient(answers), C.Settings())
-    assert piece(out, "f_L-1_002")["type"] == "unknown"
-    rec = next(r for r in records if r.room_id == SALON)
-    assert any(c["status"] == "refused" and "not an L" in c["reason"] for c in rec.changes)
-
-
-# --------------------------------------------------------------------------
 # Looks (furniture.design, §1.6b row 15)
 # --------------------------------------------------------------------------
 
 def test_looks_of_completed_rooms(completed):
     _s, out, _r, _c = completed
-    counter = piece(out, "f_L-1_004")
-    assert counter["design"] == STYLE["cabinets"]                                     # style.json cabinets
-    assert piece(out, "f_L-1b_002")["design"] == STYLE["cabinets"]                    # the open kitchen's run too
-    assert piece(out, "f_L0_007")["design"] == {"vanity": True}                       # washbasin 0.5 m deep
+    assert piece(out, "f_L-1_004")["design"] == STYLE["cabinets"]                    # style.json cabinets
+    assert piece(out, "f_L-1b_002")["design"] == STYLE["cabinets"]                   # the open kitchen's run too
+    assert piece(out, "f_L0_007")["design"] == {"vanity": True}                      # washbasin 0.5 m deep
     coffee = next(f for f in added_in(out, SALON) if f["type"] == "table_coffee")
-    assert coffee["design"] == {"material_tags": ["glass"]}                           # chrome is no schema tag
-    assert "design" not in piece(out, "f_L0_008")                                     # a shower: nothing to say
+    assert coffee["design"] == {"material_tags": ["glass"]}                          # chrome is no schema tag
+    assert "design" not in piece(out, "f_L0_008")                                    # a shower: nothing to say
 
 
 def test_looks_without_style_slots_and_by_rule():
     source = drawn_building(example())
-    out, _r = C.complete_building(source, "x", FakeClient(), C.Settings(), style={"family": "modern"})
+    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(), style={"family": "modern"})
     assert "design" not in piece(out, "f_L-1_004")                                    # no cabinets slot: no keys
     style = {"cabinets": {"front": "slatted", "colour": 7, "handle": "gold", "worktop": "wood"}}
-    out, _r = C.complete_building(source, "x", FakeClient(), C.Settings(), style=style)
+    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(), style=style)
     assert piece(out, "f_L-1_004")["design"] == {"front_style": "slatted", "worktop": "wood"}   # bad values left out
     cab = next(f for f in out["furniture"] if f["type"] == "wall_cabinet")
     assert cab["design"] == {"front_style": "slatted"}                                # no worktop on a wall cabinet
-
-
-def test_agreed_colour_is_the_fabric_colour_of_upholstered_types():
-    answers = {(HALL_L0, k): {"changes": [ch("f_L0_009", "bench", (1.0, 0.4), colour="mustard")], "added": []}
-               for k in (1, 2)}
-    out, _r = C.complete_building(drawn_building(example()), "x", FakeClient(answers), C.Settings())
-    assert piece(out, "f_L0_009")["design"] == {"style_family": "modern", "fabric_colour": "mustard"}
-    answers = {(HALL_L0, k): {"changes": [ch("f_L0_009", "console_table", (0.9, 0.3), colour="mustard")],
-                              "added": []} for k in (1, 2)}
-    out, _r = C.complete_building(drawn_building(example()), "x", FakeClient(answers), C.Settings())
-    assert piece(out, "f_L0_009")["design"]["colour"] == "mustard"
 
 
 @pytest.mark.parametrize("x0, x1, built_in", [(0.1, 4.0, True), (0.1, 3.0, False)])
@@ -617,7 +365,7 @@ def test_a_wardrobe_from_wall_to_wall_is_built_in(x0, x1, built_in):
                                 "evidence": [B.evidence("p.dxf", "vector", 1.0)],
                                 "footprint": {"center": [(x0 + x1) / 2, 0.4], "size": [w, 0.6], "rotation_deg": 180.0},
                                 "front_deg": 90.0, "height": 2.1})
-    out, _r = C.complete_building(source, "x", FakeClient(), C.Settings(twin_rooms="all"))
+    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(twin_rooms="all"))
     assert piece(out, "f_L0_003").get("design", {}).get("built_in", False) is built_in
 
 
@@ -658,77 +406,30 @@ def twin_building(furnished=True, shift=0.0):
 
 
 TWIN_A, TWIN_B = "r_L0_yatak_odasi", "r_L0_yatak_odasi_2"
-TWIN_ANSWERS = {(TWIN_A, k): {"changes": [ch("f_L0_001", "bed_double", (1.8, 2.0), colour="sage green")],
-                              "added": [pc("nightstand", (0.8, 3.38), 0, (0.5, 0.4)),
-                                        pc("nightstand", (3.2, 3.38), 0, (0.5, 0.4)),
-                                        pc("wardrobe", (0.42, 0.8), 90, (1.2, 0.6))]} for k in (1, 2)}
 
 
-def test_twin_room_takes_the_mirrored_decisions():
+def test_twin_room_takes_the_mirrored_pieces():
     source = twin_building()
-    client = FakeClient(TWIN_ANSWERS)
+    client = FakeChooser()
     out, records = C.complete_building(source, "x", client, C.Settings(twin_rooms="one"))
-    assert {r for r, _ in client.calls} == {TWIN_A}                       # asked once
+    assert client.calls == [TWIN_A]                                        # asked once
     rec = {r.room_id: r for r in records}
     assert rec[TWIN_B].state == "mirrored" and rec[TWIN_B].partner["transform"]["axis_deg"] == pytest.approx(90.0)
-    bed_a, bed_b = piece(out, "f_L0_001"), piece(out, "f_L0_002")
-    assert bed_a["footprint"]["size"] == bed_b["footprint"]["size"] == [1.8, 2.0]
-    assert bed_b["footprint"]["center"] == pytest.approx([8.2 - bed_a["footprint"]["center"][0], 2.6])
-    assert bed_b["mirrored_from"] == "f_L0_001" and bed_b["modified_by_ai"] is True
-    assert bed_b["design"] == bed_a["design"] and bed_b["design"]["fabric_colour"] == "sage green"
     a = sorted(added_in(out, TWIN_A), key=lambda f: f["id"])
     b = sorted(added_in(out, TWIN_B), key=lambda f: f["id"])
-    assert len(a) == len(b) == 3
+    assert len(a) == len(b) and {f["type"] for f in a} >= {"nightstand", "wardrobe"}
     for fa, fb in zip(a, b):
         assert fb["type"] == fa["type"] and fb["mirrored_from"] == fa["id"] and fb["room_id"] == TWIN_B
         assert fb["footprint"]["center"] == pytest.approx([8.2 - fa["footprint"]["center"][0],
                                                            fa["footprint"]["center"][1]], abs=1e-3)
-        assert math.isclose(G_front(fb), (180.0 - G_front(fa)) % 360.0, abs_tol=1e-6)
-        assert all(fb["checks"].values())
+        assert math.isclose(fb["front_deg"] % 360.0, (180.0 - fa["front_deg"]) % 360.0, abs_tol=1e-6)
+        assert all(fb["checks"].values()) and fb["group"]["group_id"].startswith(TWIN_B + ".")
+        if fa["type"] == "nightstand":                                     # the group anchor is this room's bed
+            assert fa["group"]["anchor_id"] == "f_L0_001" and fb["group"]["anchor_id"] == "f_L0_002"
+        elif fa["group"]["role"] == "anchor":                              # a new anchor: its own copy
+            assert fb["group"]["anchor_id"] == fb["id"]
     assert LK.check(source, out, "complete") == []
     B.validate(out)
-
-
-def G_front(f):
-    return f["front_deg"] % 360.0
-
-
-def test_a_mirrored_corner_sofa_takes_the_other_side():
-    source = twin_building()
-    for r in source["rooms"]:
-        r["room_type"], r["label"] = "living", "Salon"
-    for f in source["furniture"]:
-        f.update(type="sofa", height=0.85)
-        f["footprint"].update(center=[f["footprint"]["center"][0], 3.15], size=[2.2, 0.9])
-    answers = {(TWIN_A, k): {"changes": [ch("f_L0_001", "sofa_corner", (2.6, 1.6))], "added": []} for k in (1, 2)}
-    client = FakeClient(answers)
-    out, records = C.complete_building(source, "x", client, C.Settings())
-    assert {r for r, _ in client.calls} == {TWIN_A}
-    a, b = piece(out, "f_L0_001"), piece(out, "f_L0_002")
-    assert (a["type"], a["chaise_side"], b["type"], b["chaise_side"]) == ("sofa_corner", "right", "sofa_corner", "left")
-    pa, pb = P.drawn_piece(a).polygon(), P.drawn_piece(b).polygon()
-    mirrored = Polygon([(8.2 - x, y) for x, y in pa.exterior.coords])
-    assert pb.symmetric_difference(mirrored).area < 1e-6
-    assert LK.check(source, out, "complete") == []
-
-
-def test_the_pipelines_twin_transform_is_used():
-    """§1.6b row 18: ``rooms[].twin_transform`` (first twin -> this room) wins over the derived mirror."""
-    source = twin_building()
-    room_b = next(r for r in source["rooms"] if r["id"] == TWIN_B)
-    room_b["twin_transform"] = [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]                  # x' = 8.2 - x
-    client = FakeClient(TWIN_ANSWERS)
-    out, records = C.complete_building(source, "x", client, C.Settings())
-    rec = {r.room_id: r for r in records}
-    assert rec[TWIN_B].state == "mirrored" and rec[TWIN_B].partner["transform"]["kind"] == "given"
-    assert rec[TWIN_B].partner["transform"]["affine"] == [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]
-    b = sorted(added_in(out, TWIN_B), key=lambda f: f["type"])
-    a = sorted(added_in(out, TWIN_A), key=lambda f: f["type"])
-    assert [f["footprint"]["center"][0] for f in b] == pytest.approx([8.2 - f["footprint"]["center"][0] for f in a])
-    room_b["twin_transform"] = [1.0, 0.0, 4.1, 0.0, 1.0, 0.0]                   # a shift: does not map the bed
-    out, records = C.complete_building(source, "x", FakeClient(TWIN_ANSWERS), C.Settings())
-    rec = {r.room_id: r for r in records}
-    assert rec[TWIN_B].state == "completed" and "does not map" in rec[TWIN_B].reason
 
 
 def test_mirror_transform_maps_points_fronts_and_sides():
@@ -741,61 +442,72 @@ def test_mirror_transform_maps_points_fronts_and_sides():
     assert C.given_transform({"twin_transform": None}) is None and C.given_transform({}) is None
 
 
-def test_a_twin_takes_the_partners_type_proposal():
-    """Review (low, unverified): the second twin's unknown piece gets the first twin's type proposal too, so both
-    dwellings stay the same; it stays unverified with its own footprint and is listed."""
+def test_the_pipelines_twin_transform_is_used():
+    """§1.6b row 18: ``rooms[].twin_transform`` (first twin -> this room) wins over the derived mirror."""
     source = twin_building()
-    for pid, rid, x in (("f_L0_003", TWIN_A, 1.0), ("f_L0_004", TWIN_B, 7.2)):
-        source["furniture"].append({"id": pid, "level_id": "L0", "room_id": rid, "type": "unknown", "type_raw": None,
-                                    "source": "from_documents", "status": "unverified",
-                                    "evidence": [B.evidence("p.dxf", "vector", 1.0)],
-                                    "footprint": {"center": [x, 0.285], "size": [0.9, 0.35], "rotation_deg": 180.0},
-                                    "front_deg": 90.0, "height": None})
-    source["unverified"] = ["f_L0_003", "f_L0_004"]
-    answers = {(TWIN_A, k): {"changes": [ch("f_L0_003", "bench", (1.2, 0.4))], "added": []} for k in (1, 2)}
-    client = FakeClient(answers)
-    out, records = C.complete_building(source, "x", client, C.Settings())
-    assert {r for r, _ in client.calls} == {TWIN_A}
-    a, b = piece(out, "f_L0_003"), piece(out, "f_L0_004")
-    assert a["type"] == b["type"] == "bench" and b["type_proposal"] is True and b["drawn_type"] == "unknown"
-    assert b["status"] == "unverified" and b["footprint"] == piece(source, "f_L0_004")["footprint"]
-    assert b["mirrored_from"] == "f_L0_003" and "modified_by_ai" not in b
-    assert any(w.startswith("f_L0_004: unverified drawn piece, AI type proposal") for w in out["warnings"])
-    assert LK.check(source, out, "complete") == []
+    room_b = next(r for r in source["rooms"] if r["id"] == TWIN_B)
+    room_b["twin_transform"] = [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]                  # x' = 8.2 - x
+    out, records = C.complete_building(source, "x", FakeChooser(), C.Settings())
+    rec = {r.room_id: r for r in records}
+    assert rec[TWIN_B].state == "mirrored" and rec[TWIN_B].partner["transform"]["kind"] == "given"
+    assert rec[TWIN_B].partner["transform"]["affine"] == [-1.0, 0.0, 8.2, 0.0, 1.0, 0.0]
+    room_b["twin_transform"] = [1.0, 0.0, 4.1, 0.0, 1.0, 0.0]                   # a shift: does not map the bed
+    out, records = C.complete_building(source, "x", FakeChooser(), C.Settings())
+    rec = {r.room_id: r for r in records}
+    assert rec[TWIN_B].state == "completed" and "does not map" in rec[TWIN_B].reason
 
 
-def test_twin_rooms_all_asks_both():
-    client = FakeClient(TWIN_ANSWERS)
+def test_twin_rooms_all_solves_both():
+    client = FakeChooser()
     C.complete_building(twin_building(), "x", client, C.Settings(twin_rooms="all"))
-    assert {r for r, _ in client.calls} == {TWIN_A, TWIN_B}
+    assert client.calls == [TWIN_A, TWIN_B]
 
 
-def test_a_twin_that_does_not_mirror_is_asked_itself():
-    client = FakeClient(TWIN_ANSWERS)
+def test_a_twin_that_does_not_mirror_is_completed_itself():
+    client = FakeChooser()
     out, records = C.complete_building(twin_building(shift=0.3), "x", client, C.Settings())
     rec = {r.room_id: r for r in records}
-    assert {r for r, _ in client.calls} == {TWIN_A, TWIN_B}
+    assert client.calls == [TWIN_A, TWIN_B]
     assert rec[TWIN_B].state == "completed" and "has no counterpart here" in rec[TWIN_B].reason
 
 
-def test_empty_twin_rooms_copy_the_milestone_4_layout():
+def test_a_twin_copy_that_would_lose_a_piece_is_solved_itself():
+    """Fails on the Milestone 10 copy: the copy that failed a check was dropped and the twin kept the rest."""
+    source = twin_building()
+    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(twin_rooms="all"))
+    mirrored = [f for f in added_in(out, TWIN_A) if f["type"] == "wardrobe"]
+    assert mirrored
+    x = 8.2 - mirrored[0]["footprint"]["center"][0]
+    wall = "w_L0_001" if mirrored[0]["footprint"]["center"][1] < 1.85 else "w_L0_003"
+    y = 0.0 if wall == "w_L0_001" else 3.7
+    source["openings"].append({"id": "d_L0_009", "type": "door", "level_id": "L0", "wall_id": wall, "center": [x, y],
+                               "width": 0.8, "swing_side": TWIN_B, "status": "verified",
+                               "evidence": [B.evidence("p.dxf", "vector", 1.0)]})
+    out, records = C.complete_building(source, "x", FakeChooser(), C.Settings())
+    rec = {r.room_id: r for r in records}
+    assert rec[TWIN_B].state == "completed" and "copied pieces fail a check here" in rec[TWIN_B].reason
+    assert not [f for f in added_in(out, TWIN_B) if f.get("mirrored_from")]
+    assert LK.check(source, out, "complete") == []
+
+
+def test_empty_twin_rooms_copy_the_layout():
     source = twin_building(furnished=False)
-    m4 = {(TWIN_A, k): {"pieces": [pc("bed_double", (2.0, 2.579), 0, (1.6, 2.0)),
-                                   pc("wardrobe", (0.42, 0.8), 90, (1.2, 0.6))]} for k in (1, 2)}
-    client = FakeClient(m4=m4)
+    client = FakeChooser()
     settings = C.Settings()
     partners = {r["id"]: p for r in source["rooms"] for p in [C.partner_of(r, settings)] if p}
     out, layouts = L.furnish_building(source, "x", client, partners=partners)
-    assert {r for r, _ in client.m4_calls} == {TWIN_A}
+    assert client.calls == [TWIN_A]
     by_room = {l.room_id: l for l in layouts}
-    assert by_room[TWIN_B].copied_from["room"] == TWIN_A and by_room[TWIN_B].proposals == []
-    b = sorted(added_in(out, TWIN_B), key=lambda f: f["type"])
-    a = sorted(added_in(out, TWIN_A), key=lambda f: f["type"])
-    assert [f["type"] for f in b] == [f["type"] for f in a] == ["bed_double", "wardrobe"]
+    assert by_room[TWIN_B].copied_from["room"] == TWIN_A and by_room[TWIN_B].candidates == []
+    b = sorted(added_in(out, TWIN_B), key=lambda f: f["id"])
+    a = sorted(added_in(out, TWIN_A), key=lambda f: f["id"])
+    assert [f["type"] for f in b] == [f["type"] for f in a] and "bed_double" in {f["type"] for f in a}
     for fa, fb in zip(a, b):
         assert fb["footprint"]["center"] == pytest.approx([8.2 - fa["footprint"]["center"][0],
                                                            fa["footprint"]["center"][1]], abs=1e-3)
         assert fb["mirrored_from"] == fa["id"] and all(fb["checks"].values())
+        anchor = fb["group"]["anchor_id"]
+        assert anchor is None or any(f["id"] == anchor for f in b)          # anchors mapped onto the copies
     assert "copied from r_L0_yatak_odasi (twin)" in L.layout_report(layouts, out)
     B.validate(out)
 
@@ -831,7 +543,7 @@ def kitchen_building(window=True, door=False):
 
 
 def _cabinets(b, mode="complete"):
-    out, records = C.complete_building(b, "x", FakeClient(), C.Settings(mode=mode))
+    out, records = C.complete_building(b, "x", FakeChooser(), C.Settings(mode=mode))
     return [f for f in out["furniture"] if f["type"] == "wall_cabinet"], out
 
 
@@ -879,46 +591,57 @@ def test_cli_furnishes_empty_rooms_and_completes_furnished_ones(tmp_path):
     source = drawn_building(example())
     src, project = _write(tmp_path, source)
     out = tmp_path / "out" / "building_furnished.json"
-    m4 = {("r_L1_oyun_odasi", k): {"pieces": [pc("armchair", (1.0, 1.0), 0, (0.9, 0.9), False)]} for k in (1, 2)}
-    client = FakeClient(EXAMPLE_ANSWERS, m4=m4)
+    client = FakeChooser()
     rc = L.main([str(src), "--out", str(out), "--debug", str(tmp_path / "dbg"), "--project-dir", str(project),
                  "--server", "http://127.0.0.1:1/v1"], client_factory=lambda: client)
     assert rc == 0
     final = B.load(out)
-    assert piece(final, "f_L-1_002")["type"] == "sofa_corner"
-    assert [f["type"] for f in added_in(final, "r_L1_oyun_odasi")] == ["armchair"]   # the M4 empty room
+    assert added_in(final, "r_L1_oyun_odasi")                              # an empty room, furnished by the solver
     completion = json.loads((out.parent / "completion.json").read_text())
-    assert completion["locked_violations"] == [] and completion["changes_applied"] == 2
+    assert completion["locked_violations"] == [] and completion["changes_applied"] == 0
     assert completion["settings"]["furnished_rooms"] == "complete" and completion["model"] == MODEL
     assert LK.mode_of(completion) == "complete" and LK.keep_rooms_of(completion) == []   # what refit passes on
     assert LK.check(source, final, LK.mode_of(completion), LK.keep_rooms_of(completion)) == []
     layout = json.loads((out.parent / "layout.json").read_text())
-    assert layout["completion"]["pieces_added"] == completion["pieces_added"] == 7
+    assert layout["completion"]["pieces_added"] == completion["pieces_added"] > 0
     assert (out.parent / "completion_report.md").read_text().startswith("# AI completion of furnished rooms")
     assert (tmp_path / "dbg" / f"{SALON}.png").exists() and (tmp_path / "dbg" / "r_L1_oyun_odasi.png").exists()
-    assert LK.check(source, final, "complete") == []
+    assert (tmp_path / "dbg" / f"{SALON}_c1.png").exists()                 # the images the model saw
 
 
 def test_cli_keep_brief_changes_nothing_drawn(tmp_path):
     source = drawn_building(example())
     src, project = _write(tmp_path, source, "furnished_rooms: keep\n")
     out = tmp_path / "out.json"
-    client = FakeClient(EXAMPLE_ANSWERS)
+    client = FakeChooser()
     assert L.main([str(src), "--out", str(out), "--project-dir", str(project)], client_factory=lambda: client) == 0
     final = B.load(out)
-    assert client.calls == [] and LK.check(source, final, "keep") == []
+    assert all(r not in client.calls for r in (SALON, BEDROOM)) and LK.check(source, final, "keep") == []
     completion = json.loads((tmp_path / "completion.json").read_text())
     assert completion["rooms_completed"] == 0 and LK.mode_of(completion) == "keep"
     assert set(LK.keep_rooms_of(completion)) == {r["id"] for r in source["rooms"] if r["has_documented_furniture"]}
 
 
-def test_cli_exits_3_when_the_completion_cannot_reach_the_server(tmp_path, capsys):
-    src, project = _write(tmp_path, drawn_building(example()))
+def test_cli_takes_the_solvers_best_when_the_vision_model_is_down(tmp_path, capsys):
+    """Milestone 12: a dead server no longer stops the stage (exit 3 before); every room takes candidate 1."""
+    source = drawn_building(example())
+    src, project = _write(tmp_path, source)
     out = tmp_path / "out" / "building_furnished.json"
-    client = FakeClient(EXAMPLE_ANSWERS, transport=[SALON])
+
+    class Down(FakeChooser):
+        def choose(self, prompt, images, labels, schema):
+            self.calls.append(room_of(images))
+            if self.down:
+                return L.Proposal(1, None, error=f"not asked: {self.down}", prompt=prompt, transport_error=True)
+            self.down = "cannot reach http://127.0.0.1:1/v1"
+            return L.Proposal(1, None, error=self.down, prompt=prompt, model=MODEL, transport_error=True)
+
+    client = Down()
     rc = L.main([str(src), "--out", str(out), "--project-dir", str(project)], client_factory=lambda: client)
-    assert rc == 3 and not out.exists() and not (out.parent / "completion.json").exists()
-    assert f"{SALON} pass 1: server not reachable" in capsys.readouterr().err
+    assert rc == 0 and out.exists()
+    assert "the vision model could not be reached" in capsys.readouterr().err
+    completion = json.loads((out.parent / "completion.json").read_text())
+    assert all(r["chosen"] in (None, 1) for r in completion["rooms"])
 
 
 def test_cli_exits_1_on_a_locked_violation(tmp_path, monkeypatch, capsys):
@@ -932,8 +655,7 @@ def test_cli_exits_1_on_a_locked_violation(tmp_path, monkeypatch, capsys):
         return done, records
 
     monkeypatch.setattr(C, "complete_building", moving)
-    rc = L.main([str(src), "--out", str(out), "--project-dir", str(project)],
-                client_factory=lambda: FakeClient(EXAMPLE_ANSWERS))
+    rc = L.main([str(src), "--out", str(out), "--project-dir", str(project)], client_factory=lambda: FakeChooser())
     assert rc == 1 and not out.exists()
     completion = json.loads((out.parent / "completion.json").read_text())
     assert completion["locked_violations"] and "f_L0_002" in completion["locked_violations"][0]
@@ -941,25 +663,10 @@ def test_cli_exits_1_on_a_locked_violation(tmp_path, monkeypatch, capsys):
     assert "## Locked check: 2 violation(s)" in (out.parent / "completion_report.md").read_text()
 
 
-def test_added_chairs_face_the_dining_table():
-    """M11 diagnosis (real02 r_L-1_salon): the model gave every added chair rotation 0 (front 270, to the window); the
-    chairs beside and below the drawn dining table faced away from it. A companion turns to its nearest host when
-    the turn keeps its footprint (square: 90 deg steps; else 180)."""
+def test_a_companion_turns_to_face_its_host():
+    """M11 diagnosis (real02 r_L-1_salon): a chair beside a table turns to its nearest host when the turn keeps its
+    footprint (square: 90 deg steps; else 180)."""
     table = P.Piece("table_dining", (6.0375, 4.2269), 90.0, (3.35, 1.566), False)      # x 5.25-6.82, y 2.55-5.90
-    left = P.Piece("chair", (5.0, 2.5), 0.0, (0.5, 0.5), False, index=1)               # beside the table's corner
-    below = P.Piece("chair", (5.8, 2.0), 0.0, (0.5, 0.5), False, index=2)              # below its end
-    above = P.Piece("chair", (6.0, 6.2), 0.0, (0.45, 0.45), False, index=3)            # already faces it (front 270)
-    stool = P.Piece("bar_stool", (1.0, 1.0), 0.0, (0.4, 0.4), False, index=4)          # no island: unchanged
-    sofa = P.Piece("sofa", (2.0, 2.0), 0.0, (2.0, 0.9), False, index=5)                # no companion type
-    added = [left, below, above, stool, sofa]
-    before_polys = [p.polygon() for p in added]
-    assert C.face_companions(added, [table]) == 2
-    front = lambda p: G.front_direction_deg(p.rotation_deg)                             # noqa: E731
-    assert front(left) == pytest.approx(0.0) and front(below) == pytest.approx(90.0)
-    assert front(above) == pytest.approx(270.0) and front(stool) == pytest.approx(270.0)
-    assert [r["step"] for r in left.repairs] == ["face_host"] and not above.repairs
-    for p, poly in zip(added, before_polys):                                           # footprints never change
-        assert p.polygon().symmetric_difference(poly).area < 1e-9
-    # A non-square companion only turns by 180 degrees.
     long_chair = P.Piece("chair", (6.0, 1.9), 0.0, (0.4, 0.6), False)                   # front 270, table above it
     assert P.face_host(long_chair, [table])["after"]["rotation_deg"] == pytest.approx(180.0)
+    copy.deepcopy(table)

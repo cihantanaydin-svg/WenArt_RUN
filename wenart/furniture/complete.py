@@ -1,61 +1,51 @@
-"""AI completion of rooms with drawn furniture (docs/milestone10.md §2; CLAUDE.md furniture rules).
+"""Completion of rooms with drawn furniture in functional groups (docs/milestone12.md §4.3-§4.5; Milestone 10 §2
+before; CLAUDE.md furniture rules; owner: track G).
 
-What: ``complete_building(building, style_text, client, settings)`` completes every room the documents
-furnish: the AI may change a drawn piece's type, size and look (its anchor and front stay) and add the pieces
-the room type misses; kitchens get wall cabinets along a drawn counter run by rule. It returns the new
-building and one ``RoomCompletion`` record per furnished room, written as ``completion.json``,
-``completion_report.md`` and one PNG + JSON per room in the debug folder.
+What: ``complete_building(building, style_text, client, settings)`` completes every room the documents furnish:
+its program (``program.room_program``) matches the drawn pieces to groups first (a drawn sofa is the seating
+anchor, a drawn bed the sleeping anchor, drawn sanitary ware the bathroom set, a drawn counter the kitchen run);
+the group solver (``solver.solve_room``) keeps every drawn piece fixed and adds only what the groups miss: the
+partners of a drawn anchor (nightstands at the head, a TV unit opposite a drawn sofa, chairs at a drawn table), the
+missing members of a drawn set (a washbasin), a missing fridge beside a drawn run, and the groups the room type
+misses whole (a wardrobe in a bedroom) - never a second anchor. The vision model picks one of the top candidates
+(``layout.choose_candidate``; a failed answer takes the solver's best). Added pieces are ``added_by_ai`` with
+``completes_room: true``, ``method: rule`` and their ``group``. Kitchens get wall cabinets along a drawn counter
+run by rule. It returns the new building and one ``RoomCompletion`` per furnished room, written as
+``completion.json``, ``completion_report.md`` and one PNG + JSON per room in the debug folder.
 
-Why: Milestone 9 furnished only rooms without drawn furniture, so a bedroom with only a bed drawn got no
-nightstand and no wardrobe (§0). The user chose ``furnished_rooms: complete`` for every project (8 Oct 2026).
-The no-hallucination rules stay: AI proposes, the placer's checks and the locked rules decide, every piece
-keeps its label (``from_documents`` with ``modified_by_ai`` and the drawn values, or ``added_by_ai`` with
-``completes_room``) and its evidence.
+Why: Milestone 10/11 asked a text-only model for single pieces with coordinates and agreed type changes of drawn
+pieces between two passes; the pieces were repaired one at a time and nightstands landed at mid-bed (§1.2). The
+group solver places whole groups and the drawn pieces never move. Drawn pieces are not retyped or resized here any
+more: reading (track R) types them and the agent's ``retype_piece`` / ``fix_fixture`` edits correct them.
 
 How, per room (``furnished_rooms: complete``, documented furniture, a furnishable type, not in
 ``furnished_rooms_keep``; brief keys through ``wenart.brief.load_brief``):
 
-1. The drawn pieces are sorted into fixed equipment (``schemas.FIXED_TYPES``, user decision 6), not built
-   (``build: false``, an obstacle), kept types (documented-only and rule-only types: no type to change them
-   into), wall-mounted (not a floor obstacle) and changeable; each gets its anchor (``locked.anchor_of``).
-2. ``schemas.completion_plan`` gives what the room misses and may get; the question (``prompts
-   .completion_prompt``) and the room's strict schema (``answer_schema``: enums of the changeable ids, the
-   change types, the addable types, the style families and the colours; xgrammar-safe keywords only) go
-   to the layout model twice (Qwen3-VL-8B, temperature 0, pass 2 with another block order and seed).
-3. Agreement (§2.4): a change is kept only when both passes change the same piece to the same type (the
-   smaller of the two size options; the style and colour both name, else the project's); then the main
-   piece rule (a bed stays a bed type, nothing becomes a second one) and the type counts. An unverified
-   drawn piece keeps its footprint, front and status: an agreed type becomes its ``type`` with
-   ``type_proposal: true`` and ``drawn_type``, never ``modified_by_ai`` (§1.6b row 15; its AI evidence at
-   confidence 0.6, as the example), and only when the drawn footprint fits the type in the M7 size table (a
-   corner sofa only on a drawn L; code review #20). Any drawn bed type is a bedroom's main piece (review #18).
-   With ``furnished_rooms_keep_size`` no change is asked.
-4. ``placer.place_changes`` places the changes at their anchors (shrink, then revert); the added pieces of
-   each pass are filtered (types the room may still get, one main piece, the counts), placed with the
-   full M4 repairs around the drawn pieces (``placer.place(..., obstacles=...)``) and checked for their
-   companions (an office chair at a desk, a bar stool at an island, a chair at a dining table); the pass
-   with the fewest dropped pieces wins (ties: pass 1); a piece the other pass also proposed (same type,
-   centre within 0.5 m) gets confidence 0.9 and both passes' evidence, the rest 0.6.
-5. Kitchens (and open kitchens of a living room): ``wall_cabinets_for`` hangs ``wall_cabinet`` pieces
-   (``method: rule``, ``mount_bottom_m`` 1.45, ``rule: {run, z, excluded}``) along every drawn counter run
-   against a wall, 1.45-2.15 m, never over or within 0.3 m of a window or a door opening (measured along the
-   wall, §1.6b row 15), never over the stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs
-   shorter than 0.3 m are left out. Their backs are on the wall face behind the counter.
-6. Looks (§1.6b row 15, ``apply_designs``): every piece of a completed or kept room gets ``design`` keys by
-   rule under what it already holds: cabinet fronts, colour, handle and worktop from ``style.json``
-   ``cabinets`` (absent: none), ``vanity`` for a washbasin at least 0.45 m deep, ``built_in`` for a wardrobe
-   touching walls at both ends, ``material_tags`` from ``style.json`` ``furniture.by_type``; an agreed change
-   adds ``style_family`` and its colour (``fabric_colour`` for upholstered types). A corner sofa always
-   carries ``seat_depth`` and ``chaise_width`` (0.9 m unless drawn).
+1. ``classify_drawn`` sorts the drawn pieces (fixed equipment, not built, kept types, wall-mounted, changeable) for
+   the record; every drawn piece is fixed for the solver.
+2. The room's program and the solver's top candidates; candidates with hard failures are never applied; the choice
+   of the vision model (or the solver's best); the chosen pieces are added.
+3. Kitchens (and open kitchens of a living room): ``wall_cabinets_for`` hangs ``wall_cabinet`` pieces (``method:
+   rule``, ``mount_bottom_m`` 1.45, ``rule: {run, z, excluded}``) along every drawn counter run against a wall,
+   1.45-2.15 m, never over or within 0.3 m of a window or a door opening (measured along the wall), never over the
+   stove, a tall piece (taller than 1.40 m) or another wall cabinet; runs shorter than 0.3 m are left out.
+4. Looks (``apply_designs``): every piece of a completed or kept room gets ``design`` keys by rule under what it
+   already holds: cabinet fronts, colour, handle and worktop from ``style.json`` ``cabinets`` (absent: none),
+   ``vanity`` for a washbasin at least 0.45 m deep, ``built_in`` for a wardrobe touching walls at both ends,
+   ``material_tags`` from ``style.json`` ``furniture.by_type``.
+5. Groups (``tag_drawn_groups``): the drawn anchor and drawn partners of every furnished room get ``group = {group_id,
+   group, role, anchor_id}`` (the program's ids, shared with the added partners; the fit reads it). Not a locked key.
 
-Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's room equal to a base room) takes
-its partner's decisions as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them
-mirrored (``partner_transform``: the pipeline's ``rooms[].twin_transform`` when present, else the mirror about
-the perpendicular bisector of the two room centroids; verified on the polygons and the drawn pieces within
-``PARTNER_TOL_M``). Changed pieces and type proposals are copied too.
-Copied pieces carry ``mirrored_from``; a copy that fails a check here is dropped and listed; a partner that cannot be verified
-is reported and the room is asked itself. ``copy_empty_layout`` does the same for the Milestone 4 layout of
-empty rooms (user decision 7: the AI furniture of the first twin mirrored onto the second).
+Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's room equal to a base room) takes its
+partner's added pieces as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them mirrored
+(``partner_transform``: the pipeline's ``rooms[].twin_transform`` when present, else the mirror about the
+perpendicular bisector of the two room centroids; verified on the polygons and the drawn pieces within
+``PARTNER_TOL_M``). Copied pieces carry ``mirrored_from`` and their group in this room (the group id with this
+room's id, the anchor mapped onto this room's drawn piece). When a copy fails a placer check here (a door that opens
+the other way in the twin) or the partner cannot be verified, the copy is not used: the room is completed itself and
+the record says why (a whole group matters more than the same look in both rooms).
+``copy_empty_layout`` does the same for the layout of empty rooms (user decision 7). ``completion.json`` keeps the
+mode and the rooms kept as drawn (``locked.keep_rooms_of``, the refit's locked check).
 """
 from __future__ import annotations
 
@@ -63,9 +53,7 @@ import copy
 import json
 import math
 import sys
-from collections import Counter
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
@@ -74,13 +62,10 @@ from shapely.geometry import LineString, Point, Polygon
 from wenart import building as B
 from wenart import geometry as G
 from wenart.furniture import locked as LK
-from wenart.furniture import placer, prompts, schemas
+from wenart.furniture import placer, schemas
 
-EVIDENCE_FILE = "building.json"     # what the model saw: the room, doors, windows and drawn pieces of the building
-AGREE_DISTANCE_M = 0.5
-CONFIDENCE_AGREED = 0.9
-CONFIDENCE_SINGLE = 0.6
-PASSES = 2
+EVIDENCE_FILE = "building.json"     # what the solver saw: the room, doors, windows and drawn pieces
+PASSES = 2                          # Milestone 10 argument, accepted and not used
 # Partners: the polygon and every drawn piece within this distance (the pipeline matches twins within 2 cm;
 # 5 cm here leaves room for rounding), the fronts within this angle.
 PARTNER_TOL_M = 0.05
@@ -133,21 +118,6 @@ def load_settings(project_dir) -> Settings:
     from wenart import brief as BR
 
     return Settings.from_brief(BR.load_brief(project_dir))
-
-
-def style_families() -> list[str]:
-    """The style enum: the family keywords of ``vocabulary.STYLE_FAMILIES`` and ``neutral`` (the words of the
-    catalogue's ``styles``, ``catalog.style_values``)."""
-    from wenart.style import vocabulary as V
-
-    return [name for name, _ in V.STYLE_FAMILIES] + ["neutral"]
-
-
-def colour_names() -> list[str]:
-    """The colour enum: the vocabulary colours the decor and the parametric looks know today."""
-    from wenart.blender.parametric import DECOR_COLOURS
-
-    return list(DECOR_COLOURS)
 
 
 # --------------------------------------------------------------------------
@@ -325,7 +295,7 @@ def partner_transform(room: dict, partner: dict, kind: str, building: dict) -> t
 
 
 # --------------------------------------------------------------------------
-# Drawn pieces and the question
+# Drawn pieces and the record of one room
 # --------------------------------------------------------------------------
 
 @dataclass
@@ -333,34 +303,19 @@ class Drawn:
     item: dict                   # the building furniture dict as given
     kind: str                    # fixed | obstacle | kept | mounted | changeable | other | outline (M11)
     anchor: dict
-    piece: placer.Piece          # front frame; against_wall from the anchor
+    piece: Optional[placer.Piece] = None      # front frame; against_wall from the anchor
     unverified: bool = False
 
     @property
     def id(self) -> str:
         return self.item["id"]
 
-    def to_prompt(self) -> dict:
-        fp = self.item["footprint"]
-        out = {"id": self.id, "type": self.item["type"], "kind": "changeable" if self.kind == "changeable" else "fixed",
-               "center": [round(float(fp["center"][0]), 2), round(float(fp["center"][1]), 2)],
-               "size": [round(self.piece.size[0], 2), round(self.piece.size[1], 2)],
-               "rotation_deg": round(self.piece.rotation_deg, 1),
-               "front_deg": None if self.item.get("front_deg") is None else round(float(self.item["front_deg"]), 1),
-               "anchor": {"kind": self.anchor["kind"], "point": [round(v, 2) for v in self.anchor["point"]]},
-               "against_wall": self.anchor.get("wall_id") if self.anchor["kind"] == "back_edge" else None}
-        if self.unverified:
-            out["status"] = "unverified (type not sure; only its type may change, the footprint stays)"
-        if self.item.get("shape") == "L":
-            out["shape"] = f"L, long seat on the {self.item.get('chaise_side') or 'right'}"
-        return out
-
 
 def classify_drawn(room: dict, building: dict) -> list[Drawn]:
-    """The room's drawn pieces (and any other piece already there, as an obstacle) in building order."""
+    """The room's drawn pieces (and any other piece already there) in building order, with their kind and anchor
+    (``locked.anchor_of``); the solver keeps all of them where they are."""
     out = []
-    for i, f in enumerate(p for p in building["furniture"] if p.get("room_id") == room["id"]):
-        anchor = LK.anchor_of(f, building)
+    for f in (p for p in building["furniture"] if p.get("room_id") == room["id"]):
         if f.get("source") != "from_documents":
             kind = "other"
         elif f["type"] in schemas.MOUNTED_TYPES:
@@ -375,275 +330,12 @@ def classify_drawn(room: dict, building: dict) -> list[Drawn]:
             kind = "kept"
         else:
             kind = "changeable"
-        unverified = f.get("status") == "unverified" or f["type"] == "unknown"
-        piece = placer.drawn_piece(f, i, against_wall=anchor["kind"] == "back_edge")
-        out.append(Drawn(f, kind, anchor, piece, unverified=unverified and kind == "changeable"))
+        anchor = LK.anchor_of(f, building)
+        piece = placer.drawn_piece(f, len(out), against_wall=anchor["kind"] == "back_edge")
+        unverified = (f.get("status") == "unverified" or f["type"] == "unknown") and kind == "changeable"
+        out.append(Drawn(f, kind, anchor, piece, unverified))
     return out
 
-
-def _present(drawn: list[Drawn], pieces: Optional[list[placer.Piece]] = None) -> list[tuple[str, tuple, bool]]:
-    """``(type, size, unverified)`` of the built floor pieces (the final ``pieces`` when given, in drawn order;
-    Milestone 11 U10: an unverified table asks for no chairs, ``schemas.completion_plan``)."""
-    out = []
-    for k, d in enumerate(drawn):
-        if d.kind in ("mounted", "obstacle", "outline"):
-            continue
-        p = pieces[k] if pieces is not None else d.piece
-        out.append((p.type, p.size, d.unverified))
-    return out
-
-
-def room_block(room: dict, ctx: placer.RoomContext, building: dict) -> dict:
-    """The room as the completion question gives it (doors with their approach point, windows with the sill)."""
-    doors, windows = placer.room_openings(building, room)
-    approach = {d.id: d.approach_point for d in ctx.doors}
-    r2 = lambda v: round(float(v), 2)   # noqa: E731
-    return {
-        "room_id": room["id"], "label": room["label"], "room_type": room.get("room_type", "other"),
-        "room_subtype": room.get("room_subtype"), "area_m2": r2(room["area_computed"]),
-        "polygon_m": [[r2(x), r2(y)] for x, y in room["polygon"]],
-        "doors": [{"id": d["id"], "center": [r2(d["center"][0]), r2(d["center"][1])], "width": r2(d["width"]),
-                   "opens_into_this_room": d.get("swing_side") == room["id"],
-                   "approach": [r2(v) for v in approach.get(d["id"], d["center"])]} for d in doors],
-        "windows": [{"id": w["id"], "center": [r2(w["center"][0]), r2(w["center"][1])], "width": r2(w["width"]),
-                     "sill_height": r2(w["sill_height"]) if w.get("sill_height") is not None else None}
-                    for w in windows],
-    }
-
-
-def build_question(room: dict, building: dict, drawn: list[Drawn], ctx: placer.RoomContext,
-                   settings: Settings) -> tuple[dict, dict]:
-    """``(question, plan)`` of one room (the prompt's input, also written to the debug JSON)."""
-    rtype, subtype = room.get("room_type", "other"), room.get("room_subtype")
-    plan = schemas.completion_plan(rtype, subtype, _present(drawn))
-    changeable = [d for d in drawn if d.kind == "changeable"]
-    change_types = [] if settings.keep_size or not changeable else list(schemas.change_types(rtype, subtype))
-    add = dict(plan["addable"])
-    question = {"room": room_block(room, ctx, building),
-                "drawn": [d.to_prompt() for d in drawn if d.kind not in ("other", "outline")],
-                "change_ids": [d.id for d in changeable] if change_types else [],
-                "change_types": change_types, "add": add, "missing": plan["missing"],
-                "anchor_missing": plan["anchor_missing"], "anchors": list(plan["anchors"]),
-                "anchors_addable": [a for a in plan["anchors"] if a in add],
-                "styles": style_families(), "colours": colour_names(), "keep_size": settings.keep_size}
-    return question, plan
-
-
-_SIZE = {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 2, "maxItems": 2}
-
-
-def answer_schema(question: dict) -> dict:
-    """The strict schema of one room (§2.3): enums built from the question; xgrammar-safe (no uniqueItems,
-    no if/then): an empty list is ``maxItems: 0``."""
-    ids, types, add = question["change_ids"], question["change_types"], question["add"]
-    if ids and types:
-        changes = {"type": "array", "maxItems": len(ids), "items": {
-            "type": "object", "additionalProperties": False,
-            "required": ["id", "type", "size", "style", "colour", "reason"],
-            "properties": {"id": {"enum": list(ids)}, "type": {"enum": list(types)}, "size": dict(_SIZE),
-                           "style": {"enum": list(question["styles"])}, "colour": {"enum": list(question["colours"])},
-                           "reason": {"type": "string", "maxLength": 200}}}}
-    else:
-        changes = {"type": "array", "maxItems": 0}
-    if add:
-        added = {"type": "array", "maxItems": min(schemas.MAX_PIECES, sum(add.values())), "items": {
-            "type": "object", "additionalProperties": False,
-            "required": ["type", "center", "rotation_deg", "size", "against_wall", "reason"],
-            "properties": {"type": {"enum": list(add)},
-                           "center": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
-                           "rotation_deg": {"type": "number", "minimum": 0, "maximum": 360}, "size": dict(_SIZE),
-                           "against_wall": {"type": "boolean"}, "reason": {"type": "string", "maxLength": 200}}}}
-    else:
-        added = {"type": "array", "maxItems": 0}
-    return {"type": "object", "additionalProperties": False, "required": ["changes", "added"],
-            "properties": {"changes": changes, "added": added}}
-
-
-def schema_errors(data, schema: dict) -> list[str]:
-    import jsonschema
-    validator = jsonschema.Draft202012Validator(schema)
-    return [f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
-            for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))]
-
-
-# --------------------------------------------------------------------------
-# Agreement (§2.4)
-# --------------------------------------------------------------------------
-
-def snap_option(ftype: str, size) -> tuple[float, float]:
-    """The size option of ``ftype`` nearest to ``size`` in either orientation (the option as listed)."""
-    w, d = float(size[0]), float(size[1])
-    return min(schemas.SIZE_OPTIONS[ftype],
-               key=lambda o: min(abs(o[0] - w) + abs(o[1] - d), abs(o[0] - d) + abs(o[1] - w)))
-
-
-def _by_id(answer: Optional[dict]) -> tuple[dict, list]:
-    out, dupes = {}, []
-    for item in (answer or {}).get("changes", []):
-        if item["id"] in out:
-            dupes.append(item)
-        else:
-            out[item["id"]] = item
-    return out, dupes
-
-
-def agree_changes(answers: dict[int, Optional[dict]], drawn_order: list[str]) -> tuple[list[dict], list[dict]]:
-    """``(agreed, not agreed)``: both passes change the same piece to the same type (§2.4)."""
-    a, dup_a = _by_id(answers.get(1))
-    b, dup_b = _by_id(answers.get(2))
-    agreed, other = [], []
-    for item in dup_a + dup_b:
-        other.append({"id": item["id"], "type": item["type"], "status": "not_agreed",
-                      "reason": "the same piece listed twice in one pass: the second entry ignored"})
-    for pid in drawn_order:
-        x, y = a.get(pid), b.get(pid)
-        if x is None and y is None:
-            continue
-        if x is None or y is None:
-            k, item = (1, x) if y is None else (2, y)
-            other.append({"id": pid, "type": item["type"], "status": "not_agreed", "passes": [k],
-                          "reason": f"only pass {k} changes it (a drawn piece needs both passes)"})
-            continue
-        if x["type"] != y["type"]:
-            other.append({"id": pid, "type": f"{x['type']} / {y['type']}", "status": "not_agreed", "passes": [1, 2],
-                          "reason": f"the passes disagree on the type ({x['type']} / {y['type']})"})
-            continue
-        sx, sy = snap_option(x["type"], x["size"]), snap_option(y["type"], y["size"])
-        agreed.append({"id": pid, "type": x["type"], "size": min(sx, sy, key=lambda o: (o[0] * o[1], o)),
-                       "style": x["style"] if x["style"] == y["style"] else None,
-                       "colour": x["colour"] if x["colour"] == y["colour"] else None,
-                       "reasons": {1: x["reason"], 2: y["reason"]}, "passes": [1, 2]})
-    return agreed, other
-
-
-@lru_cache(maxsize=1)
-def _size_table() -> dict:
-    from wenart.recognition import symbols   # the M7 size table and its fit rule (lazy: PyYAML)
-
-    return symbols.load_size_table()
-
-
-def proposal_problem(d: Drawn, new: str) -> Optional[str]:
-    """Why an unverified drawn piece may not take the proposed type (code review #20: the M7 rule, the drawn
-    footprint must fit the type's size range (+15 %, either orientation), a shaped type its drawn shape), else
-    None."""
-    from wenart.recognition import symbols
-
-    w, dep = d.piece.size
-    if not symbols.shape_allows(new, d.item.get("shape")):
-        return f"the drawn outline is not an L: it cannot be a {new}"
-    if not symbols.fits(_size_table(), new, (w, dep)):
-        return f"footprint {w:.2f} x {dep:.2f} does not fit {new} (size table)"
-    return None
-
-
-def check_change_rules(agreed: list[dict], drawn: list[Drawn], plan: dict) -> tuple[list[dict], list[dict]]:
-    """``(kept, refused)``: an unverified piece's proposal must fit its drawn footprint (``proposal_problem``); the
-    main piece stays a main piece type, nothing else becomes one; a change may not take a type over its count
-    (``plan["maxima"]``, at least what the documents draw)."""
-    anchors = set(plan.get("anchor_roles", plan["anchors"]))   # any bed is the bed (review #18)
-    by_id = {d.id: d for d in drawn}
-    counts = Counter(p[0] for p in _present(drawn))
-    drawn_counts = Counter(counts)
-    has_anchor = plan["has_anchor"]
-    kept, refused = [], []
-    for ch in agreed:
-        old, new = by_id[ch["id"]].item["type"], ch["type"]
-        d = by_id[ch["id"]]
-        reason = None
-        if d.unverified and new != old:
-            reason = proposal_problem(d, new)
-        if reason is not None:
-            pass                                               # the footprint decides first (M7 size rule)
-        elif old in anchors and new not in anchors:
-            reason = f"the room's main piece ({old}) may only become another main piece type"
-        elif old not in anchors and new in anchors and (has_anchor or not d.unverified):
-            reason = f"never a second main piece: {old} cannot become {new}"
-        elif (new != old and new not in anchors and new in plan["maxima"]
-              and counts[new] + 1 > max(plan["maxima"][new], drawn_counts[new])):
-            reason = f"the room already holds {counts[new]} {new} (at most {plan['maxima'][new]})"
-        if reason:
-            refused.append(dict(ch, status="refused", reason=reason))
-            continue
-        counts[old] -= 1
-        counts[new] += 1
-        if new in anchors:
-            has_anchor = True
-        kept.append(ch)
-    return kept, refused
-
-
-def filter_added(items: list[dict], plan: dict, room_type: str) -> tuple[list[dict], list[dict]]:
-    """``(kept, refused)`` of one pass's added pieces: types the room may still get, at most their count, one main
-    piece."""
-    left = dict(plan["addable"])
-    anchors = set(plan.get("anchor_roles", plan["anchors"]))   # any bed is the bed (review #18)
-    anchor_taken = plan["has_anchor"]
-    kept, refused = [], []
-    for item in items:
-        t = item["type"]
-        reason = None
-        if t not in left:
-            reason = (f"covered: the room holds its maximum of {t}" if t in plan["maxima"]
-                      else f"not a type the AI may add to a {room_type}")
-        elif left[t] <= 0:
-            reason = f"covered: at most {plan['maxima'].get(t, 0)} {t}"
-        elif t in anchors and anchor_taken:
-            reason = f"never a second main piece ({t})"
-        if reason:
-            refused.append({"type": t, "center": item["center"], "reason": reason})
-            continue
-        left[t] -= 1
-        if t in anchors:
-            anchor_taken = True
-        kept.append(item)
-    return kept, refused
-
-
-def companion_problems(added: list[placer.Piece], floor: list[placer.Piece], room_type: str) -> dict[int, str]:
-    """Index in ``added`` -> why it lacks its companion (an office chair at a desk, a bar stool at an island, a
-    chair at a dining table; chairs in an ``other`` room are free, as in Milestone 4)."""
-    out = {}
-    for i, p in enumerate(added):
-        hosts_types = schemas.COMPANIONS.get(p.type)
-        if not hosts_types or (p.type == "chair" and room_type == "other"):
-            continue
-        hosts = [q for q in floor + added if q.type in hosts_types]
-        if not hosts:
-            out[i] = f"no {' or '.join(hosts_types)} in the room"
-            continue
-        gap = min(p.polygon().distance(q.polygon()) for q in hosts)
-        if gap > schemas.COMPANION_REACH_M + 1e-9:
-            out[i] = f"{gap:.2f} m from the nearest {' or '.join(hosts_types)} (> {schemas.COMPANION_REACH_M} m)"
-    return out
-
-
-def face_companions(added: list[placer.Piece], floor: list[placer.Piece]) -> int:
-    """Turn every added companion piece (a chair, a bar stool, an office chair) to face its nearest host
-    (``placer.face_host``; the footprint polygon stays, so the checks stay); the turn is logged in the piece's
-    repairs. Returns how many were turned."""
-    turned = 0
-    for p in added:
-        hosts_types = schemas.COMPANIONS.get(p.type)
-        if not hosts_types:
-            continue
-        record = placer.face_host(p, [q for q in floor + added if q.type in hosts_types])
-        if record is not None:
-            p.repairs.append(record)
-            turned += 1
-    return turned
-
-
-def _agrees(piece: placer.Piece, other: Optional[list[dict]]) -> Optional[dict]:
-    for item in other or []:
-        if item["type"] == piece.type and G.distance(piece.proposed["center"], item["center"]) <= AGREE_DISTANCE_M:
-            return item
-    return None
-
-
-# --------------------------------------------------------------------------
-# Per room
-# --------------------------------------------------------------------------
 
 @dataclass
 class RoomCompletion:
@@ -652,20 +344,16 @@ class RoomCompletion:
     reason: str = ""
     partner: Optional[dict] = None              # {"id", "kind", "transform"}
     drawn: list = field(default_factory=list)   # Drawn
-    question: Optional[dict] = None
-    plan: Optional[dict] = None
-    schema: Optional[dict] = None
-    passes: list = field(default_factory=list)  # one dict per pass
-    changes: list = field(default_factory=list)
-    added: list = field(default_factory=list)   # final furniture dicts
+    program: Optional[dict] = None
+    candidates: list = field(default_factory=list)
+    choice: Optional[dict] = None
+    chosen: Optional[int] = None
+    changes: list = field(default_factory=list)   # Milestone 10 field, always empty now (drawn pieces never change)
+    added: list = field(default_factory=list)     # final furniture dicts
     refused: list = field(default_factory=list)
     dropped: list = field(default_factory=list)
     wall_cabinets: list = field(default_factory=list)
-    placements: dict = field(default_factory=dict)
-    chosen_pass: Optional[int] = None
-    drawn_layout: dict = field(default_factory=dict)
-    floor: list = field(default_factory=list)          # the drawn floor pieces (Drawn, not wall-mounted)
-    final_pieces: list = field(default_factory=list)   # their placer pieces after the changes (same order)
+    solve_s: float = 0.0
     context: Optional[placer.RoomContext] = None
 
     @property
@@ -673,236 +361,67 @@ class RoomCompletion:
         return self.room["id"]
 
     @property
+    def passes(self) -> list[dict]:
+        """The model call of the room as the Milestone 10 records had it (one entry or none)."""
+        c = self.choice or {}
+        if not c.get("model") and not c.get("error"):
+            return []
+        return [{"pass": 1, "model": c.get("model"), "latency_s": c.get("latency_s", 0.0), "error": c.get("error"),
+                 "transport_error": bool(c.get("transport_error"))}]
+
+    @property
     def transport_errors(self) -> list[tuple[int, str]]:
         return [(p["pass"], p["error"]) for p in self.passes if p.get("transport_error")]
 
     @property
     def latency_s(self) -> float:
-        return round(sum(p.get("latency_s", 0.0) for p in self.passes), 3)
+        return round(float((self.choice or {}).get("latency_s") or 0.0), 3)
+
+    @property
+    def missing(self) -> list[str]:
+        """What the program found missing: the partner types the drawn groups lack and the required groups no
+        drawn piece holds (the Milestone 10 record's ``missing``)."""
+        out: list[str] = []
+        for g in (self.program or {}).get("groups", []):
+            if g.get("drawn"):
+                out += list(g.get("missing") or [])
+            elif g.get("required"):
+                out.append(g["group"])
+        return out
+
+    def drawn_layout(self) -> dict:
+        """``{"pieces": {id: [placer checks it fails as drawn]}}``: what the drawn layout already breaks (walkways
+        are G11's), so the added pieces are not blamed for it."""
+        ctx = self.context
+        floor = [d for d in self.drawn if d.kind not in ("mounted", "outline") and d.piece is not None]
+        if ctx is None or not floor:
+            return {"pieces": {}}
+        checks = placer.check_all([d.piece for d in floor], ctx, walkways=False)
+        return {"pieces": {d.id: placer.failed_checks(c) for d, c in zip(floor, checks) if placer.failed_checks(c)}}
 
     def to_dict(self) -> dict:
+        from wenart.furniture import layout as L
+
         return {
             "room_id": self.room_id, "label": self.room["label"], "room_type": self.room.get("room_type"),
             "room_subtype": self.room.get("room_subtype"), "state": self.state, "reason": self.reason,
             "partner": self.partner,
-            "drawn": [{"id": d.id, "type": d.item["type"], "kind": d.kind, "unverified": d.unverified,
-                       "anchor": d.anchor} for d in self.drawn],
-            "missing": (self.plan or {}).get("missing", {}), "anchor_missing": (self.plan or {}).get("anchor_missing"),
-            "addable": (self.question or {}).get("add", {}), "change_types": (self.question or {}).get("change_types", []),
-            "passes": [{k: v for k, v in p.items() if k not in ("data", "prompt", "raw_text")} for p in self.passes],
-            "chosen_pass": self.chosen_pass, "changes": self.changes,
+            "drawn": [{"id": d.id, "type": d.item["type"], "kind": d.kind, "anchor": d.anchor} for d in self.drawn],
+            "program": [{k: g.get(k) for k in ("group_id", "group", "options", "drawn", "required", "missing", "note")}
+                        for g in (self.program or {}).get("groups", [])],
+            "candidates": [L.candidate_summary(c) for c in self.candidates], "chosen": self.chosen,
+            "choice": {k: v for k, v in (self.choice or {}).items() if k not in ("prompt", "raw_text")},
+            "passes": self.passes, "chosen_pass": self.chosen, "changes": self.changes,
             "added": [{"id": f["id"], "type": f["type"], "center": f["footprint"]["center"],
                        "size": f["footprint"]["size"], "rotation_deg": f["footprint"]["rotation_deg"],
-                       "confidence": f["evidence"][0]["confidence"], "method": f.get("method"),
+                       "group": (f.get("group") or {}).get("group"), "method": f.get("method"),
                        "mirrored_from": f.get("mirrored_from")} for f in self.added],
             "refused": self.refused, "dropped": self.dropped,
             "wall_cabinets": [{"id": f["id"], "run": f["rule"]["run"], "size": f["footprint"]["size"],
                                "excluded": f["rule"]["excluded"]} for f in self.wall_cabinets],
-            "drawn_layout": self.drawn_layout, "latency_s": self.latency_s,
+            "missing": self.missing, "drawn_layout": self.drawn_layout(),
+            "latency_s": self.latency_s, "solve_s": round(self.solve_s, 3),
         }
-
-
-def _l_fields(piece: placer.Piece) -> dict:
-    """The corner sofa's L fields as the building JSON holds them (docs/milestone10.md §1.6b)."""
-    return {"shape": "L", "chaise_side": piece.chaise_side,
-            "chaise_depth": float(piece.chaise_depth if piece.chaise_depth else piece.size[1]),
-            "seat_depth": float(piece.seat_depth or schemas.L_SEAT_DEPTH_M),
-            "chaise_width": float(piece.chaise_width or schemas.L_CHAISE_WIDTH_M)}
-
-
-def _ai_evidence(model: str, reasons: dict, confidence: float) -> list[dict]:
-    return [B.evidence(EVIDENCE_FILE, "ai", confidence, model=model, pass_=k, text=str(r or "changed by the AI"))
-            for k, r in sorted(reasons.items())]
-
-
-def _design(item: dict, ftype: str, style: Optional[str], colour: Optional[str], family: Optional[str]) -> dict:
-    design = dict(item.get("design") or {})
-    design["style_family"] = style or family
-    if colour:
-        design["fabric_colour" if ftype in schemas.FABRIC_TYPES else "colour"] = colour
-    return design
-
-
-def _apply_change(item: dict, anchor: dict, final: placer.Piece, record: dict, evidence: list[dict],
-                  design: dict, unverified: bool, mirrored_from: Optional[str] = None) -> dict:
-    """The changed drawn piece (§2.6): ``from_documents``, ``modified_by_ai``, the drawn values, the anchor and
-    the AI evidence. The footprint changes only with the type or size. An unverified piece (§1.6b row 15) gets
-    a type proposal instead: the agreed type, ``type_proposal: true``, ``drawn_type``, its drawn footprint,
-    front and status, no ``modified_by_ai``."""
-    if unverified:
-        return _type_proposal(item, final, record, evidence, design, mirrored_from)
-    new = copy.deepcopy(item)
-    new["modified_by_ai"] = True
-    new["drawn_type"] = item["type"]
-    new["drawn_footprint"] = copy.deepcopy(item["footprint"])
-    new["drawn_height"] = item.get("height")
-    new["anchor"] = anchor
-    if record["status"] == "applied" and not record["look_only"]:
-        if not unverified:
-            new["footprint"] = {"center": [round(final.center[0], 4), round(final.center[1], 4)],
-                                "size": [final.size[0], final.size[1]], "rotation_deg": round(final.rotation_deg, 4)}
-        if final.type != item["type"]:
-            new["type"] = final.type
-            new["height"] = schemas.HEIGHTS.get(final.type)
-            if unverified:
-                new["type_proposal"] = True
-        if final.shape == "L":
-            new.update(_l_fields(final))
-        elif item.get("shape") == "L":
-            for key in ("shape", "chaise_side", "chaise_depth", "seat_depth", "chaise_width"):
-                new.pop(key, None)
-    new["design"] = design
-    new["evidence"] = list(item["evidence"]) + evidence
-    if mirrored_from:
-        new["mirrored_from"] = mirrored_from
-    return new
-
-
-def _type_proposal(item: dict, final: placer.Piece, record: dict, evidence: list[dict], design: dict,
-                   mirrored_from: Optional[str]) -> dict:
-    new = copy.deepcopy(item)
-    if record["status"] == "applied" and final.type != item["type"]:
-        new.update(type=final.type, type_proposal=True, drawn_type=item["type"],
-                   height=schemas.HEIGHTS.get(final.type))
-        new["evidence"] = list(item["evidence"]) + [dict(e, confidence=CONFIDENCE_SINGLE) for e in evidence]
-    if design:
-        new["design"] = design
-    if mirrored_from:
-        new["mirrored_from"] = mirrored_from
-    return new
-
-
-def _oriented(option, drawn: Drawn) -> tuple[tuple[float, float], bool]:
-    """A size option and whether it is turned to follow a drawn piece without a front (a table drawn along Y)."""
-    if drawn.item.get("front_deg") is not None:
-        return tuple(option), False
-    dw, dd = drawn.piece.size
-    ow, od = option
-    return tuple(option), (dw - dd) * (ow - od) < -1e-9
-
-
-def _requests(changes: list[dict], drawn: list[Drawn]) -> list[placer.ChangeRequest]:
-    index = {d.id: k for k, d in enumerate(drawn)}
-    out = []
-    for ch in changes:
-        d = drawn[index[ch["id"]]]
-        size, turned = _oriented(ch["size"], d)
-        sides = tuple(ch.get("chaise_sides") or ("right", "left"))
-        out.append(placer.ChangeRequest(index[ch["id"]], ch["type"], size, d.anchor, chaise_sides=sides,
-                                        footprint_only=d.unverified, transposed=turned))
-    return out
-
-
-def run_changes(rec: RoomCompletion, changes: list[dict], ctx: placer.RoomContext, model: str,
-                family: Optional[str], out: dict, mirrored: Optional[dict] = None) -> None:
-    """Place the agreed changes, write the changed pieces into ``out`` and record them (``mirrored``: partner
-    piece id per drawn id for copied decisions)."""
-    floor = [d for d in rec.drawn if d.kind not in ("mounted", "outline")]
-    rec.floor = floor
-    requests = _requests(changes, floor)
-    final, results, baseline = placer.place_changes([d.piece for d in floor], requests, ctx)
-    rec.final_pieces = final
-    rec.drawn_layout = {"pieces": {d.id: fails for d, fails in zip(floor, baseline["pieces"]) if fails},
-                        "walkways": baseline["walkways"]}
-    by_id = {f["id"]: i for i, f in enumerate(out["furniture"])}
-    for ch, req, res in zip(changes, requests, results):
-        d = floor[req.index]
-        same = (res.piece.type == d.item["type"] and tuple(res.piece.size) == tuple(d.piece.size)
-                and res.piece.chaise_side == d.piece.chaise_side)
-        record = {"id": d.id, "drawn_type": d.item["type"], "drawn_size": list(d.piece.size), "type": res.piece.type,
-                  "size": list(res.piece.size), "chaise_side": res.piece.chaise_side,
-                  "style": ch.get("style"), "colour": ch.get("colour"),
-                  "status": "applied" if res.applied else "reverted",
-                  "shrunk": any(s["step"] == "shrink" and s["ok"] for s in res.steps),
-                  "look_only": res.applied and same,
-                  "type_proposal": d.unverified and res.applied and res.piece.type != d.item["type"],
-                  "reason": res.reason or "; ".join(f"pass {k}: {r}" for k, r in sorted(ch.get("reasons", {}).items())),
-                  "steps": res.steps, "agreed_type": ch["type"], "agreed_size": list(ch["size"])}
-        if mirrored:
-            record["mirrored_from"] = mirrored.get(d.id)
-        rec.changes.append(record)
-        look = bool(ch.get("style") or ch.get("colour") or ch.get("design"))
-        if not ((res.applied and not same) or look):
-            continue                                           # nothing changed: the drawn piece stays as it is
-        evidence = ch.get("evidence") or _ai_evidence(model, ch.get("reasons", {}), CONFIDENCE_AGREED)
-        design = ch.get("design") or _design(d.item, res.piece.type, ch.get("style"), ch.get("colour"), family)
-        out["furniture"][by_id[d.id]] = _apply_change(d.item, d.anchor, res.piece, record, evidence, design,
-                                                      d.unverified, (mirrored or {}).get(d.id))
-        if record["type_proposal"] and d.id not in out.setdefault("unverified", []):
-            out["unverified"].append(d.id)                   # listed with the unverified items (§2.2)
-    for d in floor:
-        if d.kind == "changeable" and "anchor" not in out["furniture"][by_id[d.id]]:
-            out["furniture"][by_id[d.id]]["anchor"] = d.anchor
-
-
-def _obstacles(rec: RoomCompletion) -> list[placer.Piece]:
-    return list(rec.final_pieces)
-
-
-def _final_present(rec: RoomCompletion) -> list[tuple[str, tuple]]:
-    """``(type, size)`` of the built floor pieces after the changes (the plan's input)."""
-    return [(p.type, p.size, d.unverified) for d, p in zip(rec.floor, rec.final_pieces) if d.kind != "obstacle"]
-
-
-def place_added(rec: RoomCompletion, answers: dict[int, Optional[dict]], ctx: placer.RoomContext, model: str,
-                out: dict) -> None:
-    """Filter, place and check every pass's added pieces; keep the best pass (see the module docstring)."""
-    rtype = rec.room.get("room_type", "other")
-    plan = schemas.completion_plan(rtype, rec.room.get("room_subtype"), _final_present(rec))
-    rec.plan = dict(rec.plan or {}, after_changes={k: plan[k] for k in ("missing", "addable", "has_anchor")})
-    raw = {k: (a or {}).get("added", []) for k, a in answers.items()}
-    candidates = {}
-    for pass_no, items in sorted(raw.items()):
-        if answers.get(pass_no) is None:
-            continue
-        kept, refused = filter_added(items, plan, rtype)
-        rec.refused += [dict(r, **{"pass": pass_no}) for r in refused]
-        if not kept:
-            continue
-        placement = placer.place(kept, ctx, obstacles=_obstacles(rec))
-        drop = {i: "fails " + ", ".join(placer.failed_checks(c)) for i, c in enumerate(placement.checks)
-                if placer.failed_checks(c)}                      # defensive: the placer drops these itself
-        drop = drop or companion_problems(placement.pieces, _obstacles(rec), rtype)
-        while drop:
-            for i in sorted(drop, reverse=True):
-                piece = placement.pieces.pop(i)
-                placement.checks.pop(i)
-                placement.dropped.append({"type": piece.type, "proposed": piece.proposed, "last": piece.state(),
-                                          "failed": [], "reason": drop[i], "repairs": list(piece.repairs)})
-            drop = companion_problems(placement.pieces, _obstacles(rec), rtype)   # a dropped desk takes its chair
-        face_companions(placement.pieces, _obstacles(rec))
-        rec.placements[pass_no] = placement
-        candidates[pass_no] = placement
-    for pass_no, placement in sorted(rec.placements.items()):
-        for d in placement.dropped:
-            rec.dropped.append({"pass": pass_no, "type": d["type"], "center": d["proposed"]["center"],
-                                "reason": d["reason"], "failed": d.get("failed", [])})
-    usable = [(len(p.dropped), k) for k, p in sorted(candidates.items()) if p.pieces]
-    if not usable:
-        return
-    rec.chosen_pass = min(usable)[1]
-    chosen = candidates[rec.chosen_pass]
-    from wenart.furniture import layout as L   # the M4 piece dict (lazy: layout imports this module in its CLI)
-
-    room = rec.room
-    number = L._next_furniture_number(out, room["level_id"])
-    for piece, checks in zip(chosen.pieces, chosen.checks):
-        others = [raw[k] for k in raw if k != rec.chosen_pass]
-        match = next((m for o in others for m in [_agrees(piece, o)] if m), None)
-        confidence = CONFIDENCE_AGREED if match else CONFIDENCE_SINGLE
-        f = L.furniture_dict(piece, checks, room, B.element_id("furniture", room["level_id"], number), model,
-                             rec.chosen_pass, confidence, match is not None)
-        f["completes_room"] = True
-        f["method"] = "ai"
-        if match:
-            other_pass = next(k for k in raw if k != rec.chosen_pass)
-            f["evidence"].append(B.evidence(EVIDENCE_FILE, "ai", confidence, model=model, pass_=other_pass,
-                                            text=match.get("reason") or f"{piece.type} proposed by the other pass"))
-        if piece.shape == "L":
-            f.update(_l_fields(piece))
-        out["furniture"].append(f)
-        rec.added.append(f)
-        number += 1
 
 
 # --------------------------------------------------------------------------
@@ -1016,58 +535,36 @@ def add_wall_cabinets(rec: RoomCompletion, building: dict, out: dict) -> None:
 
 
 # --------------------------------------------------------------------------
-# Asking and completing one room
+# Completing one room
 # --------------------------------------------------------------------------
 
-def ask_room(rec: RoomCompletion, style_text: str, client, passes: int) -> dict[int, Optional[dict]]:
-    answers: dict[int, Optional[dict]] = {}
-    for pass_no in range(1, passes + 1):
-        prompt = prompts.completion_prompt(rec.question, style_text, pass_no)
-        proposal = client.complete(prompt, rec.schema, pass_no)
-        entry = {"pass": pass_no, "model": proposal.model, "latency_s": round(proposal.latency_s, 3),
-                 "error": proposal.error, "transport_error": bool(proposal.transport_error), "data": proposal.data,
-                 "prompt": prompt, "raw_text": proposal.raw_text}
-        if proposal.data is not None:
-            entry.update(changes=len(proposal.data["changes"]), added=len(proposal.data["added"]))
-        rec.passes.append(entry)
-        answers[pass_no] = proposal.data
-    return answers
-
-
-def _model_of(rec: RoomCompletion, fallback: str) -> str:
-    return next((p["model"] for p in rec.passes if p.get("model") and p["model"] != "?"), fallback)
-
-
 def complete_room(room: dict, building: dict, out: dict, style_text: str, client, settings: Settings,
-                  passes: int = PASSES, family: Optional[str] = None) -> RoomCompletion:
-    """Ask, agree, place and label one room; ``out`` (the building being written) is changed in place."""
+                  passes: int = PASSES, family: Optional[str] = None, image_dir: Optional[Path] = None
+                  ) -> RoomCompletion:
+    """Program, solver, choice and labels of one room; ``out`` (the building being written) is changed in place.
+    ``passes`` and ``family`` are accepted for the Milestone 10 callers and not used."""
+    from wenart.furniture import layout as L
+
     rec = RoomCompletion(room)
-    ctx = placer.room_context(building, room)
-    rec.context = ctx
+    rec.context = placer.room_context(building, room)
     rec.drawn = classify_drawn(room, out)
-    rec.question, rec.plan = build_question(room, out, rec.drawn, ctx, settings)
-    rec.schema = answer_schema(rec.question)
-    asks = bool(rec.question["change_ids"]) or bool(rec.question["add"])
-    answers: dict[int, Optional[dict]] = {}
-    if asks:
-        answers = ask_room(rec, style_text, client, passes)
-    else:
-        rec.reason = "nothing to ask: no changeable drawn piece and nothing the room may get"
-    model = _model_of(rec, getattr(client, "_model", None) or "?")
-    agreed, not_agreed = agree_changes(answers, [d.id for d in rec.drawn])
-    kept, refused = check_change_rules(agreed, rec.drawn, rec.plan)
-    rec.changes += not_agreed + refused
-    run_changes(rec, kept, ctx, model, family, out)
-    if any(a is not None for a in answers.values()):
-        place_added(rec, answers, ctx, model, out)
-    elif asks and not rec.reason:
-        rec.reason = "no usable answer (" + "; ".join(f"pass {p['pass']}: {p['error']}" for p in rec.passes) + ")"
+    lay = L.layout_room(room, out, style_text, client, image_dir, purpose="complete")
+    rec.program, rec.candidates, rec.choice, rec.chosen, rec.solve_s = (lay.program, lay.candidates, lay.choice,
+                                                                        lay.chosen, lay.solve_s)
+    rec.added = list(lay.pieces)
+    if lay.skipped:
+        rec.reason = lay.skipped
+    elif not rec.added:
+        rec.reason = "nothing to add"
+    for c in rec.candidates[:1]:
+        rec.dropped += [{"type": x["group"], "reason": x["reason"], "group_id": x["group_id"]}
+                        for x in c.get("not_placed", [])]
     add_wall_cabinets(rec, building, out)       # any room with a drawn counter run (a kitchen, an open kitchen)
     return rec
 
 
 # --------------------------------------------------------------------------
-# Partners: copied (same_as) or mirrored (twin) decisions
+# Partners: copied (same_as) or mirrored (twin) rooms
 # --------------------------------------------------------------------------
 
 def _map_footprint(fp: dict, t: Transform) -> dict:
@@ -1076,10 +573,25 @@ def _map_footprint(fp: dict, t: Transform) -> dict:
             "rotation_deg": round(t.rotation(float(fp["rotation_deg"])), 4)}
 
 
-def copy_added(room: dict, partner_added: list[dict], t: Transform, obstacles: list[placer.Piece], building: dict,
-               out: dict, ctx: placer.RoomContext) -> tuple[list[dict], list[dict]]:
-    """The partner's added pieces mapped into ``room``; each must pass the six checks here with the drawn pieces as
-    obstacles (no repairs: a failing copy is dropped and listed). Returns ``(added dicts, dropped)``."""
+def _map_group(group, room_id: str, partner_id: str, ids: dict):
+    """The partner's group membership in this room: the group id with this room's id, the anchor id mapped
+    (``ids``: partner piece id -> piece id here; an anchor without a counterpart is dropped)."""
+    if not isinstance(group, dict):
+        return group
+    g = dict(group)
+    gid = str(g.get("group_id") or "")
+    if gid.startswith(partner_id + "."):
+        g["group_id"] = room_id + gid[len(partner_id):]
+    if g.get("anchor_id") is not None:
+        g["anchor_id"] = ids.get(g["anchor_id"])
+    return g
+
+
+def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transform, obstacles: list[placer.Piece],
+               out: dict, ctx: placer.RoomContext, ids: Optional[dict] = None) -> tuple[list[dict], list[dict]]:
+    """The partner's added pieces mapped into ``room``; each must pass the placer's checks here with the drawn pieces
+    as obstacles (no repairs: a failing copy is dropped and listed). ``ids`` maps the partner's drawn pieces onto this
+    room's (group anchors). Returns ``(added dicts, dropped)``."""
     from wenart.furniture import layout as L
 
     fixed = placer.obstacles_for(obstacles, ctx)
@@ -1095,6 +607,7 @@ def copy_added(room: dict, partner_added: list[dict], t: Transform, obstacles: l
             piece.seat_depth, piece.chaise_width = f.get("seat_depth"), f.get("chaise_width")
         copies.append((f, fp, piece))
     dropped = []
+    checks: list[dict] = []
     while True:
         pieces = fixed + [p for _f, _fp, p in copies]
         checks = placer.obstacle_checks(pieces, room_ctx)[len(fixed):]
@@ -1104,75 +617,58 @@ def copy_added(room: dict, partner_added: list[dict], t: Transform, obstacles: l
         f, _fp, _p = copies.pop(bad[-1])
         dropped.append({"type": f["type"], "mirrored_from": f["id"], "center": f["footprint"]["center"],
                         "reason": "the copy fails " + ", ".join(placer.failed_checks(checks[bad[-1]])) + " here"})
-    added = []
     number = L._next_furniture_number(out, room["level_id"])
+    ids = dict(ids or {})
+    for f, _fp, _p in copies:
+        ids[f["id"]] = B.element_id("furniture", room["level_id"], number)
+        number += 1
+    added = []
     for (f, fp, _p), c in zip(copies, checks):
         g = copy.deepcopy(f)
-        g.update(id=B.element_id("furniture", room["level_id"], number), level_id=room["level_id"], room_id=room["id"],
-                 footprint=fp, front_deg=G.front_direction_deg(fp["rotation_deg"]), checks=dict(c),
-                 mirrored_from=f["id"], asset=None)
+        g.update(id=ids[f["id"]], level_id=room["level_id"], room_id=room["id"], footprint=fp,
+                 front_deg=G.front_direction_deg(fp["rotation_deg"]), checks=dict(c), mirrored_from=f["id"], asset=None)
+        if "group" in f:
+            g["group"] = _map_group(f.get("group"), room["id"], partner_id, ids)
         if isinstance(g.get("layout"), dict):
-            g["layout"] = dict(g["layout"], proposed={"center": list(fp["center"]), "size": list(fp["size"]),
-                                                       "rotation_deg": fp["rotation_deg"]},
-                               repairs=[], copied_from=f["id"])
+            g["layout"] = dict(g["layout"], copied_from=f["id"])
         if f.get("shape") == "L":
             g["chaise_side"] = t.side(f.get("chaise_side"))
         out["furniture"].append(g)
         added.append(g)
-        number += 1
     return added, dropped
+
+
+def floor_pieces(drawn: list[Drawn]) -> list[placer.Piece]:
+    """The drawn pieces that stand on the floor (obstacles of copies), in building order."""
+    return [d.piece for d in drawn if d.kind not in ("mounted", "outline")]
 
 
 def copy_room(room: dict, partner_rec: RoomCompletion, kind: str, t: Transform, building: dict, out: dict,
               settings: Settings) -> RoomCompletion:
-    """This room takes the partner's decisions: the same changes on the matching drawn pieces (placed at this
-    room's anchors), the partner's added pieces mapped here, the wall cabinet rule run here."""
+    """This room takes the partner's completion: the partner's added pieces mapped here (their group anchors mapped
+    onto this room's drawn pieces), the wall cabinet rule run here. Drawn pieces never change."""
     rec = RoomCompletion(room, state="mirrored" if kind == "twin" else "copied")
     rec.partner = {"id": partner_rec.room_id, "kind": kind, "transform": t.to_dict()}
     rec.reason = f"decisions of {partner_rec.room_id} ({kind}), not asked again"
     ctx = placer.room_context(building, room)
     rec.context = ctx
     rec.drawn = classify_drawn(room, out)
-    rec.question, rec.plan = build_question(room, out, rec.drawn, ctx, settings)
     mapping, _why, _dev = match_pieces(_pieces_in(building, partner_rec.room_id), _pieces_in(building, room["id"]), t)
-    reverse = {v: k for k, v in (mapping or {}).items()}
-    partner_items = {f["id"]: f for f in out["furniture"] if f.get("room_id") == partner_rec.room_id}
-    changes = []
-    for d in rec.drawn:
-        pid = reverse.get(d.id)
-        p = partner_items.get(pid)
-        ch = next((c for c in partner_rec.changes if c["id"] == pid and c["status"] in ("applied", "reverted")), None)
-        if ch is None or p is None or not (p.get("modified_by_ai") or p.get("type_proposal")):
-            continue                                           # the partner's piece stayed as drawn (a type
-            #                                                    proposal is copied too: both rooms stay the same)
-        ev = [e for e in p["evidence"] if e.get("method") == "ai"]
-        if ch["status"] == "applied":
-            ftype = ch["type"]
-            size = snap_option(ftype, ch["size"]) if ftype in schemas.SIZE_OPTIONS else tuple(ch["size"])
-        else:                                                  # reverted there: only the look is copied
-            ftype, size = d.item["type"], tuple(d.piece.size)
-        if ch["status"] == "applied" and ch["look_only"]:
-            ftype, size = d.item["type"], tuple(d.piece.size)
-        side = t.side(ch.get("chaise_side")) if ftype == "sofa_corner" else None
-        changes.append({"id": d.id, "type": ftype, "size": size, "style": ch.get("style"), "colour": ch.get("colour"),
-                        "chaise_sides": (side, t.side(side)) if side else None, "evidence": ev,
-                        "design": copy.deepcopy(p.get("design")), "reasons": {}})
-    model = next((e.get("model") for c in changes for e in c["evidence"] if e.get("model")), "?")
-    run_changes(rec, changes, ctx, model, None, out, mirrored=reverse)
-    rec.added, rec.dropped = copy_added(room, list(partner_rec.added), t, rec.final_pieces, building, out, ctx)
+    rec.added, rec.dropped = copy_added(room, partner_rec.room_id, list(partner_rec.added), t, floor_pieces(rec.drawn),
+                                        out, ctx, ids=mapping)
     add_wall_cabinets(rec, building, out)       # any room with a drawn counter run (a kitchen, an open kitchen)
     return rec
 
 
 def copy_empty_layout(room: dict, partner: dict, kind: str, partner_pieces: list[dict], building: dict,
                       out: dict) -> tuple[Optional[list[dict]], list[dict], dict]:
-    """Milestone 4 layout of an empty partner room mapped into ``room`` (user decision 7).
+    """Layout of an empty partner room mapped into ``room`` (user decision 7).
     Returns ``(added dicts or None when the partner does not map, dropped, record)``."""
     t, why = partner_transform(room, partner, kind, building)
     if t is None:
         return None, [], {"room": partner["id"], "kind": kind, "reason": why}
     ctx = placer.room_context(building, room)
-    added, dropped = copy_added(room, partner_pieces, t, [], building, out, ctx)
+    added, dropped = copy_added(room, partner["id"], partner_pieces, t, [], out, ctx)
     return added, dropped, {"room": partner["id"], "kind": kind, "transform": t.to_dict()}
 
 
@@ -1257,15 +753,19 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
                       debug_dir: Optional[Path] = None, family: Optional[str] = None,
                       style: Optional[dict] = None) -> tuple[dict, list[RoomCompletion]]:
     """Complete every furnished room (new dict; the input is not changed). Rooms whose partner is completed take
-    the partner's decisions; a partner that does not map is reported and the room is asked itself. ``style``
-    (the ``style.json`` profile) gives the looks (``apply_designs``) and, without ``family``, the style family."""
+    the partner's added pieces; a partner that does not map is reported and the room is completed itself. ``style``
+    (the ``style.json`` profile) gives the looks (``apply_designs``). ``passes`` and ``family`` are accepted for
+    the Milestone 10 callers and not used."""
     out = copy.deepcopy(building)
-    if family is None and isinstance(style, dict):
-        family = style.get("family")
+    image_dir = Path(debug_dir) if debug_dir is not None else None
     records: dict[str, RoomCompletion] = {}
     order: list[str] = []
     pending: list[tuple[dict, tuple[str, str]]] = []
     rooms_by_id = {r["id"]: r for r in out["rooms"]}
+
+    def solve(room: dict) -> RoomCompletion:
+        return complete_room(room, building, out, style_text, client, settings, passes, family, image_dir)
+
     for room in furnished_rooms(out):
         order.append(room["id"])
         skip = completion_skip_reason(room, settings)
@@ -1276,8 +776,7 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
         if partner is not None and partner[0] in rooms_by_id:
             pending.append((room, partner))
             continue
-        records[room["id"]] = complete_room(room, building, out, style_text, client, settings, passes, family)
-    notes: dict[str, str] = {}
+        records[room["id"]] = solve(room)
     while pending:
         progress = False
         for item in list(pending):
@@ -1294,30 +793,60 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
             t, why = (None, f"{pid} has no drawn furniture") if prec is None else \
                 partner_transform(room, rooms_by_id[pid], kind, building)
             if t is None:
-                notes[room["id"]] = f"partner {pid} ({kind}) not used: {why}; asked itself"
-                rec = complete_room(room, building, out, style_text, client, settings, passes, family)
-                rec.reason = (rec.reason + "; " if rec.reason else "") + notes[room["id"]]
+                rec = solve(room)
+                note = f"partner {pid} ({kind}) not used: {why}; completed itself"
+                rec.reason = (rec.reason + "; " if rec.reason else "") + note
                 records[room["id"]] = rec
                 continue
-            records[room["id"]] = copy_room(room, prec, kind, t, building, out, settings)
-        if not progress:                                         # a cycle of partners: ask the first one
+            count = len(out["furniture"])
+            rec = copy_room(room, prec, kind, t, building, out, settings)
+            if rec.dropped:                                      # a copy would lose pieces: completed itself
+                del out["furniture"][count:]
+                dropped = rec.dropped
+                rec = solve(room)
+                note = (f"partner {pid} ({kind}) not used: {len(dropped)} of {len(prec.added)} copied pieces fail a "
+                        "check here (" + "; ".join(f"{x['type']}: {x['reason']}" for x in dropped) + "); completed "
+                        "itself")
+                rec.reason = (rec.reason + "; " if rec.reason else "") + note
+            records[room["id"]] = rec
+        if not progress:                                         # a cycle of partners: complete the first one
             room, (pid, kind) = pending.pop(0)
-            rec = complete_room(room, building, out, style_text, client, settings, passes, family)
-            rec.reason = f"partner {pid} ({kind}) is itself waiting (a cycle): asked itself"
+            rec = solve(room)
+            rec.reason = f"partner {pid} ({kind}) is itself waiting (a cycle): completed itself"
             records[room["id"]] = rec
     result = [records[rid] for rid in order]
+    tag_drawn_groups(out, result)
     apply_designs(out, result, style)
     out["warnings"] = list(out.get("warnings", []))
     for rec in result:
-        if rec.state == "completed" and rec.reason and not rec.added and not rec.changes and not rec.wall_cabinets:
+        if rec.state == "completed" and rec.reason and not rec.added and not rec.wall_cabinets:
             out["warnings"].append(f"{rec.room_id}: completion added nothing, {rec.reason}")
-        for ch in rec.changes:
-            if ch.get("type_proposal"):
-                out["warnings"].append(f"{ch['id']}: unverified drawn piece, AI type proposal {ch['type']} "
-                                       f"(was {ch['drawn_type']})")
         if debug_dir is not None:
             write_room_debug(rec, out, Path(debug_dir))
     return out, result
+
+
+def tag_drawn_groups(out: dict, records: list[RoomCompletion]) -> int:
+    """The drawn pieces of every furnished room get their group (``group = {group_id, group, role, anchor_id}``, the
+    ids of the room's program, so the added partners and the drawn anchor share one group id; the fit picks related
+    types by it). An unverified anchor is not tagged; a piece that already holds a group keeps it. Returns the count."""
+    from wenart.furniture import program as PR
+
+    by_id = {f["id"]: f for f in out["furniture"]}
+    count = 0
+    for rec in records:
+        prog = rec.program if rec.program is not None else PR.room_program(out, rec.room_id)
+        for entry in prog.get("groups", []):
+            if not entry.get("drawn") or str(entry.get("note") or "").startswith("unverified"):
+                continue
+            anchor = entry.get("anchor_id")
+            for pid, role in [(anchor, "anchor")] + [(m, "partner") for m in entry.get("members") or []]:
+                f = by_id.get(pid)
+                if f is None or f.get("source") != "from_documents" or isinstance(f.get("group"), dict):
+                    continue
+                f["group"] = {"group_id": entry["group_id"], "group": entry["group"], "role": role, "anchor_id": anchor}
+                count += 1
+    return count
 
 
 # --------------------------------------------------------------------------
@@ -1326,17 +855,19 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
 
 def summary(records: list[RoomCompletion], building: dict, settings: Settings, server: str, model: str,
             violations: list[str]) -> dict:
-    applied = [c for r in records for c in r.changes if c["status"] == "applied"]
+    """``completion.json``: the mode and the kept rooms are what the refit's locked check reads
+    (``locked.keep_rooms_of``)."""
     return {"kind": "completion", "project": building["project"]["id"], "server": server, "model": model,
             "settings": settings.to_dict(),
             "rooms": [r.to_dict() for r in records],
             "rooms_completed": sum(r.state == "completed" for r in records),
             "rooms_copied": sum(r.state in ("copied", "mirrored") for r in records),
-            "changes_applied": len(applied),
+            "changes_applied": 0,
             "pieces_added": sum(len(r.added) for r in records),
             "wall_cabinets": sum(len(r.wall_cabinets) for r in records),
             "locked_violations": list(violations),
-            "latency_s": round(sum(r.latency_s for r in records), 3)}
+            "latency_s": round(sum(r.latency_s for r in records), 3),
+            "solve_s": round(sum(r.solve_s for r in records), 3)}
 
 
 def _fmt_size(size) -> str:
@@ -1347,132 +878,78 @@ def report(records: list[RoomCompletion], building: dict, settings: Settings, vi
     lines = [f"# AI completion of furnished rooms: {building['project']['id']}", "",
              f"Mode `furnished_rooms: {settings.mode}`, keep size {str(settings.keep_size).lower()}, twin rooms "
              f"`{settings.twin_rooms}`" + (f" (assumed: {', '.join(settings.assumed)})" if settings.assumed else "")
-             + ". Drawn pieces keep their anchor (± 5 cm) and front (± 1°); fixed equipment never changes. A change "
-             "needs both passes; added pieces pass the six placer checks (confidence 0.9 when both passes proposed "
-             "them, else 0.6). Wall cabinets follow the rule of docs/milestone10.md §4.4.", "",
-             "| Room | Type | State | Pass 1 (changes/added, s) | Pass 2 | Changed | Added | Note |",
-             "|---|---|---|---|---|---|---|---|"]
+             + ". Drawn pieces stay as drawn; the group solver adds only what the room's groups miss (the partners "
+             "of a drawn anchor, the missing members of a drawn set, the groups the room type misses whole); the "
+             "vision model picks one of its top candidates (else the solver's best). Wall cabinets follow the rule "
+             "of docs/milestone10.md §4.4.", "",
+             "| Room | Type | State | Drawn groups | Candidates (score, hard) | Chosen | By | Added | Solve s | Note |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
     for r in records:
-        cells = []
-        for k in (1, 2):
-            p = next((x for x in r.passes if x["pass"] == k), None)
-            if p is None:
-                cells.append("-")
-            elif p.get("data") is None:
-                cells.append(f"error: {p['error']}"[:60] + f" ({p['latency_s']:.1f} s)")
-            else:
-                cells.append(f"{p['changes']}/{p['added']} ({p['latency_s']:.1f} s)")
-        changed = sum(c["status"] == "applied" for c in r.changes)
-        added = ", ".join(f"{f['type']} ({f['evidence'][0]['confidence']})" for f in r.added + r.wall_cabinets) or "-"
-        lines.append(f"| {r.room['label']} ({r.room_id}) | {r.room.get('room_type')} | {r.state} | {cells[0]} | "
-                     f"{cells[1]} | {changed} | {added} | {r.reason or '-'} |")
-    changes = [(r, c) for r in records for c in r.changes]
-    lines += ["", f"## Changes of drawn pieces ({len(changes)})", ""]
-    if changes:
-        lines += ["| Room | Piece | Drawn type / size | New type / size | Status | Reason |", "|---|---|---|---|---|---|"]
-        for r, c in changes:
-            drawn = f"{c.get('drawn_type', '-')} / {_fmt_size(c['drawn_size'])}" if c.get("drawn_size") else "-"
-            new = f"{c['type']} / {_fmt_size(c['size'])}" if c.get("size") else c["type"]
-            flags = [f for f in ("shrunk", "look_only", "type_proposal") if c.get(f)]
-            status = c["status"] + (f" ({', '.join(flags)})" if flags else "")
-            lines.append(f"| {r.room_id} | {c['id']} | {drawn} | {new} | {status} | {c.get('reason') or '-'} |")
+        drawn = ", ".join(g["group"] for g in (r.program or {}).get("groups", []) if g.get("drawn")) or "-"
+        cands = ", ".join(f"#{c['rank']} {c['score']:.1f} {len(c['hard_failures'])}" for c in r.candidates) or "-"
+        added = ", ".join(f["type"] for f in r.added + r.wall_cabinets) or "-"
+        by = (r.choice or {}).get("by", "-")
+        lines.append(f"| {r.room['label']} ({r.room_id}) | {r.room.get('room_type')} | {r.state} | {drawn} | {cands} | "
+                     f"{r.chosen or '-'} | {by} | {added} | {r.solve_s:.2f} | {r.reason or '-'} |")
     added = [(r, f) for r in records for f in r.added + r.wall_cabinets]
     lines += ["", f"## Added pieces ({len(added)})", ""]
     if added:
-        lines += ["| Room | Piece | Type | Centre | Size | Method | Confidence | From |", "|---|---|---|---|---|---|---|---|"]
+        lines += ["| Room | Piece | Type | Group | Centre | Size | Method | From |", "|---|---|---|---|---|---|---|---|"]
         for r, f in added:
             c = f["footprint"]["center"]
-            lines.append(f"| {r.room_id} | {f['id']} | {f['type']} | [{c[0]:.2f}, {c[1]:.2f}] | "
-                         f"{_fmt_size(f['footprint']['size'])} | {f.get('method')} | {f['evidence'][0]['confidence']} | "
-                         f"{f.get('mirrored_from') or '-'} |")
-    refused = [(r, x) for r in records for x in r.refused + r.dropped]
-    if refused:
-        lines += ["", f"## Refused and dropped proposals ({len(refused)})", ""]
-        for r, x in refused:
+            g = f.get("group") or {}
+            group = f"{g.get('group')} ({g.get('role')}, anchor {g.get('anchor_id') or '-'})" if g else "-"
+            lines.append(f"| {r.room_id} | {f['id']} | {f['type']} | {group} | [{c[0]:.2f}, {c[1]:.2f}] | "
+                         f"{_fmt_size(f['footprint']['size'])} | {f.get('method')} | {f.get('mirrored_from') or '-'} |")
+    choices = [(r, r.choice) for r in records if r.choice and r.choice.get("by") == "vlm"]
+    if choices:
+        lines += ["", "## Choices of the vision model", ""]
+        lines += [f"- {r.room_id}: candidate {c['rank']}: {c.get('reason')}" for r, c in choices]
+    missed = [(r, x) for r in records for x in r.dropped + r.refused]
+    if missed:
+        lines += ["", f"## Groups not completed and copies dropped ({len(missed)})", ""]
+        for r, x in missed:
             where = f" at {x['center']}" if x.get("center") is not None else ""
-            lines.append(f"- {r.room_id}: pass {x.get('pass', '-')} {x['type']}{where}: {x['reason']}")
-    notes = [(r, pid, fails) for r in records for pid, fails in (r.drawn_layout.get("pieces") or {}).items()]
-    walks = [(r, w) for r in records for w in r.drawn_layout.get("walkways") or []]
-    if notes or walks:
-        lines += ["", "## drawn_layout (checks the drawn layout already fails; not counted against the AI)", ""]
-        for r, pid, fails in notes:
-            lines.append(f"- {r.room_id}: {pid} fails {', '.join(fails)} as drawn")
-        for r, w in walks:
-            lines.append(f"- {r.room_id}: walkway {w[1]} - {w[3]} broken as drawn")
+            lines.append(f"- {r.room_id}: {x['type']}{where}: {x['reason']}")
     lines += ["", f"## Locked check: {'pass' if not violations else f'{len(violations)} violation(s)'}", ""]
     lines += [f"- {v}" for v in violations]
     return "\n".join(lines) + "\n"
 
 
 def write_room_debug(rec: RoomCompletion, building: dict, debug_dir: Path) -> None:
+    from wenart.furniture import layout as L
+
     debug_dir.mkdir(parents=True, exist_ok=True)
     record = rec.to_dict()
-    record["question"] = rec.question
-    record["schema"] = rec.schema
-    record["passes"] = [dict(p) for p in rec.passes]
-    record["placements"] = {str(k): p.to_dict() for k, p in rec.placements.items()}
+    record["program_full"] = rec.program
+    record["candidates_full"] = list(rec.candidates)
     (debug_dir / f"{rec.room_id}.json").write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8")
     try:
-        draw_room_png(rec, building, debug_dir / f"{rec.room_id}.png")
+        if rec.candidates:
+            source = dict(building, furniture=[f for f in building["furniture"] if f.get("source") == "from_documents"])
+            L.draw_candidates_png(source, rec.room, rec.candidates, debug_dir / f"{rec.room_id}.png", rec.chosen)
+        else:
+            draw_room_png(rec, building, debug_dir / f"{rec.room_id}.png")
     except ImportError as exc:   # matplotlib missing: the JSON is the record, the PNG is a convenience
         print(f"complete: debug PNG for {rec.room_id} skipped ({exc})", file=sys.stderr)
     except Exception as exc:     # noqa: BLE001 - real03: an odd geometry must not fail the stage over a picture
         print(f"complete: debug PNG for {rec.room_id} not drawn ({type(exc).__name__}: {exc})", file=sys.stderr)
 
 
-COLOURS = {"drawn": "tab:green", "changed": "tab:blue", "added": "tab:orange"}
-
-
 def draw_room_png(rec: RoomCompletion, building: dict, path: Path) -> None:
-    """Drawn as drawn green, changed by AI blue (the drawn outline dashed under it, the anchor marked), added by AI
-    orange (wall cabinets dotted), proposals for unverified pieces hatched."""
+    """The room as completed: drawn pieces grey, added pieces (copies, wall cabinets) in their group's colour."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.patches import Polygon as MplPolygon
+    from wenart.furniture import layout as L
 
-    room = rec.room
-    ctx = rec.context or placer.room_context(building, room)
-    fig, ax = plt.subplots(figsize=(7, 7))
-    ax.set_aspect("equal")
-    ax.add_patch(MplPolygon(list(ctx.polygon.exterior.coords), closed=True, fill=False, lw=2, color="black"))
-    for door in ctx.doors:
-        for part in placer.polygon_parts(door.zone):
-            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="grey", alpha=0.2))
-        for part in placer.polygon_parts(door.swing):
-            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="grey", alpha=0.12))
-    for win in ctx.windows:
-        for part in placer.polygon_parts(win.band):
-            ax.add_patch(MplPolygon(list(part.exterior.coords), closed=True, color="tab:cyan", alpha=0.3))
-    items = {f["id"]: f for f in building["furniture"] if f.get("room_id") == room["id"]}
-    changed = {c["id"] for c in rec.changes if c["status"] == "applied"}
-    proposals = {c["id"] for c in rec.changes if c.get("type_proposal")}
-    for d in rec.drawn:
-        f = items.get(d.id, d.item)
-        poly = placer.drawn_piece(f).polygon()
-        if d.id in changed:
-            old = placer.drawn_piece(d.item).polygon()
-            ax.add_patch(MplPolygon(list(old.exterior.coords), closed=True, fill=False, ls="--", color=COLOURS["drawn"]))
-            ax.add_patch(MplPolygon(list(poly.exterior.coords), closed=True, color=COLOURS["changed"], alpha=0.45,
-                                    hatch="//" if d.id in proposals else None))
-            ax.plot(*d.anchor["point"], "x", color="black", ms=8)
-        else:
-            ax.add_patch(MplPolygon(list(poly.exterior.coords), closed=True, color=COLOURS["drawn"], alpha=0.45,
-                                    hatch="//" if d.unverified else None))
-        ax.text(poly.centroid.x, poly.centroid.y, f.get("type", ""), ha="center", va="center", fontsize=7)
-    for f in rec.added + rec.wall_cabinets:
-        poly = placer.drawn_piece(f).polygon()
-        rule = f.get("method") == "rule"
-        ax.add_patch(MplPolygon(list(poly.exterior.coords), closed=True, color=COLOURS["added"],
-                                alpha=0.25 if rule else 0.55, ls=":" if rule else "-", fill=True))
-        ax.text(poly.centroid.x, poly.centroid.y, f["type"], ha="center", va="center", fontsize=7)
+    source = dict(building, furniture=[f for f in building["furniture"] if f.get("source") == "from_documents"])
+    fig, ax = plt.subplots(figsize=(6, 6))
+    L._draw_room(ax, source, rec.room, {"pieces": rec.added + rec.wall_cabinets},
+                 f"{rec.room['label']} ({rec.room_id}) {rec.state}: grey drawn, colour added")
     for x in rec.dropped:
         if x.get("center") is not None:
             ax.text(x["center"][0], x["center"][1], f"x {x['type']}", color="tab:red", ha="center", fontsize=7)
-    minx, miny, maxx, maxy = ctx.polygon.bounds
-    ax.set_xlim(minx - 0.5, maxx + 0.5)
-    ax.set_ylim(miny - 0.5, maxy + 0.5)
-    ax.set_title(f"{room['label']} ({rec.room_id}) {rec.state}: green drawn, blue changed, orange added", fontsize=9)
     fig.tight_layout()
-    fig.savefig(path, dpi=100)
+    fig.savefig(path, dpi=90)
     plt.close(fig)

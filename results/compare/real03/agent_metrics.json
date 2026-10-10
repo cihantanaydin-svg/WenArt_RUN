@@ -1,0 +1,278 @@
+{
+ "project": "real03",
+ "rows": [
+  {
+   "label": "M11 run 3 (oesbppzw7hsnmb, 10 Oct 2026)",
+   "metrics": {
+    "schema_version": "m12",
+    "project": "real03",
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+    "first_seq": 184,
+    "rounds": 2,
+    "stop": "time budget: the final stages need the time left before the deadline - 20 min",
+    "edits": {
+     "accepted": 5,
+     "rejected": 73,
+     "accepted_share": 0.064,
+     "rejected_by_reason": {
+      "doors_free": 4,
+      "drawn_lock": 39,
+      "max_tries": 8,
+      "no_change": 5,
+      "product_size": 8,
+      "room_type": 1,
+      "score": 3,
+      "snap": 5
+     },
+     "by_tool": {
+      "change_type": {
+       "accepted": 0,
+       "rejected": 12
+      },
+      "move_piece": {
+       "accepted": 1,
+       "rejected": 30
+      },
+      "remove_piece": {
+       "accepted": 2,
+       "rejected": 15
+      },
+      "resize_piece": {
+       "accepted": 0,
+       "rejected": 11
+      },
+      "rotate_piece": {
+       "accepted": 1,
+       "rejected": 5
+      },
+      "set_room_type": {
+       "accepted": 1,
+       "rejected": 0
+      }
+     }
+    },
+    "rooms": {
+     "code": 36,
+     "vision": 17,
+     "planner": 11,
+     "fixable": 35,
+     "fixable_visited_share": 0.314,
+     "planner_rooms": [
+      "r_L0_banyo",
+      "r_L0_banyo_2",
+      "r_L0_banyo_3",
+      "r_L0_banyo_4",
+      "r_L0_banyo_5",
+      "r_L0_banyo_7",
+      "r_L0_ebeveyn_odasi_4",
+      "r_L0_giris_holu_3",
+      "r_L0_oda_19",
+      "r_L0_yasama_2",
+      "r_L0_yasama_4"
+     ],
+     "fixable_rooms": [
+      "r_L0_banyo",
+      "r_L0_banyo_2",
+      "r_L0_banyo_3",
+      "r_L0_banyo_4",
+      "r_L0_banyo_5",
+      "r_L0_banyo_6",
+      "r_L0_banyo_7",
+      "r_L0_banyo_8",
+      "r_L0_ebeveyn_odasi",
+      "r_L0_ebeveyn_odasi_2",
+      "r_L0_ebeveyn_odasi_3",
+      "r_L0_ebeveyn_odasi_4",
+      "r_L0_ebeveyn_odasi_5",
+      "r_L0_ebeveyn_odasi_6",
+      "r_L0_ebeveyn_odasi_m_k_a",
+      "r_L0_ebeveyn_odasi_m_k_a_2",
+      "r_L0_giris_holu",
+      "r_L0_giris_holu_2",
+      "r_L0_giris_holu_3",
+      "r_L0_giris_holu_4",
+      "r_L0_kat_holu",
+      "r_L0_kat_merdiveni",
+      "r_L0_oda_01",
+      "r_L0_oda_19",
+      "r_L0_oda_7",
+      "r_L0_ruzgarlik",
+      "r_L0_yangin_merdiveni",
+      "r_L0_yasama",
+      "r_L0_yasama_2",
+      "r_L0_yasama_3",
+      "r_L0_yasama_4",
+      "r_L0_yasama_5",
+      "r_L0_yasama_6",
+      "r_L0_yasama_7",
+      "r_L0_yasama_8"
+     ]
+    },
+    "findings": {
+     "before": {
+      "F1": {
+       "critical": 0,
+       "major": 16,
+       "minor": 0
+      },
+      "F2": {
+       "critical": 0,
+       "major": 8,
+       "minor": 0
+      },
+      "F3": {
+       "critical": 0,
+       "major": 21,
+       "minor": 10
+      },
+      "F4": {
+       "critical": 0,
+       "major": 27,
+       "minor": 0
+      },
+      "F5": {
+       "critical": 0,
+       "major": 0,
+       "minor": 7
+      },
+      "F6": {
+       "critical": 0,
+       "major": 59,
+       "minor": 0
+      },
+      "F7": {
+       "critical": 9,
+       "major": 10,
+       "minor": 0
+      },
+      "F8": {
+       "critical": 0,
+       "major": 2,
+       "minor": 0
+      },
+      "F9": {
+       "critical": 6,
+       "major": 42,
+       "minor": 38
+      },
+      "R1": {
+       "critical": 0,
+       "major": 1,
+       "minor": 0
+      },
+      "R3": {
+       "critical": 0,
+       "major": 0,
+       "minor": 8
+      },
+      "R5": {
+       "critical": 3,
+       "major": 0,
+       "minor": 0
+      }
+     },
+     "after": {
+      "F1": {
+       "critical": 0,
+       "major": 15,
+       "minor": 0
+      },
+      "F2": {
+       "critical": 0,
+       "major": 8,
+       "minor": 0
+      },
+      "F3": {
+       "critical": 0,
+       "major": 21,
+       "minor": 10
+      },
+      "F4": {
+       "critical": 0,
+       "major": 26,
+       "minor": 0
+      },
+      "F5": {
+       "critical": 0,
+       "major": 0,
+       "minor": 7
+      },
+      "F6": {
+       "critical": 0,
+       "major": 52,
+       "minor": 0
+      },
+      "F7": {
+       "critical": 8,
+       "major": 10,
+       "minor": 0
+      },
+      "F8": {
+       "critical": 0,
+       "major": 2,
+       "minor": 0
+      },
+      "F9": {
+       "critical": 6,
+       "major": 41,
+       "minor": 38
+      },
+      "R1": {
+       "critical": 0,
+       "major": 1,
+       "minor": 0
+      },
+      "R3": {
+       "critical": 0,
+       "major": 0,
+       "minor": 8
+      },
+      "R5": {
+       "critical": 3,
+       "major": 0,
+       "minor": 0
+      }
+     },
+     "before_totals": {
+      "critical": 18,
+      "major": 186,
+      "minor": 63
+     },
+     "after_totals": {
+      "critical": 17,
+      "major": 176,
+      "minor": 63
+     },
+     "first_round": 1,
+     "last_round": 2
+    },
+    "per_room": {},
+    "tokens": {
+     "chat": {
+      "calls": 105,
+      "prompt": 1073012,
+      "completion": 14085,
+      "seconds": 331.07
+     },
+     "critic": {
+      "calls": 39,
+      "prompt": 123846,
+      "completion": 9060,
+      "seconds": 211.86
+     }
+    },
+    "time": {
+     "agent_minutes": 10.75,
+     "first_accepted_edit_s": 91.0
+    },
+    "memory": {
+     "repeats_refused": 0,
+     "dry_runs": 0,
+     "plans": 0,
+     "plans_valid": 0
+    }
+   }
+  }
+ ]
+}

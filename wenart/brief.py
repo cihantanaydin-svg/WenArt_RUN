@@ -134,6 +134,8 @@ VALUE_RULES = {
     "roof_terraces": _one_of("auto", "cut", "closed"),
     "site_options.front_court": lambda v: None if v in ("auto", "yes", "no") or isinstance(v, bool) else
     f"expected one of auto, yes, no, got {v!r}",
+    # Milestone 12 (docs/milestone12.md §3.3, D3a): the ground floor above the ground when nothing about it is drawn
+    "levels.ground_rise": _metres(0.0, 1.5),
 }
 
 # Values YAML reads as booleans that a rule takes as words (``front_court: yes``).
@@ -275,6 +277,17 @@ def front_court(brief: Optional[dict]) -> str:
     if isinstance(v, bool):
         v = BOOL_WORDS["site_options.front_court"][v]
     return v if v in ("auto", "yes", "no") else "auto"
+
+
+def levels_block(brief: Optional[dict]) -> dict:
+    """Milestone 12 (docs/milestone12.md §3.3, §3.7): the brief's ``levels:`` block of a ``load_brief`` result, or of
+    a raw brief dict (``building.project.brief``): ``ground_rise`` (D3a), ``accessible_entrance`` and any key of the
+    top-level ``levels:`` block of ``defaults.yaml`` the brief sets ({} when there is none). The values are checked
+    by ``wenart.levels.model.level_params``."""
+    if not isinstance(brief, dict):
+        return {}
+    block = value(brief, "levels", None) if "values" in brief else brief.get("levels")
+    return dict(block) if isinstance(block, dict) else {}
 
 
 def is_assumed(brief: Optional[dict], key: str) -> bool:

@@ -213,15 +213,18 @@ def _part_offsets(parts):
 
 @needs_blender
 def test_cushions_on_a_bed_frame_rest_on_its_bedding(built):
+    """Milestone 12 (docs/milestone12.md §4.7): the cushions rest on the frame's mattress and bedding by rays and lean
+    against its pillows or headboard; Milestone 11 put them on the pillow top (``bedding.top_m``)."""
     bed = next(f for f in built["building"]["furniture"] if f["type"] == "bed_double")
     m, objects = built["manifest"], built["objects"]
-    top = next(o for o in m["objects"] if o.get("element_id") == bed["id"] and o["kind"] == "furniture")["bedding"]["top_m"]
+    rec = next(o for o in m["objects"] if o.get("element_id") == bed["id"] and o["kind"] == "furniture")["bedding"]
     cushions = [o for o in m["objects"] if o["kind"] == "decor" and o.get("host_id") == bed["id"]]
     assert cushions
     for c in cushions:
         assert c["pass_index"] == m["pass_index"][bed["id"]] and c["wenart_id"] == bed["id"]
-        assert bounds(objects[c["name"]]["verts"])[2][0] == pytest.approx(top, abs=1e-4)
-        assert c["assumed"]["rest_height"] == pytest.approx(top, abs=1e-4)
+        low = bounds(objects[c["name"]]["verts"])[2][0]
+        assert rec["mattress_top_m"] - 0.03 <= low < rec["top_m"] - 0.05        # on the mattress, not the pillows
+        assert c["rest"]["gap_m"] <= 0.010 and c["rest"]["penetration_m"] <= 0.030 and c["support"] == "headboard"
 
 
 @needs_blender

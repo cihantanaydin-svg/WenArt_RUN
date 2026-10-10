@@ -1,0 +1,1877 @@
+{
+ "kind": "library_growth_candidates",
+ "source": "polyhaven",
+ "queried_utc": "2026-10-10T20:30:00Z",
+ "query": {
+  "api": "https://api.polyhaven.com/assets?t=models",
+  "files": "https://api.polyhaven.com/files/<id>",
+  "resolution": "2k glTF"
+ },
+ "licences": [
+  "CC0"
+ ],
+ "count": 88,
+ "picked": 88,
+ "picked_size_mb": 501.4,
+ "picked_by_type": {
+  "armchair": 1,
+  "bar_stool": 6,
+  "basket": 1,
+  "bed_single": 2,
+  "bench": 1,
+  "books": 2,
+  "bookshelf": 5,
+  "bowl": 2,
+  "candle": 4,
+  "chair": 5,
+  "clock": 2,
+  "console_table": 2,
+  "mirror": 1,
+  "office_chair": 1,
+  "ottoman": 2,
+  "pendant_light": 8,
+  "sculpture": 10,
+  "side_table": 2,
+  "sideboard": 4,
+  "sofa": 1,
+  "table_coffee": 5,
+  "table_dining": 3,
+  "table_lamp": 2,
+  "tall_cabinet": 2,
+  "vase": 8,
+  "wall_art": 5,
+  "wardrobe": 1
+ },
+ "notes": [
+  "521 Poly Haven models; 34 ids already in catalog.json",
+  "type from the category path (growth.PH_CATEGORY_TYPES: the first type whose real size holds the API dimensions); outdoor and low-poly words left out; fits_real_size false: no type of the category holds the dimensions (the audit decides)"
+ ],
+ "approval": "nothing is downloaded before results/library/growth/approved_polyhaven.json exists (the lead commits it after the user's OK: approved_by, approved_utc, ids)",
+ "candidates": [
+  {
+   "source": "polyhaven",
+   "id": "wicker_basket_02",
+   "title": "Wicker Basket 02",
+   "type": "basket",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Containers & Storage/Baskets & Buckets/Baskets",
+   "styles_hint": [
+    "rustic"
+   ],
+   "dims_m": [
+    0.375,
+    0.271,
+    0.218
+   ],
+   "fits_real_size": true,
+   "polycount": 17850,
+   "url": "https://polyhaven.com/a/wicker_basket_02",
+   "size_mb": 10.23
+  },
+  {
+   "source": "polyhaven",
+   "id": "book_encyclopedia_set_01",
+   "title": "Book Encyclopedia Set 01",
+   "type": "books",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Office & Stationery/Books & Documents/Books",
+   "styles_hint": [],
+   "dims_m": [
+    0.551,
+    0.163,
+    0.237
+   ],
+   "fits_real_size": true,
+   "polycount": 67306,
+   "url": "https://polyhaven.com/a/book_encyclopedia_set_01",
+   "size_mb": 4.68
+  },
+  {
+   "source": "polyhaven",
+   "id": "decorative_book_set_01",
+   "title": "Decorative Book Set 01",
+   "type": "books",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Office & Stationery/Books & Documents/Books",
+   "styles_hint": [],
+   "dims_m": [
+    2.505,
+    0.321,
+    0.286
+   ],
+   "fits_real_size": false,
+   "polycount": 112560,
+   "url": "https://polyhaven.com/a/decorative_book_set_01",
+   "size_mb": null
+  },
+  {
+   "source": "polyhaven",
+   "id": "wooden_bowl_01",
+   "title": "Wooden Bowl 01",
+   "type": "bowl",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Food & Kitchen/Tableware/Bowls",
+   "styles_hint": [],
+   "dims_m": [
+    0.313,
+    0.309,
+    0.094
+   ],
+   "fits_real_size": true,
+   "polycount": 14122,
+   "url": "https://polyhaven.com/a/wooden_bowl_01",
+   "size_mb": 6.47
+  },
+  {
+   "source": "polyhaven",
+   "id": "wooden_bowl_02",
+   "title": "Wooden Bowl 02",
+   "type": "bowl",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Food & Kitchen/Tableware/Bowls",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    0.131,
+    0.125,
+    0.073
+   ],
+   "fits_real_size": true,
+   "polycount": 4666,
+   "url": "https://polyhaven.com/a/wooden_bowl_02",
+   "size_mb": 8.46
+  },
+  {
+   "source": "polyhaven",
+   "id": "Lantern_01",
+   "title": "Lantern 01",
+   "type": "candle",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Portable/Lanterns",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.122,
+    0.097,
+    0.294
+   ],
+   "fits_real_size": true,
+   "polycount": 33902,
+   "url": "https://polyhaven.com/a/Lantern_01",
+   "size_mb": 3.04
+  },
+  {
+   "source": "polyhaven",
+   "id": "brass_candleholders",
+   "title": "Brass Candleholders",
+   "type": "candle",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Portable/Candles & Candlesticks",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.053,
+    0.365,
+    0.835
+   ],
+   "fits_real_size": false,
+   "polycount": 41936,
+   "url": "https://polyhaven.com/a/brass_candleholders",
+   "size_mb": 31.75
+  },
+  {
+   "source": "polyhaven",
+   "id": "wooden_candlestick",
+   "title": "Wooden Candlestick",
+   "type": "candle",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Portable/Candles & Candlesticks",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.098,
+    0.1,
+    0.22
+   ],
+   "fits_real_size": true,
+   "polycount": 3328,
+   "url": "https://polyhaven.com/a/wooden_candlestick",
+   "size_mb": 14.76
+  },
+  {
+   "source": "polyhaven",
+   "id": "wooden_lantern_01",
+   "title": "Wooden Lantern 01",
+   "type": "candle",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Portable/Lanterns",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    0.221,
+    0.235,
+    0.53
+   ],
+   "fits_real_size": true,
+   "polycount": 8321,
+   "url": "https://polyhaven.com/a/wooden_lantern_01",
+   "size_mb": 13.99
+  },
+  {
+   "source": "polyhaven",
+   "id": "vintage_telephone_wall_clock",
+   "title": "Vintage Telephone Wall Clock",
+   "type": "clock",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Wall Clocks",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.343,
+    0.193,
+    0.501
+   ],
+   "fits_real_size": true,
+   "polycount": 15864,
+   "url": "https://polyhaven.com/a/vintage_telephone_wall_clock",
+   "size_mb": 9.26
+  },
+  {
+   "source": "polyhaven",
+   "id": "wall_clock",
+   "title": "Wall Clock",
+   "type": "clock",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Wall Clocks",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.32,
+    0.047,
+    0.32
+   ],
+   "fits_real_size": true,
+   "polycount": 3658,
+   "url": "https://polyhaven.com/a/wall_clock",
+   "size_mb": 4.9
+  },
+  {
+   "source": "polyhaven",
+   "id": "ornate_mirror_01",
+   "title": "Ornate Mirror 01",
+   "type": "mirror",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Mirrors",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.486,
+    0.026,
+    0.744
+   ],
+   "fits_real_size": true,
+   "polycount": 14246,
+   "url": "https://polyhaven.com/a/ornate_mirror_01",
+   "size_mb": 1.32
+  },
+  {
+   "source": "polyhaven",
+   "id": "Chandelier_01",
+   "title": "Chandelier 01",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Chandeliers",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.746,
+    0.816,
+    0.798
+   ],
+   "fits_real_size": true,
+   "polycount": 26860,
+   "url": "https://polyhaven.com/a/Chandelier_01",
+   "size_mb": 2.14
+  },
+  {
+   "source": "polyhaven",
+   "id": "Chandelier_02",
+   "title": "Chandelier 02",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Chandeliers",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.679,
+    0.619,
+    0.848
+   ],
+   "fits_real_size": true,
+   "polycount": 21514,
+   "url": "https://polyhaven.com/a/Chandelier_02",
+   "size_mb": 2.51
+  },
+  {
+   "source": "polyhaven",
+   "id": "Chandelier_03",
+   "title": "Chandelier 03",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Chandeliers",
+   "styles_hint": [],
+   "dims_m": [
+    0.78,
+    0.785,
+    1.041
+   ],
+   "fits_real_size": true,
+   "polycount": 29301,
+   "url": "https://polyhaven.com/a/Chandelier_03",
+   "size_mb": 2.67
+  },
+  {
+   "source": "polyhaven",
+   "id": "caged_hanging_light",
+   "title": "Caged Hanging Light",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Industrial Pendants",
+   "styles_hint": [
+    "industrial"
+   ],
+   "dims_m": [
+    1.162,
+    0.315,
+    0.75
+   ],
+   "fits_real_size": true,
+   "polycount": 22893,
+   "url": "https://polyhaven.com/a/caged_hanging_light",
+   "size_mb": 9.01
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_chandelier",
+   "title": "Chinese Chandelier",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Chandeliers",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.878,
+    0.879,
+    0.748
+   ],
+   "fits_real_size": true,
+   "polycount": 7828,
+   "url": "https://polyhaven.com/a/chinese_chandelier",
+   "size_mb": 6.53
+  },
+  {
+   "source": "polyhaven",
+   "id": "hanging_industrial_lamp",
+   "title": "Hanging Industrial Lamp",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Industrial Pendants",
+   "styles_hint": [
+    "industrial"
+   ],
+   "dims_m": [
+    0.55,
+    0.55,
+    1.355
+   ],
+   "fits_real_size": true,
+   "polycount": 9530,
+   "url": "https://polyhaven.com/a/hanging_industrial_lamp",
+   "size_mb": 11.97
+  },
+  {
+   "source": "polyhaven",
+   "id": "lantern_chandelier_01",
+   "title": "Lantern Chandelier 01",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Chandeliers",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.579,
+    0.575,
+    0.878
+   ],
+   "fits_real_size": true,
+   "polycount": 5971,
+   "url": "https://polyhaven.com/a/lantern_chandelier_01",
+   "size_mb": 4.24
+  },
+  {
+   "source": "polyhaven",
+   "id": "modern_ceiling_lamp_01",
+   "title": "Modern Ceiling Lamp 01",
+   "type": "pendant_light",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Ceiling/Pendant Lights",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.432,
+    0.432,
+    0.952
+   ],
+   "fits_real_size": true,
+   "polycount": 5602,
+   "url": "https://polyhaven.com/a/modern_ceiling_lamp_01",
+   "size_mb": 1.07
+  },
+  {
+   "source": "polyhaven",
+   "id": "bronze_ray_statue",
+   "title": "Bronze Ray Statue",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [],
+   "dims_m": [
+    0.707,
+    0.536,
+    0.59
+   ],
+   "fits_real_size": true,
+   "polycount": 1844,
+   "url": "https://polyhaven.com/a/bronze_ray_statue",
+   "size_mb": 6.99
+  },
+  {
+   "source": "polyhaven",
+   "id": "bronze_shark_statue",
+   "title": "Bronze Shark Statue",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [],
+   "dims_m": [
+    0.352,
+    0.76,
+    0.432
+   ],
+   "fits_real_size": true,
+   "polycount": 7334,
+   "url": "https://polyhaven.com/a/bronze_shark_statue",
+   "size_mb": 6.78
+  },
+  {
+   "source": "polyhaven",
+   "id": "bronze_whale_statue",
+   "title": "Bronze Whale Statue",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [],
+   "dims_m": [
+    0.932,
+    1.366,
+    1.073
+   ],
+   "fits_real_size": false,
+   "polycount": 3816,
+   "url": "https://polyhaven.com/a/bronze_whale_statue",
+   "size_mb": 8.08
+  },
+  {
+   "source": "polyhaven",
+   "id": "bull_head",
+   "title": "Bull Head",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.306,
+    0.281,
+    0.433
+   ],
+   "fits_real_size": true,
+   "polycount": 17148,
+   "url": "https://polyhaven.com/a/bull_head",
+   "size_mb": 5.99
+  },
+  {
+   "source": "polyhaven",
+   "id": "carved_wooden_elephant",
+   "title": "Carved Wooden Elephant",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [],
+   "dims_m": [
+    0.109,
+    0.058,
+    0.096
+   ],
+   "fits_real_size": true,
+   "polycount": 2752,
+   "url": "https://polyhaven.com/a/carved_wooden_elephant",
+   "size_mb": 6.22
+  },
+  {
+   "source": "polyhaven",
+   "id": "gothic_statue",
+   "title": "Gothic Statue",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Busts & Human Figures",
+   "styles_hint": [],
+   "dims_m": [
+    1.477,
+    1.564,
+    1.74
+   ],
+   "fits_real_size": false,
+   "polycount": 27739,
+   "url": "https://polyhaven.com/a/gothic_statue",
+   "size_mb": 11.12
+  },
+  {
+   "source": "polyhaven",
+   "id": "horse_head",
+   "title": "Horse Head",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.215,
+    0.334,
+    0.419
+   ],
+   "fits_real_size": true,
+   "polycount": 12068,
+   "url": "https://polyhaven.com/a/horse_head",
+   "size_mb": 5.37
+  },
+  {
+   "source": "polyhaven",
+   "id": "horse_statue_01",
+   "title": "Horse Statue 01",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [],
+   "dims_m": [
+    0.164,
+    0.108,
+    0.22
+   ],
+   "fits_real_size": true,
+   "polycount": 22388,
+   "url": "https://polyhaven.com/a/horse_statue_01",
+   "size_mb": 2.37
+  },
+  {
+   "source": "polyhaven",
+   "id": "lion_head",
+   "title": "Lion Head",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Animal Figures",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.321,
+    0.207,
+    0.436
+   ],
+   "fits_real_size": true,
+   "polycount": 47214,
+   "url": "https://polyhaven.com/a/lion_head",
+   "size_mb": 8.8
+  },
+  {
+   "source": "polyhaven",
+   "id": "marble_bust_01",
+   "title": "Marble Bust 01",
+   "type": "sculpture",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Sculptures & Figurines/Busts & Human Figures",
+   "styles_hint": [],
+   "dims_m": [
+    0.272,
+    0.3,
+    0.515
+   ],
+   "fits_real_size": true,
+   "polycount": 17456,
+   "url": "https://polyhaven.com/a/marble_bust_01",
+   "size_mb": 2.02
+  },
+  {
+   "source": "polyhaven",
+   "id": "desk_lamp_arm_01",
+   "title": "Desk Lamp Arm 01",
+   "type": "table_lamp",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Floor & Desk/Desk Lamps",
+   "styles_hint": [
+    "industrial"
+   ],
+   "dims_m": [
+    0.617,
+    0.408,
+    0.879
+   ],
+   "fits_real_size": true,
+   "polycount": 25710,
+   "url": "https://polyhaven.com/a/desk_lamp_arm_01",
+   "size_mb": 8.47
+  },
+  {
+   "source": "polyhaven",
+   "id": "industrial_pipe_lamp",
+   "title": "Industrial Pipe Lamp",
+   "type": "table_lamp",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Lighting/Floor & Desk/Desk Lamps",
+   "styles_hint": [
+    "industrial"
+   ],
+   "dims_m": [
+    0.183,
+    0.262,
+    0.364
+   ],
+   "fits_real_size": true,
+   "polycount": 8626,
+   "url": "https://polyhaven.com/a/industrial_pipe_lamp",
+   "size_mb": 8.75
+  },
+  {
+   "source": "polyhaven",
+   "id": "antique_ceramic_vase_01",
+   "title": "Antique Ceramic Vase 01",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Ceramic Vases",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.255,
+    0.255,
+    0.44
+   ],
+   "fits_real_size": true,
+   "polycount": 9408,
+   "url": "https://polyhaven.com/a/antique_ceramic_vase_01",
+   "size_mb": 1.16
+  },
+  {
+   "source": "polyhaven",
+   "id": "brass_vase_01",
+   "title": "Brass Vase 01",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Metal Vases",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.227,
+    0.227,
+    0.692
+   ],
+   "fits_real_size": true,
+   "polycount": 21440,
+   "url": "https://polyhaven.com/a/brass_vase_01",
+   "size_mb": 1.74
+  },
+  {
+   "source": "polyhaven",
+   "id": "brass_vase_02",
+   "title": "Brass Vase 02",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Metal Vases",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.21,
+    0.21,
+    0.529
+   ],
+   "fits_real_size": true,
+   "polycount": 6890,
+   "url": "https://polyhaven.com/a/brass_vase_02",
+   "size_mb": 5.91
+  },
+  {
+   "source": "polyhaven",
+   "id": "brass_vase_03",
+   "title": "Brass Vase 03",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Metal Vases",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.083,
+    0.083,
+    0.2
+   ],
+   "fits_real_size": true,
+   "polycount": 2616,
+   "url": "https://polyhaven.com/a/brass_vase_03",
+   "size_mb": 5.23
+  },
+  {
+   "source": "polyhaven",
+   "id": "brass_vase_04",
+   "title": "Brass Vase 04",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Metal Vases",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.082,
+    0.061,
+    0.17
+   ],
+   "fits_real_size": true,
+   "polycount": 2760,
+   "url": "https://polyhaven.com/a/brass_vase_04",
+   "size_mb": 1.16
+  },
+  {
+   "source": "polyhaven",
+   "id": "ceramic_vase_01",
+   "title": "Ceramic Vase 01",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Ceramic Vases",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.205,
+    0.206,
+    0.401
+   ],
+   "fits_real_size": true,
+   "polycount": 2548,
+   "url": "https://polyhaven.com/a/ceramic_vase_01",
+   "size_mb": 0.71
+  },
+  {
+   "source": "polyhaven",
+   "id": "ceramic_vase_02",
+   "title": "Ceramic Vase 02",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Ceramic Vases",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.22,
+    0.221,
+    0.309
+   ],
+   "fits_real_size": true,
+   "polycount": 2756,
+   "url": "https://polyhaven.com/a/ceramic_vase_02",
+   "size_mb": 2.13
+  },
+  {
+   "source": "polyhaven",
+   "id": "ceramic_vase_04",
+   "title": "Ceramic Vase 04",
+   "type": "vase",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Vases & Vessels/Ceramic Vases",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.183,
+    0.182,
+    0.342
+   ],
+   "fits_real_size": true,
+   "polycount": 2224,
+   "url": "https://polyhaven.com/a/ceramic_vase_04",
+   "size_mb": 1.6
+  },
+  {
+   "source": "polyhaven",
+   "id": "fancy_picture_frame_01",
+   "title": "Fancy Picture Frame 01",
+   "type": "wall_art",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Picture Frames & Art",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.603,
+    0.02,
+    0.464
+   ],
+   "fits_real_size": true,
+   "polycount": 938,
+   "url": "https://polyhaven.com/a/fancy_picture_frame_01",
+   "size_mb": 2.7
+  },
+  {
+   "source": "polyhaven",
+   "id": "fancy_picture_frame_02",
+   "title": "Fancy Picture Frame 02",
+   "type": "wall_art",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Picture Frames & Art",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.661,
+    0.089,
+    0.771
+   ],
+   "fits_real_size": true,
+   "polycount": 35102,
+   "url": "https://polyhaven.com/a/fancy_picture_frame_02",
+   "size_mb": 4.24
+  },
+  {
+   "source": "polyhaven",
+   "id": "hanging_picture_frame_01",
+   "title": "Hanging Picture Frame 01",
+   "type": "wall_art",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Picture Frames & Art",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.594,
+    0.016,
+    0.841
+   ],
+   "fits_real_size": true,
+   "polycount": 2586,
+   "url": "https://polyhaven.com/a/hanging_picture_frame_01",
+   "size_mb": 1.24
+  },
+  {
+   "source": "polyhaven",
+   "id": "hanging_picture_frame_02",
+   "title": "Hanging Picture Frame 02",
+   "type": "wall_art",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Picture Frames & Art",
+   "styles_hint": [],
+   "dims_m": [
+    0.752,
+    0.033,
+    0.5
+   ],
+   "fits_real_size": true,
+   "polycount": 3678,
+   "url": "https://polyhaven.com/a/hanging_picture_frame_02",
+   "size_mb": 2.24
+  },
+  {
+   "source": "polyhaven",
+   "id": "hanging_picture_frame_03",
+   "title": "Hanging Picture Frame 03",
+   "type": "wall_art",
+   "kind": "decor",
+   "licence": "CC0",
+   "category": "Decor & Art/Wall Decor/Picture Frames & Art",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.385,
+    0.032,
+    0.502
+   ],
+   "fits_real_size": true,
+   "polycount": 24348,
+   "url": "https://polyhaven.com/a/hanging_picture_frame_03",
+   "size_mb": 2.75
+  },
+  {
+   "source": "polyhaven",
+   "id": "Rockingchair_01",
+   "title": "Rockingchair 01",
+   "type": "armchair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.708,
+    0.833,
+    0.995
+   ],
+   "fits_real_size": true,
+   "polycount": 11866,
+   "url": "https://polyhaven.com/a/Rockingchair_01",
+   "size_mb": 1.81
+  },
+  {
+   "source": "polyhaven",
+   "id": "bar_chair_round_01",
+   "title": "Bar Chair Round 01",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.483,
+    0.486,
+    0.751
+   ],
+   "fits_real_size": true,
+   "polycount": 14373,
+   "url": "https://polyhaven.com/a/bar_chair_round_01",
+   "size_mb": 7.15
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_stool",
+   "title": "Chinese Stool",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.599,
+    0.506,
+    0.631
+   ],
+   "fits_real_size": true,
+   "polycount": 1090,
+   "url": "https://polyhaven.com/a/chinese_stool",
+   "size_mb": 6.84
+  },
+  {
+   "source": "polyhaven",
+   "id": "metal_stool_01",
+   "title": "Metal Stool 01",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [
+    "industrial",
+    "classic"
+   ],
+   "dims_m": [
+    0.352,
+    0.355,
+    0.883
+   ],
+   "fits_real_size": true,
+   "polycount": 8334,
+   "url": "https://polyhaven.com/a/metal_stool_01",
+   "size_mb": 8.46
+  },
+  {
+   "source": "polyhaven",
+   "id": "metal_stool_03",
+   "title": "Metal Stool 03",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [],
+   "dims_m": [
+    0.461,
+    0.471,
+    1.023
+   ],
+   "fits_real_size": true,
+   "polycount": 6576,
+   "url": "https://polyhaven.com/a/metal_stool_03",
+   "size_mb": 8.34
+  },
+  {
+   "source": "polyhaven",
+   "id": "painted_wooden_stool",
+   "title": "Painted Wooden Stool",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    0.385,
+    0.406,
+    0.579
+   ],
+   "fits_real_size": true,
+   "polycount": 676,
+   "url": "https://polyhaven.com/a/painted_wooden_stool",
+   "size_mb": 6.7
+  },
+  {
+   "source": "polyhaven",
+   "id": "wooden_stool_02",
+   "title": "Wooden Stool 02",
+   "type": "bar_stool",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    0.265,
+    0.183,
+    0.182
+   ],
+   "fits_real_size": false,
+   "polycount": 11146,
+   "url": "https://polyhaven.com/a/wooden_stool_02",
+   "size_mb": 9.7
+  },
+  {
+   "source": "polyhaven",
+   "id": "old_bed_frame",
+   "title": "Old Bed Frame",
+   "type": "bed_single",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Beds",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.905,
+    2.002,
+    1.201
+   ],
+   "fits_real_size": true,
+   "polycount": 49990,
+   "url": "https://polyhaven.com/a/old_bed_frame",
+   "size_mb": 10.16
+  },
+  {
+   "source": "polyhaven",
+   "id": "vintage_day_bed",
+   "title": "Vintage Day Bed",
+   "type": "bed_single",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Beds",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.973,
+    0.855,
+    1.127
+   ],
+   "fits_real_size": true,
+   "polycount": 2715,
+   "url": "https://polyhaven.com/a/vintage_day_bed",
+   "size_mb": 8.81
+  },
+  {
+   "source": "polyhaven",
+   "id": "painted_wooden_bench",
+   "title": "Painted Wooden Bench",
+   "type": "bench",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Benches",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    1.165,
+    0.497,
+    0.889
+   ],
+   "fits_real_size": true,
+   "polycount": 630,
+   "url": "https://polyhaven.com/a/painted_wooden_bench",
+   "size_mb": 7.99
+  },
+  {
+   "source": "polyhaven",
+   "id": "painted_wooden_shelves",
+   "title": "Painted Wooden Shelves",
+   "type": "bookshelf",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    0.511,
+    0.367,
+    1.125
+   ],
+   "fits_real_size": false,
+   "polycount": 524,
+   "url": "https://polyhaven.com/a/painted_wooden_shelves",
+   "size_mb": 8.35
+  },
+  {
+   "source": "polyhaven",
+   "id": "steel_frame_shelves_01",
+   "title": "Steel Frame Shelves 01",
+   "type": "bookshelf",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    1.097,
+    0.502,
+    2.141
+   ],
+   "fits_real_size": true,
+   "polycount": 4348,
+   "url": "https://polyhaven.com/a/steel_frame_shelves_01",
+   "size_mb": 5.57
+  },
+  {
+   "source": "polyhaven",
+   "id": "steel_frame_shelves_02",
+   "title": "Steel Frame Shelves 02",
+   "type": "bookshelf",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    0.593,
+    0.502,
+    2.142
+   ],
+   "fits_real_size": true,
+   "polycount": 4348,
+   "url": "https://polyhaven.com/a/steel_frame_shelves_02",
+   "size_mb": 1.52
+  },
+  {
+   "source": "polyhaven",
+   "id": "steel_frame_shelves_03",
+   "title": "Steel Frame Shelves 03",
+   "type": "bookshelf",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+   "styles_hint": [],
+   "dims_m": [
+    2.351,
+    0.721,
+    2.312
+   ],
+   "fits_real_size": false,
+   "polycount": 8396,
+   "url": "https://polyhaven.com/a/steel_frame_shelves_03",
+   "size_mb": 13.19
+  },
+  {
+   "source": "polyhaven",
+   "id": "worn_metal_rack",
+   "title": "Worn Metal Rack",
+   "type": "bookshelf",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+   "styles_hint": [],
+   "dims_m": [
+    0.915,
+    0.6,
+    1.9
+   ],
+   "fits_real_size": false,
+   "polycount": 6372,
+   "url": "https://polyhaven.com/a/worn_metal_rack",
+   "size_mb": 6.79
+  },
+  {
+   "source": "polyhaven",
+   "id": "BarberShopChair_01",
+   "title": "Barber Shop Chair 01",
+   "type": "chair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.757,
+    1.328,
+    1.489
+   ],
+   "fits_real_size": false,
+   "polycount": 4280,
+   "url": "https://polyhaven.com/a/BarberShopChair_01",
+   "size_mb": 2.18
+  },
+  {
+   "source": "polyhaven",
+   "id": "GreenChair_01",
+   "title": "Green Chair 01",
+   "type": "chair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.673,
+    0.664,
+    1.059
+   ],
+   "fits_real_size": true,
+   "polycount": 4213,
+   "url": "https://polyhaven.com/a/GreenChair_01",
+   "size_mb": 1.98
+  },
+  {
+   "source": "polyhaven",
+   "id": "SchoolChair_01",
+   "title": "School Chair 01",
+   "type": "chair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [],
+   "dims_m": [
+    0.566,
+    0.675,
+    1.006
+   ],
+   "fits_real_size": true,
+   "polycount": 5072,
+   "url": "https://polyhaven.com/a/SchoolChair_01",
+   "size_mb": 1.55
+  },
+  {
+   "source": "polyhaven",
+   "id": "WoodenChair_01",
+   "title": "Wooden Chair 01",
+   "type": "chair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.688,
+    0.658,
+    2.274
+   ],
+   "fits_real_size": false,
+   "polycount": 19992,
+   "url": "https://polyhaven.com/a/WoodenChair_01",
+   "size_mb": 2.29
+  },
+  {
+   "source": "polyhaven",
+   "id": "painted_wooden_chair_01",
+   "title": "Painted Wooden Chair 01",
+   "type": "chair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [
+    "rustic"
+   ],
+   "dims_m": [
+    0.432,
+    0.54,
+    0.956
+   ],
+   "fits_real_size": true,
+   "polycount": 724,
+   "url": "https://polyhaven.com/a/painted_wooden_chair_01",
+   "size_mb": 1.53
+  },
+  {
+   "source": "polyhaven",
+   "id": "ClassicConsole_01",
+   "title": "Classic Console 01",
+   "type": "console_table",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Console Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.543,
+    0.589,
+    0.949
+   ],
+   "fits_real_size": false,
+   "polycount": 7566,
+   "url": "https://polyhaven.com/a/ClassicConsole_01",
+   "size_mb": 2.04
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_console_table",
+   "title": "Chinese Console Table",
+   "type": "console_table",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Console Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.72,
+    0.339,
+    0.661
+   ],
+   "fits_real_size": true,
+   "polycount": 13648,
+   "url": "https://polyhaven.com/a/chinese_console_table",
+   "size_mb": 8.42
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_armchair",
+   "title": "Chinese Armchair",
+   "type": "office_chair",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Chairs",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.848,
+    0.789,
+    1.587
+   ],
+   "fits_real_size": true,
+   "polycount": 2675,
+   "url": "https://polyhaven.com/a/chinese_armchair",
+   "size_mb": 5.9
+  },
+  {
+   "source": "polyhaven",
+   "id": "Ottoman_01",
+   "title": "Ottoman 01",
+   "type": "ottoman",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Ottomans & Footstools",
+   "styles_hint": [],
+   "dims_m": [
+    0.885,
+    0.621,
+    0.624
+   ],
+   "fits_real_size": true,
+   "polycount": 4240,
+   "url": "https://polyhaven.com/a/Ottoman_01",
+   "size_mb": 2.52
+  },
+  {
+   "source": "polyhaven",
+   "id": "metal_stool_02",
+   "title": "Metal Stool 02",
+   "type": "ottoman",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Stools & Bar Seating",
+   "styles_hint": [
+    "industrial"
+   ],
+   "dims_m": [
+    0.448,
+    0.473,
+    0.458
+   ],
+   "fits_real_size": true,
+   "polycount": 6532,
+   "url": "https://polyhaven.com/a/metal_stool_02",
+   "size_mb": 9.74
+  },
+  {
+   "source": "polyhaven",
+   "id": "WoodenTable_02",
+   "title": "Wooden Table 02",
+   "type": "side_table",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Side & End Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.301,
+    0.301,
+    0.418
+   ],
+   "fits_real_size": true,
+   "polycount": 1514,
+   "url": "https://polyhaven.com/a/WoodenTable_02",
+   "size_mb": 1.56
+  },
+  {
+   "source": "polyhaven",
+   "id": "side_table_tall_01",
+   "title": "Side Table Tall 01",
+   "type": "side_table",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Side & End Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.384,
+    0.384,
+    0.761
+   ],
+   "fits_real_size": true,
+   "polycount": 6408,
+   "url": "https://polyhaven.com/a/side_table_tall_01",
+   "size_mb": 1.41
+  },
+  {
+   "source": "polyhaven",
+   "id": "GothicCabinet_01",
+   "title": "Gothic Cabinet 01",
+   "type": "sideboard",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.719,
+    1.129,
+    2.361
+   ],
+   "fits_real_size": false,
+   "polycount": 12170,
+   "url": "https://polyhaven.com/a/GothicCabinet_01",
+   "size_mb": 2.12
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_cabinet",
+   "title": "Chinese Cabinet",
+   "type": "sideboard",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.262,
+    0.545,
+    2.872
+   ],
+   "fits_real_size": false,
+   "polycount": 15668,
+   "url": "https://polyhaven.com/a/chinese_cabinet",
+   "size_mb": 7.22
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_commode",
+   "title": "Chinese Commode",
+   "type": "sideboard",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    4.49,
+    1.17,
+    2.02
+   ],
+   "fits_real_size": false,
+   "polycount": 6775,
+   "url": "https://polyhaven.com/a/chinese_commode",
+   "size_mb": 6.33
+  },
+  {
+   "source": "polyhaven",
+   "id": "painted_wooden_cabinet",
+   "title": "Painted Wooden Cabinet",
+   "type": "sideboard",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    1.195,
+    0.617,
+    1.182
+   ],
+   "fits_real_size": true,
+   "polycount": 2227,
+   "url": "https://polyhaven.com/a/painted_wooden_cabinet",
+   "size_mb": 6.82
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_sofa",
+   "title": "Chinese Sofa",
+   "type": "sofa",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Seating/Sofas & Couches",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    2.285,
+    0.969,
+    0.86
+   ],
+   "fits_real_size": true,
+   "polycount": 704,
+   "url": "https://polyhaven.com/a/chinese_sofa",
+   "size_mb": 6.13
+  },
+  {
+   "source": "polyhaven",
+   "id": "chinese_tea_table",
+   "title": "Chinese Tea Table",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Coffee Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.841,
+    0.836,
+    0.499
+   ],
+   "fits_real_size": true,
+   "polycount": 2508,
+   "url": "https://polyhaven.com/a/chinese_tea_table",
+   "size_mb": 6.03
+  },
+  {
+   "source": "polyhaven",
+   "id": "coffee_table_round_01",
+   "title": "Coffee Table Round 01",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Coffee Tables",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    1.301,
+    1.301,
+    0.491
+   ],
+   "fits_real_size": true,
+   "polycount": 4044,
+   "url": "https://polyhaven.com/a/coffee_table_round_01",
+   "size_mb": 5.66
+  },
+  {
+   "source": "polyhaven",
+   "id": "gothic_coffee_table",
+   "title": "Gothic Coffee Table",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Coffee Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.443,
+    1.443,
+    0.559
+   ],
+   "fits_real_size": false,
+   "polycount": 23836,
+   "url": "https://polyhaven.com/a/gothic_coffee_table",
+   "size_mb": 8.94
+  },
+  {
+   "source": "polyhaven",
+   "id": "industrial_coffee_table",
+   "title": "Industrial Coffee Table",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Coffee Tables",
+   "styles_hint": [
+    "rustic",
+    "industrial"
+   ],
+   "dims_m": [
+    0.778,
+    0.758,
+    0.638
+   ],
+   "fits_real_size": true,
+   "polycount": 41300,
+   "url": "https://polyhaven.com/a/industrial_coffee_table",
+   "size_mb": 8.28
+  },
+  {
+   "source": "polyhaven",
+   "id": "small_wooden_table_01",
+   "title": "Small Wooden Table 01",
+   "type": "table_coffee",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Side & End Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.916,
+    0.44,
+    0.533
+   ],
+   "fits_real_size": true,
+   "polycount": 3410,
+   "url": "https://polyhaven.com/a/small_wooden_table_01",
+   "size_mb": 1.38
+  },
+  {
+   "source": "polyhaven",
+   "id": "gallinera_table",
+   "title": "Gallinera Table",
+   "type": "table_dining",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Dining Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.83,
+    0.518,
+    0.488
+   ],
+   "fits_real_size": false,
+   "polycount": 5528,
+   "url": "https://polyhaven.com/a/gallinera_table",
+   "size_mb": 5.92
+  },
+  {
+   "source": "polyhaven",
+   "id": "round_wooden_table_01",
+   "title": "Round Wooden Table 01",
+   "type": "table_dining",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Dining Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    1.399,
+    1.399,
+    1.005
+   ],
+   "fits_real_size": false,
+   "polycount": 8640,
+   "url": "https://polyhaven.com/a/round_wooden_table_01",
+   "size_mb": 1.32
+  },
+  {
+   "source": "polyhaven",
+   "id": "round_wooden_table_02",
+   "title": "Round Wooden Table 02",
+   "type": "table_dining",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Tables/Dining Tables",
+   "styles_hint": [
+    "classic"
+   ],
+   "dims_m": [
+    0.796,
+    0.796,
+    0.746
+   ],
+   "fits_real_size": true,
+   "polycount": 4254,
+   "url": "https://polyhaven.com/a/round_wooden_table_02",
+   "size_mb": 6.76
+  },
+  {
+   "source": "polyhaven",
+   "id": "drawer_cabinet",
+   "title": "Drawer Cabinet",
+   "type": "tall_cabinet",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Drawers & Dressers",
+   "styles_hint": [
+    "modern"
+   ],
+   "dims_m": [
+    1.141,
+    0.488,
+    1.881
+   ],
+   "fits_real_size": true,
+   "polycount": 26406,
+   "url": "https://polyhaven.com/a/drawer_cabinet",
+   "size_mb": 2.07
+  },
+  {
+   "source": "polyhaven",
+   "id": "painted_wooden_cabinet_02",
+   "title": "Painted Wooden Cabinet 02",
+   "type": "tall_cabinet",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    0.997,
+    0.729,
+    2.569
+   ],
+   "fits_real_size": true,
+   "polycount": 966,
+   "url": "https://polyhaven.com/a/painted_wooden_cabinet_02",
+   "size_mb": 6.18
+  },
+  {
+   "source": "polyhaven",
+   "id": "vintage_cabinet_01",
+   "title": "Vintage Cabinet 01",
+   "type": "wardrobe",
+   "kind": "furniture",
+   "licence": "CC0",
+   "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+   "styles_hint": [
+    "rustic",
+    "classic"
+   ],
+   "dims_m": [
+    2.022,
+    0.67,
+    2.235
+   ],
+   "fits_real_size": true,
+   "polycount": 61096,
+   "url": "https://polyhaven.com/a/vintage_cabinet_01",
+   "size_mb": 5.0
+  }
+ ]
+}

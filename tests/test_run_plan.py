@@ -138,7 +138,9 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == want
     calls = 0.0 if seeded else P.recognition_minutes({"qwen": 17, "glm": 17}, plan["gpu"]["seqs"])
     assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"] + r1["completed_rooms"], calls, speed=SPEED)
-    assert r1["views"] == 25 and r1["pod"] is not None
+    # Milestone 12 (track S, camsearch.shown_pieces = shell.piece_built): the pre-layout building's unknown pieces are
+    # not built, so their rooms count as rooms without furniture (one view each): 25 -> 17.
+    assert r1["views"] == 17 and r1["pod"] is not None
     rv = by["review-01"]
     assert rv["status"] == "needs_review" and rv["views"] is None and rv["minutes"] == 0.0 and rv["pod"] is None
     # Milestone 10: the sheet analysis stops it before the pipeline (two plans without a level title).

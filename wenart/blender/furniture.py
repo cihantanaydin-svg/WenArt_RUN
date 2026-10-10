@@ -109,9 +109,29 @@ collection per file; set False here, the objects are re-linked into the
 level collection), ``import_select_created_objects``. glTF files are Y-up
 and the importer converts them to Blender's Z-up, so ``front_axis`` /
 ``up_axis`` of the catalogue are read in the imported (Z-up) frame.
+
+Milestone 12 (docs/milestone12.md §4.1, §4.6-§4.8, §6.4; track S):
+
+- No grey box: an ``unknown`` piece and a library gap (``asset.method == "none"``: no audited model fitted) are not
+  built and listed in ``not_built`` (``refused_piece``); ``--proxies`` still builds the Milestone 3 boxes.
+- A piece stands on its room's floor (``shell.room_floor_z``: the level's elevation + the room's ``floor_offset_m``,
+  sunken or raised; ``piece_floor_z``, the room by ``room_id`` or by the outline holding the piece), and so do floor
+  decor, wall art, bed dressings, hosted decor's floor fallbacks and the ``--proxies`` boxes; lights hang from the
+  level's ceiling, curtains and blinds stay at their window (``decor_floor``); the built object records
+  ``wenart_front_deg`` and ``wenart_method`` for the scene checks.
+- Hosted decor rests on the built, scaled host mesh (``_create_hosted_decor`` with ``wenart.blender.rest``): rays
+  on the evaluated host (Bevel applied) find the seat, mattress, back, headboard, top or shelf board; a throw is our
+  cloth draped on the host (``textiles``); every item is checked (S5) and placed once more, else not built
+  (``summary["decor_not_rested"]`` with the measured gap, penetration and support share). No type-table height
+  (``decor_rest_height`` is gone).
+- A library bed without bedding (a mattress model) gets the procedural duvet and pillows (``_dress_bed``: object
+  ``dress_<id>``, the bed's ``wenart_id`` and pass index; decor on the bed rests on it too).
+- ``summary["objects"]`` = ``{piece or decor id: object}`` (a dressed bed's bedding as ``<id>#dressing``): the
+  scene checks S1-S6 of ``build.py`` (``scene_checks.run_scene_checks``) read them.
 """
 from __future__ import annotations
 
+import json
 import math
 from pathlib import Path
 from typing import Sequence
@@ -518,18 +538,17 @@ def unknown_decor_hosts(building: dict) -> list[str]:
             if item.get("host_id") is not None and item.get("host_id") not in pieces]
 
 
-def decor_height_above_floor(item: dict, host: dict, host_parametric: bool = False) -> tuple[float, str]:
-    """Rest height of a decor item: its own ``center[2]`` when given, else
-    the host's seat / mattress / shelf / top (``parametric.decor_rest_height``);
-    on a bed built parametrically (``host_parametric``) the bedding top."""
+def decor_height_above_floor(item: dict, host_entry: dict | None = None) -> tuple[float, str]:
+    """Rest height of a decor item the builder places without rays (pure): its own ``center[2]`` (a curtain's
+    bottom, a light's) when given, else the floor; Milestone 12: no type-table height any more (hosted decor rests on
+    the built mesh, ``rest.plan_decor``); only a decor item on a Milestone 3 proxy box (``--proxies``, debugging)
+    rests on the box's top."""
     center = item.get("center") or []
     if len(center) > 2 and center[2] is not None:
         return float(center[2]), "center[2]"
-    if host is None:
-        return 0.0, "floor"
-    host_h, _ = proxy_height(host["type"], host.get("height"))
-    size = host["footprint"]["size"] if host_parametric else None
-    return P.decor_rest_height(host["type"], host_h, item["type"], size), f"on {host['type']} {host['id']}"
+    if host_entry is not None and host_entry.get("kind") == "furniture_proxy":
+        return float((host_entry.get("size") or [0.0, 0.0, 0.0])[2]), "on the proxy box's top (--proxies)"
+    return 0.0, "floor"
 
 
 def frame_bedding_plan(asset: dict | None, footprint: dict, z_scale: float) -> dict | None:
@@ -775,37 +794,157 @@ class _Materials:
         return over["slug"] if over else self.keys[key][0]
 
 
+def piece_room(building: dict, level: dict, item: dict) -> dict:
+    """The room a piece or decor item stands in (pure, Milestone 12): its ``room_id``, else the room of its level
+    whose outline holds its centre (rooms in id order), else ``{}`` (the level's own floor)."""
+    rooms = building.get("rooms") or []
+    room = next((r for r in rooms if item.get("room_id") is not None and r.get("id") == item.get("room_id")), None)
+    if room is not None:
+        return room
+    fp = item.get("footprint") or {}
+    centre = list(fp.get("center") or item.get("center") or [])[:2]
+    if len(centre) < 2:
+        return {}
+    for r in sorted((r for r in rooms if r.get("level_id") == level.get("id") and len(r.get("polygon") or []) >= 3),
+                    key=lambda r: str(r.get("id"))):
+        if G.point_in_polygon((float(centre[0]), float(centre[1])), [tuple(p[:2]) for p in r["polygon"]]):
+            return r
+    return {}
+
+
+def piece_floor_z(building: dict, level: dict, piece: dict) -> float:
+    """The floor a piece or decor item stands on (pure, Milestone 12): ``shell.room_floor_z`` of its room (track L:
+    the level's elevation + the room's ``floor_offset_m``, sunken or raised; the level's floor without a room).
+    ``scene_checks.floor_z_of`` (S1, S5) and ``proxies.create_proxies`` use it too."""
+    from wenart.blender.shell import room_floor_z
+
+    room = piece_room(building, level, piece)
+    offset = room.get("floor_offset_m")
+    if isinstance(offset, bool) or not isinstance(offset, (int, float, type(None))):
+        room = dict(room, floor_offset_m=None)       # not a number: the level's floor
+    return room_floor_z(room, level)
+
+
+# Milestone 12: decor that does not stand on the room's floor. Lights hang from the level's ceiling (track L: the
+# ceiling stays the level's when a room's floor is sunken or raised; ``center[2]`` is measured from the level's
+# floor, decor_ai.ceiling_items); curtains and blinds follow their window, which the shell builds from the level's
+# floor (``shell.opening_vertical``), but a floor-length curtain reaches the room's own floor.
+CEILING_DECOR_TYPES = ("pendant_light", "ceiling_light")
+WINDOW_DECOR_TYPES = ("curtain", "blind")
+FLOOR_LENGTH_M = 0.05          # a curtain whose bottom is this close to the floor is floor-length
+MIN_WINDOW_DECOR_H_M = 0.10
+
+
+def decor_floor(building: dict, level: dict, item: dict) -> tuple[float, dict, str]:
+    """``(floor_z, item, how)`` for a decor item the builder places without rays (pure, Milestone 12): the item's
+    room floor (``piece_floor_z``: floor decor, wall art over its piece); a light hangs from the level's ceiling (the
+    level's floor); a curtain or blind at a window keeps its place at the window (``center[2]`` re-measured from the
+    room floor), a floor-length curtain is lengthened (sunken room) or shortened (raised room) to the room's floor.
+    ``item`` is a copy when it changed."""
+    level_z = float(level["elevation"])
+    if item.get("type") in CEILING_DECOR_TYPES:
+        return level_z, item, "the level's ceiling (lights)"
+    floor_z = piece_floor_z(building, level, item)
+    offset = floor_z - level_z
+    if abs(offset) < 1e-9 or item.get("type") not in WINDOW_DECOR_TYPES or not item.get("window_id"):
+        return floor_z, item, "the room's floor"
+    center = list(item.get("center") or [])
+    size = list(item.get("size") or [])
+    z = float(center[2]) if len(center) > 2 and center[2] is not None else 0.0
+    if len(center) < 2 or len(size) < 3 or size[2] is None:
+        return floor_z, item, "the room's floor"
+    h = float(size[2])
+    if item["type"] == "curtain" and z <= FLOOR_LENGTH_M + 1e-9:          # to the floor: the room's floor
+        new_z, new_h, how = z, h - offset, "the room's floor (floor-length curtain, top at its window)"
+    else:                                                                 # at the window: the same world height
+        new_z, new_h, how = z - offset, h, "its window (built from the level's floor)"
+    if new_h < MIN_WINDOW_DECOR_H_M:
+        new_h = MIN_WINDOW_DECOR_H_M
+    out = dict(item, center=[center[0], center[1], round(new_z, 4)], size=size[:2] + [round(new_h, 4)] + size[3:])
+    return floor_z, out, how
+
+
+def refused_piece(piece: dict) -> str | None:
+    """Why the builder refuses a piece (pure, Milestone 12 §4.1, §4.8): an untyped ``unknown`` piece (never a grey
+    box), a library gap the fit left unbuilt (``asset.method == "none"``); None when it is built."""
+    if piece.get("type") == "unknown":
+        return "unknown type: not built (no grey box; docs/milestone12.md §4.1: typed, not furniture or for review)"
+    asset = piece.get("asset") or {}
+    if asset.get("method") == "none":
+        gap = piece.get("library_gap") or asset.get("library_gap") or {}
+        why = gap.get("reason") or asset.get("fallback_reason")
+        return f"library gap: no audited {piece.get('type')} model ({why}); not built (docs/milestone12.md §4.8)"
+    return None
+
+
+def needs_dressing(piece: dict, entry: dict) -> bool:
+    """A bed whose built model has no bedding gets the procedural duvet and pillows (pure, §4.7): a library bed that
+    is not a Milestone 8 frame (those get the frame bedding) and whose audit does not say it is made up."""
+    from wenart.furniture import catalog as C
+
+    if piece.get("type") not in ("bed_single", "bed_double") or entry.get("method") != "library":
+        return False
+    asset = piece.get("asset") or {}
+    return not entry.get("bedding") and not asset.get("bed_frame") and not C.has_own_bedding(asset)
+
+
+def hosted_support(item: dict, host: dict | None) -> str | None:
+    """The support a hosted decor item rests on (its ``host_frame``, else the type rule), or None for an item the
+    builder places without rays (no host, or a support of the floor, a wall or the ceiling)."""
+    from wenart.blender import rest as R             # not wenart.furniture.decor: Blender's Python has no shapely
+
+    if host is None:
+        return None
+    support = R.item_support(item, host)
+    return support if support in R.RAY_SUPPORTS else None
+
+
 def create_furniture(building: dict, level: dict, collection, library, style: dict, assets_dir: str | None,
                      pass_indices: dict, manifest_objects: list, assumed: list, warnings: list,
                      use_proxies: bool = False) -> dict:
     """Create the furniture and decor objects of ``level``; returns a
     summary for the manifest (``pieces``, ``by_method``, ``fallbacks``,
-    ``proxies``, ``decor``)."""
-    floor_z = float(level["elevation"])
+    ``proxies``, ``decor``).
+
+    Milestone 12 (track S): untyped pieces and library gaps are refused (``refused_piece``: listed in
+    ``not_built``, no grey box; ``--proxies`` still builds the Milestone 3 boxes for debugging); a piece stands on its
+    room's floor (``piece_floor_z``); a bed model without bedding is dressed (``needs_dressing``); hosted decor rests
+    on the built host mesh (``rest.plan_decor`` / ``plan_throw``: placed, checked S5, placed once more, else not
+    built: ``decor_not_rested``); ``summary["objects"]`` = ``{piece or decor id: object}`` (bedding:
+    ``<id>#dressing``) for the scene checks (``build.py``); every piece and decor item stands on its room's floor
+    (``shell.room_floor_z``: ``piece_floor_z``, ``decor_floor``), the ``--proxies`` boxes too."""
     mats = _Materials(library, style, assumed)
     mats.lamps_on = lamps_on(style)                   # Milestone 10: the interior evening mood lights the lamps
     mats.collection = collection
     on_level = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
     pieces = [p for p in on_level if is_built(p)]
     not_built = [{"id": p["id"], "type": p["type"], "reason": NOT_BUILT_REASON} for p in on_level if not is_built(p)]
-    proxy_pieces = [p for p in pieces if use_proxies or p["type"] == "unknown" or p["type"] not in P.PARAMETRIC_TYPES]
+    if not use_proxies:
+        refused = [(p, refused_piece(p)) for p in pieces]
+        not_built += [{"id": p["id"], "type": p["type"], "reason": why} for p, why in refused if why]
+        pieces = [p for p, why in refused if not why]
+    proxy_pieces = [p for p in pieces if use_proxies or p["type"] not in P.PARAMETRIC_TYPES]
     for p in proxy_pieces:
         if p["type"] != "unknown" and not use_proxies:
             warnings.append(f"{p['id']}: furniture type {p['type']!r} has no parametric builder; proxy box used")
     summary = {"pieces": len(pieces), "by_method": {}, "fallbacks": [], "proxies": len(proxy_pieces), "decor": 0,
-               "proxies_forced": bool(use_proxies), "not_built": not_built, "decor_skipped": []}
+               "proxies_forced": bool(use_proxies), "not_built": not_built, "decor_skipped": [],
+               "decor_not_rested": [], "dressed_beds": [], "objects": {}}
     if proxy_pieces:
         proxies.create_proxies({"furniture": proxy_pieces}, level, collection, {
             "proxy": library.proxy("proxy"), "proxy_glass": library.proxy("proxy_glass"),
             "proxy_unverified": library.proxy("proxy_unverified")}, pass_indices, manifest_objects, assumed,
-            others=pieces)
+            others=pieces, floor_of=lambda p: piece_floor_z(building, level, p))
         for p in proxy_pieces:
             summary["by_method"]["proxy"] = summary["by_method"].get("proxy", 0) + 1
+
+    import bpy
 
     entries: dict[str, dict] = {}
     placed: list[tuple[dict, float]] = []
     unverified_cache: dict = {}
     geo_cache: dict = {}  # file -> imported geometry: one import per asset file, materials shared
+    casters: dict = {}    # host id -> its ray caster (the built, evaluated mesh, with its dressing)
     proxy_ids = {p["id"] for p in proxy_pieces}
     flat_ids = {p["id"] for p in proxy_pieces if proxies.flat_reason(p, pieces)}
     for piece in pieces:
@@ -820,15 +959,23 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         placed.append((piece["footprint"], height))
         if piece["id"] in proxy_ids:
             continue
-        entry = _create_piece(piece, level, floor_z, height, height_assumed, lift, collection, library, mats,
-                              assets_dir, pass_indices, assumed, warnings, unverified_cache, geo_cache,
-                              style=style, building=building)
+        entry = _create_piece(piece, level, piece_floor_z(building, level, piece), height, height_assumed, lift,
+                              collection, library, mats, assets_dir, pass_indices, assumed, warnings,
+                              unverified_cache, geo_cache, style=style, building=building)
         manifest_objects.append(entry)
         entries[piece["id"]] = entry
         method = "library" if entry["method"] == "library" else "parametric"
         summary["by_method"][method] = summary["by_method"].get(method, 0) + 1
         if entry["fallback_reason"]:
             summary["fallbacks"].append({"id": piece["id"], "type": piece["type"], "reason": entry["fallback_reason"]})
+        ob = bpy.data.objects.get(entry["name"])
+        summary["objects"][piece["id"]] = ob
+        if ob is not None and needs_dressing(piece, entry):
+            dress = _dress_bed(piece, entry, ob, piece_floor_z(building, level, piece), collection, mats, assumed,
+                               warnings)
+            if dress is not None:
+                summary["objects"][f"{piece['id']}#dressing"] = dress     # S5 rests on it; S2 skips it
+                summary["dressed_beds"].append(piece["id"])
 
     for host_id in unknown_decor_hosts(building):
         if host_id not in {p["id"] for p in building.get("furniture", [])}:
@@ -841,23 +988,255 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         if host is not None:
             host_entry = entries.get(host["id"]) or manifest_by_id.get(f"proxy:{host['id']}")
             if host_entry is None:
+                summary["decor_skipped"].append({"id": item.get("id"), "type": item.get("type"),
+                                                 "room_id": item.get("room_id"),
+                                                 "reason": f"its host {host['id']} is not built"})
                 continue
+        # Milestone 12: the room's floor (shell.room_floor_z); lights from the level's ceiling, curtains and blinds at
+        # their window (decor_floor)
+        item_floor, item, _floor_how = decor_floor(building, level, item)
         if item.get("type") in WALL_DECOR_TYPES:
             built = dict({k[len("proxy:"):]: v for k, v in manifest_by_id.items() if k.startswith("proxy:")},
                          **entries)                      # the built boxes: pieces, and proxies behind --proxies
-            entry = _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, pass_indices,
+            entry = _create_wall_art(item, n, level, item_floor, collection, library, assets_dir, pass_indices,
                                      built, on_level, warnings, geo_cache, summary["decor_skipped"], mats=mats)
+        elif hosted_support(item, host) is not None and host_entry.get("kind") == "furniture":
+            entry = _create_hosted_decor(item, host, n, level, piece_floor_z(building, level, host), collection,
+                                         library, mats, assets_dir, pass_indices, host_entry, warnings, geo_cache,
+                                         casters, summary, assumed)
         else:
-            entry = _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices,
-                                  host_entry, warnings, geo_cache, skipped=summary["decor_skipped"], assumed=assumed)
+            entry = _create_decor(item, host, n, level, item_floor, collection, library, mats, assets_dir,
+                                  pass_indices, host_entry, warnings, geo_cache, skipped=summary["decor_skipped"],
+                                  assumed=assumed)
         if entry is None:
             continue
         manifest_objects.append(entry)
+        if item.get("id"):
+            summary["objects"][str(item["id"])] = bpy.data.objects.get(entry["name"])
         if host_entry is not None:
             host_entry.setdefault("decor", []).append({"name": entry["name"], "type": entry["type"],
                                                        "method": entry["method"]})
         summary["decor"] += 1
     return summary
+
+
+def _evaluated_world_mesh(ob) -> tuple[list, list]:
+    """World vertices and faces of an object's evaluated mesh (its Bevel modifier applied)."""
+    import bpy
+
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    ev = ob.evaluated_get(depsgraph)
+    me = ev.to_mesh()
+    try:
+        mw = ob.matrix_world
+        verts = [tuple(mw @ v.co) for v in me.vertices]
+        faces = [list(p.vertices) for p in me.polygons]
+    finally:
+        ev.to_mesh_clear()
+    return verts, faces
+
+
+def _host_caster(host_entry: dict, casters: dict):
+    """The ray caster of a built host (its evaluated mesh and the bedding the build dressed it with), cached."""
+    import bpy
+
+    from wenart.blender import rest as R
+
+    key = host_entry.get("wenart_id") or host_entry.get("name")
+    if key in casters:
+        return casters[key]
+    found = []
+    for name in [host_entry.get("name")] + [(host_entry.get("dressing") or {}).get("name")]:
+        ob = bpy.data.objects.get(name or "")
+        if ob is not None and ob.type == "MESH":
+            verts, faces = _evaluated_world_mesh(ob)
+            if verts and faces:
+                found.append(R.BVHCaster(verts, faces))
+    casters[key] = None if not found else (found[0] if len(found) == 1 else R.MultiCaster(found))
+    return casters[key]
+
+
+def dressing_mesh(parts: list) -> tuple[list, list, list]:
+    """World parts (already placed) -> one mesh: ``(verts, faces, face_keys)`` (pure)."""
+    verts, faces, keys = [], [], []
+    for part in parts:
+        off = len(verts)
+        verts.extend(part["verts"])
+        for f in part["faces"]:
+            faces.append([i + off for i in f])
+            keys.append(part["key"])
+    return verts, faces, keys
+
+
+def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings):
+    """The procedural duvet and pillows of a bed model without bedding (§4.7: fixes the bare mattresses): draped on
+    the evaluated bed mesh (``textiles.duvet_and_pillows``), one object ``dress_<id>`` with the bed's ``wenart_id``
+    and pass index (a design detail of the piece), recorded on the entry (``dressing``) and in ``assumed``."""
+    from wenart.blender import rest as R
+    from wenart.blender import textiles as T
+
+    verts, faces = _evaluated_world_mesh(ob)
+    fp = piece["footprint"]
+    host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
+               "rotation_deg": float(fp["rotation_deg"])}
+    plan = T.duvet_and_pillows(R.BVHCaster(verts, faces), host_fp, floor_z)
+    if plan is None:
+        warnings.append(f"{piece['id']}: no mattress top found on the bed model; no bedding added")
+        return None
+    dverts, dfaces, keys = dressing_mesh(plan["parts"])
+    used = sorted(set(keys), key=keys.index)
+    unverified = entry.get("status") == "unverified"
+    slots = [mats.get(k, unverified) for k in used]
+    name = f"dress_{piece['id']}"
+    dob = _mesh_object(name, dverts, dfaces, slots, [used.index(k) for k in keys], collection, piece["id"],
+                       "furniture", entry.get("status") or "verified")
+    for poly in dob.data.polygons:
+        poly.use_smooth = True
+    dob.pass_index = entry["pass_index"]
+    dob["wenart_type"] = piece["type"]
+    dob["wenart_dressing"] = "bedding"
+    entry["dressing"] = {"name": name, "record": plan["record"], "material_keys": {k: mats.slug(k) for k in used}}
+    detail = (f"procedural bedding: a draped duvet over the foot {T.DUVET_SHARE:.0%} and {plan['record']['pillows']} "
+              "pillow(s) against the headboard")
+    entry["assumed"]["bedding"] = detail
+    assumed.append({"object": name, "field": "bedding", "value": detail, "parent": piece["id"], "kind": "bedding",
+                    "reason": "the bed model has no bedding (docs/milestone12.md §4.7): our cloth on its mattress"})
+    return dob
+
+
+STANDING_CUSHION_T = 0.15        # an old two-value cushion against a back stands: its width square, 15 cm thick
+
+
+def local_decor_mesh(item: dict, dtype: str, support: str | None = None) -> dict:
+    """The parametric or textile mesh of a decor item in its own frame (pure): ``{"verts", "faces", "keys",
+    "parts"}`` (bottom on z = 0, centred, front -Y); cushions and rugs take the item's colour on their fabric. A
+    cushion against a back or a headboard stands (Milestone 12: an item written with two values, before the real
+    sizes of ``decor.CUSHION_SIZE``, becomes a square cushion ``STANDING_CUSHION_T`` thick)."""
+    size = list(item.get("size") or [0.4, 0.4])
+    if dtype == "cushion" and support in ("back", "headboard") and len(size) < 3:
+        size = [float(size[0]), STANDING_CUSHION_T, float(size[0])]
+    w, d, h = P.decor_size(dtype, size)
+    parts = P.decor_parts(dtype, w, d, h, item)
+    if dtype in BRIEF_COLOURED_DECOR:
+        parts = [dict(part, key=P.COLOUR_PREFIX + part["key"]) if part["key"] == "fabric" else part for part in parts]
+    verts, faces, keys = P.world_mesh(parts, (0.0, 0.0), 0.0, 0.0)
+    return {"verts": verts, "faces": faces, "keys": keys, "parts": parts}
+
+
+def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices,
+                         host_entry, warnings, geo_cache, casters, summary, assumed) -> dict | None:
+    """A decor item resting on its built host (Milestone 12, §4.7): its mesh in its own frame (a library model fitted
+    to its box, else the parametric or textile one), placed by rays on the host's evaluated mesh
+    (``rest.plan_decor``; a throw is draped, ``rest.plan_throw``), checked (S5) and placed once more; when it still
+    does not rest it is not built and ``summary["decor_not_rested"]`` holds the measured numbers."""
+    from wenart.blender import rest as R
+
+    dtype = item.get("type")
+    if dtype not in P.DECOR_TYPES:
+        warnings.append(f"decor on {host['id']}: unknown decor type {dtype!r}; skipped")
+        return None
+    caster = _host_caster(host_entry, casters)
+    if caster is None:
+        summary["decor_skipped"].append({"id": item.get("id"), "type": dtype, "room_id": item.get("room_id"),
+                                         "reason": f"the built host {host['id']} has no mesh to rest on"})
+        return None
+    frame = item.get("host_frame") if isinstance(item.get("host_frame"), dict) else {}
+    support = hosted_support(item, host)
+    file, reason = resolve_asset(item.get("asset"), assets_dir)
+    local, geo = None, None
+    if file is not None and dtype != "throw":
+        try:
+            geo = _cached_geometry(file, collection, geo_cache)
+            if not geo["faces"]:
+                raise ValueError("file has no mesh faces")
+            w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
+            target = [w, d, h] if len(item.get("size") or []) > 2 else [w, d]
+            if item["asset"].get("target") == "within" and len(item["asset"].get("bbox_m") or []) > 2:
+                target = [float(v) for v in item["asset"]["bbox_m"][:3]]   # the model's own (real) proportions
+            lv, info = fit_vertices(geo["verts"], item["asset"], {"center": [0.0, 0.0], "rotation_deg": 0.0}, 0.0,
+                                    target_size=target)
+            local = {"verts": lv, "faces": geo["faces"], "info": info}
+        except Exception as exc:  # noqa: BLE001 - a broken file: the parametric item, loudly
+            reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
+            warnings.append(f"decor {dtype} on {host['id']}: {reason}; parametric mesh used")
+            local, geo = None, None
+    parametric = local is None
+    if parametric and dtype != "throw":
+        local = local_decor_mesh(item, dtype, support)
+    if dtype == "throw":
+        plan = R.plan_throw(item, host, caster, floor_z)
+        keys = [p["key"] for p in plan.get("parts") or [] for _f in p["faces"]]
+    else:
+        plan = R.plan_decor(item, host, caster, local["verts"], local["faces"], support,
+                            lean_deg=float(frame.get("lean_deg") or 0.0), shelf=frame.get("shelf"))
+        keys = local.get("keys")
+    if "not_rested" in plan:
+        record = dict(plan["not_rested"], room_id=item.get("room_id"))
+        summary["decor_not_rested"].append(record)
+        warnings.append(f"decor {dtype} {item.get('id')} on {host['id']}: not rested ({record['reason']}); not built")
+        return None
+    status = item.get("status") if item.get("status") in ("verified", "unverified", "assumed") else "assumed"
+    name = f"decor_{host['id']}_{n}"
+    index = pass_indices.get(host["id"]) or 0
+    lit = decor_lit(item, bool(getattr(mats, "lamps_on", False)))
+    if parametric:
+        used = sorted(set(keys), key=keys.index)
+        if lit:
+            keys = [f"{LIT_KEY}{k}" if k in _shade_keys(local.get("parts") or []) else k for k in keys]
+            used = sorted(set(keys), key=keys.index)
+        accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))
+        slots = [_part_material(mats, k, False, accent=accent, colour=item.get("colour"), lit=lit) for k in used]
+        ob = _mesh_object(name, plan["verts"], plan["faces"], slots, [used.index(k) for k in keys], collection,
+                          host["id"], "decor", status)
+        for poly in ob.data.polygons:
+            poly.use_smooth = dtype in ("cushion", "throw")
+        method = f"parametric (fallback: {reason})" if dtype != "throw" else "procedural (textiles)"
+        materials = [m.name for m in slots]
+        textured = any(mats.library.textured(m) for m in slots)
+    else:
+        ob = _mesh_object(name, plan["verts"], plan["faces"], geo["materials"], geo["face_materials"], collection,
+                          host["id"], "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
+                          fallback_material=library.proxy("proxy"))
+        method = "library"
+        materials = [m.name for m in ob.data.materials if m is not None]
+        textured = any(_material_is_textured(m) for m in geo["materials"])
+    pose = plan["pose"]
+    x0, y0, z0, x1, y1, z1 = _bounds(plan["verts"])
+    how = f"{dtype} on {host['type']} {host['id']} ({support}: {pose.get('how')})"
+    entry = {
+        "name": name, "wenart_id": host["id"], "kind": "decor", "status": status, "level_id": level["id"],
+        "element_id": host["id"], "host_id": host["id"], "room_id": host.get("room_id"), "type": dtype,
+        "source": "added_by_ai", "decor_method": "ai" if item.get("method") == "ai" else "rule",
+        "slot": item.get("slot"), "colour": item.get("colour"),
+        "evidence": ([dict(e) for e in item.get("evidence") or []] if item.get("method") == "ai" else [])
+        or [{"file": "decor", "method": "rule", "confidence": float(item.get("confidence") or 1.0), "text": how}],
+        "pass_index": index, "assumed": {"rest": pose.get("how")},
+        "center": [(x0 + x1) / 2.0, (y0 + y1) / 2.0, (z0 + z1) / 2.0], "size": [x1 - x0, y1 - y0, z1 - z0],
+        "rotation_deg": float(pose.get("rotation_deg") or item.get("rotation_deg") or 0.0),
+        "asset": item.get("asset") if not parametric else None, "method": method,
+        "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)], "fit_scale": [1.0, 1.0, 1.0],
+        "materials": materials, "material": materials[0] if materials else None, "textured": textured,
+        "fallback_reason": reason if parametric else None, "decor_id": item.get("id"), "support": support,
+        "rest": dict(plan["rest"], attempt=plan["attempt"], how=pose.get("how"), footprint=plan["footprint"]),
+    }
+    if not parametric and local.get("info"):
+        entry["fit"] = local["info"]
+    if lit and dtype in LAMP_LIGHTS:
+        _lamp_light(dtype, name, ob, pose["center"], float(pose.get("z") or z0), entry,
+                    getattr(mats, "collection", None), assumed, host["id"],
+                    parts=local.get("parts") if parametric else None, rotation_deg=entry["rotation_deg"])
+    ob["wenart_type"] = dtype
+    ob["wenart_room"] = host.get("room_id") or ""
+    ob["wenart_source"] = "added_by_ai"
+    ob["wenart_host"] = host["id"]
+    ob["wenart_asset"] = (item.get("asset") or {}).get("asset_id") if not parametric else "parametric"
+    ob["wenart_rest_footprint"] = json.dumps(plan["footprint"])
+    ob.pass_index = index
+    return entry
+
+
+def _shade_keys(parts: list) -> set:
+    return {p["key"] for p in parts if p.get("role") == "shade"}
 
 
 def _base_entry(piece: dict, name: str, wenart_id: str, kind: str, status: str, level: dict, index: int) -> dict:
@@ -943,6 +1322,9 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     ob["wenart_room"] = piece.get("room_id") or ""
     ob["wenart_source"] = piece.get("source") or "from_documents"
     ob["wenart_asset"] = (piece.get("asset") or {}).get("asset_id") if entry["method"] == "library" else "parametric"
+    # Milestone 12 (scene checks S3, S6): the built front and how the piece was built
+    ob["wenart_front_deg"] = float(G.front_direction_deg(rot))
+    ob["wenart_method"] = "library" if entry["method"] == "library" else "parametric"
     ob.pass_index = index
     return entry
 
@@ -1349,27 +1731,9 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     size_in = item.get("size") or []
     if dtype not in P.LARGE_DECOR_TYPES and any(float(v) > P.DECOR_MAX_M for v in size_in if v):
         warnings.append(f"decor {dtype} {where}: size {size_in} capped at {P.DECOR_MAX_M} m")
-    host_parametric = (host_entry is not None and host_entry.get("kind") == "furniture"
-                       and host_entry.get("method") != "library")
-    z_above, z_how = decor_height_above_floor(item, host, host_parametric)
-    if z_how != "center[2]" and host_entry is not None and host_entry.get("bedding"):
-        # Milestone 8: on a library bed frame the item rests on the bedding the builder added.
-        z_above, z_how = host_entry["bedding"]["top_m"], f"on the bedding of bed frame {host['id']}"
-    if z_how != "center[2]" and on_surface(item, host):
-        # Milestone 9: on the host's built top (library or parametric), found by a ray down onto its mesh.
-        box = (host_entry or {}).get("bbox_m") or (host_entry or {}).get("size") or [0.0, 0.0, z_above]
-        hit = _surface_hit(host_entry, center, host["footprint"]["center"], floor_z, float(box[2]) + 0.5)
-        if hit is None:
-            reason = f"{dtype} on {host['id']}: no ray down onto the built top hit the piece"
-            warnings.append(f"decor {reason}; not built")
-            if skipped is not None:
-                skipped.append({"id": item.get("id"), "type": dtype, "room_id": item.get("room_id"), "reason": reason})
-            return None
-        z_above = round(hit[0] - floor_z, 4)
-        moved = (abs(hit[1][0] - float(center[0])) > 1e-6 or abs(hit[1][1] - float(center[1])) > 1e-6)
-        center = [hit[1][0], hit[1][1]]
-        z_how = f"on the built top of {host['type']} {host['id']} (ray" + (", moved towards its centre)" if moved
-                                                                             else ")")
+    # Milestone 12: hosted decor rests on the built mesh (``_create_hosted_decor``); here: the floor, the item's own
+    # height (curtains, blinds, lights) or, behind ``--proxies``, a proxy box's top.
+    z_above, z_how = decor_height_above_floor(item, host_entry)
     ceiling, ceiling_how = ceiling_above(level, center, (w, d), rot)    # Milestone 10: sloped under a roof
     if dtype == "ceiling_light" and z_how != "center[2]":
         z_above, z_how = round(ceiling - h, 4), f"ceiling (flush, {ceiling_how})"

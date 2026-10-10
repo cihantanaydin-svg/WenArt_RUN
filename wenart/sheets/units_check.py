@@ -30,7 +30,6 @@ dimension texts of the generic core (M7).
 from __future__ import annotations
 
 import math
-import re
 import statistics
 from dataclasses import dataclass, field
 from typing import Optional
@@ -57,7 +56,6 @@ WALL_OVERLAP = 0.5
 TEXT_HEIGHT_M = (0.08, 0.6)
 MIN_SAMPLES = {"area_labels": 1, "level_marks": 1, "door_widths": 3, "wall_thickness": 5, "text_height": 3,
                "dimensions": 2}
-MARK_RE = re.compile(r"^\s*(?:KOT\s*)?([±+\-]?)\s*(\d{1,4}[.,]\d{2,3})\s*(?:M)?\s*$", re.IGNORECASE)
 MARK_REACH = 6.0                    # the mark's apex lies within 6 text heights of the text
 
 
@@ -221,18 +219,24 @@ def segments(strokes) -> list[tuple[tuple[float, float], tuple[float, float], ob
     return out
 
 
-def mark_texts(texts) -> list[tuple[object, float]]:
-    """(text, value in metres) of level-mark texts (``43.00``, ``+3.00``, ``±0.00``, ``-3,00``)."""
+def mark_records(texts) -> list[tuple[object, dict]]:
+    """(text, mark record) of the level-mark texts (Milestone 12, B10: ``wenart.levels.marks.read_mark`` with bare
+    values allowed, since the caller only keeps a mark whose symbol ``mark_point`` finds: ``43.00``, ``+3.00``,
+    ``±0.00``, ``-3,00``, ``+-0.00``, ``KOT: +0.15``, ``T.Z. -0.45``, ``±0.00 = 43.00``)."""
+    from wenart.levels import marks as LM
+
     out = []
     for t in texts:
-        m = MARK_RE.match(t.text.replace(" ", ""))
-        if not m:
-            continue
-        value = float(m.group(2).replace(",", "."))
-        if m.group(1) == "-":
-            value = -value
-        out.append((t, value))
+        rec = LM.read_mark(t.text, bare=True)
+        if rec is not None:
+            out.append((t, rec))
     return out
+
+
+def mark_texts(texts) -> list[tuple[object, float]]:
+    """(text, value in metres) of level-mark texts (``mark_records``): the relative value of a relative mark (a
+    pair ``±0.00 = 43.00`` gives 0.0), else the printed absolute level."""
+    return [(t, rec["value"]) for t, rec in mark_records(texts)]
 
 
 def mark_point(t, segs) -> Optional[tuple[float, float, str]]:

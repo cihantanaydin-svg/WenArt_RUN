@@ -10,6 +10,8 @@
     "level_marks": {"type": "array", "description": "Milestone 12 (docs/milestone12.md §3.1-§3.2): every level mark (KOT text, block attribute, mark symbol) read from the drawings (track L)", "items": {"type": "object", "required": ["id", "value", "kind"], "properties": {"id": {"type": "string"}, "value": {"type": "number", "description": "metres; relative to the ±0.00 datum when relative is true"}, "relative": {"type": "boolean"}, "absolute": {"type": ["number", "null"]}, "kind": {"enum": ["floor", "slab_top", "ground_natural", "ground_finished", "plinth", "entrance", "threshold", "slope_top", "datum", "unknown"]}, "point": {"$ref": "#/$defs/point"}, "level_id": {"type": ["string", "null"]}, "room_id": {"type": ["string", "null"]}, "side": {"type": ["string", "null"]}, "raw": {"type": "string"}, "used_for": {"type": "array", "items": {"type": "string"}}, "status": {"enum": ["verified", "unverified"]}, "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}}}},
     "symbols": {"type": "array", "description": "Milestone 12 (§4.1): drawn symbols that are not furniture and are never built (tracks R and L)", "items": {"type": "object", "required": ["id", "kind"], "properties": {"id": {"type": "string"}, "kind": {"enum": ["level_mark", "room_number", "north_arrow", "axis_bubble", "section_mark", "door_arc", "dimension_outline", "text_frame", "other"]}, "level_id": {"type": "string"}, "room_id": {"type": ["string", "null"]}, "footprint": {"$ref": "#/$defs/footprint"}, "former_piece_id": {"type": ["string", "null"]}, "reason": {"type": "string"}, "crop": {"type": ["string", "null"]}, "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}}}},
     "needs_review": {"type": "array", "description": "Milestone 12 (§4.1): items left for a person (an untyped drawn piece is not built and listed here with its crop)", "items": {"type": "object", "required": ["id", "kind", "reason"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "reason": {"type": "string"}, "crop": {"type": ["string", "null"]}}}},
+    "level_inference": {"type": "object", "description": "Milestone 12 (§3.3, track L): everything wenart.levels.model.infer_levels inferred (inferred, conflicts, warnings, inner_steps, ground_source, edits of the agent)"},
+    "decor_dropped": {"type": "array", "description": "Milestone 12 (§4.7): decor dropped by decor.sync_to_hosts because its host is gone or not built (track S)", "items": {"type": "object", "required": ["id", "reason"], "properties": {"id": {"type": "string"}, "type": {"type": "string"}, "host_id": {"type": ["string", "null"]}, "anchor_ids": {"type": "array", "items": {"type": "string"}}, "room_id": {"type": ["string", "null"]}, "reason": {"type": "string"}}}},
     "project": {
       "type": "object",
       "required": ["id", "source_folder", "created_utc", "pipeline_commit"],
@@ -89,12 +91,16 @@
         }}},
         "terrain": {"enum": ["flat", "sides", "planar", "tin"], "description": "flat = one ground level; sides = per side (a sloped site); Milestone 12: planar / tin from ground points (surface)"},
         "points": {"type": "array", "description": "Milestone 12 (§3.2): ground points (marks outside the outline, section ground lines at their cut position)", "items": {"type": "object", "required": ["x", "y", "z"], "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"}, "kind": {"type": "string"}, "mark_id": {"type": ["string", "null"]}, "inferred": {"type": "boolean"}, "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}}}},
+        "source": {"type": "string", "description": "Milestone 12: where the ground came from (marks, site note, section, d3a default)"},
+        "terrain_override": {"type": "object", "description": "Milestone 12 (§3.6): the agent's set_terrain {kind, reason, ...}"},
         "surface": {"type": "object", "description": "Milestone 12 (§3.3): the terrain model {kind flat|sides|planar|tin, points, slope, residual, inferred}"},
         "light_wells": {"type": "array", "description": "Drawn light wells only (assumed ones live in the scene manifest)", "items": {"type": "object", "properties": {"opening_id": {"type": "string"}, "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}}, "depth": {"type": "number"}, "source": {"enum": ["drawn", "assumed"]}}}}
       }},
       "north_deg": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Milestone 10: compass bearing of the building's +Y axis (site plan north arrow, after the site plan's registration); null = unknown (the build assumes 0 and lists it)"},
       "entrances": {"type": "array", "description": "Milestone 12 (§3.2): every outside door with its threshold, the ground in front and the solution, drawn or inferred", "items": {"type": "object", "required": ["door_id", "threshold_z", "ground_z", "solution"], "properties": {"door_id": {"type": "string"}, "threshold_z": {"type": "number"}, "ground_z": {"type": "number"}, "rise": {"type": "number"}, "solution": {"enum": ["none", "steps", "ramp", "steps_and_ramp"]}, "steps": {"type": ["object", "null"]}, "landing": {"type": ["object", "null"]}, "ramp": {"type": ["object", "null"]}, "inferred": {"type": "boolean"}, "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}}}},
-      "plinth": {"type": "object", "description": "Milestone 12 (§3.2): plinth height above the ground per side, from SB. marks or threshold minus ground; inferred"},
+      "drawn_ramps": {"type": "array", "items": {"type": "object"}, "description": "Milestone 12 (§3.3): RAMPA / RAMP texts outside near an outside door (a drawn ramp)"},
+      "entrance_overrides": {"type": "object", "description": "Milestone 12 (§3.6): the agent's set_entrance per door id {solution, reason, ...}"},
+      "plinth": {"type": "object", "description": "Milestone 12 (§3.2): plinth height above the ground per side, from SB. marks or threshold minus ground; inferred (top_z, floors, min_height, sides, source)"},
       "paving": {"type": "array", "items": {"$ref": "#/$defs/site_area"}},
       "grass": {"type": "array", "items": {"$ref": "#/$defs/site_area"}},
       "parking": {"type": "array", "items": {"$ref": "#/$defs/site_area"}},
@@ -264,6 +270,9 @@
       "type": "object",
       "required": ["type", "type_source", "evidence"],
       "properties": {
+        "kind": {"type": "string", "description": "Milestone 12 (U2): flat_cut = a single drawn floor ends with a flat roof slab and a parapet (inferred; upper floors not drawn)"},
+        "note": {"type": "string"},
+        "inferred": {"type": "boolean"},
         "type": {"enum": ["flat", "gable", "hip", "mansard", "gambrel", "shed", "other"]},
         "type_source": {"enum": ["roof_plan", "section", "elevation", "plan_roof_lines", "assumed"], "description": "plan_roof_lines = the roof outline and break lines drawn on the top plan"},
         "over_level_id": {"type": ["string", "null"], "description": "The level the roof covers (the attic or the top floor)"},
@@ -379,6 +388,7 @@
         "id": {"type": "string"},
         "floor_offset_m": {"type": "number", "description": "Milestone 12 (§3.2): the room's finished floor above its level's elevation (0 when not marked), with floor_evidence and inferred"},
         "floor_evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "floor_source": {"enum": ["level", "mark", "agent"], "description": "Milestone 12: where floor_offset_m came from"},
         "program": {"type": "object", "description": "Milestone 12 (§4.3): the room's program (wenart.furniture.program.room_program), track G"},
         "zones": {"type": "array", "items": {"type": "object"}, "description": "Milestone 12 (§4.1): functional zones of an open plan (a kitchen zone in a living room)"},
         "level_id": {"type": "string"},
@@ -409,7 +419,7 @@
       "required": ["id", "kind", "type", "level_id", "room_id", "center", "size", "source"],
       "properties": {
         "id": {"type": "string", "description": "dec_<level>_<n>"},
-        "host_frame": {"type": "object", "description": "Milestone 12 (§4.7): the item in its host's frame (support seat|mattress|back|headboard|top|shelf|floor|wall, u, v in the support area, lean_deg, shelf); the world center is recomputed from it (decor.sync_to_hosts, Blender)", "properties": {"support": {"type": "string"}, "u": {"type": "number"}, "v": {"type": "number"}, "lean_deg": {"type": "number"}, "shelf": {"type": ["integer", "null"]}}},
+        "host_frame": {"type": "object", "description": "Milestone 12 (§4.7): the item in its host's frame (support seat|mattress|back|headboard|top|shelf|floor|wall, u, v in the support area, lean_deg, shelf); the world center is recomputed from it (decor.sync_to_hosts, Blender)", "properties": {"support": {"type": "string"}, "u": {"type": "number"}, "v": {"type": "number"}, "lean_deg": {"type": "number"}, "shelf": {"type": ["integer", "null"]}, "turn_deg": {"type": "number"}, "anchor_id": {"type": ["string", "null"]}, "wall_offset": {"type": ["array", "null"], "items": {"type": "number"}, "description": "offset in the wall frame (along, out)"}}},
         "kind": {"const": "decor"},
         "type": {"enum": ["cushion", "book_set", "plant", "rug", "wall_art", "vase", "bowl", "plant_small", "table_lamp", "mirror", "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large", "pendant_light", "ceiling_light"]},
         "species": {"enum": ["palm", "monstera", "fiddle_leaf_fig", "olive", "fern", "other", null], "description": "Milestone 10: plant_large species (from the brief)"},
@@ -520,7 +530,7 @@
         "checks": {"type": "object", "description": "Placer checks of an AI-placed piece (inside_room, no_overlap, clearance_ok, doors_free, windows_free, wall_contact)"},
         "front_deg": {"type": ["number", "null"], "description": "Direction the piece faces (e.g. away from a bed headboard, out of a sofa back), degrees counter-clockwise from +X; = (270 + footprint.rotation_deg) mod 360 when known. null = not determinable"},
         "height": {"type": ["number", "null"]},
-        "asset": {"type": ["object", "null"], "description": "Chosen 3D asset: library, id, license, fit scale", "properties": {
+        "asset": {"type": ["object", "null"], "description": "Chosen 3D asset: library, id, license, fit scale; method library | parametric | none (Milestone 12: none = no usable model, see library_gap; the piece is not built)", "properties": {
           "library": {"type": "string"}, "asset_id": {"type": "string"}, "license": {"type": "string"}, "fit_scale": {"type": "array", "items": {"type": "number"}}
         }},
         "status": {"enum": ["verified", "unverified"]},

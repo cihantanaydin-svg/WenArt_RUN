@@ -18,6 +18,17 @@ Why: the model only proposes; code checks decide (CLAUDE.md evidence rules). One
 the two-pass rule because every finding is checked by code (M11 D8).
 
 How: ``critique(model, ...)`` is pure apart from the model call and the top-down PNG; prompts in ``prompts``.
+
+Milestone 12 (docs/milestone12.md §5.4, §1.4 "critic quality", bug B5):
+
+- only BUILT pieces are ids of a room (a ``build: false`` piece is in no render; real03 run 3: 12 of 24 kept vision
+  findings targeted unbuilt pieces);
+- ``critique_room(..., looks=True)`` (the loop's mode) asks only what the renders show (``prompts.ROOM_LOOK_CHECKS``:
+  room type, finishes, odd or wrong objects, decor that looks wrong, the camera) on the room's previews and plan
+  crop, never what code measures (no top-down image);
+- a finding is a duplicate when code already has a finding on the same target in the same family of checks
+  (``RELATED``: placement, type, size, decor), not only under the same id (run 3: 60 of 101 vision findings
+  repeated code findings under other ids).
 """
 from __future__ import annotations
 
@@ -26,6 +37,7 @@ from typing import Optional
 
 from wenart.agent import critic_code as CC
 from wenart.agent import prompts as P
+from wenart.agent import topdown as TD
 from wenart.agent.model import MAX_IMAGES, user_message
 
 
@@ -41,16 +53,25 @@ def answer_schema(checks) -> dict:
 
 
 ROOM_SCHEMA = answer_schema(P.ROOM_CHECKS)
+LOOK_SCHEMA = answer_schema(P.ROOM_LOOK_CHECKS)
 EXTERIOR_SCHEMA = answer_schema(P.EXTERIOR_CHECKS)
+# Families of checks that name the same problem (a vision finding of one is a duplicate of a code finding of another).
+_PLACEMENT = ("F3", "F4", "F5", "F6", "F7", "F8", "R3", "S2", "S3", *(f"G{i}" for i in range(1, 14)))
+_TYPE = ("F1", "F9", "G14", "S6", "D2", "LG")
+_SIZE = ("F2", "S4")
+_DECOR = ("D1", "S5")
+RELATED = {c: fam for fam in (_PLACEMENT, _TYPE, _SIZE, _DECOR) for c in fam}
 
 
 def room_ids(building: dict, room_id: str, views: list[str]) -> set:
+    """The ids a room finding may target: the room, its BUILT pieces (B5), its openings and views."""
     from wenart.furniture import placer
     room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
     ids = {room_id} | set(views)
     if room is None:
         return ids
-    ids |= {f.get("id") for f in building.get("furniture") or [] if f.get("room_id") == room_id}
+    ids |= {f.get("id") for f in building.get("furniture") or [] if f.get("room_id") == room_id
+            and TD.is_built(f)}
     try:
         doors, windows = placer.room_openings(building, room)
         ids |= {o.get("id") for o in doors + windows}
@@ -73,6 +94,9 @@ def screen(answer: Optional[dict], allowed: set, n_images: int, code: dict, room
     kept, dropped = [], []
     ran = CC.measured(code)
     code_hits = {(f["check"], f["target"]) for f in code.get("findings") or []}
+    for f in code.get("findings") or []:            # M12: the same target under a related check id
+        for c in RELATED.get(f["check"], ()):
+            code_hits.add((c, f["target"]))
     for i, item in enumerate((answer or {}).get("findings") or []):
         f = {"id": f"v:{call_id}:{i + 1}", "source": source, "check": item.get("check"),
              "severity": item.get("severity"), "target": item.get("target"), "room_id": room_id,
@@ -95,14 +119,16 @@ def screen(answer: Optional[dict], allowed: set, n_images: int, code: dict, room
 
 
 def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[str, Path]],
-                  topdown: Optional[Path], plan_crop: Optional[Path], code: dict, call_id: str) -> dict:
-    """One room: ``{"kept", "dropped", "error", "images"}``."""
+                  topdown: Optional[Path], plan_crop: Optional[Path], code: dict, call_id: str,
+                  looks: bool = False) -> dict:
+    """One room: ``{"kept", "dropped", "error", "images"}``. ``looks`` (M12, the loop's mode): the renders and the
+    plan crop only, the look checklist; else the M11 room checklist with the top-down image."""
     room = next(r for r in building.get("rooms") or [] if r.get("id") == room_id)
     images, labels = [], []
-    if topdown is not None:
+    if topdown is not None and not looks:
         images.append(topdown)
         labels.append("top-down plan of the room as built (pieces, fronts, doors, windows)")
-    for view, path in previews[:2]:
+    for view, path in previews[:3 if looks else 2]:
         images.append(path)
         labels.append(f"render of view {view}")
     if plan_crop is not None and len(images) < MAX_IMAGES:
@@ -113,12 +139,17 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
         doors, windows = placer.room_openings(building, room)
     except Exception:  # noqa: BLE001
         doors, windows = [], []
-    pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id]
+    pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id
+              and TD.is_built(f)]
     room_code = [f for f in code.get("findings") or [] if f.get("room_id") == room_id]
-    prompt = P.room_critic_prompt(room, pieces, doors + windows, [v for v, _ in previews], labels, room_code)
+    views = [v for v, _ in previews]
+    if looks:
+        prompt = P.room_look_prompt(room, pieces, views, labels, room_code)
+    else:
+        prompt = P.room_critic_prompt(room, pieces, doors + windows, views, labels, room_code)
     messages = [{"role": "system", "content": P.CRITIC_SYSTEM},
                 user_message(prompt, images, [f"Image {i + 1}: {lab}" for i, lab in enumerate(labels)])]
-    reply = model.critic(messages, ROOM_SCHEMA, call_id=call_id)
+    reply = model.critic(messages, LOOK_SCHEMA if looks else ROOM_SCHEMA, call_id=call_id)
     if reply.data is None:
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, room_ids(building, room_id, [v for v, _ in previews]), len(images), code,

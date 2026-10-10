@@ -361,6 +361,24 @@ def test_library_attribution_prefers_the_library_catalogue_and_lists_decor(tmp_p
     assert CP.library_catalog_path(lib) == lib / "catalog_library.json"
 
 
+def test_library_attribution_marks_models_the_audit_removed(tmp_path):
+    """M12 (track B, U3): a model the library audit removed stays credited (old thumbnails show it) and its line
+    says so, with the reasons; a kept or fixed model has no mark."""
+    lib = tmp_path / "library"
+    removed = dict(objaverse_asset("u6", "NC lamp"), id="objaverse_u6", source="objaverse",
+                   audit={"status": "removed", "reasons": ["licence CC-BY-NC-4.0 not allowed"], "version": "m12"})
+    kept = dict(objaverse_asset("u7", "Good lamp"), id="objaverse_u7", source="objaverse",
+                audit={"status": "keep", "reasons": []})
+    put(lib / "catalog_library.json", {"kind": "library_catalog", "entries": [removed, kept]})
+    lines = CP.library_attribution(lib).read_text().splitlines()
+    nc = next(line for line in lines if "NC lamp" in line)
+    good = next(line for line in lines if "Good lamp" in line)
+    assert "[removed by the M12 library audit: licence CC-BY-NC-4.0 not allowed]" in nc
+    assert "removed" not in good
+    assert CP.audit_removed({"audit": {"status": "removed"}}) == "no reason recorded"
+    assert CP.audit_removed({"id": "x"}) == ""
+
+
 def test_library_files_leave_model_files_out(tmp_path):
     lib = tmp_path / "library"
     for rel in ("survey_abo.json", "judge/sheets/abo_X.jpg", "generate/plan.json", "generate/images/x.png"):

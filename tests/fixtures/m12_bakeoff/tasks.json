@@ -1,0 +1,91 @@
+{
+ "version": 1,
+ "about": "Milestone 12 P1 bake-off task set (docs/milestone12.md §5.1, wenart/agent/bakeoff.py). T1 and T4 labels by looking at the images (10 Oct 2026, track A); T2, T3 and T5 are built by code from the committed buildings with planted errors (the truth is what the code checks of bakeoff.problems_of measure). `python -m wenart.agent.bakeoff build` turns this file into items.json and images/.",
+ "T1": {
+  "about": "40 drawn pieces (most of them unknown or mistyped by the pipeline, a few typed right as controls), typed from the plan crop (the room's committed debug plan results/final/<p>/cam_<room>_1_plan.jpg, the piece outlined in blue). truth: the accepted answers.",
+  "items": [
+   {"project": "real03", "piece_id": "f_L0_053", "room_id": "r_L0_yasama_2", "truth": ["stove"], "why": "four burner circles on the kitchenette counter"},
+   {"project": "real03", "piece_id": "f_L0_046", "room_id": "r_L0_ebeveyn_odasi_2", "truth": ["bed_double"], "why": "a double bed with two pillows at its head"},
+   {"project": "real03", "piece_id": "f_L0_093", "room_id": "r_L0_yasama_5", "truth": ["not_furniture"], "why": "a door-swing arc"},
+   {"project": "real03", "piece_id": "f_L0_094", "room_id": "r_L0_yasama_5", "truth": ["not_furniture"], "why": "the room-number circle 3"},
+   {"project": "real03", "piece_id": "f_L0_104", "room_id": "r_L0_yasama_2", "truth": ["not_furniture"], "why": "a door-swing arc"},
+   {"project": "real03", "piece_id": "f_L0_105", "room_id": "r_L0_yasama_2", "truth": ["not_furniture"], "why": "the room-number circle 1"},
+   {"project": "real03", "piece_id": "f_L0_073", "room_id": "r_L0_yasama_7", "truth": ["kitchen_counter"], "why": "a counter run with a hob and a sink drawn on it"},
+   {"project": "real03", "piece_id": "f_L0_078", "room_id": "r_L0_yasama_7", "truth": ["not_furniture"], "why": "the room-number circle 5"},
+   {"project": "real03", "piece_id": "f_L0_074", "room_id": "r_L0_yasama_8", "truth": ["kitchen_counter"], "why": "a counter run with a hob and a sink drawn on it"},
+   {"project": "real03", "piece_id": "f_L0_088", "room_id": "r_L0_ebeveyn_odasi_2", "truth": ["not_furniture"], "why": "a diagonal box along the drawn door swing, no object inside"},
+   {"project": "real03", "piece_id": "f_L0_024", "room_id": "r_L0_ebeveyn_odasi", "truth": ["not_furniture"], "why": "a 3.93 x 2.25 m diagonal outline across the bedroom with no object in it"},
+   {"project": "real03", "piece_id": "f_L0_150", "room_id": "r_L0_kat_holu", "truth": ["not_furniture"], "why": "a red triangle sign"},
+   {"project": "real03", "piece_id": "f_L0_139", "room_id": "r_L0_oda_10", "truth": ["not_furniture"], "why": "the lift doors in the lift lobby"},
+   {"project": "real03", "piece_id": "f_L0_118", "room_id": "r_L0_ruzgarlik", "truth": ["not_furniture"], "why": "a double door swing"},
+   {"project": "real03", "piece_id": "f_L0_142", "room_id": "r_L0_ruzgarlik", "truth": ["not_furniture"], "why": "a level mark (93.20)"},
+   {"project": "real03", "piece_id": "f_L0_124", "room_id": "r_L0_yangin_merdiveni", "truth": ["not_furniture"], "why": "a door leaf"},
+   {"project": "real03", "piece_id": "f_L0_069", "room_id": "r_L0_banyo", "truth": ["toilet"], "why": "a bowl with its cistern (the size was misread)"},
+   {"project": "real03", "piece_id": "f_L0_090", "room_id": "r_L0_oda_01", "truth": ["chair", "office_chair"], "why": "a D-shaped seat at the front of the desk"},
+   {"project": "real02", "piece_id": "f_L-1_059", "room_id": "r_L-1_salon", "truth": ["potted_plant"], "why": "a radial palm symbol"},
+   {"project": "real02", "piece_id": "f_L-1_060", "room_id": "r_L-1_salon", "truth": ["potted_plant"], "why": "a radial palm symbol"},
+   {"project": "real02", "piece_id": "f_L-1_070", "room_id": "r_L-1_salon", "truth": ["armchair"], "why": "a lounge chair with arms"},
+   {"project": "real02", "piece_id": "f_L-1_049", "room_id": "r_L-1_salon", "truth": ["armchair"], "why": "a lounge chair with arms"},
+   {"project": "real02", "piece_id": "f_L-1_073", "room_id": "r_L-1_salon", "truth": ["table_coffee", "side_table"], "why": "a round table between the two lounge chairs"},
+   {"project": "real02", "piece_id": "f_L-1_024", "room_id": "r_L-1_salon", "truth": ["wardrobe", "tall_cabinet", "sideboard", "display_cabinet"], "why": "a storage unit with hinged doors drawn (V marks); its height is not drawn"},
+   {"project": "real02", "piece_id": "f_L-1_027", "room_id": "r_L-1_salon", "truth": ["table_dining"], "why": "a table with chairs around it"},
+   {"project": "real02", "piece_id": "f_L-1_028", "room_id": "r_L-1_salon", "truth": ["chair"], "why": "one of the dining chairs at the table"},
+   {"project": "real02", "piece_id": "f_L-1_007", "room_id": "r_L-1_mutfak", "truth": ["bar_stool", "chair"], "why": "a seat with a curved back at the counter edge"},
+   {"project": "real02", "piece_id": "f_L-1_008", "room_id": "r_L-1_mutfak", "truth": ["stove"], "why": "four burner circles on the counter"},
+   {"project": "real02", "piece_id": "f_L-1_067", "room_id": "r_L-1_mutfak", "truth": ["sink_kitchen"], "why": "a double bowl with drains (typed fridge)"},
+   {"project": "real02", "piece_id": "f_L0_031", "room_id": "r_L0_e_yatak_odasi", "truth": ["nightstand", "side_table"], "why": "a square beside the bed head with a lamp symbol on it (typed floor_lamp)"},
+   {"project": "real02", "piece_id": "f_L0_030", "room_id": "r_L0_yatak_odasi", "truth": ["desk"], "why": "a long table with a chair at it"},
+   {"project": "real02", "piece_id": "f_L0_010", "room_id": "r_L0_yatak_odasi", "truth": ["wardrobe"], "why": "a deep unit with a hanging rail and hangers"},
+   {"project": "real02", "piece_id": "f_L1_024", "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi", "truth": ["armchair"], "why": "a tufted single seat with arms"},
+   {"project": "real02", "piece_id": "f_L1_009", "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi", "truth": ["sofa"], "why": "a long seat with back and arms"},
+   {"project": "real02", "piece_id": "f_L-1_026", "room_id": "r_L-1_banyo", "truth": ["washbasin"], "why": "a basin with a tap on a vanity"},
+   {"project": "real02", "piece_id": "f_L-1_056", "room_id": "r_L-1_banyo", "truth": ["shower"], "why": "a tray with a drain and a spray symbol (typed bathtub)"},
+   {"project": "real02", "piece_id": "f_L1_021", "room_id": "r_L1_koridor", "truth": ["wardrobe"], "why": "a hanging rail with hangers (typed bench)"},
+   {"project": "real02", "piece_id": "f_L0_007", "room_id": "r_L0_e_yatak_odasi", "truth": ["bed_double"], "why": "a double bed with two pillows and a folded duvet"},
+   {"project": "real02", "piece_id": "f_L0_013", "room_id": "r_L0_e_banyo", "truth": ["shower"], "why": "a long tray with a drain and a spray symbol"},
+   {"project": "real02", "piece_id": "f_L-1_071", "room_id": "r_L-1_salon", "truth": ["armchair"], "why": "a rounded lounge chair next to the palms"}
+  ]
+ },
+ "T2": {
+  "about": "30 rooms drawn top-down (wenart.agent.topdown) with 0-2 planted layout errors each; a room is used only when the code checks find none of the five problems before planting.",
+  "seed": 12,
+  "rooms": 30,
+  "pattern": [1, 2, 0, 1, 2, 1, 2, 0, 1, 2],
+  "max_rooms_per_project": 12
+ },
+ "T3": {
+  "about": "20 rooms, three top-down layouts each: the clean one and two with planted errors (one with one error, one with two when the room allows it); the answer is the clean one.",
+  "seed": 23,
+  "rooms": 20,
+  "max_rooms_per_project": 8
+ },
+ "T5": {
+  "about": "20 room briefs (wenart.agent.brief.room_brief) of the T2 rooms with planted errors, the planted errors as code findings; the model plans and calls the tools; scored: valid calls, allowed for the target, in the checked plan.",
+  "rooms": 20
+ },
+ "T4": {
+  "about": "20 committed render views (results/final/<p>/<camera>_final_preview.jpg); truth from docs/milestone12.md §1.3 and the wrong-object list of §1.6, each confirmed by looking (10 Oct 2026). null = not scored (not clear enough from the image: the low-poly lamp on a pole, a slab-like throw). wrong_object = an object that is not what it should be or has a visible fault (a blob or bench used as a throw, a desk with its drawer left open); plain white boxes do not count (they are the code critic's).",
+  "items": [
+   {"project": "real02", "camera": "cam_r_L0_e_yatak_odasi_1", "floating_or_sunk_decor": true, "wrong_object": null, "why": "a long white throw slab in the air past the bed foot; cushions high above the duvet"},
+   {"project": "real02", "camera": "cam_r_L0_e_yatak_odasi_2", "floating_or_sunk_decor": true, "wrong_object": null, "why": "the throw slab floats across the bed foot; cushions stand high on the pillows"},
+   {"project": "real02", "camera": "cam_r_L0_yatak_odasi_3_1", "floating_or_sunk_decor": true, "wrong_object": true, "why": "gap and shadow under both cushions; the desk has its drawer pulled out"},
+   {"project": "real02", "camera": "cam_r_L0_yatak_odasi_1", "floating_or_sunk_decor": null, "wrong_object": true, "why": "a blue crumpled blob (a juice machine model) as the throw; the desk drawer pulled out"},
+   {"project": "real03", "camera": "cam_r_L0_ebeveyn_odasi_2_1", "floating_or_sunk_decor": null, "wrong_object": true, "why": "a large blue lump (the same juice machine model) at the bed foot"},
+   {"project": "real03", "camera": "cam_r_L0_oda_01_1", "floating_or_sunk_decor": true, "wrong_object": false, "why": "a cushion standing on the built-in pillows; the throw hovers over the bed"},
+   {"project": "real03", "camera": "cam_r_L0_yasama_2_1", "floating_or_sunk_decor": true, "wrong_object": null, "why": "two cushions in mid-air beside the sofa by the window"},
+   {"project": "real03", "camera": "cam_r_L0_yasama_8_1", "floating_or_sunk_decor": true, "wrong_object": false, "why": "cushions sunk inside the sofa back, only their tops show"},
+   {"project": "real03", "camera": "cam_r_L0_yasama_1", "floating_or_sunk_decor": true, "wrong_object": false, "why": "cushions cut through the sofa back and stick out over the top"},
+   {"project": "real03", "camera": "cam_r_L0_yasama_7_1", "floating_or_sunk_decor": true, "wrong_object": false, "why": "a cushion pierces the armchair back"},
+   {"project": "real02", "camera": "cam_r_L-1_salon_1", "floating_or_sunk_decor": true, "wrong_object": null, "why": "cushions half inside the corner sofa back"},
+   {"project": "real02", "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1", "floating_or_sunk_decor": true, "wrong_object": false, "why": "a cushion floats behind the armchair back; decor cushions wedged behind the sofa's own"},
+   {"project": "real01", "camera": "cam_r_L0_drawing_room_1", "floating_or_sunk_decor": true, "wrong_object": null, "why": "the cushions and the throw hover above the sofa seat"},
+   {"project": "real01", "camera": "cam_r_L0_bed_room_1", "floating_or_sunk_decor": true, "wrong_object": false, "why": "the throw is inside the mattress, only a blue sliver shows"},
+   {"project": "real02", "camera": "cam_r_L-1_banyo_1", "floating_or_sunk_decor": false, "wrong_object": false, "why": "vanity, mirror and toilet in place"},
+   {"project": "real02", "camera": "cam_r_L0_koridor_1", "floating_or_sunk_decor": false, "wrong_object": false, "why": "stair and a console table, nothing floats"},
+   {"project": "real03", "camera": "cam_r_L0_giris_holu_1", "floating_or_sunk_decor": false, "wrong_object": false, "why": "door, cabinet and a small plant on a sill, all resting"},
+   {"project": "real01", "camera": "cam_r_L0_kitchen_1", "floating_or_sunk_decor": false, "wrong_object": false, "why": "counters and a wall cabinet, no decor out of place"},
+   {"project": "real01", "camera": "cam_r_L0_dining_1", "floating_or_sunk_decor": false, "wrong_object": false, "why": "the vase stands on the table; chairs and rug in place"},
+   {"project": "real03", "camera": "cam_r_L0_kat_holu_1", "floating_or_sunk_decor": false, "wrong_object": false, "why": "a corridor with console tables and grey boxes (boxes do not count)"}
+  ]
+ }
+}

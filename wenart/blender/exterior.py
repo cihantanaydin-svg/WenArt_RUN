@@ -769,8 +769,16 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
         h = dist * math.sin(math.radians(AERIAL_PITCH_DEG))
         horiz = dist * math.cos(math.radians(AERIAL_PITCH_DEG))
         cands.append(((cx + d[0] * horiz, cy + d[1] * horiz, zmid + h), f"aerial {dist:.1f} m from the centre"))
-    keep(_try(model, building, levels, "ext_5", "aerial", cands, (cx, cy, zmid), level_cam=False,
-              extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant}))
+    if flat_cut(building):
+        # Milestone 12 (docs/milestone12.md §3.4, U2): a single drawn ground floor: no aerial view (it would show the
+        # cut roof of a building whose upper floors are not drawn); eye-level views of the entrances instead.
+        dropped.append({"name": "ext_5", "kind": KIND, "view": "aerial", "room_id": None, "level_id": None,
+                        "index": 5, "dropped": True, "corner": best + 1, "sides": sides_at(corner),
+                        "region_id": None, "variant": variant,
+                        "dropped_reason": "flat_cut roof (upper floors not drawn): no aerial view"})
+    else:
+        keep(_try(model, building, levels, "ext_5", "aerial", cands, (cx, cy, zmid), level_cam=False,
+                  extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant}))
 
     views, _warnings = elevation_views(building)
     height = model.z_range[1] - model.z_range[0]
@@ -814,7 +822,53 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
         keep(_try(model, building, levels, f"ext_{6 + len(views)}", "frontal", cands, aim, lens_mm=EYE_LENS_MM,
                   extra={"side": main_side, "sides": [main_side], "variant": variant, "main_facade": main["axis"],
                          "main_facade_source": main["source"]}))
+    if flat_cut(building):
+        nxt = max([p["index"] for p in plans + dropped if isinstance(p.get("index"), int)] + [5]) + 1
+        for k, (pos_cands, aim, ent) in enumerate(entrance_views(building, model)):
+            side = S.side_of(ent["outward"], north, north_known)
+            keep(_try(model, building, levels, f"ext_{nxt + k}", "entrance", pos_cands, aim, lens_mm=EYE_LENS_MM,
+                      extra={"side": side, "sides": [side], "variant": variant, "entrance": ent["door_id"]}))
     return plans, dropped
+
+
+ENTRANCE_VIEWS_MAX = 3
+ENTRANCE_VIEW_M = (8.0, 10.0, 12.0, 6.0)             # eye-level distances tried in front of an entrance
+ENTRANCE_VIEW_APART_M = 3.0                           # entrances closer than this share one view
+
+
+def flat_cut(building: dict) -> bool:
+    """True for a building that ends with a ``flat_cut`` roof (Milestone 12: a single drawn ground floor)."""
+    roof = building.get("roof")
+    return isinstance(roof, dict) and roof.get("kind") == "flat_cut"
+
+
+def entrance_views(building: dict, model: "ExteriorModel") -> list[tuple[list, tuple, dict]]:
+    """Milestone 12 (pure): ``[(candidates, aim, entrance)]`` of the eye-level views framing the entrances of
+    ``site.entrances`` (the main one first, at most ``ENTRANCE_VIEWS_MAX``): the camera 20 degrees off the door's
+    axis at ``ENTRANCE_VIEW_M``, aimed at the door's middle 1.2 m above its threshold."""
+    recs = [r for r in ((building.get("site") or {}).get("entrances") or [])
+            if isinstance(r, dict) and r.get("centre") and r.get("outward") and not r.get("into_air")
+            and not r.get("below_ground")]
+    recs.sort(key=lambda r: (not r.get("main"), r["door_id"]))
+    out = []
+    ang = math.radians(20.0)
+    chosen: list = []
+    for r in recs:
+        face0 = r.get("face") or r["centre"]
+        if len(out) >= ENTRANCE_VIEWS_MAX or any(G.distance(face0, f) < ENTRANCE_VIEW_APART_M for f in chosen):
+            continue                                  # a door beside one already framed (a double entrance)
+        chosen.append(face0)
+        o = (float(r["outward"][0]), float(r["outward"][1]))
+        u = (-o[1], o[0])
+        d = (math.cos(ang) * o[0] + math.sin(ang) * u[0], math.cos(ang) * o[1] + math.sin(ang) * u[1])
+        face = r.get("face") or r["centre"]
+        aim = (float(face[0]), float(face[1]), float(r["threshold_z"]) + 1.2)
+        cands = []
+        for dist in ENTRANCE_VIEW_M:
+            p = (float(face[0]) + d[0] * dist, float(face[1]) + d[1] * dist)
+            cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m in front of the entrance {r['door_id']}"))
+        out.append((cands, aim, r))
+    return out
 
 
 def _corner_axes(corner, rect) -> list[tuple[float, float]]:

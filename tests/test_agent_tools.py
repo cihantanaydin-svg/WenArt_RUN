@@ -15,10 +15,15 @@ from wenart.agent import overrides as OV
 from wenart.agent import tools as TL
 
 READ = ["building_summary", "room", "room_topdown", "plan_crop", "plausibility", "view", "exterior_summary",
-        "catalog", "stage_status"]
+        "catalog", "stage_status", "room_brief", "levels"]                    # M12: room_brief, levels
 EDIT = ["move_piece", "rotate_piece", "resize_piece", "change_type", "swap_model", "add_piece", "add_group",
-        "remove_piece", "relayout_room", "set_room_type", "set_camera", "add_camera", "remove_camera", "set_material",
-        "set_exterior", "set_lighting", "correct_geometry", "rerun_stage"]   # set_lighting: real03 follow-up
+        "remove_piece", "relayout_room", "set_room_type",
+        "place_group", "complete_group", "move_group", "retype_piece", "mark_not_furniture", "fix_fixture",
+        "set_front",                                                          # M12 group tools (track G ops)
+        "set_camera", "add_camera", "remove_camera", "set_material",
+        "set_exterior", "set_lighting", "correct_geometry", "rerun_stage",    # set_lighting: real03 follow-up
+        "set_mark_kind", "set_room_floor", "set_ground_point", "set_entrance", "set_terrain",   # M12 level tools
+        "report_library_gap"]
 
 
 def ctx_for(tmp_path, **kw):
@@ -31,7 +36,7 @@ def ctx_for(tmp_path, **kw):
 
 def test_the_registry_has_every_tool_of_section_3_with_valid_schemas():
     reg = TL.build_registry()
-    assert reg.names() == READ + EDIT + ["finish"]
+    assert reg.names() == READ + EDIT + ["dry_run", "finish"]
     for tool in reg.tools.values():
         jsonschema.Draft202012Validator.check_schema(tool.parameters)
         spec = tool.spec()

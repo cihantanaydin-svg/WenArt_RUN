@@ -12,6 +12,10 @@ in $FURNISH_TEST_PROJECTS (default synthetic-01):
   server latency is logged per room and per pass (> 0) in layout.json and the
   report lists it.
 
+Milestone 12 (docs/milestone12.md §4.3-§4.5): the group solver places the pieces and the model chooses one of its
+candidates: every room has candidates (or a reason), the choice is logged with the model and its latency, the added
+pieces carry the solver's evidence first and the choice's last, and walkways are the group check G11's.
+
 Milestone 7 (docs/milestone7.md §0, §6.3, §6.5):
 
 - an empty prayer room is never sent to the model; layout.json lists it as
@@ -28,6 +32,7 @@ from pathlib import Path
 import pytest
 from shapely.geometry import Polygon
 
+from wenart.furniture import group_checks as GC
 from wenart.furniture import placer as P
 from wenart.furniture import schemas
 
@@ -66,11 +71,11 @@ def test_every_empty_room_was_laid_out(project):
     assert not missing, f"{name}: rooms never sent to the model: {missing}"
     for entry in summary["rooms"]:
         if entry["room_type"] in schemas.NOT_FURNISHED_ROOM_TYPES:
-            assert entry["passes"] == [] and "never furnished by AI" in (entry["skipped"] or ""), entry
+            assert entry["candidates"] == [] and "never furnished by AI" in (entry["skipped"] or ""), entry
             continue
-        if entry.get("copied_from"):
+        if entry.get("copied_from") and entry["copied_from"].get("used", True):
             continue            # Milestone 10: a twin or same_as room takes its partner's layout (asked once)
-        assert len(entry["passes"]) == 2, entry["room_id"]
+        assert entry["candidates"] or entry["skipped"], entry["room_id"]
     prayer = [r["id"] for r in building["rooms"] if not r["has_documented_furniture"]
               and r["room_type"] in schemas.NOT_FURNISHED_ROOM_TYPES]
     assert not [f for f in building["furniture"] if f["source"] == "added_by_ai" and f["room_id"] in prayer]
@@ -105,15 +110,15 @@ def test_added_pieces_pass_every_check(project):
             continue
         ctx = P.room_context(building, room)
         placed = [P.piece_from_furniture(f, i) for i, f in enumerate(pieces)]
-        for f, p, checks in zip(pieces, placed, P.check_all(placed, ctx)):
-            assert f["status"] == "verified" and f["evidence"][0]["method"] == "ai"
+        for f, p, checks in zip(pieces, placed, P.check_all(placed, ctx, walkways=False)):
+            assert f["status"] == "verified" and f["evidence"][0]["method"] == "derived" and f["method"] == "rule"
             assert all(f["checks"][c] for c in P.CHECKS), (rid, f["id"], f["checks"])
             assert not P.failed_checks(checks), (rid, f["id"], checks)
             assert Polygon(room["polygon"]).buffer(-0.019).contains(p.polygon()), (rid, f["id"])
             for door in ctx.doors:
                 assert p.polygon().intersection(door.zone).area < P.AREA_EPS, (rid, f["id"], door.id)
                 assert door.swing is None or p.polygon().intersection(door.swing).area < P.AREA_EPS, (rid, f["id"])
-        assert not P.walkway_failures(placed, ctx), rid
+        assert not [v for v in GC.check_room(building, rid) if v["check"] == "G11"], rid
 
 
 def test_real_model_and_latency_logged(project):
@@ -121,18 +126,18 @@ def test_real_model_and_latency_logged(project):
     assert summary["model"] == EXPECTED_MODEL, f"{name}: layout by {summary['model']!r}"
     assert summary["server"].startswith("http")
     for entry in summary["rooms"]:
-        for p in entry["passes"]:
-            assert p["model"] == EXPECTED_MODEL and p["latency_s"] > 0, (entry["room_id"], p)
-        if entry.get("copied_from"):
-            continue            # Milestone 10: copied from its twin or same_as partner: never asked, no latency
-        if entry["room_type"] not in schemas.NOT_FURNISHED_ROOM_TYPES:      # never asked: no latency
-            assert entry["latency_s"] > 0
+        choice = entry.get("choice") or {}
+        if choice.get("by") == "vlm":
+            assert choice["model"] == EXPECTED_MODEL and entry["latency_s"] > 0, (entry["room_id"], choice)
+        elif len([c for c in entry["candidates"] if not c["hard_failures"]]) >= 2 and not entry.get("copied_from"):
+            assert choice.get("error"), (entry["room_id"], "two or more candidates and no model answer")
+    assert summary.get("vision_model_down") is None, summary.get("vision_model_down")
     # Milestone 10: wall cabinets placed by rule carry derived evidence (no model).
     models = {e.get("model") for f in building["furniture"] if f["source"] == "added_by_ai"
-              for e in f["evidence"][:1] if e["method"] == "ai"}
+              for e in f["evidence"] if e["method"] == "ai"}
     assert models <= {EXPECTED_MODEL}, models
     report = (OUTPUTS / name / "layout_report.md").read_text(encoding="utf-8")
-    assert " s)" in report, "latency per pass missing from the report"
+    assert "| Solve s |" in report and "Choices of the vision model" in report, "choices missing from the report"
     debug = OUTPUTS / name / "layout_debug"
     assert any(debug.glob("*.png")) and any(debug.glob("*.json"))
 

@@ -11,7 +11,10 @@ orchestrator starts it.
   image and the room's committed previews): a kept finding names that bed;
 - the loop on synthetic-01 (the committed building and previews, re-runs replaced by ``apply`` on the CPU): it ends
   by a stop rule, its log validates, every accepted edit passed the code checks, and a last critique finds no
-  critical problem.
+  critical problem;
+- Milestone 12 (pod P1, ``scripts/jobs/bakeoff_m12.sh`` runs this module against the live server of
+  ``bakeoff.fp8``): one item of every bake-off task (``wenart.agent.bakeoff``) gets a valid answer: T1-T4 JSON that
+  passes its schema, T5 a plan or tool calls on the room brief.
 """
 from __future__ import annotations
 
@@ -121,3 +124,19 @@ def test_the_loop_on_synthetic_01(model, tmp_path):
     assert not critical, critical
     ids = {r["id"] for r in json.loads((out / "building_final.json").read_text())["rooms"]}
     assert all(f.get("target") for f in vision["kept"]) and vision["kept"] is not None and ids
+
+
+def test_every_bakeoff_task_answers_on_this_model(model):
+    from wenart.agent import bakeoff as BO
+    from wenart.agent import tools as TL
+    items, folder = BO.load_items()
+    registry = TL.build_registry()
+    for task in BO.TASKS:
+        item = next(i for i in items if i["task"] == task)
+        res = BO.answer_item(model, item, folder, registry)
+        assert res["error"] is None, (task, res["error"])
+        assert res["call_seconds"] and all(s is not None for s in res["call_seconds"]), res
+        if task == "T5":
+            assert res["answer"]["plan"] is not None or res["answer"]["calls"], res["answer"]
+        else:
+            assert res["answer"] is not None, (task, res)
