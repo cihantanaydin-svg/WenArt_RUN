@@ -363,14 +363,11 @@ def whole_single_level(building: dict, params: dict, brief: Optional[dict], infe
                     f"{lv['id']} (flat_cut, inferred)"],
         "status": "assumed", "inferred": True, "note": "upper floors not drawn",
         "evidence": [_evidence(file, "single_level", note)]}
-    lv.setdefault("kind", "floor")
-    lv.setdefault("elevation_source", "assumed_default")
     site = building.get("site") if isinstance(building.get("site"), dict) else \
         {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
     from wenart.sheets import exterior as SE
     from wenart.sheets import to_building as TB
     building["site"] = TB.site_block(site, {}, SE.area_kind, lv["id"])
-    building.setdefault("facade", None)
     inferred.append({"item": "slabs", "value": [s["id"] for s in building["slabs"]], "reason": note})
     inferred.append({"item": "roof", "value": "flat_cut", "reason": note})
     inferred.append({"item": "site", "value": "ground, entrances, plinth", "reason": note})
@@ -402,8 +399,8 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
         if gl is not None and lv["id"] == gl["id"] and abs(best - old) > tol and \
                 (counts[best] < 2 or counts[best] * 2 < len(zs)):
             # the ground floor (building z 0 by convention) moves only when most of its floor marks agree
-            warnings.append(f"level {lv['id']}: its floor marks disagree ({', '.join(f'{z:+.2f}' for z in sorted(counts))}"
-                            f"); the elevation {old:+.2f} m is kept")
+            listed = ", ".join(f"{z:+.2f}" for z in sorted(counts))
+            warnings.append(f"level {lv['id']}: its floor marks disagree ({listed}); the elevation {old:+.2f} m is kept")
             continue
         old = float(lv.get("elevation") or 0.0)
         if abs(best - old) > tol:
@@ -686,7 +683,8 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                "face": [_r(face[0], 4), _r(face[1], 4)], "width": _r(width), "half_t": _r(ht, 4),
                "side": S.side_of(outward, *_north(b)), "solution": "none", "steps": None, "ramp": None,
                "landing": None, "main": False, "drawn": landing_mark is not None, "inferred": True,
-               "into_air": False, "below_ground": False, "terrain_lowered": o["id"] in lowered, "reason": "",
+               "into_air": False, "upper_floor": False, "below_ground": False,
+               "terrain_lowered": o["id"] in lowered, "reason": "",
                "evidence": [dict(e) for e in (o.get("evidence") or [])[:1]] +
                (_mark_ev(landing_mark) if landing_mark else [])}
         if rise < -float(params["flush_max"]):
@@ -698,8 +696,12 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                              if o["id"] in lowered else f"flush threshold (rise {max(rise, 0):.2f} m)")
         elif rise > float(params["door_into_air"]):
             rec["into_air"] = True
+            gl = ground_level(b)
+            rec["upper_floor"] = gl is not None and float(lv["elevation"]) > float(gl["elevation"]) + 0.5
             rec["reason"] = (f"{rise:.2f} m above the ground with nothing drawn: a door into the air (L2): an outside "
-                             f"stair or no entrance, to decide")
+                             f"stair or no entrance, to decide" +
+                             ("; on an upper floor: a French balcony or a balcony not drawn" if rec["upper_floor"]
+                              else ""))
         else:
             st = steps_for(rise, width + float(params["landing_extra_width"]), params)
             rec["steps"] = st
@@ -840,7 +842,8 @@ def _basements(b: dict, params: dict, gl: dict, levels: list, outline, outlines:
     ground["light_wells"] = keep
     for lv in below:
         gz = min((S.ground_z(tm, *p) for p in outline), default=0.0)
-        out.append({"level_id": lv["id"], "floor_z": _r(lv["elevation"]), "below_ground_m": _r(gz - float(lv["elevation"])),
+        out.append({"level_id": lv["id"], "floor_z": _r(lv["elevation"]),
+                    "below_ground_m": _r(gz - float(lv["elevation"])),
                     "light_wells": sum(1 for w in keep if w.get("level_id") == lv["id"])})
     return out
 
@@ -874,8 +877,13 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
     _room_floors(b, marks, params, conflicts, warnings)
     outlines = outlines_of(b)
     record["inner_steps"] = _thresholds(b, params, outlines)
-    if not is_whole(b) or not isinstance(b.get("site"), dict):
+    if not is_whole(b):
         return b
+    if not isinstance(b.get("site"), dict):                 # a whole building always stands on a site
+        from wenart.sheets import exterior as SE
+        from wenart.sheets import to_building as TB
+        b["site"] = TB.site_block({"boundary_walls": [], "areas": [], "decor": [], "openings": []}, {}, SE.area_kind,
+                                  gl["id"])
     from wenart.blender import build as BB
 
     levels = base_levels(b)

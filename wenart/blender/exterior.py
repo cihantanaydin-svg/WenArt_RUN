@@ -833,6 +833,7 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
 
 ENTRANCE_VIEWS_MAX = 3
 ENTRANCE_VIEW_M = (8.0, 10.0, 12.0, 6.0)             # eye-level distances tried in front of an entrance
+ENTRANCE_VIEW_APART_M = 3.0                           # entrances closer than this share one view
 
 
 def flat_cut(building: dict) -> bool:
@@ -851,7 +852,12 @@ def entrance_views(building: dict, model: "ExteriorModel") -> list[tuple[list, t
     recs.sort(key=lambda r: (not r.get("main"), r["door_id"]))
     out = []
     ang = math.radians(20.0)
-    for r in recs[:ENTRANCE_VIEWS_MAX]:
+    chosen: list = []
+    for r in recs:
+        face0 = r.get("face") or r["centre"]
+        if len(out) >= ENTRANCE_VIEWS_MAX or any(G.distance(face0, f) < ENTRANCE_VIEW_APART_M for f in chosen):
+            continue                                  # a door beside one already framed (a double entrance)
+        chosen.append(face0)
         o = (float(r["outward"][0]), float(r["outward"][1]))
         u = (-o[1], o[0])
         d = (math.cos(ang) * o[0] + math.sin(ang) * u[0], math.cos(ang) * o[1] + math.sin(ang) * u[1])

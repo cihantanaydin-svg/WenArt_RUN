@@ -67,6 +67,28 @@ def test_the_brief_changes_the_rise_and_asks_for_a_ramp():
     assert p["riser_max_outdoor"] == 0.16 and p["_from_brief"] == ["riser_max_outdoor"]
 
 
+def test_an_upper_floor_door_to_the_outside_is_a_door_into_the_air_of_lower_weight():
+    """A two-level whole building: the first floor's door in the outer wall (a French balcony or an undrawn
+    balcony) is recorded, not an entrance with steps; L2 rates it major, a ground-floor one critical."""
+    from wenart.levels import checks as C
+    b = F.building()
+    up = copy.deepcopy(b)
+    b["levels"].append(dict(b["levels"][0], id="L1", order=1, elevation=3.0, label="1. Kat"))
+    for key in ("walls", "rooms", "openings"):
+        for x in up[key]:
+            b[key].append(dict(x, id=x["id"] + "_up", level_id="L1",
+                               **({"wall_id": x["wall_id"] + "_up"} if key == "openings" else {})))
+    b["slabs"] = [{"id": "sl_L0", "z_top": 0.0, "thickness": 0.2, "thickness_source": "assumed_default",
+                   "outline": [[-0.1, -0.1], [10.1, -0.1], [10.1, 8.1], [-0.1, 8.1]], "evidence": [dict(F.EV)]}]
+    n = M.infer_levels(b)
+    ents = {e["door_id"]: e for e in n["site"]["entrances"]}
+    assert ents["d_front"]["solution"] == "steps" and not ents["d_front"]["upper_floor"]
+    assert ents["d_front_up"]["into_air"] and ents["d_front_up"]["upper_floor"]
+    assert "French balcony" in ents["d_front_up"]["reason"]
+    l2 = [f for f in C.check_levels(n) if f["check"] == "L2"]
+    assert [(f["target"], f["severity"]) for f in l2] == [("d_front_up", "major")]
+
+
 def test_upper_floor_or_basement_titles_are_not_made_whole():
     for label, order in (("1. Kat", 1), ("Bodrum Kat", -1), ("Normal Kat", None)):
         b = M.infer_levels(F.building(label=label, order=order, elevation=3.0 if order == 1 else 0.0))

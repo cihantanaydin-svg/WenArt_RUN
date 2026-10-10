@@ -143,6 +143,59 @@ def test_apply_levels_on_a_pipeline_build():
     assert not B.validation_errors(b)
 
 
+def test_site_plan_marks_reach_the_ground():
+    """A registered site plan's spot heights (sheets.json exterior.site.marks, sheets frame) are ground marks in the
+    pipeline's frame (build.frame_shift)."""
+    from wenart.ingest import pipeline as PL
+    from wenart.ingest.generic import levels as LV
+    b = F.building()
+    build = PL.ProjectBuild(b)
+    build.frame_shift = (1.0, 2.0)
+    ev = {"file": "s.dxf", "method": "vector", "confidence": 1.0, "rule": "level_mark"}
+    build.sheets = {"exterior": {"site": {"marks": [
+        {"text": "-0.45", "point": [9.0, -1.0], "entity": "TEXT:a", "evidence": [dict(ev, entity="TEXT:a")]},
+        {"text": "-0.45", "point": [-2.0, -1.0], "entity": "TEXT:b", "evidence": [dict(ev, entity="TEXT:b")]},
+        {"text": "-0.05", "point": [-2.0, 13.0], "entity": "TEXT:c", "evidence": [dict(ev, entity="TEXT:c")]}]}}}
+    assert [t["point"] for t in LV._site_plan_texts(build)] == [(8.0, -3.0), (-3.0, -3.0), (-3.0, 11.0)]
+    LV.apply_levels(build, {})
+    g = b["site"]["ground"]
+    assert g["source"] == "marks" and g["terrain"] == "planar" and b["site"]["entrances"][0]["ground_z"] == -0.45
+
+
+def test_sheets_site_plan_reads_its_marks():
+    from wenart.sheets import exterior as SE
+    from wenart.sheets.model import Txt
+
+    class Region:
+        id, file, metres_per_unit, transform_to_building = "r5", "s.dxf", 1.0, [1, 0, 10, 0, 1, 20]
+        registration = {}
+        ents = []
+        sheet = SimpleNamespace(page=1)
+        texts = [Txt("TEXT:1", "-0.45", (0, 0, 1, 1), 1), Txt("TEXT:2", "BAHÇE", (5, 5, 6, 6), 1),
+                 Txt("TEXT:3", "3.20", (8, 8, 9, 9), 1)]
+
+    out = SE.site_of(Region(), [])
+    assert [(m["text"], m["point"]) for m in out["marks"]] == [("-0.45", [10.5, 20.5])]
+
+
+def test_section_marks_and_notes_have_no_point_in_the_building():
+    """The schema's ``point`` is an array: a section's mark (real02: 43.00, 40.00) or a note is written without one
+    (real02 went needs_review on ``point: null`` before this fix)."""
+    from wenart import building as B
+    from wenart.ingest import pipeline as PL
+    from wenart.ingest.generic import levels as LV
+    b = F.building()
+    build = PL.ProjectBuild(b)
+    build.sheets = {"heights": {"levels": [{"level_id": "L0", "level_mark": {
+        "value": 0.0, "method": "vector", "evidence": [{"file": "s.dxf", "method": "vector", "confidence": 1.0,
+                                                        "text": "43.00"}]}}]}}
+    LV.apply_levels(build, {("t.dxf", 1): _work([("SB. KOTU : 43.45", (40.0, -20.0), "MTEXT:n", None),
+                                                  ("±0.00 = 43.00", (3.0, 4.0), "MTEXT:d", None)])})
+    assert {m["placement"] for m in b["level_marks"]} == {"section", "note", "spot"}
+    assert all("point" not in m for m in b["level_marks"] if m["placement"] == "section")
+    assert B.validation_errors(b) == []
+
+
 def test_apply_levels_without_marks_still_fills_the_levels():
     from wenart.ingest import pipeline as PL
     from wenart.ingest.generic import levels as LV

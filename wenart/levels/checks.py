@@ -80,8 +80,11 @@ def _l1_l2_l5(building: dict, params: dict, out: list) -> None:
             continue
         if sol == "none":
             if rise > float(params["door_into_air"]) or e.get("into_air"):
+                # an upper floor's door to the outside may be a French balcony or a balcony not drawn: major
                 out.append(_v("L2", did, f"door {did} is {rise:.2f} m above the ground with no steps or ramp: a door "
-                                         f"into the air (an outside stair, or no entrance)", rise=rise))
+                                         f"into the air (an outside stair, or no entrance)"
+                              + ("; on an upper floor (a French balcony?)" if e.get("upper_floor") else ""),
+                              severity="major" if e.get("upper_floor") else None, rise=rise))
             elif rise > flush:
                 out.append(_v("L2", did, f"door {did} is {rise:.2f} m above the ground in front with no steps or ramp",
                               rise=rise))
@@ -124,8 +127,9 @@ def _l1_l2_l5(building: dict, params: dict, out: list) -> None:
                               max_slope=float(want["slope"])))
     for s in (building.get("level_inference") or {}).get("inner_steps") or []:
         if float(s.get("riser") or 0.0) > float(params["riser_max_indoor"]) + 1e-6:
+            limit = float(params["riser_max_indoor"])
             out.append(_v("L5", s.get("opening_id"), f"inner step at {s.get('opening_id')}: riser "
-                                                     f"{float(s['riser']):.3f} m over {float(params['riser_max_indoor']):.2f} m",
+                                                     f"{float(s['riser']):.3f} m over {limit:.2f} m",
                           riser=float(s["riser"])))
 
 

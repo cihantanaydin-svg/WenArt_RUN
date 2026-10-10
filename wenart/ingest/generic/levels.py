@@ -47,13 +47,35 @@ def _texts(works: dict) -> list[dict]:
     return out
 
 
+def _site_plan_texts(build) -> list[dict]:
+    """The level marks of a registered site plan (``sheets.json`` ``exterior.site.marks``, building metres of the
+    sheets frame), moved into the pipeline's frame (``build.frame_shift``) on the ground floor."""
+    from wenart.levels import model as LMOD
+
+    site = (((getattr(build, "sheets", None) or {}).get("exterior") or {}).get("site") or {})
+    gl = LMOD.ground_level(build.building)
+    shift = getattr(build, "frame_shift", (0.0, 0.0)) or (0.0, 0.0)
+    out = []
+    for mk in site.get("marks") or []:
+        if not mk.get("point") or gl is None:
+            continue
+        ev = dict((mk.get("evidence") or [{}])[0] or {})
+        ev.setdefault("file", "")
+        ev.setdefault("method", "vector")
+        ev.setdefault("confidence", 1.0)
+        point = (round(mk["point"][0] - shift[0], 4), round(mk["point"][1] - shift[1], 4))
+        out.append({"text": mk["text"], "point": point, "level_id": gl["id"], "entity": mk.get("entity"),
+                    "evidence": ev, "attrib_tag": None})
+    return out
+
+
 def apply_levels(build, works: dict) -> None:
     from wenart.levels import model as LMOD
     from wenart.levels import read as RD
 
     b = build.building
     params = LMOD.level_params(LMOD._brief_of(b, None))
-    texts = _texts(works)
+    texts = _texts(works) + _site_plan_texts(build)
     section = (getattr(build, "sheets", None) or {}).get("heights")
     res = RD.read_marks(texts, b, params, section)
     marks = res["marks"]
@@ -85,7 +107,9 @@ def apply_levels(build, works: dict) -> None:
         if site is None:
             site = b["site"] = {"boundary_walls": [], "areas": [], "decor": [], "openings": []}
         site["drawn_ramps"] = ramps
-    b["level_marks"] = [{k: v for k, v in m.items() if k not in ("kind_hint", "bare", "group")} for m in marks]
+    # (a mark without a position, a section's or a site note's, has no ``point``: the schema's point is an array)
+    b["level_marks"] = [{k: v for k, v in m.items() if k not in ("kind_hint", "bare", "group")
+                         and not (k == "point" and v is None)} for m in marks]
     for m, rec in zip(marks, b["level_marks"]):
         if m.get("group"):
             rec["block_ref"] = m["group"]
