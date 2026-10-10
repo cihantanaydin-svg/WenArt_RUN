@@ -14,6 +14,11 @@ the furniture package.
 How: front = ``front_deg`` (degrees, counter-clockwise from +x), else ``rotation_deg - 90`` (the convention of every
 stage file, M11 §1.2); green = from the documents, orange = added by AI, blue = adjusted by AI, dashed = unverified;
 the room context is optional (a broken polygon still gets its outline drawn).
+
+Milestone 12 (docs/milestone12.md §5.2, bug B5): a piece with ``build: false`` is never drawn (it is in no render;
+real03 run 3: 6 critical "giant box" findings on two unbuilt clusters). ``draw_candidate`` draws one solver
+candidate (``solver.apply_candidate`` of track G) with its rank and score in the title, for the brief and for the
+model's choice between candidates.
 """
 from __future__ import annotations
 
@@ -43,7 +48,25 @@ def piece_polygon(piece: dict):
 
 
 def room_pieces(building: dict, room_id: str) -> list[dict]:
+    """Every piece of the room, built or not (the brief lists the unbuilt ones apart)."""
     return [f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("room_id") == room_id]
+
+
+def built_pieces(building: dict, room_id: str) -> list[dict]:
+    """The pieces of the room that are built (``build`` is not false): the only ones drawn or shown (B5)."""
+    return [f for f in room_pieces(building, room_id) if f.get("build", True) is not False]
+
+
+def draw_candidate(building: dict, room_id: str, candidate: dict, path, apply_fn=None, dpi: int = 90) -> Path:
+    """The room with solver candidate ``candidate`` applied (``solver.apply_candidate``), titled with its rank and
+    score."""
+    if apply_fn is None:
+        from wenart.furniture import solver
+        apply_fn = solver.apply_candidate
+    b = apply_fn(building, room_id, candidate)
+    room = next((r for r in b.get("rooms") or [] if r.get("id") == room_id), {})
+    title = (f"candidate {candidate.get('rank')} score {candidate.get('score')}: {room.get('label')} ({room_id})")
+    return draw_room(b, room_id, path, list(candidate.get("group_violations") or []), title=title, dpi=dpi)
 
 
 def draw_room(building: dict, room_id: str, path, violations: Iterable[dict] = (), title: Optional[str] = None,
@@ -88,7 +111,7 @@ def draw_room(building: dict, room_id: str, path, violations: Iterable[dict] = (
                 ax.add_patch(MplPolygon(list(win.band.exterior.coords), closed=True, color="tab:blue", alpha=0.25))
             if annotate:
                 ax.text(win.inner_point[0], win.inner_point[1], win.id, fontsize=6, color="tab:blue")
-    for piece in room_pieces(building, room_id):
+    for piece in built_pieces(building, room_id):
         try:
             shape = piece_polygon(piece)
         except Exception:  # noqa: BLE001 - a piece without a usable footprint is listed, not drawn

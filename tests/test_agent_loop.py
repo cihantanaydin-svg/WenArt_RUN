@@ -171,15 +171,21 @@ def test_routing_picks_the_earliest_stage_and_the_changed_views():
 
 
 def test_the_planner_budget_and_bad_calls(tmp_path):
-    many = {"tool_calls": [{"name": "rotate_piece", "arguments": {"piece_id": "f2", "front_deg": a,
-                                                                   "reason": "try it"}} for a in (0, 90, 180, 270)]
-            + [{"name": "move_piece", "arguments": {"piece_id": "f2", "center": "here", "reason": "x x x"}}]}
+    """The optional call cap of a round (``max_calls``) and, M12 (§5.4 "self-check"), one edit per piece per reply:
+    the second edit of f1 in the same reply is not run (and not counted)."""
+    def rot(pid, a):
+        return {"name": "rotate_piece", "arguments": {"piece_id": pid, "front_deg": a, "reason": "try it"}}
+    many = {"tool_calls": [rot("f1", 0), rot("f1", 90), rot("f2", 90), rot("f3", 90)]
+            + [{"name": "move_piece", "arguments": {"piece_id": "f9", "center": "here", "reason": "x x x"}}]}
     loop, out, model = make(tmp_path, [many, FINISH], [[F3]], max_calls=3, max_rounds=1)
     summary = loop.run()
     r = summary["rounds"][0]
     assert r["calls"] == 3 and r["accepted"] == 3
     assert len(model.chat_requests()) == 1               # the budget is used up: no further call this round
     assert [e["kind"] for e in log_of(out)["events"]].count("edit") == 3
+    tool_msgs = [m for m in model.chat_requests()[0]["messages"] if m.get("role") == "tool"]
+    assert tool_msgs == []                               # (the request was sent before the answers)
+    assert [e["target"] for e in log_of(out)["events"] if e["kind"] == "edit"] == ["f1", "f2", "f3"]
     loop2, out2, _ = make(tmp_path / "b", [{"tool_calls": [{"name": "move_piece", "arguments": {
         "piece_id": "f2", "center": "here", "reason": "x x x"}}]}, FINISH], [[F3]], max_rounds=1)
     s2 = loop2.run()
@@ -189,14 +195,23 @@ def test_the_planner_budget_and_bad_calls(tmp_path):
 
 
 def test_the_vision_critic_is_screened_by_code(tmp_path):
+    """M12 (§5.4, §1.4 "critic quality"): the room critic sees the renders only (no top-down image: the layout is
+    code's) and is asked the look checks; a finding is dropped when its target is not an id of what was shown, its
+    image does not exist, or code already has a finding on the same target in a related check family (F1 -> F9 type,
+    S5 -> D1 decor), not only under the same id."""
     answer = {"findings": [
-        {"check": "F4", "severity": "major", "target": "f1", "message": "the bed faces the window", "evidence_image": 2},
+        {"check": "D1", "severity": "major", "target": "f1", "message": "the throw hangs in the air",
+         "evidence_image": 1},
         {"check": "F9", "severity": "critical", "target": "f99", "message": "a giant box", "evidence_image": 1},
-        {"check": "F3", "severity": "major", "target": "f2", "message": "not on the wall", "evidence_image": 1},
-        {"check": "F3", "severity": "critical", "target": "f1", "message": "same as the code", "evidence_image": 1},
-        {"check": "F9", "severity": "minor", "target": "r1", "message": "odd", "evidence_image": 4}]}
-    critic = [answer, {"findings": []}, {"findings": []}]       # r1, r2, ext_1
-    loop, out, model = make(tmp_path, [FINISH], [[F3]], critic=critic, vision=True, max_rounds=1)
+        {"check": "F9", "severity": "major", "target": "f2", "message": "a nightstand that is a box",
+         "evidence_image": 1},
+        {"check": "R4", "severity": "minor", "target": "r1", "message": "odd", "evidence_image": 4}]}
+    r2 = {"findings": [{"check": "D1", "severity": "major", "target": "f3", "message": "cushions float",
+                        "evidence_image": 1}]}
+    critic = [answer, r2, {"findings": []}]       # r1, r2, ext_1
+    code = [F3, violation("F1", "minor", "f2", "r1", "a nightstand in the wrong place"),
+            violation("S5", "major", "f3", "r2", "cushion 0.04 m above the seat")]
+    loop, out, model = make(tmp_path, [FINISH], [code], critic=critic, vision=True, max_rounds=1)
     loop.run()
     reqs = model.critic_requests()
     assert len(reqs) == 3
@@ -204,26 +219,28 @@ def test_the_vision_critic_is_screened_by_code(tmp_path):
         assert M.count_images(r["messages"]) <= 4 and r["response_format"]["json_schema"]["strict"] is True
     first = reqs[0]["messages"][1]["content"]
     labels = [p["text"] for p in first if p["type"] == "text"]
-    assert labels[0].startswith("Image 1: top-down") and labels[1].startswith("Image 2: render of view cam_r1_1")
+    assert labels[0].startswith("Image 1: render of view cam_r1_1") and "top-down" not in json.dumps(labels)
+    enum = reqs[0]["response_format"]["json_schema"]["schema"]["properties"]["findings"]["items"]["properties"]
+    assert "F3" not in json.dumps(enum["check"]) and "D1" in json.dumps(enum["check"])
     findings = [e for e in log_of(out)["events"] if e["kind"] == "finding" and e["source"] == "vision"]
     kept = [e for e in findings if not e.get("dropped")]
     dropped = {e["target"] + ":" + e["checklist"]: e["dropped"] for e in findings if e.get("dropped")}
-    assert [(e["checklist"], e["target"]) for e in kept] == [("F4", "f1")]
-    assert "not an id" in dropped["f99:F9"] and "code contradicts" in dropped["f2:F3"]
-    assert "duplicate" in dropped["f1:F3"] and "does not exist" in dropped["r1:F9"]
+    assert [(e["checklist"], e["target"]) for e in kept] == [("D1", "f1")]
+    assert "not an id" in dropped["f99:F9"] and "duplicate" in dropped["f2:F9"]
+    assert "duplicate" in dropped["f3:D1"] and "does not exist" in dropped["r1:R4"]
     assert kept[0]["model"] == "mock/agent" and kept[0]["call_id"] == "r1-v1"
 
 
 def test_the_vision_critic_asks_only_changed_rooms_again(tmp_path):
-    critic = [{"findings": []}, {"findings": [{"check": "F4", "severity": "major", "target": "f3",
-                                               "message": "sofa faces the wall", "evidence_image": 1}]},
+    critic = [{"findings": []}, {"findings": [{"check": "D2", "severity": "major", "target": "f3",
+                                               "message": "the sofa is a crude low-poly model", "evidence_image": 1}]},
               {"findings": []}, {"findings": []}]                  # r1, r2, ext_1; round 2: r1
     chat = [{"tool_calls": [{"name": "rotate_piece", "arguments": {"piece_id": "f1", "front_deg": 90.0,
                                                                    "reason": "head on the wall"}}]}, FINISH,
             {"content": "nothing more"}]
     loop, out, model = make(tmp_path, chat, [[F3], []], critic=critic, vision=True, max_rounds=2)
     summary = loop.run()
-    # round 1: r1, r2, ext_1; round 2: only r1 (changed); r2's F4 is carried over, so the loop goes on
+    # round 1: r1, r2, ext_1; round 2: only r1 (changed); r2's D2 is carried over, so the loop goes on
     assert len(model.critic_requests()) == 4
     assert summary["rounds"][1]["findings"]["major"] == 1 and summary["stop"]["reason"] == "no_edit"
 
@@ -271,4 +288,4 @@ def test_the_planner_works_room_by_room_worst_room_first(tmp_path):
     assert edits == ["f3", "f1"]                                     # r2 (critical) first, then r1
     first_tasks = [m["messages"][1]["content"] for m in model.requests if m.get("tools")
                    and len(m["messages"]) == 2]
-    assert "in r2" in first_tasks[0] and "in r1" in first_tasks[1]
+    assert "room r2" in first_tasks[0] and "room r1" in first_tasks[1]

@@ -22,15 +22,37 @@ the fallback schemas below (from §3.2) are used, so the registry is complete ei
 A validator that is not built yet (``NotImplementedError``) rejects the edit with ``validator_unavailable``. The
 same target is edited at most ``MAX_TRIES`` = 3 times per round (§3.2, §14). Images a read tool makes or finds
 are put in ``ctx.pending_images``; the loop shows them to the model in the next message.
+
+Milestone 12 (docs/milestone12.md §5.2–§5.4, D17–D19):
+
+| kind | new tools |
+|---|---|
+| read | ``room_brief`` (``brief.room_brief``: replaces ``room`` + ``plausibility`` for the planner), ``levels`` (marks, floors, thresholds, ground, terrain, entrances, L-findings) |
+| group edit (``edit_ops.apply_edit``, track G) | ``relayout_room`` (with a solver ``candidate``), ``place_group``, ``complete_group``, ``move_group``, ``retype_piece``, ``mark_not_furniture``, ``fix_fixture``, ``set_front`` |
+| level edit (``levels.edits.apply_level_edit``, track L) | ``set_mark_kind``, ``set_room_floor``, ``set_ground_point``, ``set_entrance``, ``set_terrain`` |
+| record-only | ``report_library_gap`` (into ``agent_overrides.library_gaps``) |
+| free | ``dry_run`` (the validator's answer without applying it; no try is counted, nothing is stored) |
+
+Every accepted building edit is followed by ``decor.sync_to_hosts`` (track S: the decor follows its host, B3) and
+its result carries the room's group checks after the edit (with their numbers). An edit identical to one rejected
+earlier in the same room (``memory.Memory``, any round) is refused before any validator call (``failed_checks``
+``memory: ...``). While track G's new ops are stubs, ``set_front`` / ``retype_piece`` / ``mark_not_furniture`` are
+validated as their M11 ops (``overrides.resolve_edit``). The planner is offered ``PLANNER_TOOLS`` (the M12 set);
+the M11 tools stay callable for replay and old scripts. The context is shared by the parallel room sessions of one
+round: building changes, tries, overrides and the log are guarded by ``ctx.lock``; the images a read tool returns
+and ``finish`` belong to the calling session (thread-local).
 """
 from __future__ import annotations
 
 import copy
+import itertools
 import json
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from wenart.agent import brief as BR
 from wenart.agent import geometry_fix as GF
 from wenart.agent import log as LG
 from wenart.agent import overrides as OV
@@ -70,9 +92,33 @@ FALLBACK_EDIT_SCHEMAS: dict = {
                                                          "kitchen_run"]},
                        "anchor": {"type": "object"}}, ["room_id", "group"]),
     "remove": _obj({"piece_id": ID, "evidence": {"type": "string"}}, ["piece_id"]),
-    "relayout_room": _obj({"room_id": ID, "constraints": {"type": "object"}}, ["room_id"]),
+    "relayout_room": _obj({"room_id": ID, "candidate": {"type": "integer", "minimum": 1, "maximum": 3,
+                                                        "description": "the rank of the solver candidate to take "
+                                                                       "(see the room brief)"}}, ["room_id"]),
     "set_room_type": _obj({"room_id": ID, "type": ID}, ["room_id", "type"]),
+    # Milestone 12 (§5.3), used while track G's EDIT_SCHEMAS has no entry for these ops.
+    "place_group": _obj({"room_id": ID, "group": {"type": "string", "description": "a group of the room's program "
+                                                                                  "(groups.yaml name)"},
+                         "option": {"type": "string", "description": "one of the group's program options"}},
+                        ["room_id", "group"]),
+    "complete_group": _obj({"group_id": ID}, ["group_id"]),
+    "move_group": _obj({"group_id": ID, "span_id": {"type": "string", "description": "a free wall span id of the "
+                                                                                     "room brief"},
+                        "offset": {"type": "number", "description": "metres along the span from its start"}},
+                       ["group_id", "span_id"]),
+    "retype_piece": _obj({"piece_id": ID, "type": ID}, ["piece_id", "type"]),
+    "mark_not_furniture": _obj({"piece_id": ID, "kind": {"enum": ["level_mark", "room_number", "north_arrow",
+                                                                  "axis_bubble", "section_mark", "door_arc",
+                                                                  "dimension", "text_frame", "line", "other"]},
+                                "evidence": {"type": "string", "minLength": 3}}, ["piece_id", "kind", "evidence"]),
+    "fix_fixture": _obj({"piece_id": ID, "size": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0},
+                                                  "minItems": 2, "maxItems": 2,
+                                                  "description": "a real product size [w, d] of its type"},
+                         "center": dict(XY, description="a new centre at most 0.5 m away")}, ["piece_id"]),
+    "set_front": _obj({"piece_id": ID, "front_deg": {"type": "number", "minimum": 0, "maximum": 360}},
+                      ["piece_id", "front_deg"]),
 }
+LIBRARY_GAP_SCHEMA = _obj({"type": ID, "style": {"type": "string"}, "piece_id": ID}, ["type"])
 FALLBACK_CAMERA_SCHEMA = _obj({"view_id": ID, "kind": {"enum": ["interior", "exterior"]}, "room_id": ID,
                                "position": XYZ, "target": XYZ, "lens_mm": {"type": "number", "minimum": 10,
                                                                            "maximum": 85}},
@@ -127,9 +173,42 @@ DESCRIPTIONS = {
                         "put an opening <= 0.10 m off its wall back on it.",
     "rerun_stage": "Re-run a stage with white-listed settings (e.g. polish enabled false).",
     "finish": "End this round: your verdict and the findings that stay open.",
+    # Milestone 12 (§5.2, §5.3, §3.6)
+    "room_brief": "The room brief: built pieces with lock state and allowed tools, groups, free wall spans, fixable "
+                  "and not-yours findings, memory, solver candidates.",
+    "levels": "Level marks, room floor levels, door thresholds, ground points, terrain, entrances and the level "
+              "findings.",
+    "place_group": "Add a missing functional group of the room's program; the solver places it.",
+    "complete_group": "Add the missing partners of a group (e.g. the second nightstand); the solver places them.",
+    "move_group": "Move a whole group to a free wall span (partners follow).",
+    "retype_piece": "Change a piece's type to a type that fits its size and its room (zone).",
+    "mark_not_furniture": "Record a drawn symbol, mark or line that was read as furniture (not built), with the "
+                          "evidence.",
+    "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
+                   "a door swing).",
+    "set_front": "Set the direction a piece's front faces (degrees counter-clockwise from +x).",
+    "set_mark_kind": "Correct the kind of a level mark (with the reason).",
+    "set_room_floor": "Set a room's floor level from a mark or a drawn step line.",
+    "set_ground_point": "Add or correct a ground point (x, y, z) with its evidence.",
+    "set_entrance": "Choose the solution at an outside door: none, steps, ramp, steps and ramp.",
+    "set_terrain": "Choose the terrain model: flat, planar or tin.",
+    "report_library_gap": "Record that no audited library model of a type and style exists (a library gap).",
+    "dry_run": "Ask the validator about an edit WITHOUT applying it (free: no try is counted): accepted or the failed "
+               "checks with their numbers.",
 }
 STAGE_OF = {"set_camera": "build", "add_camera": "build", "remove_camera": "build", "set_material": "build",
             "set_exterior": "build", "set_lighting": "build", "correct_geometry": "pipeline_final"}
+# The tools offered to the M12 planner (§5.3): the M11 piece tools that the group tools replace (add_piece,
+# add_group, change_type, rotate_piece) and the M11 reads that the brief replaces (room, plausibility) stay callable
+# for replay but are not offered.
+PLANNER_READS = ("room_brief", "room_topdown", "plan_crop", "view", "levels", "catalog")
+PLANNER_ROOM_EDITS = ("relayout_room", "place_group", "complete_group", "move_group", "move_piece", "set_front",
+                      "resize_piece", "retype_piece", "mark_not_furniture", "fix_fixture", "remove_piece",
+                      "swap_model", "set_room_type", "set_lighting", "report_library_gap")
+PLANNER_BUILDING = ("building_summary", "exterior_summary", "set_exterior", "set_material", "set_camera",
+                    "add_camera", "remove_camera", "correct_geometry", "rerun_stage", *OV.LEVEL_TOOLS)
+PLANNER_CONTROL = ("dry_run", "finish")
+PLANNER_TOOLS = PLANNER_READS + PLANNER_ROOM_EDITS + PLANNER_BUILDING + PLANNER_CONTROL
 
 
 # --------------------------------------------------------------------------
@@ -154,9 +233,18 @@ def working_building_path(project_out) -> Optional[Path]:
     return None
 
 
+class SessionState:
+    """What belongs to one planner session (one thread): the images its tools returned, its ``finish``."""
+
+    def __init__(self, room_id: Optional[str] = None):
+        self.room_id = room_id
+        self.pending_images: list = []
+        self.finished: Optional[dict] = None
+
+
 @dataclass
 class ToolContext:
-    """What the tools of one round see and change (one per round)."""
+    """What the tools of one round see and change (one per round, shared by its parallel room sessions)."""
     project_out: Path
     building: dict
     round: int = 1
@@ -171,15 +259,61 @@ class ToolContext:
     validators: Any = None                               # wenart.blender.exterior_checks (injectable)
     plausibility: Any = None                             # wenart.furniture.plausibility (injectable)
     catalog_loader: Optional[Callable] = None
-    pending_images: list = field(default_factory=list)
     tries: dict = field(default_factory=dict)
     accepted: list = field(default_factory=list)          # [{tool, args, result}] of the round
     rejected: list = field(default_factory=list)
     schema_errors: int = 0
-    finished: Optional[dict] = None
     max_tries: int = MAX_TRIES
     image_n: int = 0
     _catalog: Any = None
+    # Milestone 12 (§5.2-§5.4)
+    memory: Any = None                                   # wenart.agent.memory.Memory
+    findings: list = field(default_factory=list)          # the round's findings (code + kept vision) for the briefs
+    level_edit: Optional[Callable] = None                # wenart.levels.edits.apply_level_edit (injectable)
+    level_checks: Optional[Callable] = None              # wenart.levels.checks.check_levels (injectable)
+    sync: Optional[Callable] = None                      # wenart.furniture.decor.sync_to_hosts (injectable)
+    brief_fns: dict = field(default_factory=dict)         # room_brief's *_fn arguments (tests inject fakes)
+    dry_runs: int = 0
+    refused_repeats: int = 0
+    _default_session: Any = None
+    _local: Any = None
+    _lock: Any = None
+    _counter: Any = None
+
+    def __post_init__(self):
+        self._default_session = SessionState()
+        self._local = threading.local()
+        self._lock = threading.RLock()
+        self._counter = itertools.count(self.image_n + 1)
+
+    # ----- the calling session (thread-local) --------------------------------------------------------------
+
+    @property
+    def lock(self):
+        return self._lock
+
+    def session(self) -> SessionState:
+        return getattr(self._local, "session", None) or self._default_session
+
+    def begin_session(self, room_id: Optional[str]) -> SessionState:
+        state = SessionState(room_id)
+        self._local.session = state
+        return state
+
+    def end_session(self) -> None:
+        self._local.session = None
+
+    @property
+    def pending_images(self) -> list:
+        return self.session().pending_images
+
+    @property
+    def finished(self) -> Optional[dict]:
+        return self.session().finished
+
+    @finished.setter
+    def finished(self, value: Optional[dict]) -> None:
+        self.session().finished = value
 
     @classmethod
     def load(cls, project_out, **kwargs) -> "ToolContext":
@@ -221,6 +355,39 @@ class ToolContext:
                 self._catalog = CAT.load()
         return self._catalog
 
+    def level_fn(self) -> Callable:
+        if self.level_edit is None:
+            from wenart.levels import edits
+            self.level_edit = edits.apply_level_edit
+        return self.level_edit
+
+    def level_check_fn(self) -> Callable:
+        if self.level_checks is None:
+            from wenart.levels import checks
+            self.level_checks = checks.check_levels
+        return self.level_checks
+
+    def sync_fn(self) -> Callable:
+        return self.sync or OV.sync_decor
+
+    def known_ops(self) -> tuple:
+        """The ops the edit validator knows: every op when a validator is injected (tests), else track G's."""
+        return tuple(OV.FURNITURE_TOOLS.values()) if self.apply_edit is not None else OV.known_ops()
+
+    def group_checks_of(self, room_id: Optional[str]) -> list[str]:
+        """The room's group checks now, as lines with their numbers (the edit results show them)."""
+        if not room_id:
+            return []
+        fn = self.brief_fns.get("group_checks_fn")
+        try:
+            if fn is None:
+                from wenart.furniture import group_checks
+                fn = group_checks.check_room
+            return [f"{v.get('check')} {v.get('severity')} {v.get('target')}: {v.get('message')}"
+                    for v in fn(self.building, room_id) or []][:12]
+        except Exception:  # noqa: BLE001 - the checks are information here, never a reason to fail the edit
+            return []
+
     # ----- lookups -------------------------------------------------------------------
 
     def room(self, room_id: str) -> Optional[dict]:
@@ -246,9 +413,29 @@ class ToolContext:
         return self.log.rel(path) if self.log is not None else (str(path) if path is not None else None)
 
     def image_name(self, what: str) -> Path:
-        self.image_n += 1
+        n = next(self._counter)
+        self.image_n = max(self.image_n, n)
         safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in what)
-        return self.images_dir() / f"r{self.round}_{self.image_n:03d}_{safe}.png"
+        return self.images_dir() / f"r{self.round}_{n:03d}_{safe}.png"
+
+    def candidate_image(self, room_id: str, rank: int, candidate: dict) -> Optional[str]:
+        """The top-down image of solver candidate ``rank`` (``topdown.draw_candidate``), its log-relative id."""
+        try:
+            apply_fn = self.brief_fns.get("apply_candidate_fn")
+            path = TD.draw_candidate(self.building, room_id, candidate, self.image_name(f"cand{rank}_{room_id}"),
+                                     apply_fn=apply_fn)
+        except Exception:  # noqa: BLE001 - a candidate without an image is still listed
+            return None
+        return self.rel(path)
+
+    def brief(self, room_id: str) -> dict:
+        """The room brief (``brief.room_brief``) with this round's findings of the room and the memory."""
+        from wenart.agent import brief as BRF
+        fns = {k: v for k, v in self.brief_fns.items() if k.endswith("_fn") and k != "apply_candidate_fn"}
+        return BRF.room_brief(self.building, room_id, findings=BRF.findings_of_room(self.findings, self.building,
+                                                                                   room_id),
+                              memory=self.memory, image_of=lambda rank, c: self.candidate_image(room_id, rank, c),
+                              **fns)
 
     def topdown(self, room_id: str, building: Optional[dict] = None, what: str = "topdown",
                 annotate: bool = True) -> Optional[Path]:
@@ -318,29 +505,55 @@ class Registry:
     def names(self) -> list[str]:
         return list(self.tools)
 
-    def specs(self) -> list[dict]:
-        return [t.spec() for t in self.tools.values()]
+    def specs(self, names=None) -> list[dict]:
+        """The tool specs (all, or ``names`` in that order: the M12 planner gets ``PLANNER_TOOLS`` or a subset)."""
+        if names is None:
+            return [t.spec() for t in self.tools.values()]
+        return [self.tools[n].spec() for n in names if n in self.tools]
 
     def call(self, ctx: ToolContext, name: str, args: Optional[dict], parse_error: Optional[str] = None) -> dict:
         """Run one tool call; a bad call returns ``{"error", "schema_error": true}`` and counts in
-        ``ctx.schema_errors``."""
+        ``ctx.schema_errors``. Milestone 12: an edit identical to one rejected earlier in the same room (the memory)
+        is refused without running it; every validated edit is recorded in the memory."""
         from wenart.recognition.vlm_client import schema_errors
         tool = self.tools.get(name)
         if tool is None:
-            ctx.schema_errors += 1
+            with ctx.lock:
+                ctx.schema_errors += 1
             return {"error": f"unknown tool {name!r}; the tools are: {', '.join(self.tools)}", "schema_error": True}
         if parse_error:
-            ctx.schema_errors += 1
+            with ctx.lock:
+                ctx.schema_errors += 1
             return {"error": f"bad arguments for {name}: {parse_error}", "schema_error": True}
         errors = schema_errors(tool.parameters, args if args is not None else {})
         if errors:
-            ctx.schema_errors += 1
+            with ctx.lock:
+                ctx.schema_errors += 1
             return {"error": f"the arguments of {name} do not match its schema: " + "; ".join(errors[:5]),
                     "schema_error": True}
+        args = dict(args or {})
+        remember = tool.kind in EDIT_KINDS and ctx.memory is not None
+        room = edit_room(ctx, args) if remember else None
+        if remember:
+            prev = ctx.memory.repeat_of(room, name, args)
+            if prev is not None:
+                ctx.memory.refused()
+                with ctx.lock:
+                    ctx.refused_repeats += 1
+                out = _result(False, [f"memory: the same edit was rejected in round {prev.get('round')}: "
+                                      + "; ".join(prev.get("reasons") or ["rejected"])[:300]],
+                              message="refused without validation: this exact edit was rejected before; try "
+                                      "something else", refused_by_memory=True)
+                return _reject(ctx, name, args, out)
         try:
-            return tool.handler(ctx, dict(args or {}))
+            res = tool.handler(ctx, args)
         except Exception as exc:  # noqa: BLE001 - the model sees the error and may try another way
             return {"error": f"{name} failed: {type(exc).__name__}: {exc}"}
+        failed = list(res.get("failed_checks") or [])
+        if remember and "accepted" in res and not (failed and (failed[0].startswith("max_tries")
+                                                              or failed[0] == "validator_unavailable")):
+            ctx.memory.record(room, ctx.round, name, args, res)
+        return res
 
 
 # --------------------------------------------------------------------------
@@ -431,11 +644,58 @@ def t_room(ctx: ToolContext, args: dict) -> dict:
 def t_room_topdown(ctx: ToolContext, args: dict) -> dict:
     if ctx.room(args["room_id"]) is None:
         return {"error": f"no room {args['room_id']}"}
+    if args.get("candidate"):
+        # Milestone 12: the top-down image of solver candidate k (the brief lists their ranks and scores)
+        fn = ctx.brief_fns.get("solver_fn")
+        if fn is None:
+            from wenart.furniture import solver
+            fn = solver.solve_room
+        cands = fn(ctx.building, args["room_id"], k=3) or []
+        cand = next((c for c in cands if int(c.get("rank") or 0) == int(args["candidate"])), None)
+        if cand is None:
+            return {"error": f"no solver candidate {args['candidate']} for {args['room_id']} ({len(cands)} found)"}
+        image = ctx.candidate_image(args["room_id"], int(args["candidate"]), cand)
+        if image is None:
+            return {"error": "the candidate image could not be drawn"}
+        ctx.pending_images.append(ctx.images_dir().parent / image if not Path(image).is_absolute() else Path(image))
+        return {"room_id": args["room_id"], "candidate": int(args["candidate"]), "image": image, "shown": True}
     path = ctx.topdown(args["room_id"], annotate=args.get("annotate", True))
     if path is None:
         return {"error": "the top-down image could not be drawn"}
     ctx.pending_images.append(path)
     return {"room_id": args["room_id"], "image": ctx.rel(path), "shown": True}
+
+
+def t_room_brief(ctx: ToolContext, args: dict) -> dict:
+    if ctx.room(args["room_id"]) is None:
+        return {"error": f"no room {args['room_id']}"}
+    return ctx.brief(args["room_id"])
+
+
+def t_levels(ctx: ToolContext, args: dict) -> dict:
+    """Milestone 12 (§3.6): the building's level data and the L-findings (``levels.checks.check_levels``)."""
+    b = ctx.building
+    site = b.get("site") or {}
+    try:
+        findings = [{"check": v.get("check"), "severity": v.get("severity"), "target": v.get("target"),
+                     "message": v.get("message")} for v in ctx.level_check_fn()(b, ctx.scene, None) or []]
+    except Exception as exc:  # noqa: BLE001 - the level data is still shown
+        findings = [{"error": f"{type(exc).__name__}: {exc}"}]
+    marks = [{k: m.get(k) for k in ("id", "value", "relative", "kind", "point", "level_id", "room_id", "used_for")}
+             for m in b.get("level_marks") or []]
+    return {"datum": (b.get("project") or {}).get("datum"),
+            "levels": [{"id": lv.get("id"), "elevation": lv.get("elevation"),
+                        "elevation_source": lv.get("elevation_source")} for lv in b.get("levels") or []],
+            "marks": marks[:80], "marks_total": len(marks),
+            "room_floors": [{"room_id": r.get("id"), "floor_offset_m": r.get("floor_offset_m")}
+                            for r in b.get("rooms") or [] if r.get("floor_offset_m") not in (None, 0, 0.0)],
+            "thresholds": [{"opening_id": o.get("id"), "threshold_z": o.get("threshold_z")}
+                           for o in b.get("openings") or [] if o.get("threshold_z") is not None],
+            "ground_points": list((site.get("ground") or {}).get("points") or [])[:60],
+            "terrain": site.get("terrain") or (site.get("ground") or {}).get("surface"),
+            "entrances": list(site.get("entrances") or []), "plinth": site.get("plinth"),
+            "conflicts": [c for c in b.get("conflicts") or [] if "level" in json.dumps(c).lower()][:20],
+            "findings": findings}
 
 
 def t_plan_crop(ctx: ToolContext, args: dict) -> dict:
@@ -539,10 +799,28 @@ def _target(tool: str, args: dict) -> str:
 
 def _too_many(ctx: ToolContext, tool: str, args: dict) -> Optional[dict]:
     target = _target(tool, args)
-    ctx.tries[target] = ctx.tries.get(target, 0) + 1
-    if ctx.tries[target] > ctx.max_tries:
-        return _result(False, [f"max_tries: {target} was edited {ctx.max_tries} times in this round"], tool=tool)
+    with ctx.lock:
+        ctx.tries[target] = ctx.tries.get(target, 0) + 1
+        if ctx.tries[target] > ctx.max_tries:
+            return _result(False, [f"max_tries: {target} was edited {ctx.max_tries} times in this round"], tool=tool)
     return None
+
+
+def edit_room(ctx: ToolContext, args: dict) -> str:
+    """The room an edit belongs to (memory key): its room, its piece's room, its group's room, its view's room, else
+    ``building``."""
+    if args.get("room_id"):
+        return str(args["room_id"])
+    for key in ("piece_id", "view_id"):
+        room = ctx.room_of(args.get(key))
+        if room:
+            return room
+    gid = args.get("group_id")
+    if gid:
+        for f in ctx.building.get("furniture") or []:
+            if (f.get("group") or {}).get("group_id") == gid:
+                return str(f.get("room_id"))
+    return "building"
 
 
 def _result(accepted: bool, failed: list, *, before=None, after=None, overrides_id=None, rerun_from=None,
@@ -558,12 +836,57 @@ def _result(accepted: bool, failed: list, *, before=None, after=None, overrides_
 def _accept(ctx: ToolContext, tool: str, args: dict, result: dict) -> dict:
     if ctx.overrides is not None:
         result["overrides_id"] = ctx.overrides.add(ctx.round, tool, args, result, ctx.model_id)
-    ctx.accepted.append({"tool": tool, "args": copy.deepcopy(args), "result": result})
+    with ctx.lock:
+        ctx.accepted.append({"tool": tool, "args": copy.deepcopy(args), "result": result})
+    return result
+
+
+def _reject(ctx: ToolContext, tool: str, args: dict, result: dict) -> dict:
+    with ctx.lock:
+        ctx.rejected.append({"tool": tool, "args": args, "result": result})
     return result
 
 
 def _next_log_seq(ctx: ToolContext) -> int:
     return ctx.log.next_seq() if ctx.log is not None else 0
+
+
+def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Callable[[dict], dict],
+                   default_rerun: str) -> dict:
+    """The shared part of a furniture or level edit: before image, validation (``run(building) -> apply_edit
+    result``) and, when accepted, the new building with its decor synced (B3), the after image and the room's group
+    checks now (§5.3: failed checks with numbers)."""
+    room_id = edit_room(ctx, args)
+    room_id = room_id if ctx.room(room_id) is not None else None
+    before_png = ctx.topdown(room_id, what=f"{tool}_before") if room_id else None
+    with ctx.lock:
+        try:
+            res = run(ctx.building)
+        except NotImplementedError as exc:
+            out = _result(False, ["validator_unavailable"], message=f"the edit validator is not built yet ({exc})",
+                          tool=tool)
+            return _reject(ctx, tool, args, out)
+        accepted = bool(res.get("accepted")) and isinstance(res.get("building"), dict)
+        if accepted:
+            ctx.building = ctx.sync_fn()(res["building"])
+    out = _result(accepted, res.get("failed_checks") or ([] if accepted else ["rejected"]),
+                  before=res.get("score_before"), after=res.get("score_after"),
+                  rerun_from=res.get("rerun_from") or default_rerun, message=str(res.get("message") or ""),
+                  changed_ids=res.get("changed_ids"), log_seq=edit["log_seq"],
+                  # acceptance is decided on the unfloored penalty (a score floored at 0 hides gains)
+                  penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
+    if before_png is not None:
+        out["before_image"] = ctx.rel(before_png)
+    if room_id:
+        out["room_checks_now"] = ctx.group_checks_of(room_id)
+    if not accepted:
+        return _reject(ctx, tool, args, out)
+    after_png = ctx.topdown(room_id, what=f"{tool}_after") if room_id else None
+    if after_png is not None:
+        out["after_image"] = ctx.rel(after_png)
+    if tool == "relayout_room" and args.get("candidate") and ctx.memory is not None and room_id:
+        ctx.memory.tried(room_id, int(args["candidate"]))
+    return _accept(ctx, tool, args, out)
 
 
 def furniture_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
@@ -572,39 +895,36 @@ def furniture_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
     def handler(ctx: ToolContext, args: dict) -> dict:
         refused = _too_many(ctx, tool, args)
         if refused is not None:
-            ctx.rejected.append({"tool": tool, "args": args, "result": refused})
-            return refused
+            return _reject(ctx, tool, args, refused)
         edit = {"op": op, **copy.deepcopy(args), "round": ctx.round, "log_seq": _next_log_seq(ctx),
                 "model": ctx.model_id}
-        room_id = args.get("room_id") or ctx.room_of(args.get("piece_id"))
-        before_png = ctx.topdown(room_id, what=f"{tool}_before") if room_id else None
-        try:
-            catalog = ctx.catalog() if op == "swap_model" else None
-            res = ctx.edit_fn()(ctx.building, edit, catalog=catalog)
-        except NotImplementedError as exc:
-            out = _result(False, ["validator_unavailable"], message=f"the edit validator is not built yet ({exc})",
-                          tool=tool)
-            ctx.rejected.append({"tool": tool, "args": args, "result": out})
-            return out
-        accepted = bool(res.get("accepted")) and isinstance(res.get("building"), dict)
-        out = _result(accepted, res.get("failed_checks") or ([] if accepted else ["rejected"]),
-                      before=res.get("score_before"), after=res.get("score_after"),
-                      rerun_from=res.get("rerun_from") or "refit", message=str(res.get("message") or ""),
-                      changed_ids=res.get("changed_ids"), log_seq=edit["log_seq"],
-                      # track B: acceptance is decided on the unfloored penalty (a score floored at 0 hides gains)
-                      penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
-        if before_png is not None:
-            out["before_image"] = ctx.rel(before_png)
-        if not accepted:
-            ctx.rejected.append({"tool": tool, "args": args, "result": out})
-            return out
-        ctx.building = res["building"]
-        after_png = ctx.topdown(room_id, what=f"{tool}_after") if room_id and ctx.room(room_id) else None
-        if after_png is not None:
-            out["after_image"] = ctx.rel(after_png)
-        return _accept(ctx, tool, args, out)
+        edit = OV.resolve_edit(edit, ctx.known_ops())
+
+        def run(building):
+            catalog = ctx.catalog() if edit["op"] == "swap_model" else None
+            return ctx.edit_fn()(building, edit, catalog=catalog)
+        return _building_edit(ctx, tool, args, edit, run, "refit")
 
     return handler
+
+
+def level_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
+    """Milestone 12 (§3.6): a level edit through ``levels.edits.apply_level_edit`` (track L); re-run from build."""
+    def handler(ctx: ToolContext, args: dict) -> dict:
+        refused = _too_many(ctx, tool, args)
+        if refused is not None:
+            return _reject(ctx, tool, args, refused)
+        edit = {"op": tool, **copy.deepcopy(args), "round": ctx.round, "log_seq": _next_log_seq(ctx),
+                "model": ctx.model_id}
+        return _building_edit(ctx, tool, args, edit, lambda b: ctx.level_fn()(b, edit), "build")
+    return handler
+
+
+def t_report_library_gap(ctx: ToolContext, args: dict) -> dict:
+    """Milestone 12 (§6.4): record-only; the gap goes to ``agent_overrides.library_gaps`` and the report."""
+    out = _result(True, [], message=f"library gap recorded: {args['type']} {args.get('style') or ''}".strip(),
+                  log_seq=_next_log_seq(ctx), applied=False)
+    return _accept(ctx, "report_library_gap", args, out)
 
 
 def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[], dict], stage: str) -> dict:
@@ -766,10 +1086,17 @@ READ_SCHEMAS = {
     "exterior_summary": _obj({}, []),
     "catalog": _obj({"type": ID, "style": {"type": "string"}, "size": XY}, ["type"]),
     "stage_status": _obj({"stage": ID}, []),
+    "room_brief": _obj({"room_id": ID}, ["room_id"]),
+    "levels": _obj({}, []),
 }
+READ_SCHEMAS["room_topdown"] = _obj({"room_id": ID, "annotate": {"type": "boolean"},
+                                     "candidate": {"type": "integer", "minimum": 1, "maximum": 3,
+                                                   "description": "show solver candidate k instead of the room"}},
+                                    ["room_id"])
 READ_HANDLERS = {"building_summary": t_building_summary, "room": t_room, "room_topdown": t_room_topdown,
                  "plan_crop": t_plan_crop, "plausibility": t_plausibility, "view": t_view,
-                 "exterior_summary": t_exterior_summary, "catalog": t_catalog, "stage_status": t_stage_status}
+                 "exterior_summary": t_exterior_summary, "catalog": t_catalog, "stage_status": t_stage_status,
+                 "room_brief": t_room_brief, "levels": t_levels}
 
 
 def build_registry() -> Registry:
@@ -794,21 +1121,91 @@ def build_registry() -> Registry:
                       t_correct_geometry, "pipeline_final"))
     rerun = _obj({"stage": {"enum": list(RERUN_WHITELIST)}, "settings": {"type": "object"}}, ["stage"])
     tools.append(Tool("rerun_stage", "record", DESCRIPTIONS["rerun_stage"], with_reason(rerun), t_rerun_stage))
+    # Milestone 12: level edits (track L), library gaps, the free dry run
+    for tool, schema in level_schemas().items():
+        tools.append(Tool(tool, "level", DESCRIPTIONS[tool], with_reason(schema), level_handler(tool), "build"))
+    tools.append(Tool("report_library_gap", "record", DESCRIPTIONS["report_library_gap"],
+                      with_reason(LIBRARY_GAP_SCHEMA), t_report_library_gap))
+    table = {t.name: t for t in tools}
+    dry = _obj({"tool": {"enum": [n for n in table if table[n].kind in ("furniture", "level")]},
+                "args": {"type": "object", "description": "the arguments you would send to that tool"}},
+               ["tool", "args"])
+    tools.append(Tool("dry_run", "control", DESCRIPTIONS["dry_run"], dry, dry_run_handler(table)))
     finish = _obj({"verdict": {"enum": ["done", "partly", "gave_up"]},
                    "open_findings": {"type": "array", "items": {"type": "string"}}}, ["verdict"])
     tools.append(Tool("finish", "control", DESCRIPTIONS["finish"], finish, t_finish))
     return Registry(tools)
 
 
-EDIT_KINDS = ("furniture", "override", "record")
+def level_schemas() -> dict:
+    """``LEVEL_EDIT_SCHEMAS`` of track L (contract §13.2) for every level tool."""
+    try:
+        from wenart.levels import edits
+        given = dict(getattr(edits, "LEVEL_EDIT_SCHEMAS", {}) or {})
+    except ImportError:
+        given = {}
+    return {op: given.get(op) or {"type": "object"} for op in OV.LEVEL_TOOLS}
+
+
+def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
+    """Milestone 12 (§5.3): the validator's answer for an edit without applying it. Free: no try is counted, nothing
+    goes to the overrides or the memory; logged as a ``dry_run`` event."""
+    def handler(ctx: ToolContext, args: dict) -> dict:
+        from wenart.recognition.vlm_client import schema_errors
+        name, inner = args["tool"], dict(args.get("args") or {})
+        inner.setdefault("reason", "dry run")
+        tool = table[name]
+        errors = schema_errors(tool.parameters, inner)
+        with ctx.lock:
+            ctx.dry_runs += 1
+        if errors:
+            out = {"would_accept": False, "failed_checks": [f"schema: {e}" for e in errors[:5]]}
+        else:
+            prev = ctx.memory.repeat_of(edit_room(ctx, inner), name, inner) if ctx.memory is not None else None
+            if prev is not None:
+                out = {"would_accept": False, "failed_checks": [f"memory: rejected in round {prev.get('round')}: "
+                                                                 + "; ".join(prev.get("reasons") or [])[:300]]}
+            else:
+                edit = {"op": name if tool.kind == "level" else OV.FURNITURE_TOOLS[name], **inner,
+                        "round": ctx.round, "log_seq": 0, "model": ctx.model_id}
+                try:
+                    with ctx.lock:
+                        if tool.kind == "level":
+                            res = ctx.level_fn()(ctx.building, edit)
+                        else:
+                            edit = OV.resolve_edit(edit, ctx.known_ops())
+                            catalog = ctx.catalog() if edit["op"] == "swap_model" else None
+                            if ctx.apply_edit is not None:
+                                res = ctx.apply_edit(ctx.building, edit, catalog=catalog)
+                            else:
+                                from wenart.furniture import edit_ops
+                                res = edit_ops.dry_run(ctx.building, edit, catalog=catalog)
+                    out = {"would_accept": bool(res.get("accepted")),
+                           "failed_checks": [str(f) for f in res.get("failed_checks") or []],
+                           "score_before": res.get("score_before"), "score_after": res.get("score_after"),
+                           "message": str(res.get("message") or "")}
+                except NotImplementedError as exc:
+                    out = {"would_accept": False, "failed_checks": ["validator_unavailable"], "message": str(exc)}
+        out["note"] = "dry run: nothing was applied, no try was counted"
+        if ctx.log is not None:
+            ctx.log.event("dry_run", ctx.round, tool=name, args=inner, status="would_accept" if out["would_accept"]
+                          else "would_reject", note="; ".join(out["failed_checks"])[:300] or None,
+                          room_id=edit_room(ctx, inner))
+        return out
+    return handler
+
+
+EDIT_KINDS = ("furniture", "override", "record", "level")
 
 
 def label_for(tool: str, ctx: ToolContext, args: dict) -> Optional[str]:
     """The label of an edit in the log (§9): added_by_ai, adjusted_by_ai, corrected_by_ai or agent_override."""
-    if tool in ("add_piece", "add_group"):
+    if tool in ("add_piece", "add_group", "place_group", "complete_group"):
         return "added_by_ai"
-    if tool == "correct_geometry":
+    if tool == "correct_geometry" or tool in OV.LEVEL_TOOLS:
         return "corrected_by_ai"
+    if tool == "report_library_gap":
+        return "library_gap"
     if tool in OV.FURNITURE_TOOLS:
         piece = ctx.piece(args.get("piece_id") or "")
         if piece is not None and piece.get("source") == "added_by_ai":

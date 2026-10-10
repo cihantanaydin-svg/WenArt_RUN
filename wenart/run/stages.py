@@ -244,6 +244,7 @@ AGENT_PREVIEW_RES = "960x540"
 AGENT_PREVIEW_SAMPLES = 32
 AGENT_KEY = "agent"                  # check.yaml models.agent (Qwen/Qwen3.8-27B-FP8); agent_fast = the fallback
 AGENT_CODE = ("wenart/agent/**", "wenart/furniture/**", "wenart/blender/**", "wenart/style/**", "wenart/recognition/**",
+              "wenart/levels/**",                                  # M12: level checks and level edits (track L)
               "wenart/synthetic/**", "wenart/ingest/**", "wenart/sheets/**", "wenart/schema/**", "wenart/building.py",
               "wenart/geometry.py", "wenart/units.py", "wenart/brief.py", "wenart/defaults.yaml", "wenart/views.py",
               "wenart/canonical.py", "wenart/run/servers.py", "wenart/__init__.py", CHECK_YAML)
@@ -252,7 +253,8 @@ AGENT_STAGE_LIST = (
     Stage(None, "agent_previews", "blender", "own", "warning", BLENDER_CODE, (f"{PREVIEW_DIR}/render_manifest.json",),
           heavy=True),
     Stage(None, "agent", "vlm", "own", "warning", AGENT_CODE,
-          (f"{AGENT_DIR}/log.json", f"{AGENT_DIR}/log.md", f"{AGENT_DIR}/overrides.json"), heavy=True),
+          (f"{AGENT_DIR}/log.json", f"{AGENT_DIR}/log.md", f"{AGENT_DIR}/overrides.json", f"{AGENT_DIR}/memory.json",
+           f"{AGENT_DIR}/metrics.json"), heavy=True),
 )
 AGENT_STAGES = tuple(s.name for s in AGENT_STAGE_LIST)
 STAGES = {s.name: s for s in STAGE_LIST + AGENT_STAGE_LIST}

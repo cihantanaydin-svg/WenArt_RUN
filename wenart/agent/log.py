@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 import time
 from pathlib import Path
 from typing import Callable, Optional
@@ -29,7 +30,9 @@ LOG_DIR = "orchestrator"
 LOG_JSON = "log.json"
 LOG_MD = "log.md"
 IMAGES_DIR = "images"
-KINDS = ("check", "finding", "edit", "rejected_edit", "rerun", "render", "stop")
+# Milestone 12: "plan" (a room session's checked plan), "dry_run" (a free validator answer) and "round" (the round
+# summary with its coverage, read by metrics.py).
+KINDS = ("check", "finding", "edit", "rejected_edit", "rerun", "render", "stop", "plan", "dry_run", "round")
 
 
 def utc_text(t: float) -> str:
@@ -75,6 +78,7 @@ class AgentLog:
         self.stop: Optional[dict] = None
         self.started_utc = utc_text(clock())
         self.finished_utc: Optional[str] = None
+        self.lock = threading.RLock()        # Milestone 12: parallel room sessions log from several threads
         existing = self.dir / LOG_JSON
         if existing.is_file():
             # A resumed pod continues the earlier log (the rounds of the cut run stay listed).
@@ -85,6 +89,9 @@ class AgentLog:
                 self.started_utc = old.get("started_utc") or self.started_utc
             except (OSError, ValueError):
                 pass
+        # The first event and call of this run (a resumed log keeps the earlier runs; metrics count this run).
+        self.first_seq = self.next_seq()
+        self.first_call = len(self.calls)
 
     @property
     def images_dir(self) -> Path:
@@ -107,31 +114,36 @@ class AgentLog:
     def event(self, kind: str, round_no: int, **fields) -> dict:
         if kind not in KINDS:
             raise ValueError(f"unknown log event kind {kind!r}")
-        entry = {"seq": self.next_seq(), "round": int(round_no), "t": utc_text(self.clock()), "kind": kind}
-        entry.update({k: v for k, v in fields.items() if v is not None})
-        self.events.append(entry)
-        if kind == "stop":
-            self.stop = {"round": int(round_no), "reason": fields.get("reason"), "seq": entry["seq"]}
-        return entry
+        with self.lock:
+            entry = {"seq": self.next_seq(), "round": int(round_no), "t": utc_text(self.clock()), "kind": kind}
+            entry.update({k: v for k, v in fields.items() if v is not None})
+            self.events.append(entry)
+            if kind == "stop":
+                self.stop = {"round": int(round_no), "reason": fields.get("reason"), "seq": entry["seq"]}
+            return entry
 
     def call(self, entry: dict) -> None:
         """One model call (``AgentModel.on_call``)."""
         keep = ("call_id", "kind", "model", "revision", "seconds", "attempts", "prompt_tokens",
                 "completion_tokens", "images", "tool_calls", "error")
-        self.calls.append({k: entry.get(k) for k in keep if k in entry})
+        with self.lock:
+            self.calls.append({k: entry.get(k) for k in keep if k in entry})
 
     def data(self) -> dict:
-        return {"schema_version": "0.1", "kind": "agent_log", "project": self.project, "model": self.model,
-                "revision": self.revision, "started_utc": self.started_utc, "finished_utc": self.finished_utc,
-                "stop": self.stop, "events": list(self.events), "calls": list(self.calls)}
+        with self.lock:
+            return {"schema_version": "0.1", "kind": "agent_log", "project": self.project, "model": self.model,
+                    "revision": self.revision, "started_utc": self.started_utc, "finished_utc": self.finished_utc,
+                    "stop": self.stop, "run_first_seq": self.first_seq, "run_first_call": self.first_call,
+                    "events": list(self.events), "calls": list(self.calls)}
 
     def save(self, final: bool = False) -> Path:
-        if final:
-            self.finished_utc = utc_text(self.clock())
-        data = self.data()
-        write_json_atomic(self.dir / LOG_JSON, data)
-        (self.dir / LOG_MD).write_text(log_markdown(data), encoding="utf-8")
-        return self.dir / LOG_JSON
+        with self.lock:
+            if final:
+                self.finished_utc = utc_text(self.clock())
+            data = self.data()
+            write_json_atomic(self.dir / LOG_JSON, data)
+            (self.dir / LOG_MD).write_text(log_markdown(data), encoding="utf-8")
+            return self.dir / LOG_JSON
 
 
 # --------------------------------------------------------------------------
