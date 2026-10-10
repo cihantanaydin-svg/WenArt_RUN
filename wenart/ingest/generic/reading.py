@@ -1066,10 +1066,18 @@ def never_a_box(build, items: dict, pending: Optional[set] = None) -> int:
             continue
         det = items[f["id"]].details if f["id"] in items else {}
         if f.get("build") is False and not det.get("oversize"):
-            continue        # already not built for a reason (both AI passes: not furniture; a detail of a counter leg)
+            # Already not built for a reason (both AI passes: not furniture; a detail of a counter leg): the
+            # building says which, so no unexplained box is left.
+            why = det.get("reason") or (f.get("evidence") or [{}])[0].get("note")
+            if why and not (f.get("not_built_reason") or f.get("inferred_reason")):
+                f["not_built_reason"] = why
+            continue
         if f.get("build") is not False:
             f["build"] = False
             f["not_built_reason"] = "untyped (CLAUDE.md: no untyped piece is built)"   # the reason, not a source
+        elif not f.get("not_built_reason"):
+            f["not_built_reason"] = det.get("reason") or "a drawn cluster larger than 4.5 m that the re-read could " \
+                                                         "not split (CLAUDE.md: no untyped piece is built)"
         cands = sorted({c.get("type") for c in f.get("type_candidates") or [] if c.get("type")})
         size = " x ".join(f"{v:.2f}" for v in f["footprint"]["size"])
         reason = (f"drawn piece {size} m in {f.get('room_id') or 'no room'} has no type"

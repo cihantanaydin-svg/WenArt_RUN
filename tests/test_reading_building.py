@@ -245,6 +245,19 @@ def test_an_untyped_piece_is_never_built_and_is_listed_for_review():
     assert review[0]["crop"] == "recognition/crops/sym_L0_x1234abcd_ctx.png" and "1.90 x 1.70" in review[0]["reason"]
 
 
+def test_unbuilt_pieces_say_why_and_an_oversized_cluster_is_listed():
+    detail = M.fp("d", "unknown", (1.0, 3.7), (0.62, 0.6), front=None, build=False)
+    big = M.fp("big", "unknown", (2.5, 2.0), (4.8, 0.6), front=None, build=False)
+    build = _build([detail, big], room_type="living", window=None)
+    works = _works(d={"build": False, "reason": "detail inside a kitchen counter leg (M11 split): not built"},
+                   big={"oversize": True, "build": False,
+                        "reason": "cluster larger than 4.5 m on a side: a group of drawn pieces, not built"})
+    RD.read_furniture(build, works)
+    assert _piece(build.building, "d")["not_built_reason"].startswith("detail inside a kitchen counter leg")
+    assert _piece(build.building, "big")["not_built_reason"].startswith("cluster larger than 4.5 m")
+    assert [n["id"] for n in build.building["needs_review"]] == ["big"]
+
+
 def test_a_piece_whose_question_waits_for_its_answers_is_left_to_them():
     """The size inference would call a 0.12 x 0.05 m piece a drawn mark; while its question waits for the AI answers
     nothing is decided for it: not built, not listed for review (the pipeline lists the open questions)."""
@@ -271,3 +284,20 @@ def test_a_stove_drawn_inside_a_named_stove_block_is_drawn_twice():
     assert _piece(build.building, "st1").get("build") is not False
     hob = _piece(build.building, "st2")
     assert hob["build"] is False and hob["inferred_as"] == "detail" and "drawn twice" in hob["inferred_reason"]
+
+
+def test_the_report_lists_symbols_review_items_adjusted_equipment_and_zones():
+    from wenart.ingest import pipeline as P
+
+    tag = M.fp("f1", "unknown", (2.0, 2.0), (0.5, 0.5), front=None)
+    box = M.fp("u", "unknown", (3.5, 1.0), (1.9, 1.7), front=None)
+    counter = M.fp("k", "kitchen_counter", (1.4, 3.7), (2.4, 0.6), front=270.0)
+    wc = M.fp("wc", "toilet", (4.5, 1.0), (0.38, 1.10), front=None)
+    build = _build([tag, box, counter, wc], room_type="living", window=None)
+    RD.read_furniture(build, _works(f1={"symbol": {"kind": "room_number", "reason": "circle with the number '5'"}},
+                                    u={"candidate_key": "sym_L0_x00000001"}))
+    text = "\n".join(P._reading_section(build.building, build))
+    assert "## Reading (Milestone 12)" in text and "Symbols (not furniture, never built): 1 (room_number 1)" in text
+    assert "| sy_L0_001 | room_number | L0 | r_L0_oda | f1 |" in text
+    assert "Needs review (untyped drawn pieces, not built): 1." in text and "sym_L0_x00000001_ctx.png" in text
+    assert "| wc | toilet | 0.38 x 1.10 |" in text and "| r_L0_oda | r_L0_oda_kitchen (kitchen) | k |" in text

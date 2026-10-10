@@ -99,7 +99,8 @@ GENERIC_PDF_DPI = 150           # debug image of generic pages (docs/milestone7.
 EXIT_OK, EXIT_REVIEW, EXIT_QUESTIONS = 0, 1, 4
 RECOGNITION_DIR = "recognition"
 SYMBOL_COLOUR = (150, 60, 200)      # Milestone 12 debug images: symbols moved out of the furniture (purple, dashed)
-LEVEL_MARK_COLOUR = (230, 120, 0)   # ... and the level marks (orange)
+LEVEL_MARK_COLOUR = (140, 70, 20)   # ... and the level marks (brown; orange is the scale dimensions)
+READING_LEGEND = "symbols purple dashed, level marks brown, not built dashed"
 
 
 @dataclass
@@ -1018,10 +1019,11 @@ def _raster_debug_images(record: PageRecord, work: PageWork, out_path: Path, bui
         orig_items.append(DI.DebugItem(quad_page, "raster", 1.0, label="page quad", colour=(0, 160, 160), width=2))
     raster = DI.PageRaster(image=tinted(base, m_orig), to_pixels=to_orig)
     DI.write_debug_image(raster, orig_items, out_path,
-                         note=DI.legend_note(note + " | drawn on the original image", generic=True))
+                         note=DI.legend_note(note + " | drawn on the original image", generic=True)
+                         + f"; {READING_LEGEND}")
     rect_raster = DI.PageRaster(image=tinted(rp.image, m_rect), to_pixels=lambda p: (p[0], page_h - p[1]))
     DI.write_debug_image(rect_raster, items, out_path.with_name(out_path.stem + "_rectified.png"),
-                         note=DI.legend_note(note + " | rectified page", generic=True))
+                         note=DI.legend_note(note + " | rectified page", generic=True) + f"; {READING_LEGEND}")
     return out_path
 
 
@@ -1064,7 +1066,8 @@ def _debug_image(record: PageRecord, work: Optional[PageWork], out_dir: Path, pr
         mask = work.extraction.report.get("mask")
         if mask is not None:
             DI.overlay_mask(raster, mask, work.extraction.report.get("units_to_m") or 1.0)
-        DI.write_debug_image(raster, items, out_path, note=DI.legend_note(note, generic=True))
+        DI.write_debug_image(raster, items, out_path,
+                             note=DI.legend_note(note, generic=True) + f"; {READING_LEGEND}")
         return out_path
     else:
         items = _debug_items(work)
