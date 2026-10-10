@@ -207,7 +207,8 @@ def test_decoy_type_first_allowed_absent_then_fallback():
     every = set(ALLOWED_TYPES["living"])
     assert P.decoy_type("living", every, ["armchair", "desk", "bookshelf", "bathtub"]) == "desk"
     assert P.decoy_type("storage", set(), ["armchair", "desk", "bookshelf", "bathtub"]) == "armchair"
-    assert P.decoy_type("balcony", {"armchair"}, ["armchair", "desk"]) == "desk"
+    # a room type without an allowed-types row (track G gave balconies one: a table and chairs) -> the fallback
+    assert P.decoy_type("shaft", {"armchair"}, ["armchair", "desk"]) == "desk"
     assert P.decoy_type(None, {"armchair", "desk"}, ["armchair", "desk"]) is None
 
 

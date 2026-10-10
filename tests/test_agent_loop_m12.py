@@ -60,6 +60,9 @@ def make(tmp_path, chat, critic_rounds, *, plan=(), **kw):
         unbuilt(out)
     model = M.MockModel(chat=chat, plan=list(plan), critic=kw.pop("critic", []))
     syncs = kw.pop("syncs", [])
+    # The fake validator (Edits) follows the brief's fallback lock rules, so the brief uses them too (track G's real
+    # allowed_edits has its own tests in test_agent_brief.py).
+    kw.setdefault("brief_fns", {"allowed_fn": lambda b, pid: {}})
     loop = LP.AgentLoop(out, model, rerun=lambda s, v, r, f: {"status": "ok", "views": v}, clock=kw.pop("clock", Clock()),
                         code_critic=ScriptedCritic(critic_rounds), vision=False, apply_edit=kw.pop("edits", Edits()),
                         validators=fake_validators(), out=lambda s: None, workers=kw.pop("workers", 1),

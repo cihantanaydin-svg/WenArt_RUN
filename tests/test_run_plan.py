@@ -109,8 +109,10 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert s1["completed_rooms"] == 3 and s1["minutes"] == P.project_minutes(34, 7 + 3, speed=SPEED) == 16.92
     assert s1["server_starts"] == 3 and s1["photos"] == 0
     # §6.2: rooms that stay without furniture (a bath, a hall) get one view before the layout too.
-    assert (s3["status"], s3["levels"], s3["rooms"], s3["empty_rooms"], s3["views"]) == ("ok", 3, 19, 11, 49)
-    assert s3["minutes"] == P.project_minutes(49, 11 + s3["completed_rooms"], speed=SPEED) and s3["server_starts"] == 3
+    # Milestone 12 (track G): balconies are furnished now (a table and chairs), so synthetic-03's balcony is an AI room
+    # (11 -> 12) with its views by area (49 -> 51).
+    assert (s3["status"], s3["levels"], s3["rooms"], s3["empty_rooms"], s3["views"]) == ("ok", 3, 19, 12, 51)
+    assert s3["minutes"] == P.project_minutes(51, 12 + s3["completed_rooms"], speed=SPEED) and s3["server_starts"] == 3
     if "synthetic-04" in by:
         s4 = by["synthetic-04"]
         assert (s4["status"], s4["views"], s4["empty_rooms"]) == ("ok", 19, 2)
